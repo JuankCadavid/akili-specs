@@ -23,6 +23,7 @@ Portable Claude configuration for the SDD JC methodology.
   - `stitch-design`
   - `systematic-debugging`
   - `tailwind-design-system`
+  - `ui-ux-pro-max`
   - `vercel-react-best-practices`
 
 ## Install
@@ -51,11 +52,7 @@ Examples:
 
 ## Dependencies
 
-Included skills cover the default methodology path.
-
-Optional external skill:
-
-- `ui-ux-pro-max`
+Included skills cover the default methodology path, including `ui-ux-pro-max`.
 
 Fallback rule:
 
