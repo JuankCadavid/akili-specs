@@ -5,6 +5,7 @@ Portable Claude configuration for the SDD JC methodology.
 ## Contents
 
 - `.claude/commands/`
+  - `sdd-constitution.md`
   - `sdd-specify.md`
   - `sdd-execute.md`
   - `sdd-validate.md`
@@ -19,6 +20,7 @@ Portable Claude configuration for the SDD JC methodology.
   - `product-manager-toolkit`
   - `react-doctor`
   - `shadcn-ui`
+  - `stitch-design`
   - `systematic-debugging`
   - `tailwind-design-system`
   - `vercel-react-best-practices`
