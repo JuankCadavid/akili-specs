@@ -8,5 +8,5 @@
   <path d="M286 56H360V68H302V92H350V104H302V128H360V140H286V56Z" fill="#E5E7EB"/>
   <path d="M388 56H404V140H388V56Z" fill="#38BDF8"/>
   <path d="M430 56H487C504.673 56 519 70.327 519 88V108C519 125.673 504.673 140 487 140H430V128H485C496.046 128 505 119.046 505 108V88C505 76.9543 496.046 68 485 68H430V56Z" fill="#38BDF8"/>
-  <text x="219" y="42" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="16" letter-spacing="3.2">JC METHODOLOGY</text>
+  <text x="211" y="42" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="16" letter-spacing="3.2">SDD METHODOLOGY</text>
 </svg>
