@@ -45,13 +45,29 @@ SDD JC is a constitution-first, spec-driven methodology for AI-assisted developm
 
 Install the methodology with the bundled CLI. The installer can target Claude, OpenCode, or both.
 
-Use without installing globally:
+### Prerequisites
+
+- Node.js 18 or newer
+- `pnpm`, `npm`, or another Node package runner
+- Claude Code and/or OpenCode installed, depending on where you want to use the methodology
+
+### Step 1: Choose The Target Tool
+
+| Target | Use When | Default Install Path |
+|---|---|---|
+| Claude | You use Claude Code slash commands and Claude skills | `~/.claude` |
+| OpenCode | You use OpenCode commands and skills | `~/.config/opencode` |
+| Both | You switch between Claude Code and OpenCode | both paths |
+
+### Step 2: Install With `pnpm dlx`
+
+Install for Claude:
 
 ```bash
-pnpm dlx sdd-jc-methodology install
+pnpm dlx sdd-jc-methodology install --tool claude
 ```
 
-Install for OpenCode instead:
+Install for OpenCode:
 
 ```bash
 pnpm dlx sdd-jc-methodology install --tool opencode
@@ -63,20 +79,93 @@ Install for both tools:
 pnpm dlx sdd-jc-methodology install --tool both
 ```
 
-From a local checkout, run:
+Claude is the default, so this is equivalent to `--tool claude`:
+
+```bash
+pnpm dlx sdd-jc-methodology install
+```
+
+### Step 3: Verify The Installation
+
+Check Claude installation:
+
+```bash
+pnpm dlx sdd-jc-methodology doctor --tool claude
+```
+
+Check OpenCode installation:
+
+```bash
+pnpm dlx sdd-jc-methodology doctor --tool opencode
+```
+
+Check both:
+
+```bash
+pnpm dlx sdd-jc-methodology doctor --tool both
+```
+
+Expected result: every command, skill, and helper resource shows `OK`.
+
+### Step 4: Restart Your Tool
+
+Restart Claude Code or OpenCode after installation. Running sessions may not pick up new commands or skills until the tool restarts.
+
+### Step 5: Confirm Commands Are Available
+
+In Claude Code or OpenCode, type `/` and confirm these commands are available:
+
+```text
+/sdd-constitution
+/sdd-propose
+/sdd-specify
+/sdd-execute
+/sdd-test
+/sdd-validate
+/sdd-archive
+/sdd-seo
+```
+
+Then start a project with:
+
+```text
+/sdd-constitution
+```
+
+Or, if the project already has a strong baseline:
+
+```text
+/sdd-propose add-my-feature
+```
+
+### Local Checkout Install
+
+If you are installing from this repository before publishing to npm, run:
 
 ```bash
 node bin/sdd-jc.js install
 node bin/sdd-jc.js install --tool opencode
+node bin/sdd-jc.js install --tool both
 ```
 
-Or install globally:
+Verify local checkout install:
+
+```bash
+node bin/sdd-jc.js doctor --tool both
+```
+
+### Global Install
+
+If you prefer a persistent global CLI:
 
 ```bash
 pnpm add -g sdd-jc-methodology
 sdd-jc install
 sdd-jc install --tool opencode
+sdd-jc doctor --tool opencode
 ```
+
+### Install Paths
 
 Default targets:
 
@@ -104,6 +193,28 @@ For OpenCode, the installer writes:
 ```
 
 OpenCode loads global command markdown files from `~/.config/opencode/commands/` and skills from `~/.config/opencode/skills/`. Restart OpenCode after install or update so it loads the new files.
+
+### Updating
+
+Update Claude:
+
+```bash
+pnpm dlx sdd-jc-methodology update --tool claude --force
+```
+
+Update OpenCode:
+
+```bash
+pnpm dlx sdd-jc-methodology update --tool opencode --force
+```
+
+Update both:
+
+```bash
+pnpm dlx sdd-jc-methodology update --tool both --force
+```
+
+Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped.
 
 ### CLI Commands
 
@@ -137,6 +248,21 @@ Installer safety rules:
 - use `--claude-target <path>` and `--opencode-target <path>` with `--tool both`
 
 The helper resources under the target `sdd-jc/` folder support commands such as `/sdd-seo`, including the bundled Google Search Console verification helper.
+
+### Troubleshooting
+
+If commands do not appear:
+
+- run `sdd-jc doctor --tool <claude|opencode|both>`
+- restart Claude Code or OpenCode
+- confirm you installed into the expected target path
+- rerun install with `--force` if old files should be replaced
+
+If you want to preview installation without writing files:
+
+```bash
+sdd-jc install --tool both --dry-run
+```
 
 ### Manual Install
 
