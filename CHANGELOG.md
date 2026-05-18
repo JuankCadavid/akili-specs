@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [0.3.3] - 2026-05-18
+
 ### Changed
 
 - Added a `docs/` documentation hub with flow, CLI, command, skill, and OpenSpec comparison references.
