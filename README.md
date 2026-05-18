@@ -1,17 +1,41 @@
-# sdd-jc-methodology
+<div align="center">
 
-```text
+<pre>
      ██╗ ██████╗███████╗██████╗ ███████╗ ██████╗███████╗
      ██║██╔════╝██╔════╝██╔══██╗██╔════╝██╔════╝██╔════╝
      ██║██║     ███████╗██████╔╝█████╗  ██║     ███████╗
 ██   ██║██║     ╚════██║██╔═══╝ ██╔══╝  ██║     ╚════██║
 ╚█████╔╝╚██████╗███████║██║     ███████╗╚██████╗███████║
  ╚════╝  ╚═════╝╚══════╝╚═╝     ╚══════╝ ╚═════╝╚══════╝
-```
+</pre>
 
-<img src="assets/jc-methodology-badge.png" alt="JC Methodology Badge" width="420">
+# JCSPECS
 
-Portable Claude configuration for the SDD JC methodology.
+### Supercharge Claude Code and OpenCode with constitution-first spec intelligence
+
+**Durable product context · traceable requirements · governed releases · 100% local methodology files**
+
+<p>
+  <a href="https://www.npmjs.com/package/sdd-jc-methodology"><img alt="npm version" src="https://img.shields.io/npm/v/sdd-jc-methodology?style=for-the-badge&label=npm"></a>
+  <img alt="License MIT" src="https://img.shields.io/npm/l/sdd-jc-methodology?style=for-the-badge&label=license&color=cfb600">
+  <img alt="Node.js 18+" src="https://img.shields.io/badge/Node.js-18%2B-91c714?style=for-the-badge">
+</p>
+
+<p>
+  <img alt="macOS supported" src="https://img.shields.io/badge/macOS-supported-1686c7?style=for-the-badge">
+  <img alt="Linux supported" src="https://img.shields.io/badge/Linux-supported-1686c7?style=for-the-badge">
+  <img alt="Windows supported" src="https://img.shields.io/badge/Windows-supported-1686c7?style=for-the-badge">
+</p>
+
+<p>
+  <img alt="Claude Code supported" src="https://img.shields.io/badge/Claude%20Code-supported-7c3aed?style=for-the-badge">
+  <img alt="OpenCode supported" src="https://img.shields.io/badge/OpenCode-supported-7c3aed?style=for-the-badge">
+  <img alt="CodeGraph aware" src="https://img.shields.io/badge/CodeGraph-aware-7c3aed?style=for-the-badge">
+</p>
+
+</div>
+
+Portable Claude Code and OpenCode configuration for the SDD JC methodology.
 
 SDD JC is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 

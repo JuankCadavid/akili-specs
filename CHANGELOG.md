@@ -14,7 +14,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Changed
 
-- Added the `JCSPECS` ASCII banner to the README and CLI output.
+- Added the `JCSPECS` ASCII banner to the CLI output.
+- Replaced the README badge image with a Markdown hero that combines the `JCSPECS` ASCII mark, methodology positioning, and support badges.
 
 ## [0.3.1] - 2026-05-18
 
