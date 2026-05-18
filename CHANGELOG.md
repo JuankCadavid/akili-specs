@@ -21,6 +21,10 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - Documented release discipline in README, release checklist, `AGENTS.md`, and `CLAUDE.md`.
 - Documented required use of relevant packaged skills in `AGENTS.md` and `CLAUDE.md`.
 
+### Fixed
+
+- Preserved executable CLI metadata for the published `sdd-jc` binary.
+
 ## [0.2.0] - 2026-05-17
 
 ### Added

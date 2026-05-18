@@ -11,7 +11,7 @@
     "url": "https://github.com/JuankCadavid/sdd-jc-methodology/issues"
   },
   "bin": {
-    "sdd-jc": "./bin/sdd-jc.js"
+    "sdd-jc": "bin/sdd-jc.js"
   },
   "files": [
     ".claude/commands",
