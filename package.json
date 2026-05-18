@@ -20,6 +20,7 @@
     "assets",
     "bin",
     "CHANGELOG.md",
+    "docs",
     "LICENSE",
     "README.md",
     "scripts/gsc_verify.py"

@@ -39,10 +39,21 @@ Portable Claude Code and OpenCode configuration for the SDD JC methodology.
 
 SDD JC is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
+## Docs
+
+→ **[Documentation Hub](docs/README.md)**: full JCSPECS documentation<br>
+→ **[Flow](docs/flow.md)**: constitution-to-archive lifecycle<br>
+→ **[Commands](docs/commands/README.md)**: slash command reference<br>
+→ **[Skills](docs/skills/README.md)**: packaged skill reference<br>
+→ **[CLI](docs/cli.md)**: `sdd-jc` install/update/list/doctor reference<br>
+→ **[OpenSpec Comparison](docs/openspec-comparison.md)**: what JCSPECS borrows and how it differs<br>
+→ **[Release Checklist](docs/release-checklist.md)**: controlled npm release process
+
 ## Repository Structure
 
 - `.claude/commands/` — custom SDD command prompts
 - `.claude/skills/` — required and preferred skills used by the methodology
+- `docs/` — human-facing documentation for the flow, CLI, commands, skills, and release process
 - `scripts/` — helper scripts referenced by commands (e.g. `gsc_verify.py`)
 - `.mcp.json.example` — reference MCP server configuration (e.g. `gsc`)
 - `dotfiles/` — environment snapshots for Neovim and tmux
@@ -82,6 +93,12 @@ SDD JC is a constitution-first, spec-driven methodology for AI-assisted developm
   - `tailwind-design-system`
   - `ui-ux-pro-max`
   - `vercel-react-best-practices`
+- `docs/`
+  - `flow.md`
+  - `cli.md`
+  - `commands/`
+  - `skills/`
+  - `openspec-comparison.md`
 
 ## Install
 
@@ -321,6 +338,8 @@ npm run release:status
 
 ### CLI Commands
 
+See the full [CLI Reference](docs/cli.md) for options, install paths, examples, safety rules, and troubleshooting.
+
 | Command | Purpose |
 |---|---|
 | `sdd-jc install` | Install commands, skills, and helper resources |
@@ -424,6 +443,8 @@ If you prefer a lighter restore, keep `~/.tmux.conf` and reinstall plugins separ
 
 ## Start Here
 
+See the full [Flow documentation](docs/flow.md) for artifacts, review gates, project modes, and spec folder shape.
+
 Use this flow for normal feature work:
 
 1. `/sdd-constitution` - create or strengthen the project baseline.
@@ -448,6 +469,8 @@ For existing projects, CodeGraph is an optional acceleration path. If `.codegrap
 Use `/sdd-propose` when the change needs review before full specification. For very small, obvious work, you may start directly with `/sdd-specify <spec-path>`.
 
 ## Command Map
+
+See the full [Command Reference](docs/commands/README.md) for detailed pages per command.
 
 | Command | Use When | Main Output |
 |---|---|---|
@@ -619,6 +642,8 @@ For a reviewable named change using the default `changes/` path:
 ## Planned Improvements Inspired By OpenSpec
 
 OpenSpec has useful ideas that fit this methodology well. Some are now supported through `/sdd-propose` and `/sdd-archive`. Remaining planned improvements:
+
+See [OpenSpec Comparison](docs/openspec-comparison.md) for the current JCSPECS comparison and documentation-pattern notes.
 
 - automated sync lifecycle for completed specs
 - schema-style workflow templates for feature, bugfix, migration, SEO, and research-first work
