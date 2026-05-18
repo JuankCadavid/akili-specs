@@ -16,6 +16,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - Added the `JCSPECS` ASCII banner to the CLI output.
 - Replaced the README badge image with a Markdown hero that combines the `JCSPECS` ASCII mark, methodology positioning, and support badges.
+- Updated the README skills inventory to include `angular-developer` and the GSAP skill suite.
 
 ## [0.3.1] - 2026-05-18
 

@@ -59,11 +59,20 @@ SDD JC is a constitution-first, spec-driven methodology for AI-assisted developm
   - `sdd-archive.md`
   - `sdd-seo.md`
 - `.claude/skills/`
+  - `angular-developer`
   - `api-design-principles`
   - `aws-serverless`
   - `brainstorming`
   - `error-handling-patterns`
   - `frontend-design`
+  - `gsap-core`
+  - `gsap-frameworks`
+  - `gsap-performance`
+  - `gsap-plugins`
+  - `gsap-react`
+  - `gsap-scrolltrigger`
+  - `gsap-timeline`
+  - `gsap-utils`
   - `nestjs-expert`
   - `product-manager-toolkit`
   - `react-doctor`
