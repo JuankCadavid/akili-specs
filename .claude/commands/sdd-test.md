@@ -1,3 +1,7 @@
+---
+description: Write and execute comprehensive automated unit/integration tests for the implemented feature.
+---
+
 # Test SDD Implementation
 
 Run automated and, when needed, manual tests against a spec path's implementation. Produce `test-report.md` with results, requirement coverage, scenario traceability, and failures.

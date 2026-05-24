@@ -1,3 +1,7 @@
+---
+description: Archive a completed spec task, clean up branches, and sync the detailed design system.
+---
+
 # Archive SDD Spec
 
 Archive a completed SDD spec path after implementation, testing, and validation are done.

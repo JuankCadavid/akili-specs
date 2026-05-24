@@ -1,3 +1,7 @@
+---
+description: Validate that the implemented feature strictly matches all requirements, design tokens, and user flows.
+---
+
 # Validate SDD Implementation
 
 Validate that a spec path's implementation matches its SDD documents. Produce `validation-report.md` with pass, warning, fail, and remediation details.

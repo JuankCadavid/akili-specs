@@ -261,9 +261,13 @@ function installTool(tool, args) {
       ? args.opencodeTarget
       : args.antigravityTarget;
 
-  const targetCommands = tool === "antigravity"
-    ? path.join(targetRoot, "antigravity", "global_workflows")
-    : path.join(targetRoot, "commands");
+  const targetCommandsList = tool === "antigravity"
+    ? [
+        path.join(targetRoot, "antigravity", "global_workflows"),
+        path.join(targetRoot, "antigravity-cli", "global_workflows"),
+        path.join(targetRoot, "antigravity-cli", "workflows"),
+      ]
+    : [path.join(targetRoot, "commands")];
 
   const targetSkills = tool === "antigravity"
     ? path.join(targetRoot, "config", "skills")
@@ -279,9 +283,11 @@ function installTool(tool, args) {
   console.log(`\n${tool} target: ${targetRoot}`);
 
   if (shouldInclude("commands", args)) {
-    const result = copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args);
-    installed += result.installed;
-    skipped += result.skipped;
+    for (const targetCommands of targetCommandsList) {
+      const result = copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args);
+      installed += result.installed;
+      skipped += result.skipped;
+    }
   }
 
   if (shouldInclude("skills", args)) {
@@ -356,9 +362,13 @@ function doctorTool(tool, args) {
       ? args.opencodeTarget
       : args.antigravityTarget;
 
-  const targetCommands = tool === "antigravity"
-    ? path.join(targetRoot, "antigravity", "global_workflows")
-    : path.join(targetRoot, "commands");
+  const targetCommandsList = tool === "antigravity"
+    ? [
+        path.join(targetRoot, "antigravity", "global_workflows"),
+        path.join(targetRoot, "antigravity-cli", "global_workflows"),
+        path.join(targetRoot, "antigravity-cli", "workflows"),
+      ]
+    : [path.join(targetRoot, "commands")];
 
   const targetSkills = tool === "antigravity"
     ? path.join(targetRoot, "config", "skills")
@@ -375,7 +385,13 @@ function doctorTool(tool, args) {
   if (shouldInclude("commands", args)) {
     console.log("\nCommands:");
     for (const command of listCommands()) {
-      const ok = hasInstalledCommand(targetCommands, command);
+      let ok = false;
+      for (const targetCommands of targetCommandsList) {
+        if (hasInstalledCommand(targetCommands, command)) {
+          ok = true;
+          break;
+        }
+      }
       console.log(`  ${ok ? "OK" : "MISSING"} ${command}`);
       if (!ok) missing += 1;
     }

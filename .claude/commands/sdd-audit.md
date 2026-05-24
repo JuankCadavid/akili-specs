@@ -1,3 +1,7 @@
+---
+description: Run spec-to-code drift auditing to detect differences between active codebase reality and active system/detailed designs.
+---
+
 # Audit JCSPECS Specifications for Drift
 
 Detect and report drift between the project's specifications (PRD, System Design, and Detailed Design) and the actual implementation in the codebase.

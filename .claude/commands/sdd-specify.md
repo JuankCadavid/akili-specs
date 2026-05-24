@@ -1,3 +1,7 @@
+---
+description: Draft detailed requirements, UI/UX designs, and technical tasks for a proposed feature.
+---
+
 # Generate SDD for Module
 
 Generate a clear Spec-Driven Development document set for one bounded module, feature, bugfix, or enhancement inside `docs/specs/`.

@@ -1,3 +1,7 @@
+---
+description: Enhance pages and search engine optimization following SEO best practices.
+---
+
 # SEO Setup & Audit via Google Search Console
 
 Provision Google Search Console access for a domain via a Google Cloud service account, then run a full SEO audit (index coverage, sitemaps, structured data, search analytics) and generate an audit report under the spec path. Produces `seo-setup-report.md` and `seo-audit-report.md`.

@@ -1,3 +1,7 @@
+---
+description: Execute approved specs systematically following the SDD methodology with spec-to-code traceability.
+---
+
 # Execute SDD Tasks
 
 Execute implementation tasks from an approved SDD spec path. Read `tasks.md`, choose the next eligible task, implement only that task's scope, verify it, update task status, and record progress in `execution.md`.

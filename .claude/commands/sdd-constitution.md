@@ -1,3 +1,7 @@
+---
+description: Establish or strengthen the project-wide SDD foundation and baseline docs (PRD, System Design, Detailed Design).
+---
+
 # Establish SDD Constitution
 
 Establish or strengthen the project-wide SDD foundation. This command creates the documentation baseline that all later module-level SDD work depends on.

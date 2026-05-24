@@ -1,3 +1,7 @@
+---
+description: Propose new features or changes by initiating a new detailed technical spec process.
+---
+
 # Propose SDD Change
 
 Create a lightweight proposal for one bounded change before generating full SDD documents.
