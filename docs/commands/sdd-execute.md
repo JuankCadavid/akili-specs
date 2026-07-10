@@ -23,7 +23,7 @@ Reads:
 - `docs/specs/<spec-path>/design.md`
 - `docs/specs/<spec-path>/tasks.md`
 - `docs/specs/<spec-path>/execution.md` when present
-- Constitution docs (`docs/prd.md`, `docs/system-design/design.md`, `docs/detailed-design/detailed-design.md`)
+- Constitution docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`)
 - `CLAUDE.md` and `AGENTS.md`
 - `.agents/leader.md`, `.agents/implementer.md`, `.agents/reviewer.md`
 
@@ -51,6 +51,8 @@ if PASS  → update tasks.md to [x], append execution.md, commit, advance to nex
 if FAIL  → log issues; if attempts < 3, respawn Implementer with the unchanged Reviewer report
 if 3 consecutive FAILs → HALT, mark task [~], present full audit trail
 ```
+
+On PASS, if the task created a new module/package or moved a module boundary, the Leader also appends a `## Constitution Impact: <Task ID>` block to `execution.md` (child guide needed, parent `## Module Guides` index entry, pending CodeGraph re-index). `/sdd-archive` consumes these notes during Constitution & Graph Sync.
 
 ### Reviewer output contract
 

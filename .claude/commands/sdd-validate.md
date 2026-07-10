@@ -52,8 +52,8 @@ Use these result levels consistently:
    - `docs/specs/$ARGUMENTS/execution.md` if present
 2. Read constitutional context:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - `docs/specs/general-setup/`
 3. Read root and package-level `CLAUDE.md` files if they exist.
 
@@ -103,7 +103,7 @@ Check for:
 - API quality
 - frontend quality
 - design-system compliance
-- UX consistency with the system design document
+- UX consistency with the UX/UI design document
 - error handling and observability where relevant
 - accessibility and responsive behavior for UI work
 - security and authorization boundaries for protected flows

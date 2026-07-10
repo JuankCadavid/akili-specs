@@ -49,6 +49,15 @@ docs/specs/<spec-path>/archive-summary.md
 
 The summary captures delivered requirements, files changed, test evidence, validation summary, accepted warnings, follow-ups, and historical notes.
 
+## Constitution & Graph Sync
+
+Before moving the folder, the command consumes the `## Constitution Impact` notes recorded in `execution.md` during `/sdd-execute`:
+
+- creates or updates child `CLAUDE.md`/`AGENTS.md` guides for new or reshaped modules (thin, module-specific, never duplicating root rules)
+- adds or refreshes the child entries in the parent guides' `## Module Guides` index
+- updates root-guide statements the change made stale
+- recommends a CodeGraph re-index when `.codegraph/` exists
+
 ## Guardrails
 
 - Do not delete completed specs.

@@ -504,13 +504,13 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 
 | Command | Use When | Main Output |
 |---|---|---|
-| `/sdd-constitution` | Starting a repo or repairing weak project context | `docs/prd.md`, system design, detailed design, general spec templates, `CLAUDE.md`, `AGENTS.md` guidance |
+| `/sdd-constitution` | Starting a repo or repairing weak project context | `docs/prd.md`, UX/UI design, TRD, general spec templates, `CLAUDE.md`, `AGENTS.md` guidance |
 | `/sdd-propose <change-name-or-spec-path>` | Aligning on intent before full specification | `proposal.md` under `docs/specs/<spec-path>/` |
 | `/sdd-specify <spec-path>` | Planning one bounded change before code | `requirements.md`, `design.md`, `tasks.md` under `docs/specs/<spec-path>/` |
 | `/sdd-execute <spec-path>` | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
 | `/sdd-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
 | `/sdd-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
-| `/sdd-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md` |
+| `/sdd-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, synced agent guides, CodeGraph re-index reminder |
 | `/sdd-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
 
 ## How To Choose The Right Depth
@@ -711,7 +711,7 @@ Included skills cover the default methodology path, including `ui-ux-pro-max`.
 
 Fallback rule:
 
-- when `ui-ux-pro-max` is unavailable, use `frontend-design` + `stitch-design` for system-design work and `frontend-design` for UI validation/testing support.
+- when `ui-ux-pro-max` is unavailable, use `frontend-design` + `stitch-design` for UX/UI design work and `frontend-design` for UI validation/testing support.
 
 ## Methodology Contract
 
@@ -721,7 +721,7 @@ Fallback rule:
 - `/sdd-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
 - `/sdd-test` validates requirement-to-test traceability.
 - `/sdd-validate` audits implementation conformance against the spec and constitutional baseline.
-- `/sdd-archive` preserves completed specs under `docs/specs/archive/` after validation.
+- `/sdd-archive` preserves completed specs under `docs/specs/archive/` after validation, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index.
 - `/sdd-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering
@@ -733,8 +733,8 @@ Roles live in the project's `.agents/` directory (scaffolded by `/sdd-constituti
 | Role | File | Responsibilities |
 |---|---|---|
 | Leader | `.agents/leader.md` | Orchestration. Picks the next eligible task, delegates, enforces the rework loop, updates `tasks.md` and `execution.md`, commits with `[SPEC:<spec-path>]`. |
-| Implementer | `.agents/implementer.md` | Writes and tests the code. Strictly task-scoped, must follow design tokens from `docs/system-design/design.md`, must run the verification command before reporting. |
-| Reviewer | `.agents/reviewer.md` | Read-only spec audit. Compares the diff against requirements, design tokens, detailed-design, and stability. Outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* for each finding. |
+| Implementer | `.agents/implementer.md` | Writes and tests the code. Strictly task-scoped, must follow design tokens from `docs/ux-ui/design.md`, must run the verification command before reporting. |
+| Reviewer | `.agents/reviewer.md` | Read-only spec audit. Compares the diff against requirements, design tokens, the TRD, and stability. Outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* for each finding. |
 
 The Leader runs each task through this loop:
 

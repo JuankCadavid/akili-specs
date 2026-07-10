@@ -1,5 +1,5 @@
 ---
-description: Establish or strengthen the project-wide SDD foundation and baseline docs (PRD, System Design, Detailed Design).
+description: Establish or strengthen the project-wide SDD foundation and baseline docs (PRD, UX/UI Design, TRD).
 ---
 
 # Establish SDD Constitution
@@ -19,7 +19,7 @@ Establish or strengthen the project-wide SDD foundation. This command creates th
 First classify the repository into one of three modes. The classification is non-destructive — it controls how aggressively the constitution drafts, scans, or preserves existing material.
 
 - **Brand-new project (Seed Setup):** little or no application code, no stable project documentation, no prior SDD artifacts, and the user is starting a product baseline from scratch.
-- **Legacy codebase (Discovery Setup):** meaningful application code, package manifests, infrastructure, tests, routes, components, or prior non-SDD docs exist, but the JCSPECS SDD baseline (`docs/prd.md`, `docs/system-design/design.md`, `docs/detailed-design/detailed-design.md`, `docs/specs/general-setup/`) is missing or skeletal.
+- **Legacy codebase (Discovery Setup):** meaningful application code, package manifests, infrastructure, tests, routes, components, or prior non-SDD docs exist, but the JCSPECS SDD baseline (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, `docs/specs/general-setup/`) is missing or skeletal.
 - **Active SDD project (Safe Update):** the SDD baseline already exists, prior specs live under `docs/specs/`, and an `.agents/` directory may already contain customized personas. The constitution must upgrade weak sections without overwriting customizations.
 
 For all three modes:
@@ -35,8 +35,8 @@ For all three modes:
 The constitutional baseline must cover these files:
 
 - `docs/prd.md`
-- `docs/system-design/design.md`
-- `docs/detailed-design/detailed-design.md`
+- `docs/ux-ui/design.md`
+- `docs/trd/trd.md`
 - `docs/specs/general-setup/requirements.md`
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
@@ -52,6 +52,14 @@ The constitutional baseline must cover these files:
 - **Legacy:** do not draft the baseline until repository reality has been inspected and summarized. Use CodeGraph or `Grep` to extract components, API surfaces, styling tokens, and module boundaries; synthesize the baseline from that evidence; tailor `.agents/` personas to the detected stack (frameworks, test runner, design tokens).
 - **Active SDD:** read existing files and any custom subagent rules. **Do not overwrite them.** Upgrade only weak sections, fill in missing files, and extend `.agents/` to support the multi-agent loop while preserving custom instructions.
 
+**Legacy path migration (pre-TRD naming):**
+
+Older SDD baselines used `docs/system-design/design.md` for the UX/UI blueprint and `docs/detailed-design/detailed-design.md` for the technical blueprint. When those legacy paths exist:
+
+1. Treat them as the existing UX/UI Design document and TRD — never draft duplicates alongside them.
+2. In Active SDD mode, propose migrating them with `git mv` to `docs/ux-ui/design.md` and `docs/trd/trd.md`, then update every reference in `CLAUDE.md`, `AGENTS.md`, `.agents/*.md`, and `docs/specs/` to the new paths.
+3. If the user declines migration, keep the legacy paths and note the mapping in `CLAUDE.md` so later SDD commands resolve them correctly.
+
 ---
 
 ### Step 1: Read Project Context First
@@ -62,8 +70,8 @@ Before writing anything, read the repository context carefully:
 2. Root `AGENTS.md` if it exists
 3. Package-level `CLAUDE.md` and `AGENTS.md` files if they exist
 4. Existing `docs/prd.md`
-5. Existing `docs/system-design/design.md`
-6. Existing `docs/detailed-design/detailed-design.md`
+5. Existing `docs/ux-ui/design.md`
+6. Existing `docs/trd/trd.md`
 7. Existing `docs/specs/` folders to extract terminology, taxonomy, and prior feature history
 8. Any architecture, infrastructure, setup, or product docs already present under `docs/`
 
@@ -150,9 +158,9 @@ When `docs/prd.md` already exists, preserve useful content and upgrade weak sect
 
 ---
 
-### Step 4: Create or Enhance the System Design Document
+### Step 4: Create or Enhance the UX/UI Design Document
 
-Create or enhance `docs/system-design/design.md` as the UI/UX system blueprint.
+Create or enhance `docs/ux-ui/design.md` as the UI/UX system blueprint.
 
 **Preferred skill chain:**
 
@@ -188,9 +196,9 @@ When the file already exists, refine it in place instead of replacing establishe
 
 ---
 
-### Step 5: Create or Enhance the Detailed Design Document
+### Step 5: Create or Enhance the TRD (Technical Requirements Document)
 
-Create or enhance `docs/detailed-design/detailed-design.md` as the technical implementation blueprint.
+Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 
 **Use skills when relevant:**
 
@@ -234,7 +242,7 @@ They must reflect:
 
 - The repo's current architecture and package layout
 - The chosen `docs/specs/` taxonomy
-- The approved PRD, system design, and detailed design conventions
+- The approved PRD, UX/UI design, and TRD conventions
 
 ---
 
@@ -243,8 +251,8 @@ They must reflect:
 Update root `CLAUDE.md` and `AGENTS.md` so they reference:
 
 - `docs/prd.md`
-- `docs/system-design/design.md`
-- `docs/detailed-design/detailed-design.md`
+- `docs/ux-ui/design.md`
+- `docs/trd/trd.md`
 - `docs/specs/general-setup/`
 
 The update should explain briefly:
@@ -258,6 +266,17 @@ The update should explain briefly:
 - Which model to switch to per SDD phase (the `## Model Routing` registry added in Step 7C)
 
 Preserve the repository's existing `CLAUDE.md` and `AGENTS.md` conventions and extend them.
+
+**Nested agent guide inheritance:**
+
+Root guides are the parent; major modules or packages may carry child guides. Establish this convention explicitly:
+
+1. A module/package gets a child `CLAUDE.md` and/or `AGENTS.md` **only when its conventions genuinely diverge from the root** (different stack, test runner, boundaries, or domain rules). Do not scaffold empty child guides for every folder.
+2. Child guides stay thin and module-specific. They must never duplicate root rules — inheritance means the root guide always applies and children only add or narrow.
+3. The root guides must carry a `## Module Guides` index: one line per child guide (`- <path> — <one-line scope>`). A child guide that is not referenced from the parent index is considered drift.
+4. **Legacy mode:** create child guides only where the codebase scan shows divergent conventions, and build the parent index from what exists. **Active SDD mode:** preserve existing child guides, add missing parent index entries, and never overwrite customized children.
+
+This index is what keeps agent context inheritance working: agents load the root guide plus the child guide of the module they are touching.
 
 ---
 
@@ -288,13 +307,13 @@ If the packaged templates are available, prefer copying them as the seed; otherw
 **Mode-specific scaffolding policy:**
 
 - **Brand-new (Seed Setup):** copy the three default templates verbatim into `.agents/`. Tailor only the project name and detected stack if known.
-- **Legacy (Discovery Setup):** copy the three default templates, then customize them based on the codebase scan — inject detected design-token paths, the test command, the lint command, framework conventions, and any directory boundaries discovered. The Reviewer persona in particular should know which `design.md` and `detailed-design.md` paths to cite.
+- **Legacy (Discovery Setup):** copy the three default templates, then customize them based on the codebase scan — inject detected design-token paths, the test command, the lint command, framework conventions, and any directory boundaries discovered. The Reviewer persona in particular should know which `design.md` and `trd.md` paths to cite.
 - **Active SDD (Safe Update):** **do not overwrite** existing `.agents/*.md` files. For each missing file, install the default template (customized to the detected stack). For each existing file, read it, identify gaps versus the current packaged template (e.g. missing rework-loop instructions, missing PASS/FAIL output contract, missing JCSPECS commit standard), and append a minimal upgrade block that preserves all existing custom instructions.
 
 **Required content per persona:**
 
 - **`leader.md`** — orchestration sequence, rework loop with 3-attempt ceiling, structured FAIL handoff to the next Implementer spawn, `execution.md` audit-trail format, `tasks.md` status transitions, JCSPECS commit standard, Pivot Protocol escalation.
-- **`implementer.md`** — strict context alignment to constitution + spec, incremental focus (no scope creep), aesthetics and design-token compliance from `docs/system-design/design.md`, verification rigor (must run the task's verification command before reporting), structured completion report.
+- **`implementer.md`** — strict context alignment to constitution + spec, incremental focus (no scope creep), aesthetics and design-token compliance from `docs/ux-ui/design.md`, verification rigor (must run the task's verification command before reporting), structured completion report.
 - **`reviewer.md`** — read-only role, audit checklist (requirement conformance, design-token compliance, technical compliance, stability), structured PASS/FAIL output where every FAIL item lists *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion*.
 
 **Cross-tool compatibility:**
@@ -358,8 +377,8 @@ After drafting or enhancing the documents, present a concise summary covering:
 - Whether CodeGraph was used, initialized, declined, or unavailable
 - The chosen spec taxonomy under `docs/specs/`
 - The main problem statement and personas captured in the PRD
-- The main UX/system decisions captured in system design
-- The main technical decisions captured in detailed design
+- The main UX/system decisions captured in the UX/UI design document
+- The main technical decisions captured in the TRD
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
 - Any assumptions and open questions that still need validation
 

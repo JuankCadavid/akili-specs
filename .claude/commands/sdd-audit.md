@@ -1,10 +1,10 @@
 ---
-description: Run spec-to-code drift auditing to detect differences between active codebase reality and active system/detailed designs.
+description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD.
 ---
 
 # Audit JCSPECS Specifications for Drift
 
-Detect and report drift between the project's specifications (PRD, System Design, and Detailed Design) and the actual implementation in the codebase.
+Detect and report drift between the project's specifications (PRD, UX/UI Design, and TRD) and the actual implementation in the codebase.
 
 ## Usage
 
@@ -19,8 +19,8 @@ Detect and report drift between the project's specifications (PRD, System Design
 First, read the constitutional documentation baseline in the repository:
 
 1. `docs/prd.md`
-2. `docs/system-design/design.md`
-3. `docs/detailed-design/detailed-design.md`
+2. `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+3. `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
 4. Any active specs in `docs/specs/` that are not yet archived.
 
 ### Step 1: Scan Active Codebase
@@ -36,10 +36,11 @@ Perform codebase analysis (preferring CodeGraph if `.codegraph/` exists, or util
 
 Audit for discrepancies, classifying findings under the following categories:
 
-* **Stale Specification (Documentation > Codebase):** Features, API endpoints, views, or database fields documented in the specs/detailed-design but completely missing or commented out in the codebase.
-* **Undocumented Feature (Codebase > Documentation):** Modules, API endpoints, major components, or integrations added to the codebase but completely missing from the PRD, System Design, or Detailed Design.
-* **Visual/Design Token Mismatch:** Colors, typography, spacing, or component structures used in the codebase that violate the styling tokens and design principles declared in `docs/system-design/design.md`.
-* **Technical Constraints Violation:** Architectural layout in the codebase that conflicts with patterns (e.g. testing requirements, security rules, file structuring) documented in `docs/detailed-design/detailed-design.md`.
+* **Stale Specification (Documentation > Codebase):** Features, API endpoints, views, or database fields documented in the specs/TRD but completely missing or commented out in the codebase.
+* **Undocumented Feature (Codebase > Documentation):** Modules, API endpoints, major components, or integrations added to the codebase but completely missing from the PRD, UX/UI Design, or TRD.
+* **Visual/Design Token Mismatch:** Colors, typography, spacing, or component structures used in the codebase that violate the styling tokens and design principles declared in `docs/ux-ui/design.md`.
+* **Technical Constraints Violation:** Architectural layout in the codebase that conflicts with patterns (e.g. testing requirements, security rules, file structuring) documented in `docs/trd/trd.md`.
+* **Agent Guide Drift:** Modules whose conventions clearly diverge from the root but lack a child `CLAUDE.md`/`AGENTS.md`, child guides missing from the parent's `## Module Guides` index, guide entries pointing at modules that no longer exist, or root-guide structure descriptions that no longer match the codebase.
 
 ### Step 3: Write Drift Report
 
@@ -80,11 +81,12 @@ A brief overview of the codebase alignment state and major areas of specificatio
 | Spec Section | Code Reality Status | Alignment Status | Notes |
 | :--- | :--- | :--- | :--- |
 | Product Requirements (PRD) | [Details] | [Aligned / Drifted] | |
-| System Design / Screen Inventory | [Details] | [Aligned / Drifted] | |
-| Detailed Technical Design (APIs/DB) | [Details] | [Aligned / Drifted] | |
+| UX/UI Design / Screen Inventory | [Details] | [Aligned / Drifted] | |
+| TRD (APIs/DB) | [Details] | [Aligned / Drifted] | |
+| Agent Guides (root + `## Module Guides` index) | [Details] | [Aligned / Drifted] | |
 
 ## Recommended Next Steps
-Specific actions to resolve the discrepancies (e.g., "Run `/sdd-constitution` to enhance baseline", "Update `detailed-design.md` with active REST APIs", or "Schedule a task to implement missing validation tests").
+Specific actions to resolve the discrepancies (e.g., "Run `/sdd-constitution` to enhance baseline", "Update `trd.md` with active REST APIs", or "Schedule a task to implement missing validation tests").
 ```
 
 ### Step 4: Report to User

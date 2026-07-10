@@ -13,7 +13,7 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
 1. **Source-of-truth Alignment:**
    * Read the project constitution (`CLAUDE.md` and `AGENTS.md`).
    * Read the active spec under `docs/specs/<spec-path>/` (`requirements.md`, `design.md`, `tasks.md`, and `execution.md` if it exists).
-   * Read the constitutional baseline (`docs/prd.md`, `docs/system-design/design.md`, `docs/detailed-design/detailed-design.md`).
+   * Read the constitutional baseline (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`).
 
 2. **Task Selection:**
    * Parse `tasks.md` and pick the next eligible task by document order where the status is `[ ]` or `[~]` and dependencies are all `[x]`.
@@ -38,6 +38,10 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
    * Update `tasks.md` (`[ ]` → `[~]` → `[x]`) as state changes.
    * Append a structured entry to `execution.md` for every loop iteration, including PASS/FAIL outcome, Reviewer findings, files changed, and verification evidence.
    * Stage and commit Implementer work using the JCSPECS commit standard: `[SPEC:<spec-path>] <message>`.
+
+7. **Constitution Impact:**
+   * When a task creates a new module/package or moves a module boundary, append a `## Constitution Impact: <Task ID>` block to `execution.md`: which module changed, whether a child `CLAUDE.md`/`AGENTS.md` is needed or stale, which parent `## Module Guides` index entry to add or update, and that a CodeGraph re-index is pending.
+   * `/sdd-archive` consumes these notes; only update the guides immediately (in the same task commit) if deferring would leave the root guides actively misleading.
 
 ---
 

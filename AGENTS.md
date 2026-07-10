@@ -20,8 +20,9 @@ This repository packages the SDD JC methodology for Claude Code, OpenCode, and G
 - Do not commit service account keys, npm tokens, `.npmrc`, or local MCP config containing secrets.
 - **Spec-to-Code Traceability:** Every commit made during `/sdd-execute` must be prefixed with `[SPEC:<spec-path>]` (e.g. `[SPEC:changes/add-remember-me] message`).
 - **Pivot Protocol:** If execution invalidates approved specs, the agent must mark tasks blocked (`[~]`), record pivot details in `execution.md`, and obtain user sign-off.
-- **Drift Auditing:** Run `/sdd-audit` to detect differences between active codebase reality and active system/detailed designs.
+- **Drift Auditing:** Run `/sdd-audit` to detect differences between active codebase reality and the active UX/UI design and TRD.
 - **CodeGraph Re-indexing:** Remind or execute the re-indexing command during `/sdd-archive` to keep CodeGraph databases healthy.
+- **Agent Guide Inheritance:** Root `CLAUDE.md`/`AGENTS.md` are the parent; modules with divergent conventions carry thin child guides referenced from a `## Module Guides` index in the parent. `/sdd-execute` records `## Constitution Impact` notes when tasks create or reshape modules; `/sdd-archive` syncs the guides and the CodeGraph; `/sdd-audit` flags guide drift.
 - **Multi-Agent Harness:** `/sdd-execute` runs each task through a Leader → Implementer → Reviewer loop with a hard 3-attempt rework ceiling. Personas live in `.claude/templates/` (source) and project `.agents/` (deployed by `/sdd-constitution`). Do not collapse this loop back into a single-agent flow.
 - **Model Routing is guidance-only.** Model selection per SDD phase is documented in `docs/model-routing.md` (capability tiers + a per-tool registry) and scaffolded into each project's `AGENTS.md` / `CLAUDE.md` by `/sdd-constitution` (Step 7C). Never add a `model:` key to command frontmatter and never inject models in the installer — a single value cannot serve both Claude Code (`opus`/`sonnet`/`haiku`) and OpenCode (`provider/model`), and it would break the model-agnostic install. The Reviewer must run on a different model than the Implementer (author ≠ auditor).
 

@@ -67,8 +67,8 @@ The Leader does not write production code itself unless the rework loop is exhau
 2. Read `docs/specs/$ARGUMENTS/execution.md` if it exists.
 3. Read the project constitutional docs:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - `docs/specs/general-setup/`
 4. Read root and package-level `CLAUDE.md` and `AGENTS.md` files if they exist.
 5. Read the agent personas:
@@ -125,8 +125,8 @@ Delegate to the Implementer with:
 
 - the persona content from `.agents/implementer.md`
 - the active task ID, title, and scope from `tasks.md`
-- the relevant slices of `requirements.md`, `design.md`, and `detailed-design.md`
-- the project constitution references (`CLAUDE.md`, `AGENTS.md`, `docs/system-design/design.md`)
+- the relevant slices of `requirements.md`, `design.md`, and `trd.md`
+- the project constitution references (`CLAUDE.md`, `AGENTS.md`, `docs/ux-ui/design.md`)
 - the recommended skill list from the task (e.g. `ui-ux-pro-max`, `react-doctor`, `nestjs-expert`)
 - any prior Reviewer feedback when this is a rework attempt
 - the verification command to run before reporting completion
@@ -141,7 +141,7 @@ When the Implementer reports completion, the Leader:
 2. Spawns the Reviewer with:
    - the persona content from `.agents/reviewer.md`
    - the git diff
-   - the relevant slices of `requirements.md`, `design.md`, `detailed-design.md`, and `docs/system-design/design.md`
+   - the relevant slices of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md`
    - the Implementer's verification evidence
 
 The Reviewer is read-only. It must conclude with either:
@@ -167,6 +167,12 @@ Only after a Reviewer `PASS`:
 2. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
 3. **Git Commit Staging:** Always follow the **JCSPECS Spec Reference** commit standard. Prefix the commit message with `[SPEC:<spec-path>]` (e.g. `git commit -m "[SPEC:changes/add-remember-me] implement secure cookie storage"`).
 4. **Code Traceability:** Add file-level or block-level comment spec references (`// @sdd-spec <spec-path>`) in critical or complex codebase additions to assist future audits.
+5. **Constitution Impact Check:** If the task created a new module/package, moved a module boundary, or changed a module's public surface, append a `## Constitution Impact: <Task ID>` block to `execution.md` recording:
+   - which module was created or reshaped
+   - whether a child `CLAUDE.md`/`AGENTS.md` is needed for it (or an existing child guide became stale)
+   - which parent guide's `## Module Guides` index needs a new or updated reference
+   - that a CodeGraph re-index is pending
+   These notes are consumed by `/sdd-archive` (Constitution & Graph Sync). If skipping the sync until archive would leave the root guides actively misleading (e.g. a new top-level package agents keep guessing about), update the affected guides immediately in the same task commit instead of deferring.
 
 ### Step 4: HALT on Rework Limit
 

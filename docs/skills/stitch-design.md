@@ -13,7 +13,7 @@ Supports Stitch design work, including prompt enhancement, design system synthes
 
 ## Best Paired Commands
 
-- `/sdd-constitution` for system design baseline.
+- `/sdd-constitution` for the UX/UI design baseline.
 - `/sdd-specify` for UI-heavy feature design.
 
 ## Source

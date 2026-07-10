@@ -13,7 +13,7 @@ Guides distinctive, production-grade frontend interfaces with intentional aesthe
 
 ## Best Paired Commands
 
-- `/sdd-constitution` for system design baseline.
+- `/sdd-constitution` for the UX/UI design baseline.
 - `/sdd-specify` for UI requirements and design.
 - `/sdd-execute` for frontend implementation.
 - `/sdd-test` and `/sdd-validate` for UX checks.

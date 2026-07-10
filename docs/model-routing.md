@@ -55,7 +55,7 @@ preference.
 | `/sdd-propose` | T1 | Architecture and trade-offs — reserve the deep reasoner. |
 | `/sdd-specify` → requirements.md / design.md | T1 | Heavy reasoning + technical writing. |
 | `/sdd-specify` → tasks.md | T5 | Fast structured partitioning into tickets. |
-| `/sdd-specify` → system-design (UI/UX) | T6 | Only when visual design is in scope. |
+| `/sdd-specify` → UX/UI design | T6 | Only when visual design is in scope. |
 | `/sdd-execute` → **Leader** | T5 | Orchestration / instruction-following — writes no code. |
 | `/sdd-execute` → **Implementer** | T2 | Maximum coding. Shares the workhorse family with propose (ARCHITECT = BUILDER). |
 | `/sdd-execute` → **Reviewer** | T3 | Independent audit. **MUST resolve to a different model than the Implementer.** |

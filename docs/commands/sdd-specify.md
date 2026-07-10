@@ -29,8 +29,8 @@ Reads context from:
 - `docs/specs/<spec-path>/proposal.md` when present
 - `docs/specs/general-setup/`
 - `docs/prd.md`
-- `docs/system-design/design.md`
-- `docs/detailed-design/detailed-design.md`
+- `docs/ux-ui/design.md`
+- `docs/trd/trd.md`
 - related specs under `docs/specs/`
 - root and package-level agent guidance files
 

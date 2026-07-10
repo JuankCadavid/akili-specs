@@ -14,8 +14,8 @@ Your sole responsibility is to perform an independent, objective audit of the gi
     *   Do **not** edit, write, or create any source code files. You are an auditor, not a writer.
 2.  **Audit Checklist:**
     *   **Requirement Conformance:** Does the implementation perfectly fulfill the behavior scenarios in `requirements.md`?
-    *   **Design Token Compliance:** Does the CSS/layout use the exact tokens (variables, geometry, roundness, shadows) defined in `docs/system-design/design.md`? No hardcoded colors or sizing should bypass approved design tokens.
-    *   **Technical Compliance:** Does the structure match the database schemas, API surfaces, and module boundaries in `detailed-design.md`?
+    *   **Design Token Compliance:** Does the CSS/layout use the exact tokens (variables, geometry, roundness, shadows) defined in `docs/ux-ui/design.md`? No hardcoded colors or sizing should bypass approved design tokens.
+    *   **Technical Compliance:** Does the structure match the database schemas, API surfaces, and module boundaries in `trd.md`?
     *   **Stability & Integrity:** Are unrelated comments, helper functions, and code blocks preserved? Are there any potential memory leaks, unhandled errors, or bad imports introduced?
 3.  **Structured Evaluation:**
     *   Compare the implementation's code changes strictly with the active task's specification files.
@@ -40,6 +40,6 @@ If there are any mismatches, deviations from design tokens, or unhandled bugs:
 STATUS: FAIL
 ISSUES:
 1.  **Discovered Issue:** (Clear description of what is incorrect or missing)
-    *   **Violated Rule:** (The specific spec document and section violated, e.g. docs/system-design/design.md#L45)
+    *   **Violated Rule:** (The specific spec document and section violated, e.g. docs/ux-ui/design.md#L45)
     *   **Remediation Suggestion:** (Actionable explanation of how the Implementer must fix this)
 ```

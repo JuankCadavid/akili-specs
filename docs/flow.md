@@ -20,8 +20,8 @@ The workflow is inspired by OpenSpec's artifact-guided pattern, but JCSPECS adds
 You: /sdd-constitution
 AI:  Creates or strengthens the project baseline:
      ✓ docs/prd.md
-     ✓ docs/system-design/design.md
-     ✓ docs/detailed-design/detailed-design.md
+     ✓ docs/ux-ui/design.md
+     ✓ docs/trd/trd.md
      ✓ docs/specs/general-setup/
      ✓ CLAUDE.md and AGENTS.md
 
@@ -78,8 +78,8 @@ For Legacy and Active-SDD modes, CodeGraph is preferred when `.codegraph/` exist
 | Artifact | Created By | Purpose |
 |---|---|---|
 | `docs/prd.md` | `/sdd-constitution` | Product purpose, personas, goals, scope, success metrics |
-| `docs/system-design/design.md` | `/sdd-constitution` | UX system, flows, screen inventory, tokens, accessibility expectations |
-| `docs/detailed-design/detailed-design.md` | `/sdd-constitution` | Technical architecture, modules, data, APIs, integrations, testing strategy |
+| `docs/ux-ui/design.md` | `/sdd-constitution` | UX system, flows, screen inventory, tokens, accessibility expectations |
+| `docs/trd/trd.md` | `/sdd-constitution` | Technical architecture, modules, data, APIs, integrations, testing strategy |
 | `docs/specs/general-setup/` | `/sdd-constitution` | Project-specific templates for future specs |
 | `docs/specs/<spec-path>/proposal.md` | `/sdd-propose` | Reviewable intent, scope, options, and risks |
 | `docs/specs/<spec-path>/requirements.md` | `/sdd-specify` | Behavior contracts and scenarios |
@@ -165,8 +165,9 @@ To establish high-traceability between spec files and source code:
 ### 2. Specification Drift Auditing (`/sdd-audit`)
 Run `/sdd-audit` independently to verify that the active codebase reflects active documentation. The command produces `docs/specs/drift-report.md` detailing:
 * **Stale Specifications:** Documented endpoints/modules missing from code.
-* **Undocumented Code:** Active code additions completely missing from PRD, system-design, or detailed-design docs.
+* **Undocumented Code:** Active code additions completely missing from the PRD, UX/UI design, or TRD docs.
 * **Styling/Architecture Violations:** Active code violating styling tokens or engineering guidelines.
+* **Agent Guide Drift:** Modules lacking a needed child `CLAUDE.md`/`AGENTS.md`, child guides missing from the parent's `## Module Guides` index, or root-guide structure descriptions that no longer match the codebase.
 
 ### 3. The Pivot Protocol
 If discovery during `/sdd-execute` invalidates requirements or design rules:
@@ -194,8 +195,8 @@ Rather than manually compiling assertion results during `/sdd-test`:
 | Role | File | Responsibilities |
 |---|---|---|
 | Leader | `.agents/leader.md` | Picks the next eligible task, delegates work, enforces the rework loop, updates `tasks.md` and `execution.md`, commits with `[SPEC:<spec-path>]` |
-| Implementer | `.agents/implementer.md` | Writes code strictly within task scope, applies design tokens from `docs/system-design/design.md`, runs the verification command before reporting |
-| Reviewer | `.agents/reviewer.md` | Read-only diff audit against requirements, design tokens, and detailed-design; outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* |
+| Implementer | `.agents/implementer.md` | Writes code strictly within task scope, applies design tokens from `docs/ux-ui/design.md`, runs the verification command before reporting |
+| Reviewer | `.agents/reviewer.md` | Read-only diff audit against requirements, design tokens, and the TRD; outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* |
 
 **Loop:**
 
@@ -237,7 +238,7 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 | `/sdd-constitution` | T4 + T1 |
 | `/sdd-propose`, `/sdd-specify` (requirements/design) | T1 |
 | `/sdd-specify` (tasks) | T5 |
-| `/sdd-specify` (UI/UX system-design) | T6 |
+| `/sdd-specify` (UX/UI design) | T6 |
 | `/sdd-execute` Leader / Implementer / Reviewer | T5 / T2 / T3 |
 | `/sdd-test` | T2 |
 | `/sdd-validate` | T3 |

@@ -54,8 +54,8 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 2. Create `docs/specs/$SPEC_PATH/` if it does not exist.
 3. Read project-level context when available:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - `docs/specs/general-setup/`
    - root `CLAUDE.md`
    - package-level `CLAUDE.md` files

@@ -33,8 +33,8 @@ For Legacy and Active-SDD modes, if `.codegraph/` exists CodeGraph is used for s
 Creates or enhances:
 
 - `docs/prd.md`
-- `docs/system-design/design.md`
-- `docs/detailed-design/detailed-design.md`
+- `docs/ux-ui/design.md`
+- `docs/trd/trd.md`
 - `docs/specs/general-setup/requirements.md`
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
@@ -43,6 +43,10 @@ Creates or enhances:
 - `.agents/leader.md`
 - `.agents/implementer.md`
 - `.agents/reviewer.md`
+
+Projects created before the TRD naming may still have `docs/system-design/design.md` (UX/UI blueprint) and `docs/detailed-design/detailed-design.md` (technical blueprint). The constitution treats those as the existing UX/UI Design document and TRD, and in Active-SDD mode offers to migrate them to `docs/ux-ui/design.md` and `docs/trd/trd.md`.
+
+The root guides also carry a `## Module Guides` index: modules whose conventions diverge from the root get a thin child `CLAUDE.md`/`AGENTS.md`, and every child guide must be referenced from that index. `/sdd-execute` records new-module impact notes and `/sdd-archive` syncs the guides and recommends a CodeGraph re-index.
 
 ## Multi-Agent Harness Scaffolding
 

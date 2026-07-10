@@ -6,9 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- Added a nested agent-guide inheritance convention across the lifecycle: `/sdd-constitution` (Step 7) defines it — modules with divergent conventions get a thin child `CLAUDE.md`/`AGENTS.md`, always referenced from a `## Module Guides` index in the root guides; `/sdd-execute` (Step 3) records `## Constitution Impact` notes in `execution.md` when a task creates or reshapes a module; `/sdd-archive` (new Step 3: Constitution & Graph Sync) consumes those notes to create/update child guides, refresh the parent index, and recommend a CodeGraph re-index; `/sdd-audit` gained an **Agent Guide Drift** category and a conformance-matrix row. The Leader persona template (`.claude/templates/leader.md`) carries the same Constitution Impact duty.
+
+### Changed
+
+- **Breaking (naming):** Renamed the two constitution baseline documents to remove the System Design / Detailed Design ambiguity. The UX/UI blueprint moved from `docs/system-design/design.md` to `docs/ux-ui/design.md` (now the "UX/UI Design Document"), and the technical blueprint moved from `docs/detailed-design/detailed-design.md` to `docs/trd/trd.md` (now the "TRD — Technical Requirements Document"). Document structures are unchanged; only names and paths changed.
+- Updated every command, persona template, and doc page to the new names and paths (`.claude/commands/`, `.claude/templates/{leader,implementer,reviewer}.md`, `README.md`, `AGENTS.md`, `docs/flow.md`, `docs/model-routing.md`, `docs/commands/`, `docs/skills/`).
+- Added legacy-path handling: commands that read the baseline fall back to the old `docs/system-design/` and `docs/detailed-design/` paths when the new ones are missing, and `/sdd-constitution` (Active SDD mode) offers a `git mv` migration to the new layout.
 
 ## [0.6.0] - 2026-06-09
 

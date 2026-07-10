@@ -57,8 +57,8 @@ Lite mode still requires testable requirements, scenarios, and done criteria.
    - `task.md`
 4. Read project-level reference context:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - Root `CLAUDE.md`
    - Package-level `CLAUDE.md` files if they exist
 5. Read nearby or dependent specs under `docs/specs/` that overlap with the requested path.

@@ -76,8 +76,8 @@ If any prerequisite is missing, stop and report exactly what is missing and how 
 3. Read the constitutional templates and project context as defined in `sdd-specify`:
    - `docs/specs/general-setup/`
    - `docs/prd.md`
-   - `docs/system-design/design.md` or `docs/system-design.md`
-   - `docs/detailed-design/detailed-design.md` or `docs/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy: `docs/system-design/design.md` or `docs/system-design.md`)
+   - `docs/trd/trd.md` (legacy: `docs/detailed-design/detailed-design.md` or `docs/detailed-design.md`)
    - Root `CLAUDE.md`
 4. Confirm the GSC MCP is reachable. If not, stop and report.
 

@@ -13,7 +13,7 @@ Guides scalable design systems with Tailwind CSS v4, design tokens, component li
 
 ## Best Paired Commands
 
-- `/sdd-constitution` for system design baseline.
+- `/sdd-constitution` for the UX/UI design baseline.
 - `/sdd-specify` for Tailwind component architecture.
 - `/sdd-execute` for implementation.
 - `/sdd-validate` for design-system compliance.

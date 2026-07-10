@@ -45,8 +45,8 @@ Create or update `docs/specs/$ARGUMENTS/test-report.md` with:
    - `docs/specs/$ARGUMENTS/tasks.md`
 2. Read project-level context:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - root and package-level `CLAUDE.md` files
 3. Identify backend, frontend, and end-to-end scope from the design and tasks.
 4. Extract key requirements and Given/When/Then scenarios from `requirements.md`.
@@ -75,7 +75,7 @@ Use skills as needed:
 
 - Create or improve E2E tests for user-visible workflows.
 - If the work is UI-heavy, prefer `ui-ux-pro-max` when available.
-- Otherwise use `frontend-design` and the system design doc as the UX reference.
+- Otherwise use `frontend-design` and the UX/UI design doc as the UX reference.
 - Use E2E tests for critical user journeys, not every small component state.
 
 ### Phase 4: Coverage & Traceability
@@ -121,9 +121,9 @@ When a spec includes meaningful UI/UX behavior, verify more than raw functionali
 - responsive behavior
 - state transitions
 - accessibility basics
-- visual consistency with `docs/system-design/design.md`
+- visual consistency with `docs/ux-ui/design.md`
 
-If `ui-ux-pro-max` is unavailable, use `frontend-design` plus the system design document as the fallback reference.
+If `ui-ux-pro-max` is unavailable, use `frontend-design` plus the UX/UI design document as the fallback reference.
 
 ---
 

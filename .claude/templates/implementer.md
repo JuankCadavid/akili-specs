@@ -13,12 +13,12 @@ Your sole responsibility is to implement the technical scope of the active task 
 1.  **Strict Context Alignment:**
     *   Consult the project constitution (`CLAUDE.md` and `AGENTS.md`) first.
     *   Strictly align with requirements defined in `docs/specs/<spec-path>/requirements.md`.
-    *   Follow the technical blueprint in `docs/specs/<spec-path>/design.md` and `docs/detailed-design/detailed-design.md`.
+    *   Follow the technical blueprint in `docs/specs/<spec-path>/design.md` and `docs/trd/trd.md`.
 2.  **Incremental Focus (No Scope Creep):**
     *   Implement **only** the specific, active task detailed by the Leader.
     *   Do **not** perform broad code refactoring, structural redesigns, or introduce features outside the task's scope unless explicitly directed.
 3.  **Aesthetics & Coding Best Practices:**
-    *   Apply premium styling, responsive rules, and rich design tokens defined in `docs/system-design/design.md`.
+    *   Apply premium styling, responsive rules, and rich design tokens defined in `docs/ux-ui/design.md`.
     *   Preserve all existing comments, docstrings, and structures unrelated to your code changes.
 4.  **Verification Rigor:**
     *   After writing code, run the designated automated unit/integration tests or local builds immediately.

@@ -13,7 +13,7 @@ Guides REST and GraphQL API design so interfaces are intuitive, scalable, mainta
 
 ## Best Paired Commands
 
-- `/sdd-constitution` for API standards in detailed design.
+- `/sdd-constitution` for API standards in the TRD.
 - `/sdd-specify` for API requirements and contracts.
 - `/sdd-validate` for implementation conformance.
 

@@ -1,5 +1,5 @@
 ---
-description: Archive a completed spec task, clean up branches, and sync the detailed design system.
+description: Archive a completed spec task, sync agent guides and CodeGraph, and keep the TRD current.
 ---
 
 # Archive SDD Spec
@@ -62,8 +62,8 @@ docs/specs/archive/2026-05-16-bugfix--login-redirect/
    - `validation-report.md` if present
 3. Read project-level context only if needed to interpret archive readiness:
    - `docs/prd.md`
-   - `docs/system-design/design.md`
-   - `docs/detailed-design/detailed-design.md`
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
+   - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - `docs/specs/general-setup/`
 
 ### Step 1: Check Archive Readiness
@@ -101,14 +101,25 @@ The summary must include:
 9. Accepted Warnings Or Follow-Ups
 10. Historical Notes
 
-### Step 3: Move Folder & Refresh CodeGraph
+### Step 3: Constitution & Graph Sync
+
+Before moving the folder, sync the project constitution with what the spec actually changed:
+
+1. **Read impact notes:** Collect every `## Constitution Impact` block from `execution.md` and the files-changed summary. If none exist but the diff clearly introduced a new module/package, treat that as an implicit impact note.
+2. **Agent guide sync:** For each impacted module:
+   - Create or update the child `CLAUDE.md`/`AGENTS.md` when the module's conventions diverge from the root (thin, module-specific, never duplicating root rules).
+   - Add or refresh the child's entry in the parent guides' `## Module Guides` index.
+   - Update any root-guide statements the change made stale (structure descriptions, module lists, key commands).
+   - Follow the inheritance convention from `/sdd-constitution` Step 7 — if the project has no `## Module Guides` index yet, add it rather than inventing a parallel structure.
+3. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) so the graph reflects the new or reshaped modules.
+
+### Step 4: Move Folder
 
 1. Ensure `docs/specs/archive/` exists.
 2. Move `docs/specs/$ARGUMENTS/` to `docs/specs/archive/YYYY-MM-DD-$SAFE_NAME/`.
 3. If the target archive folder already exists, do not overwrite it. Add a numeric suffix such as `-2` and report the final path.
-4. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) to keep the repository graph semantically up-to-date with the archived changes.
 
-### Step 4: Report To User
+### Step 5: Report To User
 
 Present:
 
@@ -117,6 +128,7 @@ Present:
 3. final validation status
 4. unresolved follow-ups, if any
 5. whether the active spec directory is now clean
+6. constitution sync summary: guides created or updated, parent index entries touched, and whether a CodeGraph re-index is recommended
 
 ## Error Handling
 

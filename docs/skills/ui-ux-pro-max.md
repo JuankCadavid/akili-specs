@@ -14,7 +14,7 @@ Provides broad UI/UX design intelligence, including styles, palettes, font pairi
 
 ## Best Paired Commands
 
-- `/sdd-constitution` for system design.
+- `/sdd-constitution` for the UX/UI design baseline.
 - `/sdd-specify` for UI requirements and design.
 - `/sdd-execute` for implementation guidance.
 - `/sdd-test` for UX checks.
