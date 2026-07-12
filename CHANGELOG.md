@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [0.9.0] - 2026-07-12
+
 ### Added
 - Integrated the `judgment-day` skill into the methodology and added it as an explicit option in the `/sdd-specify` design phase approval menu, including post-judgment decision routing.
 - Added "Human-in-the-loop" approval menus at the end of each phase (Requirements, Design, Tasks) in `/sdd-specify` to give the user explicit control before proceeding.
@@ -14,7 +20,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Changed
 - Updated `/sdd-constitution` to use the `brainstorming` skill at Step 0 to determine if the project is new or legacy, and added an explicit prompt to initialize CodeGraph when analyzing existing projects.
-
 ## [0.8.0] - 2026-07-11
 
 ### Added
