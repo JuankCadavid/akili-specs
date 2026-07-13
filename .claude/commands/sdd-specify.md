@@ -137,7 +137,9 @@ If `proposal.md` includes a Requirement Delta Preview, convert it into full requ
 
 #### Step 1.3 — Present & Approve
 
-Present a summary of the generated requirements and explicitly ask the user how to proceed, providing these options:
+Present a clear summary of the generated requirements on the screen (including the main scenarios, rules, and any explicit negative constraints) so the user can review what was done before deciding.
+
+Then explicitly ask the user how to proceed, providing these options:
 
 1. **Continue** (Proceed to Phase 2: `design.md`)
 2. **Adjust** (Refine or change the requirements)
