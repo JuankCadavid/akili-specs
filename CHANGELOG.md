@@ -6,9 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [0.9.3] - 2026-07-13
+
 ### Changed
 - Refined the Requirements presentation step in `/sdd-specify` to explicitly display a summary of the generated scenarios and rules on the screen before prompting the user with the approval menu.
-
 ## [0.9.2] - 2026-07-12
 
 ### Changed
