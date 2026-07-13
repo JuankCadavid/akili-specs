@@ -6,9 +6,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
-
-- No unreleased changes yet.
+### Changed
+- Refined the Design and Tasks presentation steps in `/sdd-specify` to explicitly display clear summaries on the screen (architecture, API endpoints, high-level task lists) so the user can understand what was generated without having to read the full markdown documents.
 
 ## [0.9.3] - 2026-07-13
 

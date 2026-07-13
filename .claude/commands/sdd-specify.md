@@ -202,7 +202,9 @@ Guidelines:
 
 #### Step 2.3 — Present & Approve
 
-Present a summary of the generated design and explicitly ask the user how to proceed, providing these options:
+Present a clear summary of the generated design on the screen (including the architecture, data models, API endpoints, and main design decisions) so the user can review what was done before deciding.
+
+Then explicitly ask the user how to proceed, providing these options:
 
 1. **Review Design** (Use the `judgment-day` skill to review the design before moving on)
 2. **Continue** (Proceed to Phase 3: `tasks.md`)
@@ -264,7 +266,8 @@ Preferred UI/UX skill rule:
 
 #### Step 3.3 — Present & Approve
 
-Present a summary of the generated tasks, including:
+Present a clear summary of the generated tasks on the screen, including:
+- A high-level list of the tasks to be implemented so the user understands the plan without reading the full document.
 - An **Estimated Lines of Code (LOC)** output for the entire spec.
 - A **PR Strategy Recommendation**: If the estimate exceeds ~400 LOC or the task graph is highly complex, recommend splitting the implementation into multiple Pull Requests and suggest logical boundaries (e.g., "PR 1: Backend/API, PR 2: Frontend UI").
 
