@@ -137,26 +137,28 @@ The Implementer must keep changes minimal and within task scope, follow the desi
 
 When the Implementer reports completion, the Leader:
 
-1. Extracts the git diff of changes since the start of the attempt.
+1. Extracts the **git diff** of changes since the start of the attempt. To save tokens, the Reviewer MUST ONLY be given the diff, not the entire source files, unless absolutely necessary for context.
 2. Spawns the Reviewer with:
    - the persona content from `.agents/reviewer.md`
-   - the git diff
+   - the **git diff**
    - the relevant slices of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md`
    - the Implementer's verification evidence
 
 The Reviewer is read-only. It must conclude with either:
 
-- **`STATUS: PASS`** + a 1–2 sentence summary, or
+- **`STATUS: PASS`** + a 1–2 sentence summary
 - **`STATUS: FAIL`** + a structured list of issues, each containing:
   1. **Discovered Issue** — what is incorrect or missing
   2. **Violated Rule** — the specific spec document and section violated
   3. **Remediation Suggestion** — what the Implementer must change
+- **`STATUS: FATAL_FAIL`** — Used ONLY if the Reviewer detects a critical architectural violation, a broken fundamental design token, or a completely unviable approach that cannot be fixed by simple iteration. This triggers an immediate abort of the rework loop (Fail-Fast) to save tokens.
 
 #### 2.4 — Loop Guardrails
 
 - **Maximum Retries:** A hard ceiling of **3 rework attempts** per task. This prevents infinite loops and token waste.
+- **Fail-Fast (FATAL_FAIL):** If the Reviewer issues a `STATUS: FATAL_FAIL`, immediately HALT the loop, mark the task `[~]`, and trigger the Pivot Protocol. Do not consume remaining rework attempts.
 - **Structured Feedback:** On `FAIL`, pass the full Reviewer report unchanged to the next Implementer spawn. Do not paraphrase.
-- **Escalation on HALT:** After 3 failed attempts, mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
+- **Escalation on HALT:** After 3 failed attempts (or a FATAL_FAIL), mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
 - **Pivot Detection:** If either the Implementer or the Reviewer surfaces evidence that the spec itself is wrong or unviable (not merely the implementation), stop looping immediately and trigger the Pivot Protocol below — do not consume rework attempts on a broken spec.
 
 ### Step 3: Finalize on PASS

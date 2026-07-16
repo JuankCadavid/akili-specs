@@ -39,7 +39,7 @@ Use the lightest useful depth:
 
 | Depth | Use For | Documentation Style |
 |---|---|---|
-| Lite | Small bugfixes, copy updates, narrow UI tweaks | Short sections, focused requirements, one or a few tasks |
+| Lite | Small bugfixes, copy updates, narrow UI tweaks | Extreme brevity: 1-2 bullet points for requirements, skip architectural boilerplate, 1 strictly focused task. Output tokens must be minimized. |
 | Standard | Normal features and enhancements | Full requirements, scenarios, design decisions, task breakdown |
 | Full | Risky, cross-cutting, API, data, auth, or migration work | Include alternatives, rollout, risks, observability, rollback |
 
@@ -201,6 +201,7 @@ Guidelines:
 - record meaningful trade-offs and rejected alternatives for non-trivial decisions
 - call out data, API, security, error-handling, observability, and rollback concerns when relevant
 - keep design decisions practical enough that an implementer can act without re-discovery
+- **Code Suppression:** DO NOT generate code snippets or implementation examples in `design.md`. Design decisions must remain conceptual to conserve output tokens. The actual code will be written during execution.
 
 #### Step 2.3 — Present & Approve
 

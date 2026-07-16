@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
-
-- No unreleased changes yet.
+### Changed
+- Refined `/sdd-specify` rules: Mode "Lite" now strictly enforces extreme brevity (1-2 bullet points, minimal output tokens) and code snippet generation is explicitly banned in `design.md` to conserve tokens.
+- Refined the multi-agent harness in `/sdd-execute` and `.claude/templates/reviewer.md` for token optimization: the Reviewer now enforces a strict **Diff-Only** audit constraint (reading only the git diff, not full source files) and supports a new **`STATUS: FATAL_FAIL`** (Fail-Fast) verdict to immediately abort the rework loop on unviable approaches without exhausting the 3-attempt ceiling.
 
 ## [0.10.0] - 2026-07-16
 

@@ -204,10 +204,11 @@ Rather than manually compiling assertion results during `/sdd-test`:
 Leader picks the next task → spawns Implementer with task + persona
 Implementer writes code, runs verification → reports back
 Leader extracts git diff → spawns Reviewer with diff + persona
-Reviewer returns STATUS: PASS or STATUS: FAIL
+Reviewer returns STATUS: PASS, STATUS: FAIL, or STATUS: FATAL_FAIL
 
 if PASS → update tasks.md, append execution.md, commit, advance
 if FAIL and attempts < 3 → respawn Implementer with the Reviewer's structured findings
+if FATAL_FAIL → abort loop immediately, mark task [~], trigger Pivot Protocol
 if 3 consecutive FAILs → HALT, mark task [~], present audit trail
 ```
 
@@ -217,9 +218,11 @@ if 3 consecutive FAILs → HALT, mark task [~], present audit trail
 - **Keeps each context tight.** Each role sees only the slice of spec it needs.
 - **Hard PASS/FAIL gate.** Design tokens, requirements conformance, and stability are enforced before the task is marked `[x]`.
 
-**Guardrails:**
+**Guardrails & Token Optimization:**
 
 - **Maximum retries.** A hard ceiling of 3 rework attempts per task.
+- **Fail-Fast (FATAL_FAIL).** Reviewer aborts the loop on critical architectural violations to save tokens.
+- **Diff-Only Review.** The Reviewer reads only the git diff to drastically reduce context window size.
 - **Structured feedback.** The Reviewer's FAIL report is forwarded unchanged to the next Implementer spawn.
 - **Pivot Protocol takes precedence.** If discovery proves the spec itself is wrong, the loop stops immediately; rework retries are not consumed on a broken spec.
 
