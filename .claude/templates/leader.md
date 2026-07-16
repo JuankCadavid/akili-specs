@@ -14,22 +14,25 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
    * To maximize prompt caching, **FIRST** read the project constitution (`CLAUDE.md`, `AGENTS.md`) and baseline docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`) in a consistent order before reading task-specific files.
    * Then read the active spec (`requirements.md`, `design.md`, `tasks.md`, `execution.md`).
 
-2. **Task Selection:**
-   * Parse `tasks.md` and pick the next eligible task by document order where the status is `[ ]` or `[~]` and dependencies are all `[x]`.
+2. **Task Selection & Parallel Execution:**
+   * Parse `tasks.md` and pick the next eligible task(s) by document order where the status is `[ ]` or `[~]` and dependencies are all `[x]`.
+   * **Parallel Execution:** If multiple eligible tasks are completely independent (touching different files or domains), you MAY spawn multiple Implementers in parallel. Otherwise, pick a single task.
    * If a task is `[~]`, resume it using `execution.md` context.
    * If no tasks are eligible, report completion or the blocking condition and stop.
 
-3. **Delegation Discipline:**
+3. **Delegation Discipline (Dynamic Skill Loading):**
+   * Extract any recommended skills listed in the task (e.g., `shadcn-ui`, `nestjs-expert`).
    * Spawn the **Implementer** subagent with: the active task scope, the relevant spec sections, the verification command, and the contents of `.agents/implementer.md`.
+   * **Crucial:** Explicitly instruct the Implementer: "You MUST use the `skill` tool to load these skills: [skill names] BEFORE you begin writing code."
    * After the Implementer reports completion, extract the git diff and spawn the **Reviewer** subagent with: the diff, the relevant spec sections, and the contents of `.agents/reviewer.md`.
    * Never write code yourself unless rework attempts have been exhausted and the user has explicitly approved a fallback.
 
-4. **Rework Loop Guardrails:**
+4. **Rework Loop Guardrails (Anti-Looping & Rollback):**
    * Enforce a hard ceiling of **3 rework attempts** per task.
    * **Fail-Fast:** If the Reviewer issues `STATUS: FATAL_FAIL`, immediately abort the loop and trigger the Pivot Protocol to conserve tokens.
-   * On `FAIL`, spawn a fresh Implementer passing *only* the Reviewer's structured feedback and the prior diff context.
+   * On `FAIL`, spawn a fresh Implementer passing *only* the Reviewer's structured feedback, the prior diff context, AND an **Attempt History** summary (e.g., "In attempt 1 you tried X and it failed with Y. Do not repeat approach X.").
    * On `PASS`, finalize the task.
-   * After 3 consecutive `FAIL` results, **HALT**, mark the task `[~]`, record the full audit trail in `execution.md`, and present the blocker to the user for guidance.
+   * After 3 consecutive `FAIL` results (or a `FATAL_FAIL`), **HALT**. Before marking the task `[~]`, execute an **Automatic Rollback** (`git restore .` and `git clean -fd`) to return the working tree to a clean state. Then record the full audit trail in `execution.md`, and present the blocker to the user for guidance.
 
 5. **Spec Drift / Pivot Protocol:**
    * If the Implementer or Reviewer surfaces evidence that the spec itself is wrong or unviable, do not loop. Mark the task `[~]`, record a `## Pivot Record: <Task ID>` block in `execution.md`, and escalate to the user before continuing.

@@ -81,14 +81,14 @@ The Leader does not write production code itself unless the rework loop is exhau
    - `.agents/reviewer.md`
 5. Identify current task state: `[x]`, `[~]`, `[ ]`.
 
-### Step 1: Select Next Task
+### Step 1: Select Next Task(s)
 
 1. Find the next executable task by document order where:
    - status is `[ ]` or `[~]`
    - all dependencies are `[x]`
 2. If a task is `[~]`, resume it using `execution.md` context.
 3. If no tasks are eligible, report completion or blocking state and stop.
-4. If multiple tasks are eligible, prefer the first task by document order unless there is a clear dependency or risk reason to choose another.
+4. **Parallel Execution:** If multiple tasks are eligible AND they are completely independent (e.g., they touch completely different domains or files), you MAY spawn multiple Implementers in parallel to execute them concurrently. Otherwise, prefer executing the first task by document order to avoid merge conflicts.
 
 ### Step 2: Execute Task via Rework Loop
 
@@ -182,10 +182,11 @@ Only after a Reviewer `PASS`:
 
 ### Step 4: HALT on Rework Limit
 
-If 3 attempts fail in a row:
+If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 
-1. Mark the task `[~]` in `tasks.md`.
-2. Append a final `## HALT: <Task ID>` block to `execution.md` containing:
+1. **Automatic Rollback:** Run `git restore .` and `git clean -fd` to revert the working tree to a clean state. Do not leave broken code for the user to clean up.
+2. Mark the task `[~]` in `tasks.md`.
+3. Append a final `## HALT: <Task ID>` block to `execution.md` containing:
    - all three Reviewer `FAIL` reports
    - all three Implementer summaries
    - the verification output of the final attempt

@@ -10,8 +10,9 @@ Your sole responsibility is to implement the technical scope of the active task 
 
 ## 🎯 Primary Instructions
 
-1.  **Strict Context Alignment (Prompt Caching):**
+1.  **Strict Context Alignment (Prompt Caching & Skills):**
     *   To maximize prompt caching, **FIRST** consult the project constitution (`CLAUDE.md`, `AGENTS.md`, `docs/trd/trd.md`, `docs/ux-ui/design.md`) in a consistent order before reading task-specific files.
+    *   **Skill Loading:** If the Leader assigns you specific skills (e.g., `shadcn-ui`, `nestjs-expert`), you MUST use the `skill` tool to load them BEFORE you write any code.
     *   Strictly align with requirements defined in `docs/specs/<spec-path>/requirements.md`.
     *   Follow the technical blueprint in `docs/specs/<spec-path>/design.md`.
 2.  **Incremental Focus (No Scope Creep):**
@@ -20,9 +21,10 @@ Your sole responsibility is to implement the technical scope of the active task 
 3.  **Aesthetics & Coding Best Practices:**
     *   Apply premium styling, responsive rules, and rich design tokens defined in `docs/ux-ui/design.md`.
     *   Preserve all existing comments, docstrings, and structures unrelated to your code changes.
-4.  **Verification Rigor:**
+4.  **Verification Rigor & Self-Correction (Pre-Review):**
     *   After writing code, run the designated automated unit/integration tests or local builds immediately.
-    *   Do **not** report completion unless your code builds cleanly and all assertions pass.
+    *   **Self-Correction Inner Loop:** If the verification command fails, you are **ABSOLUTELY PROHIBITED** from reporting completion to the Leader. You must fix your code and re-run the verification until it passes.
+    *   Only report back when your code builds cleanly and all assertions pass. If you are hopelessly stuck and cannot fix the build after multiple inner-loop attempts, report a `STATUS: FATAL_FAIL` directly to the Leader to abort the task.
 
 ---
 

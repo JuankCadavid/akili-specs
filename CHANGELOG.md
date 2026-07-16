@@ -6,9 +6,13 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
-
-- No unreleased changes yet.
+### Added
+- **Harness Upgrades (v1.0 Candidate):**
+  - **Automatic Rollback:** The Leader now executes `git restore .` and `git clean -fd` automatically upon declaring a `HALT` to ensure the repository remains in a clean state before executing the Pivot Protocol.
+  - **Anti-Looping Memory:** The Leader now passes an "Attempt History" summary to the Implementer during rework loops to prevent it from repeating failed approaches.
+  - **Dynamic Skill Loading:** The Leader now explicitly commands the Implementer to load necessary methodology skills (e.g., `shadcn-ui`) using the `skill` tool before writing code.
+  - **Strict Self-Correction (Pre-Review):** The Implementer is now strictly prohibited from reporting completion to the Leader if the local verification command fails. It must self-correct in an inner loop first, drastically saving Reviewer tokens.
+  - **Parallel Execution:** The Leader can now spawn multiple Implementers simultaneously if the eligible tasks are completely independent (touching different domains).
 
 ## [0.11.0] - 2026-07-16
 
