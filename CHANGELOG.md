@@ -6,11 +6,16 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [0.10.0] - 2026-07-16
+
 ### Added
 - Integrated Figma MCP and Jira MCP awareness into `/sdd-propose` (Step 1) to extract requirements and visual context from existing tickets and designs.
 - Added "Design Impact" rules to `/sdd-specify` ensuring UI states, Frontend Component Architecture, and atomic frontend tasks are generated when Figma or visual design context is present.
 - Added explicit "Report To User" short summaries across all major commands (`/sdd-propose`, `/sdd-specify`, `/sdd-execute`, `/sdd-validate`, `/sdd-test`, `/sdd-constitution`) so users receive a clear, digestible recap ("summary facil de entender de lo que se hizo") before the next step.
-
 ## [0.9.4] - 2026-07-13
 
 ### Changed
