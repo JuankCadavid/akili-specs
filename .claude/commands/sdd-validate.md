@@ -139,7 +139,7 @@ The report title must be `# Validation Report — {Spec Name}`.
 
 ### Phase 8: Report to User
 
-Present overall status, key findings, remediation count, and archive readiness. If issues exist, ask whether to fix all, fix critical only, or keep only the report. If the work is archive-ready, show the exact next command:
+Generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the overall status, key findings, remediation count, and archive readiness. If issues exist, ask whether to fix all, fix critical only, or keep only the report. If the work is archive-ready, show the exact next command:
 
 ```text
 /sdd-archive $ARGUMENTS

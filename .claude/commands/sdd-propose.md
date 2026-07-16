@@ -62,7 +62,12 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 4. Read nearby or related specs under `docs/specs/`.
 5. Inspect relevant code paths only enough to understand current behavior and likely impact.
 
-### Step 1: Clarify Intent & Scope Chunking
+### Step 1: Clarify Intent, Sources & Scope Chunking
+
+Before diving into the problem, ask the user about the source of the requirements and any visual designs:
+
+1. **Requirement Source:** Ask if they have a **Jira ticket** (if they do, suggest using the **Jira MCP** to automatically extract the description, acceptance criteria, and comments created by the BA) or if they prefer to paste/write the context directly.
+2. **Visual Designs / Mockups:** Ask if there is a **Figma link** or any visual mockup available. If they provide a Figma URL, suggest using the **Figma MCP** to extract the design details, components, and layout information.
 
 Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 
@@ -146,7 +151,7 @@ Before presenting the proposal, verify:
 
 ## Report To User
 
-Present a short summary with:
+Generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) that reflects what was done. It must include:
 
 1. proposal path
 2. resolved spec path

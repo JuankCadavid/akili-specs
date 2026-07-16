@@ -110,7 +110,7 @@ The report must include:
 
 ### Phase 6: Report to User
 
-Present overall test status, test counts, requirement coverage, scenario gaps, and top failures. If failures exist, ask whether to fix failures, add missing tests, fix all, or keep only the report.
+Generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the overall test status, test counts, requirement coverage, scenario gaps, and top failures. If failures exist, ask whether to fix failures, add missing tests, fix all, or keep only the report.
 
 ---
 

@@ -189,7 +189,7 @@ If 3 attempts fail in a row:
 
 ### Step 5: Continue or Pause
 
-After a task PASSes or HALTs, summarize the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
+After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
 
 ---
 

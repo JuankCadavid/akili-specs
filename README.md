@@ -506,8 +506,8 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | Command | Use When | Main Output |
 |---|---|---|
 | `/sdd-constitution` | Starting a repo or repairing weak project context | `docs/prd.md`, UX/UI design, TRD, `docs/infrastructure.md`, general spec templates, `CLAUDE.md`, `AGENTS.md` guidance |
-| `/sdd-propose <change-name-or-spec-path>` | Aligning on intent before full specification | `proposal.md` under `docs/specs/<spec-path>/` |
-| `/sdd-specify <spec-path>` | Planning one bounded change before code | `requirements.md`, `design.md`, `tasks.md` under `docs/specs/<spec-path>/` (includes LOC estimation and HITL menus) |
+| `/sdd-propose <change-name-or-spec-path>` | Aligning on intent before full specification (supports Figma/Jira MCP context) | `proposal.md` under `docs/specs/<spec-path>/` |
+| `/sdd-specify <spec-path>` | Planning one bounded change before code | `requirements.md`, `design.md`, `tasks.md` under `docs/specs/<spec-path>/` (includes Design Impact injection, LOC estimation and HITL menus) |
 | `/sdd-execute <spec-path>` | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
 | `/sdd-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
 | `/sdd-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
@@ -719,9 +719,10 @@ Fallback rule:
 
 ## Methodology Contract
 
+- **User-Facing Summaries:** All major commands (`/sdd-propose`, `/sdd-specify`, `/sdd-execute`, `/sdd-validate`, `/sdd-test`, `/sdd-constitution`) generate a short, digestible summary on the screen before proceeding to the next step, ensuring developers always understand what the agent just did.
 - `/sdd-constitution` establishes the project baseline docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, `docs/infrastructure.md`) and `docs/specs/general-setup/` templates, and scaffolds the project `.agents/` harness (Leader, Implementer, Reviewer).
-- `/sdd-propose` creates a lightweight proposal before full specification. Evaluates massive instructions for **Scope Chunking** to split work into manageable modules.
-- `/sdd-specify` must follow those templates when generating module specs. Enforces **Human-in-the-loop (HITL)** approval pauses after Requirements, Design, and Tasks. Promotes rigorous BDD scenarios (`BUT it must NOT`, `AND IT MUST`), allows blind adversarial design reviews via the `judgment-day` skill, and outputs a final **Lines of Code (LOC) estimate** to recommend a safe Pull Request strategy.
+- `/sdd-propose` creates a lightweight proposal before full specification. Evaluates massive instructions for **Scope Chunking** to split work into manageable modules. Integrates with **Figma MCP** and **Jira MCP** to extract visual context, requirements, and user stories.
+- `/sdd-specify` must follow those templates when generating module specs. Enforces **Human-in-the-loop (HITL)** approval pauses after Requirements, Design, and Tasks. Promotes rigorous BDD scenarios (`BUT it must NOT`, `AND IT MUST`), allows blind adversarial design reviews via the `judgment-day` skill, outputs a final **Lines of Code (LOC) estimate** to recommend a safe Pull Request strategy, and explicitly injects **Design Impact** rules (from Figma contexts) into UI tasks and components.
 - `/sdd-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
 - `/sdd-test` validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
 - `/sdd-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.

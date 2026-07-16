@@ -107,6 +107,7 @@ Guidelines:
 - use measurable, testable language
 - separate goals from requirements
 - write behavior contracts, not implementation plans
+- **Design Impact:** IF the proposal includes Figma or visual design context, ensure UI states (loading, error, empty, success) and responsive behaviors are captured as explicit requirements.
 - include concrete scenarios for key requirements using `GIVEN`, `WHEN`, `THEN`, and optional `AND`
 - make requirement strength explicit with `SHALL`, `MUST`, `SHOULD`, or `MAY` where useful
 
@@ -195,6 +196,7 @@ Guidelines:
 - extend existing architecture rather than replacing it
 - use current repo paths and package names
 - include UI/UX decisions when the feature affects screens, flows, or components
+- **Design Impact:** IF the proposal includes Figma or visual design context, break down the visual design into a clear Frontend Component Architecture (e.g., atomic components) and define the necessary Design Tokens (colors, typography).
 - tie design sections back to requirements explicitly
 - record meaningful trade-offs and rejected alternatives for non-trivial decisions
 - call out data, API, security, error-handling, observability, and rollback concerns when relevant
@@ -256,6 +258,7 @@ Task quality rules:
 - every task must reference the requirements it satisfies
 - every task must include a concrete verification command or manual check
 - tasks should explicitly address the negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`) defined in their respective requirement scenarios
+- **Design Impact:** IF the proposal includes Figma or visual design context, ensure frontend tasks are atomic, focusing on specific UI components, layouts, styling, and states extracted from the design.
 - tasks should avoid broad instructions like "implement feature" without scoped subtasks
 - tasks may be grouped by phase, but dependencies must remain explicit
 
@@ -302,7 +305,7 @@ After all three documents are approved, verify:
 
 ## Review Handoff
 
-When the spec is ready, present a short handoff summary:
+When the spec is ready, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) that reflects what was done. It must include:
 
 1. Spec path and chosen depth: Lite, Standard, or Full
 2. Problem being solved

@@ -391,7 +391,7 @@ Claude Code (and their plan's rate limits) and which models their OpenCode roste
 
 ### Step 9: Present and Confirm
 
-After drafting or enhancing the documents, present a concise summary covering:
+After drafting or enhancing the documents, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) covering:
 
 - What was created vs enhanced
 - Which of the three modes was applied (Brand-new / Legacy / Active SDD) and why
