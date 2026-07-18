@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
-
-- No unreleased changes yet.
+### Fixed
+- Fixed remaining `akili-methodology` package references in documentation to correctly point to `akili-specs`.
+- Updated the ASCII art in the README to reflect the new AKILI branding instead of the old JCSPECS banner.
 
 ## [2.0.0] - 2026-07-18
 
