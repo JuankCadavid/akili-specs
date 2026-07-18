@@ -6,10 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.1.0] - 2026-07-18
+
 ### Added
 - **Interactive Setup Wizard:** Running the CLI without arguments (or using the `akili init` command) now launches an interactive setup wizard that asks which tools to target and whether to install globally or locally.
 - **Local Project Installation:** Added the `--local` (`-l`) flag to the CLI. This allows users to install the methodology artifacts directly into their local project workspace (e.g., `./.claude` and `./.config/opencode`) instead of the global home directories, ensuring project-specific isolation when needed.
-
 ## [2.0.1] - 2026-07-18
 
 ### Fixed
