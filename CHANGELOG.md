@@ -6,9 +6,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
-
-- No unreleased changes yet.
+### Fixed
+- Fixed the GitHub repository URL in `package.json` to point to the correct `JuankCadavid/sdd-jc-methodology` repository instead of the non-existent `akili-specs` repo.
 
 ## [2.1.0] - 2026-07-18
 
