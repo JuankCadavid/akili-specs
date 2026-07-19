@@ -9,7 +9,7 @@ The `akili` CLI installs the AKILI command prompts, skills, and helper resources
 Run the CLI without arguments or use the `init` command to launch an interactive wizard. It will guide you through selecting the target tools and choosing between global or local installation:
 
 ```bash
-pnpm dlx akili-specs
+npx akili-specs
 # or
 akili init
 ```
@@ -19,17 +19,17 @@ akili init
 Run directly from npm:
 
 ```bash
-pnpm dlx akili-specs install --tool claude
-pnpm dlx akili-specs install --tool opencode
-pnpm dlx akili-specs install --tool antigravity
-pnpm dlx akili-specs install --tool both
-pnpm dlx akili-specs install --tool all
+npx akili-specs install --tool claude
+npx akili-specs install --tool opencode
+npx akili-specs install --tool antigravity
+npx akili-specs install --tool both
+npx akili-specs install --tool all
 ```
 
 Claude is the default target:
 
 ```bash
-pnpm dlx akili-specs install
+npx akili-specs install
 ```
 
 Use a persistent global install if preferred:

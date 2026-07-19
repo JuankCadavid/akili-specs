@@ -82,7 +82,7 @@ Use this flow:
 5. Commit the release version update.
 6. Confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`.
 7. Publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`.
-8. Smoke test the published version with `pnpm dlx akili-specs@<version> list`.
+8. Smoke test the published version with `npx akili-specs@<version> list`.
 
 Use patch for small docs/fixes, minor for new commands or install targets, and major for breaking changes.
 

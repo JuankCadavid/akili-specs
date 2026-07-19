@@ -78,8 +78,8 @@ For private registry publishing, configure the registry first and publish using 
 ## Post-Publish Smoke Test
 
 ```bash
-pnpm dlx akili-specs@<version> list
-pnpm dlx akili-specs@<version> install --tool both --dry-run
+npx akili-specs@<version> list
+npx akili-specs@<version> install --tool both --dry-run
 npm view akili-specs version --registry=https://registry.npmjs.org/
 npm run release:status
 ```

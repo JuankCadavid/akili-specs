@@ -134,9 +134,9 @@ Install the methodology with the bundled CLI. The installer can target Claude, O
 Simply run the CLI without arguments to launch the interactive setup wizard, which will ask you about the tool and whether you want a global or local installation:
 
 ```bash
-pnpm dlx akili-specs
+npx akili-specs
 # or
-pnpm dlx akili-specs init
+npx akili-specs init
 ```
 
 **Manual Installation via Flags:**
@@ -144,19 +144,19 @@ pnpm dlx akili-specs init
 Install globally for Claude (default):
 
 ```bash
-pnpm dlx akili-specs install
+npx akili-specs install
 ```
 
 Install globally for OpenCode:
 
 ```bash
-pnpm dlx akili-specs install --tool opencode
+npx akili-specs install --tool opencode
 ```
 
 Install locally to the current project workspace:
 
 ```bash
-pnpm dlx akili-specs install --tool both --local
+npx akili-specs install --tool both --local
 ```
 
 ### Step 3: Verify The Installation
@@ -164,25 +164,25 @@ pnpm dlx akili-specs install --tool both --local
 Check Claude installation:
 
 ```bash
-pnpm dlx akili-specs doctor --tool claude
+npx akili-specs doctor --tool claude
 ```
 
 Check OpenCode installation:
 
 ```bash
-pnpm dlx akili-specs doctor --tool opencode
+npx akili-specs doctor --tool opencode
 ```
 
 Check Antigravity installation:
 
 ```bash
-pnpm dlx akili-specs doctor --tool antigravity
+npx akili-specs doctor --tool antigravity
 ```
 
 Check all:
 
 ```bash
-pnpm dlx akili-specs doctor --tool all
+npx akili-specs doctor --tool all
 ```
 
 Expected result: every command, skill, and helper resource shows `OK`.
@@ -281,19 +281,19 @@ OpenCode loads global command markdown files from `~/.config/opencode/commands/`
 Update Claude:
 
 ```bash
-pnpm dlx akili-specs update --tool claude --force
+npx akili-specs update --tool claude --force
 ```
 
 Update OpenCode:
 
 ```bash
-pnpm dlx akili-specs update --tool opencode --force
+npx akili-specs update --tool opencode --force
 ```
 
 Update both:
 
 ```bash
-pnpm dlx akili-specs update --tool both --force
+npx akili-specs update --tool both --force
 ```
 
 Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped.
@@ -353,8 +353,8 @@ npm publish --access public --registry=https://registry.npmjs.org/
 After publish, smoke test:
 
 ```bash
-pnpm dlx akili-specs@X.Y.Z list
-pnpm dlx akili-specs@X.Y.Z install --tool both --dry-run
+npx akili-specs@X.Y.Z list
+npx akili-specs@X.Y.Z install --tool both --dry-run
 npm view akili-specs version --registry=https://registry.npmjs.org/
 npm run release:status
 ```
