@@ -589,22 +589,16 @@ function checkForUpdates() {
             if (isNewer) {
               const border = `╭─────────────────────────────────────────────────────────────╮`;
               const emptyLine = `│                                                             │`;
-              const msgLine1 = `│   ${colors.yellow}Update available!${colors.reset} ${colors.red}${currentVersion}${colors.reset} → ${colors.green}${latestVersion}${colors.reset}`;
-              const msgLine2 = `│   Run ${colors.cyan}npm install -g akili-specs${colors.reset} to update.`;
               
-              // Pad to keep the box neat (very rudimentary padding, assumes specific length of colors)
-              // Just manually aligning for aesthetic since console length with escape codes is tricky
               console.log(`\n${colors.yellow}${border}`);
               console.log(`${emptyLine}`);
-              // 61 total chars inside. 
-              // "Update available! x.x.x -> y.y.y"
               const rawStr1 = `   Update available! ${currentVersion} -> ${latestVersion}`;
               const pad1 = " ".repeat(Math.max(0, 61 - rawStr1.length));
               console.log(`│   ${colors.yellow}Update available!${colors.reset} ${colors.red}${currentVersion}${colors.reset} → ${colors.green}${latestVersion}${colors.reset}${pad1}│`);
               
-              const rawStr2 = `   Run npm install -g akili-specs to update.`;
+              const rawStr2 = `   Run akili update to upgrade.`;
               const pad2 = " ".repeat(Math.max(0, 61 - rawStr2.length));
-              console.log(`│   Run ${colors.cyan}npm install -g akili-specs${colors.reset} to update.${pad2}│`);
+              console.log(`│   Run ${colors.cyan}akili update${colors.reset} to upgrade.${pad2}│`);
               console.log(`${emptyLine}`);
               console.log(`╰─────────────────────────────────────────────────────────────╯${colors.reset}\n`);
             }
