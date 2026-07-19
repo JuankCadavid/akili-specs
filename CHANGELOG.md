@@ -6,12 +6,17 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.3.0] - 2026-07-19
+
 ### Added
 - **Auto-Update Checker:** The `akili` CLI now automatically checks the NPM registry in the background (zero dependencies, 1500ms timeout) to see if a newer version is available. If an update exists, it prominently displays a stylish banner reminding the user to update, ensuring teams always stay on the latest methodology release.
 
 ### Fixed
 - Changed the CLI behavior so that running `akili` with no arguments defaults to showing the `help` menu instead of launching the interactive `init` wizard. The wizard must now be explicitly invoked via `akili init` (or `npx akili-specs init`).
-
 ## [2.2.2] - 2026-07-19
 
 ### Fixed
