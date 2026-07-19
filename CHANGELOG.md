@@ -6,9 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.4.1] - 2026-07-19
+
 ### Fixed
 - **`akili update` now updates the npm package:** Previously `akili update` only reinstalled files from the already-installed version. Now it detects the installation type (global, local, or npx), runs `npm install -g akili-specs@latest` or `npm install akili-specs@latest` accordingly, and then reinstalls files with `--force`.
-
 ## [2.4.0] - 2026-07-19
 
 ### Added
