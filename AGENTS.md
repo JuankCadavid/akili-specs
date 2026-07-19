@@ -35,6 +35,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `systematic-debugging` for bugs, test failures, and unexpected behavior.
 - Use `frontend-design`, `ui-ux-pro-max`, `tailwind-design-system`, or `shadcn-ui` for UI work.
 - Use `gsap-*` skills for animation work.
+- Use `judgment-day` for blind adversarial design reviews during `/akili-specify`.
 - Use `react-doctor` and `vercel-react-best-practices` for React/Next.js changes.
 - Use `angular-developer` for Angular projects, components, services, routing, forms, signals, SSR, accessibility, styling, animations, testing, and CLI tooling.
 - Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.

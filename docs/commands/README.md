@@ -13,6 +13,8 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 | [`/akili-test <spec-path>`](akili-test.md) | Proving behavior with test evidence | `test-report.md` |
 | [`/akili-validate <spec-path>`](akili-validate.md) | Auditing conformance before completion | `validation-report.md` |
 | [`/akili-archive <spec-path>`](akili-archive.md) | Closing completed work after validation | Archived spec folder with `archive-summary.md` |
+| [`/akili-audit`](akili-audit.md) | Detecting drift between specs and codebase reality | `docs/specs/drift-report.md` with conformance score and discrepancy matrix |
+| [`/akili-resume`](akili-resume.md) | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | [`/akili-seo <site-domain>`](akili-seo.md) | Setting up GSC ownership and SEO audit evidence | `seo-setup-report.md`, `seo-audit-report.md` |
 
 ## Normal Sequence
@@ -29,6 +31,8 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 
 You can skip `/akili-propose` for very small, obvious work. You should not skip validation before archiving unless the user explicitly accepts the risk.
 
+Run `/akili-audit` independently to detect drift between specs and codebase reality at any time.
+
 ## Source Files
 
 | Command | Source |
@@ -40,4 +44,6 @@ You can skip `/akili-propose` for very small, obvious work. You should not skip 
 | `/akili-test` | `.claude/commands/akili-test.md` |
 | `/akili-validate` | `.claude/commands/akili-validate.md` |
 | `/akili-archive` | `.claude/commands/akili-archive.md` |
+| `/akili-audit` | `.claude/commands/akili-audit.md` |
+| `/akili-resume` | `.claude/commands/akili-resume.md` |
 | `/akili-seo` | `.claude/commands/akili-seo.md` |

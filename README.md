@@ -71,6 +71,8 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `akili-test.md`
   - `akili-validate.md`
   - `akili-archive.md`
+  - `akili-audit.md`
+  - `akili-resume.md`
   - `akili-seo.md`
 - `.claude/skills/`
   - `angular-developer`
@@ -87,6 +89,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `gsap-scrolltrigger`
   - `gsap-timeline`
   - `gsap-utils`
+  - `judgment-day`
   - `nestjs-expert`
   - `product-manager-toolkit`
   - `react-doctor`
@@ -503,6 +506,8 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | `/akili-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
 | `/akili-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
 | `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, synced agent guides, CodeGraph re-index reminder |
+| `/akili-audit` | Detecting drift between specs and codebase reality | `docs/specs/drift-report.md` with conformance score and discrepancy matrix |
+| `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
 
 ## How To Choose The Right Depth
@@ -675,6 +680,10 @@ See [OpenSpec Comparison](docs/openspec-comparison.md) for the current AKILI com
 - broader command portability beyond Claude-specific command files
 
 ### Auxiliary commands
+
+- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces `docs/specs/drift-report.md` with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths. Run independently or after major implementation milestones.
+
+- `/akili-resume` — Resume work after a session break by scanning all active specs under `docs/specs/` and presenting a multi-spec dashboard. Shows current phase, progress bars, last action, blockers, and recommends the next command. If only one spec is active, goes directly to a detailed briefing. No arguments required.
 
 - `/akili-seo <site-domain>` — SEO setup & audit via Google Search Console. Verifies a domain through DNS TXT using a service account, adds the property to GSC, then audits index coverage, sitemaps, structured data, search analytics, server-side render, internal linking, and on-page SEO (titles, metas, headings, canonicals, hreflang) using the packaged `seo-audit` skill. Produces `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/`, including a copy-paste implementation prompt for fixing every High-severity finding.
 

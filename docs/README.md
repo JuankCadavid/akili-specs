@@ -26,6 +26,10 @@ Use this documentation when you want the human-facing reference. The installable
 /akili-archive <spec-path>
 ```
 
+Use `/akili-resume` at the start of any session to see a dashboard of all active specs and where each one stands.
+
+Use `/akili-audit` independently to detect drift between specs and codebase reality at any time.
+
 Use `/akili-seo <site-domain>` independently when you need Google Search Console setup and SEO audit reports.
 
 ## Documentation Map
