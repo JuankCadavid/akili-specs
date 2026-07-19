@@ -6,9 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.2.1] - 2026-07-19
+
 ### Fixed
 - Updated `package.json` repository URLs to point to the new renamed GitHub repository `JuankCadavid/akili-specs`.
-
 ## [2.2.0] - 2026-07-19
 
 ### Added
