@@ -2,13 +2,13 @@
   "name": "akili-specs",
   "version": "2.2.0",
   "description": "Portable AKILI-SPECS methodology commands and skills for AI-assisted development.",
-  "homepage": "https://github.com/JuankCadavid/sdd-jc-methodology#readme",
+  "homepage": "https://github.com/JuankCadavid/akili-specs#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JuankCadavid/sdd-jc-methodology.git"
+    "url": "git+https://github.com/JuankCadavid/akili-specs.git"
   },
   "bugs": {
-    "url": "https://github.com/JuankCadavid/sdd-jc-methodology/issues"
+    "url": "https://github.com/JuankCadavid/akili-specs/issues"
   },
   "bin": {
     "akili": "bin/akili.js"
