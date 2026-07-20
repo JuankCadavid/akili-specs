@@ -184,3 +184,9 @@ The work is ready to consider complete when:
 - tests cover the key requirements and scenarios
 - implementation drift is reflected in the AKILI-SPECS docs or execution notes
 - the user has reviewed the validation summary
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

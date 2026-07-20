@@ -72,3 +72,9 @@ BUG:
 - **Failing Test:** (test file::test name — kept red on purpose)
 - **Observed vs Expected:** (actual behavior vs the required behavior)
 ```
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

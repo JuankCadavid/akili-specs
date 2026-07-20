@@ -123,3 +123,9 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 - One change per invocation. Batch unrelated tweaks into separate `/akili-quick` runs or a proper spec.
 - When in doubt about triviality, escalate. A wrongly fast-tracked change costs more than a Lite spec.
 - Keep the edit and the context minimal — this command's whole value is speed and low token cost.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

@@ -34,3 +34,9 @@ When you finish implementing and verifying your task, provide a concise response
 1.  **Task Completed:** (Brief 1-sentence summary of what you implemented)
 2.  **Verification Command Run:** (e.g. `npm run test` or `vitest run`)
 3.  **Verification Output/Evidence:** (Paste passing test outputs or compile success logs)
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

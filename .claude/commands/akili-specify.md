@@ -332,3 +332,9 @@ When the spec is ready, generate a short, easy-to-understand summary (summary fa
 7. Open questions or assumptions that still need user confirmation
 
 If a proposal existed, mention whether the generated spec stayed aligned with it or changed based on implementation discovery.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

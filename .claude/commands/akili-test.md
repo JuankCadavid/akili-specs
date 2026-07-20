@@ -174,3 +174,9 @@ If `ui-ux-pro-max` is unavailable, use `frontend-design` plus the UX/UI design d
 - If no automated test is practical, document the manual verification steps and why automation was deferred.
 - A Tester must never rewrite a test to hide a genuine product defect; a real failure is reported as `PRODUCT_BUG`, not silenced.
 - Do not delegate trivial single-test work to a subagent when running it inline is cheaper (see the Deployment Rule).
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

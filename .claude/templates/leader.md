@@ -75,3 +75,9 @@ After each task completes (whether on first pass or after self-correction), repo
 6. **Next step:** the next eligible task and a prompt to continue, pause, or skip.
 
 Keep this report concise. The full audit trail belongs in `execution.md`, not in chat.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

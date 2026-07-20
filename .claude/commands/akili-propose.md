@@ -247,3 +247,9 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 7. next command to run after approval (matched to the type)
 
 Ask whether to approve the proposal, revise it, or stop.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

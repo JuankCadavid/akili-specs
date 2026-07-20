@@ -95,3 +95,9 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
 1. Fix documented specs (update baseline docs in place).
 2. Schedule task specs to implement missing functionality in the code.
 3. Keep the report for review.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

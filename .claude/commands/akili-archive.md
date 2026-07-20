@@ -143,3 +143,9 @@ Present:
 - If validation has unresolved FAIL findings, recommend fixing or explicitly accepting risk before archive.
 - If moving the folder fails, leave the original folder in place and report the reason.
 - Do not delete spec folders as part of archiving; only move them into `docs/specs/archive/`.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)

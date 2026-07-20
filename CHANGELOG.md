@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Authorship section in commands and templates:** Every command in `.claude/commands/` and every agent role template in `.claude/templates/` now ends with an `## Authorship` section crediting the AKILI-SPECS methodology to Juan Carlos Cadavid ([jcadavid.com](https://jcadavid.com)).
 
 ## [2.5.1] - 2026-07-19
 

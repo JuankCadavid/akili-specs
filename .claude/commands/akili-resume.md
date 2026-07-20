@@ -118,3 +118,9 @@ No files are created or modified. The command outputs a screen summary only.
 - If `docs/specs/` does not exist, report that the project has no active specs and suggest running `/akili-constitution` or `/akili-propose`.
 - If `docs/specs/` is empty (only `archive/` exists), report that all specs are archived and suggest running `/akili-propose` for new work.
 - If a spec folder exists but has no readable files, report it as an incomplete spec and suggest running `/akili-specify <spec-path>`.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
