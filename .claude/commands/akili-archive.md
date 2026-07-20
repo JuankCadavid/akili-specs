@@ -1,5 +1,8 @@
 ---
 description: Archive a completed spec task, sync agent guides and CodeGraph, and keep the TRD current.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Archive AKILI-SPECS Spec
@@ -148,4 +151,4 @@ Present:
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

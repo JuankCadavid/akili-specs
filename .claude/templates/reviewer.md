@@ -56,4 +56,4 @@ SUMMARY: (Clear explanation of the catastrophic failure and why the loop must be
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

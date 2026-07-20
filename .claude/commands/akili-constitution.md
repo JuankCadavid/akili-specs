@@ -1,5 +1,8 @@
 ---
 description: Establish or strengthen the project-wide AKILI-SPECS foundation and baseline docs (PRD, UX/UI Design, TRD).
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Establish AKILI-SPECS Constitution
@@ -421,4 +424,4 @@ At the end of `/akili-constitution`, the repository should have a project-level 
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

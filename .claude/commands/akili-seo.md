@@ -1,5 +1,8 @@
 ---
 description: Enhance pages and search engine optimization following SEO best practices.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # SEO Setup & Audit via Google Search Console
@@ -280,4 +283,4 @@ After the command completes, verify:
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

@@ -1,5 +1,8 @@
 ---
 description: Resume work after a session break by scanning active specs and presenting a multi-spec dashboard briefing.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Resume AKILI-SPECS Session
@@ -123,4 +126,4 @@ No files are created or modified. The command outputs a screen summary only.
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

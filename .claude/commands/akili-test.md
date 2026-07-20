@@ -1,5 +1,8 @@
 ---
 description: Write and execute comprehensive automated unit/integration tests for the implemented feature.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Test AKILI-SPECS Implementation
@@ -179,4 +182,4 @@ If `ui-ux-pro-max` is unavailable, use `frontend-design` plus the UX/UI design d
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

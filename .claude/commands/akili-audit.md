@@ -1,5 +1,8 @@
 ---
 description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Audit AKILI Specifications for Drift
@@ -100,4 +103,4 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

@@ -1,5 +1,8 @@
 ---
 description: Execute approved specs systematically following the AKILI-SPECS methodology with spec-to-code traceability.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Execute AKILI-SPECS Tasks
@@ -243,4 +246,4 @@ A minimal PASS-on-first-attempt entry can be compact; a HALT or rework entry mus
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

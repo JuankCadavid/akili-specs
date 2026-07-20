@@ -1,5 +1,8 @@
 ---
 description: Draft detailed requirements, UI/UX designs, and technical tasks for a proposed feature.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Generate AKILI-SPECS for Module
@@ -337,4 +340,4 @@ If a proposal existed, mention whether the generated spec stayed aligned with it
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

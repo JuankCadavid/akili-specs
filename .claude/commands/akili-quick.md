@@ -1,5 +1,8 @@
 ---
 description: Fast-track a trivial, low-risk change (copy edit, color tweak, small style/text change) with minimal traceability and automatic escalation when it is not actually trivial.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Fast-Track a Trivial AKILI-SPECS Change
@@ -128,4 +131,4 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 
 ## Authorship
 
-AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com)
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.
