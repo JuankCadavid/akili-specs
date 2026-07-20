@@ -1,0 +1,7 @@
+# Default owner: every change in this repository requires maintainer review.
+* @JuankCadavid
+
+# Methodology artifacts executed by AI agents — always reviewed by the author.
+/.claude/ @JuankCadavid
+/bin/ @JuankCadavid
+/scripts/ @JuankCadavid

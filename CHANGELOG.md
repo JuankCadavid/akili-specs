@@ -11,6 +11,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Authorship section in commands and templates:** Every command in `.claude/commands/` and every agent role template in `.claude/templates/` now ends with an `## Authorship` section crediting the AKILI-SPECS methodology to Juan Carlos Cadavid ([jcadavid.com](https://jcadavid.com)).
 - **Authorship in README, LICENSE, and package metadata:** The README gains an `## Authorship` section, the MIT LICENSE copyright line uses the full author name and site, and `package.json` declares the `author` field.
 - **License metadata in commands:** Every command in `.claude/commands/` declares `license: MIT` and `metadata.author` in its frontmatter (matching the convention used by community skills), and the `## Authorship` footer of commands and templates states the MIT License. Third-party skills bundled in `.claude/skills/` keep their original authors and licenses untouched.
+- **Community governance files:** `CONTRIBUTING.md` (PR-only workflow, changelog discipline, and security rules for editing agent-executed prompt files), `SECURITY.md` (private vulnerability reporting with prompt-injection and installer threat scope), and `.github/CODEOWNERS` (maintainer review required on every change).
 
 ## [2.7.0] - 2026-07-20
 
