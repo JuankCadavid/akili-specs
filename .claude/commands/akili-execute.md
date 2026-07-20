@@ -52,8 +52,8 @@ If `.agents/` is missing, run `/akili-constitution` first to scaffold it. Do not
 
 **Delegation mechanism by tool:**
 
-- **Claude Code / OpenCode:** spawn a focused subagent (or sub-prompt context) seeded with the persona file plus the task/diff context.
-- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent workflow primitive) using prompts read from `.agents/`.
+- **Claude Code / OpenCode:** if the project has tool-native AKILI agent wrappers (scaffolded by `/akili-constitution` Step 8E — e.g. `.claude/agents/akili-implementer.md` / `akili-reviewer.md` with `model:` bindings from the `## Model Routing` registry), **spawn those named agents** so each role runs on its tier's model and author ≠ auditor is enforced by configuration. Otherwise, spawn a focused subagent (or sub-prompt context) seeded with the persona file plus the task/diff context.
+- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent workflow primitive) using prompts read from `.agents/` (no per-agent model binding — guidance-only routing).
 
 The Leader does not write production code itself unless the rework loop is exhausted and the user has explicitly approved a fallback.
 
@@ -62,6 +62,8 @@ The Leader does not write production code itself unless the rework loop is exhau
 ## Behavior
 
 ### Step 0: Load Context
+
+**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** for you as Leader — the Implementer/Reviewer route through the Step 8E agent wrappers (their own tier models) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 

@@ -55,6 +55,8 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 
 ### Step 0: Resolve Path And Load Context
 
+**Model checkpoint:** This phase runs best on **T1 Architect** (deep reasoning). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
 1. Resolve `$SPEC_PATH` using the path rules above.

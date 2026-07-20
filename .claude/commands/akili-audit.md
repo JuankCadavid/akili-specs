@@ -19,6 +19,8 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 
 ### Step 0: Read Project Specifications
 
+**Model checkpoint:** This phase runs best on **T4 Context-Ingest** for the scan and **T3 Auditor** for judging drift. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T4+T3 — the registry recommends `/model sonnet`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 First, read the constitutional documentation baseline in the repository:
 
 1. `docs/prd.md`
@@ -44,6 +46,7 @@ Audit for discrepancies, classifying findings under the following categories:
 * **Visual/Design Token Mismatch:** Colors, typography, spacing, or component structures used in the codebase that violate the styling tokens and design principles declared in `docs/ux-ui/design.md`.
 * **Technical Constraints Violation:** Architectural layout in the codebase that conflicts with patterns (e.g. testing requirements, security rules, file structuring) documented in `docs/trd/trd.md`.
 * **Agent Guide Drift:** Modules whose conventions clearly diverge from the root but lack a child `CLAUDE.md`/`AGENTS.md`, child guides missing from the parent's `## Module Guides` index, guide entries pointing at modules that no longer exist, or root-guide structure descriptions that no longer match the codebase.
+* **Model Registry Drift:** The project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) names models the host tool no longer offers, uses dated model pins where a floating alias exists (violating the alias-first rule) without a recorded reason, is missing tiers or the author ≠ auditor note versus the packaged default in `docs/model-routing.md`, or the Step 8E agent wrappers (`.claude/agents/akili-*.md` / OpenCode agent config) declare models that contradict the registry. Report only — never edit the registry or wrappers during the audit.
 
 ### Step 3: Write Drift Report
 
@@ -87,6 +90,7 @@ A brief overview of the codebase alignment state and major areas of specificatio
 | UX/UI Design / Screen Inventory | [Details] | [Aligned / Drifted] | |
 | TRD (APIs/DB) | [Details] | [Aligned / Drifted] | |
 | Agent Guides (root + `## Module Guides` index) | [Details] | [Aligned / Drifted] | |
+| Model Routing (registry + Step 8E wrappers) | [Details] | [Aligned / Drifted] | |
 
 ## Recommended Next Steps
 Specific actions to resolve the discrepancies (e.g., "Run `/akili-constitution` to enhance baseline", "Update `trd.md` with active REST APIs", or "Schedule a task to implement missing validation tests").

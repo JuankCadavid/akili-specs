@@ -63,7 +63,11 @@ The `.agents/` directory is tool-agnostic: pure Markdown + YAML frontmatter, res
 
 ## Model Routing Scaffolding
 
-Step 7C adds or upgrades a `## Model Routing` section in the project's root `AGENTS.md` and `CLAUDE.md`: a capability-tier registry that maps each AKILI-SPECS phase to a model **per tool** (Claude Code and OpenCode). It is guidance only — no `model:` frontmatter is added and the installer is unchanged. The registry enforces **author ≠ auditor** (the Reviewer runs on a different model than the Implementer) and, in Active-AKILI-SPECS mode, is non-destructive: an existing customized registry is preserved and only gaps are filled. See [Model Routing](../model-routing.md) for the tiers and the default registry.
+Step 8C adds or upgrades a `## Model Routing` section in the project's root `AGENTS.md` and `CLAUDE.md`: a capability-tier registry that maps each AKILI-SPECS phase to a model **per tool** (Claude Code and OpenCode), following the **alias-first rule** (floating aliases like `opus`/`sonnet`/`haiku` wherever they exist, so the registry survives model generations without edits). No `model:` frontmatter is added to commands and the installer is unchanged. The registry enforces **author ≠ auditor** (the Reviewer runs on a different model than the Implementer) and, in Active-AKILI-SPECS mode, is non-destructive: an existing customized registry is preserved, gaps are filled, and stale entries are flagged against the packaged default without touching user pins. See [Model Routing](../model-routing.md) for the tiers and the default registry.
+
+## Model Binding Scaffolding (Tool-Native Agent Wrappers)
+
+Step 8E (with the user's approval) binds the `.agents/` personas to the registry's models via **tool-native agent definitions**: `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` in Claude Code (alias-based `model:` frontmatter) and the equivalent agent config in OpenCode (provider slugs). The wrappers are thin — they reference the `.agents/` persona instead of duplicating it — and make model routing **enforced** for the `/akili-execute` and `/akili-test` fan-out, including a structural author ≠ auditor guarantee (the Reviewer wrapper pins a different model than the Implementer wrapper). Antigravity has no per-agent model binding and stays guidance-only. In Active-AKILI-SPECS mode existing wrappers are never overwritten.
 
 ## Skill Map Scaffolding
 

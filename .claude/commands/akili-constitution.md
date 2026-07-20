@@ -19,6 +19,8 @@ Establish or strengthen the project-wide AKILI-SPECS foundation. This command cr
 
 ### Step 0: Determine Project Mode and Foundation Setup
 
+**Model checkpoint:** This phase runs best on **T4 Context-Ingest** for repository ingestion and **T1 Architect** for baseline synthesis (if no project registry exists yet, use the packaged default in `docs/model-routing.md`). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"Baseline synthesis is T1 — the default registry recommends `/model opus`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 Before classifying the repository, use the `brainstorming` skill to ask the user if this is a new project/MVP starting from 0, or if it is an existing project with an established structure.
 
 Based on the response, classify the repository into one of three modes. The classification is non-destructive — it controls how aggressively the constitution drafts, scans, or preserves existing material.
@@ -34,7 +36,7 @@ For all three modes:
 3. Ensure `docs/specs/general-setup/` exists.
 4. Ensure root `CLAUDE.md` exists or is enhanced.
 5. Ensure root `AGENTS.md` exists or is enhanced.
-6. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 7B).
+6. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 8B).
 7. Default behavior is to enhance existing project docs in place instead of creating parallel copies.
 
 The constitutional baseline must cover these files:
@@ -291,7 +293,7 @@ The update should explain briefly:
 - How module specs should be organized under `docs/specs/`
 - Which skills should be used for common work in the project (the `## Skill Map` added in Step 8D)
 - Whether CodeGraph is initialized and how agents should use it for existing-project analysis
-- Which model to switch to per AKILI-SPECS phase (the `## Model Routing` registry added in Step 7C)
+- Which model to switch to per AKILI-SPECS phase (the `## Model Routing` registry added in Step 8C)
 
 Preserve the repository's existing `CLAUDE.md` and `AGENTS.md` conventions and extend them.
 
@@ -379,21 +381,28 @@ project guides so the project does not depend on the package's `docs/` after ins
    must differ from the Implementer model. `/akili-test` is likewise split into its Leader (T5,
    orchestration) and Tester(s) (T2, test authoring), with a note to prefer a Tester model different
    from the Implementer (author ≠ tester).
-4. The editable model registry table with columns `Tier | Claude Code | OpenCode | Fallback`.
-   Fill the Claude Code column for the user's plan (e.g. PRO: Opus reserved for T1/T3, Sonnet as the
-   T2/T4/T6 workhorse, Haiku for T5). Fill the OpenCode column from the user's confirmed roster; if
-   it is unknown, leave clearly-marked `<CONFIRM SLUG>` placeholders rather than guessing.
-5. The instruction: *"To change models, edit only this registry table. Model selection is guidance
-   only — never add `model:` to command frontmatter."*
+4. The editable model registry table with columns `Tier | Claude Code | OpenCode | Fallback`, plus
+   an `Updated: <YYYY-MM>` stamp. **Alias-first rule:** the Claude Code column uses floating aliases
+   (`opus`, `sonnet`, `haiku`) — they always resolve to the latest generation, so the registry
+   survives model churn with zero edits; pin a dated model ID only when the user deliberately wants
+   to freeze a version, and record why. Fill the OpenCode column from the user's confirmed roster
+   (slugs are concrete — no alias mechanism); if it is unknown, leave clearly-marked
+   `<CONFIRM SLUG>` placeholders rather than guessing.
+5. The instruction: *"To change models, edit only this registry table. Never pin a dated model name
+   where a floating alias exists. Model selection is guidance only in command prompts — never add
+   `model:` to command frontmatter; enforced bindings live only in the Step 8E agent wrappers."*
 
-**Mode-specific policy (mirror Step 7B):**
+**Mode-specific policy (mirror Step 8B):**
 
 - **Brand-new (Seed Setup):** insert the full `## Model Routing` section using the packaged defaults.
 - **Legacy (Discovery Setup):** insert the section and, where detected, annotate the registry with
   the project's actual tooling (e.g. note if the team already standardizes on a specific model).
 - **Active AKILI-SPECS (Safe Update):** **do not overwrite** an existing customized registry. If the section
   is missing, add it; if it exists, only fill gaps (missing tiers, missing author ≠ auditor note)
-  without changing the user's pinned models.
+  without changing the user's pinned models. Additionally, **flag stale entries**: compare the
+  project registry against the packaged default in `docs/model-routing.md` and list (do not edit)
+  entries that name models the tool no longer offers or dated pins that an alias would now cover —
+  the user decides whether to refresh them.
 
 Confirm the user's available models before writing concrete identifiers: which tier they run in
 Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes.
@@ -425,6 +434,58 @@ is how they reach the agents.
   library, cloud tooling actually present). Do not list skills for frameworks the repo does not use.
 - **Active AKILI-SPECS (Safe Update):** preserve an existing customized map; only add rows for
   newly detected stack elements and remove rows the user confirms are obsolete.
+
+---
+
+### Step 8E: Bind Personas to Models (Tool-Native Agent Wrappers)
+
+Offer to generate **tool-native agent definitions** that bind the `.agents/` personas to the models
+in the `## Model Routing` registry (Step 8C). This turns model routing from guidance into
+enforcement for the multi-agent fan-out — where most tokens are spent — and makes
+**author ≠ auditor structural**: the Reviewer wrapper is pinned to a different model than the
+Implementer wrapper in configuration, not by human discipline.
+
+Ask the user first (one question): *"Bind the AKILI personas to models with native agent wrappers,
+so the Implementer/Reviewer/Tester automatically run on their tier's model?"* If declined, skip
+this step — the guidance-only flow keeps working.
+
+**Per tool:**
+
+- **Claude Code:** create project-level `.claude/agents/akili-leader.md`, `akili-implementer.md`,
+  `akili-reviewer.md`, and `akili-tester.md`. Each wrapper is thin:
+
+  ```markdown
+  ---
+  name: akili-implementer
+  description: AKILI Implementer — executes one spec task with strict scope and verification.
+  model: sonnet
+  ---
+  Read `.agents/implementer.md` in the project root and adopt it fully as your persona and
+  operating contract before doing anything else.
+  ```
+
+  Models come from the registry's Claude Code column as **aliases** (default: leader `haiku`,
+  implementer `sonnet`, reviewer `opus`, tester `sonnet`). Never copy the persona body into the
+  wrapper — `.agents/` stays the single source of truth.
+
+- **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
+  the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
+  the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.1`, reviewer
+  `opencode-go/deepseek-v4-pro`, leader `opencode-go/deepseek-v4-flash`).
+
+- **Google Antigravity:** no per-agent model binding exists — skip wrapper generation and note in
+  the summary that Antigravity stays on guidance-only routing.
+
+**Rules:**
+
+1. The Reviewer wrapper's model MUST differ from the Implementer wrapper's model. If the registry
+   collapses them, escalate the Reviewer one tier before writing the wrappers.
+2. Wrappers reference `.agents/<role>.md`; they never duplicate persona content. Editing a persona
+   requires no wrapper change; changing a model requires editing only the wrapper (or re-running
+   this step).
+3. **Mode policy:** Brand-new/Legacy — create the wrappers when accepted. Active AKILI-SPECS —
+   never overwrite existing wrapper files; create only missing ones and flag model drift between
+   existing wrappers and the current registry.
 
 ---
 

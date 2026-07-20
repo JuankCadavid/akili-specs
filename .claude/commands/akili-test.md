@@ -50,8 +50,8 @@ If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold i
 
 **Delegation mechanism by tool:**
 
-- **Claude Code / OpenCode:** spawn a focused subagent (or sub-prompt context) seeded with `tester.md` plus the suite's context slice.
-- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent) using the prompt read from `.agents/tester.md`.
+- **Claude Code / OpenCode:** if the project has a tool-native `akili-tester` agent wrapper (scaffolded by `/akili-constitution` Step 8E with a `model:` binding from the `## Model Routing` registry), **spawn that named agent** so each Tester runs on its tier's model — preferring a model different from the Implementer's (author ≠ tester). Otherwise, spawn a focused subagent (or sub-prompt context) seeded with `tester.md` plus the suite's context slice.
+- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent) using the prompt read from `.agents/tester.md` (no per-agent model binding — guidance-only routing).
 
 **Token discipline — thin context per Tester (this is the core saving):**
 
@@ -75,6 +75,8 @@ The Leader decides the count from the spec's depth and the independence of the s
 ## Behavior
 
 ### Phase 0: Load Context (Leader)
+
+**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** for you as Leader — Testers route through the `akili-tester` wrapper (T2) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 

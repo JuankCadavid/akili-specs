@@ -74,6 +74,8 @@ If any prerequisite is missing, stop and report exactly what is missing and how 
 
 ### Phase 0: Setup
 
+**Model checkpoint:** This phase runs best on **T3 Auditor** for audit findings and **T5 Fast-Cheap** for setup/formatting. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"The audit phase is T3 — the registry recommends `/model opus`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 1. Resolve the spec path. If `$ARGUMENTS` is a bare domain, set `SPEC_PATH = seo/<domain>`. Otherwise treat `$ARGUMENTS` as the literal spec path.
 2. Create directory `docs/specs/$SPEC_PATH/` if it does not exist.
 3. Read the constitutional templates and project context as defined in `akili-specify`:

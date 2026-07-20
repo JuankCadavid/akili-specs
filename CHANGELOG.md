@@ -6,9 +6,16 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Model Routing 2.0 — enforced for subagents, guided for the main loop:**
+  - **Tool-native agent wrappers (`/akili-constitution` Step 8E):** with user approval, the constitution now binds the `.agents/` personas to the Model Routing registry via native agent definitions — `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` in Claude Code (alias-based `model:`) and agent config in OpenCode (provider slugs). `/akili-execute` and `/akili-test` prefer these named agents, so the multi-agent fan-out (where most tokens are spent) routes automatically and **author ≠ auditor becomes structural** — the Reviewer wrapper pins a different model than the Implementer wrapper. Wrappers are thin references to `.agents/`; personas remain the single source of truth. Antigravity stays guidance-only (no per-agent model binding).
+  - **Model checkpoints in every command:** all 10 commands (`propose`, `specify`, `execute`, `test`, `validate`, `archive`, `audit`, `quick`, `seo`, `constitution`) perform a one-line, never-blocking check during setup — if the phase's tier maps to a different model than the current session, the user is told (e.g. "This phase is T1 — the registry recommends `/model opus`") and offered the switch at the first approval pause.
+  - **Model Registry Drift check in `/akili-audit`:** new drift category and Conformance Matrix row — registry entries naming models the tool no longer offers, dated pins where a floating alias exists, missing tiers/author ≠ auditor notes versus the packaged default, and Step 8E wrappers contradicting the registry. Report-only.
+
+### Changed
+
+- **Alias-first model registry (survives model churn):** `docs/model-routing.md` and the Step 8C scaffold now mandate floating aliases (`opus`/`sonnet`/`haiku` in Claude Code — they always resolve to the latest generation, so new model families require zero registry edits); dated model pins require a recorded reason. The default registry was rewritten alias-first with an `Updated:` stamp; OpenCode slugs (no alias mechanism) keep the Fallback column and are covered by the drift check. Safe Update mode now also flags stale registry entries against the packaged default without touching user pins.
 
 ## [2.8.0] - 2026-07-20
 

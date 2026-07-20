@@ -49,6 +49,8 @@ Use these result levels consistently:
 
 ### Phase 0: Load Context
 
+**Model checkpoint:** This phase runs best on **T3 Auditor** — and it MUST resolve to a different model than the one that implemented the work (author ≠ auditor). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T3 — the registry recommends `/model opus`; you are on sonnet, which also implemented the spec"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
 1. Read constitutional context (IN THIS ORDER):

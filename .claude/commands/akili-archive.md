@@ -56,6 +56,8 @@ docs/specs/archive/2026-05-16-bugfix--login-redirect/
 
 ### Step 0: Load Context
 
+**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** (summarization and bookkeeping). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
 1. Confirm `docs/specs/$ARGUMENTS/` exists.

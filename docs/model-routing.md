@@ -4,8 +4,17 @@ AKILI is model-agnostic: no command, skill, or persona hardcodes a model. This d
 **human-facing guidance** for choosing which model runs which AKILI-SPECS phase, so each phase runs on a
 model matched to its dominant computational demand rather than one model doing everything.
 
-It is **guidance-first**: you switch models yourself per tool (Claude Code `/model`, OpenCode
-model selector). Nothing here is injected into command frontmatter or the installer — see
+Routing operates at two levels:
+
+- **Enforced (subagents):** `/akili-constitution` Step 8E can bind the Implementer / Reviewer /
+  Tester / Leader personas to models via **tool-native agent definitions** (see
+  [Enforced routing](#enforced-routing-tool-native-agent-bindings)). This is where most tokens are
+  spent and where author ≠ auditor becomes structural instead of aspirational.
+- **Guided (main loop):** the session model can only be switched by you (Claude Code `/model`,
+  OpenCode model selector). Commands emit a one-line **model checkpoint** when the phase's tier
+  points to a different model than the current session, so the switch happens at the right moment.
+
+Nothing here is injected into command frontmatter or the installer — see
 [Cross-Tool Safety](#cross-tool-safety).
 
 ## Philosophy: criteria first, model second
@@ -75,25 +84,35 @@ tier (to the deeper reasoner) to preserve independence.
 ## Model registry
 
 This is the single editable source of truth. Phases reference **tiers**; only this table names
-concrete models. When models change, edit only this table.
+models. When models change, edit only this table. *Registry updated: 2026-07.*
 
-| Tier | Claude Code (PRO) | OpenCode Go | Fallback |
+**Alias-first rule: never pin a dated model name where a floating alias exists.** Claude Code's
+`opus` / `sonnet` / `haiku` aliases always resolve to the latest version of each family — when
+Anthropic ships a new generation, an alias-based registry needs **zero edits**. Pin a dated ID only
+when you deliberately need to freeze a version, and record why next to the pin. OpenCode slugs are
+concrete (no alias mechanism), which is why they carry the Fallback column and the drift check
+below.
+
+| Tier | Claude Code | OpenCode Go | Fallback |
 |---|---|---|---|
-| **T1 Architect** | Opus 4.8 | `opencode-go/kimi-k2.6` | `opencode-go/deepseek-v4-pro` / Sonnet 4.6 |
-| **T2 Coder** | Sonnet 4.6 | `opencode-go/glm-5.1` | Haiku 4.5 / `opencode-go/qwen3.7-max` |
-| **T3 Auditor** | Opus 4.8 *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | Sonnet 4.6 / `opencode-go/kimi-k2.6` |
-| **T4 Context-Ingest** | Sonnet 4.6 (1M context) | `opencode-go/deepseek-v4-flash` | Opus 4.8 / `opencode-go/deepseek-v4-pro` |
-| **T5 Fast-Cheap** | Haiku 4.5 | `opencode-go/deepseek-v4-flash` | Sonnet 4.6 / `opencode-go/mimo-v2.5` |
-| **T6 Multimodal** | Sonnet 4.6 (vision) | `opencode-go/qwen3.7-max` *(weak — prefer Claude/Gemini)* | Opus 4.8 |
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k2.6` | `opencode-go/deepseek-v4-pro` / `sonnet` |
+| **T2 Coder** | `sonnet` | `opencode-go/glm-5.1` | `haiku` / `opencode-go/qwen3.7-max` |
+| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | `sonnet` / `opencode-go/kimi-k2.6` |
+| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | `opus` / `opencode-go/deepseek-v4-pro` |
+| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | `sonnet` / `opencode-go/mimo-v2.5` |
+| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak — prefer Claude/Gemini)* | `opus` |
 
 ### Why these models
 
-**Claude Code (PRO).** Opus 4.8 carries the tightest PRO rate limits, so it is **reserved for
-T1 (propose, specify reasoning) and T3 (validate, review)** — the two phases that most reward deep
-reasoning. **Sonnet 4.6 is the workhorse** for coding (T2), large-context ingestion via its 1M
-window (T4), and vision (T6). **Haiku 4.5** handles fast/cheap formatting, orchestration, and
-summarization (T5). This concentrates scarce Opus budget on architecture and audit and avoids
-exhausting it during execution-heavy work.
+**Claude Code.** The top-family alias (`opus`) carries the tightest plan rate limits, so it is
+**reserved for T1 (propose, specify reasoning) and T3 (validate, review)** — the two phases that
+most reward deep reasoning. **`sonnet` is the workhorse** for coding (T2), large-context ingestion
+(T4), and vision (T6). **`haiku`** handles fast/cheap formatting, orchestration, and summarization
+(T5). This concentrates the scarce top-tier budget on architecture and audit and avoids exhausting
+it during execution-heavy work. Because these are aliases, the mapping survives model generations
+unchanged (e.g. when the top family moves from one generation to the next, `opus` follows it).
+Users on plans that expose additional tiers (e.g. a Mythos-class model above Opus) can pin it for
+T1/T3 in their project registry.
 
 **OpenCode Go.** The two strongest open models anchor the two highest-leverage tiers:
 
@@ -115,20 +134,69 @@ exhausting it during execution-heavy work.
 All OpenCode Go slugs are taken from the [OpenCode Go model list](https://opencode.ai/docs/go).
 Confirm them against your own OpenCode configuration and adjust if your roster differs.
 
+## Enforced routing (tool-native agent bindings)
+
+The `/akili-execute` and `/akili-test` fan-out (Implementer, Reviewer, Testers) is where most
+tokens are spent — and a generic subagent **inherits the session model**, which silently breaks
+author ≠ auditor when the whole session runs on one model. Both tools support a `model` field on
+**agent definitions** (never on commands), so `/akili-constitution` Step 8E binds the personas
+there:
+
+| Tool | Native agent location | Model value |
+|---|---|---|
+| Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
+| OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/glm-5.1`) |
+| Antigravity | Not supported — `invoke_subagent` has no per-agent model binding | Guidance-only fallback |
+
+Each wrapper is thin: frontmatter (`name`, `description`, `model`) plus a body that instructs the
+agent to read and fully adopt the corresponding `.agents/<role>.md` persona. The persona files in
+`.agents/` remain the tool-agnostic source of truth; the wrappers only add the model binding.
+`/akili-execute` and `/akili-test` prefer these named agents when they exist and fall back to
+generic subagents seeded with the persona content when they don't.
+
+**author ≠ auditor becomes structural:** `akili-reviewer` is pinned to a different model than
+`akili-implementer` in the wrapper files themselves — no human discipline required.
+
+## Model checkpoints (main loop)
+
+The session model cannot be switched programmatically, but the agent knows which model it is
+running on. Every AKILI command performs a one-line **model checkpoint** during setup: read the
+project's `## Model Routing` registry, compare the phase's tier to the current session model, and
+if they differ, tell the user in one line (e.g. *"This phase is T1 — the registry recommends
+`/model opus`; you are on haiku"*) and offer the switch in the phase's first HITL pause. The user
+can always continue on the current model; the checkpoint never blocks.
+
+## Surviving model churn
+
+Models change constantly; the design absorbs that at three layers:
+
+1. **Tiers are the stable layer.** Phases map to T1–T6 and never change when models do.
+2. **Aliases are the default.** The Claude column uses floating aliases that track the latest
+   generation automatically (see the alias-first rule above).
+3. **Drift is detected, not discovered.** `/akili-audit` includes a **Model Registry Drift** check
+   (registry entries naming models the tool no longer offers, or a project registry older than the
+   packaged default), and `/akili-constitution` in Safe Update mode flags stale entries against the
+   packaged default without overwriting user pins. Each AKILI release refreshes this document's
+   default registry.
+
 ## How to apply per tool
 
-- **Claude Code (PRO):** switch with `/model` before running a phase — e.g. `/model opus` for
+- **Claude Code:** switch with `/model` before running a phase — e.g. `/model opus` for
   `/akili-propose` and `/akili-validate`, `/model sonnet` for `/akili-execute` and `/akili-test`,
-  `/model haiku` for the tasks split and `/akili-archive`. For the `/akili-execute` triad, run the
-  Implementer on Sonnet and the Reviewer on Opus so author ≠ auditor holds.
-- **OpenCode:** select the `opencode-go/...` model for each phase per the registry. Keep the
-  Reviewer/validator on a different model (`deepseek-v4-pro`) than the Implementer (`glm-5.1`).
+  `/model haiku` for the tasks split and `/akili-archive` — or simply respond to each command's
+  model checkpoint. With Step 8E bindings in place, the execute/test triad routes itself
+  (Implementer on `sonnet`, Reviewer on `opus`).
+- **OpenCode:** select the `opencode-go/...` model for each phase per the registry, or use the
+  Step 8E agent bindings. Keep the Reviewer/validator on a different model (`deepseek-v4-pro`)
+  than the Implementer (`glm-5.1`).
 
 ## Cross-tool safety
 
-- **No `model:` frontmatter.** Command prompts stay `description:`-only. A single frontmatter value
-  cannot serve both tools anyway (Claude Code expects `opus`/`sonnet`/`haiku`; OpenCode expects
-  `provider/model`), so model choice stays out of the prompts.
+- **No `model:` frontmatter on commands.** Command prompts stay `description:`-only. A single
+  frontmatter value cannot serve both tools anyway (Claude Code expects `opus`/`sonnet`/`haiku`;
+  OpenCode expects `provider/model`), so model choice stays out of the prompts. Model bindings live
+  exclusively in **agent definitions**, which are per-tool, per-project files generated with the
+  user's approval in Step 8E.
 - **No installer changes.** Nothing here is force-injected. `/akili-constitution` scaffolds a project
   copy of this registry into `AGENTS.md` / `CLAUDE.md` as plain Markdown — identical handling across
   Claude Code, OpenCode, and Google Antigravity.

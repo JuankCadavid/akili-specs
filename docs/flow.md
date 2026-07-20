@@ -303,11 +303,25 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 | `/akili-audit` | T4 + T3 |
 | `/akili-archive` | T5 |
 
-A single editable registry binds each tier to a concrete model **per tool** (Claude Code and
-OpenCode). `/akili-constitution` (Step 7C) scaffolds a `## Model Routing` copy of that registry into
-the project's `AGENTS.md` / `CLAUDE.md`. It is **guidance only** — no `model:` frontmatter, no
-installer changes — and it enforces **author ≠ auditor** (Reviewer model ≠ Implementer model). See
-[model-routing.md](model-routing.md) for the tiers, principles, and the default registry.
+A single editable registry binds each tier to a model **per tool** (Claude Code and OpenCode),
+using **floating aliases** (`opus`/`sonnet`/`haiku`) wherever they exist so the registry survives
+model generations without edits. `/akili-constitution` (Step 8C) scaffolds a `## Model Routing`
+copy into the project's `AGENTS.md` / `CLAUDE.md`.
+
+Routing operates at two levels:
+
+* **Enforced (subagents):** `/akili-constitution` Step 8E can generate tool-native agent wrappers
+  (`.claude/agents/akili-{leader,implementer,reviewer,tester}.md` in Claude Code, agent config in
+  OpenCode) that pin each persona to its tier's model. `/akili-execute` and `/akili-test` prefer
+  those named agents — so **author ≠ auditor** (Reviewer model ≠ Implementer model) holds by
+  configuration on the fan-out where most tokens are spent.
+* **Guided (main loop):** every command emits a one-line, never-blocking **model checkpoint** in
+  its setup step when the phase's tier maps to a different model than the current session.
+
+No `model:` frontmatter on commands and no installer changes. `/akili-audit` reports **Model
+Registry Drift** (stale model names, dated pins where an alias exists, wrappers contradicting the
+registry). See [model-routing.md](model-routing.md) for the tiers, principles, and the default
+registry.
 
 ### 8. The Kaizen Loop
 

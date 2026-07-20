@@ -60,6 +60,8 @@ State clearly which criterion failed and which command to run instead. Never sil
 
 ### Step 0: Load Minimal Context
 
+**Model checkpoint:** This phase runs best on **T2 Coder** (small direct edit, light verification). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T2 — the registry recommends `/model sonnet`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 Keep context small — this is a trivial change, not a full spec run.
 
 1. Read only what the change needs:

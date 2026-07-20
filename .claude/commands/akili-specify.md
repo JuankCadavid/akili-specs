@@ -61,6 +61,8 @@ When the spec is a **bug** — the proposal's Document Control says `Type: Bug`,
 
 ### Step 0: Setup
 
+**Model checkpoint:** This phase runs best on **T1 Architect** for requirements/design (re-check at Phase 3: **T5 Fast-Cheap** for the tasks split, **T6 Multimodal** when visual design is in scope). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"Phases 1–2 are T1 — the registry recommends `/model opus`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
 1. Create directory `docs/specs/$ARGUMENTS/` if it does not exist.
