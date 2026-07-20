@@ -56,6 +56,13 @@ akili install --tool both --local
 | `akili doctor` | Check whether expected files are installed |
 | `akili help` | Show help |
 
+Every command closes with a clear end-of-run summary:
+
+- **`install`** — an **Install Summary** with per-tool `installed | overwritten | skipped` counts (plus legacy cleanup), target paths, totals for multi-tool installs, a dry-run banner when `--dry-run` is used, and contextual next steps (`--force` hint, OpenCode restart, `akili doctor` verification).
+- **`doctor`** — a **Doctor Summary** with a per-tool `HEALTHY | REPAIRED | INCOMPLETE` status, `ok | missing | fixed` counts, and repair suggestions (`--fix` or `akili update`).
+- **`update`** — an **Update Summary** with the version change (`before → after`), install type, and the verification command, after the changelog of what changed.
+- **`list`** — a totals line: commands, skills, resources, and the package version.
+
 ## Options
 
 | Option | Applies To | Purpose |

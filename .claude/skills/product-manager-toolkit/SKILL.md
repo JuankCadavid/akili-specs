@@ -1,11 +1,30 @@
 ---
 name: product-manager-toolkit
-description: Comprehensive toolkit for product managers including RICE prioritization, customer interview analysis, PRD templates, discovery frameworks, and go-to-market strategies. Use for feature prioritization, user research synthesis, requirement documentation, and product strategy development.
+description: Comprehensive toolkit for product managers including RICE prioritization, customer interview analysis, PRD templates, discovery frameworks, and go-to-market strategies. Use for feature prioritization, user research synthesis, requirement documentation, and product strategy development. In AKILI-SPECS projects, follow the AKILI-SPECS Integration section first.
+metadata:
+  adapted-for: "AKILI-SPECS methodology by Juan Carlos Cadavid — jcadavid.com"
 ---
 
 # Product Manager Toolkit
 
 Essential tools and frameworks for modern product management, from discovery to delivery.
+
+## AKILI-SPECS Integration
+
+When this skill is loaded inside the AKILI-SPECS methodology, this section takes precedence over the generic workflows below. Each tool has one precise moment in the flow:
+
+| AKILI moment | Use from this toolkit |
+|---|---|
+| `/akili-constitution` Step 2 (Clarify Missing Business Context) | The **Customer Interview Guide** and **Hypothesis Template** as the question script. If the user has interview transcripts or raw customer feedback, offer `scripts/customer_interview_analyzer.py` to extract pain points, jobs-to-be-done, and themes — they feed the PRD's Problem Statement and Target Personas. |
+| `/akili-constitution` Step 3 (PRD) | **The AKILI 9-section PRD structure is canonical** — never substitute this toolkit's PRD templates for it. Use the toolkit to fill those sections well: **North Star Metric** framework for "Goals & Success Metrics", **jobs-to-be-done** for "Target Personas", the **Hypothesis Template** for "Assumptions, Dependencies, & Constraints". |
+| `/akili-propose` / `/akili-specify` Scope Chunking | When an epic splits into multiple specs, score the chunks with **RICE** (or **MoSCoW** for a quick pass) to recommend the build order. Treat each candidate spec as a row: `name,reach,impact,confidence,effort` → `scripts/rice_prioritizer.py`. |
+| `/akili-propose` (Change track) | The **Feature Brief** mindset maps to `proposal.md`: problem → hypothesis → success criteria. Do not create a separate brief document. |
+
+Rules inside AKILI-SPECS:
+
+- The scripts are optional helpers (they need Python); never block a flow on them — the frameworks work as reasoning guides on their own.
+- Skip the Go-to-Market and Stakeholder Management sections during constitution work; they are out of scope for `docs/prd.md`.
+- Output always lands in AKILI artifacts (`docs/prd.md`, `proposal.md`, spec folders) — never in standalone PM documents.
 
 ## Quick Start
 

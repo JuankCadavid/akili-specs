@@ -68,6 +68,7 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
    - `docs/specs/general-setup/`
    - package-level `CLAUDE.md` files
 4. Read nearby or related specs under `docs/specs/`.
+   - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
 5. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
 
 ### Step 1: Classify Request Type & Route
@@ -123,6 +124,7 @@ Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 
 **Scope Chunking:** If the user provides a very large or multi-faceted instruction (e.g., an entire epic or multiple distinct features), analyze whether the request should be split into multiple bounded proposals.
 - If it should be split, propose breaking it down to the user.
+- When recommending the build order of the resulting chunks, score them with RICE or MoSCoW from the `product-manager-toolkit` skill (AKILI-SPECS Integration section) instead of guessing.
 - Upon agreement, create the respective folders for each bounded change under `docs/specs/` and generate a `proposal.md` for each.
 
 Ask focused questions only when the proposal would otherwise depend on unstable assumptions.
@@ -145,6 +147,8 @@ Create a concise proposal with this structure:
 12. Risks, Dependencies, And Open Questions
 13. Success Criteria
 14. Next Step
+
+If an Active Lesson from `docs/specs/kaizen-log.md` applies to this change's domain, reflect it in Scope or Risks and cite its ID (e.g. `KZ-003`).
 
 ### Visual Reference
 

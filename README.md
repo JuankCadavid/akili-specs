@@ -11,9 +11,9 @@
 
 # AKILI
 
-### Supercharge Claude Code, OpenCode, and Google Antigravity with constitution-first spec intelligence
+### Supercharge Claude Code, OpenCode, and Google Antigravity with constitution-first, self-improving spec intelligence
 
-**Durable product context · traceable requirements · governed releases · 100% local methodology files**
+**Durable product context · traceable requirements · governed releases · a methodology that learns from every spec · 100% local methodology files**
 
 <p>
   <a href="https://www.npmjs.com/package/akili-specs"><img alt="npm version" src="https://img.shields.io/npm/v/akili-specs?style=for-the-badge&label=npm"></a>
@@ -79,6 +79,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `api-design-principles`
   - `aws-serverless`
   - `brainstorming`
+  - `cognitive-doc-design`
   - `error-handling-patterns`
   - `frontend-design`
   - `gsap-core`
@@ -90,6 +91,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `gsap-timeline`
   - `gsap-utils`
   - `judgment-day`
+  - `kaizen`
   - `nestjs-expert`
   - `product-manager-toolkit`
   - `react-doctor`
@@ -507,7 +509,7 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | `/akili-execute <spec-path>` | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
 | `/akili-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
 | `/akili-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
-| `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, synced agent guides, CodeGraph re-index reminder |
+| `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, Kaizen retrospective appended to `docs/specs/kaizen-log.md`, synced agent guides, CodeGraph re-index reminder |
 | `/akili-audit` | Detecting drift between specs and codebase reality | `docs/specs/drift-report.md` with conformance score and discrepancy matrix |
 | `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
@@ -539,6 +541,30 @@ Lite mode does not skip rigor. It keeps the documents short, but every requireme
 | Task | A small executable unit linked to requirements and design sections |
 | Report | Evidence that the implementation was tested and validated |
 | Archive | Completed AKILI-SPECS history moved under `docs/specs/archive/` |
+| Kaizen | The continuous-improvement loop that turns each spec's evidence into lessons and standards |
+
+## The Kaizen Loop
+
+Other methodologies execute specs. **AKILI learns from every spec.**
+
+AKILI embeds the Japanese Kaizen philosophy of continuous improvement (改善 — *kai* change, *zen* better) as an executable step, powered by the packaged `kaizen` skill (authored by [Juan Carlos Cadavid](https://jcadavid.com), inspired by the Kaizen Institute glossary, Robert Maurer's small-steps method, and INTI's *Emprendiendo Kaizen*). Every `/akili-archive` automatically runs a bounded retrospective — no extra command, no extra ceremony:
+
+```text
+┌─────────┐    ┌─────────┐    ┌──────────────┐    ┌──────────┐
+│ MEASURE │ ─▶ │  LEARN  │ ─▶ │ STANDARDIZE  │ ─▶ │  REPEAT  │
+│ rework, │    │ 0–3 root│    │ constitution │    │ next spec│
+│ pivots, │    │ -cause  │    │ templates,   │    │ reads the│
+│ bugs    │    │ lessons │    │ guides (HITL)│    │ lessons  │
+└─────────┘    └─────────┘    └──────────────┘    └──────────┘
+        every /akili-archive · logged in docs/specs/kaizen-log.md
+```
+
+- **Measure:** hunt MUDA (waste) in the spec's own evidence — Reviewer rework attempts, pivots, PRODUCT_BUGs, severe judgment-day findings, validation warnings, drift.
+- **Learn:** distill 0–3 lessons with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons are banned.
+- **Standardize:** propose 1–3 line edits to constitution guides, spec templates, design tokens, or agent personas — always human-approved. Small steps, never rewrites.
+- **Record:** append to the accumulative `docs/specs/kaizen-log.md`; a capped `## Active Lessons` digest is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume`.
+
+The loop improves on two levels: **Product** lessons harden the project you are building, while **Methodology** lessons (root causes in AKILI itself) are flagged for upstreaming — so the methodology learns from every tool built with it. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
 
 ## Spec Folder Shape
 
@@ -729,7 +755,7 @@ Fallback rule:
 - `/akili-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
 - `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
 - `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
-- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index.
+- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) appending to `docs/specs/kaizen-log.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index.
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering

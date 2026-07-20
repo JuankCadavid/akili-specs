@@ -12,6 +12,20 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Authorship in README, LICENSE, and package metadata:** The README gains an `## Authorship` section, the MIT LICENSE copyright line uses the full author name and site, and `package.json` declares the `author` field.
 - **License metadata in commands:** Every command in `.claude/commands/` declares `license: MIT` and `metadata.author` in its frontmatter (matching the convention used by community skills), and the `## Authorship` footer of commands and templates states the MIT License. Third-party skills bundled in `.claude/skills/` keep their original authors and licenses untouched.
 
+## [2.7.0] - 2026-07-20
+
+### Added
+- **New packaged `cognitive-doc-design` skill** (by gentleman-programming, Apache-2.0): six patterns for docs that reduce cognitive load (lead with the answer, progressive disclosure, chunking, signposting, recognition over recall, review empathy). Wired into the methodology: `/akili-constitution` (PRD writing), `/akili-specify` (all spec documents + chained-PR descriptions), `/akili-execute` (PR and review docs), and `/akili-archive` (archive summary and Kaizen log entries).
+
+### Changed
+- **`product-manager-toolkit` adapted to AKILI-SPECS:** new **AKILI-SPECS Integration** section maps each tool to its exact moment in the flow — Customer Interview Guide + Hypothesis Template as the question script for `/akili-constitution` Step 2 (with the interview analyzer offered when transcripts exist), North Star Metric / jobs-to-be-done / Hypothesis Template to fill the canonical 9-section PRD in Step 3, and RICE/MoSCoW to order scope chunks when `/akili-propose` or `/akili-specify` split an epic into multiple specs. The PRD templates reference now marks the AKILI structure as canonical, and Go-to-Market content is explicitly out of scope for constitution work.
+- **Clear end-of-run summaries in every CLI command:** `akili install` now closes with an **Install Summary** block (per-tool `installed | overwritten | skipped | legacy cleaned` counts with target paths, totals when installing for multiple tools, an explicit dry-run banner, and contextual next steps — `--force` hint, OpenCode restart, `akili doctor` verification). `akili doctor` closes with a **Doctor Summary** (per-tool `HEALTHY | REPAIRED | INCOMPLETE` status with `ok | missing | fixed` counts and repair suggestions). `akili update` closes with an **Update Summary** (version before → after, install type, and how to verify). `akili list` prints a totals line (commands | skills | resources + package version). Overwrites are now counted separately from fresh installs.
+## [2.6.0] - 2026-07-20
+
+### Added
+- **The Kaizen Loop in `/akili-archive`:** every archive now runs a bounded continuous-improvement retrospective — **Measure** (rework attempts, pivots, PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift) → **Learn** (0–3 root-cause lessons with cited evidence; generic lessons banned) → **Standardize** (minimal 1–3 line edits to constitution guides, general-setup templates, design tokens, or `.agents/` personas — always HITL-approved) → **Record** (append to the new accumulative `docs/specs/kaizen-log.md`, with a capped `## Active Lessons` digest). No new command: Kaizen is a step inside `/akili-archive` and never blocks archiving. Lessons target the **Product** or the **Methodology** itself (flagged for upstreaming to this repo).
+- **New packaged `kaizen` skill** (`.claude/skills/kaizen/SKILL.md`), authored by Juan Carlos Cadavid — jcadavid.com, inspired by the Kaizen Institute glossary, Robert Maurer's small-steps method, and INTI's *Emprendiendo Kaizen* (2019). It encodes the philosophy-to-engineering mapping (PDCA, MUDA, Jidoka, Gemba/3 GEN, 5W1H, LUP), the loop contract, and the kaizen-log format.
+- **Kaizen-aware commands:** `/akili-propose`, `/akili-specify`, and `/akili-execute` read the `## Active Lessons` digest so past mistakes shape new specs and task delegation; `/akili-resume` shows the active-lesson count in its dashboard.
 ## [2.5.1] - 2026-07-19
 
 ### Added

@@ -23,6 +23,7 @@ Reads:
 - `docs/specs/<spec-path>/design.md`
 - `docs/specs/<spec-path>/tasks.md`
 - `docs/specs/<spec-path>/execution.md` when present
+- `docs/specs/kaizen-log.md` when present — only the `## Active Lessons` digest; the Leader passes matching rows to the Implementer per task
 - Constitution docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`)
 - `CLAUDE.md` and `AGENTS.md`
 - `.agents/leader.md`, `.agents/implementer.md`, `.agents/reviewer.md`

@@ -23,7 +23,7 @@ The command performs a four-step scan:
 
 1. **Scan Active Specs** — lists all directories under `docs/specs/` (excluding `archive/`)
 2. **Determine Phase & Progress** — for each spec, identifies current phase (PROPOSE → SPECIFY → EXECUTE → TEST → VALIDATE → ARCHIVE), task progress, last action, and blockers
-3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec
+3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec; if `docs/specs/kaizen-log.md` exists, appends a Kaizen footer line with the active-lesson count and the latest lesson (read from the `## Active Lessons` digest only)
 4. **Recommend Next Command** — suggests the next command based on current phase
 
 ## Output

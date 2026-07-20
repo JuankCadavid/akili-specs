@@ -13,7 +13,7 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 | [`/akili-execute <spec-path>`](akili-execute.md) | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code/docs changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
 | [`/akili-test <spec-path>`](akili-test.md) | Proving behavior with test evidence via the Leader → Tester(s) harness | `test-report.md` |
 | [`/akili-validate <spec-path>`](akili-validate.md) | Auditing conformance before completion | `validation-report.md` |
-| [`/akili-archive <spec-path>`](akili-archive.md) | Closing completed work after validation | Archived spec folder with `archive-summary.md` |
+| [`/akili-archive <spec-path>`](akili-archive.md) | Closing completed work after validation | Archived spec folder with `archive-summary.md` + Kaizen retrospective entry in `docs/specs/kaizen-log.md` |
 | [`/akili-audit`](akili-audit.md) | Detecting drift between specs and codebase reality | `docs/specs/drift-report.md` with conformance score and discrepancy matrix |
 | [`/akili-resume`](akili-resume.md) | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | [`/akili-seo <site-domain>`](akili-seo.md) | Setting up GSC ownership and SEO audit evidence | `seo-setup-report.md`, `seo-audit-report.md` |

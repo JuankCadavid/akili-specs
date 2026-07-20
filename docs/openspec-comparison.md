@@ -27,6 +27,7 @@ This repository borrows useful documentation and workflow ideas from OpenSpec wh
 | Existing projects | Brownfield-friendly workflow | Explicit existing-project constitution mode with optional CodeGraph analysis |
 | Validation | Workflow validation through commands | Dedicated `/akili-test` and `/akili-validate` reports before archive |
 | SEO | Not a core workflow in OpenSpec | `/akili-seo` handles Google Search Console setup and audits |
+| Continuous improvement | Not a core workflow in OpenSpec | The Kaizen Loop: `/akili-archive` runs a bounded retrospective and later commands read the accumulated `## Active Lessons` digest |
 | Package target | `@fission-ai/openspec` | `akili-specs` |
 
 ## Practical Takeaway

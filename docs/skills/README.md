@@ -12,6 +12,7 @@ The installable source files live in `.claude/skills/*/SKILL.md`. These pages ar
 | [`api-design-principles`](api-design-principles.md) | REST and GraphQL API design and review | `/akili-constitution`, `/akili-specify`, `/akili-validate` |
 | [`aws-serverless`](aws-serverless.md) | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK | `/akili-constitution`, `/akili-specify`, `/akili-execute` |
 | [`brainstorming`](brainstorming.md) | Clarifying ideas, scope, options, and trade-offs before implementation | `/akili-propose`, `/akili-specify` |
+| [`cognitive-doc-design`](cognitive-doc-design.md) | Writing human-facing docs that reduce cognitive load (lead with the answer, progressive disclosure, tables over prose) | `/akili-constitution`, `/akili-specify`, `/akili-execute` (PR docs), `/akili-archive` |
 | [`error-handling-patterns`](error-handling-patterns.md) | Exceptions, Result patterns, graceful degradation, reliability | `/akili-specify`, `/akili-execute`, `/akili-validate` |
 | [`frontend-design`](frontend-design.md) | Distinctive frontend UI and UX implementation | `/akili-constitution`, `/akili-specify`, `/akili-execute`, `/akili-test` |
 | [`gsap-core`](gsap-core.md) | Core GSAP tweens, easing, stagger, responsive and reduced-motion animation | `/akili-specify`, `/akili-execute` |
@@ -22,8 +23,9 @@ The installable source files live in `.claude/skills/*/SKILL.md`. These pages ar
 | [`gsap-scrolltrigger`](gsap-scrolltrigger.md) | Scroll-driven animation, pinning, scrub, parallax | `/akili-specify`, `/akili-execute` |
 | [`gsap-timeline`](gsap-timeline.md) | Sequenced animations and playback control | `/akili-specify`, `/akili-execute` |
 | [`gsap-utils`](gsap-utils.md) | GSAP utilities such as clamp, mapRange, random, snap, wrap | `/akili-execute` |
+| [`kaizen`](kaizen.md) | Bounded continuous-improvement retrospective (Measure → Learn → Standardize → Record); authored by Juan Carlos Cadavid — jcadavid.com | `/akili-archive` |
 | [`nestjs-expert`](nestjs-expert.md) | NestJS modules, DI, guards, interceptors, testing, TypeORM/Mongoose | `/akili-specify`, `/akili-execute`, `/akili-test`, `/akili-validate` |
-| [`product-manager-toolkit`](product-manager-toolkit.md) | Product discovery, PRDs, prioritization, customer interview analysis | `/akili-constitution`, `/akili-propose`, `/akili-specify` |
+| [`product-manager-toolkit`](product-manager-toolkit.md) | Product discovery, PRDs, prioritization, customer interview analysis (AKILI-adapted: canonical PRD structure, RICE for scope-chunk ordering) | `/akili-constitution`, `/akili-propose`, `/akili-specify` |
 | [`react-doctor`](react-doctor.md) | React diagnostics after changes | `/akili-test`, `/akili-validate` |
 | [`seo-audit`](seo-audit.md) | Technical, on-page, and international SEO audits with a standard finding format | `/akili-seo`, `/akili-validate` |
 | [`shadcn-ui`](shadcn-ui.md) | shadcn/ui components, forms, themes, Tailwind integration | `/akili-specify`, `/akili-execute`, `/akili-validate` |

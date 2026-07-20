@@ -54,7 +54,7 @@ You: /akili-validate changes/add-remember-me
 AI:  Creates validation-report.md with PASS/WARN/FAIL/BLOCKED findings
 
 You: /akili-archive changes/add-remember-me
-AI:  Moves completed work into docs/specs/archive/ and refreshes CodeGraph
+AI:  Runs the Kaizen retrospective (appends docs/specs/kaizen-log.md), moves completed work into docs/specs/archive/, and refreshes CodeGraph
 
 Independent Auditing:
 You: /akili-audit
@@ -128,6 +128,7 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/test-report.md` | `/akili-test` | Requirement-to-test matrix and coverage gaps |
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
 | `docs/specs/drift-report.md` | `/akili-audit` | Conformance auditing of documentation vs. codebase reality |
+| `docs/specs/kaizen-log.md` | `/akili-archive` | Accumulated metrics and root-cause lessons; the `## Active Lessons` digest is read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume` |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
 
 ## Review Gates
@@ -144,7 +145,7 @@ AKILI keeps humans in control at each important transition.
 | Execution | Each completed task has verification evidence |
 | Testing | Key requirements have automated or accepted manual evidence |
 | Validation | No unresolved FAIL findings remain |
-| Archive | Warnings and follow-ups are accepted |
+| Archive | Warnings and follow-ups are accepted; Kaizen lessons are recorded and standardizations approved or deferred |
 
 ## Documentation Depth
 
@@ -307,3 +308,22 @@ OpenCode). `/akili-constitution` (Step 7C) scaffolds a `## Model Routing` copy o
 the project's `AGENTS.md` / `CLAUDE.md`. It is **guidance only** — no `model:` frontmatter, no
 installer changes — and it enforces **author ≠ auditor** (Reviewer model ≠ Implementer model). See
 [model-routing.md](model-routing.md) for the tiers, principles, and the default registry.
+
+### 8. The Kaizen Loop
+
+AKILI embeds Kaizen — continuous improvement through small, disciplined steps — as an executable
+retrospective inside `/akili-archive`, powered by the packaged `kaizen` skill (authored by
+Juan Carlos Cadavid — jcadavid.com). Every archive runs one bounded pass:
+
+* **Measure:** hunt waste (MUDA) in the spec's own evidence — Reviewer rework attempts, pivots,
+  PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift.
+* **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence. Generic lessons
+  are banned; a clean spec records a one-line clean-run entry instead.
+* **Standardize:** propose 1–3 line edits to constitution guides, `general-setup` templates, design
+  tokens, or `.agents/` personas. **Every edit outside the kaizen log requires human approval.**
+* **Record:** append to the accumulative `docs/specs/kaizen-log.md`. Its capped `## Active Lessons`
+  digest (10 rows max) is the only part other commands read.
+
+Lessons target either the **Product** (this project) or the **Methodology** itself — Methodology
+lessons are flagged for upstreaming to the AKILI repository, so the methodology learns from every
+tool built with it. The retrospective never blocks the archive.

@@ -78,6 +78,7 @@ The Leader does not write production code itself unless the rework loop is exhau
    - `docs/specs/$ARGUMENTS/design.md`
    - `docs/specs/$ARGUMENTS/tasks.md`
 3. Read `docs/specs/$ARGUMENTS/execution.md` if it exists.
+   - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
 4. Read the agent personas:
    - `.agents/leader.md`
    - `.agents/implementer.md`
@@ -136,6 +137,7 @@ Delegate to the Implementer with:
 - the project constitution references (`CLAUDE.md`, `AGENTS.md`, `docs/ux-ui/design.md`)
 - the recommended skill list from the task (e.g. `ui-ux-pro-max`, `react-doctor`, `nestjs-expert`)
 - any prior Reviewer feedback when this is a rework attempt
+- any Active Lessons from `docs/specs/kaizen-log.md` relevant to the task's domain (pass only the matching rows, never the full log)
 - the verification command to run before reporting completion
 
 The Implementer must keep changes minimal and within task scope, follow the design spec exactly unless the spec is clearly incomplete or contradictory, and run the verification before reporting completion.
@@ -174,7 +176,7 @@ Only after a Reviewer `PASS`:
 
 1. Update `tasks.md` from `[ ]` (or `[~]`) to `[x]`.
 2. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
-3. **Git Commit Staging:** Always follow the **AKILI Spec Reference** commit standard. Prefix the commit message with `[SPEC:<spec-path>]` (e.g. `git commit -m "[SPEC:changes/add-remember-me] implement secure cookie storage"`).
+3. **Git Commit Staging:** Always follow the **AKILI Spec Reference** commit standard. Prefix the commit message with `[SPEC:<spec-path>]` (e.g. `git commit -m "[SPEC:changes/add-remember-me] implement secure cookie storage"`). When writing a PR description for the spec's work, load `cognitive-doc-design` and follow its PR and Review Docs rules: state what to review first, what is intentionally out of scope, and link chained PRs.
 4. **Code Traceability:** Add file-level or block-level comment spec references (`// @akili-spec <spec-path>`) in critical or complex codebase additions to assist future audits.
 5. **Constitution Impact Check:** If the task created a new module/package, moved a module boundary, or changed a module's public surface, append a `## Constitution Impact: <Task ID>` block to `execution.md` recording:
    - which module was created or reshaped

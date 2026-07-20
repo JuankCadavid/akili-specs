@@ -122,6 +122,8 @@ Focus especially on:
 - Infrastructure expectations (e.g., AWS, deployment platforms, architectural rules, specific cloud components required)
 - Preferred `docs/specs/` taxonomy when the repo does not already imply one
 
+Use the `product-manager-toolkit` skill's **Customer Interview Guide** and **Hypothesis Template** as the question script. If the user has interview transcripts or raw customer feedback available, offer its `customer_interview_analyzer.py` helper to extract pain points, jobs-to-be-done, and themes before drafting.
+
 Ask only what is needed to avoid unstable assumptions.
 
 ---
@@ -130,7 +132,7 @@ Ask only what is needed to avoid unstable assumptions.
 
 Create or enhance `docs/prd.md` as a concise living document.
 
-**Primary skill:** `product-manager-toolkit`
+**Primary skill:** `product-manager-toolkit` — follow its **AKILI-SPECS Integration** section: the Required PRD structure below is canonical (never substitute the toolkit's own PRD templates); use its North Star Metric framework for "Goals & Success Metrics", jobs-to-be-done for "Target Personas", and its Hypothesis Template for "Assumptions". Write the document following `cognitive-doc-design`: lead with the answer, progressive disclosure, tables and checklists over prose.
 
 **PRD rules:**
 

@@ -32,6 +32,7 @@ Reads context from:
 - `docs/ux-ui/design.md`
 - `docs/trd/trd.md`
 - related specs under `docs/specs/`
+- `docs/specs/kaizen-log.md` when present — only the `## Active Lessons` digest; relevant lessons are applied and cited by ID in design decisions
 - root and package-level agent guidance files
 
 ## Outputs

@@ -227,19 +227,23 @@ function shouldInclude(type, args) {
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
-  if (fs.existsSync(targetPath) && !args.force) {
+  const exists = fs.existsSync(targetPath);
+
+  if (exists && !args.force) {
     console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
-    return { installed: 0, skipped: 1 };
+    return { installed: 0, overwritten: 0, skipped: 1 };
   }
 
-  const action = fs.existsSync(targetPath) ? "overwrite" : "install";
+  const action = exists ? "overwrite" : "install";
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
     fs.copyFileSync(sourcePath, targetPath);
   }
 
-  return { installed: 1, skipped: 0 };
+  return exists
+    ? { installed: 0, overwritten: 1, skipped: 0 }
+    : { installed: 1, overwritten: 0, skipped: 0 };
 }
 
 function copyDirectoryContents(sourceDir, targetDir, args) {
@@ -247,19 +251,21 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
 
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
   let installed = 0;
+  let overwritten = 0;
   let skipped = 0;
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
+    const exists = fs.existsSync(targetPath);
 
-    if (fs.existsSync(targetPath) && !args.force) {
+    if (exists && !args.force) {
       console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
       skipped += 1;
       continue;
     }
 
-    const action = fs.existsSync(targetPath) ? "overwrite" : "install";
+    const action = exists ? "overwrite" : "install";
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
@@ -269,10 +275,11 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
         errorOnExist: false,
       });
     }
-    installed += 1;
+    if (exists) overwritten += 1;
+    else installed += 1;
   }
 
-  return { installed, skipped };
+  return { installed, overwritten, skipped };
 }
 
 function getToolRegistryInfo(tool, args) {
@@ -328,6 +335,7 @@ function installTool(tool, args) {
   const { rootPath, paths } = getToolRegistryInfo(tool, args);
 
   let installed = 0;
+  let overwritten = 0;
   let skipped = 0;
 
   console.log(`\n${colors.cyan}${tool.toUpperCase()} target: ${rootPath}${colors.reset}`);
@@ -337,51 +345,47 @@ function installTool(tool, args) {
     console.log(`  ${colors.green}Legacy cleanup complete.${colors.reset}`);
   }
 
+  const add = (result) => {
+    installed += result.installed;
+    overwritten += result.overwritten;
+    skipped += result.skipped;
+  };
+
   if (shouldInclude("commands", args)) {
     for (const targetCommands of paths.commands) {
-      const result = copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args);
-      installed += result.installed;
-      skipped += result.skipped;
+      add(copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args));
     }
   }
 
   if (shouldInclude("skills", args)) {
-    const result = copyDirectoryContents(SOURCE_SKILLS, paths.skills, args);
-    installed += result.installed;
-    skipped += result.skipped;
+    add(copyDirectoryContents(SOURCE_SKILLS, paths.skills, args));
   }
 
   if (shouldInclude("resources", args)) {
     for (const scriptName of RESOURCE_SCRIPTS) {
-      const result = copySingleFile(
-        path.join(SOURCE_SCRIPTS, scriptName),
-        path.join(paths.resources, "scripts", scriptName),
-        args
+      add(
+        copySingleFile(
+          path.join(SOURCE_SCRIPTS, scriptName),
+          path.join(paths.resources, "scripts", scriptName),
+          args
+        )
       );
-      installed += result.installed;
-      skipped += result.skipped;
     }
 
     for (const templateName of AGENT_TEMPLATES) {
-      const result = copySingleFile(
-        path.join(SOURCE_TEMPLATES, templateName),
-        path.join(paths.resources, "templates", templateName),
-        args
+      add(
+        copySingleFile(
+          path.join(SOURCE_TEMPLATES, templateName),
+          path.join(paths.resources, "templates", templateName),
+          args
+        )
       );
-      installed += result.installed;
-      skipped += result.skipped;
     }
 
-    const mcpResult = copySingleFile(
-      SOURCE_MCP_EXAMPLE,
-      path.join(paths.resources, ".mcp.json.example"),
-      args
-    );
-    installed += mcpResult.installed;
-    skipped += mcpResult.skipped;
+    add(copySingleFile(SOURCE_MCP_EXAMPLE, path.join(paths.resources, ".mcp.json.example"), args));
   }
 
-  return { installed, skipped };
+  return { rootPath, installed, overwritten, skipped, cleaned };
 }
 
 function detectInstallType() {
@@ -539,25 +543,63 @@ function runUpdate(args) {
   const packageDir = resolveInstalledPackageDir(installType);
   const versionAfter = packageDir ? readInstalledVersion(packageDir) : null;
   printUpdateChangeSummary(packageDir, versionBefore, versionAfter);
+
+  console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
+  console.log(`${colors.cyan}Update Summary${colors.reset}`);
+  if (versionAfter && versionAfter !== versionBefore) {
+    console.log(`  Package: ${versionBefore} → ${colors.green}${versionAfter}${colors.reset} (${installType} install)`);
+  } else if (versionAfter) {
+    console.log(`  Package: already up to date at ${colors.green}v${versionAfter}${colors.reset} (${installType} install)`);
+  } else {
+    console.log(`  Package: updated from v${versionBefore} (${installType} install; new version could not be read)`);
+  }
+  console.log(`  Files: reinstalled with --force for ${selectedTools(args).join(", ")} (see Install Summary above)`);
+  console.log(`  Verify: ${colors.cyan}akili doctor --tool ${args.tool}${colors.reset}`);
+}
+
+function summaryCounts(result) {
+  return `${colors.green}installed ${result.installed}${colors.reset} | overwritten ${result.overwritten} | ${colors.yellow}skipped ${result.skipped}${colors.reset}${result.cleaned ? ` | legacy cleaned ${result.cleaned}` : ""}`;
 }
 
 function runInstall(args) {
-  let installed = 0;
-  let skipped = 0;
+  const tools = selectedTools(args);
+  const results = [];
 
-  for (const tool of selectedTools(args)) {
-    const result = installTool(tool, args);
-    installed += result.installed;
-    skipped += result.skipped;
+  for (const tool of tools) {
+    results.push({ tool, ...installTool(tool, args) });
   }
 
-  console.log(`\nDone. Installed: ${installed} | Skipped: ${skipped}`);
-  if (skipped > 0 && !args.force) {
-    console.log(`Use ${colors.yellow}--force${colors.reset} to overwrite existing files.`);
+  const totals = results.reduce(
+    (acc, r) => ({
+      installed: acc.installed + r.installed,
+      overwritten: acc.overwritten + r.overwritten,
+      skipped: acc.skipped + r.skipped,
+      cleaned: acc.cleaned + r.cleaned,
+    }),
+    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0 }
+  );
+
+  console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
+  console.log(`${colors.cyan}Install Summary${colors.reset} — akili-specs v${currentVersion}${args.dryRun ? ` ${colors.yellow}(dry-run: no files were written)${colors.reset}` : ""}`);
+  for (const r of results) {
+    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${summaryCounts(r)}`);
+    console.log(`  ${"".padEnd(12)} → ${r.rootPath}`);
+  }
+  if (results.length > 1) {
+    console.log(`  ${"TOTAL".padEnd(12)} ${summaryCounts(totals)}`);
   }
 
-  if (selectedTools(args).includes("opencode") && !args.dryRun) {
-    console.log(`Restart ${colors.cyan}OpenCode${colors.reset} for installed commands and skills to be loaded.`);
+  console.log(`\n${colors.cyan}Next steps:${colors.reset}`);
+  if (totals.skipped > 0 && !args.force) {
+    console.log(`  - ${totals.skipped} existing file(s) were preserved. Re-run with ${colors.yellow}--force${colors.reset} to overwrite them.`);
+  }
+  if (tools.includes("opencode") && !args.dryRun) {
+    console.log(`  - Restart ${colors.cyan}OpenCode${colors.reset} for installed commands and skills to be loaded.`);
+  }
+  if (args.dryRun) {
+    console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
+  } else {
+    console.log(`  - Verify the installation with ${colors.cyan}akili doctor --tool ${args.tool}${colors.reset}.`);
   }
 }
 
@@ -574,6 +616,9 @@ function runList() {
   RESOURCE_SCRIPTS.forEach((name) => console.log(`  ${formatPath(path.join("scripts", name))}`));
   AGENT_TEMPLATES.forEach((name) => console.log(`  ${formatPath(path.join("templates", name))}`));
   console.log("  .mcp.json.example");
+
+  const resourceCount = RESOURCE_SCRIPTS.length + AGENT_TEMPLATES.length + 1;
+  console.log(`\n${colors.cyan}Summary:${colors.reset} ${commands.length} commands | ${skills.length} skills | ${resourceCount} resources (akili-specs v${currentVersion})`);
 }
 
 function hasInstalledCommand(targetCommandsList, name) {
@@ -587,6 +632,7 @@ function hasInstalledCommand(targetCommandsList, name) {
 
 function doctorTool(tool, args) {
   const { rootPath, paths } = getToolRegistryInfo(tool, args);
+  let okCount = 0;
   let missing = 0;
   let fixed = 0;
 
@@ -597,6 +643,7 @@ function doctorTool(tool, args) {
     for (const command of listCommands()) {
       const ok = hasInstalledCommand(paths.commands, command);
       if (ok) {
+        okCount += 1;
         console.log(`  ${colors.green}OK${colors.reset} ${command}`);
       } else {
         if (args.fix) {
@@ -617,6 +664,7 @@ function doctorTool(tool, args) {
     for (const skill of listSkills()) {
       const ok = fs.existsSync(path.join(paths.skills, skill, "SKILL.md"));
       if (ok) {
+        okCount += 1;
         console.log(`  ${colors.green}OK${colors.reset} ${skill}`);
       } else {
         if (args.fix) {
@@ -646,6 +694,7 @@ function doctorTool(tool, args) {
     for (const check of resourceChecks) {
       const ok = fs.existsSync(check.dest);
       if (ok) {
+        okCount += 1;
         console.log(`  ${colors.green}OK${colors.reset} ${check.dest}`);
       } else {
          if (args.fix) {
@@ -660,23 +709,41 @@ function doctorTool(tool, args) {
     }
   }
 
-  return { missing, fixed };
+  return { rootPath, ok: okCount, missing, fixed };
 }
 
 function runDoctor(args) {
-  let missingTotal = 0;
-  let fixedTotal = 0;
-  
+  const results = [];
+
   for (const tool of selectedTools(args)) {
-    const { missing, fixed } = doctorTool(tool, args);
-    missingTotal += missing;
-    fixedTotal += fixed;
+    results.push({ tool, ...doctorTool(tool, args) });
   }
 
-  console.log(`\nDone. Missing: ${missingTotal} | Fixed: ${fixedTotal}`);
+  const missingTotal = results.reduce((acc, r) => acc + r.missing, 0);
+  const fixedTotal = results.reduce((acc, r) => acc + r.fixed, 0);
+
+  console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
+  console.log(`${colors.cyan}Doctor Summary${colors.reset} — akili-specs v${currentVersion}`);
+  for (const r of results) {
+    const status =
+      r.missing > 0
+        ? `${colors.red}INCOMPLETE${colors.reset}`
+        : r.fixed > 0
+        ? `${colors.cyan}REPAIRED${colors.reset}`
+        : `${colors.green}HEALTHY${colors.reset}`;
+    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}`);
+    console.log(`  ${"".padEnd(12)} → ${r.rootPath}`);
+  }
+
   if (missingTotal > 0) {
-    console.log(`Run ${colors.cyan}akili doctor --fix${colors.reset} to auto-repair missing files.`);
+    console.log(`\n${colors.cyan}Next steps:${colors.reset}`);
+    console.log(`  - Run ${colors.cyan}akili doctor --tool ${args.tool} --fix${colors.reset} to auto-repair the ${missingTotal} missing file(s).`);
+    console.log(`  - Or run ${colors.cyan}akili update${colors.reset} to refresh the package and reinstall everything.`);
     process.exitCode = 1;
+  } else if (fixedTotal > 0) {
+    console.log(`\nAll issues repaired: ${fixedTotal} file(s) restored.`);
+  } else {
+    console.log(`\nAll checks passed. Your installation is complete and healthy.`);
   }
 }
 

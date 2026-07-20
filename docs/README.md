@@ -1,6 +1,6 @@
 # AKILI Documentation
 
-AKILI is the documented form of the AKILI-SPECS methodology: a constitution-first, spec-driven workflow for Claude Code and OpenCode.
+AKILI is the documented form of the AKILI-SPECS methodology: a constitution-first, self-improving spec-driven workflow for Claude Code and OpenCode.
 
 Use this documentation when you want the human-facing reference. The installable source prompts and skills remain under `.claude/commands/` and `.claude/skills/`.
 
@@ -25,6 +25,8 @@ Use this documentation when you want the human-facing reference. The installable
 /akili-validate <spec-path>
 /akili-archive <spec-path>
 ```
+
+Every `/akili-archive` closes with the **Kaizen Loop** — a bounded retrospective (Measure → Learn → Standardize → Record, via the packaged `kaizen` skill) that appends lessons to `docs/specs/kaizen-log.md` so the next spec starts smarter. See [flow.md](flow.md#8-the-kaizen-loop).
 
 Use `/akili-resume` at the start of any session to see a dashboard of all active specs and where each one stands.
 

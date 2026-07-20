@@ -81,6 +81,12 @@ If **multiple specs** are active, present a dashboard:
 Which spec do you want to resume? (or "all" for full briefing)
 ```
 
+If `docs/specs/kaizen-log.md` exists, append a Kaizen footer line to either format, reading ONLY the `## Active Lessons` table:
+
+```markdown
+Kaizen: 3 active lessons (latest: KZ-003 — empty-state tokens before list UI)
+```
+
 ### Step 3: Provide Full Briefing (if requested)
 
 If the user selects "all" or if there's only one spec, provide a detailed briefing for each:

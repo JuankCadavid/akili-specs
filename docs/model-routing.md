@@ -65,7 +65,7 @@ the suites, and a Tester ideally runs on a different model than the Implementer 
 | `/akili-test` → **Tester(s)** | T2 | Test authoring + verification per suite. Prefer a different model than the Implementer (author ≠ tester). |
 | `/akili-validate` | T3 | Deep conformance audit. |
 | `/akili-audit` | T4 + T3 | Drift detection over large context, judged critically. |
-| `/akili-archive` | T5 | Cheap, fast summarization of closed work. |
+| `/akili-archive` | T5 | Cheap, fast summarization of closed work. (Kaizen Learn sub-step: T3 optional.) |
 | `/akili-seo` | T3 + T5 | Audit findings (T3) plus setup/formatting steps (T5). |
 
 **author ≠ auditor enforcement.** In the registry, T2 (Coder) and T3 (Auditor) must resolve to

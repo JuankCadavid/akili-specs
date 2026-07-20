@@ -1,5 +1,7 @@
 # Product Requirements Document (PRD) Templates
 
+> **AKILI-SPECS note:** In AKILI-SPECS projects, `docs/prd.md` MUST follow the 9-section structure defined in `/akili-constitution` Step 3 (Overview & Purpose → Problem Statement → Target Personas → Goals & Success Metrics → Scope In/Out → User Stories → Acceptance Criteria → Assumptions/Dependencies/Constraints → Open Questions). The templates below are reference material for filling those sections well — or for PM work outside the methodology — never a replacement structure.
+
 ## Standard PRD Template
 
 ### 1. Executive Summary

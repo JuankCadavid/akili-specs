@@ -53,6 +53,8 @@ Creates or updates:
 docs/specs/<spec-path>/proposal.md
 ```
 
+If `docs/specs/kaizen-log.md` exists, the command reads its `## Active Lessons` digest and reflects applicable lessons in the proposal's Scope or Risks, citing their IDs (e.g. `KZ-003`).
+
 ## Proposal Sections
 
 - Document Control (records `Type: Bug | Change | Trivial`)

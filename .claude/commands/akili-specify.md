@@ -77,6 +77,7 @@ When the spec is a **bug** — the proposal's Document Control says `Type: Bug`,
    - A generated mockup under `docs/specs/$ARGUMENTS/mockup/`, `.stitch/designs`, or a `.stitch/DESIGN.md` reference → read those artifacts (screens, HTML, design tokens) and use `stitch-design` to interpret them.
    - Any mockup produced during `/akili-propose` counts as visual design context for the `Design Impact` steps below, exactly like a Figma link.
 4. Read nearby or dependent specs under `docs/specs/` that overlap with the requested path.
+   - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
 5. Respect the repository's current package layout and naming conventions instead of assuming a fixed stack.
 6. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
 
@@ -97,11 +98,12 @@ Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 
 **Scope Chunking:** If the user provides a very large instruction or epic, evaluate if it is too massive for a single spec.
 - If it spans multiple distinct modules or features, propose splitting the spec into multiple separate specs.
+- When recommending the build order of the split specs, score them with RICE or MoSCoW from the `product-manager-toolkit` skill (AKILI-SPECS Integration section) instead of guessing.
 - If the user agrees, create the separate folders under `docs/specs/` and draft a `proposal.md` or jump straight to the split documents (`requirements.md`, `design.md`, `tasks.md`) for each chunk.
 
 #### Step 1.2 — Write
 
-Generate `requirements.md` using `docs/specs/general-setup/requirements.md` as the format source.
+Generate `requirements.md` using `docs/specs/general-setup/requirements.md` as the format source. Write every spec document (`requirements.md`, `design.md`, `tasks.md`) following `cognitive-doc-design`: lead with the answer, progressive disclosure, and tables/checklists/scenarios over prose.
 
 Minimum content:
 
@@ -192,7 +194,7 @@ Use additional technical skills as needed:
 
 #### Step 2.2 — Write
 
-Generate `design.md` using `docs/specs/general-setup/design.md` as the format source.
+Generate `design.md` using `docs/specs/general-setup/design.md` as the format source. Apply relevant Active Lessons from `docs/specs/kaizen-log.md` and cite the lesson ID next to the design decision it shaped.
 
 Minimum content:
 
@@ -290,7 +292,7 @@ Preferred UI/UX skill rule:
 Present a clear summary of the generated tasks on the screen, including:
 - A high-level list of the tasks to be implemented so the user understands the plan without reading the full document.
 - An **Estimated Lines of Code (LOC)** output for the entire spec.
-- A **PR Strategy Recommendation**: If the estimate exceeds ~400 LOC or the task graph is highly complex, recommend splitting the implementation into multiple Pull Requests and suggest logical boundaries (e.g., "PR 1: Backend/API, PR 2: Frontend UI").
+- A **PR Strategy Recommendation**: If the estimate exceeds ~400 LOC or the task graph is highly complex, recommend splitting the implementation into multiple Pull Requests and suggest logical boundaries (e.g., "PR 1: Backend/API, PR 2: Frontend UI"). When PRs are chained, note that their descriptions should follow `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, link previous/next PR).
 
 Then explicitly ask the user how to proceed, providing these options:
 
