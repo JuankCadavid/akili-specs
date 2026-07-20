@@ -1,5 +1,8 @@
 ---
 description: Propose new features or changes by initiating a new detailed technical spec process.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Propose AKILI-SPECS Change
@@ -251,3 +254,9 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 7. next command to run after approval (matched to the type)
 
 Ask whether to approve the proposal, revise it, or stop.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

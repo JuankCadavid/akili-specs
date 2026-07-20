@@ -1,5 +1,8 @@
 ---
 description: Enhance pages and search engine optimization following SEO best practices.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # SEO Setup & Audit via Google Search Console
@@ -275,3 +278,9 @@ After the command completes, verify:
 - If `search_analytics_query` returns no rows for a newly verified property, this is expected. Do not mark as failure.
 - If the Indexing API is suggested as a fix, decline it for non-`JobPosting`/`BroadcastEvent` content and explain why.
 - If a skill is unavailable, fall back to the next documented skill and note it in the report.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

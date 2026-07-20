@@ -1,5 +1,8 @@
 ---
 description: Archive a completed spec task, run the Kaizen retrospective, sync agent guides and CodeGraph, and keep the TRD current.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Archive AKILI-SPECS Spec
@@ -174,3 +177,9 @@ Present:
 - Do not delete spec folders as part of archiving; only move them into `docs/specs/archive/`.
 - The Kaizen retrospective must never block the archive. If retrospective inputs are missing or the user declines, append a metrics-only (or clean-run) entry to `docs/specs/kaizen-log.md` and continue to Step 5.
 - Never edit files outside `docs/specs/kaizen-log.md` without explicit user approval in Step 4.3.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

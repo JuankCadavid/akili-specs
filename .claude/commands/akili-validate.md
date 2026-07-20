@@ -1,5 +1,8 @@
 ---
 description: Validate that the implemented feature strictly matches all requirements, design tokens, and user flows.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Validate AKILI-SPECS Implementation
@@ -184,3 +187,9 @@ The work is ready to consider complete when:
 - tests cover the key requirements and scenarios
 - implementation drift is reflected in the AKILI-SPECS docs or execution notes
 - the user has reviewed the validation summary
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

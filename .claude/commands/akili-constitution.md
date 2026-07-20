@@ -1,5 +1,8 @@
 ---
 description: Establish or strengthen the project-wide AKILI-SPECS foundation and baseline docs (PRD, UX/UI Design, TRD).
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Establish AKILI-SPECS Constitution
@@ -418,3 +421,9 @@ Ask the user whether to approve or request changes. If changes are requested, re
 ## Outcome
 
 At the end of `/akili-constitution`, the repository should have a project-level baseline that future `/akili-specify`, `/akili-execute`, `/akili-validate`, and `/akili-test` work can rely on without guessing the structure or conventions. The `.agents/` personas must be in place so that `/akili-execute` can run the Leader → Implementer → Reviewer rework loop and `/akili-test` can run the Leader → Tester(s) harness without falling back to inline personas. The root guides must also carry a `## Model Routing` registry (Step 8C) so each phase runs on a model matched to its demand, with the Reviewer on a different model than the Implementer.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

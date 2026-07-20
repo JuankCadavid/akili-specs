@@ -832,3 +832,9 @@ and the default registry for Claude Code (PRO) and OpenCode Go.
 - Skills were copied with their bundled references and helper assets.
 - This repository stores the current methodology baseline so it can be reused or versioned independently.
 - Dotfiles are snapshots of the working environment and may include plugin source copies for portability.
+
+## Authorship
+
+The AKILI-SPECS methodology is created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com).
+
+Every command in `.claude/commands/` and every agent role template in `.claude/templates/` carries this authorship notice. The project is released under the [MIT License](LICENSE): you are free to use, modify, and redistribute it, provided the copyright and attribution notices are kept intact.

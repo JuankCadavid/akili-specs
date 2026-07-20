@@ -1,5 +1,8 @@
 ---
 description: Execute approved specs systematically following the AKILI-SPECS methodology with spec-to-code traceability.
+license: MIT
+metadata:
+  author: Juan Carlos Cadavid (jcadavid.com)
 ---
 
 # Execute AKILI-SPECS Tasks
@@ -240,3 +243,9 @@ A minimal PASS-on-first-attempt entry can be compact; a HALT or rework entry mus
   2. Document the blocker, alternatives, and revised technical direction in `execution.md` inside a new `## Pivot Record: <Task ID>` section.
   3. Modify the spec's `requirements.md`, `design.md`, and/or `tasks.md` to map out the updated plan.
   4. Stop, explain the situation to the user, and obtain explicit review/approval on the pivot before resuming execution.
+
+---
+
+## Authorship
+
+AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.
