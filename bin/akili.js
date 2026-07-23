@@ -96,7 +96,9 @@ Commands:
   help      Show this help
 
 Options:
-  --tool <name>        Install target: claude, opencode, antigravity, both, or all. Default: claude
+  --tool <name>        Install target: claude, opencode, antigravity, both, or all.
+                       When omitted, install/update/doctor auto-detect already-installed
+                       targets; if none are found they default to claude.
   --target <path>      Target config directory for selected single tool
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
@@ -178,9 +180,17 @@ function getArgs() {
     const baseOpencode = values.local ? path.join(process.cwd(), ".config", "opencode") : defaultPaths.opencode;
     const baseAntigravity = values.local ? path.join(process.cwd(), ".gemini") : defaultPaths.antigravity;
 
+    // Whether the user explicitly passed --tool. When they did not, install/
+    // update/doctor auto-detect already-installed targets instead of assuming
+    // the "claude" default (see resolveTools).
+    const toolExplicit =
+      process.argv.includes("--tool") ||
+      process.argv.some((a) => a.startsWith("--tool="));
+
     const args = {
       command,
       tool: values.tool,
+      toolExplicit,
       force: values.force,
       dryRun: values["dry-run"],
       commandsOnly: values["commands-only"],
@@ -228,6 +238,57 @@ function selectedTools(args) {
   if (args.tool === "both") return ["claude", "opencode"];
   if (args.tool === "all") return ["claude", "opencode", "antigravity"];
   return [args.tool];
+}
+
+const ALL_TOOLS = ["claude", "opencode", "antigravity"];
+
+// A tool counts as installed when any of its target directories exists and is
+// non-empty. Checking commands / skills / resources covers --commands-only and
+// --skills-only installs too, not just full ones.
+function isToolInstalled(tool, args) {
+  const { paths } = getToolRegistryInfo(tool, args);
+  const dirs = [...paths.commands, paths.skills, paths.resources];
+  return dirs.some((dir) => {
+    try {
+      return fs.existsSync(dir) && fs.readdirSync(dir).length > 0;
+    } catch {
+      return false;
+    }
+  });
+}
+
+function detectInstalledTools(args) {
+  return ALL_TOOLS.filter((tool) => isToolInstalled(tool, args));
+}
+
+// Resolve which tools an install/update/doctor run should act on. An explicit
+// --tool always wins. Otherwise we auto-detect targets already on disk so a bare
+// `akili update` refreshes every installed tool (e.g. claude AND opencode)
+// instead of silently defaulting to claude only. A first-time run with nothing
+// installed falls back to the default (claude). The resolved list and any
+// auto-detection note are stashed on args for the summary output.
+function resolveTools(args) {
+  if (args.toolExplicit) {
+    args.resolvedTools = selectedTools(args);
+    return args.resolvedTools;
+  }
+  const detected = detectInstalledTools(args);
+  const isJustDefault = detected.length === 1 && detected[0] === args.tool;
+  if (detected.length > 0 && !isJustDefault) {
+    args.autoDetected = detected;
+    args.resolvedTools = detected;
+    return detected;
+  }
+  args.resolvedTools = selectedTools(args);
+  return args.resolvedTools;
+}
+
+// Map a resolved tool list back to a --tool flag value for verify hints.
+function toolFlagFor(tools) {
+  if (tools.length === 1) return tools[0];
+  const set = new Set(tools);
+  if (set.size === 2 && set.has("claude") && set.has("opencode")) return "both";
+  return "all";
 }
 
 function shouldInclude(type, args) {
@@ -580,8 +641,9 @@ function runUpdate(args) {
   } else {
     console.log(`  Package: updated from v${versionBefore} (${installType} install; new version could not be read)`);
   }
-  console.log(`  Files: reinstalled with --force for ${selectedTools(args).join(", ")} (see Install Summary above)`);
-  console.log(`  Verify: ${colors.cyan}akili doctor --tool ${args.tool}${colors.reset}`);
+  const updatedTools = args.resolvedTools || selectedTools(args);
+  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""} (see Install Summary above)`);
+  console.log(`  Verify: ${colors.cyan}akili doctor --tool ${toolFlagFor(updatedTools)}${colors.reset}`);
 }
 
 function summaryCounts(result) {
@@ -589,7 +651,15 @@ function summaryCounts(result) {
 }
 
 function runInstall(args) {
-  const tools = selectedTools(args);
+  const tools = resolveTools(args);
+  if (args.autoDetected) {
+    console.log(
+      `\n${colors.cyan}Auto-detected installed target(s): ${args.autoDetected.join(", ")}${colors.reset}`
+    );
+    console.log(
+      `  Refreshing all detected targets. Pass ${colors.yellow}--tool <name>${colors.reset} to override.`
+    );
+  }
   const results = [];
 
   for (const tool of tools) {
@@ -626,7 +696,7 @@ function runInstall(args) {
   if (args.dryRun) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
-    console.log(`  - Verify the installation with ${colors.cyan}akili doctor --tool ${args.tool}${colors.reset}.`);
+    console.log(`  - Verify the installation with ${colors.cyan}akili doctor --tool ${toolFlagFor(tools)}${colors.reset}.`);
   }
 }
 
@@ -755,7 +825,16 @@ function doctorTool(tool, args) {
 function runDoctor(args) {
   const results = [];
 
-  for (const tool of selectedTools(args)) {
+  const tools = resolveTools(args);
+  if (args.autoDetected) {
+    console.log(
+      `\n${colors.cyan}Auto-detected installed target(s): ${args.autoDetected.join(", ")}${colors.reset}`
+    );
+    console.log(
+      `  Checking all detected targets. Pass ${colors.yellow}--tool <name>${colors.reset} to override.`
+    );
+  }
+  for (const tool of tools) {
     results.push({ tool, ...doctorTool(tool, args) });
   }
 
@@ -875,6 +954,7 @@ async function runInteractiveInit() {
   const args = {
     command: "install",
     tool: tool,
+    toolExplicit: true,
     force: false,
     dryRun: false,
     commandsOnly: false,

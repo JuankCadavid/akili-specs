@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Changed
 
-- No unreleased changes yet.
+- **Installer auto-detects installed targets (`bin/akili.js`):** when `--tool` is omitted, `install`, `update`, and `doctor` now scan disk for already-installed targets (`~/.claude`, `~/.config/opencode`, `~/.gemini`) and act on **all** of them instead of silently defaulting to `claude`. A bare `akili update` therefore refreshes every installed tool — fixing the case where new commands (e.g. `akili-quick`, `akili-resume`) landed in Claude Code but never reached OpenCode. An explicit `--tool <name>` still wins; a first-time run with nothing installed still defaults to `claude`. Auto-detected runs print which targets were found, and the update/verify summaries report the resolved tool set and a matching `akili doctor --tool …` hint.
 
 ## [2.10.0] - 2026-07-22
 
