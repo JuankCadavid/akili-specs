@@ -379,12 +379,16 @@ project guides so the project does not depend on the package's `docs/` after ins
 
 1. A one-line statement of the criteria-first philosophy and the guiding principles
    (match the dominant demand; ARCHITECT = BUILDER; **author ≠ auditor**; reserve deep-reasoning for
-   propose/verify; fast & cheap for tasks/archive).
+   propose/specify/verify **and the orchestrating Leader**; fast & cheap for archive/formatting only
+   — **`tasks.md` decomposition is T1, not cheap formatting**).
 2. The six capability tiers (T1 Architect, T2 Coder, T3 Auditor, T4 Context-Ingest, T5 Fast-Cheap,
-   T6 Multimodal) with one-line definitions.
+   T6 Multimodal) with one-line definitions — T1 covers architecture reasoning, **task decomposition**,
+   **and live orchestration judgment** (decomposition in flight, runtime skill selection, FAIL
+   adjudication, pivot).
 3. The phase→tier mapping for the real AKILI phases, with the `/akili-execute` triad split into
-   Leader (T5), Implementer (T2), and Reviewer (T3), and an explicit note that the Reviewer model
-   must differ from the Implementer model. `/akili-test` is likewise split into its Leader (T5,
+   Leader (T1, orchestration judgment — writes no code but selects skills, adjudicates FAILs, and
+   decides pivots), Implementer (T2), and Reviewer (T3), and an explicit note that the Reviewer model
+   must differ from the Implementer model. `/akili-test` is likewise split into its Leader (T1,
    orchestration) and Tester(s) (T2, test authoring), with a note to prefer a Tester model different
    from the Implementer (author ≠ tester).
 4. The editable model registry table with columns `Tier | Claude Code | OpenCode | Fallback`, plus
@@ -470,14 +474,14 @@ this step — the guidance-only flow keeps working.
   operating contract before doing anything else.
   ```
 
-  Models come from the registry's Claude Code column as **aliases** (default: leader `haiku`,
-  implementer `sonnet`, reviewer `opus`, tester `sonnet`). Never copy the persona body into the
-  wrapper — `.agents/` stays the single source of truth.
+  Models come from the registry's Claude Code column as **aliases** (default: leader `opus` (T1 —
+  orchestration judgment), implementer `sonnet`, reviewer `opus`, tester `sonnet`). Never copy the
+  persona body into the wrapper — `.agents/` stays the single source of truth.
 
 - **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
   the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
-  the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.1`, reviewer
-  `opencode-go/deepseek-v4-pro`, leader `opencode-go/deepseek-v4-flash`).
+  the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.2`, reviewer
+  `opencode-go/deepseek-v4-pro`, leader `opencode-go/kimi-k3` (T1 — orchestration judgment)).
 
 - **Google Antigravity:** no per-agent model binding exists — skip wrapper generation and note in
   the summary that Antigravity stays on guidance-only routing.

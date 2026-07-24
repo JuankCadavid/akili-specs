@@ -293,12 +293,11 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 | Phase / Role | Tier |
 |---|---|
 | `/akili-constitution` | T4 + T1 |
-| `/akili-propose`, `/akili-specify` (requirements/design) | T1 |
+| `/akili-propose`, `/akili-specify` (requirements/design/tasks) | T1 |
 | `/akili-quick` | T2 |
-| `/akili-specify` (tasks) | T5 |
 | `/akili-specify` (UX/UI design) | T6 |
-| `/akili-execute` Leader / Implementer / Reviewer | T5 / T2 / T3 |
-| `/akili-test` Leader / Tester(s) | T5 / T2 |
+| `/akili-execute` Leader / Implementer / Reviewer | T1 / T2 / T3 |
+| `/akili-test` Leader / Tester(s) | T1 / T2 |
 | `/akili-validate` | T3 |
 | `/akili-audit` | T4 + T3 |
 | `/akili-archive` | T5 |

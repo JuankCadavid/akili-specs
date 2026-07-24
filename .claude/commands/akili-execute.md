@@ -65,7 +65,7 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 ### Step 0: Load Context
 
-**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** for you as Leader — the Implementer/Reviewer route through the Step 8E agent wrappers (their own tier models) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you decompose in flight, **select each Implementer's skills**, adjudicate Reviewer FAILs, and decide pivots. You write no code, but these calls gate the whole run (low volume, high leverage). The Implementer/Reviewer route through the Step 8E agent wrappers (their own tier models — Implementer T2, Reviewer T3) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
@@ -120,6 +120,7 @@ loop:
       HALT, mark task [~], present audit trail (Step 4)
       exit loop
     feedback = Reviewer issues
+    effort = bump one level (medium → high → xhigh)   # a failed fix is usually under-thinking
     attempt += 1
     continue loop
 ```
@@ -139,7 +140,8 @@ Delegate to the Implementer with:
 - the active task ID, title, and scope from `tasks.md`
 - the relevant slices of `requirements.md`, `design.md`, and `trd.md`
 - the project constitution references (`CLAUDE.md`, `AGENTS.md`, `docs/ux-ui/design.md`)
-- the recommended skill list from the task (e.g. `ui-ux-pro-max`, `react-doctor`, `nestjs-expert`), falling back to the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) when the task lists none; if the task involves animation, include `gsap-animation` and its matching reference file
+- the skill set **you select for this task as Leader**. The task's recommended list (e.g. `ui-ux-pro-max`, `react-doctor`, `nestjs-expert`) and the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) are your **defaults, not a fixed pass-through**: judge the task's actual nature and augment, narrow, or override them — add a skill the task missed, drop one that does not fit, swap in the better match (e.g. include `gsap-animation` and its matching reference file when the work touches animation even if unlisted). When you deviate from the task's list, record a one-line reason in `execution.md`. Fall back to the Skill Map only when the task lists none and you see no better fit
+- the **effort you select for this task** (the *Effort dial* in `## Model Routing`, orthogonal to the tier): default `medium`, flexed to `low` for trivial/mechanical work, `xhigh` for complex (algorithm, concurrency, security, ambiguity), `max` for correctness-critical. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the brief. Never `max` a cheaper tier — if a task wants `max`, escalate the tier instead
 - any prior Reviewer feedback when this is a rework attempt
 - any Active Lessons from `docs/specs/kaizen-log.md` relevant to the task's domain (pass only the matching rows, never the full log)
 - the verification command to run before reporting completion

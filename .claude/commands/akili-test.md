@@ -11,7 +11,7 @@ Run automated and, when needed, manual tests against a spec path's implementatio
 
 In this command you act as the **Leader** (Orchestrator). You partition testing into per-suite units, delegate each unit to a focused **Tester** subagent, aggregate their structured reports, and assemble the final `test-report.md`. Testing should prove the behavior promised in `requirements.md`, not only increase test count.
 
-> **Recommended model tier:** Leader on T5 Fast-Cheap (orchestration — writes no tests), each Tester on T2 Coder (test authoring + verification). See the `## Model Routing` registry in the project's `AGENTS.md` / `CLAUDE.md`. Prefer a Tester model that differs from the Implementer that wrote the code (author ≠ tester reduces confirmation bias).
+> **Recommended model tier:** Leader on T1 (orchestration judgment — partitions suites, selects each Tester's skills, adjudicates results; writes no tests), each Tester on T2 Coder (test authoring + verification). See the `## Model Routing` registry in the project's `AGENTS.md` / `CLAUDE.md`. Prefer a Tester model that differs from the Implementer that wrote the code (author ≠ tester reduces confirmation bias).
 
 ## Usage
 
@@ -77,7 +77,7 @@ The Leader decides the count from the spec's depth and the independence of the s
 
 ### Phase 0: Load Context (Leader)
 
-**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** for you as Leader — Testers route through the `akili-tester` wrapper (T2) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you partition suites, **select each Tester's skills**, and adjudicate results. You write no tests, but these calls gate the whole run (low volume, high leverage). Testers route through the `akili-tester` wrapper (T2) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
