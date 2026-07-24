@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.12.0] - 2026-07-24
+
 ### Changed
 
 - **Methodology audit — effort dial and Leader authority propagated to their remaining surfaces.** A four-front audit (commands, personas, skills governance, docs coherence) after v2.11.0 found the new capabilities had landed in `/akili-execute` but not its siblings. Fixed: **(a)** `/akili-constitution` Step 8C now scaffolds the **Effort dial** into each project's `## Model Routing` (item 6: effort-by-signal table, per-role defaults, rework escalation, tier↔effort rule) — previously `/akili-execute` referenced a section fresh projects never had; **(b)** `/akili-test` gains per-suite **effort selection** (Phase 1), **effort escalation on the Tester inner loop**, and the same active skill-selection authority as execute; **(c)** worker personas now acknowledge the dial — `implementer.md`/`tester.md` honor the Leader's effort brief (and state the Leader's skill assignment supersedes the task list), `reviewer.md` states its default effort `high`; **(d)** `leader.md` gains a **"When Orchestrating `/akili-test`"** section (was execute-only — never mentioned Testers or author ≠ tester); **(e)** Step 8E adds the missing **OpenCode tester wrapper default** (`opencode-go/deepseek-v4-flash` — the T2 *fallback* rather than the primary, so the Tester lands on a different model than the Implementer) plus a soft author ≠ tester guard in Rule 1.
@@ -13,7 +19,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Skills governance: rule-vs-practice contradiction resolved with documented carve-outs.** The absolute "stack skills never hard-referenced in command text" rule contradicted four command sites. `governance.md` now distinguishes **load-directing** (violation) from three carve-outs: the constitution's candidate-pool/bootstrap lists, no-map fallback lists that defer to the Skill Map first, and Skill-Map-deferring illustrative examples. The two genuine violations were purged: `/akili-validate` and `/akili-test` now point stack-skill selection at the project `## Skill Map` instead of fixed lists. `docs/skills/README.md` aligned.
 - **Skill attribution completed.** `react-doctor` (`license: MIT`) and `stitch-design` (`license: Apache-2.0`) — both verified against their upstream repositories; `shadcn-ui`'s off-schema `curated-by` normalized to `adapted-by` with an explicit unverified-license warning.
 - **Stale docs corrected.** `README.md` no longer claims fast/cheap models handle the tasks split (the exact belief v2.11.0 reversed — now: deep reasoning for propose/specify incl. `tasks.md`/validate/Leader, fast/cheap only for archive+formatting, plus the Effort dial); README and `docs/cli.md` now document the v2.10.1 installer **auto-detect** behavior (bare `install`/`update`/`doctor` act on all installed targets); README's Contents lists all 22 skills (added `caveman`, `software-architect`); `docs/commands/README.md` includes Antigravity; `model-routing.md` wording fix ("the strongest open models").
-
 ## [2.11.0] - 2026-07-24
 
 ### Changed
