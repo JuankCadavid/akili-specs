@@ -247,7 +247,7 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 
 ### Step 6: Create or Enhance the Infrastructure Document
 
-Create or enhance `docs/infrastructure.md` as the deployment and hosting blueprint.
+Create or enhance `docs/infrastructure.md` as the environments blueprint — from the developer's laptop to PROD.
 
 The infrastructure shape derives from the TRD's robust-vs-lite tier decision (Step 5, `software-architect` skill) — never precedes it. Cite the tier decision and its ADR at the top of the document.
 
@@ -258,8 +258,29 @@ The infrastructure shape derives from the TRD's robust-vs-lite tier decision (St
 3. Deployment Strategy (e.g., CI/CD, Terraform, CDK)
 4. Network & Security Architecture
 5. Infrastructure Rules & Constraints
+6. Local Environment (the contract below)
 
 If this information is missing during the initial setup or discovery phase, explicitly ask the user for the intended infrastructure specifications before drafting this document.
+
+#### Step 6B: The Local Environment Contract
+
+Scaffold a `## Local Environment` section that captures how to start the project's local stack (database, backend, frontend). The methodology defines a **contract, not a tool** — Docker Compose is the recommended primary route, but the contract must always document a fallback for users without Docker:
+
+| Element | What to record |
+|---------|----------------|
+| Primary route (recommended) | e.g. `docker compose up -d` |
+| Fallback route (no Docker) | e.g. `npm run dev` per service + a local or cloud dev database |
+| Pre-check | e.g. `docker info` — on failure (daemon off, not installed), surface it and offer: start Docker, or use the fallback. Never block silently |
+| Seed / reset data | explicit commands |
+| Health check | how to verify the stack is up |
+| URLs / ports | frontend, backend, database |
+
+Mode-specific behavior:
+
+- **Legacy / Active:** derive the contract from evidence — existing `docker-compose*.yml`, `Makefile`, `package.json` scripts, README run instructions. Do not invent commands; ask the user to confirm anything ambiguous.
+- **Brand-new:** offer to scaffold a development compose file (db + backend + frontend) matching the TRD stack. If the user declines or has no Docker, record the native fallback as the primary route.
+
+**Boundary rule (record it in the section):** the local environment is **disposable** — agents may freely start, seed, and reset it to verify work. Deployments to cloud/PROD are **governed** — they follow this document's sections 1–5 (components, IaC, CI/CD defined at constitution time) and are never improvised by agents.
 
 ---
 
@@ -302,6 +323,7 @@ The update should explain briefly:
 - Which skills should be used for common work in the project (the `## Skill Map` added in Step 8D)
 - Whether CodeGraph is initialized and how agents should use it for existing-project analysis
 - Which model to switch to per AKILI-SPECS phase (the `## Model Routing` registry added in Step 8C)
+- How to start the local stack: point at the `## Local Environment` contract in `docs/infrastructure.md` (Step 6B) — agents consult it instead of guessing start commands
 
 Preserve the repository's existing `CLAUDE.md` and `AGENTS.md` conventions and extend them.
 

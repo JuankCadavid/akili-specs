@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Local Environment contract — the constitutional baseline now captures how to start the local stack.** `/akili-constitution` Step 6 evolves `docs/infrastructure.md` from a deployment-only blueprint into an environments blueprint (laptop → PROD): new **Step 6B** scaffolds a `## Local Environment` section as a **contract, not a tool** — Docker Compose as the recommended primary route plus a mandatory no-Docker fallback, a pre-check (e.g. `docker info`; on failure offer to start Docker or use the fallback, never block silently), seed/reset commands, health check, and URLs/ports. Legacy projects derive the contract from evidence (compose files, `package.json` scripts); brand-new projects are offered a dev compose scaffold. The section records the **boundary rule**: the local environment is disposable (agents may start/seed/reset it freely) while cloud/PROD deployments stay governed by the blueprint's components/IaC/CI-CD sections and are never improvised by agents. Consumers: `/akili-execute` Step 2.1 (environment-dependent verification consults the contract and runs the pre-check before spawning the Implementer), `/akili-test` Phase 1 (integration/E2E context slices carry the contract; pre-check resolves at planning time, not mid-suite), `/akili-validate` Phase 3 (optional boot smoke — boot failure FAIL, missing contract WARN), and the Step 8 root guides point agents at the contract. Design recorded in `docs/plans/2026-07-24-local-environment-contract.md`.
 
 ## [2.13.0] - 2026-07-24
 

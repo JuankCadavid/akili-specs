@@ -87,6 +87,8 @@ Prefer the commands defined by the repo rather than assuming a fixed stack.
 
 If no command exists, record the gap and recommend the smallest useful command to add.
 
+**Environment boot smoke (optional):** when `docs/infrastructure.md` has a `## Local Environment` contract and the spec's behavior warrants it, boot the stack per the contract (pre-check first; fallback route if the primary is unavailable) and confirm the health check passes. Record boot failure as **FAIL**, a missing contract as a **WARN** gap recommending `/akili-constitution` (Step 6B).
+
 ### Phase 4: Requirement Coverage Verification
 
 For every requirement in `requirements.md`, verify:

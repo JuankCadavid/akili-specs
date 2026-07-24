@@ -133,6 +133,7 @@ loop:
 - Re-read the requirements and scenarios covered by the task.
 - Identify the smallest safe change that satisfies the task.
 - Identify the verification command listed in the task.
+- **Environment-dependent verification:** if the verification needs a running stack (integration behavior, manual smoke, anything hitting the database or a live server), consult the `## Local Environment` contract in `docs/infrastructure.md` and run its **pre-check** now — before spawning the Implementer. If the primary route is unavailable (e.g. the Docker daemon is off), ask the user whether to start it or proceed via the contract's fallback route; pass the resolved start/health-check commands in the Implementer's brief. If no contract exists, note the gap and recommend `/akili-constitution` (Step 6B) after the run.
 
 #### 2.2 — Spawn Implementer
 
