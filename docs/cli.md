@@ -26,7 +26,10 @@ npx akili-specs install --tool both
 npx akili-specs install --tool all
 ```
 
-Claude is the default target:
+When `--tool` is omitted, `install`, `update`, and `doctor` **auto-detect already-installed
+targets** on disk (`~/.claude`, `~/.config/opencode`, `~/.gemini`) and act on all of them — so a
+bare `akili update` refreshes every installed tool, not just Claude. A first-time run with nothing
+installed defaults to Claude. An explicit `--tool <name>` always wins:
 
 ```bash
 npx akili-specs install
@@ -67,6 +70,7 @@ Every command closes with a clear end-of-run summary:
 
 | Option | Applies To | Purpose |
 |---|---|---|
+| *(no `--tool`)* | install, update, doctor | **Auto-detect installed targets** and act on all of them; default to Claude when none found |
 | `--tool claude` | install, update, doctor | Target Claude Code config |
 | `--tool opencode` | install, update, doctor | Target OpenCode config |
 | `--tool antigravity` | install, update, doctor | Target Google Antigravity config |

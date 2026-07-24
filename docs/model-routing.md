@@ -87,6 +87,7 @@ model than the Implementer (author ≠ tester).
 | `/akili-validate` | T3 | Deep conformance audit. |
 | `/akili-audit` | T4 + T3 | Drift detection over large context, judged critically. |
 | `/akili-archive` | T5 | Cheap, fast summarization of closed work. (Kaizen Learn sub-step: T3 optional.) |
+| `/akili-resume` | T5 | File scanning + dashboard summarization — reasoning depth is not the bottleneck. |
 | `/akili-seo` | T3 + T5 | Audit findings (T3) plus setup/formatting steps (T5). |
 
 **author ≠ auditor enforcement.** In the registry, T2 (Coder) and T3 (Auditor) must resolve to
@@ -130,7 +131,7 @@ unchanged (e.g. when the top family moves from one generation to the next, `opus
 Users on plans that expose a frontier model above Opus (Fable 5 / Mythos 5) can pin it for T1/T3 —
 see **Frontier escalation tier** below.
 
-**OpenCode Go.** The two strongest open models anchor the two highest-leverage tiers:
+**OpenCode Go.** The strongest open models anchor the highest-leverage tiers:
 
 - **GLM-5.2 → T2 Coder.** A-tier open coder (753B, GPQA 91.2), successor to GLM-5.1, purpose-built
   for long autonomous coding runs — the recommended **default OpenCode workhorse**. (This row was

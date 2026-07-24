@@ -10,7 +10,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 |---|---|
 | `core` | Hard-wired to a precise command step — the command loads it by name |
 | `conditional` | Loaded when the work touches its domain (UI, animation) |
-| `stack` | Selected per project via the `## Skill Map` scaffolded by `/akili-constitution`; never hardcoded in command text |
+| `stack` | Selected per project via the `## Skill Map` scaffolded by `/akili-constitution`; never load-directed in command text (candidate-pool lists in the Skill Map builder and Skill-Map-deferring examples are documented carve-outs — see `governance.md`) |
 
 ## Skill Inventory
 

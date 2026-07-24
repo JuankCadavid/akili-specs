@@ -8,6 +8,7 @@ allowed-tools:
 metadata:
   author: Google (google-labs-code)
   source: https://github.com/google-labs-code/stitch-skills
+  license: Apache-2.0
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: conditional

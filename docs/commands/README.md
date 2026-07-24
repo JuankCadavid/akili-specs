@@ -1,6 +1,6 @@
 # Command Reference
 
-AKILI commands are installed as slash-command prompts for Claude Code and OpenCode. The installable source files live in `.claude/commands/`.
+AKILI commands are installed as slash-command prompts for Claude Code, OpenCode, and Google Antigravity (as workflows). The installable source files live in `.claude/commands/`.
 
 ## Command Map
 

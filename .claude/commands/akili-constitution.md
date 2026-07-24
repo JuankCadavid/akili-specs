@@ -401,6 +401,15 @@ project guides so the project does not depend on the package's `docs/` after ins
 5. The instruction: *"To change models, edit only this registry table. Never pin a dated model name
    where a floating alias exists. Model selection is guidance only in command prompts — never add
    `model:` to command frontmatter; enforced bindings live only in the Step 8E agent wrappers."*
+6. A compact **Effort dial** subsection (mirroring the packaged `docs/model-routing.md` → *Effort
+   dial*): effort is the second, **per-task** routing dimension, orthogonal to the tier — the tier
+   picks the model, effort picks how hard it thinks on *this* task. Include: (a) the effort-by-signal
+   table (trivial/mechanical → `low`; standard scope → `medium`; complex — algorithm, concurrency,
+   security, ambiguity → `xhigh`; correctness-critical → `max`); (b) default effort by role (T1
+   propose/specify/Leader `high`; T2 Implementer/Tester `medium`, flex by task; T3 Reviewer `high`;
+   T5 archive `low`); (c) the rework rule (*bump effort one level on every retry*); and (d) the
+   tier↔effort rule (*never `max` a cheaper tier — escalate the tier instead*). The
+   `/akili-execute` and `/akili-test` Leaders read this subsection to set each worker's effort.
 
 **Mode-specific policy (mirror Step 8B):**
 
@@ -481,7 +490,9 @@ this step — the guidance-only flow keeps working.
 - **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
   the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
   the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.2`, reviewer
-  `opencode-go/deepseek-v4-pro`, leader `opencode-go/kimi-k3` (T1 — orchestration judgment)).
+  `opencode-go/deepseek-v4-pro`, leader `opencode-go/kimi-k3` (T1 — orchestration judgment),
+  tester `opencode-go/deepseek-v4-flash` — the T2 fallback rather than the T2 primary, so the
+  Tester lands on a **different model than the Implementer** (author ≠ tester)).
 
 - **Google Antigravity:** no per-agent model binding exists — skip wrapper generation and note in
   the summary that Antigravity stays on guidance-only routing.
@@ -489,7 +500,9 @@ this step — the guidance-only flow keeps working.
 **Rules:**
 
 1. The Reviewer wrapper's model MUST differ from the Implementer wrapper's model. If the registry
-   collapses them, escalate the Reviewer one tier before writing the wrappers.
+   collapses them, escalate the Reviewer one tier before writing the wrappers. The Tester wrapper
+   should also **prefer** a model different from the Implementer's (author ≠ tester — a preference,
+   not a hard rule); if they collapse, note it in the summary rather than blocking.
 2. Wrappers reference `.agents/<role>.md`; they never duplicate persona content. Editing a persona
    requires no wrapper change; changing a model requires editing only the wrapper (or re-running
    this step).

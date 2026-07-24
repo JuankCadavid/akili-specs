@@ -79,6 +79,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `api-design-principles`
   - `aws-serverless`
   - `brainstorming`
+  - `caveman`
   - `cognitive-doc-design`
   - `error-handling-patterns`
   - `frontend-design`
@@ -90,6 +91,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `react-doctor`
   - `seo-audit`
   - `shadcn-ui`
+  - `software-architect`
   - `stitch-design`
   - `systematic-debugging`
   - `tailwind-design-system`
@@ -138,7 +140,9 @@ npx akili-specs init
 
 **Manual Installation via Flags:**
 
-Install globally for Claude (default):
+Install without `--tool` — the installer **auto-detects targets already installed on disk**
+(`~/.claude`, `~/.config/opencode`, `~/.gemini`) and acts on all of them; on a first-time run with
+nothing installed it defaults to Claude:
 
 ```bash
 npx akili-specs install
@@ -810,7 +814,9 @@ selector), and `/akili-constitution` scaffolds a `## Model Routing` registry int
 
 Key principles: **ARCHITECT = BUILDER** (the model that designs also builds), **author ≠ auditor**
 (the Reviewer runs on a different model than the Implementer), reserve deep-reasoning models for
-`/akili-propose` and `/akili-validate`, and use fast/cheap models for the tasks split and `/akili-archive`.
+`/akili-propose`, `/akili-specify` (including the `tasks.md` decomposition), `/akili-validate`, and
+the `/akili-execute`/`/akili-test` Leader, and use fast/cheap models only for `/akili-archive` and
+pure setup/formatting steps. An **Effort dial** adds a second, per-task dimension on top of the tier.
 
 See **[docs/model-routing.md](docs/model-routing.md)** for the tiers, the full phase→tier mapping,
 and the default registry for Claude Code (PRO) and OpenCode Go.

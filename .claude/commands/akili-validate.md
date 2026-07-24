@@ -108,13 +108,8 @@ For every requirement in `requirements.md`, verify:
 
 Use skills as needed:
 
-- `nestjs-expert`
-- `react-doctor`
-- `api-design-principles`
-- `tailwind-design-system`
-- `frontend-design`
-- `ui-ux-pro-max` if available for UX/UI-heavy validation
-- `systematic-debugging` when failures or inconsistencies appear
+- **Stack skills come from the project's `## Skill Map`** (root `AGENTS.md`/`CLAUDE.md`) — load the entries matching the code under validation; do not assume a fixed list.
+- Conditional skills by situation: `ui-ux-pro-max` (fallback `frontend-design`) for UX/UI-heavy validation; `systematic-debugging` when failures or inconsistencies appear.
 
 Check for:
 
@@ -139,7 +134,7 @@ If `proposal.md` exists, also verify that final behavior remains aligned with th
 
 ### Phase 7: Generate Validation Report
 
-Create `docs/specs/$ARGUMENTS/validation-report.md`.
+Create `docs/specs/$ARGUMENTS/validation-report.md`. Write it following `cognitive-doc-design`: lead with the verdict, progressive disclosure, tables over prose.
 
 The report must include:
 

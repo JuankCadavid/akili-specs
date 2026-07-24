@@ -133,7 +133,7 @@ Ask focused questions only when the proposal would otherwise depend on unstable 
 
 ### Step 2: Write `proposal.md`
 
-Create a concise proposal with this structure:
+Create a concise proposal following `cognitive-doc-design` (lead with the answer, progressive disclosure, tables over prose) with this structure:
 
 1. Document Control (include `Type: Bug | Change | Trivial`)
 2. Intent

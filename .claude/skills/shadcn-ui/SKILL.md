@@ -4,7 +4,8 @@ description: Provides complete shadcn/ui component library patterns including in
 allowed-tools: Read, Write, Bash, Edit, Glob
 metadata:
   author: community (origin unverified)
-  curated-by: "Juan Carlos Cadavid — jcadavid.com"
+  license: "unverified — no upstream source to check; treat as all-rights-reserved until origin is identified"
+  adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: stack
   version: "1.0"

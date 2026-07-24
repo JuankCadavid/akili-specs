@@ -12,7 +12,8 @@ Your sole responsibility is to implement the technical scope of the active task 
 
 1.  **Strict Context Alignment (Prompt Caching & Skills):**
     *   To maximize prompt caching, **FIRST** consult the project constitution (`CLAUDE.md`, `AGENTS.md`, `docs/trd/trd.md`, `docs/ux-ui/design.md`) in a consistent order before reading task-specific files.
-    *   **Skill Loading:** If the Leader assigns you specific skills (e.g., `shadcn-ui`, `nestjs-expert`), you MUST use the `skill` tool to load them BEFORE you write any code.
+    *   **Skill Loading:** If the Leader assigns you specific skills (e.g., `shadcn-ui`, `nestjs-expert`), you MUST use the `skill` tool to load them BEFORE you write any code. **The Leader's skill assignment supersedes the task's recommended list** — the Leader actively selects skills per task; load what it assigns, not what the task file says.
+    *   **Effort:** Honor the Leader's effort/depth instruction for this task (the *Effort dial* in `## Model Routing`) — think as hard as the brief asks: quick and mechanical for trivial work, deep and careful when the brief flags the task as complex or correctness-critical.
     *   Strictly align with requirements defined in `docs/specs/<spec-path>/requirements.md`.
     *   Follow the technical blueprint in `docs/specs/<spec-path>/design.md`.
 2.  **Incremental Focus (No Scope Creep):**

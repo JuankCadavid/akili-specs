@@ -41,7 +41,7 @@ Before making any edit, confirm the change qualifies as trivial. A change is eli
 - **No behavior change:** no new or modified logic, control flow, conditionals, state, or side effects.
 - **No data / API / auth / contract change:** no schema, endpoint, request/response shape, permission, or shared-package surface change.
 - **Small and local:** roughly **≤ ~20 LOC** and confined to **one component/file** (or a couple of tightly related files).
-- **Design-token safe:** any color/spacing/typography change uses an existing approved token from `docs/ux-ui/design.md` — not a new hardcoded value.
+- **Design-token safe:** any color/spacing/typography change uses an existing approved token from `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`) — not a new hardcoded value.
 
 ### Automatic Escalation
 
@@ -66,7 +66,7 @@ Keep context small — this is a trivial change, not a full spec run.
 
 1. Read only what the change needs:
    - the target file(s) for the change
-   - `docs/ux-ui/design.md` **only if** the change involves a color, spacing, typography, or other design token (to use the approved token)
+   - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`) **only if** the change involves a color, spacing, typography, or other design token (to use the approved token)
    - root `CLAUDE.md` / `AGENTS.md` only if repo conventions are unclear for the edit
 2. **CodeGraph over full reads:** if `.codegraph/` exists, use `codegraph_search` to locate the exact symbol/component instead of scanning files.
 3. Do **not** read the full constitution set, `docs/prd.md`, or `docs/trd/trd.md` for a trivial edit.

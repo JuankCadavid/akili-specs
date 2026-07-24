@@ -214,7 +214,7 @@ Record each failure as a finding using the skill's Issue / Impact / Evidence / F
 
 ### Phase 3: Write `seo-audit-report.md`
 
-Generate `docs/specs/$SPEC_PATH/seo-audit-report.md` using `docs/specs/general-setup/validation-report.md` as the format source where it fits.
+Generate `docs/specs/$SPEC_PATH/seo-audit-report.md` using `docs/specs/general-setup/validation-report.md` as the format source where it fits, writing per `cognitive-doc-design` (lead with the verdict, tables over prose).
 
 Required sections:
 

@@ -5,6 +5,7 @@ version: 1.0.0
 metadata:
   author: Million.dev (millionco)
   source: https://github.com/millionco/react-doctor
+  license: MIT
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: stack

@@ -26,7 +26,7 @@ Rules of thumb:
 
 - A skill earns `core` only when a command step would be *wrong* without it (a retrospective without `kaizen` is not the AKILI archive).
 - `conditional` skills are stack-agnostic capabilities that many but not all specs need (UI, animation).
-- `stack` skills must never be hard-referenced in command text — commands stay tool- and framework-agnostic. They reach the agent through the project Skill Map and per-task skill lists.
+- `stack` skills must never be **load-directed** in command text (a command step telling the agent to load a named stack skill) — commands stay tool- and framework-agnostic. They reach the agent through the project Skill Map and per-task skill lists. **Three documented carve-outs:** (1) the Skill Map *builder* in `/akili-constitution` (Step 8D, and the Step 5 TRD bootstrap that feeds it — constitution runs *before* the map exists) may enumerate the packaged stack skills as the candidate pool it selects from; (2) an explicit **no-map fallback list** that defers to the Skill Map first ("prefer the `## Skill Map` when it exists; otherwise pick from: …") is acceptable; (3) purely *illustrative* examples ("e.g. `nestjs-expert`") that explicitly defer to the task list / Skill Map are acceptable. A step that says "use these skills:" followed by stack-skill names, with **no** Skill Map deferral, is a violation.
 
 ## Frontmatter Schema
 

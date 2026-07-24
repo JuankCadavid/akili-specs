@@ -101,10 +101,8 @@ The Leader decides the count from the spec's depth and the independence of the s
 1. Partition the work into concrete **suites**: backend unit, frontend unit, integration, E2E — only those the spec actually needs.
 2. For each suite, assemble a **context slice**: the target requirements + scenarios, the negative/strict rules to assert, the repo test command, and the relevant skills.
 3. Apply the **Deployment Rule** to decide inline vs delegated, and parallel vs sequential.
-4. Assign skills per suite as needed:
-   - `nestjs-expert`, `systematic-debugging` — backend
-   - `vercel-react-best-practices`, `react-doctor` — frontend
-   - `ui-ux-pro-max` (fallback `frontend-design`) — UI-heavy E2E
+4. **Select each suite's skills as Leader — you own the decision, not a fixed list.** The spec's task skills and the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) are your **defaults, not a pass-through**: judge each suite's actual nature and augment, narrow, or override them (conditional skills like `systematic-debugging` for failure-heavy suites or `ui-ux-pro-max` for UI-heavy E2E; stack skills come from the Skill Map). When you deviate from the spec's list, record a one-line reason in the test report's Summary.
+5. **Set each suite's effort** (the *Effort dial* in `## Model Routing`, orthogonal to the tier): default `medium` for a T2 Tester, `low` for a trivial single-assertion suite, `xhigh` for complex integration/concurrency suites, `max` for correctness-critical coverage. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the suite's context slice. Never `max` a cheaper tier — escalate the tier instead.
 
 ### Phase 2: Execute Suites (Tester per suite)
 
@@ -115,7 +113,8 @@ For each suite, the assigned Tester (or the Leader inline) must:
 - Map every test back to its requirement and scenario.
 - Run the suite and apply the **bounded self-correction inner loop** (max 3 attempts):
   - fix genuine **test defects** and re-run;
-  - keep a failing test that reveals a genuine **product defect** red, and report it as `STATUS: PRODUCT_BUG` instead of rewriting it to pass.
+  - keep a failing test that reveals a genuine **product defect** red, and report it as `STATUS: PRODUCT_BUG` instead of rewriting it to pass;
+  - on each retry, **bump the effort one level** (`medium` → `high` → `xhigh`) — a fix that failed is usually under-thinking, not missing instructions.
 - Prefer unit tests for internal logic, integration tests for cross-module/API behavior, and E2E only for critical user journeys — not every small component state.
 
 Each Tester concludes with exactly one status — `PASS`, `FAIL`, or `PRODUCT_BUG` — plus a per-scenario coverage slice, per `.agents/tester.md`.
@@ -131,7 +130,7 @@ Recommended matrix columns:
 
 ### Phase 4: Generate Test Report (Leader)
 
-Create `docs/specs/$ARGUMENTS/test-report.md`.
+Create `docs/specs/$ARGUMENTS/test-report.md`. Write it following `cognitive-doc-design`: lead with the answer (overall status first), progressive disclosure, tables over prose.
 
 **Automated Test Parsing Option:** If the repository uses standard testing frameworks (like Jest or Vitest) and has a AKILI test parsing helper installed (e.g. `akili/scripts/parse_tests.js`), you may run the tests outputting to JSON (e.g. `jest --json --outputFile=jest-results.json` or `vitest --reporter=json --outputFile=test-results.json`) and run:
 `node <path-to-akili>/scripts/parse_tests.js jest-results.json`

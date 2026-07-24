@@ -19,7 +19,7 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 
 ### Step 0: Read Project Specifications
 
-**Model checkpoint:** This phase runs best on **T4 Context-Ingest** for the scan and **T3 Auditor** for judging drift. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T4+T3 — the registry recommends `/model sonnet`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** This phase runs best on **T4 Context-Ingest** for the scan and **T3 Auditor** for judging drift — recommend the deeper tier's model since the judging is where quality is decided. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps those tiers to a model different from the current session model, tell the user in one line — e.g. *"This phase is T4+T3 — the registry recommends `/model opus` (T3 judging; `sonnet` suffices for the scan); you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 First, read the constitutional documentation baseline in the repository:
 
@@ -50,7 +50,7 @@ Audit for discrepancies, classifying findings under the following categories:
 
 ### Step 3: Write Drift Report
 
-Create or update:
+Create or update (writing per `cognitive-doc-design`: lead with the verdict, tables over prose):
 
 ```text
 docs/specs/drift-report.md

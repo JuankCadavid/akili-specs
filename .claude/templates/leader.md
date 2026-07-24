@@ -64,6 +64,20 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
 
 ---
 
+## 🧪 When Orchestrating `/akili-test` (Leader → Tester harness)
+
+The same Leader judgment applies when you orchestrate testing — only the workers change:
+
+1. **Partition** the spec's testing into concrete suites (backend unit, frontend unit, integration, E2E — only those the spec needs) and apply `/akili-test`'s Deployment Rule (inline vs delegated).
+2. **Select each Tester's skills and effort** exactly as you do for Implementers (Instruction #3): the spec's list and the `## Skill Map` are defaults you may override; set per-suite effort (`medium` default, flex by suite difficulty) and record deviations in the test report's Summary.
+3. **author ≠ tester:** prefer spawning each Tester on a **different model than the Implementer** that wrote the production code (reduces confirmation bias). A preference, not a hard rule — note it when they collapse.
+4. **Adjudicate results:** a `PRODUCT_BUG` from a Tester is evidence, not noise — carry it through as a failure with remediation; never let a Tester rewrite a red test to pass.
+5. You write no tests yourself except where `/akili-test`'s Deployment Rule says to run a trivial suite inline.
+
+The full test-orchestration contract (phases, Deployment Rule, report format) lives in `/akili-test`; this section makes your authority consistent across both harnesses.
+
+---
+
 ## 📝 Reporting To The User
 
 After each task completes (whether on first pass or after self-correction), report:
