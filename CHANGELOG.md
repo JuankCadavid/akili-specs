@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.14.0] - 2026-07-25
+
 ### Added
 
 - **Delegation Ceiling — the missing upper bound on orchestrator fan-out.** The `Delegation Thresholds` table added in 2.13.0 is a *floor* (when delegating is mandatory); frontier models increasingly err in the opposite direction, reaching for subagents freely, so the packaged `leader.md` gains a **Delegation Ceiling** section: one subagent beats several for a single modest task (parallelism is for independent tracks, never for slicing one task), **commit to the delegation** (never re-derive a subagent's result), brief precisely on the first spawn (launch → wait → re-brief burns a context cycle), bounded fan-out, and **never delegate your own verification**. The section carries an explicit carve-out: *the Implementer → Reviewer gate is `author ≠ auditor` independence, not self-verification, and is never collapsed for efficiency* — without it, a ceiling rule banning "subagents to double-check yourself" reads as license to drop the Reviewer. Referenced from `/akili-execute` and scaffolded via `/akili-constitution` Step 8B. Leader Instruction #2 now bounds parallelism by the count of genuinely independent tasks in `tasks.md`.
@@ -22,7 +28,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - **The model registry itself required zero edits for the Opus 5 release** — the `opus` alias resolved to it automatically and T1/T3 followed, which is the first row of the *Replacing a model* runbook (*do nothing*). This is recorded in `docs/model-routing.md` as a worked example of the alias-first rule, alongside the corollary this release makes explicit: what a new generation *does* invalidate is the per-task effort calibration and the prompt-level guardrails, not the tier mapping.
-
 ## [2.13.1] - 2026-07-24
 
 ### Added
