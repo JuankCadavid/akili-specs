@@ -99,6 +99,13 @@ tier (to the deeper reasoner) to preserve independence.
 This is the single editable source of truth. Phases reference **tiers**; only this table names
 models. When models change, edit only this table. *Registry updated: 2026-07.*
 
+> **Worked example — the Opus 5 release required zero edits to this table.** When Anthropic shipped
+> Claude Opus 5, the `opus` alias moved to it on its own; T1/T3 followed automatically. That is the
+> alias-first rule paying off (first row of the *Replacing a model* runbook: **do nothing**). What
+> a new generation *does* require is re-reading the **Effort dial** and the behavioural notes below
+> — the tier mapping survives model churn, but the per-task effort defaults and the prompt-level
+> guardrails do not.
+
 **Alias-first rule: never pin a dated model name where a floating alias exists.** Claude Code's
 `opus` / `sonnet` / `haiku` aliases always resolve to the latest version of each family — when
 Anthropic ships a new generation, an alias-based registry needs **zero edits**. Pin a dated ID only
@@ -130,6 +137,13 @@ decisions — while the high-volume execution (Implementers, Testers) stays on t
 unchanged (e.g. when the top family moves from one generation to the next, `opus` follows it).
 Users on plans that expose a frontier model above Opus (Fable 5 / Mythos 5) can pin it for T1/T3 —
 see **Frontier escalation tier** below.
+
+**Rate limits are per-generation, not per-family.** A new Opus generation draws on its **own**
+quota rather than inheriting the previous generation's pool — Opus 5, for instance, does not share
+the combined Opus 4.x bucket. So moving T1/T3 onto a newer Opus neither frees headroom on the old
+pool nor inherits it: check the new generation's limits before shifting volume onto it. The
+"reserve the top tier for T1/T3" rule holds regardless — it is about *where the budget earns its
+cost*, not about which pool the budget comes from.
 
 **OpenCode Go.** The strongest open models anchor the highest-leverage tiers:
 
@@ -165,6 +179,13 @@ high-volume fan-out): at ~2× Opus pricing (**$10 / $50** per 1M in/out vs `opus
 only earns its cost where token volume is low and the decision gates the whole run — T1 (Architect +
 the execute/test Leader) and T3 (Auditor).
 
+**Each Opus generation raises the bar for escalating.** Opus 5 closed much of the gap on exactly the
+work this tier existed for — deep reasoning, long-horizon agentic runs, and bug-finding — at half
+Fable's price. Treat escalation as a decision to **re-justify on every generation**, not a standing
+configuration: try the current `opus` at `xhigh` or `max` first, and pin the frontier model only if
+a concrete spec demonstrably fails there. A pin inherited from a previous generation is a pin worth
+re-testing.
+
 | Slot | Default (alias) | Frontier escalation pin | Fallback |
 |---|---|---|---|
 | **T1 Architect / Leader** | `opus` | `claude-fable-5` *(pin — record the reason)* | `opus` |
@@ -175,12 +196,18 @@ Two things follow from Fable having **no floating alias**:
 - **It is a dated pin — record the reason** (per the alias-first rule), and it re-inherits the
   concrete-slug maintenance the aliases spare you. `/akili-audit`'s drift check watches it; the
   *Replacing a model* runbook below is how you swap it when a newer frontier model ships.
-- **Always give it a Fallback to `opus`**, because Fable carries operational constraints Opus does
-  not: a **refusal classifier** on bio/cyber that can false-positive on legitimate security-adjacent
-  specs (a Fable Implementer/Reviewer may decline valid work); **no zero-data-retention** (requires
-  30-day retention — unavailable to ZDR projects); **minutes-long turns** (budget HITL gates and
-  progress narration accordingly); and **less prescriptive prompting** (over-prescribed `.agents/*`
-  personas can *reduce* Fable output quality — loosen them when routing a role to Fable).
+- **Always give it a Fallback to `opus`**, because Fable carries operational constraints the Opus
+  alias does not: **no zero-data-retention** (requires 30-day retention — unavailable to ZDR
+  projects); **minutes-long turns** (budget HITL gates and progress narration accordingly); and
+  **less prescriptive prompting** (over-prescribed `.agents/*` personas can *reduce* Fable output
+  quality — loosen them when routing a role to Fable).
+
+**Refusal classifiers are no longer a Fable-only concern.** Current-generation Opus ships elevated
+bio/cyber safeguards of its own and can decline a request outright, so a security-adjacent spec may
+stall the Implementer or Reviewer on **either** tier. Plan for it at the methodology level rather
+than treating it as an escalation-only risk: when a spec is security-adjacent, say so in the task
+brief, and treat a declined task as a **Pivot Protocol** case (record it in `execution.md` and
+escalate to the user) — never as a Reviewer `FAIL` to be reworked, since rework cannot fix a refusal.
 
 **Cross-family author ≠ auditor.** Fable pairs well with a *different-lab* auditor — pin the
 Implementer/Leader on `claude-fable-5` and the Reviewer on a Kimi/DeepSeek OpenCode slug (or
@@ -227,21 +254,53 @@ representative model (GPT-5.6 Sol, Artificial Analysis Intelligence Index):
 | T3 **Reviewer** / `/akili-validate` | `high` (auditor thoroughness) |
 | T5 `/akili-archive` / setup steps | `low` |
 
+**Re-baseline these defaults on every model generation — the tier mapping survives model churn, the
+effort defaults do not.** The table above is calibrated for AKILI's shape: tasks arrive *already
+decomposed and spec-bounded* from `/akili-specify`, which is exactly the case where a mid-range
+effort holds up. Vendor guidance for a frontier model is written for the opposite case — one
+open-ended agentic request with no spec — and therefore starts higher (for Claude Opus 5, the
+published starting points are **`xhigh` for coding and agentic work, `high` elsewhere, then sweep
+down**). Both are right for their context. The reconciliation:
+
+- **Sweep, don't assume.** On a new generation, run the same spec at `medium`, `high`, and `xhigh`
+  and keep the cheapest level whose Reviewer outcome holds. Effort defaults inherited from a
+  previous generation are a guess, not a measurement.
+- **Newer generations get more out of the low end, not less.** Each Opus generation has made
+  `low`/`medium` stronger relative to its own ceiling — so the sweep usually confirms the T2
+  `medium` default rather than pushing it up. Raise the Implementer to `xhigh` for the task
+  signals in the policy table above, not by default.
+- **Where a task arrives under-specified** — a `[~]` resume with thin `execution.md` context, or a
+  Pivot Protocol retry — it is closer to the vendor's open-ended case. Start it at `high`/`xhigh`.
+
+**Effort is not a verbosity dial.** On current-generation models, lowering effort does **not**
+reliably shorten user-facing output — it changes how much the model *thinks*, not how much it
+*writes*. If an Implementer's report or a Leader's narration is too long, fix it in the brief
+(`caveman` for transient agent output, `cognitive-doc-design` for artifacts), never by dropping
+effort — that buys verbose output *and* shallower reasoning. The same applies in reverse: raising
+effort to get a more thorough **document** is the wrong lever; ask for the depth explicitly.
+
 **Escalate effort on rework.** In the `/akili-execute` rework loop, a Reviewer `FAIL` bumps effort
 one level on the retry (attempt 1 `medium` → attempt 2 `high` → attempt 3 `xhigh`) — cheap (only
 when it already failed) and it targets the usual cause (under-thinking, not missing instructions).
 
 **Tier ↔ effort interaction — don't `max` a cheaper tier.** Maxing a lower tier erodes its cost
-advantage: Sonnet 5 at `max` (53 intel / $1.53) approaches Opus 4.8 at `max` (56 intel / $1.80) —
-near-Opus price for below-Opus intelligence. If you find yourself wanting a cheaper tier at `max`,
-escalate the **tier** (to `opus` at `high`/`medium`) instead of the effort.
+advantage: on the 4.8-generation ladder, Sonnet 5 at `max` (53 intel / $1.53) approached Opus 4.8 at
+`max` (56 intel / $1.80) — near-Opus price for below-Opus intelligence. Those figures are a
+generation-specific illustration, but the rule they demonstrate is stable across generations: if you
+find yourself wanting a cheaper tier at `max`, escalate the **tier** (to `opus` at `high`/`medium`)
+instead of the effort.
 
 **Sonnet specifics.** Sonnet respects effort strictly, especially at the low end — at `low`/`medium`
 it scopes work to exactly what was asked. If you see shallow reasoning on a hard problem, **raise
 the effort, don't prompt around it**. `high` is the default sweet spot; give `max_tokens` headroom
 at `xhigh`/`max` (thinking consumes the budget — too tight truncates with `stop_reason: max_tokens`).
-On Opus/frontier the nuance inverts slightly: start at `high` and iterate — more effort up front
-often *reduces* total turns and cost on agentic work.
+
+**Opus specifics.** On Opus the nuance inverts: start high and iterate **down** — more effort up
+front often *reduces* total turns and total cost on agentic work, because the model plans better and
+re-does less. Two consequences for the AKILI loop: (1) the **rework bump** (above) is the cheapest
+place to spend effort, since it only fires after a failure; and (2) `max` is for the
+correctness-critical and latency-insensitive case only — it can overthink a routine task and is
+where diminishing returns bite hardest.
 
 ## Enforced routing (tool-native agent bindings)
 

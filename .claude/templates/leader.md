@@ -16,13 +16,14 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
 
 2. **Task Selection & Parallel Execution:**
    * Parse `tasks.md` and pick the next eligible task(s) by document order where the status is `[ ]` or `[~]` and dependencies are all `[x]`.
-   * **Parallel Execution:** If multiple eligible tasks are completely independent (touching different files or domains), you MAY spawn multiple Implementers in parallel. Otherwise, pick a single task.
+   * **Parallel Execution:** If multiple eligible tasks are completely independent (touching different files or domains), you MAY spawn multiple Implementers in parallel. Otherwise, pick a single task. Parallelism is bounded by how many independent tasks `tasks.md` actually contains — see the **Delegation Ceiling** below; never split one task across several workers.
    * If a task is `[~]`, resume it using `execution.md` context.
    * If no tasks are eligible, report completion or the blocking condition and stop.
 
 3. **Delegation Discipline (Active Skill + Effort Selection):**
    * **You own the skill decision, not the task file.** Judge the task's actual nature and select the optimal skill set for *this* task. The task's recommended skills (e.g., `shadcn-ui`, `nestjs-expert`) and the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`, stack skills) are **defaults you may augment, narrow, or override** — add a skill the task missed, drop one that does not fit, or swap in the better match (UI → `ui-ux-pro-max`, animation → `gsap-animation`, etc.). When you deviate from the task's list, record a one-line reason in `execution.md`. Fall back to the Skill Map only when the task lists none and you see no better fit.
    * **You also set the effort per task** (the second dimension in `## Model Routing` → *Effort dial* — orthogonal to the tier). Default `medium` for a T2 Implementer, then flex by the task's difficulty: `low` for trivial/mechanical work, `xhigh` for complex (algorithm, concurrency, security, ambiguity), `max` for correctness-critical. Where the tool exposes a per-spawn effort knob, pass it; otherwise instruct the Implementer's depth in-brief ("think carefully — this is a hard task" / "keep it quick, this is mechanical"). Don't `max` a cheaper tier — if a task wants `max`, escalate the tier instead.
+   * **The `medium` default assumes a well-specified task.** It holds because `/akili-specify` already did the decomposition. When a task arrives *under*-specified — a `[~]` resume with thin `execution.md` context, or a post-Pivot retry — start it at `high`/`xhigh` instead. And never use effort as a verbosity control: if a report is too long, fix the brief, not the dial (see *Effort dial* → *Effort is not a verbosity dial*).
    * Spawn the **Implementer** subagent with: the active task scope, the relevant spec sections, the verification command, and the contents of `.agents/implementer.md`.
    * **Crucial:** Explicitly instruct the Implementer: "You MUST use the `skill` tool to load these skills: [skill names] BEFORE you begin writing code."
    * After the Implementer reports completion, extract the git diff and spawn the **Reviewer** subagent with: the diff, the relevant spec sections, and the contents of `.agents/reviewer.md`.
@@ -64,6 +65,20 @@ This table is the methodology's single source of truth for when an orchestrating
 
 **CodeGraph exception:** in codegraph-enabled projects, `codegraph_search` / `codegraph_context` / `codegraph_callers` lookups do **not** count toward the 4-file threshold — targeted graph lookups are precisely how the orchestrator avoids bulk file reads. The threshold counts full-file reads.
 
+### 🚧 Delegation Ceiling (when *not* to delegate)
+
+The table above is a **floor** — it says when delegating is mandatory. This is the **ceiling**. Frontier models differ in which direction they err: some under-delegate and need encouragement, others reach for subagents freely and need a cap. Current-generation models are in the second group, so the ceiling is the binding constraint in practice. Every subagent re-establishes context, re-explores, reports back, and then you re-read its report — that overhead is real and it multiplies.
+
+| Rule | Why |
+|------|-----|
+| **One subagent beats several** for a single modest task | Splitting one modest job across parallel workers pays the context-establishment cost N times for one deliverable. Parallelism is for genuinely independent tracks (different files, different domains), never for slicing one task. |
+| **Commit to the delegation** | Once a subagent reports, do **not** redo its work or re-derive its findings to satisfy yourself. If you did not trust it enough to accept the result, the task should not have been delegated. |
+| **Brief precisely the first time** | Launch → wait → re-brief burns a full context cycle. Put the task scope, spec sections, verification command, skills, and effort in the initial spawn. |
+| **Cap the fan-out** | Keep concurrent spawns low and bounded by the number of genuinely independent tasks in `tasks.md`. Never open a wide fan-out the spec does not call for. |
+| **Never delegate your own verification** | Checking a `git status`, confirming a file exists, or re-reading a diff you already have is inline work. Spawning a subagent to double-check yourself is the ceiling's clearest violation. |
+
+**The Reviewer is not self-verification — never collapse it.** The rule directly above bans spawning a subagent to check *your own* reasoning. It does **not** touch the Implementer → Reviewer gate, which exists for a structurally different reason: `author ≠ auditor`. The Reviewer audits **someone else's** diff with fresh context and, where Step 8E wrappers are in place, a **different model**. That independence is the methodology's core correctness guarantee and is not an efficiency cost to optimize away. If you ever find yourself reasoning "I already verified this, the Reviewer is redundant" — that is exactly the bias the Reviewer exists to catch. Spawn it.
+
 ---
 
 ## 🔁 Orchestration Sequence (per task)
@@ -71,7 +86,7 @@ This table is the methodology's single source of truth for when an orchestrating
 1. Load spec and constitution context.
 2. Select next task.
 3. **Spawn Implementer** with `.agents/implementer.md` + task context.
-4. Receive Implementer report (code change + verification evidence).
+4. Receive Implementer report (code change + verification evidence). **If it carries a `Not Done / Assumptions` field, the task is not complete** — carry that text into `execution.md` verbatim, and treat it as scope still owed: either re-spawn for the remainder, or mark `[~]` and escalate. A task with an outstanding gap never reaches `[x]`, even on a Reviewer `PASS`.
 5. Extract `git diff` of the change set.
 6. **Spawn Reviewer** with `.agents/reviewer.md` + diff + spec context.
 7. Branch on Reviewer status:

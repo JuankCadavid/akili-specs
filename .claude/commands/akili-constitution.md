@@ -373,8 +373,8 @@ If the packaged templates are available, prefer copying them as the seed; otherw
 
 **Required content per persona:**
 
-- **`leader.md`** — orchestration sequence, rework loop with 3-attempt ceiling, structured FAIL handoff to the next Implementer spawn, `execution.md` audit-trail format, `tasks.md` status transitions, AKILI commit standard, Pivot Protocol escalation.
-- **`implementer.md`** — strict context alignment to constitution + spec, incremental focus (no scope creep), aesthetics and design-token compliance from `docs/ux-ui/design.md`, verification rigor (must run the task's verification command before reporting), structured completion report.
+- **`leader.md`** — orchestration sequence, rework loop with 3-attempt ceiling, structured FAIL handoff to the next Implementer spawn, `execution.md` audit-trail format, `tasks.md` status transitions, AKILI commit standard, Pivot Protocol escalation, the **Delegation Thresholds** floor *and* the **Delegation Ceiling** (one subagent beats several for one task; commit to the delegation; brief precisely once; bounded fan-out; never delegate your own verification — with the explicit carve-out that the independent Reviewer is `author ≠ auditor`, not self-verification, and must never be collapsed).
+- **`implementer.md`** — strict context alignment to constitution + spec, **scope discipline in both directions** (no scope creep, but also no silent narrowing — finish the whole task and report completion only when it is actually complete, listing what is missing and why when it is not), aesthetics and design-token compliance from `docs/ux-ui/design.md`, verification rigor (must run the task's verification command before reporting), structured completion report with an optional `Not Done / Assumptions` field.
 - **`reviewer.md`** — read-only role, audit checklist (requirement conformance, design-token compliance, technical compliance, stability), structured PASS/FAIL output where every FAIL item lists *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion*.
 - **`tester.md`** — single-suite scope (backend unit, frontend unit, integration, or E2E), thin per-suite context, explicit coverage of negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`), bounded self-correction inner loop (max 3), distinction between a test defect (fix the test) and a product defect (keep the test red, report `PRODUCT_BUG`), and structured `PASS`/`FAIL`/`PRODUCT_BUG` output with a per-scenario coverage slice. Author ≠ tester: prefer a different model than the Implementer.
 
@@ -431,9 +431,15 @@ project guides so the project does not depend on the package's `docs/` after ins
    table (trivial/mechanical → `low`; standard scope → `medium`; complex — algorithm, concurrency,
    security, ambiguity → `xhigh`; correctness-critical → `max`); (b) default effort by role (T1
    propose/specify/Leader `high`; T2 Implementer/Tester `medium`, flex by task; T3 Reviewer `high`;
-   T5 archive `low`); (c) the rework rule (*bump effort one level on every retry*); and (d) the
-   tier↔effort rule (*never `max` a cheaper tier — escalate the tier instead*). The
-   `/akili-execute` and `/akili-test` Leaders read this subsection to set each worker's effort.
+   T5 archive `low`); (c) the rework rule (*bump effort one level on every retry*); (d) the
+   tier↔effort rule (*never `max` a cheaper tier — escalate the tier instead*); (e) the
+   **re-baseline rule** (*effort defaults are per-generation and must be swept — `medium`/`high`/`xhigh`
+   on a real spec — whenever the underlying model generation changes; the tier mapping survives model
+   churn, these defaults do not, and a task that arrives under-specified — a `[~]` resume or a
+   post-Pivot retry — starts one level higher*); and (f) **effort is not a verbosity dial** (*lowering
+   effort does not reliably shorten output — fix long reports in the brief via `caveman` /
+   `cognitive-doc-design`, never by dropping effort*). The `/akili-execute` and `/akili-test` Leaders
+   read this subsection to set each worker's effort.
 
 **Mode-specific policy (mirror Step 8B):**
 
@@ -448,7 +454,12 @@ project guides so the project does not depend on the package's `docs/` after ins
   the user decides whether to refresh them.
 
 Confirm the user's available models before writing concrete identifiers: which tier they run in
-Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes.
+Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes. Note that
+**rate limits are per-generation, not per-family** — a new top-tier generation draws on its own quota
+rather than inheriting the previous one's pool, so moving T1/T3 onto it neither frees nor inherits
+headroom. If the user carries a **frontier escalation pin** (Step 8C item 4), flag it for
+re-justification whenever the `opus` alias advances a generation: each generation narrows the gap the
+pin was bought to close, so try the alias at `xhigh`/`max` before renewing the pin.
 
 ---
 

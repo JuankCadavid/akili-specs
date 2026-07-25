@@ -59,6 +59,8 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 **Delegation Thresholds:** the Leader's inline-vs-delegate boundary is quantified in `.agents/leader.md` → *Delegation Thresholds* (inline only for 1-file checks and puntual verifications; 4+ full-file reads → scout subagent; 2+ non-trivial file writes → Implementer; CodeGraph lookups don't count toward the read threshold). Apply it to your own research inside this command — e.g. investigating a Reviewer FAIL across many files is scout work, not Leader-inline work.
 
+**Delegation Ceiling:** that table is the floor; `.agents/leader.md` → *Delegation Ceiling* is the cap, and on current-generation models it is the one that binds. One subagent beats several for a single task, parallelism is bounded by the count of genuinely independent tasks in `tasks.md`, you commit to a delegation rather than re-deriving its result, and you never spawn a subagent to verify your own work. **The Implementer → Reviewer gate is exempt** — it is `author ≠ auditor` independence, not self-verification, and is never collapsed for efficiency.
+
 **Communication economy:** load the `caveman` skill and apply its Scope Contract to all transient output in this command — inter-agent messages (Leader ↔ Implementer/Reviewer briefs, reports, feedback relays) at `full`, user-visible progress lines at `lite`. It never applies to `execution.md` audit entries, PR descriptions, HITL summaries, Pivot blockers, or verbatim evidence (Reviewer FAIL reports pass unchanged — the Structured Feedback rule wins).
 
 ---
