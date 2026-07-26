@@ -572,9 +572,30 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The main technical decisions captured in the TRD
 - The core infrastructure decisions captured in the Infrastructure document
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
+- The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
+- The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
+- The Step 8E agent wrappers: generated (and for which tool), or declined
 - Any assumptions and open questions that still need validation
 
+Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
+
 Ask the user whether to approve or request changes. If changes are requested, revise the affected documents and re-present.
+
+---
+
+## Verification Checklist
+
+Before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
+
+- [ ] `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and `docs/infrastructure.md` exist and are non-empty.
+- [ ] `docs/specs/general-setup/` templates exist.
+- [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
+- [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
+- [ ] That registry carries **every supported host column** (Claude Code and OpenCode), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
+- [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.
+- [ ] A `## Skill Map` section exists in both root guides.
+- [ ] In Safe Update mode, no pre-existing user customization was overwritten in the baseline docs, `.agents/`, the registry, or the Skill Map.
+- [ ] Every legacy path migration proposed in Step 1 was either applied with references updated, or explicitly declined by the user.
 
 ---
 
