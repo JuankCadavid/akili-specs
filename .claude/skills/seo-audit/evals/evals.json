@@ -123,12 +123,27 @@
     {
       "id": 8,
       "prompt": "I want to add FAQ schema to my product pages. Can you help me set that up?",
-      "expected_output": "Should recognize this is a schema markup implementation task, not an SEO audit. Should defer to or cross-reference the schema skill, which specifically handles structured data implementation including FAQ schema. May briefly mention that FAQ schema can enable rich results, but should make clear that schema is the right skill for implementation.",
+      "expected_output": "Should recognize this is a structured-data implementation task, not a full SEO audit, and apply the Structured Data section directly (AKILI-SPECS does not package a separate schema skill). Should require that FAQPage markup describe genuine, visible Q&A content on the page, and warn that markup not matching visible content is a spam-policy violation rather than an optimization. Should note the detection limitation for verification (Rich Results Test or a rendering tool, never curl/web_fetch). May mention that FAQ content is also the densest citable surface for generative engines.",
       "assertions": [
-        "Recognizes this as schema markup implementation",
-        "References or defers to schema skill",
-        "Does not attempt a full SEO audit",
-        "May briefly mention FAQ schema benefits"
+        "Recognizes this as structured-data implementation",
+        "Applies the Structured Data section rather than deferring to an unpackaged schema skill",
+        "Requires markup to match visible page content",
+        "Notes the JS-injection detection limitation for verification",
+        "Does not attempt a full SEO audit"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "We rank on page one for our main keywords but we never show up in Google AI Overviews or ChatGPT. What should we fix?",
+      "expected_output": "Should apply the GEO section. Should lead with the evidence-density findings, which carry the largest measured gains (verifiable statistics with named sources, credible quotations, outbound citations to reliable sources), and cite the KDD 2024 GEO study as the source with its magnitudes labelled as peer-reviewed. Should apply the self-containment test to target passages and flag anaphora that depends on surrounding context. Should check definitional sentences, entity resolution, freshness / dateModified, and structured data. Should audit robots.txt for a blanket AI-bot block that also excludes the retrieval agents (OAI-SearchBot, Claude-SearchBot, PerplexityBot) as distinct from the training agents. Should NOT recommend creating llms.txt as a visibility tactic. Should NOT claim engagement metrics affect rankings. Should note GEO layers on ranking rather than replacing it.",
+      "assertions": [
+        "Prioritizes evidence density (statistics, quotations, citations) as the highest-yield fix",
+        "Applies the self-containment test to passages",
+        "Distinguishes AI training agents from retrieval agents in robots.txt",
+        "Does not recommend llms.txt as a visibility tactic",
+        "Labels industry figures separately from peer-reviewed figures",
+        "States that GEO layers on top of ranking"
       ],
       "files": []
     }

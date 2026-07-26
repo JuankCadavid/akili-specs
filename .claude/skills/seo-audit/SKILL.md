@@ -1,6 +1,6 @@
 ---
 name: seo-audit
-description: When the user wants to audit, review, or diagnose SEO issues on their site. Also use when the user mentions "SEO audit," "technical SEO," "why am I not ranking," "SEO issues," "on-page SEO," "meta tags review," "SEO health check," "my traffic dropped," "lost rankings," "not showing up in Google," "site isn't ranking," "Google update hit me," "page speed," "core web vitals," "crawl errors," or "indexing issues." Use this even if the user just says something vague like "my SEO is bad" or "help with SEO" — start with an audit. In AKILI-SPECS projects, /akili-seo loads this skill in its audit phase.
+description: When the user wants to audit, review, or diagnose SEO issues on their site. Also use when the user mentions "SEO audit," "technical SEO," "why am I not ranking," "SEO issues," "on-page SEO," "meta tags review," "SEO health check," "my traffic dropped," "lost rankings," "not showing up in Google," "site isn't ranking," "Google update hit me," "page speed," "core web vitals," "crawl errors," or "indexing issues." Also covers generative-engine visibility (GEO/AEO): "AI Overviews," "AI search," "not showing up in ChatGPT," "get cited by AI," "GEO," "answer engine optimization," "llms.txt," "AI crawlers," "GPTBot," or "ClaudeBot." Use this even if the user just says something vague like "my SEO is bad" or "help with SEO" — start with an audit. In AKILI-SPECS projects, /akili-seo loads this skill in its audit phase.
 license: MIT
 metadata:
   author: Corey Haines (coreyhaines31)
@@ -8,7 +8,7 @@ metadata:
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: core
-  version: 2.0.0
+  version: 2.1.0
 ---
 
 # SEO Audit
@@ -61,6 +61,11 @@ Reporting "no schema found" based solely on `web_fetch` or `curl` leads to false
 4. **Content Quality** (does it deserve to rank?)
 5. **Authority & Links** (does it have credibility?)
 
+**GEO is a layer, not a sixth priority.** Generative-engine visibility (AI Overviews, ChatGPT,
+Perplexity) is applied *on top of* pages that already rank or can — roughly three quarters of AI
+Overview citations come from pages already in the top 10. Never trade a fix from the list above for a
+GEO fix. Run the priority order first, then apply the [GEO section](#generative-engine-optimization-geo).
+
 ---
 
 ## Technical SEO Audit
@@ -71,6 +76,13 @@ Reporting "no schema found" based solely on `web_fetch` or `curl` leads to false
 - Check for unintentional blocks
 - Verify important pages allowed
 - Check sitemap reference
+- **`Disallow` is not `noindex`.** A disallowed URL can still be indexed (from external links) and will show as "Indexed, though blocked by robots.txt". To remove a page from the index you must let Google crawl it and serve `noindex` — blocking it prevents Google from ever seeing the directive. A `noindex` line inside `robots.txt` is unsupported and ignored.
+
+**AI crawler directives** (see [GEO reference](references/geo.md) for the full agent table)
+- Distinguish **training** agents (`GPTBot`, `ClaudeBot`, `Google-Extended`) from **retrieval** agents (`OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`) and user-triggered fetchers (`ChatGPT-User`, `Claude-User`, `Perplexity-User`)
+- **High-impact finding:** a blanket AI-bot block removes the site from AI answers as well as from training corpora. Confirm the client's intent before treating either state as correct
+- `Google-Extended` is a robots.txt token only — it never appears in logs, and blocking it does not affect `Googlebot`, Search, or AI Overviews
+- Where the requirement is genuine prevention rather than preference, note that robots.txt is advisory and escalate to WAF/bot management
 
 **XML Sitemap**
 - Exists and accessible
@@ -338,6 +350,30 @@ Three equivalent placement methods: HTML `<link>` in `<head>`, HTTP `Link` heade
 - No keyword cannibalization
 - Logical topical clusters
 
+### Structured Data
+
+Read the **Schema Markup Detection Limitation** above before auditing this — a static fetch cannot
+see JS-injected JSON-LD, and reporting "no schema found" from `curl` output is a false finding.
+
+**Check for:**
+- Correct type for the page's purpose (`Article`/`TechArticle`, `Product`, `FAQPage`, `HowTo`, `BreadcrumbList`, `Organization`, `Person`, `SoftwareApplication`, `LocalBusiness`)
+- Validates without errors in the Rich Results Test
+- Markup matches **visible** page content — invisible or contradictory markup is a spam-policy violation, not an optimization
+- `dateModified` present and truthful on content that changes
+- Entity nodes (`Organization` / `Person`) carry `sameAs` links to authoritative profiles
+- `@id` used consistently so nodes can reference each other instead of being duplicated
+- One coherent graph per page rather than several disconnected islands
+
+**Common issues:**
+- Required properties missing, so the type is ineligible for rich results
+- `FAQPage` markup on content that is not a genuine Q&A
+- Schema describing content the user cannot see
+- Stale `dateModified` auto-set to build time on unchanged pages
+- Duplicate `Organization` nodes on every page with no shared `@id`
+
+Structured data also has a measurable association with citation in generative answers — see the
+[GEO section](#generative-engine-optimization-geo).
+
 ---
 
 ## Content Quality Assessment
@@ -373,12 +409,86 @@ Three equivalent placement methods: HTML `<link>` in `<head>`, HTTP `Link` heade
 - Better than top-ranking competitors
 - Updated and current
 
-### User Engagement Signals
+### User Engagement Signals — diagnostic only, not ranking factors
 
-- Time on page
-- Bounce rate in context
-- Pages per session
-- Return visits
+**Google does not use analytics engagement metrics as ranking factors.** John Mueller: *"We don't use
+bounce rate in search rankings."* Gary Illyes: *"we don't use analytics/bounce rate in search
+ranking."* Google has denied this for roughly a decade.
+
+Never write a finding that says "improve bounce rate to improve rankings" — it is a causal claim
+Google has explicitly denied, and it damages the credibility of the correct findings next to it.
+
+Use these metrics the other way round: as **diagnostics that localize a content problem**, whose fix
+is the content itself.
+
+| Metric | Read it as |
+|---|---|
+| High exit rate on a ranking page | Possible intent mismatch — the page ranks for a query it does not answer |
+| Very low time on page for long-form content | Content may be unscannable, or the answer is buried |
+| Pages per session | Internal linking and topical-cluster coverage signal |
+| Return visits | Brand and content-quality signal (correlates with, does not cause, ranking) |
+
+- Sources and exact quotes: [SEJ: Is bounce rate a Google ranking factor?](https://www.searchenginejournal.com/ranking-factors/bounce-rate/)
+
+---
+
+## Generative Engine Optimization (GEO)
+
+Visibility inside AI-generated answers — Google AI Overviews / AI Mode, ChatGPT, Claude, Perplexity —
+rather than in a ranked list of links. See the [GEO reference](references/geo.md) for the measured
+evidence, source tiers, and the full AI-crawler agent table.
+
+**GEO layers on top of ranking; it does not replace it.** Roughly three quarters of AI Overview
+citations come from pages already in the top 10. Audit the priority order first.
+
+### What measurably works
+
+Peer-reviewed measurement (GEO-bench, KDD 2024: ~10,000 queries across nine datasets) found the
+largest visibility gains come from **evidence, not markup**:
+
+| Finding to raise | Measured effect |
+|---|---|
+| Claims lack **verifiable statistics** with named sources | ~30–40% gain when added |
+| No **credible quotations** where the topic supports them | ~30–40% |
+| No **outbound citations** to reliable sources | ~30–40% |
+| Poor fluency / readability | ~15–30% |
+| Keyword stuffing present | Negligible or **negative** — treat as a defect, not a tactic |
+
+Gains are largest for content that is visible but not dominant (up to +115.1% at position 5), which
+is most audit subjects.
+
+### The self-containment test
+
+Generative engines extract **passages**, not pages. For each passage the page wants cited, ask:
+*does this paragraph still make sense lifted out with no surrounding context?*
+
+Anaphora that depends on the previous paragraph ("this approach", "as mentioned above", "the former")
+breaks extraction. This is the most common GEO defect on otherwise well-optimized pages, and **no
+classic on-page check catches it**.
+
+Also require: a **definitional sentence** (*"X is a Y that does Z."*) at first use of every term the
+page wants to own, and a Q&A block with the question as the heading and the direct answer in the
+first sentence.
+
+### Checks
+
+- [ ] Verifiable statistics, quotations, and outbound citations present
+- [ ] Target passages pass the self-containment test
+- [ ] Definitional sentence at first use of each ownable term
+- [ ] Entity resolvable in one sentence (what it is, who made it); `Person`/`Organization` + `sameAs`
+- [ ] `dateModified` exposed; no stale visible version numbers or dates (fresh content is cited far more often)
+- [ ] JSON-LD present and valid (see Structured Data above)
+- [ ] robots.txt separates training agents from retrieval agents, matching the client's stated intent
+- [ ] No unverifiable numeric or superlative claims in `<title>`, meta description, or JSON-LD
+
+### Do not raise these
+
+- **Missing `llms.txt`.** Adoption is ~8.7% of the top 1,000 domains, ~40% of existing files are
+  empty plugin stubs, no major AI crawler has committed to consuming it, crawler logs show the
+  retrieval agents skip it, and in one citation model removing the variable *improved* accuracy. It
+  has a legitimate use as business-to-agent context for IDE agents and MCP servers — recommend it on
+  developer-experience grounds or not at all, never as a visibility tactic.
+- **"Improve bounce rate to rank better."** See User Engagement Signals above.
 
 ---
 
@@ -459,6 +569,7 @@ Same format as above
 
 - [AI Writing Detection](references/ai-writing-detection.md): Common AI writing patterns to avoid (em dashes, overused phrases, filler words)
 - [International SEO](references/international-seo.md): Evidence and sources for hreflang, canonical + i18n, sitemaps, URL structure, and content quality across locales
+- [GEO](references/geo.md): Evidence and sources for generative-engine visibility — the KDD 2024 measurement of what works, passage-level extraction, freshness, structured-data correlation, the AI-crawler agent table (training vs retrieval), and why `llms.txt` is not a visibility tactic
 
 ---
 
@@ -503,4 +614,5 @@ Adaptation rules:
 
 - Findings land in the AKILI report artifacts (`/akili-seo` output), using the Issue / Impact / Evidence / Fix / Priority shape.
 - Fixes that exceed the trivial gate are routed through `/akili-propose` — never applied silently during the audit.
-- Sibling skills mentioned by upstream versions of this skill (programmatic-seo, schema, ai-seo, cro, analytics) are **not packaged** with AKILI-SPECS; when a finding needs them, note the gap in the report instead of loading them.
+- GEO findings use the same Issue / Impact / Evidence / Fix / Priority shape. Label the source tier when citing a magnitude: the KDD 2024 figures are peer-reviewed, the AI Overview and crawler-behaviour figures are industry analyses. Never present an `[INDUSTRY]` number to a client as measured fact.
+- Sibling skills mentioned by upstream versions of this skill (programmatic-seo, cro, analytics) are **not packaged** with AKILI-SPECS; when a finding needs them, note the gap in the report instead of loading them. The upstream `schema` and `ai-seo` gaps are now covered in-skill by the **Structured Data** and **GEO** sections.

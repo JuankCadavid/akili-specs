@@ -137,6 +137,7 @@ Produce `docs/specs/$SPEC_PATH/seo-setup-report.md` documenting:
 - Record every finding with its structure: **Issue / Impact / Evidence / Fix / Priority**.
 - Respect its schema-detection limitation: static fetches (`curl`, `web_fetch`) cannot see JS-injected JSON-LD. Validate structured data via `url_inspection_inspect.richResultsResult` or a rendering tool, never via static HTML alone.
 - Apply its International SEO checklist (hreflang reciprocity, self-reference, `x-default`, cross-locale canonicals, locale sitemaps) whenever the site serves multiple languages or regions.
+- Apply its **GEO** section (Step 2.8) for generative-engine visibility. GEO is a layer on top of ranking, never a substitute — run the priority order first. When citing a magnitude, carry the skill's source tier: the KDD 2024 figures are peer-reviewed; AI Overview and crawler-behaviour figures are industry analyses and must not be presented as measured fact.
 
 Use `systematic-debugging` when results are inconsistent with site reality.
 
@@ -210,6 +211,24 @@ For the pages sampled in Step 2.5, apply the on-page checklist from the `seo-aud
 
 Record each failure as a finding using the skill's Issue / Impact / Evidence / Fix / Priority structure.
 
+#### Step 2.8 — GEO audit (generative-engine visibility)
+
+For the same sampled pages, apply the `seo-audit` skill's **GEO** section (evidence and sources in its
+`references/geo.md`). Highest-yield checks first — the measured gains come from evidence, not markup:
+
+- **Evidence density:** claims carry verifiable statistics with named sources; credible quotations where the topic supports them; outbound citations to reliable sources.
+- **Self-containment test:** for each passage the page wants cited, confirm it still makes sense lifted out with no surrounding context. Flag anaphora that depends on the previous paragraph ("this approach", "as mentioned above"). No on-page check above catches this.
+- **Definitional sentences:** each term the page wants to own has a *"X is a Y that does Z."* sentence at first use.
+- **Entity resolution:** the page states in one sentence what the subject is and who made it; `Person`/`Organization` node with `sameAs`.
+- **Freshness:** `dateModified` exposed and truthful; no stale visible version numbers or dates.
+- **AI crawler directives:** `robots.txt` separates training agents (`GPTBot`, `ClaudeBot`, `Google-Extended`) from retrieval agents (`OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`). A blanket AI-bot block removes the site from AI answers too — confirm the owner's intent before calling either state correct.
+- **Unverifiable claims:** flag numeric or superlative claims in `<title>`, meta description, or JSON-LD that no source supports.
+
+**Do not raise:** a missing `llms.txt` (no measured visibility effect — see the skill), or any finding
+that asserts engagement metrics such as bounce rate affect rankings.
+
+Record each failure in the same Issue / Impact / Evidence / Fix / Priority format.
+
 ---
 
 ### Phase 3: Write `seo-audit-report.md`
@@ -227,8 +246,9 @@ Required sections:
 7. Render Audit
 8. Internal Linking Findings
 9. On-Page SEO Findings — Step 2.7 results, each in the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
-10. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery.
-11. Re-audit Schedule — when to run `/akili-seo <domain>` again.
+10. GEO Findings — Step 2.8 results, same format. State the source tier next to any magnitude cited, and keep GEO items ranked below blocking classic-SEO fixes in the remediation plan (GEO layers on ranking, it does not substitute for it).
+11. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery.
+12. Re-audit Schedule — when to run `/akili-seo <domain>` again.
 
 The report title must be `# SEO Audit Report — <domain>`.
 
@@ -268,6 +288,8 @@ After the command completes, verify:
 - [ ] Every URL in the sitemap is either audited or explicitly excluded with a reason.
 - [ ] Every structured-data warning is reproduced with the exact bad value and the exact fix.
 - [ ] On-page findings from Step 2.7 use the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
+- [ ] GEO findings from Step 2.8 are present, carry their source tier where a magnitude is cited, and rank below blocking classic-SEO fixes in the remediation plan.
+- [ ] No finding claims engagement metrics (bounce rate, time on page) affect rankings, and none flags a missing `llms.txt`.
 - [ ] The implementation prompt is self-contained and would not require this conversation to execute.
 
 ---
