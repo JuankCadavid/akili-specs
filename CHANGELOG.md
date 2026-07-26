@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Slack release notifications.** New `scripts/notify-slack.js` + `.github/workflows/release-notify.yml` post a release summary to a Slack channel. The workflow fires on **`release: published`** — the last step of the flow, *after* `npm publish` — rather than on tag push, so a release that never reached npm is never announced. The summary is built from `releases/vX.Y.Z.md`, the same notes attached to the GitHub Release, so Slack can never disagree with what shipped: it digests each `### Added` / `### Changed` / `### Fixed` section down to the **bold headline** of every bullet (the repo's changelog convention) and links out for detail, keeping the message inside Slack's 3000-character-per-block limit instead of truncating mid-word. Legacy pre-2.x entries that predate the headline convention fall back to the bullet text, capped per bullet so one long entry cannot consume the section budget. **The webhook is never committed** — it lives in the `SLACK_WEBHOOK_URL` repository secret, and the script exits 0 when it is unset so forks and unconfigured clones do not get failed release runs. Preview locally with `npm run notify:slack -- --dry-run`, re-send from the Actions tab via *Release Notify → Run workflow*. Setup and verification steps added to `docs/release-checklist.md`.
 
 ## [2.15.0] - 2026-07-26
 

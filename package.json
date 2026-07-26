@@ -28,6 +28,7 @@
     "scripts/parse_tests.js"
   ],
   "scripts": {
+    "notify:slack": "node scripts/notify-slack.js",
     "pack:dry-run": "npm pack --dry-run",
     "release:major": "node scripts/release.js major",
     "release:minor": "node scripts/release.js minor",

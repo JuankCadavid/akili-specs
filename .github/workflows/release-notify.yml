@@ -1,0 +1,41 @@
+name: Release Notify
+
+# Fires on the GitHub Release being published — the last step of the release
+# flow, after `npm publish`. Notifying on tag push instead would announce
+# releases that never reached npm.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to announce (e.g. 2.15.0). Defaults to package.json on master."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # On a release event, check out the tag so releases/v<version>.md is
+          # the file that actually shipped, not whatever master looks like now.
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Post release summary to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RELEASE_VERSION: ${{ github.event.release.tag_name || inputs.version }}
+        # The script exits 0 when SLACK_WEBHOOK_URL is unset, so a fork or a
+        # repo without the secret configured does not get a failed release run.
+        run: npm run notify:slack -- $RELEASE_VERSION
