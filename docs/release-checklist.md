@@ -101,26 +101,15 @@ The summary is built from `releases/vX.Y.Z.md`, so Slack can never disagree with
 digests each `### Added` / `### Changed` / `### Fixed` section down to the **bold headline** of every
 bullet and links out for the detail.
 
-**One-time setup** — create a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) for
-the target channel, then store it as a repository secret:
+Setup is one-time. **See [Slack notifications](slack-notifications.md)** for creating the webhook,
+storing and rotating the secret, pointing at a different channel, adding a second channel, and
+troubleshooting.
+
+Preview the message before releasing:
 
 ```bash
-gh secret set SLACK_WEBHOOK_URL --repo JuankCadavid/akili-specs
+npm run notify:slack -- --dry-run
 ```
 
-Never commit the webhook URL. When the secret is absent the workflow exits successfully without
-posting, so forks and unconfigured clones do not get failed release runs.
-
-**Preview or re-send:**
-
-```bash
-npm run notify:slack -- --dry-run          # print the payload, send nothing
-npm run notify:slack -- 2.15.0 --dry-run   # preview a specific version
-SLACK_WEBHOOK_URL=... npm run notify:slack -- 2.15.0   # send manually
-```
-
-A re-send is also available from the Actions tab via **Release Notify → Run workflow**, which accepts
-an optional version.
-
-- [ ] `SLACK_WEBHOOK_URL` secret is configured (first release only).
-- [ ] After publishing the GitHub Release, confirm the Slack message arrived and its headlines read correctly.
+- [ ] `SLACK_WEBHOOK_URL` secret is configured (first release only — `gh secret list` to confirm).
+- [ ] After publishing the GitHub Release, confirm the message actually arrived in the channel. A green workflow run is **not** proof: the script exits `0` when the secret is missing, by design.

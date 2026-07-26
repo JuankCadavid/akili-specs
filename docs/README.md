@@ -13,6 +13,7 @@ Use this documentation when you want the human-facing reference. The installable
 - [Skills](skills/README.md) - packaged skill inventory and usage guidance
 - [OpenSpec comparison](openspec-comparison.md) - what AKILI borrows from OpenSpec and where it differs
 - [Release checklist](release-checklist.md) - controlled npm release process
+- [Slack notifications](slack-notifications.md) - webhook setup, rotation, and troubleshooting for release announcements
 
 ## Quick Flow
 
