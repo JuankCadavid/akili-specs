@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.16.0] - 2026-07-26
+
 ### Added
 
 - **Two new `/akili-audit` drift checks for the registry.** **Missing host column (high impact)** — flags a registry carrying fewer host columns than the packaged default, names the defaults that would restore it, and states the fix is placeholders rather than a deleted column. **Tier/model mismatch** — flags a model sitting in a tier whose dominant demand it does not serve: a small-context model in T4 Context-Ingest, a non-vision model in T6 Multimodal, a slow deep-reasoner in the high-volume T2 fan-out, or T2 and T3 collapsing to the same model (breaking `author ≠ auditor`). Found in the wild as **adjacent tiers swapped with each other**, which is why the check compares entries against the tier definitions and the *Why these models* rationale rather than against slugs alone — a registry can be perfectly well-formed and still route a phase to a model that cannot do the job.
@@ -21,7 +27,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **`/akili-constitution` now verifies its own output — a skipped scaffold step no longer passes silently.** The command had **no `## Verification Checklist`**, and its Step 9 summary enumerated the PRD, UX/UI design, TRD, infrastructure and `.agents/` state but **never mentioned Model Routing, the Skill Map, or the Step 8E wrappers**. The `## Outcome` section required the registry; nothing checked or reported it. Net effect: Step 8C could be skipped — or its table printed to the conversation without ever being written to the root guides — and the run still closed as a success. Adds a verification checklist covering the baseline docs, `.agents/`, **a `## Model Routing` section in `AGENTS.md` *and* `CLAUDE.md`** (both files; `docs/model-routing.md` is the packaged reference and deliberately not copied into projects), host-column completeness, the six tiers plus effort dial, the Skill Map, and Safe Update's no-overwrite guarantee. Step 9 now reports the registry, Skill Map and wrappers explicitly — including which host columns were written and which `<CONFIRM SLUG>` placeholders were left — and must report a **skipped** step as plainly as one that ran.
 - **The model registry is now host-complete — a registry scaffolded from one tool no longer drops the other host's column.** Step 8C specified the columns but never said *emit every host, including the ones you are not running in*, so a `/akili-constitution` run from OpenCode could produce a `Tier | OpenCode | Fallback` table with the Claude Code column deleted. **The registry belongs to the project, not to the session that scaffolded it**: the repo outlives any one tool, gets reopened in a different host, and gets handed to teammates who use something else — so a dropped column leaves the next session with nothing to read and silently breaks its Step 8E wrappers and every command's model checkpoint. An unknown roster is now explicitly a `<CONFIRM SLUG>` placeholder, **never a deleted column**. Safe Update mode treats a missing host column as a gap it restores (with packaged defaults or placeholders) while leaving every existing value untouched, and the model-confirmation step now asks about both hosts even when the user is visibly working in only one. Mirrored as a Cross-Tool Safety rule in `docs/model-routing.md`.
-
 ## [2.15.0] - 2026-07-26
 
 ### Added
