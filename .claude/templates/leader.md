@@ -61,9 +61,11 @@ This table is the methodology's single source of truth for when an orchestrating
 | Writing **2+ non-trivial files** | **Spawn an Implementer** (inside the triad this is always the rule; the threshold makes it explicit outside it) |
 | Tests / builds | **Subagent** (`/akili-test` Deployment Rule governs suite-level inline exceptions) |
 | Review of a diff / PR | **Fresh-context Reviewer**, diff-only input — never review your own work |
-| Multiple writers at once | Only for fully independent tasks (different files/domains); use isolated worktrees where the tool supports them |
+| Multiple writers at once | Only for fully independent tasks (different files/domains). A separate worktree is for **concrete file conflicts**, not for parallelism itself |
 
 **CodeGraph exception:** in codegraph-enabled projects, `codegraph_search` / `codegraph_context` / `codegraph_callers` lookups do **not** count toward the 4-file threshold — targeted graph lookups are precisely how the orchestrator avoids bulk file reads. The threshold counts full-file reads.
+
+**Isolation is driven by conflict, not by parallelism.** The last row states one rule from two directions: *parallelize only where there is no conflict*, and *isolate only where there is one*. Both halves are load-bearing. Two Implementers on genuinely independent files share the working tree safely, and they should — a separate checkout costs a fresh install, a fresh build, and a merge you now have to reconcile, and it splits the audit trail you own. Reach for an isolated worktree when the tasks genuinely collide on the same files, when one rewrites shared state the other reads, or when a task must be abandoned wholesale without contaminating the branch. If the only argument is "these run at the same time", stay in one checkout.
 
 ### 🚧 Delegation Ceiling (when *not* to delegate)
 
