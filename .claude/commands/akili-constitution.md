@@ -422,6 +422,14 @@ project guides so the project does not depend on the package's `docs/` after ins
    to freeze a version, and record why. Fill the OpenCode column from the user's confirmed roster
    (slugs are concrete — no alias mechanism); if it is unknown, leave clearly-marked
    `<CONFIRM SLUG>` placeholders rather than guessing.
+
+   **Emit every host column, always — including the hosts you are not currently running in.** The
+   registry belongs to the *project*, not to the session that scaffolded it: the repository outlives
+   any one tool, and the same repo is routinely opened in a different host later (or by a different
+   teammate, or by a planning layer that delegates to whichever agent it prefers). A registry
+   scaffolded from OpenCode that omits the Claude Code column leaves the next Claude Code session
+   with nothing to read, and silently breaks the Step 8E wrappers and every command's model
+   checkpoint. **An unknown roster is a `<CONFIRM SLUG>` placeholder, never a dropped column.**
 5. The instruction: *"To change models, edit only this registry table. Never pin a dated model name
    where a floating alias exists. Model selection is guidance only in command prompts — never add
    `model:` to command frontmatter; enforced bindings live only in the Step 8E agent wrappers."*
@@ -447,14 +455,18 @@ project guides so the project does not depend on the package's `docs/` after ins
 - **Legacy (Discovery Setup):** insert the section and, where detected, annotate the registry with
   the project's actual tooling (e.g. note if the team already standardizes on a specific model).
 - **Active AKILI-SPECS (Safe Update):** **do not overwrite** an existing customized registry. If the section
-  is missing, add it; if it exists, only fill gaps (missing tiers, missing author ≠ auditor note)
-  without changing the user's pinned models. Additionally, **flag stale entries**: compare the
+  is missing, add it; if it exists, only fill gaps (missing tiers, **a missing host column**, missing
+  author ≠ auditor note) without changing the user's pinned models. A registry carrying only the host
+  it was scaffolded from is the common case here — restore the missing column with packaged defaults
+  or `<CONFIRM SLUG>` placeholders, and leave every existing value untouched. Additionally, **flag stale entries**: compare the
   project registry against the packaged default in `docs/model-routing.md` and list (do not edit)
   entries that name models the tool no longer offers or dated pins that an alias would now cover —
   the user decides whether to refresh them.
 
 Confirm the user's available models before writing concrete identifiers: which tier they run in
-Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes. Note that
+Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes. Ask about
+**both** even when the user is clearly working in only one of them today — an unanswered host gets
+`<CONFIRM SLUG>` placeholders, not a deleted column (see the emit-every-host rule above). Note that
 **rate limits are per-generation, not per-family** — a new top-tier generation draws on its own quota
 rather than inheriting the previous one's pool, so moving T1/T3 onto it neither frees nor inherits
 headroom. If the user carries a **frontier escalation pin** (Step 8C item 4), flag it for

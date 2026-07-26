@@ -405,3 +405,18 @@ model column.
   Claude Code, OpenCode, and Google Antigravity.
 - **Per-project override.** Edit the registry inside your project's `AGENTS.md` / `CLAUDE.md` to
   pin different models; this package's copy is only the default.
+- **The registry is host-complete, always.** It belongs to the **project**, not to the session that
+  scaffolded it. Keep a column for every supported host even when you only use one today: the repo
+  outlives any single tool, gets opened in a different host later, and gets handed to teammates who
+  use something else. A registry scaffolded from one tool that *drops* the other columns leaves the
+  next session in that host with nothing to read and silently breaks its Step 8E wrappers and every
+  model checkpoint. An unknown roster is a `<CONFIRM SLUG>` placeholder, never a deleted column;
+  `/akili-audit` flags a missing host column as high impact.
+- **Planning layers that delegate do not get a column.** Tools that orchestrate *other* agents —
+  a planner or task workspace that hands work to Claude Code, OpenCode, or similar — sit **above**
+  this registry rather than beside it. They choose which host executes; that host's column then
+  applies unchanged, because AKILI's artifacts (`.agents/`, the baseline docs, the specs) are plain
+  Markdown the delegated agent reads from the repo. Add a column only for a host that *runs the
+  agent itself*. One caveat worth verifying per tool: if the layer's own planning phase does not
+  read `AGENTS.md` / `CLAUDE.md`, your project context reaches the work only once the delegated
+  agent starts — plan accordingly, or drive planning from a host that reads them.
