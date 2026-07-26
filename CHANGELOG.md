@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.15.0] - 2026-07-26
+
 ### Added
 
 - **GEO (Generative Engine Optimization) in `seo-audit` — visibility inside AI answers, grounded in measured evidence.** New `## Generative Engine Optimization (GEO)` section plus a `references/geo.md` evidence file following the same claims-plus-sources convention as `international-seo.md`. The headline finding, from the peer-reviewed GEO study (Aggarwal et al., **KDD 2024**, GEO-bench: ~10,000 queries across nine datasets), is that **the largest gains come from evidence, not markup**: adding verifiable statistics, credible quotations, and outbound citations each yields ~30–40%, fluency/readability ~15–30%, and **keyword stuffing is negligible or negative**. Gains are largest for content that ranks but does not dominate (up to **+115.1%** at position 5 — the "Equalizer Effect"), which is most audit subjects. Also documented: **passage-level extraction** and the resulting **self-containment test** (a paragraph must survive being lifted out of the page — anaphora like "this approach" breaks extraction, and no classic on-page check catches it), definitional sentences, entity resolution, freshness weighting, and the structured-data citation correlation (65% of AI-Mode-cited pages, 71% of ChatGPT-cited pages) explicitly labelled as correlation, not causation. Every claim carries a `[PRIMARY]` / `[INDUSTRY]` **source tier**, and findings must carry that tier forward so an industry estimate is never presented to a client as measured fact. Wired into `/akili-seo` as **Step 2.8** with a matching report section and verification-checklist rows.
@@ -18,7 +24,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **`Disallow` is not `noindex`.** New robots.txt check for one of the most consequential confusions in technical SEO: a disallowed URL can still be indexed from external links and surfaces as "Indexed, though blocked by robots.txt"; removing a page from the index requires *allowing* the crawl and serving `noindex`, and a `noindex` line inside `robots.txt` is unsupported and ignored.
 - **`llms.txt` is explicitly ruled out as a visibility tactic, against prevailing advice.** Evidence: ~8.7% adoption of the top 1,000 domains (June 2026), ~40% of existing files are empty plugin stubs, no major AI crawler has committed to consuming the format, crawler-log analyses show the retrieval agents skip it and crawl HTML directly, and in one citation-frequency model **removing the variable improved prediction accuracy** — it contributed noise. Both the skill and `/akili-seo` now list "missing `llms.txt`" as a finding that must **not** be raised, while noting the format's legitimate use as business-to-agent context for IDE agents and MCP servers — a developer-experience call, not a search one.
 - **`seo-audit` priority order gains an explicit GEO boundary.** GEO is a layer applied on top of ranking, not a sixth priority: roughly three quarters of AI Overview citations come from pages already in the top 10, so a GEO fix never displaces a classic-SEO fix, and GEO items rank below blocking classic findings in the remediation plan. Skill version 2.0.0 → 2.1.0; trigger keywords extended (AI Overviews, AI search, GEO, answer engine optimization, `llms.txt`, GPTBot, ClaudeBot); upstream `schema`/`ai-seo` sibling-gap note updated now that both are covered in-skill.
-
 ## [2.14.0] - 2026-07-25
 
 ### Added
