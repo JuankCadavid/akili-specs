@@ -40,11 +40,15 @@ Portable Claude Code, OpenCode, and Google Antigravity configuration for the AKI
 
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
+<p align="center">
+  <img alt="AKILI-SPECS lifecycle: a one-time constitution establishes the baseline, then a per-spec loop runs propose, specify, execute, test, validate and archive, with a Kaizen retrospective feeding the next spec" src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900">
+</p>
+
 ## Docs
 
 → **[Documentation Hub](docs/README.md)**: full AKILI documentation<br>
 → **[Flow](docs/flow.md)**: constitution-to-archive lifecycle<br>
-→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode)<br>
+→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity)<br>
 → **[Commands](docs/commands/README.md)**: slash command reference<br>
 → **[Skills](docs/skills/README.md)**: packaged skill reference<br>
 → **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>

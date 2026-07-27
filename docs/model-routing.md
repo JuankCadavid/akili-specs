@@ -113,14 +113,22 @@ when you deliberately need to freeze a version, and record why next to the pin. 
 concrete (no alias mechanism), which is why they carry the Fallback column and the drift check
 below.
 
-| Tier | Claude Code | OpenCode Go | Fallback |
-|---|---|---|---|
-| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k3` | `opencode-go/kimi-k2.6` / `opencode-go/deepseek-v4-pro` / `sonnet` |
-| **T2 Coder** | `sonnet` | `opencode-go/glm-5.2` | `haiku` / `opencode-go/deepseek-v4-flash` |
-| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | `sonnet` / `opencode-go/kimi-k2.6` |
-| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | `opus` / `opencode-go/deepseek-v4-pro` |
-| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | `sonnet` / `opencode-go/mimo-v2.5` |
-| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak — prefer external Gemini 3.1 Pro / Claude Sonnet vision)* | `opus` |
+| Tier | Claude Code | OpenCode Go | Antigravity | Fallback |
+|---|---|---|---|---|
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k3` | Gemini Pro (latest) | `opencode-go/kimi-k2.6` / `opencode-go/deepseek-v4-pro` / `sonnet` |
+| **T2 Coder** | `sonnet` | `opencode-go/glm-5.2` | Gemini Flash (latest) | `haiku` / `opencode-go/deepseek-v4-flash` |
+| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | Gemini Pro *(must differ from T2)* | `sonnet` / `opencode-go/kimi-k2.6` |
+| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | Gemini Pro (long context) | `opus` / `opencode-go/deepseek-v4-pro` |
+| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | Gemini Flash | `sonnet` / `opencode-go/mimo-v2.5` |
+| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak)* | **Gemini Pro (vision) — strongest column for this tier** | `opus` |
+
+**The Antigravity column names families, not slugs, deliberately.** Its roster moves faster than
+this document and its picker labels versions (`Gemini 3.6 Flash`) rather than exposing stable
+aliases — so the exact identifier is confirmed per project at `/akili-constitution` Step 8C, the
+same treatment any unconfirmed roster gets. Naming the family is the alias-first rule applied where
+no alias mechanism exists. **T6 is the row that matters here:** it is the one tier where this column
+is the best of the three, which is why the old *"prefer external Gemini"* note existed at all — see
+*Cross-host dispatch* for how a session in another host actually reaches it.
 
 ### Why these models
 
@@ -314,7 +322,7 @@ there:
 |---|---|---|
 | Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
 | OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/glm-5.2`) |
-| Antigravity | Not supported — `invoke_subagent` has no per-agent model binding | Guidance-only fallback |
+| Antigravity | No **in-host** binding — `invoke_subagent` has no per-agent model field | Bind **externally** instead: launch the `agy` CLI as its own worker, where the invocation *is* the binding (see *Cross-host dispatch*). Guidance-only fallback when no dispatcher is available |
 
 Each wrapper is thin: frontmatter (`name`, `description`, `model`) plus a body that instructs the
 agent to read and fully adopt the corresponding `.agents/<role>.md` persona. The persona files in
@@ -325,6 +333,50 @@ generic subagents seeded with the persona content when they don't.
 **author ≠ auditor becomes structural:** `akili-reviewer` is pinned to a different model than
 `akili-implementer` in the wrapper files themselves — no human discipline required.
 
+## Cross-host dispatch
+
+Everything above assumes **one active host per session**: you are in Claude Code, so you read the
+Claude Code column. That assumption is no longer universal. Agent orchestrators (Orca and its kind)
+let a coordinator in one host launch a worker in **another** host, hand it a task, wait for a
+structured completion message, and review the result — without the human leaving the coordinator.
+
+> **The host column is a property of the *dispatch*, not of the session.**
+> A coordinator reads **its own** column for its own reasoning, and the **worker's** column when
+> deciding where to send the work. The columns are not alternatives chosen at install time; they
+> are doors that are all open at once.
+
+**This reorders the fallback rule.** The `Fallback` column was written for a closed host: *if the
+right model is not available here, degrade to a lesser one here*. When a dispatcher is present,
+that ordering inverts:
+
+> **Reach across hosts before degrading within one.** The right model behind one extra spawn
+> usually beats a weaker model in the current session.
+
+**Two dead ends this resolves.** Both were consequences of the closed-host assumption, not of any
+real limitation:
+
+| Was | Now |
+|---|---|
+| **T6** says *"prefer external Gemini / Claude vision"* — advice with no way to act on it | The preference becomes a route: dispatch the visual phase to a host whose column has a real vision model |
+| **Antigravity** was *"not supported"* because `invoke_subagent` cannot bind a model per agent | An external dispatcher never calls `invoke_subagent`. It launches `agy` as a worker, and the CLI invocation *is* the binding |
+
+**When it is worth it.** A cross-host spawn costs a fresh context and a round trip, so it is
+justified by a **real capability gap** — vision, a specific frontier model, a domain where another
+family is clearly stronger — not by a marginal tier difference. Below that bar the spawn costs more
+than it buys; stay in the current host and use the Fallback column as written.
+
+**What it does *not* change.** The tier definitions, `author ≠ auditor`, and the Delegation Ceiling
+all apply unchanged to a cross-host worker — a worker in another host is still a subagent, still
+bound by the *one subagent beats several* rule, and still owed a precise brief on the first spawn.
+If anything `author ≠ auditor` gets easier: a worker in a different host is running different
+weights by construction, which is stronger independence than a fresh context on the same model.
+
+**Recording it.** Dispatcher availability is a property of the developer's environment, not of the
+project, so the registry records the *routing preference* (which host owns which capability) and
+never the tool. `/akili-constitution` Step 8C scaffolds this as a line in the project's
+`## Model Routing`; commands inherit it through the model checkpoint below, which already reads
+that section.
+
 ## Model checkpoints (main loop)
 
 The session model cannot be switched programmatically, but the agent knows which model it is
@@ -333,6 +385,12 @@ project's `## Model Routing` registry, compare the phase's tier to the current s
 if they differ, tell the user in one line (e.g. *"This phase is T1 — the registry recommends
 `/model opus`; you are on haiku"*) and offer the switch in the phase's first HITL pause. The user
 can always continue on the current model; the checkpoint never blocks.
+
+**The checkpoint has three outcomes, not two.** Switch the session model, continue as-is, or —
+when the project's registry records a cross-host routing preference for this capability and a
+dispatcher is available — **dispatch the phase to the host that has the right model** and keep the
+current session as coordinator. Offer the third only where it applies: it is the answer to a real
+capability gap (a vision phase on a text-only session model), never to a one-tier difference.
 
 ## Surviving model churn
 

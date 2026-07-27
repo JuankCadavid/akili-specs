@@ -7,7 +7,7 @@ Use this documentation when you want the human-facing reference. The installable
 ## Start Here
 
 - [Flow](flow.md) - end-to-end methodology lifecycle from constitution to archive
-- [Model Routing](model-routing.md) - capability-tier model selection per AKILI-SPECS phase for Claude Code and OpenCode
+- [Model Routing](model-routing.md) - capability-tier model selection per AKILI-SPECS phase for Claude Code, OpenCode, and Antigravity
 - [CLI](cli.md) - `akili` terminal reference for install, update, list, and doctor
 - [Commands](commands/README.md) - slash command reference
 - [Skills](skills/README.md) - packaged skill inventory and usage guidance
@@ -40,7 +40,7 @@ Use `/akili-seo <site-domain>` independently when you need Google Search Console
 | Topic | File | Use When |
 |---|---|---|
 | Flow | [flow.md](flow.md) | You need the lifecycle, artifacts, review gates, and project modes |
-| Model Routing | [model-routing.md](model-routing.md) | You need to choose which model runs each AKILI-SPECS phase across Claude Code and OpenCode |
+| Model Routing | [model-routing.md](model-routing.md) | You need to choose which model runs each AKILI-SPECS phase across Claude Code, OpenCode, and Antigravity |
 | CLI | [cli.md](cli.md) | You need install/update/list/doctor options or install paths |
 | Commands | [commands/README.md](commands/README.md) | You need command purpose, inputs, outputs, and sequencing |
 | Skills | [skills/README.md](skills/README.md) | You need to know which packaged skill supports which work |

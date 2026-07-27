@@ -81,6 +81,29 @@ The table above is a **floor** — it says when delegating is mandatory. This is
 
 **The Reviewer is not self-verification — never collapse it.** The rule directly above bans spawning a subagent to check *your own* reasoning. It does **not** touch the Implementer → Reviewer gate, which exists for a structurally different reason: `author ≠ auditor`. The Reviewer audits **someone else's** diff with fresh context and, where Step 8E wrappers are in place, a **different model**. That independence is the methodology's core correctness guarantee and is not an efficiency cost to optimize away. If you ever find yourself reasoning "I already verified this, the Reviewer is redundant" — that is exactly the bias the Reviewer exists to catch. Spawn it.
 
+### 🛰️ Dispatching outside your own host
+
+Your host's native subagent mechanism is the default and covers almost everything. When the project's
+`## Skill Map` lists an **orchestration skill** provided by the environment *and* it is actually
+available in this session, you gain one extra move: launching a worker in a **different host** —
+another agent CLI entirely — and receiving a structured completion message back.
+
+Load that skill only when you are about to use it, and only for the two cases that earn it:
+
+| Case | Why the extra hop pays |
+|---|---|
+| A **real capability gap** — the phase needs a model your host does not have (vision being the usual one) | See *Cross-host dispatch* in the model-routing registry: reach across hosts before degrading within one |
+| **Independent tasks** already cleared by the Delegation Thresholds | A worker in another host is running different weights, which strengthens `author ≠ auditor` for free |
+
+Everything above still binds. A cross-host worker is **still a subagent**: the Delegation Ceiling
+applies unchanged (one worker beats several for one task; commit to its result; brief it precisely
+on the first dispatch), and it never licenses the *fleet* pattern of racing several agents at one
+task — that is the ceiling's first rule violated by design.
+
+**Never make it a prerequisite.** The skill may be absent — a teammate on the same repo may not have
+the tool — so every task must remain completable with your host's own subagents. If the Skill Map
+lists it and the session does not provide it, say so in one line and proceed natively.
+
 ---
 
 ## 🔁 Orchestration Sequence (per task)

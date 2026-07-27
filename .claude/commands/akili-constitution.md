@@ -443,7 +443,10 @@ project guides so the project does not depend on the package's `docs/` after ins
    survives model churn with zero edits; pin a dated model ID only when the user deliberately wants
    to freeze a version, and record why. Fill the OpenCode column from the user's confirmed roster
    (slugs are concrete — no alias mechanism); if it is unknown, leave clearly-marked
-   `<CONFIRM SLUG>` placeholders rather than guessing.
+   `<CONFIRM SLUG>` placeholders rather than guessing. Fill the **Antigravity** column the same way —
+   its picker labels versions rather than exposing stable aliases, so name the family (Gemini Pro /
+   Gemini Flash) and confirm the exact identifier with the user, placeholdering what they cannot
+   confirm.
 
    **Emit every host column, always — including the hosts you are not currently running in.** The
    registry belongs to the *project*, not to the session that scaffolded it: the repository outlives
@@ -452,6 +455,18 @@ project guides so the project does not depend on the package's `docs/` after ins
    scaffolded from OpenCode that omits the Claude Code column leaves the next Claude Code session
    with nothing to read, and silently breaks the Step 8E wrappers and every command's model
    checkpoint. **An unknown roster is a `<CONFIRM SLUG>` placeholder, never a dropped column.**
+   The supported hosts are **Claude Code, OpenCode, and Antigravity** — all three are install
+   targets of the packaged CLI, so all three get a column.
+
+   **A `Cross-host dispatch` line.** State which host owns which capability when they differ —
+   most commonly *"T6 Multimodal → Antigravity (Gemini vision)"*, since that is the one tier where
+   another host beats the session's own column. Record the **routing preference only, never the
+   dispatcher**: whether the user has an agent orchestrator installed is a property of their
+   machine, not of the project, and naming a specific tool here would date the registry and couple
+   the project to it. The rule the line encodes: *reach across hosts before degrading within one,
+   but only for a real capability gap — a cross-host spawn costs a fresh context, which a
+   one-tier difference does not repay.* This is what gives every command's model checkpoint its
+   third option (dispatch the phase) alongside switch-model and continue-as-is.
 5. The instruction: *"To change models, edit only this registry table. Never pin a dated model name
    where a floating alias exists. Model selection is guidance only in command prompts — never add
    `model:` to command frontmatter; enforced bindings live only in the Step 8E agent wrappers."*
@@ -514,6 +529,16 @@ is how they reach the agents.
 2. The instruction: *"During `/akili-specify`, derive each task's required skills from this map.
    During `/akili-execute` and `/akili-test`, the Leader assigns these skills and the
    Implementer/Tester must load them before writing code or tests."*
+3. **Environment-provided rows, when the user confirms the tooling.** A skill shipped by a *tool*
+   rather than by AKILI belongs in this map too — an agent orchestrator's coordination skill
+   (e.g. `orchestration`) is the standing example, loaded by the **Leader** before it dispatches
+   cross-host or parallel work. Ask the user before adding one; never infer it from the filesystem.
+   Mark the row's *When to load* with the availability condition, because the map is **committed and
+   shared while the tooling is per-developer** — a teammate without that tool must still be able to
+   run every command. Never copy the skill into the repository: these stubs are thin on purpose
+   because the tool's binary serves the version-matched guide, so a vendored copy goes stale and
+   starts instructing agents to call flags that no longer exist (see the packaged
+   `docs/skills/governance.md` → *Environment-provided skills*).
 
 **Mode-specific policy (mirror Step 8B):**
 
@@ -614,7 +639,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
-- [ ] That registry carries **every supported host column** (Claude Code and OpenCode), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
+- [ ] That registry carries **every supported host column** (Claude Code, OpenCode, and Antigravity — all three are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
 - [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.
 - [ ] A `## Skill Map` section exists in both root guides.
 - [ ] In Safe Update mode, no pre-existing user customization was overwritten in the baseline docs, `.agents/`, the registry, or the Skill Map.

@@ -12,7 +12,21 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 |---|---|---|
 | `core` | Always, at a precise step of a command | The command text hard-loads it ("load the `X` skill") |
 | `conditional` | When the work touches its domain | A conditional line in the command ("if the work involves X, load `Y`") |
-| `stack` | Depends on the project's technology stack | `/akili-constitution` writes a **`## Skill Map`** into the project's `AGENTS.md`/`CLAUDE.md`; `/akili-specify` derives per-task required skills in `tasks.md`; the Leader assigns them to Implementer/Tester via dynamic skill loading |
+| `stack` | Depends on the project's technology stack, **or on the developer's tooling environment** | `/akili-constitution` writes a **`## Skill Map`** into the project's `AGENTS.md`/`CLAUDE.md`; `/akili-specify` derives per-task required skills in `tasks.md`; the Leader assigns them to Implementer/Tester via dynamic skill loading |
+
+**Environment-provided skills are referenced, never vendored.** Some skills that belong in the Skill
+Map are shipped by a *tool* rather than by AKILI — an agent orchestrator's coordination skill is the
+standing example. Three rules govern them:
+
+1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
+   own binary serves the version-matched guide; a vendored copy goes stale the moment the tool
+   updates, and would then instruct agents to call flags that no longer exist. Reference the skill
+   by name and let the environment provide it.
+2. **Availability is per-developer, not per-project.** The Skill Map is committed and shared, so an
+   environment-skill row records *what to use when it is present*, never an assumption that it is.
+   A teammate without the tool simply never loads it, and every command must still work without it.
+3. **Attribution stays with the author.** These skills are not AKILI's and carry no AKILI
+   authorship frontmatter; the acceptance checklist below applies only to skills we ship.
 
 ### Current assignment
 

@@ -4,6 +4,8 @@ AKILI keeps durable product, design, implementation, test, and validation contex
 
 The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a project constitution step, Claude/OpenCode skills, and explicit validation evidence before archive.
 
+![AKILI-SPECS lifecycle: a one-time constitution establishes the baseline, then a per-spec loop runs propose, specify, execute, test, validate and archive, with a Kaizen retrospective feeding the next spec](../assets/akili-flow.svg)
+
 ## Philosophy
 
 ```text
@@ -302,7 +304,7 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 | `/akili-audit` | T4 + T3 |
 | `/akili-archive` | T5 |
 
-A single editable registry binds each tier to a model **per tool** (Claude Code and OpenCode),
+A single editable registry binds each tier to a model **per tool** (Claude Code, OpenCode, and Antigravity),
 using **floating aliases** (`opus`/`sonnet`/`haiku`) wherever they exist so the registry survives
 model generations without edits. `/akili-constitution` (Step 8C) scaffolds a `## Model Routing`
 copy into the project's `AGENTS.md` / `CLAUDE.md`.
