@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.17.1] - 2026-07-27
+
 ### Added
 
 - **Lifecycle diagram in the README and `docs/flow.md`.** `assets/akili-flow.svg` (plus a PNG for npmjs.com, which does not reliably render external SVG) draws the methodology in the three shapes it actually has: `/akili-constitution` as a **one-time** foundation, the six-command **per-spec loop** with the Kaizen retrospective as an explicit back-edge into the next spec, and the four commands that run **outside** the loop at any time. Hand-authored rather than auto-laid-out — every generated attempt folded the chain into a 7:1 strip that a README cannot show without shrinking the labels past readability. Colour encodes the three phases (plan → build → close) and the caption carries the two invariants the boxes cannot: every step closes on a human approval gate, and `author ≠ auditor` is enforced at execute and test.
@@ -19,7 +25,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Fixed
 
 - **Documentation aligned to three supported hosts.** `docs/README.md`, `docs/flow.md`, `docs/commands/akili-constitution.md`, the README's Docs index, and the `/akili-constitution` verification checklist all still described model routing as spanning "Claude Code and OpenCode" after Antigravity became an install target. The checklist mattered most: it enumerated the hosts a registry must carry, so it would have passed a registry that dropped the Antigravity column — the same class of silent gap it was written to catch.
-
 ## [2.17.0] - 2026-07-27
 
 ### Added
