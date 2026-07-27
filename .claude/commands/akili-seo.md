@@ -1,4 +1,5 @@
 ---
+name: akili-seo
 description: Enhance pages and search engine optimization following SEO best practices.
 license: MIT
 metadata:

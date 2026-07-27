@@ -1,4 +1,5 @@
 ---
+name: akili-quick
 description: Fast-track a trivial, low-risk change (copy edit, color tweak, small style/text change) with minimal traceability and automatic escalation when it is not actually trivial.
 license: MIT
 metadata:

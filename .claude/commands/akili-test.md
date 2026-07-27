@@ -1,4 +1,5 @@
 ---
+name: akili-test
 description: Write and execute comprehensive automated unit/integration tests for the implemented feature.
 license: MIT
 metadata:

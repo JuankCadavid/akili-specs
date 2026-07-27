@@ -1,4 +1,5 @@
 ---
+name: akili-execute
 description: Execute approved specs systematically following the AKILI-SPECS methodology with spec-to-code traceability.
 license: MIT
 metadata:

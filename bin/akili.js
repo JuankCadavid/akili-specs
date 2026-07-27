@@ -60,13 +60,13 @@ const defaultPaths = {
 const TOOL_REGISTRY = {
   claude: (rootPath) => ({
     commands: [path.join(rootPath, "commands")],
-    skills: path.join(rootPath, "skills"),
+    skills: [path.join(rootPath, "skills")],
     resources: path.join(rootPath, "akili"),
     legacyResources: path.join(rootPath, "sdd-jc"),
   }),
   opencode: (rootPath) => ({
     commands: [path.join(rootPath, "commands")],
-    skills: path.join(rootPath, "skills"),
+    skills: [path.join(rootPath, "skills")],
     resources: path.join(rootPath, "akili"),
     legacyResources: path.join(rootPath, "sdd-jc"),
   }),
@@ -76,7 +76,11 @@ const TOOL_REGISTRY = {
       path.join(rootPath, "antigravity-cli", "global_workflows"),
       path.join(rootPath, "antigravity-cli", "workflows"),
     ],
-    skills: path.join(rootPath, "config", "skills"),
+    skills: [
+      path.join(rootPath, "config", "skills"),
+      path.join(rootPath, "skills"),
+      path.join(rootPath, "antigravity-cli", "skills"),
+    ],
     resources: path.join(rootPath, "config", "akili"),
     legacyResources: path.join(rootPath, "config", "sdd-jc"),
   }),
@@ -247,7 +251,8 @@ const ALL_TOOLS = ["claude", "opencode", "antigravity"];
 // --skills-only installs too, not just full ones.
 function isToolInstalled(tool, args) {
   const { paths } = getToolRegistryInfo(tool, args);
-  const dirs = [...paths.commands, paths.skills, paths.resources];
+  const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+  const dirs = [...paths.commands, ...skillDirs, paths.resources];
   return dirs.some((dir) => {
     try {
       return fs.existsSync(dir) && fs.readdirSync(dir).length > 0;
@@ -390,16 +395,19 @@ function cleanupLegacyFiles(tool, args) {
   }
 
   if (shouldInclude("skills", args)) {
-    for (const skillName of LEGACY_SKILLS) {
-      const skillDir = path.join(paths.skills, skillName);
-      if (fs.existsSync(skillDir)) {
-        if (args.dryRun) {
-          console.log(`  ${colors.red}would delete legacy skill${colors.reset} ${skillDir}`);
-        } else {
-          fs.rmSync(skillDir, { recursive: true, force: true });
-          console.log(`  ${colors.red}deleted legacy skill${colors.reset} ${skillDir}`);
+    const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+    for (const targetSkills of skillDirs) {
+      for (const skillName of LEGACY_SKILLS) {
+        const skillDir = path.join(targetSkills, skillName);
+        if (fs.existsSync(skillDir)) {
+          if (args.dryRun) {
+            console.log(`  ${colors.red}would delete legacy skill${colors.reset} ${skillDir}`);
+          } else {
+            fs.rmSync(skillDir, { recursive: true, force: true });
+            console.log(`  ${colors.red}deleted legacy skill${colors.reset} ${skillDir}`);
+          }
+          cleaned++;
         }
-        cleaned++;
       }
     }
   }
@@ -443,10 +451,28 @@ function installTool(tool, args) {
     for (const targetCommands of paths.commands) {
       add(copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args));
     }
+    if (tool === "antigravity") {
+      const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+      for (const cmdFile of listCommands()) {
+        const cmdName = cmdFile.replace(/\.md$/, "");
+        for (const targetSkills of skillDirs) {
+          add(
+            copySingleFile(
+              path.join(SOURCE_COMMANDS, cmdFile),
+              path.join(targetSkills, cmdName, "SKILL.md"),
+              args
+            )
+          );
+        }
+      }
+    }
   }
 
   if (shouldInclude("skills", args)) {
-    add(copyDirectoryContents(SOURCE_SKILLS, paths.skills, args));
+    const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+    for (const targetSkills of skillDirs) {
+      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args));
+    }
   }
 
   if (shouldInclude("resources", args)) {
@@ -741,9 +767,24 @@ function runList() {
   console.log(`\n${colors.cyan}Summary:${colors.reset} ${commands.length} commands | ${skills.length} skills | ${resourceCount} resources (akili-specs v${currentVersion})`);
 }
 
-function hasInstalledCommand(targetCommandsList, name) {
+function hasInstalledCommand(targetCommandsList, skillDirsList, name) {
   for (const targetCommands of targetCommandsList) {
     if (fs.existsSync(path.join(targetCommands, name))) {
+      return true;
+    }
+  }
+  const cmdName = name.replace(/\.md$/, "");
+  for (const targetSkills of skillDirsList) {
+    if (fs.existsSync(path.join(targetSkills, cmdName, "SKILL.md"))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasInstalledSkill(skillDirsList, skill) {
+  for (const targetSkills of skillDirsList) {
+    if (fs.existsSync(path.join(targetSkills, skill, "SKILL.md"))) {
       return true;
     }
   }
@@ -752,6 +793,7 @@ function hasInstalledCommand(targetCommandsList, name) {
 
 function doctorTool(tool, args) {
   const { rootPath, paths } = getToolRegistryInfo(tool, args);
+  const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
   let okCount = 0;
   let missing = 0;
   let fixed = 0;
@@ -761,7 +803,7 @@ function doctorTool(tool, args) {
   if (shouldInclude("commands", args)) {
     console.log(`\n${colors.yellow}Commands:${colors.reset}`);
     for (const command of listCommands()) {
-      const ok = hasInstalledCommand(paths.commands, command);
+      const ok = hasInstalledCommand(paths.commands, skillDirs, command);
       if (ok) {
         okCount += 1;
         console.log(`  ${colors.green}OK${colors.reset} ${command}`);
@@ -769,6 +811,12 @@ function doctorTool(tool, args) {
         if (args.fix) {
           const targetPath = path.join(paths.commands[0], command);
           copySingleFile(path.join(SOURCE_COMMANDS, command), targetPath, { force: true, dryRun: false });
+          if (tool === "antigravity") {
+            const cmdName = command.replace(/\.md$/, "");
+            for (const targetSkills of skillDirs) {
+              copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(targetSkills, cmdName, "SKILL.md"), { force: true, dryRun: false });
+            }
+          }
           console.log(`  ${colors.cyan}FIXED${colors.reset} ${command}`);
           fixed += 1;
         } else {
@@ -782,13 +830,15 @@ function doctorTool(tool, args) {
   if (shouldInclude("skills", args)) {
     console.log(`\n${colors.yellow}Skills:${colors.reset}`);
     for (const skill of listSkills()) {
-      const ok = fs.existsSync(path.join(paths.skills, skill, "SKILL.md"));
+      const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
         okCount += 1;
         console.log(`  ${colors.green}OK${colors.reset} ${skill}`);
       } else {
         if (args.fix) {
-          copyDirectoryContents(path.join(SOURCE_SKILLS, skill), path.join(paths.skills, skill), { force: true, dryRun: false });
+          for (const targetSkills of skillDirs) {
+            copyDirectoryContents(path.join(SOURCE_SKILLS, skill), path.join(targetSkills, skill), { force: true, dryRun: false });
+          }
           console.log(`  ${colors.cyan}FIXED${colors.reset} ${skill}`);
           fixed += 1;
         } else {
@@ -798,15 +848,17 @@ function doctorTool(tool, args) {
       }
     }
     for (const skillName of LEGACY_SKILLS) {
-      const skillDir = path.join(paths.skills, skillName);
-      if (fs.existsSync(skillDir)) {
-        if (args.fix) {
-          fs.rmSync(skillDir, { recursive: true, force: true });
-          console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
-          fixed += 1;
-        } else {
-          console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
-          missing += 1;
+      for (const targetSkills of skillDirs) {
+        const skillDir = path.join(targetSkills, skillName);
+        if (fs.existsSync(skillDir)) {
+          if (args.fix) {
+            fs.rmSync(skillDir, { recursive: true, force: true });
+            console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
+            fixed += 1;
+          } else {
+            console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
+            missing += 1;
+          }
         }
       }
     }

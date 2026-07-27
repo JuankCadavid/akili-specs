@@ -1,4 +1,5 @@
 ---
+name: akili-constitution
 description: Establish or strengthen the project-wide AKILI-SPECS foundation and baseline docs (PRD, UX/UI Design, TRD).
 license: MIT
 metadata:
@@ -368,8 +369,29 @@ If the packaged templates are available, prefer copying them as the seed; otherw
 **Mode-specific scaffolding policy:**
 
 - **Brand-new (Seed Setup):** copy the four default templates verbatim into `.agents/`. Tailor only the project name and detected stack if known.
-- **Legacy (Discovery Setup):** copy the four default templates, then customize them based on the codebase scan — inject detected design-token paths, the test command, the lint command, framework conventions, and any directory boundaries discovered. The Reviewer persona should know which `design.md` and `trd.md` paths to cite; the Tester persona should know the repo's real test runner and command.
-- **Active AKILI-SPECS (Safe Update):** **do not overwrite** existing `.agents/*.md` files. For each missing file, install the default template (customized to the detected stack). For each existing file, read it, identify gaps versus the current packaged template (e.g. missing rework-loop instructions, missing PASS/FAIL output contract, missing AKILI commit standard), and append a minimal upgrade block that preserves all existing custom instructions.
+- **Legacy (Discovery Setup):** copy the four default templates, then customize **each one individually** from the codebase scan, following the *Injection scope* table below. Give a persona only what its role consumes.
+- **Active AKILI-SPECS (Safe Update):** **do not overwrite** existing `.agents/*.md` files. For each missing file, install the default template (customized per the *Injection scope* table). For each existing file, read it, identify gaps versus the current packaged template (e.g. missing rework-loop instructions, missing PASS/FAIL output contract, missing AKILI commit standard), and append a minimal upgrade block that preserves all existing custom instructions.
+
+**Injection scope — what the scan writes into which persona:**
+
+| Detected by the scan | `leader.md` | `implementer.md` | `reviewer.md` | `tester.md` |
+| :--- | :---: | :---: | :---: | :---: |
+| Design-token path (`docs/ux-ui/design.md`) | — | ✅ must comply | ✅ must audit | — |
+| `trd.md` path | — | — | ✅ cites it in FAIL items | — |
+| Test / verification command | — | ✅ runs it before reporting | — | ✅ runs the suite |
+| Lint command | — | ✅ | — | — |
+| Real test runner and its invocation | — | — | — | ✅ |
+| Framework conventions | — | ✅ writes to them | ✅ audits conformance | ✅ test idioms |
+| Directory boundaries | ✅ judges task independence | ✅ stays inside scope | ✅ flags violations | — |
+
+**Never inject the whole bundle into all four.** Scoping is not tidiness — it is correctness and cost:
+
+1. **The packaged templates already forbid some of it.** `tester.md` states it does *not* audit design-token conformance; writing the token path into it contradicts the very file being copied.
+2. **Personas are re-read on every subagent spawn.** An injection copied into all four is paid on every task of every spec, not once at scaffold time.
+3. **Every extra copy is a place to drift.** Change the test command later and three personas start describing a command that no longer exists — silently, until an agent runs the stale one.
+4. **Irrelevant context competes with relevant context.** A Reviewer handed the lint command must first decide it does not apply.
+
+The Leader's row is the one most often dropped: it writes no code, so scans tend to give it nothing. It needs **directory boundaries** specifically, because that is what it judges task independence against when deciding whether two tasks may run in parallel (see the *Delegation Thresholds* row on concurrent writers in `leader.md`).
 
 **Required content per persona:**
 
@@ -590,6 +612,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and `docs/infrastructure.md` exist and are non-empty.
 - [ ] `docs/specs/general-setup/` templates exist.
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
+- [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
 - [ ] That registry carries **every supported host column** (Claude Code and OpenCode), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
 - [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.

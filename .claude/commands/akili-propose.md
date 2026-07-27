@@ -1,4 +1,5 @@
 ---
+name: akili-propose
 description: Propose new features or changes by initiating a new detailed technical spec process.
 license: MIT
 metadata:

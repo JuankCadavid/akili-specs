@@ -1,4 +1,5 @@
 ---
+name: akili-validate
 description: Validate that the implemented feature strictly matches all requirements, design tokens, and user flows.
 license: MIT
 metadata:

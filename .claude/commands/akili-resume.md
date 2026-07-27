@@ -1,4 +1,5 @@
 ---
+name: akili-resume
 description: Resume work after a session break by scanning active specs and presenting a multi-spec dashboard briefing.
 license: MIT
 metadata:

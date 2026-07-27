@@ -1,4 +1,5 @@
 ---
+name: akili-specify
 description: Draft detailed requirements, UI/UX designs, and technical tasks for a proposed feature.
 license: MIT
 metadata:

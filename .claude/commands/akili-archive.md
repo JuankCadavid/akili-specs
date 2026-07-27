@@ -1,4 +1,5 @@
 ---
+name: akili-archive
 description: Archive a completed spec task, run the Kaizen retrospective, sync agent guides and CodeGraph, and keep the TRD current.
 license: MIT
 metadata:
