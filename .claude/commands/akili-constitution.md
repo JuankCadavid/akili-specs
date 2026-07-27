@@ -406,7 +406,7 @@ The `.agents/` directory must be tool-agnostic:
 
 - Pure Markdown + YAML frontmatter, natively compatible with Antigravity, Claude Code, and OpenCode.
 - All AKILI commands resolve the `.agents/` path relative to the active terminal's current working directory, binding it strictly to the current workspace (no global agents directory).
-- Antigravity invokes `invoke_subagent` using prompts read from `.agents/`; Claude Code and OpenCode delegate via sub-prompt contexts seeded with the persona content.
+- Claude Code and OpenCode delegate via sub-prompt contexts seeded with the persona content, so they read `.agents/<role>.md` directly. **Antigravity does not** — it discovers agents under `.agents/agents/` and reaches them via `invoke_subagent`, which additionally requires `subagent: true` in the wrapper's frontmatter. A persona left at `.agents/<role>.md` is therefore invisible to it; Step 8E generates the nested wrappers that point back at these files.
 
 ---
 
@@ -588,8 +588,39 @@ this step — the guidance-only flow keeps working.
   tester `opencode-go/deepseek-v4-flash` — the T2 fallback rather than the T2 primary, so the
   Tester lands on a **different model than the Implementer** (author ≠ tester)).
 
-- **Google Antigravity:** no per-agent model binding exists — skip wrapper generation and note in
-  the summary that Antigravity stays on guidance-only routing.
+- **Google Antigravity:** create `.agents/agents/akili-leader/agent.md`, `akili-implementer/`,
+  `akili-reviewer/`, and `akili-tester/` (the flat form `.agents/agents/<name>.md` is equivalent).
+  **The nesting is required** — Antigravity discovers agents under `.agents/agents/`, so a persona
+  left at `.agents/<role>.md` is invisible to it. Same thin wrapper, richer frontmatter:
+
+  ```markdown
+  ---
+  name: akili-reviewer
+  description: AKILI Reviewer — independent audit of the Implementer's diff against the spec.
+  model: pro
+  subagent: true
+  mainAgent: false
+  tools:
+    - view_file
+    - grep_search
+  ---
+  Read `.agents/reviewer.md` in the project root and adopt it fully as your persona and
+  operating contract before doing anything else.
+  ```
+
+  | Field | Why AKILI sets it |
+  |---|---|
+  | `model` | `inherit` \| `flash` \| `pro` — the registry's Antigravity column. Leader/Reviewer `pro` (T1/T3), Implementer/Tester `flash` (T2) |
+  | `subagent: true` | **Required** for the Leader to reach it via `invoke_subagent`. Without it the wrapper exists and is never invocable |
+  | `mainAgent: false` | Keeps Implementer/Reviewer/Tester out of the primary-agent picker — they are only ever dispatched. The Leader keeps `mainAgent: true` |
+  | `tools` | The Reviewer's read-only role stops being an instruction and becomes a **restriction** |
+
+  **`tools` is where this host exceeds the others — apply it to the Reviewer and nowhere else.**
+  Every other wrapper needs broad tool access, and the vendor documents that an unmapped or
+  misspelled tool name **hangs the subagent process**, so a wrong guess fails silently rather than
+  erroring. Use only names confirmed against the user's Antigravity version; when they cannot be
+  confirmed, **omit `tools` entirely** and record in the summary that the Reviewer is read-only by
+  instruction rather than by restriction. A hung Reviewer is worse than an unenforced one.
 
 **Rules:**
 
@@ -637,6 +668,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and `docs/infrastructure.md` exist and are non-empty.
 - [ ] `docs/specs/general-setup/` templates exist.
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
+- [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, and Antigravity — all three are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.

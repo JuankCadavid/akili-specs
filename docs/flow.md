@@ -271,7 +271,7 @@ if 3 consecutive FAILs → HALT, mark task [~], present audit trail
 
 **Cross-tool compatibility:**
 
-The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the harness runs under Claude Code, OpenCode, and Google Antigravity. Antigravity invokes `invoke_subagent` with prompts read from `.agents/`; Claude Code and OpenCode delegate via sub-prompt contexts seeded with the persona files.
+The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the harness runs under Claude Code, OpenCode, and Google Antigravity. Claude Code and OpenCode delegate via sub-prompt contexts seeded with the persona files, reading `.agents/<role>.md` directly. **Antigravity resolves agents one level deeper** — it discovers them under `.agents/agents/` and invokes them with `invoke_subagent`, which also requires `subagent: true` in the wrapper's frontmatter, so a persona left at the root of `.agents/` is invisible to it. [Step 8E](commands/akili-constitution.md) generates the nested wrappers, which stay thin and point back at the same persona files.
 
 **`/akili-test` — Leader → Tester(s):**
 

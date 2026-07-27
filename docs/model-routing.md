@@ -322,7 +322,27 @@ there:
 |---|---|---|
 | Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
 | OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/glm-5.2`) |
-| Antigravity | No **in-host** binding — `invoke_subagent` has no per-agent model field | Bind **externally** instead: launch the `agy` CLI as its own worker, where the invocation *is* the binding (see *Cross-host dispatch*). Guidance-only fallback when no dispatcher is available |
+| Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro` |
+
+**Antigravity binds more than the model — and the nesting is not optional.** Two corrections to
+what this document previously stated. First, agents are discovered under **`.agents/agents/`**, so a
+persona left at `.agents/<role>.md` is invisible to it; that path is the whole reason the personas
+appear to be ignored. Second, this host was recorded here as having no per-agent model binding —
+it does, alongside three fields the other hosts have no equivalent for:
+
+| Field | Effect |
+|---|---|
+| `subagent: true` | **Required** for the Leader to reach the wrapper via `invoke_subagent`. Omit it and the wrapper exists but can never be dispatched |
+| `mainAgent: false` | Keeps Implementer / Reviewer / Tester out of the primary-agent picker — they are dispatch targets only |
+| `tools: [...]` | A per-agent tool allow-list |
+
+`tools` is the consequential one: it turns the Reviewer's **read-only role from an instruction into
+a restriction**, so `author ≠ auditor` gains a second structural guarantee — the auditor not only
+runs on a different model, it *cannot write*. Use it on the Reviewer alone, and only with tool names
+confirmed against the user's version: the vendor documents that an unmapped or misspelled name
+**hangs the subagent process**, which fails silently instead of erroring. When the names cannot be
+confirmed, omit `tools` and keep the Reviewer read-only by instruction — a hung Reviewer is worse
+than an unenforced one.
 
 Each wrapper is thin: frontmatter (`name`, `description`, `model`) plus a body that instructs the
 agent to read and fully adopt the corresponding `.agents/<role>.md` persona. The persona files in
@@ -352,13 +372,16 @@ that ordering inverts:
 > **Reach across hosts before degrading within one.** The right model behind one extra spawn
 > usually beats a weaker model in the current session.
 
-**Two dead ends this resolves.** Both were consequences of the closed-host assumption, not of any
-real limitation:
+**The dead end this resolves.** **T6** said *"prefer external Gemini / Claude vision"* — advice with
+no way to act on it, because the closed-host assumption left no route out. The preference now
+becomes one: dispatch the visual phase to a host whose column carries a real vision model, and keep
+the current session as coordinator.
 
-| Was | Now |
-|---|---|
-| **T6** says *"prefer external Gemini / Claude vision"* — advice with no way to act on it | The preference becomes a route: dispatch the visual phase to a host whose column has a real vision model |
-| **Antigravity** was *"not supported"* because `invoke_subagent` cannot bind a model per agent | An external dispatcher never calls `invoke_subagent`. It launches `agy` as a worker, and the CLI invocation *is* the binding |
+> **Not every gap was a real one.** Antigravity was recorded here as unable to bind a model per
+> agent, which made it look like a case only cross-host dispatch could rescue. It was simply
+> documented wrong — the host has native per-agent binding (see *Enforced routing* above). Before
+> reaching for a cross-host spawn to work around a host's stated limitation, confirm the limitation
+> still holds: the spawn is not free, and this registry has been wrong about one before.
 
 **When it is worth it.** A cross-host spawn costs a fresh context and a round trip, so it is
 justified by a **real capability gap** — vision, a specific frontier model, a domain where another
