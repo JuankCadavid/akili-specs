@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.17.0] - 2026-07-27
+
 ### Added
 
 - **Google Antigravity command skills support.** Commands in `.claude/commands/` now include `name:` in their YAML frontmatter, and `bin/akili.js` automatically installs commands as structured skills (`~/.gemini/config/skills/akili-<cmd>/SKILL.md`, `~/.gemini/skills/akili-<cmd>/SKILL.md`, and `~/.gemini/antigravity-cli/skills/akili-<cmd>/SKILL.md`) in addition to workflows when targeting Google Antigravity. This enables Google Antigravity IDE and CLI to auto-discover and list all AKILI commands as available skills.
@@ -14,7 +20,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **`/akili-constitution` Step 8B no longer copies the same project context into all four personas.** The Legacy-mode instruction read *"customize **them** … inject detected design-token paths, the test command, the lint command, framework conventions, and any directory boundaries discovered"* — one list, four files, and only a subordinate clause afterwards narrowing two of them. Read literally, it writes the whole bundle into every persona, which is what it did in practice. It replaces a shared bundle with an explicit **Injection scope** table mapping each scanned fact to the personas whose role actually consumes it. The defect is not untidiness: (1) the instruction **contradicted the template it was copying** — `tester.md` states it does *not* audit design-token conformance, yet received the token path; (2) personas are re-read on **every** subagent spawn, so a redundant injection is paid on every task of every spec rather than once at scaffold time; (3) each extra copy is a place to drift, so changing the test command later leaves three personas describing one that no longer exists; and (4) irrelevant context competes with relevant context at read time. Records the row most often dropped in the other direction — the Leader gets no injections at all because it writes no code, when it specifically needs **directory boundaries** to judge whether two tasks may run in parallel (the concurrent-writers rule corrected in 2.16.0). A verification-checklist row settles it with two spot-checks: no token path in `tester.md`, directory boundaries present in `leader.md`.
 - **`/akili-audit` gains a `Persona injection bleed` drift check, so the Step 8B fix reaches projects that already exist.** Safe Update mode never overwrites an existing `.agents/*.md`, so a project scaffolded before the injection-scope table would keep its bloated personas indefinitely and the fix above would only ever help new scaffolds. The check flags context repeated across all four personas, using the same two tells as the checklist, and — like every drift check — reports rather than edits: remediation is a manual trim. Surfaced by an external duplicate-file audit run against a real AKILI project, which flagged the four `.agents/` prompts before we did.
-
 ## [2.16.0] - 2026-07-26
 
 ### Added
