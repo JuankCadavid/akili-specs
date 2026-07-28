@@ -18,6 +18,6 @@ This repository **dogfoods its own methodology**: Claude Code sessions working o
 - `skills/` — methodology and curated third-party skills (see `docs/skills/governance.md` for authorship/binding rules)
 - `templates/` — the Leader / Implementer / Reviewer / Tester personas that `/akili-constitution` deploys into each project's `.agents/`
 
-Only those three subdirectories ship in the npm package (`package.json` → `files`). This README is repo-only.
+Only those three subdirectories are listed in `package.json` → `files` (npm additionally ships README files wherever they live, including this one — 1.7kB that also explains the layout to anyone inspecting the tarball).
 
 Before editing anything here, read `CONTRIBUTING.md` — files in this directory are **instructions AI agents execute in other people's projects**, and PRs touching them get line-by-line security review.
