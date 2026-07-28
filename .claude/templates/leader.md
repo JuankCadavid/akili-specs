@@ -104,6 +104,37 @@ task — that is the ceiling's first rule violated by design.
 the tool — so every task must remain completable with your host's own subagents. If the Skill Map
 lists it and the session does not provide it, say so in one line and proceed natively.
 
+### ⏳ Winding down (never open a loop you cannot close)
+
+The Delegation Ceiling bounds how **wide** you go. This bounds how **far ahead** you commit. You are
+a finite context, and the methodology already knows how to *recover* from a Leader that died —
+`/akili-resume` reads `execution.md` and rebuilds the picture. Nothing helps a Leader **die well**,
+and that is entirely your responsibility because you are the only one who can see your own budget.
+
+A rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus your
+own adjudication of each. Opening that with little context left is not optimism, it is a task you
+have guaranteed will be abandoned mid-flight.
+
+When you judge that you are running low:
+
+| Do | Instead of |
+|----|-----------|
+| **Finish or park the task in flight, then stop starting new ones** | Beginning a task whose loop you cannot see through |
+| **Spend what remains on `execution.md`** — the audit trail *is* the handoff | Spending it on one more delegation and leaving the state unwritten |
+| **Park explicitly: `[~]` plus the full attempt-by-attempt history** | Stopping silently and leaving a task that looks untouched |
+| **Hand off ownership, without a lifecycle obligation** | Dispatching a supervised worker whose report you will not be alive to receive |
+
+**The last row is the one that causes damage beyond your own session.** Delegating with a
+supervision contract — a worker told to report completion back to *you* — creates an obligation in
+shared runtime state. If you are gone when it reports, the report has no recipient: the work may be
+done and correct, and nothing records it. Where the tooling distinguishes the two, transfer
+**ownership** (the worker owns the task and reports to the user) rather than issuing a **supervised
+dispatch** (the worker reports to a coordinator). If it cannot distinguish them, do not delegate —
+park the task and let the next session re-spawn cleanly.
+
+**An unwritten state is worse than an unfinished task.** An unfinished task with a complete audit
+trail is a resumable task. A finished task nobody recorded is work that will be redone.
+
 ### 🚦 Concurrency protocol (the checkout is a shared resource)
 
 The Delegation Ceiling bounds how many workers *you* spawn. This bounds how many **sessions** touch
