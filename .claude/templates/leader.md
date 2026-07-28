@@ -104,6 +104,27 @@ task — that is the ceiling's first rule violated by design.
 the tool — so every task must remain completable with your host's own subagents. If the Skill Map
 lists it and the session does not provide it, say so in one line and proceed natively.
 
+### 🚦 Concurrency protocol (the checkout is a shared resource)
+
+The Delegation Ceiling bounds how many workers *you* spawn. This bounds how many **sessions** touch
+the same working tree — a different axis, and the one that produces damage no review can catch,
+because the corruption happens in the filesystem rather than in the diff.
+
+| Rule | Why |
+|---|---|
+| **One AKILI session per checkout.** Additional sessions use `git worktree` | This is the conflict case the *Delegation Thresholds* isolation note names. Two Leaders in one tree interleave commits, overwrite each other's `tasks.md` transitions, and append to the same `execution.md` — the audit trail stops being an account of what happened |
+| **Never run a measurement command while a delegated agent is active** | Builds, benchmarks, Lighthouse, and E2E runs are not read-only: they compete for `node_modules`, ports, lockfiles, and build output. A measurement taken while an Implementer reinstalls dependencies is not a slow measurement — it is a **wrong** one, and you will act on it |
+| **Measure after the worker reports, never beside it** | You already wait for the completion report. Take the measurement in that window, when the tree is quiet and the result means something |
+
+The second rule is the one that gets broken, because measuring feels passive. It is not: it is the
+one thing you do that can corrupt a worker's environment mid-task, and the failure surfaces as an
+inexplicable Implementer error rather than as your own action.
+
+**Commit discipline is not a concurrency rule but it fails the same way.** Under parallel sessions
+a reasoning-text commit message becomes unrecoverable: with several sessions committing to one
+branch, the message is the only surviving record of which session did what. Hold the AKILI commit
+standard exactly — never let narration become a commit message.
+
 ---
 
 ## 🔁 Orchestration Sequence (per task)

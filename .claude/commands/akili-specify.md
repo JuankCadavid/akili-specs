@@ -133,6 +133,18 @@ Guidelines:
 - include concrete scenarios for key requirements using `GIVEN`, `WHEN`, `THEN`, and optional `AND`
 - make requirement strength explicit with `SHALL`, `MUST`, `SHOULD`, or `MAY` where useful
 
+**Name the defect classes, then choose the gate against them.** Before settling on verification commands, list the **classes of defect this spec can actually produce**, then state which command catches each one. The failure this prevents is specific and expensive: a gate that passes while the artifact is wrong. An automated check reports green, the Reviewer sees a passing verification, the task advances — and the defect ships or burns rework attempts on a loop that cannot see it.
+
+Visual and rendered output is where this bites hardest. `axe` cannot evaluate contrast over a rasterized image, and no automated checker can tell a *plausible but false* alt text from a true one — both pass every green gate. A spec that produces rendered imagery whose gate is `npm test` + `axe` has **no gate for its dominant defect class**, only a gate for its rarest.
+
+| Situation | What `requirements.md` must say |
+|---|---|
+| Every defect class has a command that catches it | Nothing extra — the mapping is the gate |
+| A class has no automated check | **Say so explicitly** and name the substitute: a human check at the HITL pause, or a phase routed to a model that *can* evaluate it (visual review is **T6 Multimodal** — see the registry's *Cross-host dispatch*, since the strongest column for that tier is often not the session's own host) |
+| A class is unmeasurable and unsubstituted | Record it as an accepted risk in the spec. An acknowledged blind spot is recoverable; an unacknowledged one is what consumes rework attempts |
+
+**A gate blind to the defect class the spec most often produces is not a gate.** Do not let the presence of *a* verification command stand in for coverage of the defects that matter.
+
 Recommended requirement shape:
 
 ```markdown
@@ -230,9 +242,35 @@ Guidelines:
 - keep design decisions practical enough that an implementer can act without re-discovery
 - **Code Suppression:** DO NOT generate code snippets or implementation examples in `design.md`. Design decisions must remain conceptual to conserve output tokens. The actual code will be written during execution.
 
-#### Step 2.3 — Present & Approve
+#### Step 2.3 — Challenge Reversions
 
-Present a clear summary of the generated design on the screen (including the architecture, data models, API endpoints, and main design decisions) so the user can review what was done before deciding.
+**Every design decision that reverts behavior already delivered gets one cheap challenge before it reaches `tasks.md`.** The Implementer has an auditor; the Reviewer audits its diff on a different model. **The Leader's own design decisions have none** — they go from judgment straight to implementation, and a wrong one is not caught by a FAIL, it is *implemented correctly* and discovered two rework rounds later.
+
+Trigger: a DD that removes, disables, or inverts something the codebase already ships — a blend mode, a fallback, a guard, a cache, a retry, a defaulted prop. Adding is not a reversion; taking away is.
+
+The challenge is deliberately small — **one reviewer, one question: "what does removing this break?"** Not a `judgment-day` panel (that stays the opt-in Step 2.4 pass for the design as a whole), not a fan-out. The Delegation Ceiling applies: this is a two-minute pass bought to avoid two rework rounds, and it stops being worth it the moment it grows.
+
+Record the answer next to the DD. If the challenge names a concrete breakage the design does not address, fix the design now — reaching `tasks.md` with it costs an Implementer spawn, a Reviewer spawn, and a rework attempt to learn the same thing.
+
+Skip only in **Lite** depth *and* when the reverted behavior has no test covering it and no visible surface. When in doubt, run it: one question is cheaper than one rework attempt.
+
+#### Step 2.4 — Size Against the Design
+
+**The depth chosen in Phase 0 was a guess made before the design existed. Now it can be checked.** This is the only point in the flow where the estimate is knowable and still free to act on.
+
+State three numbers from the design just written: **expected tasks, expected LOC, expected review rounds.** Then compare them to the declared depth:
+
+| Signal | Action |
+|---|---|
+| Estimate lands far **below** the depth (e.g. `Standard` chosen, design resolves to one task under ~50 LOC) | Say so plainly and offer to drop a level — or, for a genuinely cosmetic one-liner, to abandon the spec for `/akili-quick`. `/akili-propose` routes by size *before* the design exists; this is the re-check *after* |
+| Estimate lands far **above** the depth | Recommend the higher depth, or splitting the spec. A `Lite` spec that resolves to eight tasks was mis-scoped, not ambitious |
+| Estimate matches | Say nothing beyond recording the numbers |
+
+Write the three numbers into `design.md` as a **budget**. They are not a cap on quality — they are a **tripwire**: `/akili-execute` compares actuals against them and, when execution exceeds the budget, the Leader **stops and escalates to the user** rather than continuing. Exceeding a budget is information, not failure; continuing past one silently is how a twenty-line change consumes a fourteen-task machinery.
+
+#### Step 2.5 — Present & Approve
+
+Present a clear summary of the generated design on the screen (including the architecture, data models, API endpoints, and main design decisions) so the user can review what was done before deciding. Include the **budget** from Step 2.4 and the outcome of any **reversion challenge** from Step 2.3 — both are decisions the user is entitled to overrule.
 
 Then explicitly ask the user how to proceed, providing these options:
 
@@ -320,7 +358,10 @@ After all three documents are approved, verify:
 
 - [ ] All 3 files exist with non-empty content
 - [ ] All documents follow `docs/specs/general-setup/` conventions
-- [ ] The chosen depth is appropriate for the risk and size of the work
+- [ ] The chosen depth is appropriate for the risk and size of the work — and was **re-checked against the finished design** (Step 2.4), not left as the Phase 0 guess
+- [ ] `design.md` records a **budget** (expected tasks, LOC, review rounds) that `/akili-execute` can trip against
+- [ ] Every DD that **reverts already-delivered behavior** carries the outcome of its Step 2.3 challenge
+- [ ] `requirements.md` names the **defect classes this spec can produce** and maps each to the command that catches it — with any class lacking an automated check either substituted (human check at a HITL pause, or a T6 visual review) or recorded as an accepted risk
 - [ ] Requirements describe observable behavior, not implementation details
 - [ ] Key requirements include Given/When/Then scenarios with strict `BUT` and `AND IT MUST` rules where applicable
 - [ ] Every requirement appears in at least one task

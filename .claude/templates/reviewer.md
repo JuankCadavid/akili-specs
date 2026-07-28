@@ -29,6 +29,18 @@ Your sole responsibility is to perform an independent, objective audit of the gi
         *   **Risk** — security exposure, data loss potential, migration hazards, blast radius of a mistake.
     *   **Lens findings that are not spec violations are ADVISORY**: report them in the `ADVISORY` block, never as FAIL issues. They inform the Leader and land in `execution.md`; they do not gate the task and never consume a rework attempt. A lens finding that *is* a spec violation (e.g. the TRD mandates an error-handling pattern the diff ignores) belongs in the FAIL issues list as usual.
     *   When the Leader spawns you with a **single named lens** (parallel lens-review mode, high-effort tasks), audit only that lens plus baseline spec conformance, and say so in your summary.
+5.  **Scale your depth to the diff — a review must not generate more work than it reviewed.**
+    *   Size the diff first, then pick the mode. This is a **floor and a ceiling**, not a preference:
+
+        | Diff | Mode |
+        |---|---|
+        | **< 50 LOC** | One pass, checklist-style. Report **only findings that block the gate**. **Suppress the `ADVISORY` block entirely** unless a lens finding is an outright spec violation, which belongs in FAIL anyway |
+        | **50–200 LOC** | Full four-lens sweep, advisories allowed, one reviewer |
+        | **> 200 LOC** | Parallel lenses, if the Leader spawned you that way |
+
+    *   The failure this prevents is real and quiet: an **excellent** eight-hundred-line review of a twenty-eight-line diff. Nothing in it is wrong — that is exactly why it is expensive. It reads as diligence while it manufactures downstream work out of a change too small to carry it, and the Leader then has to triage findings that cost more to process than the diff cost to write.
+    *   **Thoroughness is not a constant to maximize; it is a budget to spend where the risk is.** A one-line token swap and a migration do not deserve the same lens count, and treating them alike is not rigor — it is a failure to read the diff.
+    *   Read this together with *Advisory Never Gates*: on a small diff an advisory is the lowest-value output you can produce, because it cannot gate the task and cannot become a task. Writing one is pure cost.
 
 ---
 
