@@ -6,9 +6,11 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **CodeGraph could be skipped silently in `/akili-constitution`, exactly the way Model Routing could before 2.16.0.** Step 0 prompts for it in Legacy mode, Step 1 has a full CodeGraph Check, and Step 9 already reports whether it was used, initialized, declined or unavailable — but the **Verification Checklist never mentioned it**, and 2.16.0 established that a summary line alone does not hold: the previous Step 9 enumerated artifacts too, and steps still vanished. Combined with the standing (correct) instruction to *never block on CodeGraph*, "optional" degraded into "free to omit, invisibly". A checklist row now requires exactly one of four states to be true and named, with the distinction stated: **"optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision. It matters most in Legacy/Discovery mode, where the graph is the difference between synthesizing a baseline from a graph and synthesizing it from `grep` output.
+- **`/akili-audit` used CodeGraph if it happened to exist but never offered it.** `/akili-constitution` asks whether to run `codegraph init -i` when the graph is missing and the CLI is present; the audit silently fell back to `Glob`/`Grep`. Drift auditing is the phase that benefits *most* from the graph — it asks what exists across API surfaces, schemas, components and modules at once, which a graph answers cheaply and `grep` answers expensively and partially. The audit now mirrors the constitution's offer, still never blocking, and records which of the four states applied, because **a scan run without the graph has a different confidence profile and its conformance score should not be read as though it did not**.
+- **`/akili-audit` had no Verification Checklist at all**, so a drift category could be skipped and the report would look identical to one where the category was clean — the omission was free precisely because *"swept, found nothing"* and *"never swept"* render the same. It now verifies the report exists with a score, that the CodeGraph state is named, that every discrepancy carries both its spec file and its code file, that **all** Step 2 categories were swept (clean ones reported as clean), that the Conformance Matrix covers Agent Guides and Model Routing, and that **nothing was edited** — the command is report-only, and remediation belongs to the user's Step 4 choice and a later command.
 
 ## [2.17.7] - 2026-07-28
 

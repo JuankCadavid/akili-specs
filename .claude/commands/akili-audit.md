@@ -33,6 +33,8 @@ First, read the constitutional documentation baseline in the repository:
 
 Perform codebase analysis (preferring CodeGraph if `.codegraph/` exists, or utilizing Grep, Glob, and file structures) to extract:
 
+**CodeGraph check — offer it, do not just use it if present.** Drift auditing is the phase that benefits most from the graph: it asks *what exists in the code* across API surfaces, schemas, components and modules at once, which is exactly the question a graph answers cheaply and `grep` answers expensively and partially. So mirror `/akili-constitution`'s handling rather than silently falling back: if `.codegraph/` **does not** exist and the `codegraph` CLI is available, **ask the user whether to run `codegraph init -i` before scanning**. Never block the audit on it — a declined or unavailable graph proceeds on `Glob`/`Grep` as before. But record which of the four states applied (used / offered and declined / unavailable / not applicable) in the report's **Code Graph Used** field, because a scan done without the graph has a different confidence profile and the conformance score should not be read as if it did not.
+
 1. **API Surfaces & Services:** Active REST/GraphQL endpoints, controllers, and domain services.
 2. **Database Schemas & Models:** Active database tables, ORM entities, and schema migrations.
 3. **UI Components & Pages:** Actual directory structure of frontend views, components, and design tokens.
@@ -110,6 +112,19 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
 1. Fix documented specs (update baseline docs in place).
 2. Schedule task specs to implement missing functionality in the code.
 3. Keep the report for review.
+
+---
+
+## Verification Checklist
+
+Before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
+
+- [ ] `docs/specs/drift-report.md` exists, is non-empty, and carries a conformance score plus the date of audit.
+- [ ] **The `Code Graph Used` field states which of the four states applied** — used, offered and declined, unavailable, or not applicable. A scan run without the graph is legitimate; a scan that never says so lets its conformance score be read with a confidence it did not earn.
+- [ ] Every discrepancy names both its **spec file** and its **code file**, with a remediation direction (change the code, or change the doc).
+- [ ] All drift categories in Step 2 were actually swept — including the ones with no findings, which are reported as clean rather than omitted. **A category silently skipped and a category with nothing to report look identical in the output**, which is what makes the omission free.
+- [ ] The Conformance Matrix covers every row, including **Agent Guides** and **Model Routing**.
+- [ ] **Nothing was edited.** This command is report-only: no registry, no Step 8E wrapper, no persona, no baseline doc, no code. Remediation is the user's call in Step 4 and belongs to a later command.
 
 ---
 
