@@ -67,6 +67,8 @@ This table is the methodology's single source of truth for when an orchestrating
 
 **Isolation is driven by conflict, not by parallelism.** The last row states one rule from two directions: *parallelize only where there is no conflict*, and *isolate only where there is one*. Both halves are load-bearing. Two Implementers on genuinely independent files share the working tree safely, and they should — a separate checkout costs a fresh install, a fresh build, and a merge you now have to reconcile, and it splits the audit trail you own. Reach for an isolated worktree when the tasks genuinely collide on the same files, when one rewrites shared state the other reads, or when a task must be abandoned wholesale without contaminating the branch. If the only argument is "these run at the same time", stay in one checkout.
 
+**Disjoint source files are necessary but not sufficient.** Two workers editing entirely different files still collide through everything the checkout shares: `dist/` and other build output, a dev server and its port, `node_modules` and the lockfile, generated types, test fixtures, caches. That contention does not surface as a merge conflict — it surfaces as **nonsense errors in the wrong worker**: `dist/ does not exist`, a web server that "exited early", a module that cannot be found although it is plainly there. The worker reporting the error is usually not the one that caused it, which is what makes this expensive to diagnose. So the real test is: *different files **and** no shared build output, dev server, port, or dependency tree.* Fail the second half and it is a genuine conflict — isolate, or serialize.
+
 ### 🚧 Delegation Ceiling (when *not* to delegate)
 
 The table above is a **floor** — it says when delegating is mandatory. This is the **ceiling**. Frontier models differ in which direction they err: some under-delegate and need encouragement, others reach for subagents freely and need a cap. Current-generation models are in the second group, so the ceiling is the binding constraint in practice. Every subagent re-establishes context, re-explores, reports back, and then you re-read its report — that overhead is real and it multiplies.
@@ -104,6 +106,27 @@ task — that is the ceiling's first rule violated by design.
 the tool — so every task must remain completable with your host's own subagents. If the Skill Map
 lists it and the session does not provide it, say so in one line and proceed natively.
 
+**Do not restate what the harness already wires.** When a dispatch mechanism injects its own
+preamble — the coordinator's address, the reporting contract, the completion protocol — writing the
+same thing again in your prompt text creates **two instructions for one behavior**, and the one that
+wins is not the one you expect. A hand-written *"report back to `<handle>`"* has been observed
+beating a correctly injected preamble and sending the worker's report **to itself**: the coordinator
+then waits on an empty inbox until it times out, with nothing indicating why. Let the harness own
+the plumbing; your prompt text owns the **task**, and nothing else.
+
+**Declare the return path out loud, at dispatch time.** Every delegation is one of two things and
+the user cannot tell them apart from the outside: **supervised** (you wait, you receive a report,
+you record it) or a **handoff** (the worker owns the task, there is no report coming to you). Say
+which in one line — *"you will get a report here"* or *"there is no return path; check the worker
+directly."* Choosing a handoff can be entirely right, but a user who assumes a report is coming
+will wait for one that never arrives, and will find out only by asking.
+
+**Confirm the target exists and is live before dispatching.** A group address with no members, or a
+plain shell that is not running an agent, accepts the dispatch and produces nothing — the task is
+created, nobody can pick it up, and the failure surfaces only as silence. Check first. Likewise,
+**clean up any worker you spawned for a dispatch that did not happen**: an idle agent left behind
+is state someone else will find and have to reason about.
+
 ### ⏳ Winding down (never open a loop you cannot close)
 
 The Delegation Ceiling bounds how **wide** you go. This bounds how **far ahead** you commit. You are
@@ -131,6 +154,28 @@ done and correct, and nothing records it. Where the tooling distinguishes the tw
 **ownership** (the worker owns the task and reports to the user) rather than issuing a **supervised
 dispatch** (the worker reports to a coordinator). If it cannot distinguish them, do not delegate —
 park the task and let the next session re-spawn cleanly.
+
+**This is your default, not a prohibition the user cannot lift.** When the user explicitly asks you
+to supervise — *"wait for the result"*, *"wire the response back"*, *"track it"* — supervised
+dispatch becomes the right call and you take it. They are choosing to spend your remaining context
+on the landing, which is theirs to choose. Say in one line that context is tight and what you will
+drop to make room; do not refuse, and do not silently substitute a handoff for what they asked for.
+
+**Then budget for the landing, because waiting and landing cost differently.** Blocking on a
+completion message is a shell call — it burns wall-clock, not context. What costs is **receiving**
+the report: reading it, judging it, and writing `execution.md`. So the reservation that matters is
+for *after* the wait, and the lever is the report itself — **truncate what you take in.** Ask for a
+bounded summary, cap the payload you read, and pull the detail from the worker's report file only
+if the summary forces you to. A Leader that spends its last context reading a report it cannot then
+record has converted completed work into lost work.
+
+**Never economize on correcting a delegation you already know is malformed.** Budget pressure makes
+this exact rationalization attractive — *"the harness will probably override it, and a correction
+costs a message I do not have."* It will not, and the arithmetic is backwards: the correction costs
+**one message**, while shipping the error costs the entire wait, the wrong result, and a
+re-dispatch. When you spot the defect *after sending*, fix it immediately — a malformed dispatch is
+the one thing that gets more expensive the longer you leave it, because you spend the wait before
+you learn it failed.
 
 **An unwritten state is worse than an unfinished task.** An unfinished task with a complete audit
 trail is a resumable task. A finished task nobody recorded is work that will be redone.
