@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.17.6] - 2026-07-28
+
 ### Added
 
 - **Every task must now state what *disqualifies* its evidence, not only what satisfies it.** The methodology had no concept of a non-pass criterion anywhere — `/akili-specify`, the personas, `/akili-test`: zero. A gate that defines only when to pass **invites passing**, because an agent given a criterion for success and none for doubt reads *a* number as *the* number. This is a different blindness from the defect-class mapping added in 2.17.4: that one asks whether the gate can **see** the defect, this asks whether the gate knows when its own reading is **worthless**. It bites on measured signals — performance, timing, layout metrics, flake-prone suites — where a value is produced without meaning anything. **Proven before it was written:** a worker told *"if the three runs vary widely the number is not evidence — say so instead of committing"* measured a 0.077 spread against a 0.005 signal, declined to commit, and reported the variance; that clause is what turned a would-be false pass into the finding that led to the real fix. Without it the gates would have been green and the metric "fixed" without being fixed.
@@ -18,7 +24,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Disjoint source files are not enough to call two workers independent.** The isolation test shipped in 2.16.0 turned on files, and files are only half of it: two workers editing entirely different sources still collide through `dist/` and other build output, a dev server and its port, `node_modules` and the lockfile, generated types, fixtures and caches. That contention never appears as a merge conflict — it appears as **nonsense errors in the wrong worker** (`dist/ does not exist`, a web server that "exited early", a module missing although plainly present), and the worker reporting the error is usually not the one that caused it, which is what makes it expensive to diagnose. The test is now *different files **and** no shared build output, dev server, port, or dependency tree*; failing the second half is a genuine conflict — isolate, or serialize.
 - **The wind-down rule was written as a prohibition the user could not lift.** 2.17.5 told a Leader running low on context to *never* leave a supervised delegation outstanding and to transfer ownership instead. Stated absolutely, it would have blocked a correct instruction: a user who says *"send it and wire the response back"* is explicitly asking for supervision, which the orchestration contract treats as the one thing that makes a supervised dispatch right. The rule is now the Leader's **default**, overridable on explicit request — the Leader says in one line that context is tight and what it will drop, then supervises; it must not refuse, and must not silently substitute a handoff for what was asked.
 - **Waiting and landing cost differently, and the rule conflated them.** Blocking on a completion message is a shell call: it burns wall-clock, not context. What costs is **receiving** the report — reading it, judging it, and writing `execution.md`. So the reservation that matters is for *after* the wait, and the lever is the report itself: request a bounded summary, cap the payload read in, and pull detail from the worker's report file only when the summary forces it. Recorded with the failure it prevents: **a Leader that spends its last context reading a report it cannot then record has converted completed work into lost work** — the same loss the wind-down protocol exists to avoid, arriving through the opposite door.
-
 ## [2.17.5] - 2026-07-28
 
 ### Added
