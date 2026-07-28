@@ -459,6 +459,14 @@ project guides so the project does not depend on the package's `docs/` after ins
    The supported hosts are **Claude Code, OpenCode, and Antigravity** — all three are install
    targets of the packaged CLI, so all three get a column.
 
+   **The CLI invocation for every host column.** A registry naming *which* host to reach without
+   naming *how* forces every future session to guess a binary, and the product name is not
+   reliably the command — Antigravity's CLI is **`agy`**, not `antigravity`. That guess does not
+   fail loudly: it yields a confident "this host is unreachable" that then shapes the plan.
+   **Ask the user for each invocation rather than probing the filesystem** — binaries vary with
+   install method, live outside the repo, and an absent one may simply not be installed *here*
+   while the column stays valid for a teammate. Record confirmed values; placeholder the rest.
+
    **A `Cross-host dispatch` line.** State which host owns which capability when they differ —
    most commonly *"T6 Multimodal → Antigravity (Gemini vision)"*, since that is the one tier where
    another host beats the session's own column. Record the **routing preference only, never the

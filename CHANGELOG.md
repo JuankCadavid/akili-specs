@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **The registry named which host to reach and never how to reach it.** *Cross-host dispatch* (2.17.1) told the Leader to launch a worker in another host without recording a single CLI invocation — an incomplete instruction that leaves the agent guessing a binary from a product name. Antigravity is the case that proves it: its CLI is **`agy`**, not `antigravity` or `ag`, and independent sessions have repeatedly concluded *the CLI does not exist* after searching the product name, then had to walk it back. That failure is the expensive kind — it does not error, it yields a confident wrong conclusion ("this host is unreachable") which then propagates into the plan, and it was observed being paid twice for the same fact. `docs/model-routing.md` now carries the invocation per host (`claude`, `opencode`, `agy`) and Step 8C records the confirmed values in the project registry. **Ask the user rather than probing the filesystem:** binaries vary with install method, live outside the repo, and one absent locally may simply not be installed *here* while the column stays valid for a teammate.
 
 ## [2.17.4] - 2026-07-28
 

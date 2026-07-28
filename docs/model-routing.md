@@ -383,6 +383,24 @@ the current session as coordinator.
 > reaching for a cross-host spawn to work around a host's stated limitation, confirm the limitation
 > still holds: the spawn is not free, and this registry has been wrong about one before.
 
+**Record the invocation, not just the model.** A registry that says *which* host to reach and not
+*how* to reach it is an incomplete instruction: the agent has to guess a binary name, and the
+product name is not reliably the command.
+
+| Host | CLI invocation |
+|---|---|
+| Claude Code | `claude` |
+| OpenCode | `opencode` |
+| Antigravity | **`agy`** — not `antigravity`, not `ag` |
+
+Antigravity is the case that proves the rule: sessions have repeatedly concluded the CLI *does not
+exist* after searching for the product name, and then had to walk it back. The failure is
+expensive and silent-ish — it does not error, it produces a confident wrong conclusion ("this host
+is not reachable") that then propagates into the plan. **Confirm each invocation with the user
+rather than inferring it**, since binaries vary with install method and live outside the repo, and
+record the confirmed value in the project's `## Model Routing`. One line there is cheaper than
+every future session rediscovering it, which is the actual observed cost.
+
 **When it is worth it.** A cross-host spawn costs a fresh context and a round trip, so it is
 justified by a **real capability gap** — vision, a specific frontier model, a domain where another
 family is clearly stronger — not by a marginal tier difference. Below that bar the spawn costs more
