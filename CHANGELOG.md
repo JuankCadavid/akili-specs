@@ -6,9 +6,10 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **A host and a dispatch target are not the same thing, and the brief differs.** *Cross-host dispatch* (2.17.1) was written entirely around **hosts** — the runtimes AKILI is installed into, which have the commands, the `.agents/` personas and the Step 8E wrappers — and never mentioned personas at all, silently assuming the worker could resolve `.agents/<role>.md`. An orchestrator typically addresses **far more runtimes than that**: reaching a couple of dozen agent CLIs while only two or three are hosts. For every non-host worker the assumption is false, and it fails in the worst way — a path reference resolves to nothing, the worker never sees the persona, and it cannot tell you it did not. Both are legitimate workers; the difference is that a host worker gets a **reference** and a non-host worker needs a **self-contained brief** carrying the scope bounds, the verification command, the report shape, and — most easily dropped, most costly to drop — **the clause that disqualifies the evidence**, since a worker that cannot read the spec has no other way to learn when its own measurement stops being evidence. Non-host targets get no registry column: they run no AKILI phase. Reach for one when the capability gap justifies the heavier brief, and scope the task narrower than a persona-backed one — you are briefing a specialist, not a teammate who has read the constitution.
+- **Two guards against confusing reach with licence.** **Breadth of reach is not breadth of fan-out:** being able to address many runtimes does not make many-at-once correct — the Delegation Ceiling binds identically, and what extra runtimes buy is *independence* (`author ≠ auditor` across model families) and *capability* (a tier the current host serves badly), never a fleet racing one task. **Addressability is narrower than the runtime list, and the gap fails silently:** group aliases typically cover a subset of the runtimes an orchestrator can launch, and a group with no members accepts a dispatch and delivers it nowhere — confirm the address exists, or dispatch to a concrete worker handle, which lifecycle messages require anyway.
 
 ## [2.17.6] - 2026-07-28
 

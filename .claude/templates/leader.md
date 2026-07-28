@@ -121,6 +121,15 @@ which in one line — *"you will get a report here"* or *"there is no return pat
 directly."* Choosing a handoff can be entirely right, but a user who assumes a report is coming
 will wait for one that never arrives, and will find out only by asking.
 
+**A worker without AKILI needs a self-contained brief.** Most runtimes an orchestrator can reach do
+**not** have AKILI installed — they have no `.agents/` personas and no commands, so *"read
+`.agents/implementer.md`"* resolves to nothing and the worker cannot tell you it failed. Inline what
+matters instead: the scope bounds, the verification command, **the clause that disqualifies the
+evidence**, and the report shape you expect. That disqualifier is the one most easily lost in
+translation and the costliest to lose — a worker that cannot read the spec has no other way to learn
+when its own measurement stops being evidence. Scope such tasks narrower than a persona-backed one;
+you are briefing a specialist, not a teammate who has read the constitution.
+
 **Confirm the target exists and is live before dispatching.** A group address with no members, or a
 plain shell that is not running an agent, accepts the dispatch and produces nothing — the task is
 created, nobody can pick it up, and the failure surfaces only as silence. Check first. Likewise,

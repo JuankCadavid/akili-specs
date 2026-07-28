@@ -401,6 +401,37 @@ rather than inferring it**, since binaries vary with install method and live out
 record the confirmed value in the project's `## Model Routing`. One line there is cheaper than
 every future session rediscovering it, which is the actual observed cost.
 
+**A host is not the same thing as a dispatch target, and the brief differs.** Everything above
+concerns **hosts** — the runtimes AKILI is installed into, which have the commands, the `.agents/`
+personas and the Step 8E wrappers. An orchestrator can usually address far more runtimes than that:
+a coordinator may be able to reach a dozen agent CLIs, only a few of which are hosts. Both are
+legitimate workers; they require different briefs.
+
+| | **Host** (AKILI installed) | **Dispatch target** (AKILI absent) |
+|---|---|---|
+| Brief | *"Read `.agents/implementer.md` and adopt it"* — a reference resolves | **Self-contained.** A path reference resolves to nothing; the worker never sees it and cannot say so |
+| Carries | The whole persona, plus the spec on disk | Only what you inline: scope bounds, the verification command, **the disqualifier that makes the evidence invalid**, and the shape of the report you expect back |
+| Registry | Gets a column | Gets no column — it runs no AKILI phase |
+
+The **disqualifier** is the clause most often dropped in this translation and the most expensive to
+drop: a worker that cannot read the spec has no other way to learn when its own measurement stops
+being evidence, so a brief without it is precisely the gate that invites passing.
+
+Reach for a non-host target when the capability gap justifies the heavier brief — these runtimes are
+often specialists, which is the whole reason to want them. Accept that the brief costs more to write
+and stays narrower than a persona; scope the task accordingly rather than expecting AKILI-shaped
+judgment from a worker that has never read the constitution.
+
+**Breadth of reach is not licence for breadth of fan-out.** Being able to address many runtimes does
+not make many-at-once correct — the Delegation Ceiling binds identically. What extra runtimes buy is
+**independence** (`author ≠ auditor` across model families) and **capability** (a tier your own host
+serves badly), never a fleet racing one task.
+
+**Addressability is narrower than the runtime list, and the gap fails silently.** An orchestrator's
+group aliases typically cover a subset of the runtimes it can launch, and a group with no members
+accepts a dispatch and delivers it nowhere. Confirm the address exists — or dispatch to a concrete
+worker handle, which is what lifecycle messages require anyway.
+
 **When it is worth it.** A cross-host spawn costs a fresh context and a round trip, so it is
 justified by a **real capability gap** — vision, a specific frontier model, a domain where another
 family is clearly stronger — not by a marginal tier difference. Below that bar the spawn costs more
