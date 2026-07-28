@@ -8,6 +8,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Added
 
+- **The release Slack notification now tells existing installs how to update.** It only said `npm install -g akili-specs` — correct for a first install, but the audience of a release announcement is mostly people who already have it. Added the second line: `akili update` (which itself runs `npm install -g akili-specs@latest` and then refreshes the installed commands, skills, and templates — verified against `runUpdate` before promising it). Payload validated with `--dry-run`.
 - **A send that returned is not a send that was received.** Field lesson from driving the Antigravity CLI through a terminal: `terminal wait --for tui-idle` is satisfied **before** the TUI actually accepts input, so a prompt fired on that signal can vanish without an error — the readiness primitive answers *"is the process quiet?"*, not *"did the input land?"*, and a TUI can be quiet precisely because it has not accepted the input yet. `leader.md`'s cross-host dispatch section already cataloged the silence failure one level up (a group address with no members accepts a dispatch and delivers it nowhere); this is the same class at the transport layer, and it gets the same rule: **verify delivery at the target** — after sending, read the target's buffer back (`terminal show`) and confirm the prompt landed before spending a wait on work that may never have started. Every layer that can accept without delivering needs its own receipt check.
 
 ## [2.19.1] - 2026-07-28

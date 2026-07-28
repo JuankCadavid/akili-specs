@@ -142,7 +142,7 @@ function buildPayload(version, sections) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*<${releaseUrl}|Release v${version}>* is published to <${NPM_URL}|npm>.\n\`npm install -g akili-specs\``,
+        text: `*<${releaseUrl}|Release v${version}>* is published to <${NPM_URL}|npm>.\nNew install: \`npm install -g akili-specs\`\nAlready installed: \`akili update\` to pull the new commands, skills, and templates`,
       },
     },
   ];
