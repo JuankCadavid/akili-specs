@@ -48,7 +48,7 @@ Reads:
 5. Spawn Reviewer with diff + relevant spec slices
 6. Reviewer returns STATUS: PASS or STATUS: FAIL
 
-if PASS  → update tasks.md to [x], append execution.md, commit, advance to next task
+if PASS  → append execution.md, then update tasks.md to [x], commit, advance to next task
 if FAIL  → log issues; if attempts < 3, respawn Implementer with the unchanged Reviewer report
 if 3 consecutive FAILs → HALT, mark task [~], present full audit trail
 ```
@@ -82,7 +82,7 @@ On `FAIL`, every finding lists three fields so the Implementer has actionable in
 
 The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace.
 
-- **Claude Code / OpenCode:** Leader delegates by spawning focused subagent or sub-prompt contexts seeded with the persona file plus task/diff context.
+- **Claude Code / OpenCode:** Leader delegates by spawning the Step 8E agent wrappers when present (each wrapper loads its own persona, so the Leader sends a pointer brief — task scope plus spec section anchors, not inlined content); without wrappers, it spawns focused subagent or sub-prompt contexts seeded with the persona file plus task/diff context.
 - **Google Antigravity:** Leader calls `invoke_subagent` using prompts read from `.agents/`.
 
 ## Next Step

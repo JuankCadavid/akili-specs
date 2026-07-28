@@ -86,12 +86,11 @@ The Leader does not write production code itself unless the rework loop is exhau
    - `docs/specs/$ARGUMENTS/requirements.md`
    - `docs/specs/$ARGUMENTS/design.md`
    - `docs/specs/$ARGUMENTS/tasks.md`
-3. Read `docs/specs/$ARGUMENTS/execution.md` if it exists.
+3. Read `docs/specs/$ARGUMENTS/execution.md` if it exists — **bounded, never cover to cover**: the Document Control block, the entry for any `[~]` task you may resume, and the most recent task entry. The log is append-only history that grows with every task; routine task selection does not need it, and reading it whole makes every run of a spec cost more than the one before. The full read belongs to `/akili-resume`, a HALT investigation, or a Pivot — the moments that are *about* the history.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
-4. Read the agent personas:
-   - `.agents/leader.md`
-   - `.agents/implementer.md`
-   - `.agents/reviewer.md`
+4. Read the agent personas — **which ones depends on how you will spawn**:
+   - `.agents/leader.md` — always: it is your own playbook.
+   - `.agents/implementer.md` and `.agents/reviewer.md` — **only when the project has no Step 8E wrapper for that role.** A wrapper's entire body is the instruction to load its own persona, so a wrapper spawn reads it in the worker's context; the Leader reading it too pays the same tokens twice, and re-sending it in the brief pays them a third time as output. With wrappers present you orchestrate against the roles' **contracts** — the report shapes and `STATUS:` lines this command already defines — not against their persona text.
 5. Identify current task state: `[x]`, `[~]`, `[ ]`.
 
 ### Step 1: Select Next Task(s)
@@ -140,17 +139,18 @@ loop:
 
 #### 2.2 — Spawn Implementer
 
-Delegate to the Implementer with:
+Delegate to the Implementer with a **pointer brief, not an anthology**. A host worker (see *Cross-host dispatch*) can read any project file itself, and what it reads lands in its context as cacheable input — while content you inline lands as your **output**, the most expensive tokens in the loop. Name paths and sections; copy only what the list below says to copy. A **non-host** worker is the standing exception: it cannot resolve project paths, so it keeps the self-contained brief.
 
-- the persona content from `.agents/implementer.md`
-- the active task ID, title, and scope from `tasks.md`
-- the relevant slices of `requirements.md`, `design.md`, and `trd.md`
-- the project constitution references (`CLAUDE.md`, `AGENTS.md`, `docs/ux-ui/design.md`)
+- the persona: **nothing** when spawning the Step 8E wrapper — its body already loads `.agents/implementer.md`. Only the fallback sub-prompt path (no wrapper) seeds the persona content
+- the active task ID, title, and scope from `tasks.md` (copied — it is the work order)
+- **pointers** to the relevant sections of `requirements.md`, `design.md`, and `trd.md` — path + section anchor, with the instruction to read the named scenarios **verbatim at the source**. The verbatim rule protects against paraphrase drift, and a pointer satisfies it exactly as a quote does: the worker still reads the untouched text, it just reads it as input instead of receiving it as your output
+- the constitution by reference (`CLAUDE.md`, `AGENTS.md`, `docs/ux-ui/design.md` — paths only; the Implementer's persona already orders its caching-friendly read sequence)
+- **CodeGraph, when `.codegraph/` exists:** instruct the Implementer to resolve unfamiliar code through graph lookups — `codegraph_context` for the task area, `codegraph_impact` before touching a shared symbol — instead of exploratory full-file reads. A lookup answers "what is this / who uses it" for a fraction of the tokens of the file that contains it; full files are for what it is about to edit. **Staleness rule — include it in the brief:** the graph reflects the last index, not this run's changes, and it cannot flag its own staleness. For files this spec has already touched (earlier task entries, the current diff), **the working tree wins** — read the file, don't trust the graph. Graph answers are reliable for the code this spec has not modified, which is exactly the exploration the lookups are for. If `.codegraph/` is absent, say nothing — the worker explores by file as before, and the graph's absence is already controlled where it belongs (`/akili-constitution` offers init; `/akili-audit` records the state; `/akili-archive` recommends the re-index)
 - the skill set **you select for this task as Leader**. The task's recommended list (e.g. `ui-ux-pro-max`, `react-doctor`, `nestjs-expert`) and the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) are your **defaults, not a fixed pass-through**: judge the task's actual nature and augment, narrow, or override them — add a skill the task missed, drop one that does not fit, swap in the better match (e.g. include `gsap-animation` and its matching reference file when the work touches animation even if unlisted). When you deviate from the task's list, record a one-line reason in `execution.md`. Fall back to the Skill Map only when the task lists none and you see no better fit
 - the **effort you select for this task** (the *Effort dial* in `## Model Routing`, orthogonal to the tier): default `medium`, flexed to `low` for trivial/mechanical work, `xhigh` for complex (algorithm, concurrency, security, ambiguity), `max` for correctness-critical. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the brief. Never `max` a cheaper tier — if a task wants `max`, escalate the tier instead
-- any prior Reviewer feedback when this is a rework attempt
-- any Active Lessons from `docs/specs/kaizen-log.md` relevant to the task's domain (pass only the matching rows, never the full log)
-- the verification command to run before reporting completion
+- any prior Reviewer feedback when this is a rework attempt — **copied verbatim, never a pointer**: the Structured Feedback rule wins over brief economy
+- any Active Lessons from `docs/specs/kaizen-log.md` relevant to the task's domain — **copied rows, never a pointer**: a pointer would make the worker read the full log, which costs more than the rows. Pointer-vs-copy is decided by economy, not dogma — point at what the worker would read anyway, copy what spares it a bigger read
+- the verification command to run before reporting completion (copied)
 
 The Implementer must keep changes minimal and within task scope, follow the design spec exactly unless the spec is clearly incomplete or contradictory, and run the verification before reporting completion.
 
@@ -160,10 +160,10 @@ When the Implementer reports completion, the Leader:
 
 1. Extracts the **git diff** of changes since the start of the attempt. To save tokens, the Reviewer MUST ONLY be given the diff, not the entire source files, unless absolutely necessary for context.
 2. Spawns the Reviewer with:
-   - the persona content from `.agents/reviewer.md`
-   - the **git diff**
-   - the relevant slices of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md`
-   - the Implementer's verification evidence
+   - the persona: **nothing** when spawning the Step 8E wrapper (its body loads `.agents/reviewer.md`); persona content only in the fallback sub-prompt path
+   - the **git diff — always inline, the one payload that can never become a pointer**: it is ephemeral working state, not a project file, and the wrapper-restricted Reviewer has no `Bash` to regenerate it
+   - **pointers** to the relevant sections of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md` — the Reviewer keeps `Read`/`Grep`/`Glob` precisely so it can follow them
+   - the Implementer's verification evidence (copied — transient worker output, it lives in no file)
 
 **Review lens modes (4R):** the Reviewer audits spec conformance (the gate) plus four advisory lenses — **readability, reliability, resilience, risk** — per `.agents/reviewer.md`. The mode is selected by the task's effort dial; there is no separate configuration:
 
@@ -199,8 +199,19 @@ The Reviewer is read-only. It must conclude with either:
 
 Only after a Reviewer `PASS`:
 
-1. Update `tasks.md` from `[ ]` (or `[~]`) to `[x]`.
-2. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
+1. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
+2. Update `tasks.md` from `[ ]` (or `[~]`) to `[x]`.
+
+**Write the evidence before the checkbox — this order is load-bearing.** The two writes are not atomic, and a run can end between them: context exhaustion, an interrupt, a crash. Each order therefore has a failure state, and they are not equally bad.
+
+| Order | If the run dies between the writes | Recoverable? |
+|---|---|---|
+| `execution.md` → `tasks.md` | Evidence recorded, task still `[ ]`/`[~]` | ✅ `/akili-resume` re-runs a task that was actually done — wasteful, but the audit trail shows the PASS and the Leader can reconcile |
+| `tasks.md` → `execution.md` | Task reads `[x]`, **no record of why** | ❌ Indistinguishable from an unverified completion. The Reviewer PASS is gone and cannot be reconstructed |
+
+The second state is the one AKILI cannot tolerate: a `[x]` with no attempt history is a **traceability hole that looks like a finished task**. `/akili-resume` reads `execution.md` to rebuild state and would skip it with nothing to flag. Redundant work is cheap; an unfalsifiable completion is not.
+
+This also makes the ordering machine-checkable — a gate on `tasks.md` writes can require the matching PASS to already be in `execution.md`, which is impossible under the reverse order because the evidence does not exist yet at the moment of the write.
 3. **Git Commit Staging:** Always follow the **AKILI Spec Reference** commit standard. Prefix the commit message with `[SPEC:<spec-path>]` (e.g. `git commit -m "[SPEC:changes/add-remember-me] implement secure cookie storage"`). When writing a PR description for the spec's work, load `cognitive-doc-design` and follow its PR and Review Docs rules: state what to review first, what is intentionally out of scope, and link chained PRs.
 4. **Code Traceability:** Add file-level or block-level comment spec references (`// @akili-spec <spec-path>`) in critical or complex codebase additions to assist future audits.
 5. **Constitution Impact Check:** If the task created a new module/package, moved a module boundary, or changed a module's public surface, append a `## Constitution Impact: <Task ID>` block to `execution.md` recording:

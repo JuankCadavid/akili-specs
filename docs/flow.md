@@ -249,7 +249,7 @@ Implementer writes code, runs verification → reports back
 Leader extracts git diff → spawns Reviewer with diff + persona
 Reviewer returns STATUS: PASS, STATUS: FAIL, or STATUS: FATAL_FAIL
 
-if PASS → update tasks.md, append execution.md, commit, advance
+if PASS → append execution.md, then update tasks.md, commit, advance
 if FAIL and attempts < 3 → respawn Implementer with the Reviewer's structured findings
 if FATAL_FAIL → abort loop immediately, mark task [~], trigger Pivot Protocol
 if 3 consecutive FAILs → HALT, mark task [~], present audit trail
@@ -271,7 +271,7 @@ if 3 consecutive FAILs → HALT, mark task [~], present audit trail
 
 **Cross-tool compatibility:**
 
-The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the harness runs under Claude Code, OpenCode, and Google Antigravity. Claude Code and OpenCode delegate via sub-prompt contexts seeded with the persona files, reading `.agents/<role>.md` directly. **Antigravity resolves agents one level deeper** — it discovers them under `.agents/agents/` and invokes them with `invoke_subagent`, which also requires `subagent: true` in the wrapper's frontmatter, so a persona left at the root of `.agents/` is invisible to it. [Step 8E](commands/akili-constitution.md) generates the nested wrappers, which stay thin and point back at the same persona files.
+The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the harness runs under Claude Code, OpenCode, and Google Antigravity. Claude Code and OpenCode delegate through the Step 8E wrappers when present — each wrapper loads its own `.agents/<role>.md`, so the Leader neither re-reads nor re-sends persona content — and fall back to sub-prompt contexts seeded with the persona files when no wrappers exist. **Antigravity resolves agents one level deeper** — it discovers them under `.agents/agents/` and invokes them with `invoke_subagent`, which also requires `subagent: true` in the wrapper's frontmatter, so a persona left at the root of `.agents/` is invisible to it. [Step 8E](commands/akili-constitution.md) generates the nested wrappers, which stay thin and point back at the same persona files.
 
 **`/akili-test` — Leader → Tester(s):**
 

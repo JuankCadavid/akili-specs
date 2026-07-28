@@ -590,12 +590,48 @@ this step — the guidance-only flow keeps working.
   orchestration judgment), implementer `sonnet`, reviewer `opus`, tester `sonnet`). Never copy the
   persona body into the wrapper — `.agents/` stays the single source of truth.
 
+  **The Reviewer wrapper additionally carries a `tools` allowlist — it is the one wrapper that
+  gets one.** `.agents/reviewer.md` opens by declaring the role read-only, but an instruction is
+  something the model *complies with*, and a diff that looks one edit away from passing is exactly
+  the moment compliance is most tempting. `author ≠ auditor` is already structural on the model
+  axis (a different model than the Implementer); this makes it structural on the **write** axis too,
+  so an auditor that starts fixing what it is auditing is stopped by configuration rather than by
+  discipline:
+
+  ```markdown
+  ---
+  name: akili-reviewer
+  description: AKILI Reviewer — independent audit of the Implementer's diff against the spec.
+  model: opus
+  tools: Read, Grep, Glob
+  ---
+  Read `.agents/reviewer.md` in the project root and adopt it fully as your persona and
+  operating contract before doing anything else.
+  ```
+
+  Those three are what the role actually consumes. **No `Bash`** — the Leader extracts the git diff
+  and passes it in (`/akili-execute` Step 2.3), so the Reviewer never runs a command. **No
+  `Write`/`Edit`** — that is the whole point. `Read`/`Grep`/`Glob` stay because the persona permits
+  reading a full source file *"unless absolutely necessary to verify the diff"*, and removing that
+  escape hatch would force a FAIL whenever the diff alone is genuinely ambiguous. Restrict the
+  Reviewer and **nowhere else**: the Leader orchestrates, the Implementer writes and verifies, and
+  the Tester authors and runs suites — all three need broad access, and an allowlist on them buys
+  nothing and breaks the role.
+
 - **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
   the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
   the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.2`, reviewer
   `opencode-go/deepseek-v4-pro`, leader `opencode-go/kimi-k3` (T1 — orchestration judgment),
   tester `opencode-go/deepseek-v4-flash` — the T2 fallback rather than the T2 primary, so the
   Tester lands on a **different model than the Implementer** (author ≠ tester)).
+
+  Apply the same **read-only restriction to the Reviewer wrapper only**, for the reason given in the
+  Claude Code bullet. OpenCode's mechanism for this has changed across versions — it has been both a
+  `tools` map and a `permission` block — so **confirm the field name and shape against the user's
+  installed version before writing it**, exactly as you already do for the agent-definition location
+  itself. If it cannot be confirmed, **omit the restriction** rather than guessing, and record in the
+  Step 9 summary that the OpenCode Reviewer is read-only by instruction rather than by
+  configuration. A wrapper that fails to load is worse than one that relies on the persona.
 
 - **Google Antigravity:** create `.agents/agents/akili-leader/agent.md`, `akili-implementer/`,
   `akili-reviewer/`, and `akili-tester/` (the flat form `.agents/agents/<name>.md` is equivalent).
@@ -624,10 +660,11 @@ this step — the guidance-only flow keeps working.
   | `mainAgent: false` | Keeps Implementer/Reviewer/Tester out of the primary-agent picker — they are only ever dispatched. The Leader keeps `mainAgent: true` |
   | `tools` | The Reviewer's read-only role stops being an instruction and becomes a **restriction** |
 
-  **`tools` is where this host exceeds the others — apply it to the Reviewer and nowhere else.**
-  Every other wrapper needs broad tool access, and the vendor documents that an unmapped or
-  misspelled tool name **hangs the subagent process**, so a wrong guess fails silently rather than
-  erroring. **Confirm every name against the installed binary, not against the vendor's
+  **All three hosts restrict the Reviewer; what differs here is the failure mode.** Apply `tools`
+  to the Reviewer and nowhere else — every other wrapper needs broad tool access — but note that on
+  this host a mistake is far more expensive than on the other two. The vendor documents that an
+  unmapped or misspelled tool name **hangs the subagent process**, so a wrong guess fails silently
+  rather than erroring. **Confirm every name against the installed binary, not against the vendor's
   documentation** — the published example has been observed naming a tool absent from the shipped
   CLI, so copying it verbatim is itself a way to hang the Reviewer. When the names cannot be
   confirmed, **omit `tools` entirely** and record in the summary that the Reviewer is read-only by
@@ -648,10 +685,16 @@ this step — the guidance-only flow keeps working.
    collapses them, escalate the Reviewer one tier before writing the wrappers. The Tester wrapper
    should also **prefer** a model different from the Implementer's (author ≠ tester — a preference,
    not a hard rule); if they collapse, note it in the summary rather than blocking.
-2. Wrappers reference `.agents/<role>.md`; they never duplicate persona content. Editing a persona
+2. The Reviewer wrapper SHOULD carry the host's read-only restriction, and it is the **only**
+   wrapper that carries one. This is the write-axis half of `author ≠ auditor`; rule 1 is the model
+   axis. Unlike rule 1 it is not blocking — where the syntax cannot be confirmed, or naming a tool
+   wrong would hang the agent, **omit it and say so**. An omitted restriction leaves the Reviewer
+   read-only by instruction, which is the status quo and works; an **unreported** omission is the
+   real defect, because it is indistinguishable from an enforced one.
+3. Wrappers reference `.agents/<role>.md`; they never duplicate persona content. Editing a persona
    requires no wrapper change; changing a model requires editing only the wrapper (or re-running
    this step).
-3. **Mode policy:** Brand-new/Legacy — create the wrappers when accepted. Active AKILI-SPECS —
+4. **Mode policy:** Brand-new/Legacy — create the wrappers when accepted. Active AKILI-SPECS —
    never overwrite existing wrapper files; create only missing ones and flag model drift between
    existing wrappers and the current registry.
 
@@ -672,7 +715,7 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
 - The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
-- The Step 8E agent wrappers: generated (and for which tool), or declined
+- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2)
 - Any assumptions and open questions that still need validation
 
 Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
@@ -690,6 +733,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
+- [ ] If Step 8E wrappers were generated, the **Reviewer** wrapper's state is named in the summary: either it carries the host's read-only restriction, or it was deliberately omitted (syntax unconfirmable, or a wrong tool name would hang the agent). Verify no *other* wrapper carries one — a restricted Leader, Implementer, or Tester is a broken role, not a stricter one. Both `author ≠ auditor` axes should hold: a Reviewer model different from the Implementer's (rule 1) **and** no write tools (rule 2).
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, and Antigravity — all three are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.

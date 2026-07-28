@@ -57,6 +57,8 @@ If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold i
 **Token discipline — thin context per Tester (this is the core saving):**
 
 - Give each Tester **only its slice**: its assigned suite, the specific requirements + Given/When/Then scenarios that suite must prove, and the project's test command. Never hand a Tester the full `requirements.md`/`design.md`/`tasks.md` unless a scenario genuinely needs it.
+- **Prefer pointers over copies inside the slice** for a host Tester: name the scenario IDs and their section anchors in `requirements.md` and instruct the Tester to read them **verbatim at the source** — the exact text still reaches it, as its own cacheable input rather than as your output. Copy scenario text only for a **non-host** worker that cannot resolve project paths (see *Cross-host dispatch*), where the self-contained brief remains mandatory.
+- **CodeGraph, when `.codegraph/` exists:** tell each Tester to locate the code under test via graph lookups (`codegraph_search` for the symbol, `codegraph_callers` for its usage surface) instead of exploratory full-file reads — a Tester needs to know a function's contract and call sites, which the graph answers in a fraction of the tokens. **Staleness rule:** `/akili-test` runs after `/akili-execute` changed the code, and the graph indexes the last re-index — which is precisely **not** the implementation under test. For the files this spec changed, the working tree wins; the graph is for the *surrounding* code the spec did not touch. Put that boundary in each slice.
 - Each Tester's context is discarded when it finishes, so per-suite contexts never accumulate in one growing window.
 - Load the `caveman` skill and apply its Scope Contract: Leader→Tester context slices and Tester structured reports use `full` compression; `test-report.md`, `PRODUCT_BUG` escalations to the user, and verbatim evidence (requirement and Given/When/Then scenario text quoted in slices, test output, `STATUS:` lines, error strings) are never compressed.
 - The Leader writes no tests itself unless the Deployment Rule below says to run inline, or a Tester exhausts its inner loop and the user approves a Leader fallback.
@@ -93,7 +95,7 @@ The Leader decides the count from the spec's depth and the independence of the s
    - `docs/specs/$ARGUMENTS/requirements.md`
    - `docs/specs/$ARGUMENTS/design.md`
    - `docs/specs/$ARGUMENTS/tasks.md`
-3. Read the Tester persona `.agents/tester.md` (stop and direct the user to `/akili-constitution` if it is missing).
+3. Read the Tester persona `.agents/tester.md` **only when the project has no Step 8E `akili-tester` wrapper** — the wrapper's body loads the persona in the Tester's own context, so the Leader reading it too pays the same tokens twice. Verify the file exists either way (stop and direct the user to `/akili-constitution` if `.agents/tester.md` is missing — a wrapper pointing at a missing persona spawns a Tester with no contract).
 4. Identify backend, frontend, and end-to-end scope from the design and tasks.
 5. Extract key requirements, Given/When/Then scenarios, negative constraints (`BUT it must NOT`), and strict validations (`AND IT MUST`) from `requirements.md`.
 
