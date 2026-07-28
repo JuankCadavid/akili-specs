@@ -178,6 +178,30 @@ bounded summary, cap the payload you read, and pull the detail from the worker's
 if the summary forces you to. A Leader that spends its last context reading a report it cannot then
 record has converted completed work into lost work.
 
+**But wall-clock is not free either — never block your turn on a wait you can background.** A
+blocking wait held in the *foreground* freezes your turn for its whole duration, and from the
+outside that is **indistinguishable from being hung**: the user sees no output, no progress, no
+indication anything is happening, and reasonably interrupts. The interrupt is not the user's
+mistake — it is the correct response to what they were shown. So the real cost of a foreground wait
+is not the minutes; it is the minutes **plus** the restart, paid repeatedly until someone changes
+the pattern.
+
+Two notification models are usually both available and rarely connected:
+
+| | Typical orchestrator | Typical agent harness |
+|---|---|---|
+| Model | **Poll** — a blocking call that returns when the message arrives | **Push** — a background job that wakes the agent on completion |
+
+**Running the orchestrator's blocking poll *as* a background job translates one into the other:**
+blocking for the process, non-blocking for your turn, and the harness wakes you when the worker
+reports. That is the whole bridge. If you genuinely must block in the foreground, say **what** you
+are waiting for and roughly **how long** before you block — an announced wait is legible; a silent
+one is a hang.
+
+Worth naming because of how this fails: both mechanisms typically exist and are documented in
+guidance already loaded. The defect is in the **pairing**, not in a missing capability — which is
+exactly the class of failure no new tool fixes and only a written rule prevents.
+
 **Never economize on correcting a delegation you already know is malformed.** Budget pressure makes
 this exact rationalization attractive — *"the harness will probably override it, and a correction
 costs a message I do not have."* It will not, and the arithmetic is backwards: the correction costs
