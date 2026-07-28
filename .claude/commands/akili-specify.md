@@ -58,11 +58,20 @@ When the spec is a **bug** — the proposal's Document Control says `Type: Bug`,
 - **A regression test is mandatory.** At least one task must add a test that reproduces the bug — **red before the fix, green after** — and the requirement's scenario must map to it. This is non-negotiable evidence that the bug is actually fixed and stays fixed.
 - Keep the fix scoped to the root cause; do not fold unrelated cleanup into a bugfix.
 
-## Behavior
+### Approval Mode (inherited)
+
+Read `Approval Mode` from the proposal's Document Control (see `/akili-propose`). Under `pre-approved`, each phase's routine approval gate auto-passes and is **logged as `auto-approved (pre-approved mode)`** in the document produced by that phase — the gate is recorded, never silently skipped. Everything classified as an escalation still stops for the user: severe judgment-day findings, a budget that will not fit the depth, a discovery that invalidates the proposal, destructive actions. Judgment-day itself always runs — pre-approval skips *pauses*, not *review*.
+
+### Delegation During an Interactive Phase
+
+When this command delegates work to a subagent (the design agent in Step 2.1, scouts, judgment-day reviewers), two rules apply — both field lessons:
+
+1. **The mode is declared, never implicit.** Every delegation is either **synchronous with its expected duration announced** ("spawning the design agent — typically a few minutes"), or **backgrounded with an explicit return notice** ("running in background; I will report when the draft is ready"). A silent background wait is indistinguishable from a hang, and the user interrupting it is not their mistake — it is the correct reading of what they were shown. If no signal arrives within the announced window, fall back inline and say so.
+2. **Runtime failure degrades to inline, never blocks the phase.** If the harness cannot spawn the subagent at all (spawn errors, terminal/pane failures), retry once, then do the work inline and record the fallback in the affected document's Document Control. Specify's delegated roles (designer, scout) are safe to absorb inline — unlike execute's Reviewer, no independence constraint is broken by doing so.
 
 ### Step 0: Setup
 
-**Model checkpoint:** This phase runs best on **T1 Architect** for requirements/design **and for the Phase 3 `tasks.md` decomposition** — breaking the design into executable tasks with correct boundaries and dependencies is reasoning, not cheap formatting; a bad decomposition poisons every downstream Implementer (re-check at Phase 3 only to switch to **T6 Multimodal** when visual design is in scope). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"Phases 1–3 are T1 — the registry recommends `/model opus`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** This phase runs best on **T1 Architect** for requirements/design **and for the Phase 3 `tasks.md` decomposition** — breaking the design into executable tasks with correct boundaries and dependencies is reasoning, not cheap formatting; a bad decomposition poisons every downstream Implementer (re-check at Phase 3 only to switch to **T6 Multimodal** when visual design is in scope). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"Phases 1–3 are T1 — the registry recommends `/model opus`; you are on haiku"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 

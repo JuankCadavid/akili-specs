@@ -58,6 +58,14 @@ If `.agents/` is missing, run `/akili-constitution` first to scaffold it. Do not
 
 The Leader does not write production code itself unless the rework loop is exhausted and the user has explicitly approved a fallback.
 
+**Runtime-failure fallback (per role):** when the harness itself cannot spawn a subagent (spawn error, terminal/pane failure — an environment blocker, not a work FAIL), retry once, then degrade by role — never improvise ad-hoc:
+
+| Role | Fallback on runtime failure |
+|---|---|
+| Implementer | Ask the user to approve the Leader-inline fallback (the no-code rule above stands — runtime failure does not waive it). Record the failure and the decision in `execution.md` |
+| Reviewer | **Never inline** — the Leader reviewing work it supervised breaks `author ≠ auditor`, and a runtime failure does not suspend a correctness constraint. Offer the user: a different model (`/model`), a cross-host dispatch (per the registry), or an explicit recorded waiver |
+| Tester | The `/akili-test` Deployment Rule already defines the inline path — use it and record it |
+
 **Delegation Thresholds:** the Leader's inline-vs-delegate boundary is quantified in `.agents/leader.md` → *Delegation Thresholds* (inline only for 1-file checks and puntual verifications; 4+ full-file reads → scout subagent; 2+ non-trivial file writes → Implementer; CodeGraph lookups don't count toward the read threshold). Apply it to your own research inside this command — e.g. investigating a Reviewer FAIL across many files is scout work, not Leader-inline work.
 
 **Delegation Ceiling:** that table is the floor; `.agents/leader.md` → *Delegation Ceiling* is the cap, and on current-generation models it is the one that binds. One subagent beats several for a single task, parallelism is bounded by the count of genuinely independent tasks in `tasks.md`, you commit to a delegation rather than re-deriving its result, and you never spawn a subagent to verify your own work. **The Implementer → Reviewer gate is exempt** — it is `author ≠ auditor` independence, not self-verification, and is never collapsed for efficiency.
@@ -70,7 +78,7 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 ### Step 0: Load Context
 
-**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you decompose in flight, **select each Implementer's skills**, adjudicate Reviewer FAILs, and decide pivots. You write no code, but these calls gate the whole run (low volume, high leverage). The Implementer/Reviewer route through the Step 8E agent wrappers (their own tier models — Implementer T2, Reviewer T3) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you decompose in flight, **select each Implementer's skills**, adjudicate Reviewer FAILs, and decide pivots. You write no code, but these calls gate the whole run (low volume, high leverage). The Implementer/Reviewer route through the Step 8E agent wrappers (their own tier models — Implementer T2, Reviewer T3) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
@@ -238,6 +246,8 @@ If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 ### Step 5: Continue or Pause
 
 After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
+
+**Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance.
 
 ---
 

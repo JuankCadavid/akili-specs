@@ -24,7 +24,7 @@ No arguments required. The command scans `docs/specs/` automatically.
 
 ### Step 0: Scan Active Specs
 
-**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** — file scanning and summarization; reasoning depth is not the bottleneck. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"Resume is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode). Never block on this; continuing on the current model is always allowed (and switching is rarely worth it for a single scan).
+**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** — file scanning and summarization; reasoning depth is not the bottleneck. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"Resume is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode). Never block on this; continuing on the current model is always allowed (and switching is rarely worth it for a single scan).
 
 1. List all directories under `docs/specs/` (excluding `archive/`).
 2. For each spec directory, read available files to determine current phase:

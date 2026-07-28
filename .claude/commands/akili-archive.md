@@ -57,7 +57,7 @@ docs/specs/archive/2026-05-16-bugfix--login-redirect/
 
 ### Step 0: Load Context
 
-**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** (summarization and bookkeeping). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** This phase runs best on **T5 Fast-Cheap** (summarization and bookkeeping). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"This phase is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
@@ -129,7 +129,8 @@ Before moving the folder, sync the project constitution with what the spec actua
    - Add or refresh the child's entry in the parent guides' `## Module Guides` index.
    - Update any root-guide statements the change made stale (structure descriptions, module lists, key commands).
    - Follow the inheritance convention from `/akili-constitution` Step 7 — if the project has no `## Module Guides` index yet, add it rather than inventing a parallel structure.
-3. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) so the graph reflects the new or reshaped modules.
+3. **Factual-claims sweep of the root guides — runs always, even with zero impact notes.** The per-module sync above only fires for modules the impact notes name, which is exactly how a stale claim survives: a cycle that implements ten components leaves `CLAUDE.md` still asserting *"No application code yet"* because no single module impact pointed at that sentence. Sweep the root `CLAUDE.md`/`AGENTS.md` for **factual assertions this cycle falsified** — CodeGraph/init status lines, "no code yet"/project-stage claims, stack or command statements, counts and lists — and fix the ones that are now false. The test is the same one `/akili-audit` applies to specs: a guide is constitution, and a constitution that states falsehoods trains every future agent on them.
+4. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) so the graph reflects the new or reshaped modules.
 
 ### Step 4: Kaizen Retrospective
 

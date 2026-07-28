@@ -17,7 +17,7 @@ The proposal is the reviewable intent layer. It should help the user decide whet
 ## Usage
 
 ```
-/akili-propose <change-name-or-spec-path>
+/akili-propose <slug-or-path> [free-text context]
 ```
 
 **Examples:**
@@ -25,15 +25,17 @@ The proposal is the reviewable intent layer. It should help the user decide whet
 - `/akili-propose add-remember-me`
 - `/akili-propose bugfix/login-redirect`
 - `/akili-propose enhancements/renewals`
+- `/akili-propose ui-aesthetic-refresh quiero renovar la estética de todos los componentes con un look premium…`
 
 ## Arguments
 
-- `$ARGUMENTS` - A change name or a relative path under `docs/specs/`.
+- `$ARGUMENTS` - A change name or a relative path under `docs/specs/`, optionally followed by free-text context.
 
 Path resolution:
 
-- If `$ARGUMENTS` contains `/`, treat it as the literal spec path.
-- If `$ARGUMENTS` is a bare name, use `changes/$ARGUMENTS` as the spec path.
+- If the first token contains `/`, treat it as the literal spec path.
+- If the first token is a bare kebab-case name, use `changes/<name>` as the spec path.
+- **If `$ARGUMENTS` does not look like a slug or path at all** — it reads as a sentence or a paragraph of intent — **never interpolate it into the spec path.** Derive a kebab-case slug of at most 4 words from the core intent, resolve the path from that, and record the derivation in Document Control (`Slug: ui-aesthetic-refresh — derived from free-text argument`). The full text becomes proposal context, not a directory name. A rendered path like `changes/<60-word-paragraph>` is always a parsing failure, never something to present to the user.
 
 Examples:
 
@@ -56,7 +58,7 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 
 ### Step 0: Resolve Path And Load Context
 
-**Model checkpoint:** This phase runs best on **T1 Architect** (deep reasoning). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, tell the user in one line — e.g. *"This phase is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** This phase runs best on **T1 Architect** (deep reasoning). If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"This phase is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
@@ -85,6 +87,12 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 | **Bug** | A symptom ("X is broken/failing/wrong", "regression", "error", "used to work") | Continue with the proposal flow, but follow the **Bug Track** (diagnosis-first) described below. |
 
 The proposal `frontmatter`/header should record the detected type as `Type: Bug | Change | Trivial` in Document Control so `/akili-specify` and `/akili-execute` inherit it. For bugs, prefer the `bugfix/<name>` spec path taxonomy.
+
+**Approval Mode (recorded in the same Document Control block, inherited downstream):**
+
+- `Approval Mode: gated` (default) — every phase gate pauses for the user, as today.
+- `Approval Mode: pre-approved (<who>, <date>)` — **only on an explicit up-front user mandate** ("run the whole cycle", "work it end to end without pauses"). Downstream commands honor it: routine continue/approve gates auto-pass and are **logged as `auto-approved (pre-approved mode)`** at the point where the pause would have happened — the decision stays auditable instead of the agent silently improvising past each gate.
+- **Pre-approval covers routine progress, never exceptions.** HALT, Pivot Protocol, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive or irreversible actions, and `/akili-quick` escalations **always stop for the user regardless of mode** — those gates exist precisely for the cases no one can pre-approve, because their content is unknown until they fire.
 
 **Bug Track (diagnosis before fix):** A bug is not a feature — you start from a symptom, not an intent, so you must understand *why* before proposing *how*. For a bug:
 
@@ -236,6 +244,8 @@ Before presenting the proposal, verify:
 
 - [ ] The problem is clear.
 - [ ] The request type (Bug / Change / Trivial) is detected and recorded in Document Control.
+- [ ] The spec slug is kebab-case; when derived from a free-text argument, the derivation is recorded in Document Control (never a sentence interpolated into a path).
+- [ ] Approval Mode is recorded — `gated` by default; `pre-approved` only on an explicit user mandate, with who and when.
 - [ ] For a bug: reproduction steps and a **confirmed** root cause are documented (not a guess).
 - [ ] Scope and non-goals are explicit.
 - [ ] The proposed outcome is behavior-focused.

@@ -458,6 +458,17 @@ if they differ, tell the user in one line (e.g. *"This phase is T1 — the regis
 `/model opus`; you are on haiku"*) and offer the switch in the phase's first HITL pause. The user
 can always continue on the current model; the checkpoint never blocks.
 
+**The registry is a floor, not a ceiling — check the direction before speaking.** "Different"
+has two cases and only one deserves a recommendation. When the registry's model is **stronger**
+for the tier than the session model, recommend the switch — that is the checkpoint working. When
+the **session model is the stronger one** (most often: a newer generation running against a
+registry entry that predates it), the checkpoint **passes silently and the finding is a stale
+registry, not a wrong session model** — flag the entry for update at the next pause; never
+recommend a downgrade. A registry pinned to a dated model (against the alias-first rule) makes
+this failure mode systematic: every session on a newer model gets told to step down by a document
+whose only defect is its age. The alias-first rule prevents it; the direction rule contains it
+when a pin slipped through anyway.
+
 **The checkpoint has three outcomes, not two.** Switch the session model, continue as-is, or —
 when the project's registry records a cross-host routing preference for this capability and a
 dispatcher is available — **dispatch the phase to the host that has the right model** and keep the
