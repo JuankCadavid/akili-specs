@@ -897,6 +897,33 @@ function doctorTool(tool, args) {
   return { rootPath, ok: okCount, missing, fixed };
 }
 
+// Environment dependencies the methodology recommends but never requires.
+// Doctor reports them without failing: a missing recommended tool degrades
+// analysis quality (commands fall back to Glob/Grep), it does not break the
+// installation — so it must never flip the exit code, only inform.
+const RECOMMENDED_ENV = [
+  {
+    name: "codegraph",
+    versionCommand: "codegraph --version",
+    why: "semantic code analysis in /akili-constitution, /akili-audit, and worker briefs",
+    installHint: "npm install -g @colbymchenry/codegraph",
+  },
+];
+
+function checkEnvironment() {
+  return RECOMMENDED_ENV.map((dep) => {
+    try {
+      const version = execSync(dep.versionCommand, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
+        .toString()
+        .trim()
+        .split("\n")[0];
+      return { ...dep, ok: true, version };
+    } catch {
+      return { ...dep, ok: false, version: null };
+    }
+  });
+}
+
 function runDoctor(args) {
   const results = [];
 
@@ -911,6 +938,20 @@ function runDoctor(args) {
   }
   for (const tool of tools) {
     results.push({ tool, ...doctorTool(tool, args) });
+  }
+
+  // Environment section — recommended tooling, reported once per run (not per
+  // tool) and never counted toward missing/exit code.
+  const envResults = checkEnvironment();
+  console.log(`\n${colors.yellow}Environment (recommended, not required):${colors.reset}`);
+  for (const dep of envResults) {
+    if (dep.ok) {
+      console.log(`  ${colors.green}OK${colors.reset} ${dep.name} (${dep.version})`);
+    } else {
+      console.log(`  ${colors.yellow}NOT FOUND${colors.reset} ${dep.name} — used for ${dep.why}.`);
+      console.log(`  ${"".padEnd(9)}Without it, commands fall back to Glob/Grep with a lower-confidence scan.`);
+      console.log(`  ${"".padEnd(9)}Install: ${colors.cyan}${dep.installHint}${colors.reset}, then run ${colors.cyan}codegraph init -i${colors.reset} in your project.`);
+    }
   }
 
   const missingTotal = results.reduce((acc, r) => acc + r.missing, 0);

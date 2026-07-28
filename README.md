@@ -123,6 +123,16 @@ Install the methodology with the bundled CLI. The installer can target Claude, O
 - `pnpm`, `npm`, or another Node package runner
 - Claude Code, OpenCode, and/or Google Antigravity installed, depending on where you want to use the methodology
 
+**Recommended (not required): CodeGraph.** The methodology uses [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) for semantic code analysis in `/akili-constitution` (Legacy discovery scans), `/akili-audit` (drift detection), and the `/akili-execute`/`/akili-test` worker briefs. Without it, every command still runs — falling back to `Glob`/`Grep` with a lower-confidence scan that the reports flag explicitly.
+
+```bash
+npm install -g @colbymchenry/codegraph
+# then, inside each project you want indexed:
+codegraph init -i
+```
+
+`akili doctor` checks for the CLI and reports it under *Environment* without failing the health check.
+
 ### Step 1: Choose The Target Tool
 
 | Target | Use When | Default Install Path |
@@ -504,7 +514,7 @@ Run `/akili-constitution` first in a new repository, after a major product pivot
 
 For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, and Google Antigravity receive the same project guidance.
 
-For existing projects, CodeGraph is an optional acceleration path. If `.codegraph/` exists, agents should use it for semantic code exploration, symbol lookup, callers/callees, and impact checks. If `.codegraph/` is missing and the `codegraph` CLI is available, the agent should ask whether to run `codegraph init -i`. If CodeGraph is unavailable or declined, the methodology continues with normal `Glob`, `Grep`, and file reads.
+For existing projects, CodeGraph is an optional acceleration path. If `.codegraph/` exists, agents should use it for semantic code exploration, symbol lookup, callers/callees, and impact checks. If `.codegraph/` is missing and the `codegraph` CLI is available, the agent should ask whether to run `codegraph init -i`. If the CLI itself is not installed, the agent says so once — with the install command (`npm install -g @colbymchenry/codegraph`) — and continues. Either way the methodology proceeds with normal `Glob`, `Grep`, and file reads at the **same scan scope**: a missing graph lowers the confidence the reports record, it never shrinks the analysis.
 
 Use `/akili-propose` when the change needs review before full specification. For very small, obvious work, you may start directly with `/akili-specify <spec-path>`.
 

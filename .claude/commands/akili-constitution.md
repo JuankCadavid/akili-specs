@@ -104,9 +104,10 @@ For existing projects, prefer CodeGraph for repository analysis when available:
 
 1. If `.codegraph/` exists, use CodeGraph for symbol lookup, architecture context, callers/callees, and impact analysis before broad file scanning.
 2. If `.codegraph/` does not exist and the `codegraph` CLI is available, ask the user whether to run `codegraph init -i` before continuing.
-3. If CodeGraph is unavailable or the user declines initialization, continue with normal `Glob`, `Grep`, and file reads.
-4. Never block the constitution on CodeGraph. Treat it as an optional context accelerator.
-5. Do not commit generated CodeGraph databases. Only durable configuration such as `.codegraph/config.json` may be committed when useful.
+3. If the `codegraph` CLI is **not installed**, tell the user in one line — *"CodeGraph CLI not found — install with `npm install -g @colbymchenry/codegraph` (then `codegraph init -i`) for a higher-confidence scan; continuing on `Glob`/`Grep`"* — and continue. Without this line, "unavailable" is a permanent, silent state: the user cannot choose a tool they never hear about, and `akili doctor` only catches it if they think to run it.
+4. If CodeGraph is unavailable or the user declines initialization, continue with normal `Glob`, `Grep`, and file reads. **Absence changes the tool, never the scope:** every extraction the scan calls for still runs, at the same depth, via `Glob`/`Grep` and file reads — "no graph" is degraded confidence to *report*, not analysis to *skip*. A scan that silently shrank because the graph was missing is the failure mode this list exists to prevent.
+5. Never block the constitution on CodeGraph. Treat it as an optional context accelerator.
+6. Do not commit generated CodeGraph databases. Only durable configuration such as `.codegraph/config.json` may be committed when useful.
 
 When CodeGraph is used, summarize the evidence it revealed in the constitution output: dominant languages/frameworks, important modules, entry points, routes/API surfaces, test layout, and high-impact dependencies.
 
