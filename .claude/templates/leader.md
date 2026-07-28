@@ -120,6 +120,16 @@ created, nobody can pick it up, and the failure surfaces only as silence. Check 
 **clean up any worker you spawned for a dispatch that did not happen**: an idle agent left behind
 is state someone else will find and have to reason about.
 
+**A send that returned is not a send that was received — verify delivery at the target.** When you
+drive another agent through a terminal, the readiness/idle primitive answers *"is the process
+quiet?"*, not *"did the input land?"* — and a TUI can be quiet precisely because it has not accepted
+the input yet. Field case: with the Antigravity CLI, `terminal wait --for tui-idle` is satisfied
+**before** the prompt is actually accepted, so a send fired on that signal can vanish without any
+error. After sending, **read the target's buffer back** (e.g. `terminal show`) and confirm the
+prompt is actually there before you start waiting on the work; a delivery you did not verify is a
+wait you may be spending on nothing. This is the same silence-failure as the empty group address,
+one level down: every layer that can accept without delivering needs its own receipt check.
+
 ### ⏳ Winding down (never open a loop you cannot close)
 
 The Delegation Ceiling bounds how **wide** you go. This bounds how **far ahead** you commit. You are
