@@ -57,6 +57,8 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 
 ## Repository Structure
 
+> **Note for contributors:** `.claude/` is the canonical source for **all three install targets** (Claude Code, OpenCode, Antigravity) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
+
 - `.claude/commands/` — custom AKILI-SPECS command prompts
 - `.claude/skills/` — required and preferred skills used by the methodology
 - `.claude/templates/` — default Leader, Implementer, Reviewer, and Tester personas used by the multi-agent harness (deployed into project `.agents/`)

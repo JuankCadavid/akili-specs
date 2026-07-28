@@ -9,6 +9,10 @@ Thank you for your interest in improving AKILI-SPECS. This project packages a sp
 - **Every user-facing change updates `CHANGELOG.md`** under the `## [Unreleased]` section. This includes methodology changes (commands, skills, templates), installer behavior, and documentation that users rely on.
 - **Releases are maintainer-only.** Do not bump `version` in `package.json` or add release sections to the changelog — the maintainer runs the release process (`npm run release:*`) after merging.
 
+## Why Everything Lives Under `.claude/`
+
+Despite the name, `.claude/` is **not Claude-only configuration** — it is the canonical source for all three install targets (Claude Code, OpenCode, Google Antigravity). The installer (`bin/akili.js`) maps its `commands/`, `skills/`, and `templates/` into each tool's own config layout. It must live at that literal path because this repository dogfoods its own methodology: Claude Code sessions working on this repo load the `/akili-*` commands and skills directly from it. So when your change should reach OpenCode or Antigravity users, you still edit `.claude/` — there is no per-tool copy to keep in sync. See `.claude/README.md` for the full mapping.
+
 ## What Contributions Look Like
 
 | Area | Examples | Notes |

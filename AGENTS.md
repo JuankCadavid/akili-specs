@@ -4,6 +4,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 
 ## Repository Purpose
 
+- `.claude/` is the **canonical source for all three install targets** (Claude Code, OpenCode, Antigravity), not Claude-only config — the installer maps it into each tool's layout, and it lives at that literal path because this repo dogfoods its own methodology in Claude Code sessions. There is no per-tool copy: edits for any target happen here.
 - `.claude/commands/` contains installable AKILI-SPECS command prompts.
 - `.claude/skills/` contains installable methodology skills.
 - `.claude/templates/` contains the default Leader, Implementer, Reviewer, and Tester personas used by the AKILI multi-agent harness. `/akili-constitution` copies these into each project's `.agents/` directory.
