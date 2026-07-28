@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.17.5] - 2026-07-28
+
 ### Added
 
 - **A wind-down protocol — the methodology could recover from a dead Leader but never helped one die well.** `/akili-resume` handles the pickup side (*"session break, accidental close"*), reading `execution.md` to rebuild the picture. Nothing handled the other side: a Leader approaching its context limit had no guidance at all, and it is the only party that can see its own budget. The asymmetry showed up in practice — a Leader out of tokens had to derive the right call unaided, correctly declining to issue a supervised dispatch it would not survive to receive. Judgment should not be required for something that predictable. `leader.md` gains **Winding down**, a *temporal* bound alongside the Delegation Ceiling's *width* bound: a rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus adjudication — so opening one on little remaining context is not optimism but a task guaranteed to be abandoned mid-flight. The rules: finish or park what is in flight and stop starting new work; spend what remains on `execution.md`, because **the audit trail is the handoff**; park explicitly with `[~]` plus the full attempt history rather than stopping silently; and **never leave a supervised delegation outstanding** — a worker told to report to a coordinator who is gone produces work that may be complete and correct with nothing to record it, so transfer *ownership* instead (worker reports to the user) or park the task and let the next session re-spawn cleanly. Stated as the principle that ranks the trade-off: **an unwritten state is worse than an unfinished task** — an unfinished task with a complete audit trail is resumable; a finished task nobody recorded is work that will be redone. Referenced from `/akili-execute`'s loop guardrails.
@@ -13,7 +19,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Fixed
 
 - **The registry named which host to reach and never how to reach it.** *Cross-host dispatch* (2.17.1) told the Leader to launch a worker in another host without recording a single CLI invocation — an incomplete instruction that leaves the agent guessing a binary from a product name. Antigravity is the case that proves it: its CLI is **`agy`**, not `antigravity` or `ag`, and independent sessions have repeatedly concluded *the CLI does not exist* after searching the product name, then had to walk it back. That failure is the expensive kind — it does not error, it yields a confident wrong conclusion ("this host is unreachable") which then propagates into the plan, and it was observed being paid twice for the same fact. `docs/model-routing.md` now carries the invocation per host (`claude`, `opencode`, `agy`) and Step 8C records the confirmed values in the project registry. **Ask the user rather than probing the filesystem:** binaries vary with install method, live outside the repo, and one absent locally may simply not be installed *here* while the column stays valid for a teammate.
-
 ## [2.17.4] - 2026-07-28
 
 ### Added
