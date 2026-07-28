@@ -618,9 +618,20 @@ this step — the guidance-only flow keeps working.
   **`tools` is where this host exceeds the others — apply it to the Reviewer and nowhere else.**
   Every other wrapper needs broad tool access, and the vendor documents that an unmapped or
   misspelled tool name **hangs the subagent process**, so a wrong guess fails silently rather than
-  erroring. Use only names confirmed against the user's Antigravity version; when they cannot be
+  erroring. **Confirm every name against the installed binary, not against the vendor's
+  documentation** — the published example has been observed naming a tool absent from the shipped
+  CLI, so copying it verbatim is itself a way to hang the Reviewer. When the names cannot be
   confirmed, **omit `tools` entirely** and record in the summary that the Reviewer is read-only by
   instruction rather than by restriction. A hung Reviewer is worse than an unenforced one.
+
+  **Verifying the wrappers — `agy agents` gives a false negative.** That subcommand enumerates only
+  **global** agents (`~/.gemini/config/agents/`); it takes no workspace flag and never reports
+  project-level ones, so an empty listing says nothing about wrappers written under `.agents/agents/`.
+  Verify in-session instead: open the CLI in the project and run **`/agents`**. Tell the user what a
+  correct result looks like, because it is counter-intuitive — **only `akili-leader` appears.** That
+  picker selects the *primary* agent, and Implementer / Reviewer / Tester carry `mainAgent: false`
+  precisely so they stay out of it. One entry is the success condition; four would mean the roles
+  meant to be dispatch-only are selectable as main agents.
 
 **Rules:**
 
