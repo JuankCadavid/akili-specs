@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.19.0] - 2026-07-28
+
 ### Added — field findings from a complete cycle (MF-01…MF-06)
 
 A user ran a full propose → archive cycle and documented six methodology findings. All six are real; two needed reframing before implementing. Applied:
@@ -20,7 +26,6 @@ A user ran a full propose → archive cycle and documented six methodology findi
 ### Added
 
 - **A user without the CodeGraph CLI could run the methodology forever without learning it exists — and worse, without the analysis it powers.** Field report: a methodology user had no `codegraph` binary, so the discovery analysis "didn't happen." Two distinct defects hid under one symptom. **(1) "Unavailable" was a permanent, silent state.** The four-state control from 2.17.8 made the *skip* visible, but no path ever told the user *how to stop being in that state*: the init offer fires only when the CLI is already installed, so the one user who needs the install command is the one who never sees any prompt at all. `/akili-constitution` and `/akili-audit` now say it in one line when the CLI is missing — install `@colbymchenry/codegraph`, then `codegraph init -i` — and keep going; `akili doctor` gains an **Environment (recommended, not required)** section that detects the binary, prints the same remediation when absent, and never flips the exit code, because a missing recommended tool degrades scan confidence, it does not break the installation. README documents it under Prerequisites with the same framing. **(2) "No graph" had quietly become "no analysis."** The fallback was documented but the scope rule was not, and the gap is exactly the class 2.17.8 named: *"optional" means the user chooses the tool, not that the analysis may disappear*. Both commands now state it as a rule: **absence changes the tool, never the scope** — every extraction and every drift category still runs at full depth via `Glob`/`Grep`; a missing graph makes the scan more expensive and its confidence lower (which the reports already record), never smaller.
-
 ## [2.18.0] - 2026-07-28
 
 ### Added
