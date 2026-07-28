@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.17.4] - 2026-07-28
+
 ### Added
 
 - **The gate is now chosen against the defect classes the spec can produce.** `/akili-specify` Step 1.2 requires naming what this spec can get *wrong* before settling on verification commands, then mapping each class to the command that catches it. The failure it closes is quiet and expensive: a gate that reports green while the artifact is broken, so the Reviewer sees a passing verification and the task advances. Visual output is where it bites — `axe` cannot evaluate contrast over a rasterized image, and no automated checker distinguishes a *plausible but false* alt text from a true one, so an imagery spec gated on `npm test` + `axe` has no gate for its dominant defect class and a gate only for its rarest. A class with no automated check must be substituted (a human check at the HITL pause, or a phase routed to **T6 Multimodal** via *Cross-host dispatch*) or recorded as an accepted risk: an acknowledged blind spot is recoverable, an unacknowledged one consumes rework attempts. **The presence of *a* verification command is not coverage of the defects that matter.**
@@ -17,7 +23,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Changed
 
 - **An advisory can no longer grow the spec — only gate it, which it already could not.** `Advisory Never Gates` stopped advisories from causing FAILs, triggering rework, or consuming attempts, and named the escalation path. It said nothing about the **Leader minting a new task** from one, which is the other direction and the one that does the damage: a spec grew from three tasks to four mid-execution with no approval, and the added task carried the regression. The rule is now explicit that an advisory is **recorded and dies there** — no new task in the running spec, no widening of an existing task to absorb it. **A task absent from the approved `tasks.md` is scope the user never approved**, arriving with no requirement backing it, no design decision, and no budget line; advisories being the least-vetted findings of a run, that path grows scope fastest from the weakest evidence. An advisory that genuinely cannot wait is a **spec gap** — escalate via the Pivot Protocol so the user reopens the spec, which re-runs the budget and the approval gate instead of bypassing both. Mirrored into `AGENTS.md`, and it composes with the new reviewer floor: on a small diff advisories are suppressed at the source.
-
 ## [2.17.3] - 2026-07-28
 
 ### Added
