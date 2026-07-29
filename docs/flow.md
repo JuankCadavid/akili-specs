@@ -234,6 +234,41 @@ Host specifics: Claude Code has `/compact` (trim, keep session) and `/clear` (fu
 
 ---
 
+## Multi-Spec Parallel Execution (fleet of sessions)
+
+When one large proposal decomposes into several **independent** specs, they can be attacked in parallel — each spec in its own git worktree and branch, each running a **complete AKILI session** (its own Leader → Implementer → Reviewer loop), coordinated from a principal CLI. This is a different axis than the Leader's task fan-out: the unit of parallelism is a whole spec, and the coordinator is a **dispatcher of specs, not a Leader of tasks**.
+
+```text
+Principal CLI (coordinator/dispatcher)
+├── worktree spec-a  (branch: spec/a) → full AKILI session: /akili-execute a
+├── worktree spec-b  (branch: spec/b) → full AKILI session: /akili-execute b
+└── worktree spec-c  (branch: spec/c) → full AKILI session: /akili-execute c
+     … then serial merges back, in dependency order
+```
+
+**Preconditions — all four, or the pattern does not apply:**
+
+1. **Spec-level independence, decided at specify time, not at dispatch time.** The specs share no modules, migrations, or API contracts under change. The same two-part independence test applies at spec scale: disjoint files AND no shared build output/ports/dependency coupling *between the changes*. Specs that touch a shared contract go serial, in dependency order.
+2. **`Approval Mode: pre-approved`** recorded in each spec's Document Control. A background session with interactive gates waits forever for a human who is not watching that terminal. Exceptions (HALT, Pivot, budget tripwire, `FATAL_FAIL`) still stop — see the escalation rule below.
+3. **Worktree cost amortized.** Each worktree pays a fresh install/build. A 2-task spec does not earn one; a 10-task spec does.
+4. **A dispatch mechanism with the delivery chain honored** — Orca orchestration when the project's Skill Map lists it (preferred: structured messages, worker_done waits), or terminal-driven sessions (tmux, agent CLIs) as the low-level transport. Same rules either way.
+
+**The coordinator's contract (dispatcher, not Leader):**
+
+| The coordinator does | The coordinator does NOT |
+|---|---|
+| Verify each target session is live, dispatch each spec with its return path declared (supervised vs handoff, said out loud) | Adjudicate Reviewer FAILs inside a child session — that is the child Leader's job |
+| Enforce the delivery chain per child: send verified at the target (`terminal show`-equivalent), **idle ≠ delivered** (poke once on idle-without-report) | Read child `execution.md` files cover to cover — it consumes each child's bounded completion report |
+| Receive per-spec completion reports (bounded summaries: final status, tasks done, verification evidence pointer, branch name) | Re-derive or re-verify the child's work — commit to the delegation |
+| Escalate child exceptions (HALT / Pivot / tripwire) to the user — exceptions always reach a human, `pre-approved` never absorbs them | Absorb a HALT silently or "fix" a child's blocker itself |
+| Order and execute the **serial merge phase** in dependency order, with an integration verification after each merge | Merge in parallel, or merge a branch whose spec did not reach a PASS/validated state |
+
+**Width and waves at spec scale:** the same landing physics binds. Implementation parallelizes; **integration does not** — N branches means N serial merges plus integration verification, and each child's completion lands in the coordinator's one context. Default **2 concurrent spec sessions, at most 3**; a proposal that chunks into six specs runs as waves (2–3, merge, next wave), never as a six-wide fleet. Merges happen between waves, so each wave starts from a master that already contains the previous wave — which also catches cross-spec drift early, while it is one merge old instead of six.
+
+**Recovery is per-worktree and already solved:** a dead or interrupted child session is resumed in place with `/akili-resume` in its worktree — its `execution.md` is the handoff, exactly as in single-session work. The coordinator's own state is small by design (dispatch log + reports received), so it should be trivially reconstructible; keep it in a file, not in conversation.
+
+---
+
 ## Advanced Engineering Capabilities
 
 To support robust, long-term development cycles, AKILI includes the following specialized workflows:

@@ -138,6 +138,7 @@ Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 **Scope Chunking:** If the user provides a very large or multi-faceted instruction (e.g., an entire epic or multiple distinct features), analyze whether the request should be split into multiple bounded proposals.
 - If it should be split, propose breaking it down to the user.
 - When recommending the build order of the resulting chunks, score them with RICE or MoSCoW from the `product-manager-toolkit` skill (AKILI-SPECS Integration section) instead of guessing.
+- **Record inter-chunk dependencies explicitly in each proposal** (`Depends on: <spec-path> | none`), and mark chunks with no shared modules, migrations, or API contracts as **`Parallel-safe: yes`**. This single field is what later enables the fleet pattern (`docs/flow.md` → *Multi-Spec Parallel Execution*) to run independent specs concurrently in separate worktrees — independence is decided here, where the decomposition judgment is fresh, not re-derived at dispatch time.
 - Upon agreement, create the respective folders for each bounded change under `docs/specs/` and generate a `proposal.md` for each.
 
 Ask focused questions only when the proposal would otherwise depend on unstable assumptions.

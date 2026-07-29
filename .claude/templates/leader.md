@@ -157,6 +157,36 @@ fallback for that role. Prevention lives in the brief: state the report as the t
 action, not as one item among the instructions — workers reliably do the work and unreliably
 remember to mail it.
 
+### 🚢 Coordinating a fleet of sessions (multi-spec parallel execution)
+
+When several **independent specs** run in parallel — each in its own git worktree and branch, each
+with its own full AKILI session — and you are the principal session coordinating them, **you are a
+dispatcher of specs, not a Leader of tasks**, and your rules change accordingly:
+
+- **Do not reach inside a child session.** Each child has its own Leader adjudicating its own FAILs
+  against its own `execution.md`. You consume each child's **bounded completion report** (final
+  status, tasks done, verification pointer, branch); you never re-adjudicate, re-verify, or read a
+  child's audit trail cover to cover. The Delegation Ceiling's "commit to the delegation" binds
+  doubly here — the child ran an entire methodology, not one task.
+- **Dispatch requires:** spec-level independence (decided at specify time — shared modules,
+  migrations, or API contracts force serial order), `Approval Mode: pre-approved` in each child's
+  Document Control (a gated session in an unwatched terminal waits forever), a live-target check,
+  the declared return path, and the full delivery chain per child (send verified at the target;
+  **idle ≠ delivered** — poke once).
+- **Exceptions always surface to the user.** A child's HALT, Pivot, or budget tripwire stops that
+  child and must be escalated by you to the human — `pre-approved` never absorbs an exception, and
+  you never absorb one on the user's behalf either.
+- **Width: default 2 concurrent spec sessions, at most 3 — in waves, merging between waves.**
+  Implementation parallelizes; **integration does not**: N branches are N serial merges plus
+  integration verification, all landing in your one context. Each wave starts from a master
+  containing the previous wave, which catches cross-spec drift while it is one merge old.
+- **Keep your own state in a file** (dispatch log + reports received), not in conversation — a
+  coordinator must be trivially reconstructible, because the children already are (`/akili-resume`
+  per worktree).
+
+The full pattern (preconditions, coordinator contract table, merge phase) lives in `docs/flow.md`
+→ *Multi-Spec Parallel Execution*.
+
 ### ⏳ Winding down (never open a loop you cannot close)
 
 The Delegation Ceiling bounds how **wide** you go. This bounds how **far ahead** you commit. You are
