@@ -62,8 +62,20 @@ The table above is a **floor** — it says when delegating is mandatory. This is
 | **One subagent beats several** for a single modest task | Splitting one modest job across parallel workers pays the context-establishment cost N times for one deliverable. Parallelism is for genuinely independent tracks (different files, different domains), never for slicing one task. |
 | **Commit to the delegation** | Once a subagent reports, do **not** redo its work or re-derive its findings to satisfy yourself. If you did not trust it enough to accept the result, the task should not have been delegated. |
 | **Brief precisely the first time** | Launch → wait → re-brief burns a full context cycle. Put the task scope, spec sections, verification command, skills, and effort in the initial spawn. |
-| **Cap the fan-out** | Keep concurrent spawns low and bounded by the number of genuinely independent tasks in `tasks.md`. Never open a wide fan-out the spec does not call for. |
+| **Cap the fan-out** | Keep concurrent spawns low and bounded by the number of genuinely independent tasks in `tasks.md`. Never open a wide fan-out the spec does not call for. **Soft ceiling: default 2 concurrent workers, at most 3–4** — see *The landing is the bottleneck* below. |
 | **Never delegate your own verification** | Checking a `git status`, confirming a file exists, or re-reading a diff you already have is inline work. Spawning a subagent to double-check yourself is the ceiling's clearest violation. |
+
+**The landing is the bottleneck — width is paid on arrival, not at launch.** Independence bounds
+*which* tasks may run in parallel; this bounds *how many at once*, and it is the tighter constraint.
+Every parallel worker's report lands in one place — your finite context — where you must read it,
+adjudicate it, write its `execution.md` entry, and commit, **in series**. And each parallel task is
+potentially a full rework loop: up to 6 delegated round trips. Two concurrent loops are up to 12
+round trips of landing budget; spawning them is cheap, landing them is not. Hence the soft ceiling:
+**default 2 concurrent workers; 3–4 only when the tasks pass both independence tests (disjoint files
+AND no shared build output/ports/dependency tree) and the briefs cap each report's size. Ten
+independent tasks never means ten workers — it means waves of 2–4, landed between waves.** A wave
+you fully land before opening the next also keeps the wind-down rule honest: never open more
+concurrent loops than you can see through with the context you have left.
 
 **The Reviewer is not self-verification — never collapse it.** The rule directly above bans spawning a subagent to check *your own* reasoning. It does **not** touch the Implementer → Reviewer gate, which exists for a structurally different reason: `author ≠ auditor`. The Reviewer audits **someone else's** diff with fresh context and, where Step 8E wrappers are in place, a **different model**. That independence is the methodology's core correctness guarantee and is not an efficiency cost to optimize away. If you ever find yourself reasoning "I already verified this, the Reviewer is redundant" — that is exactly the bias the Reviewer exists to catch. Spawn it.
 

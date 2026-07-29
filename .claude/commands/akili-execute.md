@@ -109,7 +109,7 @@ The Leader does not write production code itself unless the rework loop is exhau
    - all dependencies are `[x]`
 2. If a task is `[~]`, resume it using `execution.md` context.
 3. If no tasks are eligible, report completion or blocking state and stop.
-4. **Parallel Execution:** If multiple tasks are eligible AND they are completely independent (e.g., they touch completely different domains or files), you MAY spawn multiple Implementers in parallel to execute them concurrently. Otherwise, prefer executing the first task by document order to avoid merge conflicts.
+4. **Parallel Execution:** If multiple tasks are eligible AND they are completely independent (e.g., they touch completely different domains or files), you MAY spawn multiple Implementers in parallel to execute them concurrently. Otherwise, prefer executing the first task by document order to avoid merge conflicts. **Width cap:** default 2 concurrent, at most 3–4 — ten independent tasks means waves of 2–4 landed between waves, never ten workers; the binding constraint is your own landing budget, per `.agents/leader.md` → *The landing is the bottleneck*.
 
 ### Step 2: Execute Task via Rework Loop
 

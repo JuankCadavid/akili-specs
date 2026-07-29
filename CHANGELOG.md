@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **The fan-out gets a soft numeric ceiling, justified by the bottleneck that actually binds: the landing.** The Delegation Ceiling capped parallelism structurally ("bounded by genuinely independent tasks"), which an enthusiastic Leader could read as *ten independent tasks = ten workers*. The missing physics: independence bounds *which* tasks may run in parallel, but every worker's report lands in one place — the Leader's finite context — where it is read, adjudicated, written to `execution.md`, and committed **in series**, and each parallel task is potentially a full rework loop (up to 6 delegated round trips; two concurrent loops = up to 12 of landing budget). **Spawning is cheap; landing is not — width is paid on arrival.** New rule in `leader.md` (echoed at `/akili-execute` Step 1.4): **default 2 concurrent workers, at most 3–4** when both independence tests pass (disjoint files AND no shared build output/ports/dependency tree) and briefs cap each report's size; ten independent tasks means **waves of 2–4, fully landed between waves** — which also keeps the wind-down rule honest: never open more concurrent loops than the remaining context can see through. Bounded numerics where the failure mode is unbounded growth is established house style (3 rework attempts, ≤7 seed questions, 2–4 lens Reviewers, ≤3 Kaizen lessons).
 
 ## [2.20.1] - 2026-07-29
 
