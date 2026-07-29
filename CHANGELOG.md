@@ -6,9 +6,13 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Fixed
+
+- **The update check now bounds what it reads from the registry and releases sockets on error paths** (PR #2, Jules/Sentinel — first external-tool PR into the repo). `fetchLatestVersion` capped its response at 50KB with `req.destroy()` on overflow (the real dist-tags payload is ~200 bytes, so the cap never fires in normal operation) and drains non-200 responses with `res.resume()` instead of leaving the socket held with unread data. Reported as MEDIUM; realistically LOW — exploiting it requires a compromised registry or a MITM already past TLS — but the pattern (bound every external read, release every error-path socket) is the right default for any external data consumption, and the fix costs nothing. Line-by-line reviewed per CONTRIBUTING's installer rule; the possible double-`resolve` after destroy is a benign no-op, same as the pre-existing timeout handler. This entry and the `.jules/sentinel.md` date fix (2024 → 2026) are the follow-up the merge deferred.
+
 ### Notes
 
-- No unreleased changes yet.
+- The 4.8-era tier/effort illustration in `docs/model-routing.md` is now explicitly labeled previous-generation, after a reader took it for current routing — the registry itself has been on the `opus` alias (→ Opus 5) all along.
 
 ## [2.20.2] - 2026-07-29
 
