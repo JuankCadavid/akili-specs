@@ -292,11 +292,12 @@ one level on the retry (attempt 1 `medium` → attempt 2 `high` → attempt 3 `x
 when it already failed) and it targets the usual cause (under-thinking, not missing instructions).
 
 **Tier ↔ effort interaction — don't `max` a cheaper tier.** Maxing a lower tier erodes its cost
-advantage: on the 4.8-generation ladder, Sonnet 5 at `max` (53 intel / $1.53) approached Opus 4.8 at
-`max` (56 intel / $1.80) — near-Opus price for below-Opus intelligence. Those figures are a
-generation-specific illustration, but the rule they demonstrate is stable across generations: if you
-find yourself wanting a cheaper tier at `max`, escalate the **tier** (to `opus` at `high`/`medium`)
-instead of the effort.
+advantage. Historical illustration from the **previous (4.8) generation** — kept because the numbers
+were measured, not because that ladder is current: Sonnet 5 at `max` (53 intel / $1.53) approached
+Opus 4.8 at `max` (56 intel / $1.80) — near-Opus price for below-Opus intelligence. The rule the
+figures demonstrate is stable across generations (the current `opus` alias resolves to Opus 5): if
+you find yourself wanting a cheaper tier at `max`, escalate the **tier** (to `opus` at
+`high`/`medium`) instead of the effort.
 
 **Sonnet specifics.** Sonnet respects effort strictly, especially at the low end — at `low`/`medium`
 it scopes work to exactly what was asked. If you see shallow reasoning on a hard problem, **raise
