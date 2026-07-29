@@ -97,6 +97,8 @@ Commands:
   update    Update npm package to latest version, reinstall files, and show what changed
   doctor    Check whether expected files are installed
   list      List packaged commands, skills, and helper resources
+  check-update    Print one line if a newer version exists (--quiet: silent when current; for session hooks)
+  notifications   enable | disable | status — opt-in Claude Code SessionStart hook announcing new versions
   help      Show this help
 
 Options:
@@ -124,6 +126,7 @@ Examples:
   akili update --tool both --force
   akili doctor --tool all --fix
   akili list
+  akili notifications enable
 `);
 }
 
@@ -154,6 +157,7 @@ function getArgs() {
     "skills-only": { type: "boolean", default: false },
     fix: { type: "boolean", default: false },
     local: { type: "boolean", short: "l", default: false },
+    quiet: { type: "boolean", default: false },
     help: { type: "boolean", short: "h", default: false },
   };
 
@@ -193,8 +197,10 @@ function getArgs() {
 
     const args = {
       command,
+      action: positionals[1] || null,
       tool: values.tool,
       toolExplicit,
+      quiet: values.quiet,
       force: values.force,
       dryRun: values["dry-run"],
       commandsOnly: values["commands-only"],
@@ -746,6 +752,7 @@ function runInstall(args) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
     console.log(`  - Verify the installation with ${colors.cyan}akili doctor --tool ${toolFlagFor(tools)}${colors.reset}.`);
+    console.log(`  - Optional: ${colors.cyan}akili notifications enable${colors.reset} to hear about new versions at Claude Code session start.`);
   }
 }
 
@@ -986,49 +993,184 @@ const readline = require("readline/promises");
 const https = require("https");
 const { version: currentVersion } = require("../package.json");
 
-function checkForUpdates() {
+// Update-check cache: one registry hit per day, shared by every entry point
+// (startup banner, `check-update`, the session hook). Without it, every CLI
+// run paid up to 1.5s of registry latency for information that changes at
+// most a few times a week.
+const UPDATE_CACHE_PATH = path.join(os.homedir(), ".akili-specs-update.json");
+const UPDATE_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+function readUpdateCache() {
+  try {
+    const cache = JSON.parse(fs.readFileSync(UPDATE_CACHE_PATH, "utf8"));
+    if (cache && typeof cache.checkedAt === "number" && Date.now() - cache.checkedAt < UPDATE_CACHE_TTL_MS) {
+      return cache;
+    }
+  } catch {
+    /* missing or corrupt cache is the same as no cache */
+  }
+  return null;
+}
+
+function writeUpdateCache(latest) {
+  try {
+    fs.writeFileSync(UPDATE_CACHE_PATH, JSON.stringify({ checkedAt: Date.now(), latest }));
+  } catch {
+    /* a cache we cannot write just means we check again next run */
+  }
+}
+
+function fetchLatestVersion() {
   return new Promise((resolve) => {
     const req = https.get("https://registry.npmjs.org/-/package/akili-specs/dist-tags", { timeout: 1500 }, (res) => {
-      if (res.statusCode !== 200) return resolve();
+      if (res.statusCode !== 200) return resolve(null);
       let data = "";
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
         try {
-          const tags = JSON.parse(data);
-          const latestVersion = tags.latest;
-          if (latestVersion && latestVersion !== currentVersion) {
-            // simple semver check
-            const isNewer = latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
-            if (isNewer) {
-              const border = `╭─────────────────────────────────────────────────────────────╮`;
-              const emptyLine = `│                                                             │`;
-              
-              console.log(`\n${colors.yellow}${border}`);
-              console.log(`${emptyLine}`);
-              const rawStr1 = `   Update available! ${currentVersion} -> ${latestVersion}`;
-              const pad1 = " ".repeat(Math.max(0, 61 - rawStr1.length));
-              console.log(`│   ${colors.yellow}Update available!${colors.reset} ${colors.red}${currentVersion}${colors.reset} → ${colors.green}${latestVersion}${colors.reset}${pad1}│`);
-              
-              const rawStr2 = `   Run akili update to upgrade.`;
-              const pad2 = " ".repeat(Math.max(0, 61 - rawStr2.length));
-              console.log(`│   Run ${colors.cyan}akili update${colors.reset} to upgrade.${pad2}│`);
-              console.log(`${emptyLine}`);
-              console.log(`╰─────────────────────────────────────────────────────────────╯${colors.reset}\n`);
-            }
-          }
-          resolve();
-        } catch (e) {
-          resolve();
+          resolve(JSON.parse(data).latest || null);
+        } catch {
+          resolve(null);
         }
       });
     });
-
-    req.on("error", () => resolve());
+    req.on("error", () => resolve(null));
     req.on("timeout", () => {
       req.destroy();
-      resolve();
+      resolve(null);
     });
   });
+}
+
+// Returns the latest published version, from cache when fresh, hitting the
+// registry (and refreshing the cache) otherwise. Null when it cannot tell.
+async function getLatestVersion() {
+  const cache = readUpdateCache();
+  if (cache) return cache.latest;
+  const latest = await fetchLatestVersion();
+  if (latest) writeUpdateCache(latest);
+  return latest;
+}
+
+function isNewerVersion(latestVersion) {
+  return (
+    latestVersion &&
+    latestVersion !== currentVersion &&
+    latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
+  );
+}
+
+async function checkForUpdates() {
+  // Scripted/CI runs neither want the banner nor should pay for the check.
+  if (!process.stdout.isTTY) return;
+  const latestVersion = await getLatestVersion();
+  if (!isNewerVersion(latestVersion)) return;
+
+  const border = `╭─────────────────────────────────────────────────────────────╮`;
+  const emptyLine = `│                                                             │`;
+
+  console.log(`\n${colors.yellow}${border}`);
+  console.log(`${emptyLine}`);
+  const rawStr1 = `   Update available! ${currentVersion} -> ${latestVersion}`;
+  const pad1 = " ".repeat(Math.max(0, 61 - rawStr1.length));
+  console.log(`│   ${colors.yellow}Update available!${colors.reset} ${colors.red}${currentVersion}${colors.reset} → ${colors.green}${latestVersion}${colors.reset}${pad1}│`);
+
+  const rawStr2 = `   Run akili update to upgrade.`;
+  const pad2 = " ".repeat(Math.max(0, 61 - rawStr2.length));
+  console.log(`│   Run ${colors.cyan}akili update${colors.reset} to upgrade.${pad2}│`);
+  console.log(`${emptyLine}`);
+  console.log(`╰─────────────────────────────────────────────────────────────╯${colors.reset}\n`);
+}
+
+// `akili check-update [--quiet]` — the session-hook entry point. One short
+// line when an update exists, silence otherwise, exit 0 always: a hook that
+// can fail or spam would be worse than no hook. Uses the shared 24h cache,
+// so the common case (fresh cache, no update) costs one file read.
+async function runCheckUpdate(args) {
+  const latestVersion = await getLatestVersion();
+  if (isNewerVersion(latestVersion)) {
+    if (args.quiet) {
+      // Plain text, no colors: this line lands in a session-context buffer,
+      // not a human terminal.
+      console.log(
+        `akili-specs update available: ${currentVersion} → ${latestVersion}. Tell the user to run: akili update`
+      );
+    } else {
+      console.log(
+        `${colors.yellow}Update available:${colors.reset} ${currentVersion} → ${colors.green}${latestVersion}${colors.reset}. Run ${colors.cyan}akili update${colors.reset}.`
+      );
+    }
+  } else if (!args.quiet) {
+    console.log(`akili-specs ${currentVersion} is up to date.`);
+  }
+}
+
+// `akili notifications enable|disable|status` — opt-in SessionStart hook in
+// Claude Code's user settings, so people who never re-run the CLI still hear
+// about new versions where they actually work: at session start. Claude Code
+// only for now — OpenCode and Antigravity hook mechanisms differ and are not
+// wired here.
+const NOTIFY_HOOK_COMMAND = "akili check-update --quiet";
+
+function runNotifications(args, action) {
+  const settingsPath = path.join(args.claudeTarget || defaultPaths.claude, "settings.json");
+
+  let settings = {};
+  if (fs.existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+    } catch {
+      fail(`${settingsPath} exists but is not valid JSON — fix it manually before enabling notifications. Nothing was changed.`);
+    }
+  }
+
+  const sessionStart = settings.hooks && Array.isArray(settings.hooks.SessionStart) ? settings.hooks.SessionStart : [];
+  const hasHook = sessionStart.some(
+    (entry) => Array.isArray(entry.hooks) && entry.hooks.some((h) => typeof h.command === "string" && h.command.includes("akili check-update"))
+  );
+
+  if (action === "status") {
+    console.log(`\nUpdate notifications (Claude Code SessionStart hook): ${hasHook ? colors.green + "enabled" : colors.yellow + "disabled"}${colors.reset}`);
+    console.log(`Settings file: ${settingsPath}`);
+    const cache = readUpdateCache();
+    if (cache) console.log(`Last registry check: ${new Date(cache.checkedAt).toISOString()} (latest seen: ${cache.latest})`);
+    return;
+  }
+
+  if (action === "enable") {
+    if (hasHook) {
+      console.log(`\nAlready enabled in ${settingsPath}.`);
+      return;
+    }
+    settings.hooks = settings.hooks || {};
+    settings.hooks.SessionStart = sessionStart;
+    sessionStart.push({ hooks: [{ type: "command", command: NOTIFY_HOOK_COMMAND }] });
+    fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+    console.log(`\n${colors.green}Enabled.${colors.reset} Claude Code sessions will surface new akili-specs versions at session start.`);
+    console.log(`Hook added to ${settingsPath} (remove anytime with ${colors.cyan}akili notifications disable${colors.reset}).`);
+    return;
+  }
+
+  if (action === "disable") {
+    if (!hasHook) {
+      console.log(`\nAlready disabled — no akili hook found in ${settingsPath}.`);
+      return;
+    }
+    settings.hooks.SessionStart = sessionStart
+      .map((entry) => {
+        if (!Array.isArray(entry.hooks)) return entry;
+        const kept = entry.hooks.filter((h) => !(typeof h.command === "string" && h.command.includes("akili check-update")));
+        return kept.length === entry.hooks.length ? entry : { ...entry, hooks: kept };
+      })
+      .filter((entry) => !Array.isArray(entry.hooks) || entry.hooks.length > 0);
+    if (settings.hooks.SessionStart.length === 0) delete settings.hooks.SessionStart;
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+    console.log(`\n${colors.green}Disabled.${colors.reset} The akili hook was removed from ${settingsPath}; other hooks were left untouched.`);
+    return;
+  }
+
+  fail(`Unknown notifications action: ${action || "(none)"}. Use enable, disable, or status.`);
 }
 
 async function runInteractiveInit() {
@@ -1096,10 +1238,18 @@ async function runInteractiveInit() {
 }
 
 async function main() {
-  await checkForUpdates();
-  
   const args = getArgs();
-  
+
+  // check-update IS the update check (and runs from a session hook, where
+  // banners and a second registry hit would be noise) — every other command
+  // keeps the startup banner-check behavior.
+  if (args.command === "check-update") {
+    await runCheckUpdate(args);
+    return;
+  }
+
+  await checkForUpdates();
+
   if (args.command !== "help" && args.command !== "list" && args.command !== "init") {
     printBanner();
   }
@@ -1122,6 +1272,9 @@ async function main() {
       break;
     case "list":
       runList();
+      break;
+    case "notifications":
+      runNotifications(args, args.action);
       break;
     case "help":
       printHelp();

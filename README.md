@@ -397,6 +397,8 @@ See the full [CLI Reference](docs/cli.md) for options, install paths, examples, 
 | `akili update` | Reinstall packaged commands, skills, and helper resources |
 | `akili list` | Show packaged commands, skills, and helper resources |
 | `akili doctor` | Check whether expected files are installed |
+| `akili check-update` | Print one line if a newer version is on npm (`--quiet` for session hooks; 24h cache) |
+| `akili notifications enable\|disable\|status` | Opt-in Claude Code SessionStart hook that announces new versions at session start |
 
 Useful options:
 

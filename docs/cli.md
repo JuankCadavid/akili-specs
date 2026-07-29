@@ -59,6 +59,8 @@ akili install --tool both --local
 | `akili update` | Update the package to the latest version (via the package manager that owns the install — npm or pnpm), reinstall files, and print a changelog summary of what changed |
 | `akili list` | List packaged commands, skills, and helper resources |
 | `akili doctor` | Check whether expected files are installed |
+| `akili check-update` | Print one line if a newer version is published to npm; silent + exit 0 when current with `--quiet` (built for session hooks). Registry checks are cached for 24h in `~/.akili-specs-update.json` |
+| `akili notifications enable\|disable\|status` | **Opt-in** update announcements where users actually work: `enable` registers a `SessionStart` hook (`akili check-update --quiet`) in Claude Code's `~/.claude/settings.json` (respects `--claude-target`), so new versions are surfaced at session start. `disable` removes exactly that hook and leaves every other setting untouched; `status` reports the hook state and the last registry check. If `settings.json` is not valid JSON the command aborts without writing. Claude Code only for now |
 | `akili help` | Show help |
 
 Every command closes with a clear end-of-run summary:
