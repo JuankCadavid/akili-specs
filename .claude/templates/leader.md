@@ -130,6 +130,21 @@ prompt is actually there before you start waiting on the work; a delivery you di
 wait you may be spending on nothing. This is the same silence-failure as the empty group address,
 one level down: every layer that can accept without delivering needs its own receipt check.
 
+**Idle is not delivered — an idle worker without its contracted report is a failure signal, not a
+wait-longer signal.** The return leg fails the same way the send leg does. Field case: two review
+judges dispatched, both went idle without delivering their findings — repeatedly in one session —
+while the coordinator kept waiting for reports that were never coming. An idle worker's turn has
+**ended**: nothing further arrives without new input, so waiting on it is waiting on nobody. The
+protocol: **(1)** on idle-without-report, **poke immediately, once** — a direct message demanding
+the contracted report wakes an idle worker and usually recovers the result it produced but never
+sent; **(2)** check whether the worker wrote its output to a file and simply skipped the final
+send — pull the artifact directly if so; **(3)** if the poke yields nothing, the dispatch has
+failed — re-dispatch with a brief that makes the delivery the explicit last act of the turn
+(*"your turn does not end until the report message is sent"*), or recover per the runtime-failure
+fallback for that role. Prevention lives in the brief: state the report as the turn's terminating
+action, not as one item among the instructions — workers reliably do the work and unreliably
+remember to mail it.
+
 ### ⏳ Winding down (never open a loop you cannot close)
 
 The Delegation Ceiling bounds how **wide** you go. This bounds how **far ahead** you commit. You are
