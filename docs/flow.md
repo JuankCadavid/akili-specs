@@ -16,6 +16,25 @@ The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a
 → evidence before archive
 ```
 
+## Day 1 on a Brand-New Project (from seed prompt to first spec)
+
+The most common point of confusion: after the seed prompt drives `/akili-constitution` (PRD, UX/UI, TRD, infrastructure, `.agents/`), **what do you do with the seed prompt now?**
+
+**Nothing — you never feed it to `/akili-propose`.** The PRD *is* the seed intent, structured and already approved through the constitution's own review gate. Re-proposing it would duplicate the PRD inside a `proposal.md`. The day-1 sequence is:
+
+```text
+1. Seed prompt → /akili-constitution        (Brand-new mode: PRD, design, TRD, infra, .agents/)
+2. /akili-propose <first-milestone>          (Greenfield track: reads the PRD — no re-pasting —
+                                              and decomposes the v1 scope into bounded changes
+                                              with a RICE/MoSCoW build order, one proposal per chunk,
+                                              each referencing PRD sections instead of restating them)
+3. /akili-specify <first-chunk>              (requirements, design, tasks for the first slice)
+4. /akili-execute → /akili-test → /akili-validate → /akili-archive
+5. Repeat 3–4 per chunk, in the build order from step 2
+```
+
+If the whole v1 is genuinely one bounded piece, skip step 2 and go straight to `/akili-specify`. The proposal layer earns its cost when the MVP needs *chunking and ordering* — not as a re-statement ritual.
+
 ## Primary Lifecycle
 
 ```text

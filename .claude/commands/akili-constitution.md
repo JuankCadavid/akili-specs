@@ -721,6 +721,14 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 
 Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
 
+**Close with the next step, by mode** — the handoff out of the constitution is where new users get lost, so never end at "baseline created" without saying what comes now:
+
+| Mode | Next step to recommend |
+|---|---|
+| **Brand-new** | **Do not re-propose the seed** — the PRD *is* that intent, already reviewed here. Run `/akili-propose <first-milestone>` in its **Greenfield track**: it reads the PRD and decomposes the v1 scope into bounded changes with a build order (no re-pasting the seed prompt). If v1 is genuinely one bounded piece, go straight to `/akili-specify <spec-path>` |
+| **Legacy** | Normal flow: `/akili-propose <change>` for the first piece of work — or `/akili-audit` first if the goal is understanding drift before touching anything |
+| **Active AKILI-SPECS** | `/akili-resume` to pick up in-flight specs, or `/akili-propose <change>` for new work |
+
 Ask the user whether to approve or request changes. If changes are requested, revise the affected documents and re-present.
 
 ---

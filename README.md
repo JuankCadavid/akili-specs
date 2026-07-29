@@ -510,6 +510,8 @@ Use this flow for normal feature work:
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 
+**Brand-new project? Don't re-propose the seed prompt.** After the seed drives `/akili-constitution`, the PRD *is* that intent — already reviewed. The next step is `/akili-propose <first-milestone>`, which reads the PRD and decomposes the v1 scope into bounded, ordered chunks (or `/akili-specify` directly when v1 is one bounded piece). See [Day 1 on a Brand-New Project](docs/flow.md#day-1-on-a-brand-new-project-from-seed-prompt-to-first-spec).
+
 `/akili-constitution` classifies the repository into one of three project modes:
 
 - **Brand-new (Seed Setup):** little or no code or durable docs. Creates the baseline from user intent, chosen stack, assumptions, and open questions, and copies default `.agents/` personas verbatim.

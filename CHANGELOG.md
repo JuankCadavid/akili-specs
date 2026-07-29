@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **The day-1 handoff out of the constitution is now explicit — you never re-propose the seed prompt.** On a brand-new platform, the seed prompt drives `/akili-constitution` (PRD, UX/UI, TRD, infrastructure) and then… the methodology went silent: nothing said what to do next, and the natural-but-wrong move is feeding the seed prompt to `/akili-propose`, which would duplicate intent that already went through the constitution's review gate into a `proposal.md`. Three fixes: **(1)** `/akili-constitution` Step 9 now closes with the next step **by mode** — Brand-new: propose-as-decomposition or straight to specify; Legacy: propose or audit-first; Active: resume — because the handoff is where new users get lost, and "baseline created" is not an ending. **(2)** `/akili-propose` gains a **Greenfield track**: fresh constitution + no application code → the PRD is the approved intent; don't ask the user to restate it; the proposal's job becomes decomposing the v1 scope into bounded changes via the existing Scope Chunking mechanics (RICE/MoSCoW build order), each proposal *referencing* PRD sections and owning only the slice boundary (what this chunk delivers, defers, and depends on); a v1 that is genuinely one bounded piece skips to `/akili-specify`. **(3)** `docs/flow.md` gets a *Day 1 on a Brand-New Project* section with the full seed → constitution → chunked proposals → per-chunk specify/execute sequence, linked from README's Start Here. The proposal layer earns its cost when the MVP needs chunking and ordering — never as a re-statement ritual.
 
 ## [2.20.0] - 2026-07-29
 

@@ -104,6 +104,8 @@ The proposal `frontmatter`/header should record the detected type as `Type: Bug 
 
 ### Step 1.1: Clarify Intent, Sources & Scope Chunking
 
+**Greenfield track (fresh constitution, no application code):** when the repo has a just-scaffolded baseline (`docs/prd.md` exists, meaningful application code does not), **the PRD is the approved intent — do not ask the user to restate the seed, and do not write a proposal that duplicates the PRD.** Re-proposing the seed is the classic day-1 confusion: the intent already went through the constitution's own review gate. The proposal's job here shifts to **decomposition**: read the PRD's v1/MVP scope, chunk it into bounded changes with the Scope Chunking mechanics below (RICE/MoSCoW build order, one folder + `proposal.md` per chunk), and have each proposal **reference PRD sections instead of restating them** — its Intent/Problem sections point at `docs/prd.md#...`; its own content is the *slice boundary*: what this chunk delivers, what it explicitly leaves to later chunks, and what it depends on. If the whole v1 is genuinely one bounded piece, say so and recommend skipping straight to `/akili-specify`.
+
 For **Feature / Change** and **Bug** requests, clarify the details. Ask the user about the source of the requirements and any visual designs:
 
 1. **Requirement Source:** Ask if they have a **Jira ticket** (if they do, suggest using the **Jira MCP** to automatically extract the description, acceptance criteria, and comments created by the BA) or if they prefer to paste/write the context directly.
