@@ -132,6 +132,13 @@ Use the `product-manager-toolkit` skill's **Customer Interview Guide** and **Hyp
 
 Ask only what is needed to avoid unstable assumptions.
 
+**Thin-seed protocol (Brand-new mode):** a one-line seed — *"necesito una app para vender carros"* — cannot support a PRD, and the two failure modes are opposite: an unbounded interrogation that exhausts the user, or a fully fabricated product the Step 9 gate rubber-stamps in one "approve". The second is the dangerous one: **everything downstream treats the PRD as constitution, so invented details become binding** — a fabricated PRD is not a draft, it is a false constitution that `/akili-specify` and `/akili-execute` will faithfully obey. Run this instead:
+
+1. **Sufficiency check.** A seed is thin when it leaves ≥2 of these undecided: **(a)** who the users/actors are and which product shape this is (the car-sales seed alone spans C2C marketplace, dealer inventory platform, and classifieds — three different products), **(b)** the 2–4 core v1 flows, **(c)** how success is measured / monetization, **(d)** stack or platform preference, **(e)** hard constraints (region, compliance, integrations).
+2. **One bounded clarification round — never an interrogation.** Batch at most **7 questions in a single message**, each carrying a **proposed default** so the user can answer with one word, answer partially, or say "decide tú". No second round unless the answers contradict each other. The defaults are your best product judgment made visible — the user vetoes cheaply instead of authoring from scratch.
+3. **Everything the user did not decide lands as a labeled Assumption**, written with the Hypothesis Template, in the PRD's Assumptions section — never silently woven into the prose as settled fact. Step 9's summary lists them so the approval covers what was *decided* and what was *assumed*, distinctly.
+4. **A thin seed yields a thin PRD, honestly.** Scope it as an MVP with open questions rather than inventing an enterprise-grade product to fill the template. Fabricated specificity is worse than acknowledged uncertainty: the uncertainty gets resolved in the next cycle; the fabrication gets *built*.
+
 ---
 
 ### Step 3: Create or Enhance the General PRD

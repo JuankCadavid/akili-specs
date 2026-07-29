@@ -35,6 +35,8 @@ The most common point of confusion: after the seed prompt drives `/akili-constit
 
 If the whole v1 is genuinely one bounded piece, skip step 2 and go straight to `/akili-specify`. The proposal layer earns its cost when the MVP needs *chunking and ordering* — not as a re-statement ritual.
 
+**Thin seed?** A one-line seed ("an app to sell cars") triggers the constitution's thin-seed protocol before any PRD is drafted: one bounded clarification round (≤7 batched questions, each with a proposed default the user can veto in a word), everything undecided lands as a **labeled Assumption** rather than invented prose, and the PRD comes out MVP-scoped with open questions instead of enterprise-shaped with fabricated certainty — downstream commands treat PRD statements as approved truth, so fabricated specificity would get *built*.
+
 ## Primary Lifecycle
 
 ```text
