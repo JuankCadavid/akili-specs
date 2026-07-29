@@ -172,6 +172,8 @@ Present:
 6. constitution sync summary: guides created or updated, parent index entries touched, and whether a CodeGraph re-index is recommended
 7. Kaizen summary: metrics captured, lessons recorded (IDs), standardization actions applied or deferred, and any Methodology lessons suggested for upstreaming to the AKILI repo
 
+**Context checkpoint (post-archive is the cleanest boundary in the whole methodology):** the spec is closed, and everything durable now lives in files — the archive, the kaizen log, the synced guides. Nothing in this session's context is worth carrying forward. If the session has been long, say so in one line and recommend the host's context reset before starting new work — `/clear` in Claude Code (then a fresh session picks up with `/akili-resume` or `/akili-propose`); on other hosts, name the equivalent only if confirmed. You cannot run it — it is the user's command — but recommending it *here*, at the boundary where it costs nothing, beats the user guessing mid-task where it destroys working state.
+
 ## Error Handling
 
 - If the spec path does not exist, report the missing path and stop.

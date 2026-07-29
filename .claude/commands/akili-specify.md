@@ -398,6 +398,8 @@ When the spec is ready, generate a short, easy-to-understand summary (summary fa
 
 If a proposal existed, mention whether the generated spec stayed aligned with it or changed based on implementation discovery.
 
+**Context checkpoint:** the spec documents are now the durable context — `/akili-execute` reloads everything it needs from files, not from this conversation. If this session ran long (heavy exploration, judgment-day rounds, mockups), recommend starting execution in a fresh session: `/clear` in Claude Code, then `/akili-execute <spec-path>` — the handoff costs nothing because nothing execution needs lives only in chat. You can only recommend, not run it; recommend it here, at the boundary, not mid-loop.
+
 ---
 
 ## Authorship

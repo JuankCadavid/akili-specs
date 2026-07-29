@@ -217,6 +217,23 @@ For a new repository, stale documentation, or a major product pivot, start at `/
 
 ---
 
+## Context Discipline (when to /compact, when to /clear)
+
+AKILI's file-based design exists precisely so that **conversation context is disposable at phase boundaries**: everything durable — specs, `execution.md`, `tasks.md`, guides, the kaizen log — lives in the repository, and `/akili-resume` rebuilds a session from files alone. That inverts the usual economics: resetting context is nearly free *at a boundary* and expensive *mid-task*, so the discipline is about **where**, not whether.
+
+The agent **cannot** run `/compact` or `/clear` — those are user commands in the host. What the methodology does instead is have commands **recommend the right action at the right moment** (context checkpoints), the same pattern as model checkpoints:
+
+| Moment | Checkpoint says | Why it is safe |
+|---|---|---|
+| After `/akili-archive` | `/clear`, then fresh session for new work | The cleanest boundary in the methodology — the spec is closed and fully externalized |
+| After `/akili-specify` approval | `/clear`, then `/akili-execute <spec-path>` fresh | Execution reloads everything from the spec files; nothing it needs lives only in chat |
+| `/akili-execute` Step 5 (between tasks) | `/compact` (keep session) or park + `/clear` + `/akili-resume` | Task state is fully in `execution.md`/`tasks.md`; between tasks the conversation holds nothing irreplaceable |
+| Mid-task, context critically low | Not a checkpoint — the Leader's **wind-down protocol** governs: finish or park `[~]` with full history, write the audit trail, stop | Mid-loop is exactly where resetting destroys working state |
+
+Host specifics: Claude Code has `/compact` (trim, keep session) and `/clear` (full reset) plus automatic compaction as a safety net. Other hosts have their own equivalents — per the methodology's own rule, **name them only when confirmed for the user's installed version, never by guessing**.
+
+---
+
 ## Advanced Engineering Capabilities
 
 To support robust, long-term development cycles, AKILI includes the following specialized workflows:

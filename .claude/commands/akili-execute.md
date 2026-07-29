@@ -251,6 +251,8 @@ After a task PASSes or HALTs, generate a short, easy-to-understand summary (summ
 
 **Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance.
 
+**Context checkpoint (this gate is the safe boundary inside a spec):** a task just closed and its full state is in `execution.md` + `tasks.md` — between tasks is the one moment mid-spec where the conversation holds nothing irreplaceable. If your context is getting heavy, say so in one line with the honest options: **`/compact` now** (keeps the session, trims history — safe here, destructive mid-loop), or **park and reset** (`/clear`, then `/akili-resume` rebuilds from the audit trail). You cannot run either — recommend at this gate rather than letting the wind-down protocol fire mid-loop later, which is the expensive version of the same decision. This checkpoint fires even under `pre-approved` mode: it costs one line, not a pause.
+
 ---
 
 ## Execution Log Format (`execution.md`)
