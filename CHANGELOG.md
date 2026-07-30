@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.21.0] - 2026-07-30
+
 ### Added
 
 - **SDD + TDD + Kaizen: the `tdd` skill joins the pack (Matt Pocock, MIT — the first external candidate this week to pass the acceptance bar).** Evaluated alongside a clean-code skill that did not (a summary of the Uncle Bob book already covered by the Reviewer's 4R readability lens and the Implementer's craft rules, plus function-length quotas of the mechanical style the stack rejects). Pocock's skill is current, quota-free, and **agent-aware** — its "horizontal slicing" anti-pattern (*bulk tests verify imagined behavior*) names precisely the default LLM failure mode, and its vertical-slice tracer-bullet loop is discipline, not theory. The AKILI adaptation makes the triad click: the anti-tautological rule demands expected values from *"an independent source of truth — the spec"*, and in AKILI that source **already exists and is already HITL-approved** — the `requirements.md` Given/When/Then scenarios; the upstream "confirm seams with the user" question is pre-answered by `design.md`'s approved interfaces; `/akili-specify` Bug Mode's mandatory red-before-green regression test was already this discipline (the skill generalizes it to features); refactoring stays out of the loop exactly where the harness already puts it (Reviewer 4R + `simplify`); and `author ≠ tester` survives — TDD tests are the author's tracer bullets, `/akili-test`'s Testers remain the independent proof and cite existing TDD coverage instead of rewriting it. Binding `conditional`: **the Leader assigns it per task** (algorithms, business rules, contracts — never copy/styling/config), the same judgment lane as every other skill assignment. Adopted per governance with upstream `tests.md`/`mocking.md` verbatim, attribution intact, and a `docs/skills/tdd.md` entry.
@@ -20,7 +26,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - The 4.8-era tier/effort illustration in `docs/model-routing.md` is now explicitly labeled previous-generation, after a reader took it for current routing — the registry itself has been on the `opus` alias (→ Opus 5) all along.
-
 ## [2.20.2] - 2026-07-29
 
 ### Added
