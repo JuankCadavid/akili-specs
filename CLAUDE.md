@@ -22,6 +22,7 @@ When working on tasks in this repository or when using the installed AKILI-SPECS
 Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 
 - Use `systematic-debugging` for bugs, test failures, and unexpected behavior.
+- Use `tdd` for test-first implementation of logic-heavy tasks (algorithms, business rules, contracts); the `/akili-execute` Leader assigns it per task — expected values come from `requirements.md` scenarios, seams from `design.md`.
 - Use `frontend-design`, `ui-ux-pro-max`, `tailwind-design-system`, or `shadcn-ui` for UI work.
 - Use `gsap-animation` for animation work (read the matching `references/` file for the task).
 - Use `judgment-day` for blind adversarial design reviews during `/akili-specify`.
