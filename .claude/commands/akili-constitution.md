@@ -708,6 +708,99 @@ this step — the guidance-only flow keeps working.
 
 ---
 
+### Step 8F: Scaffold Guardrail Hooks (Claude Code only, opt-in)
+
+Offer to scaffold **guardrail hooks** into the project's `.claude/settings.json` — harness-level
+enforcement of methodology invariants that today live only as prose. The design rule that gates
+what belongs here: **a hook may block a violation; it must never perform an action the methodology
+routes through judgment.** Auto-committing, auto-formatting into the diff, auto-syncing state are
+*actors* and stay out — they would automate the exact moments the gates exist to protect (an
+auto-commit per edit would even empty the working-tree diff the Reviewer audits). Guardrails only.
+
+Ask the user first (one question): *"Scaffold the AKILI guardrail hook, so a task cannot be marked
+`[x]` without Reviewer PASS evidence in `execution.md` — enforced by the harness, not by prompt
+discipline?"* If declined, skip — the prose rules keep working as before.
+
+**When accepted:**
+
+1. Write `.claude/hooks/akili-tasks-gate.sh` (executable) with exactly this content:
+
+   ```bash
+   #!/bin/bash
+   # AKILI guardrail: a task cannot flip to [x] without Reviewer PASS evidence
+   # in the same spec's execution.md (evidence before checkbox).
+   # Scaffolded by /akili-constitution Step 8F. Claude Code PreToolUse hook.
+   input=$(cat)
+   fp=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')
+   case "$fp" in
+     */docs/specs/*/tasks.md) ;;
+     docs/specs/*/tasks.md) ;;
+     *) exit 0 ;;
+   esac
+   tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
+   if [ "$tool" = "Edit" ]; then
+     old=$(printf '%s' "$input" | jq -r '.tool_input.old_string // ""')
+     new=$(printf '%s' "$input" | jq -r '.tool_input.new_string // ""')
+   else
+     old=$(cat "$fp" 2>/dev/null || printf '')
+     new=$(printf '%s' "$input" | jq -r '.tool_input.content // ""')
+   fi
+   count_x() { printf '%s' "$1" | grep -o '\[x\]' | wc -l | tr -d ' '; }
+   [ "$(count_x "$new")" -le "$(count_x "$old")" ] && exit 0
+   exec_md="$(dirname "$fp")/execution.md"
+   if [ ! -f "$exec_md" ]; then
+     echo "BLOCKED (AKILI guardrail): flipping a task to [x] but $exec_md does not exist. Evidence first: append the execution.md entry with the Reviewer PASS before updating tasks.md (/akili-execute Step 3 order)." >&2
+     exit 2
+   fi
+   if ! grep -q "PASS" "$exec_md"; then
+     echo "BLOCKED (AKILI guardrail): $exec_md contains no PASS evidence. A task reaches [x] only after a Reviewer PASS is recorded (evidence before checkbox)." >&2
+     exit 2
+   fi
+   exit 0
+   ```
+
+2. Merge into the project's `.claude/settings.json` (**read it first; if it exists but is invalid
+   JSON, stop and report — never overwrite a file you could not parse**):
+
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [
+         {
+           "matcher": "Edit|Write",
+           "hooks": [
+             { "type": "command", "command": "bash .claude/hooks/akili-tasks-gate.sh" }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+   Merge, never replace: preserve every existing hook and setting. Project scope on purpose — the
+   file is committed, so the guardrail binds every teammate's session in this repo, which is the
+   point.
+
+**What the gate enforces and what it deliberately tolerates:** it blocks the `[x]`-without-evidence
+write for *everyone* in the checkout — agents mid-loop and humans alike; a human with a legitimate
+reason records the evidence or disables the hook, both of which are visible acts. The PASS check is
+a **v1 heuristic** (any `PASS` in the spec's `execution.md`) — coarse, but it catches the failure
+that matters (a checkbox with no audit trail at all), and its ordering premise is exactly
+`/akili-execute` Step 3's evidence-first rule, which is what makes this gate *possible*. Projects
+wanting a sharper marker (per-task-ID matching) can harden the script; note the heuristic in the
+Step 9 summary either way.
+
+**Honesty across hosts:** hooks are Claude Code's mechanism. On OpenCode and Antigravity the same
+invariant remains prose (the commands' own rules) — record in the summary that the guardrail is
+*enforced* on Claude Code and *instructional* elsewhere, the same asymmetry Step 8E already
+documents for the Reviewer's `tools` restriction.
+
+**Mode policy:** Brand-new/Legacy — scaffold when accepted. Active AKILI-SPECS — never overwrite an
+existing `akili-tasks-gate.sh` (the project may have hardened it); create only if missing, and flag
+drift between an existing script and this template without touching it.
+
+---
+
 ### Step 9: Present and Confirm
 
 After drafting or enhancing the documents, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) covering:
@@ -724,6 +817,7 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
 - The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2)
+- The Step 8F guardrail hook: scaffolded (noting it is enforced on Claude Code and instructional on other hosts, and that the PASS check is the v1 heuristic), or declined
 - Any assumptions and open questions that still need validation
 
 Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
@@ -750,6 +844,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
 - [ ] If Step 8E wrappers were generated, the **Reviewer** wrapper's state is named in the summary: either it carries the host's read-only restriction, or it was deliberately omitted (syntax unconfirmable, or a wrong tool name would hang the agent). Verify no *other* wrapper carries one — a restricted Leader, Implementer, or Tester is a broken role, not a stricter one. Both `author ≠ auditor` axes should hold: a Reviewer model different from the Implementer's (rule 1) **and** no write tools (rule 2).
+- [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, and Antigravity — all three are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
