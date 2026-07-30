@@ -264,6 +264,16 @@ Append to the audit report a section titled `## Implementation Prompt` containin
 - Include exact URL pairs for hreflang corrections.
 - End with "Show me a diff of every change before applying. Do not deploy until I approve."
 
+#### 4.1 — Growth Strategy Addendum (opt-in)
+
+The audit diagnoses what is broken; this addendum prescribes what to *build*. After the fix prompt, offer the user a `## Growth Strategy` section for the report — **opt-in, and only when the audit surfaced content/visibility gaps** (thin content, orphan-like pages, weak topical coverage, a local business with no presence data). Skip it entirely for purely technical audits. When accepted, cover only the lenses that apply:
+
+- **Keyword & topic strategy.** Derive candidate topics from what the audit already read (the site's actual pages, GSC queries when the MCP is connected — real impression data beats guessed volume). Recommend **topic clusters**: one pillar page per core offering, supporting pages targeting long-tail intents, interlinked hub-and-spoke. Never prescribe keyword densities or word counts — matching the *intent* better than the current ranking pages is the target; mechanical quotas are stale advice that reads as spam to modern ranking systems and to GEO engines alike.
+- **Featured snippets & answer surfaces.** For queries where the site ranks page 1 but below the snippet: add a 40–60 word direct answer immediately under the matching heading, use question-form H2/H3s, and structure comparisons/steps as tables and ordered lists. This same shape is what generative engines quote — it compounds with the GEO findings from Phase 2, so cross-reference them rather than writing a separate plan.
+- **Local SEO** (only when the audit shows a business with physical presence or service areas): Google Business Profile completeness (categories, hours, photos, posts), `LocalBusiness` JSON-LD consistent with the GBP listing, NAP (name/address/phone) consistency across pages, and location-specific landing pages when multiple areas are served — distinct content per location, never templated near-duplicates (Phase 2's duplicate-content check applies to these too).
+
+Each recommendation lands in the report with the same discipline as audit findings: tied to evidence (a page, a query, a gap the audit measured), with an effort estimate, **never a generic checklist**. If the user declines, note "Growth Strategy: offered and declined" in the report and move on.
+
 ---
 
 ### Phase 5: Present & Approve
@@ -292,6 +302,7 @@ After the command completes, verify:
 - [ ] GEO findings from Step 2.8 are present, carry their source tier where a magnitude is cited, and rank below blocking classic-SEO fixes in the remediation plan.
 - [ ] No finding claims engagement metrics (bounce rate, time on page) affect rankings, and none flags a missing `llms.txt`.
 - [ ] The implementation prompt is self-contained and would not require this conversation to execute.
+- [ ] The Growth Strategy addendum was **offered when the audit surfaced content/visibility gaps** and its state is named in the report (included / offered and declined / not applicable for a purely technical audit). When included, every recommendation cites audit evidence and none prescribes keyword densities or word counts.
 
 ---
 
