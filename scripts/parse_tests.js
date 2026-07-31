@@ -76,7 +76,7 @@ function parseTestJson(inputPath) {
       if (test.failureMessages && test.failureMessages.length > 0) {
         // Strip ANSI escape codes and clean up message
         failureNotes = test.failureMessages[0]
-          .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "")
+          .replace(/[\u001B\u009B][[\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g, "")
           .replace(/\r?\n/g, " ")
           .substring(0, 120);
         failureNotes = `\`${failureNotes}...\``;

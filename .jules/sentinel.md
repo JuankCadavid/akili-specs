@@ -1,4 +1,4 @@
-## 2026-07-29 - Uncontrolled Resource Consumption in NPM Registry Checks
-**Vulnerability:** The CLI fetches package updates from the npm registry using `https.get` but does not bound the size of the HTTP response or properly dispose of unread stream chunks on error statuses.
-**Learning:** This exposes the tool to Uncontrolled Resource Consumption (DoS) and potential socket memory leaks if the registry responds unexpectedly or maliciously.
-**Prevention:** Always implement a maximum chunk length check in `res.on('data')` when consuming external data, call `req.destroy()` to abort oversized streams, and remember to call `res.resume()` on error paths to release socket resources.
+## 2024-05-18 - [ReDoS in ANSI Escape Stripper]
+**Vulnerability:** A ReDoS vulnerability was present in `scripts/parse_tests.js` due to a naive ANSI-stripping regex: `/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g`. This caused catastrophic backtracking when parsing very long strings containing repeating patterns of escape sequences.
+**Learning:** ReDoS vulnerabilities are common in custom regex used for parsing ANSI escape codes, especially when dealing with logs or terminal outputs. The naive approach fails to safely handle repetitive non-terminating characters.
+**Prevention:** Use a proven, robust pattern that avoids overlapping capture groups and optional repetitions. For example, replacing with a robust pattern from `strip-ansi` prevents catastrophic backtracking while maintaining correct parsing capability. Furthermore, ensure string regex representations are carefully translated when constructing JavaScript RegExp literals (i.e. replacing `\\]` with `\]` within character classes).
