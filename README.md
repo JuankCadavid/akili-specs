@@ -774,7 +774,7 @@ Fallback rule:
 
 - when `ui-ux-pro-max` is unavailable, use `frontend-design` + `stitch-design` for UX/UI design work and `frontend-design` for UI validation/testing support.
 
-**Skill governance:** the skill set is curated, not accumulated. Every packaged skill declares its original author and license plus how AKILI binds it into the flow (`core` — hard-wired to a command step; `conditional` — loaded when the work touches its domain; `stack` — selected per project via the `## Skill Map` that `/akili-constitution` writes into the project guides). New skills enter only through the acceptance checklist in [docs/skills/governance.md](docs/skills/governance.md). Curation and adaptation by [Juan Carlos Cadavid](https://jcadavid.com), always preserving original authorship.
+**Skill governance:** the skill set is curated, not accumulated. Every packaged skill declares its original author and license plus how AKILI binds it into the flow (`core` — hard-wired to a command step; `conditional` — loaded when the work touches its domain; `stack` — selected per project via the `## Skill Map` that `/akili-constitution` writes into the project guides). New skills enter only through the acceptance checklist in [docs/skills/governance.md](docs/skills/governance.md). Skills shipped by external tools — `orchestration`, `playwright-cli`, the `hyperframes` family — are **referenced through the Skill Map, never vendored**: the tool serves the version-matched guide, and availability stays per-developer. Curation and adaptation by [Juan Carlos Cadavid](https://jcadavid.com), always preserving original authorship.
 
 ## Methodology Contract
 

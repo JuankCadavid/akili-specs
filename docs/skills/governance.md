@@ -15,8 +15,10 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 | `stack` | Depends on the project's technology stack, **or on the developer's tooling environment** | `/akili-constitution` writes a **`## Skill Map`** into the project's `AGENTS.md`/`CLAUDE.md`; `/akili-specify` derives per-task required skills in `tasks.md`; the Leader assigns them to Implementer/Tester via dynamic skill loading |
 
 **Environment-provided skills are referenced, never vendored.** Some skills that belong in the Skill
-Map are shipped by a *tool* rather than by AKILI — an agent orchestrator's coordination skill is the
-standing example. Three rules govern them:
+Map are shipped by a *tool* rather than by AKILI — standing examples: an agent orchestrator's
+coordination skill (`orchestration`), Microsoft's `playwright-cli` browser-automation skill (the
+token-lean alternative to loading the Playwright MCP schemas into every session), and the
+`hyperframes` video-composition family. Three rules govern them:
 
 1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
    own binary serves the version-matched guide; a vendored copy goes stale the moment the tool

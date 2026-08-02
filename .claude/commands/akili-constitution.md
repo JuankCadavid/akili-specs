@@ -547,9 +547,13 @@ is how they reach the agents.
    During `/akili-execute` and `/akili-test`, the Leader assigns these skills and the
    Implementer/Tester must load them before writing code or tests."*
 3. **Environment-provided rows, when the user confirms the tooling.** A skill shipped by a *tool*
-   rather than by AKILI belongs in this map too — an agent orchestrator's coordination skill
-   (e.g. `orchestration`) is the standing example, loaded by the **Leader** before it dispatches
-   cross-host or parallel work. Ask the user before adding one; never infer it from the filesystem.
+   rather than by AKILI belongs in this map too. Standing examples: an agent orchestrator's
+   coordination skill (e.g. `orchestration`), loaded by the **Leader** before it dispatches
+   cross-host or parallel work; `playwright-cli` (Microsoft's browser-automation skill), assigned
+   to **E2E Testers** and browser-verification tasks when installed — the token-lean alternative
+   to loading the Playwright MCP schemas into every session; and the `hyperframes` family
+   (HTML-based video composition), when the project's work includes producing explainer, demo, or
+   launch-video content. Ask the user before adding one; never infer it from the filesystem.
    Mark the row's *When to load* with the availability condition, because the map is **committed and
    shared while the tooling is per-developer** — a teammate without that tool must still be able to
    run every command. Never copy the skill into the repository: these stubs are thin on purpose
