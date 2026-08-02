@@ -71,6 +71,7 @@ Distill **0 to 3** lessons. Hard rules:
 - Classify each lesson's **target**:
   - **Product** (default): the root cause lives in this project — its guides, templates, design tokens, or personas.
   - **Methodology**: the root cause is AKILI itself — an ambiguous command step, a template gap, a missing skill. These lessons make the methodology learn from every tool built with it.
+  - **Product + Methodology** (dual): the lesson fixes this project *and* names nothing project-specific — no stack, domain, or local convention (a universal persona rule is the standing example). A generalizable lesson is a template gap in disguise: apply the local edit now **and** propose the upstream.
 
 ### 3. Standardize (HITL)
 
@@ -81,6 +82,7 @@ For each lesson, propose **exactly one** minimal edit (1–3 lines) targeting th
 - `docs/ux-ui/design.md` — missing tokens or visual rules
 - `.agents/` personas — harness-role rules (append-only, never rewrite)
 - **Methodology lessons:** no local edit — record the proposal in the log and recommend upstreaming it to the AKILI methodology repository.
+- **Dual (Product + Methodology) lessons:** both, not either — make the local edit now (HITL menu below) *and* record the upstream recommendation in the log.
 
 Assign a severity: **High** = caused a HALT, pivot, or PRODUCT_BUG; **Medium** = caused rework or a severe finding; **Low** = friction only. Then present the menu:
 

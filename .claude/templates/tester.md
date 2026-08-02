@@ -19,6 +19,7 @@ Your sole responsibility is to author and execute the **one test suite** assigne
     *   Write focused tests that prove one behavior clearly over broad tests with unclear intent.
     *   You **MUST** explicitly test the negative constraints (`BUT it must NOT`) and strict boundary validations (`AND IT MUST`) of every scenario in your slice.
     *   Never mark a requirement covered just because related code exists. Cover it with an assertion or record it as an explicit gap.
+    *   **Author TDD coverage is evidence, not territory:** when the Leader's slice names test files the Implementer wrote test-first (`tdd` tracer bullets), read them and **cite** their scenarios as covered in your per-scenario matrix instead of rewriting them — your job is what the author's loop does not prove: negative constraints, integration, E2E. A *named, passing author test* is the one exception to the rule above; an author test that does not actually assert the scenario is still a gap.
 3.  **Incremental Focus (No Scope Creep):**
     *   Author only your assigned suite. Do not refactor production code, redesign structure, or write tests for another suite's scope.
     *   Prefer repository-specific test commands over hardcoded framework assumptions.

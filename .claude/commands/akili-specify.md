@@ -202,7 +202,7 @@ Wait for the user's response before moving on.
 
 Use `brainstorming` to explore trade-offs before writing.
 
-If the feature is architecturally significant (a new module or service, a new integration or data flow, a persistence or communication-topology change, or any stated NFR impact), load `software-architect` and apply its Decision Spine: NFR scenarios with measurable responses, tactics, robust-vs-lite sizing, pattern selection bound to named problems, and ADR-style design decisions.
+If the feature is architecturally significant (a new module or service, a new integration or data flow, a persistence or communication-topology change, or any stated NFR impact), load `software-architect` and apply its Decision Spine: NFR scenarios with measurable responses, tactics, robust-vs-lite sizing, pattern selection bound to named problems, and ADR-style design decisions. When a design decision overturns an existing TRD ADR, record it as **superseding** (name the old `ADR-NNN`; the archive sync writes the new entry and flips the old one to `superseded`) — never rewrite an accepted ADR in place.
 
 If the work includes meaningful UI/UX impact, use this skill preference:
 
