@@ -6,10 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.21.2] - 2026-08-02
+
 ### Added
 
 - **`playwright-cli` and `hyperframes` join `orchestration` as standing examples of environment-provided skills.** The Step 8D Skill Map rules, the governance doc, and the README's governance paragraph now name three examples of the referenced-never-vendored pattern instead of one: `orchestration` (Leader, cross-host/parallel dispatch), **`playwright-cli`** (Microsoft's browser-automation skill, assigned to E2E Testers and browser-verification tasks when installed — the token-lean alternative to loading the Playwright MCP's ~20 tool schemas into every session, an overhead paid whether or not browser work happens and multiplied across parallel sessions), and the **`hyperframes`** family (HTML-based video composition, for projects whose work includes explainer/demo/launch-video content). Same three rules as always: never copied into `.claude/skills/` (the tool serves the version-matched guide), availability is per-developer (the map records *what to use when present*), and the constitution asks the user before adding a row — never inferred from the filesystem.
-
 ## [2.21.1] - 2026-08-02
 
 ### Added
