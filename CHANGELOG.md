@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Agent-lean verification commands — the token saving on lint/test output lives in the command, not in a hook.** Analyzing whether command-control hooks would save tokens landed on a cleaner mechanism: a hook runs outside the model and can only block or allow — it cannot shrink output already emitted into context (and the 2.21.0 hook doctrine stands: guardrails yes, actors never). The real lever is the canonical command the agents inherit: `/akili-constitution`'s root-guide checklist now records test/lint commands in their **failure-only variant** (a `test:agent` script, `--reporter=dot`/`--silent`, `eslint --quiet`) — a green run needs one summary line, and everything above it is MUDA paid on every verification of every task of every spec. The asymmetry rule travels with the commands: **failures always print complete and verbatim** (they are evidence — same Structured Feedback rule as Reviewer FAIL reports); only passing noise is suppressed. No persona changes needed: Implementer and Tester already run "the project's real command", so making the canonical command lean is the whole change.
 
 ## [2.21.2] - 2026-08-02
 
