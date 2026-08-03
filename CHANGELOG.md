@@ -6,9 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **The installer no longer follows destination symlinks** (PR #3, Jules/Sentinel). `copySingleFile` and `copyDirectoryContents` now check targets with `fs.lstatSync` and remove a symlink before copying, so `akili install --force` overwrites the link instead of writing *through* it into whatever it points at. The review found the fix stronger than advertised: `existsSync` follows links, so a **dangling** symlink used to read as "not exists" and got written through even *without* `--force` — the `lstat` check closes that hole too, strengthening skip-by-default. Severity reported CRITICAL; realistically MEDIUM (exploiting requires write access inside the user's `~/.claude/` already), but the pattern is the correct default.
+- **`parse_tests.js` bounds failure messages before stripping ANSI codes** (PR #4, Jules/Sentinel — with a twist the review caught). The PR swapped the ANSI regex for the community-hardened `strip-ansi` pattern claiming a ReDoS fix; measured on the PR's own ~10MB payload, **both the old and the new pattern throw the same `RangeError`** (regex-engine backtrack-stack exhaustion — the failure mode is input size, not pattern shape), so the swap alone fixed nothing. The load-bearing fix added in review: `.slice(0, 2000)` **before** the regex (only ~120 visible chars survive anyway) — same bound-every-external-read principle as the 2.21.0 registry fix; the hardened pattern stays as defense in depth. The review also restored the sentinel-log entry the PR had deleted (the security log is append-only) and corrected its date (2024 → 2026, the second occurrence of that bug). Severity reported HIGH; realistically LOW — a local dev script parsing your own test runner's output.
+
+### Added
+
+- **Agent-lean verification commands — the token saving on lint/test output lives in the command, not in a hook.** Analyzing whether command-control hooks would save tokens landed on a cleaner mechanism: a hook runs outside the model and can only block or allow — it cannot shrink output already emitted into context (and the 2.21.0 hook doctrine stands: guardrails yes, actors never). The real lever is the canonical command the agents inherit: `/akili-constitution`'s root-guide checklist now records test/lint commands in their **failure-only variant** (a `test:agent` script, `--reporter=dot`/`--silent`, `eslint --quiet`) — a green run needs one summary line, and everything above it is MUDA paid on every verification of every task of every spec. The asymmetry rule travels with the commands: **failures always print complete and verbatim** (they are evidence — same Structured Feedback rule as Reviewer FAIL reports); only passing noise is suppressed. No persona changes needed: Implementer and Tester already run "the project's real command", so making the canonical command lean is the whole change.
 
 ## [2.21.2] - 2026-08-02
 
