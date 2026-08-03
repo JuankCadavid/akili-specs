@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.21.3] - 2026-08-03
+
 ### Fixed
 
 - **The CLI no longer routes package-manager calls through a shell on POSIX** (PR #5, Jules/Sentinel — reclassified in review). Reported as CRITICAL command injection; verified false: every interpolated value comes from a hardcoded `npm`/`pnpm` whitelist (`npm_config_user_agent` only selects probe *order*) or a source literal — no attacker-controlled input exists. Merged as defense-in-depth hardening: a new `execCliSync` helper centralizes the five `child_process` call sites with `execFileSync` + args arrays. The review also caught a regression the PR introduced: patched Node (CVE-2024-27980) throws `EINVAL` when spawning `.cmd`/`.bat` without a shell, so the naive swap broke `akili update` on Windows — the helper uses `shell: true` on win32 only, safe because every argument is static (documented as a hard rule for future call sites). Post-merge, the bot pushed an "Acknowledge review" commit that silently reverted the reviewer's corrections **and the already-merged PR #3/#4 fixes**; reverted in turn (`git revert e7c676b`) — new Jules failure mode for the record: an agent branch must be treated as mutable until merge, and the merge result diffed against the reviewed state.
@@ -15,7 +21,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Added
 
 - **Agent-lean verification commands — the token saving on lint/test output lives in the command, not in a hook.** Analyzing whether command-control hooks would save tokens landed on a cleaner mechanism: a hook runs outside the model and can only block or allow — it cannot shrink output already emitted into context (and the 2.21.0 hook doctrine stands: guardrails yes, actors never). The real lever is the canonical command the agents inherit: `/akili-constitution`'s root-guide checklist now records test/lint commands in their **failure-only variant** (a `test:agent` script, `--reporter=dot`/`--silent`, `eslint --quiet`) — a green run needs one summary line, and everything above it is MUDA paid on every verification of every task of every spec. The asymmetry rule travels with the commands: **failures always print complete and verbatim** (they are evidence — same Structured Feedback rule as Reviewer FAIL reports); only passing noise is suppressed. No persona changes needed: Implementer and Tester already run "the project's real command", so making the canonical command lean is the whole change.
-
 ## [2.21.2] - 2026-08-02
 
 ### Added
