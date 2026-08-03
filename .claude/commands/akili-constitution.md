@@ -333,7 +333,6 @@ The update should explain briefly:
 - Whether CodeGraph is initialized and how agents should use it for existing-project analysis
 - Which model to switch to per AKILI-SPECS phase (the `## Model Routing` registry added in Step 8C)
 - How to start the local stack: point at the `## Local Environment` contract in `docs/infrastructure.md` (Step 6B) — agents consult it instead of guessing start commands
-- **Agent-lean verification commands:** record the canonical test/lint commands in their failure-only variant (a `test:agent` script, `--reporter=dot`/`--silent`, `eslint --quiet`) — a green run needs one summary line, and everything above it is waste paid on every verification of every task. The asymmetry rule travels with the commands: **failures always print complete and verbatim** (they are evidence — the Structured Feedback rule), only passing noise is suppressed. Personas inherit this automatically: Implementer and Tester run "the project's real command", so making the canonical command lean is the whole change
 - **The concurrency convention:** one AKILI session per checkout, additional sessions on `git worktree`, and no measurement command (build, benchmark, Lighthouse, E2E) run while a delegated agent is active. This belongs in the root guides rather than only in `.agents/leader.md` because it binds **every** session that opens the repo, including ones that never load a persona — and its failures are filesystem-level, so no diff review can catch them
 
 Preserve the repository's existing `CLAUDE.md` and `AGENTS.md` conventions and extend them.
