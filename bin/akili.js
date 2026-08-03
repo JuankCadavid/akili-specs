@@ -7,6 +7,16 @@ const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
 
+// Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
+// .cmd shims, and patched Node (CVE-2024-27980) throws EINVAL when spawning
+// .cmd/.bat without shell: true — so Windows gets a shell. That is safe here
+// ONLY because every argument passed through this helper is a static literal;
+// never route untrusted input through it.
+function execCliSync(bin, args, options = {}) {
+  const win = process.platform === "win32";
+  return execFileSync(win ? bin + ".cmd" : bin, args, { ...options, shell: win });
+}
+
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SOURCE_CLAUDE = path.join(PACKAGE_ROOT, ".claude");
 const SOURCE_COMMANDS = path.join(SOURCE_CLAUDE, "commands");
@@ -543,16 +553,14 @@ function detectInstallType() {
 
   for (const pm of managers) {
     try {
-      const cmd = process.platform === "win32" ? pm + ".cmd" : pm;
-      const globalList = execFileSync(cmd, ["list", "-g", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+      const globalList = execCliSync(pm, ["list", "-g", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
       if (globalList.includes("akili-specs")) return { type: "global", pm };
     } catch (e) {}
   }
 
   for (const pm of managers) {
     try {
-      const cmd = process.platform === "win32" ? pm + ".cmd" : pm;
-      const localList = execFileSync(cmd, ["list", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+      const localList = execCliSync(pm, ["list", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
       if (localList.includes("akili-specs")) return { type: "local", pm };
     } catch (e) {}
   }
@@ -564,9 +572,8 @@ function detectInstallType() {
 // Returns the absolute path to the package root, or null if it cannot be found.
 function resolveInstalledPackageDir(install) {
   try {
-    const cmd = process.platform === "win32" ? install.pm + ".cmd" : install.pm;
     const args = install.type === "global" ? ["root", "-g"] : ["root"];
-    const root = execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const root = execCliSync(install.pm, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
     if (root) {
       const dir = path.join(root, "akili-specs");
       if (fs.existsSync(path.join(dir, "package.json"))) return dir;
@@ -689,8 +696,7 @@ function runUpdate(args) {
         : ["install", "akili-specs@latest"];
 
   try {
-    const cmd = process.platform === "win32" ? install.pm + ".cmd" : install.pm;
-    execFileSync(cmd, updateArgs, { stdio: "inherit" });
+    execCliSync(install.pm, updateArgs, { stdio: "inherit" });
 
     console.log(`\n${colors.green}Package updated successfully via ${install.pm}.${colors.reset}`);
   } catch (e) {
@@ -944,8 +950,7 @@ const RECOMMENDED_ENV = [
 function checkEnvironment() {
   return RECOMMENDED_ENV.map((dep) => {
     try {
-      const cmd = process.platform === "win32" ? dep.bin + ".cmd" : dep.bin;
-      const version = execFileSync(cmd, dep.args, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
+      const version = execCliSync(dep.bin, dep.args, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
         .toString()
         .trim()
         .split("\n")[0];
