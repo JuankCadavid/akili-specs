@@ -2,11 +2,8 @@
 **Vulnerability:** The CLI fetches package updates from the npm registry using `https.get` but does not bound the size of the HTTP response or properly dispose of unread stream chunks on error statuses.
 **Learning:** This exposes the tool to Uncontrolled Resource Consumption (DoS) and potential socket memory leaks if the registry responds unexpectedly or maliciously.
 **Prevention:** Always implement a maximum chunk length check in `res.on('data')` when consuming external data, call `req.destroy()` to abort oversized streams, and remember to call `res.resume()` on error paths to release socket resources.
-## 2026-07-30 - Arbitrary File Overwrite via Symlink Attack
-**Vulnerability:** The `install` command used `fs.cpSync` and `fs.copyFileSync` with `--force` without unlinking symlinks, potentially allowing an attacker to overwrite arbitrary sensitive files on the user's filesystem (like `~/.ssh/authorized_keys`) if they place a symlink in the target directory (e.g., `~/.claude/commands/akili-audit.md`).
-**Learning:** When writing files recursively and allowing existing files to be overwritten, using `fs.cpSync` or `fs.copyFileSync` on a symlink target rewrites the referenced file rather than replacing the link. Checking existence with `fs.existsSync` is not enough because it follows symlinks.
-**Prevention:** Use `fs.lstatSync` to check if a file exists, and if it is a symbolic link, remove it first using `fs.rmSync(targetPath, { force: true })` before copying.
-## 2026-08-02 - Regex Engine Stack Exhaustion in ANSI Escape Stripper
-**Vulnerability:** `scripts/parse_tests.js` ran its ANSI-stripping regex over unbounded `failureMessages` input. A multi-megabyte message exhausts the regex engine's backtrack stack (`RangeError: Maximum call stack size exceeded`), crashing the report step.
-**Learning:** Measured on a ~10MB adversarial payload, the failure mode is input size, not pattern shape: the naive regex and the community-hardened `strip-ansi` pattern both throw the same `RangeError`, and both run in ~1ms on bounded input. Swapping the regex alone does not fix the crash.
-**Prevention:** Bound unbounded input BEFORE running any regex over it (here `.slice(0, 2000)` ahead of the 120-char output truncation) — the same bound-every-external-read principle as the 2026-07-29 registry fix. Keep the community-hardened pattern as defense in depth against true backtracking blowups.
+
+## 2024-05-18 - [CRITICAL] Prevent Command Injection via `execSync`
+**Vulnerability:** Found uses of `child_process.execSync` in `bin/akili.js` building shell commands by interpolating variables (like package manager strings). While in this specific context `process.env.npm_config_user_agent` is somewhat restricted, constructing shell commands via string concatenation and evaluating them with `execSync` is a classic Command Injection vector (CWE-78).
+**Learning:** Shell evaluation is risky because any dynamically sourced input in the string can be manipulated to execute arbitrary shell commands.
+**Prevention:** Replaced `execSync` with `execFileSync` to invoke executables directly, passing arguments as a safe array instead of a concatenated shell string. This prevents the shell from interpreting special characters and prevents arbitrary code execution vulnerabilities.

@@ -5,7 +5,7 @@ const os = require("os");
 const path = require("path");
 const { parseArgs } = require("util");
 
-const { execSync } = require("child_process");
+const { execFileSync } = require("child_process");
 
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SOURCE_CLAUDE = path.join(PACKAGE_ROOT, ".claude");
@@ -311,14 +311,7 @@ function shouldInclude(type, args) {
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
-  let targetStat = null;
-  try {
-    targetStat = fs.lstatSync(targetPath);
-  } catch (e) {
-    // Does not exist
-  }
-
-  const exists = targetStat !== null;
+  const exists = fs.existsSync(targetPath);
 
   if (exists && !args.force) {
     console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
@@ -329,9 +322,6 @@ function copySingleFile(sourcePath, targetPath, args) {
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
-    if (exists && targetStat.isSymbolicLink()) {
-      fs.rmSync(targetPath, { force: true });
-    }
     fs.copyFileSync(sourcePath, targetPath);
   }
 
@@ -351,15 +341,7 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
-
-    let targetStat = null;
-    try {
-      targetStat = fs.lstatSync(targetPath);
-    } catch (e) {
-      // Does not exist
-    }
-
-    const exists = targetStat !== null;
+    const exists = fs.existsSync(targetPath);
 
     if (exists && !args.force) {
       console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
@@ -371,9 +353,6 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
-      if (exists && targetStat.isSymbolicLink()) {
-        fs.rmSync(targetPath, { force: true });
-      }
       fs.cpSync(sourcePath, targetPath, {
         recursive: true,
         force: true,
@@ -543,14 +522,16 @@ function detectInstallType() {
 
   for (const pm of managers) {
     try {
-      const globalList = execSync(`${pm} list -g akili-specs --depth=0 2>/dev/null`, { encoding: "utf8" });
+      const cmd = process.platform === "win32" ? pm + ".cmd" : pm;
+      const globalList = execFileSync(cmd, ["list", "-g", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
       if (globalList.includes("akili-specs")) return { type: "global", pm };
     } catch (e) {}
   }
 
   for (const pm of managers) {
     try {
-      const localList = execSync(`${pm} list akili-specs --depth=0 2>/dev/null`, { encoding: "utf8" });
+      const cmd = process.platform === "win32" ? pm + ".cmd" : pm;
+      const localList = execFileSync(cmd, ["list", "akili-specs", "--depth=0"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
       if (localList.includes("akili-specs")) return { type: "local", pm };
     } catch (e) {}
   }
@@ -562,10 +543,9 @@ function detectInstallType() {
 // Returns the absolute path to the package root, or null if it cannot be found.
 function resolveInstalledPackageDir(install) {
   try {
-    const root = execSync(
-      install.type === "global" ? `${install.pm} root -g 2>/dev/null` : `${install.pm} root 2>/dev/null`,
-      { encoding: "utf8" }
-    ).trim();
+    const cmd = process.platform === "win32" ? install.pm + ".cmd" : install.pm;
+    const args = install.type === "global" ? ["root", "-g"] : ["root"];
+    const root = execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
     if (root) {
       const dir = path.join(root, "akili-specs");
       if (fs.existsSync(path.join(dir, "package.json"))) return dir;
@@ -678,21 +658,22 @@ function runUpdate(args) {
 
   console.log(`\n${colors.yellow}Updating package via ${install.pm}...${colors.reset}`);
 
-  const updateCommand =
+  const updateArgs =
     install.pm === "pnpm"
       ? install.type === "global"
-        ? "pnpm add -g akili-specs@latest"
-        : "pnpm add akili-specs@latest"
+        ? ["add", "-g", "akili-specs@latest"]
+        : ["add", "akili-specs@latest"]
       : install.type === "global"
-        ? "npm install -g akili-specs@latest"
-        : "npm install akili-specs@latest";
+        ? ["install", "-g", "akili-specs@latest"]
+        : ["install", "akili-specs@latest"];
 
   try {
-    execSync(updateCommand, { stdio: "inherit" });
+    const cmd = process.platform === "win32" ? install.pm + ".cmd" : install.pm;
+    execFileSync(cmd, updateArgs, { stdio: "inherit" });
 
     console.log(`\n${colors.green}Package updated successfully via ${install.pm}.${colors.reset}`);
   } catch (e) {
-    console.error(`\n${colors.red}Failed to update package (ran: ${updateCommand}).${colors.reset}`);
+    console.error(`\n${colors.red}Failed to update package (ran: ${install.pm} ${updateArgs.join(" ")}).${colors.reset}`);
     process.exit(1);
   }
 
@@ -932,7 +913,8 @@ function doctorTool(tool, args) {
 const RECOMMENDED_ENV = [
   {
     name: "codegraph",
-    versionCommand: "codegraph --version",
+    bin: "codegraph",
+    args: ["--version"],
     why: "semantic code analysis in /akili-constitution, /akili-audit, and worker briefs",
     installHint: "npm install -g @colbymchenry/codegraph",
   },
@@ -941,7 +923,8 @@ const RECOMMENDED_ENV = [
 function checkEnvironment() {
   return RECOMMENDED_ENV.map((dep) => {
     try {
-      const version = execSync(dep.versionCommand, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
+      const cmd = process.platform === "win32" ? dep.bin + ".cmd" : dep.bin;
+      const version = execFileSync(cmd, dep.args, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
         .toString()
         .trim()
         .split("\n")[0];
