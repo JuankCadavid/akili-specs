@@ -74,12 +74,8 @@ function parseTestJson(inputPath) {
       const duration = test.duration ? `${test.duration}ms` : "-";
       let failureNotes = "-";
       if (test.failureMessages && test.failureMessages.length > 0) {
-        // Strip ANSI escape codes and clean up message.
-        // Bound the input BEFORE the regex: only ~120 visible chars survive, and
-        // multi-MB messages exhaust the regex engine backtrack stack (RangeError)
-        // regardless of pattern shape. 2000 chars leaves ample room for ANSI codes.
+        // Strip ANSI escape codes and clean up message
         failureNotes = test.failureMessages[0]
-          .slice(0, 2000)
           .replace(/[\u001B\u009B][[\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g, "")
           .replace(/\r?\n/g, " ")
           .substring(0, 120);

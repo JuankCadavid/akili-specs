@@ -311,14 +311,7 @@ function shouldInclude(type, args) {
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
-  let targetStat = null;
-  try {
-    targetStat = fs.lstatSync(targetPath);
-  } catch (e) {
-    // Does not exist
-  }
-
-  const exists = targetStat !== null;
+  const exists = fs.existsSync(targetPath);
 
   if (exists && !args.force) {
     console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
@@ -329,9 +322,6 @@ function copySingleFile(sourcePath, targetPath, args) {
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
-    if (exists && targetStat.isSymbolicLink()) {
-      fs.rmSync(targetPath, { force: true });
-    }
     fs.copyFileSync(sourcePath, targetPath);
   }
 
@@ -351,15 +341,7 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
-
-    let targetStat = null;
-    try {
-      targetStat = fs.lstatSync(targetPath);
-    } catch (e) {
-      // Does not exist
-    }
-
-    const exists = targetStat !== null;
+    const exists = fs.existsSync(targetPath);
 
     if (exists && !args.force) {
       console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
@@ -371,9 +353,6 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
-      if (exists && targetStat.isSymbolicLink()) {
-        fs.rmSync(targetPath, { force: true });
-      }
       fs.cpSync(sourcePath, targetPath, {
         recursive: true,
         force: true,
