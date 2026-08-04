@@ -6,11 +6,16 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.21.4] - 2026-08-04
+
 ### Added
 
 - **`akili doctor` now surfaces `playwright-cli` under Environment — visibility instead of vendoring.** Request evaluated: bundle `orchestration`, `playwright-cli`, and `hyperframes` into the package so `akili install` ships them. Declined per the governance rule the package itself documents (*environment-provided skills are referenced, never vendored*): the skills are version-matched guides served by their tools (a frozen copy instructs agents to call flags that no longer exist), they are dead weight without the underlying binary/plugin, and they carry third-party authorship. What the request actually needs — the environment being visible at install time — is the doctor's job: `playwright-cli` joins `codegraph` in the *Environment (recommended, not required)* section, with the home-directory warning baked into the install hint (running `install --skills` from a repo drops the skill into that repo's `.claude/skills/` — the exact mistake observed in the field). The report strings are now per-entry (`withoutIt`/`postInstall`) instead of hardcoded to codegraph. `hyperframes` and `orchestration` have no reliable PATH binary to probe (host plugin / desktop app), so their mechanism remains the Skill Map row `/akili-constitution` offers. Also upgraded `actions/checkout` and `actions/setup-node` to v5 across all three workflows (GitHub deprecated the Node 20 runner tier).
 - **Dependencies documented in layers, and a cross-platform CI matrix turns "Windows supported" from a badge into evidence.** The README Prerequisites section now separates what the **CLI** needs (Node ≥ 18, npm/pnpm) from what the **methodology** needs (git — commits per task, worktrees, HALT rollback, and the evidence gate all assume a repo — plus a host tool), with recommended (CodeGraph, `gh` — both degrade gracefully) and conditional rows (Python + Google libs for `/akili-seo` verification, git-bash for the Step 8F hook on Windows, environment-provided skills) — each row states what breaks without it. The new `ci.yml` workflow runs on every push/PR across ubuntu/macos/windows × Node 18/22: syntax checks, `verify:cli`, dry-run and real installs to the runner home, `doctor --tool all`, an idempotent re-install proving skip-by-default, and `pack:dry-run`. The Windows leg is the load-bearing one: `os.homedir()` paths, `.cmd` shims through `execCliSync`, and fs copy semantics had only ever been *reasoned about* in review (the PR #5 EINVAL regression was caught by reading Node CVE docs, not by running Windows) — now every future installer change, including external-agent PRs, gets executed there before merge. Step 8F's honest-limits paragraph also names its git-bash dependency on Windows.
-
 ## [2.21.3] - 2026-08-03
 
 ### Fixed
