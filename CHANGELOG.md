@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Dependencies documented in layers, and a cross-platform CI matrix turns "Windows supported" from a badge into evidence.** The README Prerequisites section now separates what the **CLI** needs (Node ≥ 18, npm/pnpm) from what the **methodology** needs (git — commits per task, worktrees, HALT rollback, and the evidence gate all assume a repo — plus a host tool), with recommended (CodeGraph, `gh` — both degrade gracefully) and conditional rows (Python + Google libs for `/akili-seo` verification, git-bash for the Step 8F hook on Windows, environment-provided skills) — each row states what breaks without it. The new `ci.yml` workflow runs on every push/PR across ubuntu/macos/windows × Node 18/22: syntax checks, `verify:cli`, dry-run and real installs to the runner home, `doctor --tool all`, an idempotent re-install proving skip-by-default, and `pack:dry-run`. The Windows leg is the load-bearing one: `os.homedir()` paths, `.cmd` shims through `execCliSync`, and fs copy semantics had only ever been *reasoned about* in review (the PR #5 EINVAL regression was caught by reading Node CVE docs, not by running Windows) — now every future installer change, including external-agent PRs, gets executed there before merge. Step 8F's honest-limits paragraph also names its git-bash dependency on Windows.
 
 ## [2.21.3] - 2026-08-03
 

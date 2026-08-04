@@ -121,11 +121,33 @@ Install the methodology with the bundled CLI. The installer can target Claude, O
 
 ### Prerequisites
 
-- Node.js 18 or newer
-- `pnpm`, `npm`, or another Node package runner
-- Claude Code, OpenCode, and/or Google Antigravity installed, depending on where you want to use the methodology
+Two layers: the **CLI** (installing/updating the package) and the **methodology** (running AKILI commands inside a host tool). Each dependency states which layer needs it and what happens without it.
 
-**Recommended (not required): CodeGraph.** The methodology uses [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) for semantic code analysis in `/akili-constitution` (Legacy discovery scans), `/akili-audit` (drift detection), and the `/akili-execute`/`/akili-test` worker briefs. Without it, every command still runs — falling back to `Glob`/`Grep` with a lower-confidence scan that the reports flag explicitly.
+**Required:**
+
+| Dependency | Needed by | Without it |
+|---|---|---|
+| Node.js ≥ 18 | CLI | `akili install/update/doctor` cannot run (`engines` enforced) |
+| `npm` or `pnpm` | CLI | No install/update path; the CLI probes both to detect how it was installed |
+| Git | Methodology | Commits per task, worktree concurrency, HALT rollback, the tasks.md evidence gate, and `/akili-archive` all assume a git repo — the methodology is not designed for untracked folders |
+| A host tool: Claude Code, OpenCode, and/or Google Antigravity | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
+
+**Recommended (degrades gracefully):**
+
+| Dependency | Used by | Without it |
+|---|---|---|
+| [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) (`npm i -g @colbymchenry/codegraph`, then `codegraph init -i` per project) | `/akili-constitution` discovery scans, `/akili-audit` drift detection, `/akili-execute`/`/akili-test` worker briefs | Commands fall back to `Glob`/`Grep`; reports flag the lower-confidence scan explicitly |
+| GitHub CLI (`gh`) | PR strategy in `/akili-execute` delivery, external-PR review flows | Manual PR creation/review in the browser |
+
+**Conditional (only for specific features):**
+
+| Dependency | Feature | Notes |
+|---|---|---|
+| Python 3 + `google-auth` + `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | Plus a Google service-account key; the rest of `/akili-seo` runs without Python |
+| Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present |
+| Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command works without them (see `docs/skills/governance.md`) |
+
+`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every push.
 
 ```bash
 npm install -g @colbymchenry/codegraph

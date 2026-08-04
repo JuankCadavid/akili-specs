@@ -1,0 +1,53 @@
+name: CI
+
+# Cross-platform proof that the CLI installs, updates, and diagnoses correctly.
+# Windows is the load-bearing leg: os.homedir() paths, .cmd shims via execCliSync
+# (CVE-2024-27980 shell guard), and fs copy semantics are reasoned about in
+# review but only proven here.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  cli:
+    name: CLI on ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax check (CLI + helper scripts)
+        run: |
+          node --check bin/akili.js
+          node --check scripts/parse_tests.js
+          node --check scripts/release.js
+          node --check scripts/release-status.js
+          node --check scripts/notify-slack.js
+
+      - name: verify:cli (list packaged commands, skills, resources)
+        run: npm run verify:cli
+
+      - name: Dry-run install (all tools)
+        run: node bin/akili.js install --tool all --dry-run
+
+      - name: Real install to the runner home (all tools)
+        run: node bin/akili.js install --tool all --force
+
+      - name: Doctor (all tools)
+        run: node bin/akili.js doctor --tool all
+
+      - name: Idempotent re-install respects skip-by-default
+        run: node bin/akili.js install --tool all
+
+      - name: Pack dry-run (no stray files enter the tarball)
+        run: npm run pack:dry-run

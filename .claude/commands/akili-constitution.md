@@ -798,7 +798,9 @@ Step 9 summary either way.
 **Honesty across hosts:** hooks are Claude Code's mechanism. On OpenCode and Antigravity the same
 invariant remains prose (the commands' own rules) — record in the summary that the guardrail is
 *enforced* on Claude Code and *instructional* elsewhere, the same asymmetry Step 8E already
-documents for the Reviewer's `tools` restriction.
+documents for the Reviewer's `tools` restriction. On Windows the hook additionally depends on
+git-bash (`bash .claude/hooks/akili-tasks-gate.sh`) — normally already present because Claude Code
+on Windows requires Git for Windows, but name it if the project has Windows teammates.
 
 **Mode policy:** Brand-new/Legacy — scaffold when accepted. Active AKILI-SPECS — never overwrite an
 existing `akili-tasks-gate.sh` (the project may have hardened it); create only if missing, and flag
