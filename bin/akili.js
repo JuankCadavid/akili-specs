@@ -318,6 +318,30 @@ function shouldInclude(type, args) {
   return true;
 }
 
+function removeTargetSymlinks(sourcePath, targetPath) {
+  let sourceStat = null;
+  let targetStat = null;
+  try {
+    sourceStat = fs.lstatSync(sourcePath);
+  } catch (e) {
+    return; // Source does not exist
+  }
+  try {
+    targetStat = fs.lstatSync(targetPath);
+  } catch (e) {
+    return; // Target does not exist
+  }
+
+  if (targetStat.isSymbolicLink()) {
+    fs.rmSync(targetPath, { force: true });
+  } else if (sourceStat.isDirectory() && targetStat.isDirectory()) {
+    const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
+    for (const entry of entries) {
+      removeTargetSymlinks(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
+    }
+  }
+}
+
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
@@ -339,9 +363,7 @@ function copySingleFile(sourcePath, targetPath, args) {
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
-    if (exists && targetStat.isSymbolicLink()) {
-      fs.rmSync(targetPath, { force: true });
-    }
+    removeTargetSymlinks(sourcePath, targetPath);
     fs.copyFileSync(sourcePath, targetPath);
   }
 
@@ -381,9 +403,7 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
-      if (exists && targetStat.isSymbolicLink()) {
-        fs.rmSync(targetPath, { force: true });
-      }
+      removeTargetSymlinks(sourcePath, targetPath);
       fs.cpSync(sourcePath, targetPath, {
         recursive: true,
         force: true,
@@ -1055,6 +1075,11 @@ function readUpdateCache() {
 
 function writeUpdateCache(latest) {
   try {
+    let stat;
+    try { stat = fs.lstatSync(UPDATE_CACHE_PATH); } catch (e) {}
+    if (stat && stat.isSymbolicLink()) {
+      fs.rmSync(UPDATE_CACHE_PATH, { force: true });
+    }
     fs.writeFileSync(UPDATE_CACHE_PATH, JSON.stringify({ checkedAt: Date.now(), latest }));
   } catch {
     /* a cache we cannot write just means we check again next run */
@@ -1196,6 +1221,9 @@ function runNotifications(args, action) {
     settings.hooks.SessionStart = sessionStart;
     sessionStart.push({ hooks: [{ type: "command", command: NOTIFY_HOOK_COMMAND }] });
     fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+    let stat = null;
+    try { stat = fs.lstatSync(settingsPath); } catch (e) {}
+    if (stat && stat.isSymbolicLink()) fs.rmSync(settingsPath, { force: true });
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
     console.log(`\n${colors.green}Enabled.${colors.reset} Claude Code sessions will surface new akili-specs versions at session start.`);
     console.log(`Hook added to ${settingsPath} (remove anytime with ${colors.cyan}akili notifications disable${colors.reset}).`);
@@ -1215,6 +1243,9 @@ function runNotifications(args, action) {
       })
       .filter((entry) => !Array.isArray(entry.hooks) || entry.hooks.length > 0);
     if (settings.hooks.SessionStart.length === 0) delete settings.hooks.SessionStart;
+    let stat = null;
+    try { stat = fs.lstatSync(settingsPath); } catch (e) {}
+    if (stat && stat.isSymbolicLink()) fs.rmSync(settingsPath, { force: true });
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
     console.log(`\n${colors.green}Disabled.${colors.reset} The akili hook was removed from ${settingsPath}; other hooks were left untouched.`);
     return;
