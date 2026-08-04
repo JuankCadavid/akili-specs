@@ -49,5 +49,8 @@ jobs:
       - name: Idempotent re-install respects skip-by-default
         run: node bin/akili.js install --tool all
 
+      - name: Symlink-defense probe (proves fs semantics per platform/Node)
+        run: node scripts/ci/install-symlink-probe.js
+
       - name: Pack dry-run (no stray files enter the tarball)
         run: npm run pack:dry-run
