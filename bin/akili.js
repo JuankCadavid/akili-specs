@@ -943,7 +943,18 @@ const RECOMMENDED_ENV = [
     bin: "codegraph",
     args: ["--version"],
     why: "semantic code analysis in /akili-constitution, /akili-audit, and worker briefs",
+    withoutIt: "commands fall back to Glob/Grep with a lower-confidence scan",
     installHint: "npm install -g @colbymchenry/codegraph",
+    postInstall: "then run codegraph init -i in your project",
+  },
+  {
+    name: "playwright-cli",
+    bin: "playwright-cli",
+    args: ["--version"],
+    why: "token-lean browser automation for E2E Testers and browser verification (Skill Map row; alternative to loading the Playwright MCP)",
+    withoutIt: "E2E/browser work loads the Playwright MCP schemas into every session instead",
+    installHint: "npm install -g @playwright/cli",
+    postInstall: "then run playwright-cli install --skills FROM YOUR HOME DIRECTORY (it writes to ./.claude/skills of the cwd)",
   },
 ];
 
@@ -986,8 +997,8 @@ function runDoctor(args) {
       console.log(`  ${colors.green}OK${colors.reset} ${dep.name} (${dep.version})`);
     } else {
       console.log(`  ${colors.yellow}NOT FOUND${colors.reset} ${dep.name} — used for ${dep.why}.`);
-      console.log(`  ${"".padEnd(9)}Without it, commands fall back to Glob/Grep with a lower-confidence scan.`);
-      console.log(`  ${"".padEnd(9)}Install: ${colors.cyan}${dep.installHint}${colors.reset}, then run ${colors.cyan}codegraph init -i${colors.reset} in your project.`);
+      console.log(`  ${"".padEnd(9)}Without it, ${dep.withoutIt}.`);
+      console.log(`  ${"".padEnd(9)}Install: ${colors.cyan}${dep.installHint}${colors.reset}${dep.postInstall ? `, ${dep.postInstall}` : ""}.`);
     }
   }
 
