@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **The installer removes nested destination symlinks before recursive copies, and every `writeFileSync` destination is guarded** (PR #6, Jules/Sentinel — the first Sentinel finding the evidence upheld, with a twist that upheld the *process* too). The report claimed `fs.cpSync(force)` follows nested destination symlinks; the reviewer's first measurement refuted it on Node 20.11/22.12 (cpSync *replaces* the link there). The tiebreaker was the new **CI symlink probe** (`scripts/ci/install-symlink-probe.js`, now a permanent matrix step): on **Node 22.23.1 — all three platforms — `cpSync` writes THROUGH the nested destination symlink**; the semantics changed silently inside the Node 22.x line. The unmeasured assertion and the single-version refutation were both wrong in opposite directions; only the executed matrix held the truth. `removeTargetSymlinks` verified effective on all 6 combinations; the `writeFileSync` guards (update cache, `settings.json`) are unconditional hardening. Review also removed test fixtures the bot committed to the repo root (`dir2/`, `dir3/` — "secret content") and rewrote the sentinel entry to record measured, version-dependent behavior. **Second post-review bot overwrite**: after the reviewer's corrections were pushed, the bot re-pushed its original commit on top (deleting the probe, re-adding the fixtures, reverting the sentinel rewrite) and the merge carried it in — reverted (`git revert c155c99`), same as PR #5's incident. The rule is now two-for-two: an agent branch is mutable until merge; diff the merge result against the reviewed state before anything else.
 
 ## [2.21.4] - 2026-08-04
 
