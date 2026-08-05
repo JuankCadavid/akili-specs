@@ -94,7 +94,7 @@ If no command exists, record the gap and recommend the smallest useful command t
 
 For every requirement in `requirements.md`, verify:
 
-1. it appears in at least one task
+1. it appears in at least one task — checked at **scenario and clause granularity**: every scenario and every `BUT` / `AND IT MUST` clause is owned by a named task. An apparent gap is never discharged by citing a *different* requirement that is satisfied; the clearance must quote the exact clause it claims to cover (ID-level presence in a traceability table is not closure — scenario-level orphans have shipped under a complete-looking ID-keyed table)
 2. mapped tasks are complete when full implementation is claimed
 3. code evidence exists
 4. key scenarios have automated or documented manual test evidence
@@ -132,6 +132,8 @@ Check for:
 Compare the implementation against the module design and the constitutional docs where relevant.
 
 If the implementation intentionally differs from the design, verify that the design or execution notes explain the change. Otherwise mark the drift as WARN or FAIL depending on risk.
+
+**Cross-document figure check:** numbers are claims, and two documents agreeing is not evidence — it is often one wrong idea copied forward. Contrast every count, total, and quantity a spec document asserts against the prose of the other in-scope documents (requirements ↔ design ↔ supporting analyses): a figure contradicted by another document's own prose is a finding, and it is detectable without opening any external artifact.
 
 If `proposal.md` exists, also verify that final behavior remains aligned with the approved intent, scope, non-goals, and success criteria. When the proposal has a **Visual Reference** (Figma or a generated mockup), confirm the delivered UI is consistent with it.
 
@@ -176,6 +178,7 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 - If no tasks are complete, still allow partial validation but make the incompleteness explicit.
 - If implementation evidence is inconclusive, mark WARN or BLOCKED instead of guessing.
 - If validation finds spec drift, recommend whether to update the spec, update implementation, or split follow-up work.
+- If validation corrects a spec document, apply **correction closure** (see `/akili-specify` → *Correction Closure*): grep the superseded value across the whole spec folder (forward — sites the finding did not cite), and grep references *to* the corrected section (backward — a document that cited the old text may now assert a falsehood). A correction whose sweep did not run is not applied, only relocated.
 
 ---
 

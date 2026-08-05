@@ -331,8 +331,10 @@ Task quality rules:
 
 - one task should be small enough to complete and verify in one focused session
 - every task must reference the requirements it satisfies
+- **coverage closes at scenario and clause granularity, not requirement ID.** A requirement "appearing in a task" is the weakest possible claim: every scenario and every `BUT` / `AND IT MUST` clause of every requirement must be owned by a named task, and the decomposition is not complete until that mapping closes. The failure an ID-keyed table invites is specific: a spec shipped three scenario-level orphans that its requirement-ID traceability table read as covered — and twice, an apparent gap was "cleared" by citing a *different* requirement that was satisfied. **A gap may never be discharged by citing a different requirement**; a clearance must quote the exact clause it claims to cover
 - every task must include a concrete verification command or manual check
 - **every task must state what *disqualifies* the evidence, not only what satisfies it.** A gate that defines only when to pass **invites passing**: given a criterion for success and none for doubt, an agent that produces *a* number will read it as *the* number. Write the no-pass clause next to the pass clause — *"if the three runs vary by more than the effect you are measuring, the number is not evidence; report the spread instead of committing."* This matters most for **measured** signals (performance, timing, layout metrics, flake-prone suites), where a value can be produced without meaning anything, and it is a different blindness from the defect-class mapping above: that one asks whether the gate can *see* the defect, this one asks whether the gate knows when its own reading is **worthless**. An inconclusive verification is a legitimate outcome and must be reportable as one — never collapsed into a pass because the command exited `0`
+- **a presence-assertion is not a behavioral proof.** A check that an artifact exists — a CSS class in the markup, a config key, an attribute, a `MUST` clause in a document — proves presence, not effect. A green test has certified a truncation clamp whose classes were all present and whose effect was a no-op, and five `MUST` clauses have sat in a document describing a procedure that could not be executed. When a task's verification is a presence-assertion, the task must record **what that assertion cannot prove** and name the check that proves the behavior itself (a rendered measurement, an executed procedure). And **a property the harness structurally cannot evaluate is not covered**: jsdom cannot measure layout or contrast, and a checker that returns "incomplete" without failing has evaluated nothing — record such properties as explicit gaps or route them to a harness that can (a visual check at a HITL pause, a T6 review, a real browser run)
 - tasks should explicitly address the negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`) defined in their respective requirement scenarios
 - **Bug Mode:** IF this is a bug, one task MUST add a regression test that reproduces the defect (red before the fix, green after) and reference the corrected-behavior requirement. Its verification is that the test fails on current code and passes after the fix.
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure frontend tasks are atomic, focusing on specific UI components, layouts, styling, and states extracted from the design or mockup artifacts.
@@ -362,6 +364,15 @@ Wait for the user's response before moving on.
 
 ---
 
+## Correction Closure (every Adjust round)
+
+A correction is not applied when the cited site is fixed — it is applied when the superseded value is gone from everywhere it lived. Amendments guided only by a finding's list of sites fail in **both directions**: *forward* (the old value survives at sites the finding did not cite) and *backward* (fixing one document falsifies what other documents asserted by citing it — a class of defect that has cost extra review rounds in the field). On every Adjust round that changes a value, name, count, or behavior claim:
+
+1. **Sweep forward:** grep the superseded value across the whole spec folder and the baseline docs it cites. The correction closes only when every hit is updated or recorded as intentionally kept.
+2. **Sweep backward:** grep for references *to* the corrected section and re-read what each referrer asserts — a document that cited the old text may now state a falsehood.
+
+This is the same sweep `/akili-archive` mandates for root guides (its factual-claims sweep exists because per-item syncs only fire where a finding points — which is exactly how a stale claim survives). A spec Adjust round earns it for the same reason.
+
 ## Verification Checklist
 
 After all three documents are approved, verify:
@@ -374,7 +385,7 @@ After all three documents are approved, verify:
 - [ ] `requirements.md` names the **defect classes this spec can produce** and maps each to the command that catches it — with any class lacking an automated check either substituted (human check at a HITL pause, or a T6 visual review) or recorded as an accepted risk
 - [ ] Requirements describe observable behavior, not implementation details
 - [ ] Key requirements include Given/When/Then scenarios with strict `BUT` and `AND IT MUST` rules where applicable
-- [ ] Every requirement appears in at least one task
+- [ ] Every requirement appears in at least one task — **and every scenario and `BUT` / `AND IT MUST` clause within it is owned by a named task** (ID-level presence is not closure; see the coverage rule in Step 3.2)
 - [ ] Every task references requirements and design sections
 - [ ] Every task has clear done criteria and verification guidance that accounts for the negative scenarios
 - [ ] The task dependency graph has no circular dependencies

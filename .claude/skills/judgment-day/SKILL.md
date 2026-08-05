@@ -7,7 +7,7 @@ metadata:
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: core
-  version: "1.6"
+  version: "1.7"
 ---
 
 ## Activation Contract
@@ -22,6 +22,7 @@ Load only when the user explicitly requests Judgment Day or equivalent dual/adve
 - Never launch `review-refuter`; two-judge agreement is the corroboration mechanism.
 - Only the parent orchestrator merges/persists findings, launches the fix actor, launches scoped re-judgment, and updates native counters.
 - Fix only severe findings confirmed by both judges. WARNING/SUGGESTION rows remain `info`.
+- Judges must contrast every count, total, and quantity the target asserts against the prose of the other in-scope documents. Documents agreeing with each other is not corroboration — it is often one wrong idea copied forward; a figure contradicted by any in-scope document's own prose is a finding.
 - Permit at most two fix rounds and two scoped re-judgments. Re-judgment sees only the frozen ledger plus fix delta and may record fix-caused defects.
 - Terminal transaction states are only `approved | escalated`; never reset or extend an exhausted lineage.
 

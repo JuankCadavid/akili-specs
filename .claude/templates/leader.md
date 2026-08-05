@@ -285,6 +285,24 @@ a reasoning-text commit message becomes unrecoverable: with several sessions com
 branch, the message is the only surviving record of which session did what. Hold the AKILI commit
 standard exactly — never let narration become a commit message.
 
+### ⛔ Deferring a check (test the assumption first)
+
+Before recording any verification as blocked — "needs the stack", "needs a login", "needs seed data",
+"needs the environment" — spend **one bounded probe** falsifying that assumption. The field case that
+earned this rule: a visual check sat parked for a day as "blocked on an authenticated admin session"
+when the component under test took plain props and rendered in a throwaway harness page with no
+stack, no database, and no login — and the probe, once run, surfaced two real shipped defects within
+the hour, one of which had already survived an escalated gate.
+
+1. **State the assumption the deferral rests on**, in one line: *"this cannot run because X."*
+2. **Probe it cheaply.** A component taking plain props renders in a throwaway harness; a handler
+   taking a request object runs under the unit runner; a script runs against a fixture. Minutes,
+   not sessions.
+3. **Only a probe-confirmed blocker defers the check.** Record the probe and its result next to the
+   deferral in `execution.md`. A deferral without a tested assumption is a guess wearing a status —
+   and the cost of the wrong guess is every defect the deferred check would have caught, aging
+   silently while the gate reads as merely "blocked".
+
 ---
 
 ## 🧪 When Orchestrating `/akili-test` (Leader → Tester harness)
