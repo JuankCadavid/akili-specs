@@ -21,7 +21,7 @@ function execCliSync(bin, args, options = {}) {
 function atomicWriteFileSync(targetPath, data) {
   const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
   try {
-    fs.writeFileSync(tmpPath, data, { flag: "wx" });
+    fs.writeFileSync(tmpPath, data);
     fs.renameSync(tmpPath, targetPath);
   } finally {
     try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
