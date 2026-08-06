@@ -3,6 +3,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const crypto = require("crypto");
 const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
@@ -15,6 +16,16 @@ const { execFileSync } = require("child_process");
 function execCliSync(bin, args, options = {}) {
   const win = process.platform === "win32";
   return execFileSync(win ? bin + ".cmd" : bin, args, { ...options, shell: win });
+}
+
+function atomicWriteFileSync(targetPath, data) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.writeFileSync(tmpPath, data);
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
 }
 
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
@@ -1075,12 +1086,7 @@ function readUpdateCache() {
 
 function writeUpdateCache(latest) {
   try {
-    let stat;
-    try { stat = fs.lstatSync(UPDATE_CACHE_PATH); } catch (e) {}
-    if (stat && stat.isSymbolicLink()) {
-      fs.rmSync(UPDATE_CACHE_PATH, { force: true });
-    }
-    fs.writeFileSync(UPDATE_CACHE_PATH, JSON.stringify({ checkedAt: Date.now(), latest }));
+    atomicWriteFileSync(UPDATE_CACHE_PATH, JSON.stringify({ checkedAt: Date.now(), latest }));
   } catch {
     /* a cache we cannot write just means we check again next run */
   }
@@ -1221,10 +1227,7 @@ function runNotifications(args, action) {
     settings.hooks.SessionStart = sessionStart;
     sessionStart.push({ hooks: [{ type: "command", command: NOTIFY_HOOK_COMMAND }] });
     fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-    let stat = null;
-    try { stat = fs.lstatSync(settingsPath); } catch (e) {}
-    if (stat && stat.isSymbolicLink()) fs.rmSync(settingsPath, { force: true });
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+    atomicWriteFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
     console.log(`\n${colors.green}Enabled.${colors.reset} Claude Code sessions will surface new akili-specs versions at session start.`);
     console.log(`Hook added to ${settingsPath} (remove anytime with ${colors.cyan}akili notifications disable${colors.reset}).`);
     return;
@@ -1243,10 +1246,7 @@ function runNotifications(args, action) {
       })
       .filter((entry) => !Array.isArray(entry.hooks) || entry.hooks.length > 0);
     if (settings.hooks.SessionStart.length === 0) delete settings.hooks.SessionStart;
-    let stat = null;
-    try { stat = fs.lstatSync(settingsPath); } catch (e) {}
-    if (stat && stat.isSymbolicLink()) fs.rmSync(settingsPath, { force: true });
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+    atomicWriteFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
     console.log(`\n${colors.green}Disabled.${colors.reset} The akili hook was removed from ${settingsPath}; other hooks were left untouched.`);
     return;
   }
