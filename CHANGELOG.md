@@ -6,10 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.21.6] - 2026-08-07
+
 ### Fixed
 
 - **CLI file writes are now atomic** (PR #8, Jules/Sentinel; PR #7 closed as the same task run twice — same base, same three call sites). The `lstat`-check-then-`writeFileSync` guards from PR #6 left a TOCTOU window (recreate the symlink between check and write); replaced by `atomicWriteFileSync` — write to a `crypto.randomBytes` temp name in the same directory, `renameSync` over the destination (rename *replaces* a destination symlink rather than following it), `try/finally` temp cleanup. Review corrections: the temp write opens `wx` so a pre-existing entry at the temp path fails instead of being followed, and honest severity in the sentinel log — reported HIGH, realistically **LOW** (winning the race requires an attacker already able to create symlinks in the user's home, a position from which the race adds nothing; same pattern as PR #3 CRITICAL→MEDIUM and PR #4 HIGH→LOW). Merged as hardening: the atomic write also buys **crash-safety** — `settings.json` can no longer be left half-written by an interrupted process — arguably the more valuable property. CI note: the windows/Node 22 leg hung 15 minutes and was cancelled on the review commit; the rerun passed the full matrix — runner flake, recorded so the next hung Windows job gets compared against this one before blaming the diff. **Third post-review bot overwrite**: 21 minutes after the review corrections were pushed, the bot re-pushed its original content on top (`3e4e8e8`, dropping the `wx` flag and the severity reclassification) and the merge carried it in — caught by the standing merge-result diff and restored on master. The rule graduates from two-for-two to **three-for-three**: an agent branch is mutable until merge; always diff the merge result against the reviewed state before anything else.
-
 ## [2.21.5] - 2026-08-05
 
 ### Changed
