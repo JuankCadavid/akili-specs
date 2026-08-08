@@ -374,8 +374,13 @@ function copySingleFile(sourcePath, targetPath, args) {
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
-    removeTargetSymlinks(sourcePath, targetPath);
-    fs.copyFileSync(sourcePath, targetPath);
+    const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+    try {
+      fs.copyFileSync(sourcePath, tmpPath, fs.constants.COPYFILE_EXCL);
+      fs.renameSync(tmpPath, targetPath);
+    } finally {
+      try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+    }
   }
 
   return exists
