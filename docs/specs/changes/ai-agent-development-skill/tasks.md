@@ -74,7 +74,7 @@
 
 | Field | Value |
 |---|---|
-| Status | pending |
+| Status | [x] complete (PASS attempt 1 — see execution.md) |
 | Size | M |
 | Dependencies | none (parallel-safe) |
 | Requirements | FR-3 (scenario + AND IT MUST no-pass eval gates), NFR-2 |

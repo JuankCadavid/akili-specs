@@ -60,3 +60,30 @@
 **Issues encountered:** both workers went idle without delivering their contracted reports; one poke each recovered them (protocol: poke once on idle-without-report).
 
 **Final verification result:** all T1 greps pass; HITL frontmatter schema diff remains for the user gate (per task Done criteria).
+
+### T4 — Author `references/akili-spec-mapping.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-09 |
+| Requirements covered | FR-3 (scenario + AND IT MUST no-pass eval gates), NFR-2 |
+| Files changed | `.claude/skills/ai-agent-development/references/akili-spec-mapping.md` (new, 147 lines) |
+| Skills assigned | `cognitive-doc-design`, `tdd` (per task list; no deviation) |
+| Effort | medium |
+| Wave | Executed in parallel with T2 (wave 1; disjoint files, no shared build state) |
+
+**Implementer verification (attempt 1):** wc -l = 147 (target ~150); greps — `memory` ×4, `HITL` ×4, `no-pass` ×5, `## Sources` at line 141, `> Unvalidated:` at line 82 (marks example thresholds as illustrative per the SKILL.md convention); defect-class rule stated at line 5 before any section; all 3 pinned sources WebFetched and confirmed to state their cited claims; two dead LangChain URLs identified and avoided (docs consolidated under `docs.langchain.com`).
+
+**Implementer assumptions (carried verbatim):** (1) cross-links to `references/langgraph-patterns.md` and `references/aws-deployment.md` reference T3/T5 files that do not exist yet — expected sequencing, T6's `test -f` sweep closes it; (2) the worked example's verification command uses a `<runner>` placeholder with concrete flags per the tool-agnostic constraint, with the file stating what must survive substitution. **Leader adjudication:** both are sequencing/interpretation notes, no scope owed.
+
+**Reviewer verdict (attempt 1): `STATUS: PASS`** — "delivers FR-3's complete artifact set … and its worked triage example traces one behavior through all three documents with numbers that agree across them." Reviewer independently verified: no-pass clause genuine (not decorative; "Exit code 0 is not the gate" explicit), no generic-eval-theory bleed (design §7 boundary), DD-4 reconciliation clean, all 3 sources confirmed at the pinned URLs, T1 contract consistency incl. the `tdd` seam rule. Reviewer's independent `no-pass` count was 6 vs Implementer's 5 — both substantive, discrepancy immaterial.
+
+**ADVISORY (recorded, non-gating):**
+
+1. **RISK:** the pinned Anthropic URL 301-redirects cross-host to `platform.claude.com/...` — resolves today, but one redirect-retirement from a dead link. Re-pin at T6 or next revalidation.
+2. **RELIABILITY:** the T3/T5 cross-links are only caught by T6's `test -f` sweep if it actually runs — it must run, not be assumed.
+
+**Issues encountered:** none in-loop.
+
+**Final verification result:** all T4 greps pass; worked example discharges the task disqualifier.
