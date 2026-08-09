@@ -37,7 +37,7 @@
 
 | Field | Value |
 |---|---|
-| Status | pending |
+| Status | [x] complete (PASS attempt 1 — see execution.md, incl. Spec Correction to design §7) |
 | Size | M |
 | Dependencies | none (parallel-safe with T1, T3–T5) |
 | Requirements | FR-2 (both scenarios; BUT no-operational-guidance; AND IT MUST dated), NFR-2 |

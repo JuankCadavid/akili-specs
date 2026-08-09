@@ -87,3 +87,37 @@
 **Issues encountered:** none in-loop.
 
 **Final verification result:** all T4 greps pass; worked example discharges the task disqualifier.
+
+### T2 — Author `references/framework-selection.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-09 |
+| Requirements covered | FR-2 (both scenarios; BUT no-operational-guidance; AND IT MUST dated), NFR-2 |
+| Files changed | `.claude/skills/ai-agent-development/references/framework-selection.md` (new, 102 lines) |
+| Skills assigned | `cognitive-doc-design` (per task list; no deviation) |
+| Effort | high (Leader deviation from default medium — this file's dominant defect class is technical misinformation; recorded per Delegation Discipline) |
+| Wave | Executed in parallel with T4 (wave 1) |
+
+**Implementer verification (attempt 1):** 102 lines (under the ~120 design budget — density, not omission); all 7 framework names present (grep counts 17/5/6/10/3/5/7); `Last verified: 2026-08-09` line 3; `## Sources` line 92 with 9 numbered https sources — **all 9 WebFetched live before writing**; zero code fences / install / import content; AutoGen succession by the Microsoft Agent Framework recorded at line 65.
+
+**Decisions (attempt 1):**
+
+- **Two claims dropped rather than marked `> Unvalidated:`** (the sanctioned path — "flag or remove"): Agent SDK Bedrock env-var routing (documented only for Claude Code, not the SDK) and CrewAI "built from scratch, independent of LangChain" (not stated by its docs).
+- **Two additions beyond the literal scope list, adjudicated in scope by Leader and Reviewer:** a ~9-line worked example (walks FR-2 scenario 1's own target — "durable multi-step agent with HITL on AWS" — to a justified answer) and a 7-row at-a-glance identity table. Both under the line budget.
+- **AgentCore framed as a layer orthogonal to framework choice** (its Runtime hosts CrewAI, LangGraph, LlamaIndex, Google ADK, OpenAI Agents SDK, Strands), except Harness which genuinely competes with authoring a loop — source-confirmed by the Reviewer against source 4.
+
+**Spec Correction (design §7 row 2 — Implementer-surfaced, Reviewer-upheld):** design §7 summarized the CrewAI recognition row as "loses on low-level control/**durability**". The durability half is contradicted by the pinned source (CrewAI Flows docs: `@persist` state persistence across restarts, SQLite default backend, resume/fork from snapshot — Reviewer fetched and confirmed independently). The Implementer refused to ship the false claim (NFR-2 MUST; requirements §8 names misinformation as the dominant defect class) and wrote a source-backed replacement: loses on graph-level control of every transition / ecosystem standardization, with an explicit caveat against rejecting CrewAI on a "no durability" assumption. Reviewer verdict: "deviation upheld, design §7 is the thing that is wrong." **Correction sweep run (two directions):** forward grep for the superseded wording — exactly one site, `design.md:72`; backward — no other spec document cites the CrewAI row's wording. Amendment of `design.md:72` proposed to the user at the wave-1 gate; requirements.md untouched (FR-2 never mandated the durability wording).
+
+**Reviewer verdict (attempt 1): `STATUS: PASS`** — "All nine pinned sources were fetched live and every quoted phrase in the file appears verbatim at its source." Reviewer independently verified the two most load-bearing claims (CrewAI Flows persistence; AgentCore orthogonality/Harness), confirmed recognition-row restraint (no API symbols — the Implementer stated capability without naming `@persist`), confirmed both scenario gates of FR-2, and confirmed T1 contract consistency (heuristics map to the three routing questions in priority order).
+
+**ADVISORY (recorded, non-gating):**
+
+1. **RISK:** `design.md` §7 row 2 still carries the contradicted claim — will propagate to `/akili-archive`/TRD unless amended. *(Being handled via the Spec Correction above — user decision at the gate.)*
+2. **RELIABILITY:** line 45 forward-references `references/aws-deployment.md` (T5 deliverable) — T6's `test -f` sweep is the real gate; must actually run.
+3. **READABILITY:** line 44's AgentCore "loses when" bullet is applicability reasoning without a `[4]` bracket — not an NFR-2 breach; a bracket would make citation uniform.
+
+**Issues encountered:** none in-loop.
+
+**Final verification result:** all T2 greps pass; 9/9 sources confirmed by independent fetch; misinformation disqualifier discharged.
