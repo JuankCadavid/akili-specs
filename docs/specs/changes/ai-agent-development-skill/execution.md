@@ -121,3 +121,30 @@
 **Issues encountered:** none in-loop.
 
 **Final verification result:** all T2 greps pass; 9/9 sources confirmed by independent fetch; misinformation disqualifier discharged.
+
+### T3 — Author `references/langgraph-patterns.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-10 |
+| Requirements covered | FR-2 (LangGraph primary row decidable in depth), NFR-1, NFR-2 |
+| Files changed | `.claude/skills/ai-agent-development/references/langgraph-patterns.md` (new, 163 lines) |
+| Skills assigned | `cognitive-doc-design` (per task list; no deviation) |
+| Effort | high (Leader deviation from default medium — misinformation defect class; recorded per Delegation Discipline) |
+| Wave | Executed in parallel with T5 (wave 2) |
+
+**Implementer verification (attempt 1):** 163 lines (target ~180); `## Sources` at line 148 with 12 pinned URLs, all fetched and verified 2026-08-10; zero code fences; 2 `> Unvalidated:` markers (lines 51, 91 — both authored judgment, not doc-sourced: prebuilt-agent-as-node mixed shape; approval gates degrading into rubber stamps); 8 sections each with when-warranted/when-overkill conditions.
+
+**Source-integrity findings (Implementer, confirmed by Reviewer):** `docs.langchain.com/oss/python/langgraph/durable-execution` currently serves the *Persistence* page — not pinned; durability-mode claims pinned to `/checkpointers` which states them. `/subgraphs` 404s; live path `/use-subgraphs`. Caveat disclosed inline above `## Sources`.
+
+**Reviewer verdict (attempt 1): `STATUS: PASS`** — independently spot-checked 9 of 12 pins by WebFetch; "every quoted passage matches the live page verbatim." Vendoring disqualifier cleared ("the organizing frame … is authored judgment absent from the sources"). §5 failure-routing adjudicated in-bounds (design §7 ownership of architecture-level patterns), not scope creep. Sibling consistency confirmed both directions with T2/T4.
+
+**ADVISORY (recorded, non-gating):**
+
+1. **RELIABILITY:** the 1000-step recursion-limit claim is version-gated at source ("Starting in version 1.0.6") — precision, not error; a version qualifier would self-date it.
+2. **RISK:** 2 of 12 pins needed correction at authoring time — this file has the highest source-churn rate of the set; if a revalidation trigger is ever added (T6/kaizen), hang it here.
+
+**Issues encountered:** none in-loop.
+
+**Final verification result:** all T3 checks pass; vendoring disqualifier discharged; 9/12 pins independently re-verified.

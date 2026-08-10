@@ -57,7 +57,7 @@
 
 | Field | Value |
 |---|---|
-| Status | pending |
+| Status | [x] complete (PASS attempt 1 — see execution.md) |
 | Size | M |
 | Dependencies | none (parallel-safe) |
 | Requirements | FR-2 (LangGraph primary row decidable in depth), NFR-1, NFR-2 |
