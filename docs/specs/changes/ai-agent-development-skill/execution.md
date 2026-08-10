@@ -175,3 +175,47 @@ Full Reviewer report passed verbatim to attempt 2; effort bumped (loop rule).
 **Issues encountered:** attempt-1 FAIL was an omission caught only because the Reviewer read the pinned sources past the cited sections — the substituted human gate for the misinformation defect class doing exactly its job.
 
 **Final verification result:** all T5 greps pass; both FAIL issues remediated with source-exact quotes; disqualifier sweep clean.
+
+### T6 — Wiring, documentation surfaces, changelog
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-08-10 |
+| Requirements covered | FR-5 (scenario + BUT), FR-6 (scenario + AND IT MUST) |
+| Files changed | `.claude/commands/akili-constitution.md` (2 insertion points), `.claude/commands/akili-specify.md` (1), `docs/skills/ai-agent-development.md` (new, 41 lines), `docs/skills/README.md`, `docs/skills/governance.md`, `docs/commands/akili-constitution.md`, `README.md`, `CHANGELOG.md` |
+| Skills assigned | `cognitive-doc-design` (per task list; no deviation) |
+| Effort | attempt 1 medium → attempt 2 high (loop rule) |
+
+**Attempt 1 (2026-08-10): Reviewer `STATUS: FAIL`.** Reviewer reran all verification independently. Clean: FR-5 (exactly 3 command hits, all inside carve-outs (1)/(2), zero load directives repo-wide), FR-6 surfaces 6/6 with binding `stack` consistent everywhere, link sweep, `git diff --check`, dry-run candidate-not-directive read, and every other CHANGELOG factual claim checked against artifacts. One blocking issue:
+
+1. **CHANGELOG over-claim** — "each reference carries a `Last verified:` date" is false for `akili-spec-mapping.md` (no framework comparison to stamp; SKILL.md:66 and DD-6 correctly scope the stamp to the matrix/comparisons). Violated: FR-6 "every surface has exactly one **truthful** entry". Remediation: edit the CHANGELOG clause only — no skill-content change warranted.
+
+Full report passed verbatim to attempt 2; effort bumped (loop rule).
+
+**Attempt 2 (2026-08-10): Reviewer `STATUS: PASS`.** Implementer replaced the CHANGELOG clause with an artifact-exact one ("every reference carries a `## Sources` block … the three ecosystem-facing references … additionally carry a `Last verified:` date") — deliberately wider than the Reviewer's suggested wording, which would have *under*-claimed (langgraph-patterns.md also carries the stamp); Reviewer accepted the deviation as "more precise than either my suggestion or the original". Implementer also **self-reported the same over-claim in its own attempt-1 authoring** of `docs/skills/ai-agent-development.md:22` (surfaced via `Not Done / Assumptions` rather than silently fixing out-of-brief; Leader approved as in-scope T6 surface) and applied the matching correction. Reviewer re-counted markers in the files directly (4/4 `## Sources`; `Last verified:` on exactly the three named), re-ran all attempt-1 checks with no regression (FR-5 3 hits in carve-outs, 6/6 surfaces, binding consistent, **minor** stated, `git diff --check` clean), and confirmed the stale wording survives only in this log's quotation of the FAIL — correct to preserve, not an inventory surface.
+
+**ADVISORY (recorded, non-gating — flagged twice, T5 attempt 1 and T6 both attempts):** `SKILL.md:60` describes `references/aws-deployment.md` as "AgentCore **Harness** versus Lambda versus ECS" while the reference compares AgentCore **Runtime** (Harness as sub-distinction). T6 surfaces say "Runtime" and are truthful; the stale word lives in T1's committed router, outside T6 scope. Per the advisory rule it mints no task in this spec; surfaced to the user at spec close as a candidate for `/akili-quick` or the next revision.
+
+**Issues encountered:** attempt-1 FAIL (CHANGELOG truthfulness); Implementer session-limit failure occurred only after its final report was delivered — no work lost.
+
+**Final verification result:** FR-5 carve-out grep clean, FR-6 6/6 truthful and binding-consistent, `test -f` sweep resolves every referenced path (closes the T3/T4/T5 dangling-cross-link advisories), dry-run reads as candidate in all three lists.
+
+## 3. Summary — All Tasks Complete
+
+| Task | Result | Attempts |
+|---|---|---|
+| T1 SKILL.md | PASS | 1 |
+| T2 framework-selection.md | PASS | 1 (+ user-approved Spec Correction to design §7) |
+| T3 langgraph-patterns.md | PASS | 1 |
+| T4 akili-spec-mapping.md | PASS | 1 |
+| T5 aws-deployment.md | PASS | 2 (Lambda Durable Functions omission) |
+| T6 wiring + surfaces + changelog | PASS | 2 (CHANGELOG/skill-page truthfulness clause) |
+
+**Budget vs actual:** 6 tasks (= budget); ~586 new markdown lines + ~16 edited (budget ~600–730 + ~20); review rounds: 2 tasks needed a rework round each vs "1 review round" budgeted — delta escalated to the user at the wave-2 and T6 gates, causes recorded (source-coverage omission; over-claim), no spec resize needed.
+
+**Requirements coverage:** FR-1…FR-6 all delivered and Reviewer-verified; NFR-1 respected on every file (68/102/163/147/65/41 vs caps 150/~120/~180/~150/~90/~40); NFR-2 discharged by fetch-verified pinned sources on every reference (Reviewers independently re-fetched 9–11 sources per file).
+
+**Constitution Impact:** none — no module boundary or public code surface changed; the skill is packaged content reaching projects via the Skill Map. CodeGraph re-index pending at `/akili-archive` (markdown-only change; low urgency).
+
+**Remaining for the user (outside this spec):** HITL frontmatter schema diff at the spec gate (T1 Done criterion); the twice-flagged `SKILL.md:60` Harness→Runtime one-word advisory; release via `npm run release:minor` per the CHANGELOG classification.

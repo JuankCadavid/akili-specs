@@ -36,7 +36,7 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo) |
 | `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
-| `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns` |
+| `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:
 

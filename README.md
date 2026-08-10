@@ -81,6 +81,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `akili-resume.md`
   - `akili-seo.md`
 - `.claude/skills/`
+  - `ai-agent-development`
   - `angular-developer`
   - `api-design-principles`
   - `aws-serverless`

@@ -16,6 +16,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 
 | Skill | Binding | Origin | Use For | Wired In |
 |---|---|---|---|---|
+| [`ai-agent-development`](ai-agent-development.md) | stack | Juan Carlos Cadavid — jcadavid.com (MIT) | Agent framework and runtime selection, agent architecture (state, tools, memory, HITL), AWS hosting choice, and the bridge from agent behavior to AKILI spec documents | Skill Map; constitution/specify stack lists |
 | [`angular-developer`](angular-developer.md) | stack | Google LLC (MIT) | Angular architecture, components, services, signals, forms, routing, testing, CLI | Skill Map; constitution/specify stack lists |
 | [`api-design-principles`](api-design-principles.md) | stack | Seth Hobson (MIT) | REST and GraphQL API design and review | Skill Map; constitution/specify stack lists |
 | [`aws-serverless`](aws-serverless.md) | stack | vibeship (Apache-2.0) | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK | Skill Map; constitution/specify stack lists |

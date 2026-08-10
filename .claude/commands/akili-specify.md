@@ -221,6 +221,7 @@ Use additional stack skills as needed — prefer the project's `## Skill Map` (i
 - `error-handling-patterns`
 - `aws-serverless`
 - `angular-developer`
+- `ai-agent-development`
 
 #### Step 2.2 — Write
 

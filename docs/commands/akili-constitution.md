@@ -79,7 +79,7 @@ Skills the constitution itself draws on:
 - `product-manager-toolkit` (Steps 2–3 — interview script and PRD)
 - `cognitive-doc-design` (all baseline documents)
 - `ui-ux-pro-max`, or `frontend-design` + `stitch-design` (Step 4 — UX/UI design)
-- Stack skills matching the repo (Step 5 TRD and the Skill Map): `nestjs-expert`, `api-design-principles`, `error-handling-patterns`, `aws-serverless`, `shadcn-ui`, `tailwind-design-system`, `vercel-react-best-practices`, `angular-developer`
+- Stack skills matching the repo (Step 5 TRD and the Skill Map): `nestjs-expert`, `api-design-principles`, `error-handling-patterns`, `aws-serverless`, `shadcn-ui`, `tailwind-design-system`, `vercel-react-best-practices`, `angular-developer`, `ai-agent-development`
 
 ## Next Step
 

@@ -108,7 +108,7 @@
 
 | Field | Value |
 |---|---|
-| Status | pending |
+| Status | [x] complete (PASS attempt 2 — see execution.md for full rework history) |
 | Size | M |
 | Dependencies | T1–T5 (docs describe final content) |
 | Requirements | FR-5 (scenario + BUT), FR-6 (scenario + AND IT MUST) |
