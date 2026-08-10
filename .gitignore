@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 .antigravitycli/
 .claude/worktrees/
+
+# Local AKILI personas scaffolded from .claude/templates/ (per-machine, dogfooding)
+.agents/
