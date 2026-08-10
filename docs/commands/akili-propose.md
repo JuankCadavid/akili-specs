@@ -82,6 +82,8 @@ During intent clarification the command asks for the requirement source (e.g. Ji
 
 When the change has a UI surface and **no** Figma link, image, or existing design is provided, the command offers an **opt-in, recommended** fallback: generate a mockup directly in the agent using the `stitch-design` skill (Stitch MCP). Accepted mockups are saved under `docs/specs/<spec-path>/mockup/` (or the `.stitch/designs` / `.stitch/DESIGN.md` location) and recorded in the proposal's **Visual Reference** section. This mockup then counts as approved visual design context for `/akili-specify`, exactly like a Figma link. The user can always decline and continue without a visual.
 
+When Stitch MCP is unavailable, the command falls back to the **Claude Design MCP** (`claude-design`) for mockup generation (register it with `claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp`, then `/design-login`). If neither is available, it offers a lightweight self-contained HTML mockup as the last resort.
+
 ## Next Step
 
 After approval:

@@ -86,7 +86,7 @@ When this command delegates work to a subagent (the design agent in Step 2.1, sc
    - Package-level `CLAUDE.md` files if they exist
 3. Read `docs/specs/$ARGUMENTS/proposal.md` if it exists. If it has a **Visual Reference** section, treat the referenced source as approved visual design context and load it:
    - A Figma URL → use the Figma MCP when available.
-   - A generated mockup under `docs/specs/$ARGUMENTS/mockup/`, `.stitch/designs`, or a `.stitch/DESIGN.md` reference → read those artifacts (screens, HTML, design tokens) and use `stitch-design` to interpret them.
+   - A generated mockup under `docs/specs/$ARGUMENTS/mockup/`, `.stitch/designs`, or a `.stitch/DESIGN.md` reference → read those artifacts (screens, HTML, design tokens); use `stitch-design` to interpret `.stitch` artifacts. Mockups generated with the Claude Design MCP (`claude-design`) are read directly from their exported HTML/screenshots.
    - Any mockup produced during `/akili-propose` counts as visual design context for the `Design Impact` steps below, exactly like a Figma link.
 4. Read nearby or dependent specs under `docs/specs/` that overlap with the requested path.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).

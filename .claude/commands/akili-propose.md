@@ -120,7 +120,9 @@ If the change has any UI surface AND the user provides **no** Figma link, image,
   - Save the generated screens under `docs/specs/$SPEC_PATH/mockup/` (or reference the `.stitch/designs` location if the skill writes there).
   - Record the exact paths and any `.stitch/DESIGN.md` reference in the proposal's **Visual Reference** section (see Step 2).
 - If the user declines, note "no visual reference" in the proposal and continue. Do not block the proposal on a mockup.
-- If Stitch MCP is unavailable, still offer to sketch a lightweight self-contained HTML mockup saved under `docs/specs/$SPEC_PATH/mockup/` so intent stays reviewable.
+- If Stitch MCP is unavailable, fall back to the **Claude Design MCP** (`claude-design`): generate the mockup there, save the exported screens (HTML/screenshots) under `docs/specs/$SPEC_PATH/mockup/`, and record the paths in the Visual Reference. If the server is not registered, suggest the user run:
+  - `claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp`, then `/design-login` to authenticate (Claude Design is available on Pro/Max/Team/Enterprise plans).
+- If neither Stitch nor Claude Design is available, still offer to sketch a lightweight self-contained HTML mockup saved under `docs/specs/$SPEC_PATH/mockup/` so intent stays reviewable.
 
 A generated mockup counts as **visual design context** for `/akili-specify`, exactly like a Figma link would.
 
@@ -171,7 +173,7 @@ Capture whatever visual source backs this change so `/akili-specify` can convert
 ```markdown
 ## Visual Reference
 
-- Source: [Figma | Generated mockup (stitch-design) | Self-contained HTML mockup | None]
+- Source: [Figma | Generated mockup (stitch-design) | Generated mockup (claude-design) | Self-contained HTML mockup | None]
 - Location: <e.g. Figma URL, docs/specs/<spec-path>/mockup/, .stitch/designs, or .stitch/DESIGN.md>
 - Notes: screens/flows covered, or why no visual is needed (e.g. backend-only change).
 ```
