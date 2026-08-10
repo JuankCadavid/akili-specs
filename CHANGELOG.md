@@ -12,6 +12,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Changed
 
+- **npm tarball no longer ships `docs/specs/`** (internal spec working documents — execution logs, judgments, validation reports). `package.json` `files` gains `!docs/specs`; user-facing docs under `docs/` are unaffected. Surfaced by the first committed spec folder during `changes/ai-agent-development-skill` validation.
 - **Claude Design MCP added as the mockup fallback when Stitch MCP is unavailable.** The `/akili-propose` Mockup Fallback chain is now Stitch MCP → Claude Design MCP (`claude-design`, registered with `claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp` + `/design-login`) → lightweight self-contained HTML mockup. The proposal's Visual Reference source enum gains `Generated mockup (claude-design)`, and `/akili-specify` reads Claude Design mockups directly from their exported HTML/screenshots (`stitch-design` remains the interpreter only for `.stitch` artifacts). Docs mirror updated (`docs/commands/akili-propose.md`).
 
 ## [2.21.6] - 2026-08-07

@@ -22,6 +22,7 @@
     "bin",
     "CHANGELOG.md",
     "docs",
+    "!docs/specs",
     "LICENSE",
     "README.md",
     "scripts/gsc_verify.py",
