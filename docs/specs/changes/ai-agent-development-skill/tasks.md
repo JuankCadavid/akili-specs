@@ -91,7 +91,7 @@
 
 | Field | Value |
 |---|---|
-| Status | pending |
+| Status | [x] complete (PASS attempt 2 — see execution.md for full rework history) |
 | Size | S |
 | Dependencies | none (parallel-safe) |
 | Requirements | FR-4 (BUT no-vendor honored in content), NFR-2 |

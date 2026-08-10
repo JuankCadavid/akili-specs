@@ -148,3 +148,30 @@
 **Issues encountered:** none in-loop.
 
 **Final verification result:** all T3 checks pass; vendoring disqualifier discharged; 9/12 pins independently re-verified.
+
+### T5 — Author `references/aws-deployment.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-08-10 |
+| Requirements covered | FR-4 (BUT no-vendor honored in content), NFR-2 |
+| Files changed | `.claude/skills/ai-agent-development/references/aws-deployment.md` (new, 65 lines) |
+| Skills assigned | `cognitive-doc-design`, `aws-serverless` (boundary awareness only; per task list) |
+| Effort | attempt 1 medium-high → attempt 2 xhigh (loop rule: bump one level per retry) |
+| Wave | Executed in parallel with T3 (wave 2) |
+
+**Attempt 1 (2026-08-10): Reviewer `STATUS: FAIL`.** Implementer delivered 63 lines, 17 pinned sources, disqualifier sweep clean; Reviewer WebFetched 11/17 sources — all checked claims confirmed at source, and all four Implementer judgment calls (Runtime-vs-Harness framing, honest `Last verified: 2026-08-10` stamp, bare capability names under S-1, `> Unvalidated:` cost-rule marker) ACCEPTED. FAIL is for omission, not error in what was written:
+
+1. **Lambda Durable Functions omitted** — the file's own pinned sources [9]/[10] state Lambda supports Durable Functions (up to one year, automatic checkpointing, a Wait phase that pauses "without consuming resources"). Three cells wrong/misleading as a result: line 28 (900s stated as Lambda's ceiling), line 31 (HITL wait on Lambda called an anti-pattern with Step Functions as the only route), line 38 (beyond-8-hours rule omits the Lambda option); line 27 quote drops the scoping word "standard". Violated: NFR-2 + §8 dominant defect class; T5 scope dimensions (execution duration, HITL wait).
+2. **Minor:** ECS cold-start cell uncited (supported by [14], cited two cells away).
+
+Full Reviewer report passed verbatim to attempt 2; effort bumped (loop rule).
+
+**Attempt 2 (2026-08-10): Reviewer `STATUS: PASS`.** Implementer re-fetched [9]/[10] plus the new `durable-functions.html` [18] and `durable-step-functions.html` [19] before editing, confirmed every Reviewer quote verbatim, and acknowledged the root cause: "I cited [9] and [10] for statelessness and cold starts and never read past the sections I went in for." Remediation (6 edits for issue 1, 1 for issue 2): variant table rewritten to "Lambda is three shapes, not one"; duration/HITL/state/cost/cold-start cells shape-qualified; decision rule 1 reframed from "externalize the wait first" to "make the wait survivable first" (Reviewer: "fixes the underlying conceptual error rather than patching its symptom"); rule 2 branches corrected; "standard" restored inside the [9] quote; ECS launch-billing claim now cites [14] with quote. Sources appended as [18]/[19] without renumbering (deliberate — ~20 in-cell citations of renumber risk; Reviewer concurred). Final: 65 lines; citation integrity 1–19 no gaps/orphans; 0 code fences; 1 `> Unvalidated:` unchanged; hand-off lines verbatim vs SKILL.md deferral table. Reviewer verified the S-1 boundary "held under pressure, not by accident" — [18] documents `DurableContext` and the durable SDK; the file names none of it. No regressions on anything verified clean in attempt 1.
+
+**ADVISORY (recorded, non-gating):** (1) *(attempt 1, stands)* SKILL.md line 60 describes this file as "AgentCore Harness versus Lambda versus ECS" — the file's variant table reconciles the naming; if T6 touches that row anyway, "AgentCore versus Lambda versus ECS" matches delivered content more exactly. (2) *(attempt 1)* Lambda MicroVM pricing phrasing "per instance-second" is accurate synthesis, not quote. (3) *(attempt 2)* line 27 bolds "standard" inside a direct [9] quote without an "emphasis added" note — cosmetic.
+
+**Issues encountered:** attempt-1 FAIL was an omission caught only because the Reviewer read the pinned sources past the cited sections — the substituted human gate for the misinformation defect class doing exactly its job.
+
+**Final verification result:** all T5 greps pass; both FAIL issues remediated with source-exact quotes; disqualifier sweep clean.
