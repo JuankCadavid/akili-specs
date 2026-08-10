@@ -8,7 +8,7 @@
 | Spec Path | `changes/ai-agent-development-skill` |
 | Slug | `ai-agent-development-skill` — derived from free-text argument ("add a new original-authorship stack skill for AI agent development") |
 | Approval Mode | gated |
-| Status | Draft — awaiting approval |
+| Status | Approved 2026-08-09 (see requirements.md Document Control; open question resolved: CrewAI/AutoGen included at recognition level) |
 | Date | 2026-08-09 |
 | Author | Juan Carlos Cadavid (intent) / agent (draft) |
 
