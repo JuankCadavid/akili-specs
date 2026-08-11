@@ -28,6 +28,16 @@ function atomicWriteFileSync(targetPath, data) {
   }
 }
 
+function atomicCopyFileSync(sourcePath, targetPath) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.copyFileSync(sourcePath, tmpPath, fs.constants.COPYFILE_EXCL);
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
+}
+
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SOURCE_CLAUDE = path.join(PACKAGE_ROOT, ".claude");
 const SOURCE_COMMANDS = path.join(SOURCE_CLAUDE, "commands");
@@ -374,8 +384,7 @@ function copySingleFile(sourcePath, targetPath, args) {
   console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
   if (!args.dryRun) {
-    removeTargetSymlinks(sourcePath, targetPath);
-    fs.copyFileSync(sourcePath, targetPath);
+    atomicCopyFileSync(sourcePath, targetPath);
   }
 
   return exists
