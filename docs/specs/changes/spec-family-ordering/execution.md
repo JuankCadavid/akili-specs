@@ -26,3 +26,27 @@
 - **Requirements covered:** FR-1 (all clauses except the `akili-specify.md:85` / `docs/flow.md:145` enumeration clauses, owned by T3/T2), NFR-2, NFR-3.
 - **Issues encountered:** none.
 - **Final verification result:** PASS (grep + diff-stat checks green, disqualifiers applied).
+
+### T2 — `/akili-propose` chunking writes the manifest + `docs/flow.md` consumes it — PASS (attempt 1)
+
+- **Date:** 2026-08-12
+- **Attempts:** 1 (wave 1, parallel with T3 — disjoint files)
+- **Files changed:** `.claude/commands/akili-propose.md` (+4/−2), `docs/flow.md` (+3/−3)
+- **What was done:** Scope Chunking now writes `family.md` (schema by reference to constitution Step 7) before any child folder, seeded with RICE/MoSCoW order + `Depends on`/`Parallel-safe`/`Status: pending`; closed-set + late-addition-HITL rules stated; children gain `Parent Spec:` Document Control row (chunking bullet + proposal structure item 1); Greenfield inheritance explicit. `docs/flow.md`: fleet precondition 1 reads independence from the manifest ("decided at decomposition time, persisted in `family.md`" — DD-6; "specify time" gone), waves cite manifest `#`/`Depends on` order, general-setup artifacts row mentions the schema.
+- **Implementer verification:** greps — `family.md` hits at all 5 expected sites; `Parent Spec` ×2; `specify time` in flow.md = 0; diff isolated to the 2 in-scope files.
+- **Reviewer verdict:** `STATUS: PASS` — all FR-2/FR-6 clauses + FR-1's `flow.md:145` clause satisfied at source; NFR-3 disqualifier does not fire (reference, not restatement); flat-spec behavior preserved (NFR-1).
+- **ADVISORY (non-gating, recorded per Advisory-Never-Grows):** `akili-propose.md:144` ends with a self-referential line-number pointer `` (`:143`) `` — not an existing convention in shipped command prose, will rot on next edit, redundant (the fields are named in the same sentence). Reviewer suggests deleting the parenthetical; not folded into any task without user approval.
+- **Requirements covered:** FR-2 (both scenarios, all clauses), FR-6, FR-1 `flow.md:145` clause, NFR-1, NFR-3.
+- **Final verification result:** PASS.
+
+### T3 — `/akili-specify` mirrors the contract and reads the parent manifest — PASS (attempt 1)
+
+- **Date:** 2026-08-12
+- **Attempts:** 1 (wave 1, parallel with T2 — disjoint files)
+- **Files changed:** `.claude/commands/akili-specify.md` (+6/−5)
+- **What was done:** Step 0 gains item 5 "Spec family membership" (read parent `family.md` when the target is a listed child; warn-never-block on unmet `Depends on`; no sibling creation outside the closed set) with items renumbered 5→8 and the internal "rule 6"→"rule 7" cross-reference updated; Step 1.1 chunking carries the same manifest contract as propose by reference; `:85` general-setup enumeration gains `family.md`.
+- **Implementer verification:** `grep -n "family.md"` hits at :85, :93, :116; warning wording confirmed; diff isolated to the file.
+- **Reviewer verdict:** `STATUS: PASS` — all FR-3 clauses + FR-1 `:85` clause + NFR-3 satisfied; renumbering left no stale cross-reference in the file or any consumer; flat-spec overhead zero (conditional step).
+- **Requirements covered:** FR-3 (all clauses), FR-1 `:85` clause, NFR-1, NFR-3.
+- **Issues encountered:** none.
+- **Final verification result:** PASS.

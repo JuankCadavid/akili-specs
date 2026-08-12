@@ -82,7 +82,7 @@ When this command delegates work to a subagent (the design agent in Step 2.1, sc
    - `docs/prd.md`
    - `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
    - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
-   - The constitutional templates in `docs/specs/general-setup/` (`requirements.md`, `design.md`, `task.md`)
+   - The constitutional templates in `docs/specs/general-setup/` (`requirements.md`, `design.md`, `task.md`, `family.md`)
    - Package-level `CLAUDE.md` files if they exist
 3. Read `docs/specs/$ARGUMENTS/proposal.md` if it exists. If it has a **Visual Reference** section, treat the referenced source as approved visual design context and load it:
    - A Figma URL → use the Figma MCP when available.
@@ -90,9 +90,10 @@ When this command delegates work to a subagent (the design agent in Step 2.1, sc
    - Any mockup produced during `/akili-propose` counts as visual design context for the `Design Impact` steps below, exactly like a Figma link.
 4. Read nearby or dependent specs under `docs/specs/` that overlap with the requested path.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
-5. Respect the repository's current package layout and naming conventions instead of assuming a fixed stack.
-6. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
-7. **Delegation Thresholds (scout research):** Beyond the constitutional docs above, apply the *Delegation Thresholds* from `.agents/leader.md` to source-code exploration in every Explore step of this command — if answering a design question requires reading **4+ full source files**, spawn a scout/Explore subagent with fresh context and consume its conclusions instead of reading the files inline. CodeGraph lookups (rule 6) do not count toward the threshold.
+5. **Spec family membership:** if `docs/specs/$ARGUMENTS` is listed as a child row in a parent `family.md` (the spec-family manifest — schema defined once in `akili-constitution.md` Step 7 item 4; do not restate it here), read that manifest and let the child's order, `Depends on`, and `Status` inform this spec. **Warn (never block)** when a `Depends on` child's `Status` is not `done`. Do not create sibling spec folders outside the manifest's closed set.
+6. Respect the repository's current package layout and naming conventions instead of assuming a fixed stack.
+7. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
+8. **Delegation Thresholds (scout research):** Beyond the constitutional docs above, apply the *Delegation Thresholds* from `.agents/leader.md` to source-code exploration in every Explore step of this command — if answering a design question requires reading **4+ full source files**, spawn a scout/Explore subagent with fresh context and consume its conclusions instead of reading the files inline. CodeGraph lookups (rule 7) do not count toward the threshold.
 
 ---
 
@@ -112,7 +113,7 @@ Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 **Scope Chunking:** If the user provides a very large instruction or epic, evaluate if it is too massive for a single spec.
 - If it spans multiple distinct modules or features, propose splitting the spec into multiple separate specs.
 - When recommending the build order of the split specs, score them with RICE or MoSCoW from the `product-manager-toolkit` skill (AKILI-SPECS Integration section) instead of guessing.
-- If the user agrees, create the separate folders under `docs/specs/` and draft a `proposal.md` or jump straight to the split documents (`requirements.md`, `design.md`, `tasks.md`) for each chunk.
+- If the user agrees, this command carries the **same spec-family manifest contract as `/akili-propose`'s Scope Chunking**: before creating any child folder, write `family.md` in the parent folder (schema defined once in `akili-constitution.md` Step 7 item 4 — reference it, do not restate the table) seeded with the agreed order, `Depends on`, `Parallel-safe`, and `Status: pending` for every chunk. The manifest's child set is **closed** — never create a folder without a prior manifest row; a late addition first proposes a manifest edit and gets HITL approval before its folder exists. Then draft a `proposal.md` or jump straight to the split documents (`requirements.md`, `design.md`, `tasks.md`) for each chunk.
 
 #### Step 1.2 — Write
 

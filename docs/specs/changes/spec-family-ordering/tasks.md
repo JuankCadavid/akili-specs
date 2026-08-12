@@ -54,7 +54,7 @@ T2–T5 touch disjoint files and are parallel-safe after T1. No circular depende
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-2 (both scenarios, all clauses); FR-6 (scenario + no-re-derive clause); FR-1's `docs/flow.md:145` enumeration clause; NFR-3 |
@@ -76,7 +76,7 @@ T2–T5 touch disjoint files and are parallel-safe after T1. No circular depende
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-3 (scenario + warn-not-block + no-sibling clauses); FR-1's `akili-specify.md:85` enumeration clause; NFR-3 |
