@@ -252,6 +252,14 @@ After a task PASSes or HALTs, generate a short, easy-to-understand summary (summ
 
 **Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance.
 
+**Unattended Mode (Claude Code + `pre-approved` only):** when the user asks for a run that finishes without them watching, recommend launching it with `/goal` in Claude Code — after each turn a small fast model checks the condition and starts another turn until it holds ([docs](https://code.claude.com/docs/en/goal.md)). Use this canonical condition, with `<spec-path>` and `<N>` resolved:
+
+> Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
+
+The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
+
+Optional by construction: `/goal` requires a workspace you have trusted and is unavailable under `disableAllHooks`, and it does not change tool permissions (pair it with auto mode so each turn runs without per-tool prompts). Never make a run depend on it — every spec stays completable without it. Do not use it under `gated` mode: there the interactive gates are the point.
+
 **Context checkpoint (this gate is the safe boundary inside a spec):** a task just closed and its full state is in `execution.md` + `tasks.md` — between tasks is the one moment mid-spec where the conversation holds nothing irreplaceable. If your context is getting heavy, say so in one line with the honest options: **`/compact` now** (keeps the session, trims history — safe here, destructive mid-loop), or **park and reset** (`/clear`, then `/akili-resume` rebuilds from the audit trail). You cannot run either — recommend at this gate rather than letting the wind-down protocol fire mid-loop later, which is the expensive version of the same decision. This checkpoint fires even under `pre-approved` mode: it costs one line, not a pause.
 
 ---

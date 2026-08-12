@@ -1,6 +1,6 @@
 # `/akili-execute`
 
-Implement the next eligible task from an approved spec path using the AKILI **Leader → Implementer → Reviewer** multi-agent harness.
+Implement the next eligible task from an approved spec path using the AKILI **Leader → Implementer → Reviewer** multi-agent harness. In Claude Code, a spec whose Approval Mode is `pre-approved` can additionally be driven to completion unattended with `/goal` — the command text's Step 5 carries the canonical condition template and its requirements.
 
 ## Usage
 

@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **Unattended Mode guidance for `pre-approved` runs (release classified minor: a new documented capability).** `/akili-execute` Step 5 gains an Unattended Mode block, confined to the `pre-approved` context and to Claude Code, recommending `/goal` with a canonical condition template written once there: all tasks `[x]` with matching PASS evidence in `execution.md`, OR a HALT / Pivot Record / budget-tripwire block, OR a question pending for the user — plus a turn bound sized so it never fights the 3-attempt rework ceiling. The exception disjunction is part of the condition, not an add-on, so the loop cannot push past a human gate; the block also states the requirements (trusted workspace, unavailable under `disableAllHooks`, no change to tool permissions) and that no run ever depends on it. `docs/flow.md`'s fleet preconditions gain the per-host child launch they lacked — `claude -p "/goal <condition>"` in Claude Code referencing that one template, the goal plus exception contract in the dispatch brief for Google Antigravity, whose completion stays user-verified from artifacts with no platform-evaluated condition, and no claim for OpenCode. Every `/goal` claim is pinned to https://code.claude.com/docs/en/goal.md and every Antigravity claim to https://antigravity.google/blog/introducing-google-antigravity. Docs mirror updated (`docs/commands/akili-execute.md`). Guidance only: no installer, hook, or command change.
 
 ## [2.22.0] - 2026-08-10
 
