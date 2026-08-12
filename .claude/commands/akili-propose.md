@@ -141,7 +141,9 @@ Use `brainstorming` and, when helpful, `product-manager-toolkit` to clarify:
 - If it should be split, propose breaking it down to the user.
 - When recommending the build order of the resulting chunks, score them with RICE or MoSCoW from the `product-manager-toolkit` skill (AKILI-SPECS Integration section) instead of guessing.
 - **Record inter-chunk dependencies explicitly in each proposal** (`Depends on: <spec-path> | none`), and mark chunks with no shared modules, migrations, or API contracts as **`Parallel-safe: yes`**. This single field is what later enables the fleet pattern (`docs/flow.md` → *Multi-Spec Parallel Execution*) to run independent specs concurrently in separate worktrees — independence is decided here, where the decomposition judgment is fresh, not re-derived at dispatch time.
-- Upon agreement, create the respective folders for each bounded change under `docs/specs/` and generate a `proposal.md` for each.
+- **Upon agreement, before creating any child folder, write `family.md` in the parent folder** — schema defined once in `/akili-constitution` Step 7's general-setup templates (`docs/specs/general-setup/family.md`); do not restate the column definitions here. Seed the child table in the agreed RICE/MoSCoW build order with `Depends on`, `Parallel-safe`, and `Status: pending` per child. The manifest's child list is a **closed set**: no child folder is created without a prior manifest row. A child surfacing later requires proposing a manifest edit (new row, ordered position) and obtaining HITL approval *before* that child's folder is created. The manifest is the aggregate authority for `Depends on`/`Parallel-safe` if it and a child's own proposal ever disagree; still record both per-child fields as before (`:143`).
+- Only after `family.md` exists, create the respective folders for each bounded change under `docs/specs/` and generate a `proposal.md` for each. Each child's Document Control gains a `Parent Spec: <parent-spec-path>` row pointing at the spec family's parent folder.
+- The Greenfield track's decomposition (Step 1.1 above) uses this same manifest contract — it invokes the identical chunking mechanics, just against PRD scope instead of a raw instruction.
 
 Ask focused questions only when the proposal would otherwise depend on unstable assumptions.
 
@@ -149,7 +151,7 @@ Ask focused questions only when the proposal would otherwise depend on unstable 
 
 Create a concise proposal following `cognitive-doc-design` (lead with the answer, progressive disclosure, tables over prose) with this structure:
 
-1. Document Control (include `Type: Bug | Change | Trivial`)
+1. Document Control (include `Type: Bug | Change | Trivial`; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
 2. Intent
 3. Problem / Current Behavior
 4. Proposed Outcome
