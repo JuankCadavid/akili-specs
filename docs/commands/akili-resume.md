@@ -19,8 +19,9 @@ No arguments required. The command scans `docs/specs/` automatically.
 
 ## Behavior
 
-The command performs a four-step scan:
+The command performs a four-step scan, preceded by a manifest read:
 
+0. **Read spec-family manifests** — before the flat directory scan, reads every `family.md` found under `docs/specs/` so the dashboard can group children under their parent (manifest order, status, blocked-by) and the next-command recommendation can follow manifest order instead of folder-discovery order.
 1. **Scan Active Specs** — lists all directories under `docs/specs/` (excluding `archive/`)
 2. **Determine Phase & Progress** — for each spec, identifies current phase (PROPOSE → SPECIFY → EXECUTE → TEST → VALIDATE → ARCHIVE), task progress, last action, and blockers
 3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec; if `docs/specs/kaizen-log.md` exists, appends a Kaizen footer line with the active-lesson count and the latest lesson (read from the `## Active Lessons` digest only)

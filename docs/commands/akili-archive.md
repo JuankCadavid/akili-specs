@@ -75,3 +75,4 @@ A clean spec records a one-line clean-run entry. The retrospective never blocks 
 - Do not overwrite an existing archive folder.
 - If archive readiness is unclear, ask whether to validate first, proceed with accepted risk, or keep the spec active.
 - The Kaizen retrospective never blocks the archive and never edits files outside `docs/specs/kaizen-log.md` without approval.
+- **Spec families:** archiving a manifest-listed child flips its row to `done` in the parent's `family.md` before the folder moves. Archiving a family's parent is blocked while any child row is non-terminal, with the non-terminal children named in the message (override via the same stop-and-ask escape hatch).

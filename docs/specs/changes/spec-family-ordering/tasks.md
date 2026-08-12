@@ -142,7 +142,7 @@ T2–T5 touch disjoint files and are parallel-safe after T1. No circular depende
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T2, T3, T4, T5 |
 | Requirements | FR-7; NFR-1, NFR-3, NFR-4 final checks; `requirements.md` §8 gate execution |

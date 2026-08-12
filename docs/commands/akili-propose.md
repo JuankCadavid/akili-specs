@@ -84,6 +84,10 @@ When the change has a UI surface and **no** Figma link, image, or existing desig
 
 When Stitch MCP is unavailable, the command falls back to the **Claude Design MCP** (`claude-design`) for mockup generation (register it with `claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp`, then `/design-login`). If neither is available, it offers a lightweight self-contained HTML mockup as the last resort.
 
+## Scope Chunking
+
+When a proposal is too large for one spec, the command can split it into child proposals. Before creating any child folder, it writes a `family.md` manifest in the parent folder — a closed, ordered list of the children with their dependencies and parallel-safety — and each child's Document Control gains a `Parent Spec:` row pointing back at it.
+
 ## Next Step
 
 After approval:

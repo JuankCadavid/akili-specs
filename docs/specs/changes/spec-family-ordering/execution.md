@@ -77,3 +77,30 @@
 ### Scope note — user-approved additions to T6 (gate after wave 1)
 
 At the wave-1 HITL gate the user approved folding the T2 advisory fix (delete the `` (`:143`) `` self-pointer in `akili-propose.md`) into T6's closure sweep. The equivalent T5 pointer (`` `:186` `` in `akili-archive.md` Step 3, now stale) is queued pending the same approval at the wave-2 gate.
+
+### T6 — Mirrors, CHANGELOG, and closure sweep — PASS (attempt 1)
+
+- **Date:** 2026-08-12
+- **Attempts:** 1 (session interrupted mid-task; resumed via `/akili-resume`, edits recovered from the working tree and re-verified from scratch)
+- **Files changed:** `docs/commands/akili-propose.md` (+4), `akili-specify.md` (+1), `akili-resume.md` (+1/−1), `akili-archive.md` (+1), `akili-constitution.md` (+1), `CHANGELOG.md` (+2), plus the two approved advisory cleanups in `.claude/commands/akili-propose.md` (+1/−1) and `akili-archive.md` (+1/−1), plus three gate-4 corrections in `.claude/commands/akili-resume.md` (+2/−2 in-line, dashboard block renumbered).
+- **What was done:** One summary-level `family.md` mention added to each of the five docs mirrors, matching each mirror's own structure. `CHANGELOG.md` `Unreleased` → `Added` entry written, **classified minor** (new methodology behavior, no installer/hook/command change). Both stale self-referential line pointers removed: `` (`:143`) `` in propose (approved at the wave-1 gate) and `` `:186` `` in archive Step 3 (approved at the wave-2 gate, this session).
+- **Gate 4 (HITL walkthrough of FR-4, `bilateral/` shape — 3 children, order 1→2→3, child 1 `done`, plus one flat spec):** walked the final resume text step by step. Grouping (`:88`), manifest-order recommendation of child 2 (`:132` → `/akili-execute bilateral/child-b`), folder-existence verification (`:29`) and read-only effect all derive from the text without assumptions. **Three findings, all fixed before closure:**
+  1. **Gap (blocking, FR-4 BUT clause).** Step 0 item 2 listed all directories under `docs/specs/`; the family container folder holds only `family.md`, matches no phase file, and fell through to Error Handling `:149`, whose carve-out covers only manifest-listed `pending` **children**. A literal follower would report `bilateral/` as an incomplete spec and suggest `/akili-specify bilateral/` — an activity absent from the manifest. **Fix:** item 2 now states the family container is not a spec, renders as the Step 2 heading, and is never an `/akili-specify` target.
+  2. **T4 advisory confirmed (dashboard counting).** The example mixed a family-as-one-unit header `(2 open)` with per-spec numbering (children `1,2,3`, flat spec `4`). **Fix:** family = one entry in both the header count and the top-level numbering (stated as a rule at `:88`, not left to the example); manifest `#` values number children as a nested list; the flat spec renumbered to `2`.
+  3. **Output-contract ambiguity.** "report any mismatch as drift" in a command whose Output contract forbids writes, in a repo that has a real `docs/specs/drift-report.md`. **Fix:** "report … as drift **on screen** … rather than reconciling or repairing the manifest **or writing a drift report**."
+  Mirror coherence follow-through: `docs/commands/akili-resume.md` lead-in corrected to "a four-step scan, preceded by a manifest read" (the new `0.` item had made "four-step" false).
+- **Closure sweep (the §8 gates):**
+  1. `grep -rl "family.md" .claude/commands/ docs/ CHANGELOG.md` → 17 paths = 6 sources (5 commands + `docs/flow.md`) + 5 mirrors + `CHANGELOG.md` + the 5 files of this spec folder (counted as one surface) = **13 surfaces, exactly the design §7 table**. No surface with zero hits; no hit in an unlisted file.
+  2. Schema divergence: the full column-definition table exists at exactly one site, `akili-constitution.md:317`. Propose/specify/archive/resume cite columns by reference only. NFR-3 holds.
+  3. Naming: every new hit reads "spec family" / `family.md`; the remaining bare-`family` hits in `akili-constitution.md` (473, 541, 572) and `docs/model-routing.md` are pre-existing **model**-family prose, untouched.
+  4. HITL walkthrough: executed above — gap found, reported, fixed, re-walked green. Residual risk per `requirements.md` §8 remains **accepted and recorded**: real proof arrives only when a project exercises an actual split.
+  5. NFR-4: `git diff --stat` over `.claude/`, `docs/commands/`, `docs/flow.md`, `CHANGELOG.md` from T1's parent = **68 insertions**, well under the ~150 tripwire.
+- **Requirements covered:** FR-7; NFR-1, NFR-3, NFR-4 final checks; `requirements.md` §8 gate execution. All prior tasks' advisories discharged — Advisory-Never-Grows queue is empty.
+- **Issues encountered:** the gate-4 gap above; fixed in-task per the T6 disqualifier ("do not pass on grep-green alone") rather than deferred.
+- **Final verification result:** PASS — all five §8 gates green after the corrections.
+
+---
+
+## Execution Summary
+
+All 6 tasks PASS on first attempt. Spec-family ordering is now defined once in `/akili-constitution` Step 7 and consumed by propose, specify, resume, and archive; `docs/flow.md` reads fleet independence from the manifest instead of re-deriving it. Zero overhead for flat-spec projects (NFR-1 verified at every consuming site). Next: `/akili-test` is not applicable (guidance-only, no executable code) — proceed to `/akili-validate` or `/akili-archive`.

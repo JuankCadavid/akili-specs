@@ -26,8 +26,8 @@ No arguments required. The command scans `docs/specs/` automatically.
 
 **Model checkpoint:** This phase runs best on **T5 Fast-Cheap** — file scanning and summarization; reasoning depth is not the bottleneck. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"Resume is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode). Never block on this; continuing on the current model is always allowed (and switching is rarely worth it for a single scan).
 
-1. **Read spec family manifests first.** `Glob` for every `family.md` under `docs/specs/` (excluding `archive/`) and read each one found — Document Control + ordered child table (schema defined once in `akili-constitution.md` Step 7 item 4; reference it here, don't restate it). For each manifest-listed child, verify its `Spec Path` folder actually exists; report any mismatch as drift (KZ-002: aggregate claims are grep-falsified, not trusted) rather than reconciling or repairing the manifest. Skip this item entirely when no `family.md` exists — zero added steps for flat-spec-only projects (NFR-1).
-2. List all directories under `docs/specs/` (excluding `archive/`).
+1. **Read spec family manifests first.** `Glob` for every `family.md` under `docs/specs/` (excluding `archive/`) and read each one found — Document Control + ordered child table (schema defined once in `akili-constitution.md` Step 7 item 4; reference it here, don't restate it). For each manifest-listed child, verify its `Spec Path` folder actually exists; report any mismatch as drift on screen (KZ-002: aggregate claims are grep-falsified, not trusted) rather than reconciling or repairing the manifest or writing a drift report. Skip this item entirely when no `family.md` exists — zero added steps for flat-spec-only projects (NFR-1).
+2. List all directories under `docs/specs/` (excluding `archive/`). A folder whose only spec file is `family.md` is the family container, not a spec — it renders as the spec-family heading in Step 2, never as its own spec entry and never as an `/akili-specify` target.
 3. For each spec directory, read available files to determine current phase:
    - `proposal.md` exists → proposed
    - `requirements.md` exists → requirements defined
@@ -85,17 +85,17 @@ If **multiple specs** are active, present a dashboard:
 Which spec do you want to resume? (or "all" for full briefing)
 ```
 
-If one or more `family.md` manifests were read in Step 0, group that spec family's children under a spec-family heading (manifest order, status, blocked-by) instead of listing them flatly; specs with no manifest render exactly as today:
+If one or more `family.md` manifests were read in Step 0, group that spec family's children under a spec-family heading (manifest order, status, blocked-by) instead of listing them flatly; specs with no manifest render exactly as today. A spec family is **one** entry in the header count and in the top-level numbering — it is one decision for the user, not N; the manifest `#` values number its children as a nested list:
 
 ```markdown
 📋 AKILI Active Specs (2 open)
 
-Spec family: bilateral/ (3 children, manifest order 1→2→3)
-  1. bilateral/child-a   done
-  2. bilateral/child-b   [EXECUTION]  ██████░░ 6/8 tasks done   Blocked by: none
-  3. bilateral/child-c   pending      Blocked by: child-b (not done)
+1. Spec family: bilateral/ (3 children, manifest order 1→2→3)
+   1. bilateral/child-a   done
+   2. bilateral/child-b   [EXECUTION]  ██████░░ 6/8 tasks done   Blocked by: none
+   3. bilateral/child-c   pending      Blocked by: child-b (not done)
 
-4. admin/user-management      [SPECIFY]    ████░░░░ Design approved, tasks pending
+2. admin/user-management      [SPECIFY]    ████░░░░ Design approved, tasks pending
    Blocked: none
 ```
 

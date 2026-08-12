@@ -38,6 +38,7 @@ Creates or enhances:
 - `docs/specs/general-setup/requirements.md`
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
+- `docs/specs/general-setup/family.md` (a fourth template, Step 7: the manifest schema — Document Control plus an ordered child table — that `/akili-propose` and `/akili-specify` write only when a proposal is actually split into a spec family; its absence means the spec is flat, with no added obligations)
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.agents/leader.md`
