@@ -8,7 +8,7 @@
 | Spec Path | `changes/goal-driven-execution` |
 | Slug | `goal-driven-execution` — derived from free-text argument ("goal-driven unattended execution") |
 | Approval Mode | gated |
-| Status | Draft — awaiting approval |
+| Status | Approved 2026-08-12 — delivered & archived 2026-08-12 |
 | Date | 2026-08-12 |
 | Author | Juan Carlos Cadavid (intent) / agent (draft) |
 

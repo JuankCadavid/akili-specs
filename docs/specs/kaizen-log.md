@@ -9,12 +9,33 @@ keep it at 10 rows or fewer.
 
 | ID | Lesson | Source Spec | Severity | Target | Standardized In | Status |
 |---|---|---|---|---|---|---|
+| KZ-003 | A fallback-spawned worker's brief must state report delivery as the turn's terminating action — workers reliably do the work and unreliably mail it; idle-without-report recurs otherwise | changes/goal-driven-execution | Medium | Methodology | proposed: `.claude/commands/akili-execute.md` Steps 2.2/2.3 (append 1–2 lines) | Deferred |
 | KZ-001 | When pinning a source, read it past the section you came for — the costliest review FAIL class is a claim contradicted elsewhere in its own pinned source | changes/ai-agent-development-skill | Medium | Methodology | proposed: `.claude/templates/implementer.md` (append) | Deferred |
 | KZ-002 | Before writing an aggregate claim about a set of artifacts ("each file has X"), run the grep that would falsify it — summary surfaces (CHANGELOG, docs pages) inherit the artifacts' evidence bar | changes/ai-agent-development-skill | Medium | Methodology | proposed: `.claude/templates/implementer.md` (append) | Deferred |
 
 ## Entries
 
-### 2026-08-10 — changes/ai-agent-development-skill
+### 2026-08-12 — changes/goal-driven-execution
+
+**Metrics**
+
+| Signal | Value | Source |
+|---|---|---|
+| Tasks executed | 1 (PASS attempt 1) | tasks.md |
+| Reviewer FAIL rework attempts | 0 | execution.md — T1 |
+| HALTs / FATAL_FAILs / Pivots | 0 | execution.md |
+| PRODUCT_BUGs | n/a (docs-only; test-report absence accepted at archive) | archive-summary.md §4 |
+| Validation FAIL / WARN | n/a (validation-report absence accepted at archive) | archive-summary.md §5 |
+| Budget | 1/1 tasks; 12 added lines vs ~35–40; 1/1 review rounds | execution.md §2 |
+
+**Lessons**
+
+- **KZ-003 — Fallback-spawn briefs omit the report-as-terminating-action clause; workers idle without mailing their report.** (Methodology, Medium — recurrence)
+  - Root cause (5W1H): `.claude/templates/leader.md` carries the prevention rule ("state the report as the turn's terminating action") inside the cross-host dispatch section, but `/akili-execute` Steps 2.2/2.3's brief checklists never list it — so Leaders compose briefs from the checklist and drop the clause. Second consecutive spec with the symptom (4 idle turns in `ai-agent-development-skill`, noted-not-minted; 2 of 2 workers here). Poke-once protocol recovered every case — treatment exists, prevention isn't wired where briefs are written.
+  - Evidence: execution.md — T1 Issues encountered; kaizen-log 2026-08-10 entry ("Noted, not a lesson").
+  - Standardization: append 1–2 lines to the Step 2.2 (and 2.3) brief lists in `.claude/commands/akili-execute.md` (+ CHANGELOG line, package-affecting). → **Deferred 2026-08-12 (user choice)**
+
+
 
 **Metrics**
 
