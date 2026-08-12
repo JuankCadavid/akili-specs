@@ -98,7 +98,7 @@ T2–T5 touch disjoint files and are parallel-safe after T1. No circular depende
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-4 (scenario + all four clauses); NFR-1 |
@@ -120,7 +120,7 @@ T2–T5 touch disjoint files and are parallel-safe after T1. No circular depende
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-5 (both scenarios, all clauses) |

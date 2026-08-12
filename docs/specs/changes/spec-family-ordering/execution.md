@@ -50,3 +50,30 @@
 - **Requirements covered:** FR-3 (all clauses), FR-1 `:85` clause, NFR-1, NFR-3.
 - **Issues encountered:** none.
 - **Final verification result:** PASS.
+
+### T4 — `/akili-resume` family-aware scan, dashboard, and recommendation — PASS (attempt 1)
+
+- **Date:** 2026-08-12
+- **Attempts:** 1 (wave 2, parallel with T5 — disjoint files)
+- **Files changed:** `.claude/commands/akili-resume.md` (+20/−3)
+- **What was done:** Step 0 gains leading item 1 — read every `family.md` first (schema by reference), verify each listed folder exists, report mismatch as drift (KZ-002), never reconcile; skipped entirely when no manifest exists (NFR-1). Step 2 gains a conditional family-grouped dashboard block (Kaizen-footer augmentation pattern). Step 4 recommends the next non-`done` child with satisfied `Depends on` by manifest order. Error handling qualified: manifest-listed `pending` children → "pending by family order"; unlisted folders keep the `/akili-specify` suggestion verbatim (reversion challenge 1).
+- **Reviewer verdict:** `STATUS: PASS` — all four FR-4 clauses, NFR-1, NFR-3, and reversion challenge 1 satisfied at source; diff read-only in prose and effect; Output contract untouched.
+- **ADVISORY (non-gating):** new dashboard example header "(2 open)" vs 4 numbered lines — coherent only if a spec family counts as one unit; pre-existing example uses per-entry counting. Confirm in T6's HITL walkthrough.
+- **Requirements covered:** FR-4 (all clauses), NFR-1.
+- **Final verification result:** PASS.
+
+### T5 — `/akili-archive` row flip, parent gate, `:186` carve-out — PASS (attempt 1)
+
+- **Date:** 2026-08-12
+- **Attempts:** 1 (wave 2, parallel with T4 — disjoint files)
+- **Files changed:** `.claude/commands/akili-archive.md` (+6/−2; Implementer reported +8/−2 — Reviewer corrected the stat, scope claim unaffected)
+- **What was done:** Step 1 readiness bullet blocks parent archive while any child row is non-`done` (names the children; stop-and-ask override preserved byte-unchanged). Step 3 gains item 5 "Spec family manifest sync" — flips the archived child's row to `done` before the Step 5 move (schema by reference; CodeGraph hook renumbered to 6). Step 6 gains report item 8. Error Handling: blocked-parent bullet added; write-constraint bullet amended with the DD-5 carve-out naming exactly "the archived child's own row in the parent `family.md`".
+- **Implementer assumption (accepted by Leader + Reviewer):** added the child-detection mechanism ("check the spec's `Parent Spec:` DC row, or the parent folder for a manifest naming this spec's path") — needed for executability; verified against real T1/T2 artifacts; widens nothing.
+- **Reviewer verdict:** `STATUS: PASS` — all FR-5 clauses land; carve-out clears the DD-5 broader-wording disqualifier.
+- **ADVISORY (non-gating):** the new Step 3 sentence "This is the one edit the Error Handling `:186` write-constraint bullet exempts" hardcodes a line pointer that this very diff made stale (bullet now at `:190`). Same class as T2's `` (`:143`) `` pointer; queued for the same cleanup, pending user approval.
+- **Requirements covered:** FR-5 (both scenarios, all clauses), NFR-1, NFR-3.
+- **Final verification result:** PASS.
+
+### Scope note — user-approved additions to T6 (gate after wave 1)
+
+At the wave-1 HITL gate the user approved folding the T2 advisory fix (delete the `` (`:143`) `` self-pointer in `akili-propose.md`) into T6's closure sweep. The equivalent T5 pointer (`` `:186` `` in `akili-archive.md` Step 3, now stale) is queued pending the same approval at the wave-2 gate.

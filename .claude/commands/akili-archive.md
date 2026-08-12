@@ -93,6 +93,7 @@ Verify the spec is ready to archive:
 - no unresolved FAIL findings remain in `validation-report.md`
 - WARN findings are either accepted or assigned to follow-up tasks
 - implementation drift is reflected in the AKILI-SPECS docs or execution notes
+- if this spec is the **parent** of a spec family (its folder contains a `family.md` manifest), every child row's `Status` must be `done`; if any are not, block the parent archive and name the non-terminal children in the readiness message
 
 If readiness is unclear, stop and ask the user whether to proceed, validate first, or keep the spec active.
 
@@ -131,7 +132,8 @@ Before moving the folder, sync the project constitution with what the spec actua
    - Follow the inheritance convention from `/akili-constitution` Step 7 — if the project has no `## Module Guides` index yet, add it rather than inventing a parallel structure.
 3. **Factual-claims sweep of the root guides — runs always, even with zero impact notes.** The per-module sync above only fires for modules the impact notes name, which is exactly how a stale claim survives: a cycle that implements ten components leaves `CLAUDE.md` still asserting *"No application code yet"* because no single module impact pointed at that sentence. Sweep the root `CLAUDE.md`/`AGENTS.md` for **factual assertions this cycle falsified** — CodeGraph/init status lines, "no code yet"/project-stage claims, stack or command statements, counts and lists — and fix the ones that are now false. The test is the same one `/akili-audit` applies to specs: a guide is constitution, and a constitution that states falsehoods trains every future agent on them.
 4. **TRD & ADR sync:** if the spec's `design.md` decisions or any `## Pivot Record` overturned an architecture decision recorded in the TRD, append the superseding ADR to the TRD's Architecture Overview & Decisions (new `ADR-MMM` with status `accepted`, its Issue citing the pivot/design evidence) and flip the old entry to `superseded by ADR-MMM` in the ADR index. Never edit or delete the superseded entry — the trail of why the architecture turned is the asset (`software-architect` ADR profile).
-5. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) so the graph reflects the new or reshaped modules.
+5. **Spec family manifest sync:** if this spec is a child listed in a parent's `family.md` (schema defined once in constitution Step 7 item 4 / `docs/specs/general-setup/family.md` — check the spec's `Parent Spec:` Document Control row, or the parent folder for a manifest naming this spec's path), flip that child's row `Status` to `done` in the parent manifest before the Step 5 move. Precedent: item 2's Module Guides index refresh and item 4's ADR status flip above. This is the one edit the Error Handling `:186` write-constraint bullet exempts.
+6. **CodeGraph Refresh Hook:** Check if `.codegraph/` exists in the repository root. If it does, recommend that the user or environment runs a fresh CodeGraph indexing/update (e.g. running `codegraph index` or equivalent) so the graph reflects the new or reshaped modules.
 
 ### Step 4: Kaizen Retrospective
 
@@ -172,6 +174,7 @@ Present:
 5. whether the active spec directory is now clean
 6. constitution sync summary: guides created or updated, parent index entries touched, and whether a CodeGraph re-index is recommended
 7. Kaizen summary: metrics captured, lessons recorded (IDs), standardization actions applied or deferred, and any Methodology lessons suggested for upstreaming to the AKILI repo
+8. `family.md` update, if this spec is a manifest-listed child: the parent path and the row flipped to `done`
 
 **Context checkpoint (post-archive is the cleanest boundary in the whole methodology):** the spec is closed, and everything durable now lives in files — the archive, the kaizen log, the synced guides. Nothing in this session's context is worth carrying forward. If the session has been long, say so in one line and recommend the host's context reset before starting new work — `/clear` in Claude Code (then a fresh session picks up with `/akili-resume` or `/akili-propose`); on other hosts, name the equivalent only if confirmed. You cannot run it — it is the user's command — but recommending it *here*, at the boundary where it costs nothing, beats the user guessing mid-task where it destroys working state.
 
@@ -181,9 +184,10 @@ Present:
 - If required docs are missing, ask whether to archive anyway or run the missing command first.
 - If validation has unresolved FAIL findings, recommend fixing or explicitly accepting risk before archive.
 - If moving the folder fails, leave the original folder in place and report the reason.
+- If Step 1's spec family readiness gate blocks a parent archive, leave the parent folder in place and do not move it; report the non-terminal children by name, and proceed only if the user explicitly overrides via the stop-and-ask path.
 - Do not delete spec folders as part of archiving; only move them into `docs/specs/archive/`.
 - The Kaizen retrospective must never block the archive. If retrospective inputs are missing or the user declines, append a metrics-only (or clean-run) entry to `docs/specs/kaizen-log.md` and continue to Step 5.
-- Never edit files outside `docs/specs/kaizen-log.md` without explicit user approval in Step 4.3.
+- Never edit files outside `docs/specs/kaizen-log.md` without explicit user approval in Step 4.3 — the sole exception is Step 3's flip of the archived child's own row in the parent `family.md`; every other file remains off-limits without that approval.
 
 ---
 
