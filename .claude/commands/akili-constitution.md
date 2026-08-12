@@ -34,7 +34,7 @@ For all three modes:
 
 1. Ensure `docs/` exists.
 2. Ensure `docs/specs/` exists.
-3. Ensure `docs/specs/general-setup/` exists.
+3. Ensure `docs/specs/general-setup/` exists (its templates, including `family.md` for spec families, are authored in Step 7).
 4. Ensure root `CLAUDE.md` exists or is enhanced.
 5. Ensure root `AGENTS.md` exists or is enhanced.
 6. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 8B).
@@ -49,6 +49,7 @@ The constitutional baseline must cover these files:
 - `docs/specs/general-setup/requirements.md`
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
+- `docs/specs/general-setup/family.md`
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.agents/leader.md`
@@ -303,6 +304,20 @@ These files define the format that `/akili-specify` must follow later:
 1. `requirements.md` — requirement numbering, structure, and writing standards
 2. `design.md` — architecture, data model, API, frontend, and decision-record structure
 3. `task.md` — task format, dependency graph format, testing expectations, and execution conventions
+4. `family.md` — the manifest schema a **spec family** (a parent spec folder plus the child spec folders produced when its scope was chunked) uses to track order, dependencies, and status. `/akili-propose` or `/akili-specify` authors one **per spec family** only when a proposal is actually split — its absence means the spec is flat, with zero added obligations. Schema:
+
+   - **Document Control:** parent spec path, date created, last updated, spec-family status (`open` / `complete`).
+   - **Child table** — one row per child spec, columns:
+
+     | Column | Values | Meaning |
+     |---|---|---|
+     | `#` | 1..n | Build order |
+     | `Spec Path` | `<family>/<child>` | Must correspond to a real folder |
+     | `Depends on` | spec path(s) \| `none` | Serial ordering constraint |
+     | `Parallel-safe` | `yes` / `no` | Fleet eligibility |
+     | `Status` | `pending` / `active` / `done` / `blocked` | Small vocabulary — phase detail lives in each child's own documents |
+
+   - **Closed-set rule (state this inside every `family.md`):** the table is the exhaustive child set of the spec family; no AKILI command creates a child spec folder without a prior manifest row; adding a row is a HITL-approved manifest edit.
 
 These are methodology templates for future specs, not a feature spec themselves.
 
@@ -322,7 +337,7 @@ Update root `CLAUDE.md` and `AGENTS.md` so they reference:
 - `docs/ux-ui/design.md`
 - `docs/trd/trd.md`
 - `docs/infrastructure.md`
-- `docs/specs/general-setup/`
+- `docs/specs/general-setup/` (including the `family.md` template for spec families)
 
 The update should explain briefly:
 
@@ -848,7 +863,7 @@ Ask the user whether to approve or request changes. If changes are requested, re
 Before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
 
 - [ ] `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and `docs/infrastructure.md` exist and are non-empty.
-- [ ] `docs/specs/general-setup/` templates exist.
+- [ ] `docs/specs/general-setup/` templates exist, including `family.md`.
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
