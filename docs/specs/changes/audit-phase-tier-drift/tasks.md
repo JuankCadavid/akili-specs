@@ -33,7 +33,7 @@ T3 touches a different category than T1/T2 and is parallel-safe with both. T2 ed
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | none |
 | Requirements | FR-1 (both scenarios), FR-2 (all clauses), FR-4 (all clauses), NFR-1, NFR-2 (parts 1 and 3), NFR-4 |
