@@ -153,9 +153,12 @@ sent; **(2)** check whether the worker wrote its output to a file and simply ski
 send — pull the artifact directly if so; **(3)** if the poke yields nothing, the dispatch has
 failed — re-dispatch with a brief that makes the delivery the explicit last act of the turn
 (*"your turn does not end until the report message is sent"*), or recover per the runtime-failure
-fallback for that role. Prevention lives in the brief: state the report as the turn's terminating
-action, not as one item among the instructions — workers reliably do the work and unreliably
-remember to mail it.
+fallback for that role. State the report as the turn's terminating action in the brief too —
+workers reliably do the work and unreliably remember to mail it — **but do not treat that line as
+prevention.** Measured across six spawns in one run it failed twice, on workers whose briefs
+carried it; recovery, not prevention, is what holds. **Poke once, then replace on the second
+idle** — a worker that stays silent through a poke has failed the dispatch, and a second poke
+costs a turn to learn what the first already told you.
 
 ### 🚢 Coordinating a fleet of sessions (multi-spec parallel execution)
 
