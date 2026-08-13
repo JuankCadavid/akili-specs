@@ -9,13 +9,47 @@ keep it at 10 rows or fewer.
 
 | ID | Lesson | Source Spec | Severity | Target | Standardized In | Status |
 |---|---|---|---|---|---|---|
+| KZ-006 | A disqualifier says when a *produced reading* is worthless; it does not ask whether any input could make the check fail at all. State the falsifying input next to every verification — a check no input can fail is not evidence | changes/audit-phase-tier-drift | **High** | Methodology | proposed: `/akili-specify` Step 3.2 verification rules (append 2 lines) | Proposed |
+| KZ-007 | A forward pointer recorded against a future task is not carried by the record alone — the brief for that task must be composed by re-reading the pointers filed against it | changes/audit-phase-tier-drift | Medium | Methodology | proposed: `/akili-execute` Step 2.2 brief list (append 1 line) | Proposed |
+| KZ-003 | **Reformulated (6th recurrence).** The reliable treatment for idle-without-report is the Leader's poke-once + replace-on-second-idle, **not** a brief line declaring the report terminating — that line was applied 6 times this session and failed twice | changes/goal-driven-execution · changes/audit-phase-tier-drift | **High** | Methodology | proposed: `.claude/templates/leader.md` poke-once section (name the replace-on-second-idle step) | Proposed |
 | KZ-004 | A presence-grep cannot see a fall-through branch — when an edit gives a command a new artifact type or folder role, enumerate the scan's existing terminal branches and state which one the new role lands in | changes/spec-family-ordering | Medium | Methodology | proposed: `.claude/templates/reviewer.md` (append 1–2 lines) | Deferred |
 | KZ-005 | Never point at a rule by line number inside command prose — the pointer goes stale in the same diff that adds it; name the rule instead | changes/spec-family-ordering | Low | Methodology | proposed: `.claude/templates/implementer.md` (append 1 line) | Deferred |
-| KZ-003 | A fallback-spawned worker's brief must state report delivery as the turn's terminating action — workers reliably do the work and unreliably mail it; idle-without-report recurs otherwise | changes/goal-driven-execution | Medium | Methodology | proposed: `.claude/commands/akili-execute.md` Steps 2.2/2.3 (append 1–2 lines) | Deferred |
 | KZ-001 | When pinning a source, read it past the section you came for — the costliest review FAIL class is a claim contradicted elsewhere in its own pinned source | changes/ai-agent-development-skill | Medium | Methodology | proposed: `.claude/templates/implementer.md` (append) | Deferred |
 | KZ-002 | Before writing an aggregate claim about a set of artifacts ("each file has X"), run the grep that would falsify it — summary surfaces (CHANGELOG, docs pages) inherit the artifacts' evidence bar | changes/ai-agent-development-skill | Medium | Methodology | proposed: `.claude/templates/implementer.md` (append) | Deferred |
 
 ## Entries
+
+### 2026-08-13 — changes/audit-phase-tier-drift
+
+**Metrics**
+
+| Signal | Value | Source |
+|---|---|---|
+| Tasks executed | 4 (all PASS) | tasks.md |
+| Reviewer FAIL rework rounds | 4 (T2 x1, T3 x2, T4 x1) | execution.md |
+| Pivots | **1** (T3 — FR-5 named a path existing in no consuming project) | execution.md — ## Pivot Record: T3 |
+| HALTs / FATAL_FAILs | 0 | execution.md |
+| Judgment-day severe findings | 4 confirmed, all resolved; 7 suspect recorded as info | judgment.md |
+| Validation FAIL / WARN | n/a (validation-report absence accepted; closure sweep substituted) | archive-summary.md §5 |
+| Budget | ~89 prose-lines vs ~60 ceiling — **escalated at the T4 gate and accepted** | execution.md — T4 issue 3 |
+| Agent delivery failures | 6 idle-without-report; poke-once recovered 5, 1 required replacement | execution.md, judgment.md |
+
+**Lessons**
+
+- **KZ-006 — Five findings in one spec were the same defect: a claim verified by a method structurally incapable of falsifying it.** (Methodology, **High**)
+  - Root cause (5W1H): the verification was chosen from the same frame as the claim, so no input could produce a failure. Instances: a path claim evidenced only in the repo where the path exists by construction (Judgment Day C4); a byte-comparison that unescaped both sides before comparing (T2); an authority cited for a fact it does not contain — Step 8B has zero `--local` mentions (T3); a prose-density budget reported in git lines, the one unit under which it cannot fail (T4); a record compared against one of the two values it stores (T4). **`/akili-specify` Step 3.2 already mandates a disqualifier**, and it fired on none of these — because a disqualifier asks *when a produced reading is worthless*, a different question from *whether any input could make this check fail*. Every instance was caught only by a Reviewer that re-derived the claim from source (`bin/akili.js`, `commonmark.js`, raw bytes, the estimator's own arithmetic); never by a grep, never by the author. Generalizes KZ-004 (4th recurrence of its fall-through form) and KZ-002.
+  - Evidence: judgment.md C4; execution.md — T2 attempt 1 FAIL, T3 attempts 1–2, T4 attempt 1 issues 1 and 3.
+  - Standardization: append 2 lines to `/akili-specify` Step 3.2's verification rules — next to each verification, name the input that would make it fail; a check no input can fail is not evidence, however green it reports. → **Proposed, pending user decision**
+
+- **KZ-007 — A forward pointer recorded against a future task was not carried into that task's brief by the person who recorded it.** (Methodology, Medium)
+  - Root cause (5W1H): the T2 Reviewer raised the local-tier staleness branch; the Leader recorded it in `execution.md` as owned by T4; when composing T4's nine walkthrough branches the Leader wrote the *packaged*-tier case — already covered — and the real branch never reached the brief. The Implementer walked nine branches faithfully; none was the one that mattered. Recording created the appearance of ownership without the mechanism of transfer, and the same agent that filed the note composed the later step without re-reading it.
+  - Evidence: execution.md — T2 forward pointer vs T4 walkthrough branch 7; T4 attempt 1 issue 1.
+  - Standardization: append 1 line to `/akili-execute` Step 2.2's brief list — include any forward pointers recorded in `execution.md` against this task, copied. → **Proposed, pending user decision**
+
+- **KZ-003 — Reformulated on its 6th recurrence: the standardization this lesson proposed does not prevent the defect it names.** (Methodology, Medium → **High**)
+  - Root cause (5W1H): the lesson proposed adding a brief line declaring the report the turn's terminating action. That line was applied to **6** spawns this session (judges, reviewers) and **failed twice** — `judge-d` and `rev-t3b` both carried it and went idle without delivering. What did work, consistently, was the Leader's **poke-once** protocol: 5 of 6 recovered on one poke; the 6th (`judge-a`) stayed idle through a poke and had to be replaced. A standardization that does not prevent what it claims to prevent is worse than none — it closes the lesson falsely and teaches the next Leader to stop watching for idle workers.
+  - Evidence: judgment.md protocol deviations; execution.md — T3 `rev-t3b` poke; this session's six spawn-delivery failures.
+  - Standardization (revised): name **replace-on-second-idle** as the escalation after poke-once in `.claude/templates/leader.md`, and drop the brief-line proposal as unsupported. → **Proposed, pending user decision**
 
 ### 2026-08-12 — changes/spec-family-ordering
 
