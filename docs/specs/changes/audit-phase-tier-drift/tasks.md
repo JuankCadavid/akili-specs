@@ -64,7 +64,7 @@ T3 touches a different category than T1/T2 and is parallel-safe with both. T2 ed
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-3 (both scenarios, all clauses), NFR-1, NFR-2 (part 2) |
@@ -72,7 +72,11 @@ T3 touches a different category than T1/T2 and is parallel-safe with both. T2 ed
 
 **Scope.** Inside the T1 category, state the accepted-divergence mechanism:
 
-- the literal marker, quoted exactly as DD-2 defines it: `> **Accepted divergence:** \`<phase>\` runs on \`<tier>\` instead of packaged \`<packaged-tier>\` — <reason>. (accepted <YYYY-MM-DD>)`;
+- the literal marker **exactly as DD-2 defines it — read it from `design.md` DD-2's fenced block, do not transcribe it from here**, and emit it into the command with *unescaped* backticks (a double-backtick span or a fenced block; never `\`` escapes, which have zero precedent in any shipped command file and are inert inside code spans per CommonMark):
+
+  ```markdown
+  > **Accepted divergence:** `<phase>` runs on `<tier>` instead of packaged `<packaged-tier>` — <reason>. (accepted <YYYY-MM-DD>)
+  ```
 - **only exact-marker lines count** — an approximate line is ordinary text, so a malformed record surfaces as an unexplained divergence rather than silently acquitting one (this is the clause that makes the mechanism fail-loud);
 - the re-report rule: compare the record's stated `<packaged-tier>` against the current packaged tier; on mismatch the record is stale and the divergence is re-reported (FR-3 second scenario);
 - unrecorded divergences are **never** treated as accepted because a prior audit reported them (FR-3 `BUT`);

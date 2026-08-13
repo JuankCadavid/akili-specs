@@ -35,3 +35,44 @@
 - **Requirements covered:** FR-1 (both scenarios, all clauses), FR-2 (all clauses), FR-4 (all clauses), NFR-1, NFR-2 (parts 1 and 3), NFR-3, NFR-4.
 - **Issues encountered:** none.
 - **Final verification result:** PASS — greps green with disqualifiers applied, placement verified independently by both roles.
+
+### T2 — Divergence record: marker, recognition, and the re-report rule — PASS (attempt 2 of 3)
+
+- **Date:** 2026-08-13
+- **Attempts:** 2
+- **Files changed:** `.claude/commands/akili-audit.md` (line 60 extended, then its marker delimiter corrected)
+
+#### Attempt 1 — FAIL
+
+- **What was done:** appended the six required clauses to the `Phase→Tier Drift` bullet. All six landed and mapped cleanly to FR-3; T1's text preserved verbatim as prefix.
+- **Reviewer verdict:** `STATUS: FAIL` — one issue, quoted verbatim:
+
+  > **Discovered Issue: the marker as landed is NOT byte-identical to DD-2 — it carries six extra characters, and the Implementer's evidence hid this by unescaping before comparing.** … The Implementer's `MATCH: True` was produced *after* applying `.replace('\\`','`')`. That transform is the entire finding: the evidence normalized away the exact difference the disqualifier exists to catch, then reported a match. Per the reviewer contract, a check that structurally cannot observe the property has not evaluated it.
+  >
+  > **The agent reads raw bytes.** … The marker it reads contains backslashes; a maintainer following DD-2 writes plain backticks. Strict application of "exactly" yields a **false negative on a valid acceptance record** — which re-reports a deliberately accepted divergence. That is a direct FR-3 scenario-1 miss and an NFR-2 noise violation, in the one mechanism whose whole job is to prevent recurring findings on a healthy project.
+  >
+  > **The escaped form does not even render back to the marker.** CommonMark states backslash escapes are inert inside code spans … Neither the raw form nor the rendered form yields DD-2's marker.
+  >
+  > **Violated Rule:** `tasks.md` → T2 Done (*"marker byte-identical to DD-2"*); `tasks.md` → T2 Disqualifier; `design.md` → DD-2; downstream `requirements.md` FR-3 scenario 1, NFR-2.
+
+- **Root cause — the work order, not the worker.** `tasks.md` T2 Scope bullet 1 quoted the marker in the escaped form while asserting it was *"quoted exactly as DD-2 defines it."* The Implementer followed the work order faithfully. The second source of truth predated the diff.
+
+#### Leader correction between attempts (spec edit during execution — disclosed)
+
+`tasks.md` T2 Scope bullet 1 was corrected to instruct reading the marker from **`design.md` DD-2's fenced block** and emitting it with unescaped backticks. **`design.md` was not edited** — it is authoritative, and T2's own disqualifier requires reporting a command↔design divergence rather than reconciling it by editing the design. Not treated as a Pivot: the design was never wrong, only its transcription into the work order, so intent, scope, and budget are unchanged.
+
+#### Attempt 2 — PASS
+
+- **What was done:** single-backtick span with escaped inner backticks replaced by a **double-backtick span** around the unescaped marker. No other prose change.
+- **Implementer verification:** raw `repr()` comparison of both strings with no normalization of any kind — `True` on raw bytes.
+- **Implementer assumptions (both accepted):** (1) double-backtick span over a fenced block — keeps the sentence flowing as prose like every other inline reference in the bullet; both forms were sanctioned. (2) *"No leading/trailing spaces inside the delimiters: CommonMark only requires them when the span's content starts or ends with a backtick … adding them would have padded the extracted span with whitespace the raw comparison would then have to normalize away, defeating the point."* — the worker generalized the actual lesson of the FAIL rather than patching its surface.
+- **Reviewer verdict:** `STATUS: PASS` — *"The double-backtick span carries DD-2's marker byte-identically (127 chars, `==` True with zero normalization applied on my side), renders back to it exactly under CommonMark, and leaves T1's text intact as a strict prefix. All six T2 clauses land against FR-3, NFR-1, NFR-2."*
+- **Reviewer method note:** the render check was run empirically through `commonmark.js 0.31.2`, not reasoned about — 12 `<code>` spans, exactly one carrying the marker, 0 backticks outside spans, 6 inside (the three literal pairs). T1 non-regression proven by **prefix comparison** against `92cc060` (longest common prefix = 2073 chars = full length of the old line, so `old` is a strict prefix of `new`), not by the diff stat, which cannot distinguish an append from a reword inside the same line.
+- **ADVISORY:** none (diff <50 LOC; reviewer contract suppresses the lens block).
+- **Requirements covered:** FR-3 (both scenarios, all clauses), NFR-1, NFR-2 (part 2).
+- **Forward pointer for T4 (raised by the Reviewer, not gating T2):** the text compares only the record's stated *packaged* tier. A record whose stated **local** `<tier>` no longer matches the project's current local tier would still silence the phase, though it now acquits a difference it never named — DD-2's *"the record acquits the difference it named; nothing more"* reads broader than a packaged-tier-only comparison. Correctly outside T2's clause list. **Add as a branch to T4's HITL walkthrough**, whose disqualifier requires fixing such a gap in-task.
+- **Final verification result:** PASS — raw byte identity and render both verified independently by the Reviewer, with no normalization on either side.
+
+#### Lesson observed this task
+
+The attempt-1 Implementer did not misreport: it compared, got `True`, and said `True`. The defect was **normalizing the data before measuring it** — applying the same transform to both sides of a comparison that existed to detect that exact difference. A verification that transforms the property it evaluates always passes. This is the KZ-002/KZ-004 family in its purest form, and it is why attempt 2's brief forbade any normalization step and why the Reviewer was told the same prohibition applied to its own check.
