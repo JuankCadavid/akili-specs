@@ -111,15 +111,25 @@ The category SHALL state how the packaged `docs/model-routing.md` is located, an
 
 ### FR-5: Structural persona drift, replacing the hardcoded guardrail list
 
-`akili-audit.md:59(c)` SHALL detect `.agents/*.md` personas that have drifted from their `.claude/templates/` sources structurally, rather than by checking for a fixed list of named guardrails.
+`akili-audit.md:59(c)` SHALL detect `.agents/*.md` personas that have drifted structurally from their **packaged template sources**, rather than by checking for a fixed list of named guardrails.
+
+**Packaged template source (pivot-corrected — see `execution.md` → `## Pivot Record: T3`).** The deployed templates live under `akili/templates/` inside the **active tool's config root**, per `/akili-constitution` Step 8B — `~/.claude/`, `~/.config/opencode/`, `~/.gemini/config/`, or their `--local` project variants. **`.claude/templates/` is the methodology source tree and the npm tarball layout — what `bin/akili.js` reads *from*, never what it writes *to*, and therefore a path that exists in no consuming project.**
 
 #### Scenario: A guardrail added upstream after this spec ships
 
-- GIVEN a future methodology release that adds a new guardrail to `.claude/templates/implementer.md`
-- AND a project whose `.agents/implementer.md` predates it
+- GIVEN a future methodology release that adds a new guardrail to the packaged `implementer.md` template
+- AND a project whose deployed `.agents/implementer.md` predates it
 - WHEN `/akili-audit` runs
 - THEN the persona is reported as drifted from its packaged source
 - AND IT MUST work without that new guardrail being named anywhere in `akili-audit.md` — the whole point of the change
+- AND IT MUST resolve the packaged template root through the config-root convention above, never through a project-relative `.claude/templates/` path
+
+#### Scenario: The packaged template root cannot be resolved
+
+- GIVEN a host where no `akili/templates/` root can be located
+- WHEN `/akili-audit` runs
+- THEN the sub-check reports itself **unevaluated**, naming the reason
+- BUT it must NOT absorb the failure into the "persona with no packaged template → left unscored" branch — an unresolvable root silences every persona at once, which is indistinguishable from a clean result
 - BUT it must NOT recommend overwriting the persona: Safe Update never overwrites, and remediation stays a manual trim or merge
 
 ### FR-6: Report surface and report-only posture

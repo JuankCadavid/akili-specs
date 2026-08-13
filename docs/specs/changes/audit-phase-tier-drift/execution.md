@@ -76,3 +76,75 @@
 #### Lesson observed this task
 
 The attempt-1 Implementer did not misreport: it compared, got `True`, and said `True`. The defect was **normalizing the data before measuring it** — applying the same transform to both sides of a comparison that existed to detect that exact difference. A verification that transforms the property it evaluates always passes. This is the KZ-002/KZ-004 family in its purest form, and it is why attempt 2's brief forbade any normalization step and why the Reviewer was told the same prohibition applied to its own check.
+
+### T3 — `:59(c)` structural persona check — PASS (attempt 3 of 3, after a pivot)
+
+- **Date:** 2026-08-13
+- **Attempts:** 3 — attempt 1 triggered a pivot; attempts 2 and 3 were rework against the corrected spec. **The 3-attempt ceiling was reached; a FAIL on attempt 3 would have HALTed the task.**
+- **Status:** `[x]` — pivot approved by the user 2026-08-13, both subsequent attempts reviewed
+- **What was done (attempt 1):** sub-item (c) rewritten as a structural comparison, with `leader.md`'s Delegation Ceiling and `implementer.md`'s Scope Discipline retained as explicitly non-exhaustive anchors per DD-3, both KZ-004 fall-through branches named, and the no-overwrite remediation clause added.
+- **Implementer assumptions (both accepted):** (1) did **not** claim FR-5's behavioral `AND IT MUST` clause was proven, correctly deferring it to T4's walkthrough. (2) Flagged that the "preserve the existing no-overwrite language" instruction in the work order was imprecise — that clause lived in the sibling bullet at `:54`, not in (c) — and introduced it into (c) on the strength of the coverage map (`FR-5 BUT → T3`). The Leader accepted: the brief was wrong, the reading was right.
+- **Reviewer verdict:** `STATUS: FAIL`, one issue. It confirmed DD-3 satisfied in both directions (*"the enumeration is gone and the names now sit downstream of the rule as illustration"*), the `BUT` clause correct, the one-directional comparison correct (a bidirectional rule would fire on every healthy project, violating NFR-2), and NFR-3 isolation verified byte-level against `a976898`.
+
+## Pivot Record: T3
+
+**Blocker.** `akili-audit.md:59(c)` as landed points the auditing agent at `.claude/templates/` as the packaged persona source. **That path exists in no consuming project.**
+
+**Evidence (verified by the Leader against source, not taken from the Reviewer):**
+
+| Fact | Source |
+|---|---|
+| `.claude/templates/` is what the installer reads **from** | `bin/akili.js:35` — `SOURCE_TEMPLATES = path.join(SOURCE_CLAUDE, "templates")` |
+| Templates are written **to** `<resources>/templates/` | `bin/akili.js:561, 941` — `path.join(paths.resources, "templates", name)` |
+| `resources` resolves to `<root>/akili` (Claude, OpenCode) and `<root>/config/akili` (Antigravity) | `bin/akili.js:85, 91, 105` — `TOOL_REGISTRY` |
+| The authority already states this | `akili-constitution.md:387-391` — *"The packaged methodology ships default personas under `akili/templates/` inside the active tool's config directory"*, naming all three roots |
+
+**Why this is a pivot and not a rework.** The wrong path originates in **`requirements.md` FR-5 itself** (lines 114 and 118 as written). The Implementer transcribed the requirement faithfully; three rework attempts against an unchanged requirement would all reproduce it. Per the Pivot Protocol, a broken spec does not consume rework attempts.
+
+**Consequence had it shipped.** Combined with (c)'s own fall-through — *"a persona with no packaged template to compare against, left unscored rather than counted as drift"* — every persona in every consuming project hits the unscored branch, and the sub-check emits nothing, permanently and silently. FR-5's scenario (*"THEN the persona is reported as drifted from its packaged source"*) would never fire. The check would appear healthy and be inert.
+
+**Third instance of one defect class in this spec.** Judgment Day C4 ruled on it verbatim: *"The claim was generalized from evidence gathered in **this** repository — the methodology source, where the path exists by construction — the one sample incapable of falsifying it."* That was DD-1's authority claim. The round-2 residual was the hand-listed host paths. This is the same error a third time, in a requirement written after both rulings.
+
+**Revised direction (spec amended, awaiting approval):**
+
+1. `requirements.md` FR-5 — packaged source redefined as `akili/templates/` inside the active tool's config root, resolved per `/akili-constitution` Step 8B; the `.claude/templates/` trap named explicitly so it cannot be reintroduced; a new `AND IT MUST` binding resolution to the config-root convention.
+2. `requirements.md` FR-5 — **new scenario** *"The packaged template root cannot be resolved"*: report **unevaluated**, with a `BUT` forbidding the failure from collapsing into the "unscored" branch (the third fall-through the Reviewer identified).
+3. `tasks.md` T3 scope — path corrected, unresolvable-root degrade added.
+4. `proposal.md` — both mentions corrected, marked as pivot-corrected.
+5. `design.md` — **not amended**: DD-3 never asserted a path, and §7 row 3 describes the change without one. Verified by sweep.
+
+**Correction closure (two-direction sweep, run):** forward — `grep -rn "claude/templates"` across the spec folder now returns only the three deliberate warning mentions in `requirements.md` and `tasks.md`. Backward — every referrer to FR-5 and DD-3 re-read; the coverage map, the NFR-2/NFR-3 rows, and DD-3 remain true under the corrected wording.
+
+**Working tree.** T3's attempt-1 edit is left in place, uncommitted. The Reviewer validated everything in it except the path phrase and the missing degrade, so attempt 2 is two phrase-level edits rather than a rewrite. Not rolled back — rollback is the HALT path, and this is a pivot.
+
+**Budget impact.** None material: T3 was budgeted at ~5 lines and the correction stays inside its scope. `requirements.md` grew by one scenario, which is spec prose and does not count against NFR-5's shipped-surface budget.
+
+**Awaiting: explicit user approval of this pivot before execution resumes.**
+
+### T3 — attempts 2 and 3 (post-pivot rework)
+
+**User approved the pivot 2026-08-13.** Execution resumed against the corrected `requirements.md` FR-5.
+
+#### Attempt 2 — FAIL
+
+- **What was done:** the two pivot fixes — `.claude/templates/` replaced by a pointer to the templates under `akili/templates/` in the active tool's config root *"resolved per `/akili-constitution` Step 8B"*, plus a fourth branch reporting **unevaluated** when the root cannot be resolved.
+- **Implementer judgment (accepted by the Leader, then independently upheld by the Reviewer):** omitted the three-host-root parenthetical the previous Reviewer had included in its illustrative remediation, reasoning that hardcoding a host list would repeat the defect class the Pivot Record names three prior instances of. The Reviewer's verdict endorsed the omission explicitly — *"Omitting the three-root parenthetical was the correct call and I do not want it added back"* — and gave the reason the Implementer had not: `~/.gemini/config/akili/templates/` is **not** derivable from "the active tool's config root" alone, so Step 8B's enumeration is doing real work that a duplicated list would only risk contradicting.
+- **Reviewer verdict:** `STATUS: FAIL`, one issue:
+
+  > The landed text resolves the root … *"resolved per `/akili-constitution` Step 8B"* — but **`grep -c -- "--local" .claude/commands/akili-constitution.md` returns `0`**. The entire constitution has no `--local` mention … An agent following the pointer literally probes home roots only. … A `--local`-only project resolves nothing → degrades to **unevaluated** on a host that *does* carry templates … A project with a current `--local` install *and* a stale home install compares its personas against the **wrong** templates → false drift findings (NFR-2 noise) or missed real drift. … **Sub-item (c) drops the half its own neighbour keeps** [`:60` already carries *"probe both its home-directory root and its `--local` project-root variant"*].
+
+- **Leader verification:** confirmed independently — `akili-constitution.md` contains zero `--local` mentions, `:60` covers the variant, and pivot-corrected FR-5 requires it. FAIL upheld.
+
+#### Attempt 3 — PASS (effort `max`)
+
+- **What was done:** one parenthetical added in place — *"(or its `--local` project-root variant, where that same config root sits under the project instead of the home directory)"*. Nothing else changed.
+- **Reviewer verdict:** `STATUS: PASS` — *"The `--local` parenthetical closes attempt 2's sole gap with a derivation rule that matches `bin/akili.js:208-210` exactly for all three hosts, and everything attempt 2 cleared survives byte-identical — line 60 and sub-items (a)+(b) verified by `cmp` against `a976898`, with no host list and no `claude/templates` anywhere in the file."*
+- **Reviewer method note:** verified the derivation rule against `bin/akili.js:208-210`, where `--local` is a pure `os.homedir()` → `process.cwd()` substitution of the identical relative path for all three hosts. It observed that this phrasing is *safer* than an enumeration would have been: **a hand-written list gets OpenCode wrong (`.config/opencode`, not `.opencode`), while "the same config root" is right by construction** — DD-1/DD-3's derive-don't-enumerate posture validating itself. Non-regression proven by `cmp` on line 60 and on line 59 truncated at `" and (c)"` (610 bytes identical), not by the diff stat.
+- **ADVISORY:** none (diff <50 LOC).
+- **Requirements covered:** FR-5 (both scenarios — the original and the pivot's new unresolvable-root scenario — and all `BUT` / `AND IT MUST` clauses except the behavioral one owned by T4), NFR-1, NFR-3.
+- **Forward pointer for T4 (Reviewer, non-gating):** the parenthetical phrases the two roots as a **disjunction** (`or`), where `:60`'s sub-item (b) says probe **both**. FR-5 uses the same disjunctive wording and the fourth branch triggers only when the root *"cannot be resolved at all"*, which pushes an agent to exhaust both alternatives — so the requirement is discharged as written. **Recorded so T4's walkthrough exercises the `--local` install path deliberately.**
+- **Final verification result:** PASS on the last available attempt.
+
+#### Lesson observed this task
+
+Three attempts, three different failure surfaces, one shared root: **claims about where files live in a consuming project, reasoned from the methodology source repo.** Attempt 1 used `.claude/templates/` (source-only path). Attempt 2 delegated to an authority silent on `--local`. Both were caught only by a reviewer that re-derived the paths from `bin/akili.js` rather than reading the prose for plausibility. The spec's own DD-1 already carried the rule that would have prevented all three — *derive from `TOOL_REGISTRY`, never enumerate* — and it took a pivot plus two rework rounds to apply it to a sibling sub-item. **A design principle recorded in one decision does not automatically reach the next one.**

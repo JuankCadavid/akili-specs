@@ -50,7 +50,7 @@ Why every existing check passed:
 An audit run in any AKILI project reports, without editing anything:
 
 1. Any **phase → tier assignment** that differs from the packaged `docs/model-routing.md`, naming both values and the packaged rationale — so the user can tell a deliberate local choice from frozen staleness.
-2. Any `.agents/*.md` persona that has **drifted from its `.claude/templates/` source**, detected structurally rather than from a named list of guardrails.
+2. Any `.agents/*.md` persona that has **drifted from its packaged template source**, detected structurally rather than from a named list of guardrails. *(Pivot-corrected during execution: the packaged root is `akili/templates/` in the active tool's config root — see `execution.md` → `## Pivot Record: T3`.)*
 
 ## 5. Scope
 
@@ -89,7 +89,7 @@ Soft relation to `changes/scoped-constitution-reads`: its open question ("how do
 
 ### MODIFIED
 
-- `:59(c)` persona-guardrail check: from "missing these two named guardrails" to a structural comparison against `.claude/templates/`.
+- `:59(c)` persona-guardrail check: from "missing these two named guardrails" to a structural comparison against the packaged template root.
 
 ### REMOVED
 

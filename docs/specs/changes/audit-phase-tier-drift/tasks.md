@@ -97,13 +97,13 @@ T3 touches a different category than T1/T2 and is parallel-safe with both. T2 ed
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS on attempt 3 of 3, after a pivot |
 | Size | S |
 | Depends on | none (parallel-safe with T1/T2 — different category) |
 | Requirements | FR-5 (all clauses), NFR-1, NFR-3 |
 | Design refs | DD-3, DD-5, §6 reversion challenge |
 
-**Scope.** Amend sub-item (c) of `Model Generation Drift` so persona staleness is detected by **structural comparison of `.agents/*.md` against their `.claude/templates/` sources**, not by checking for a fixed list of named guardrails. Per DD-3 (the reversion-challenge outcome), **keep `leader.md`'s Delegation Ceiling and `implementer.md`'s Scope Discipline as illustrative anchors**, phrased so they cannot be read as the closed set. Preserve the existing no-overwrite remediation language (FR-5 `BUT`; Safe Update never overwrites).
+**Scope.** Amend sub-item (c) of `Model Generation Drift` so persona staleness is detected by **structural comparison of `.agents/*.md` against their packaged template sources**, not by checking for a fixed list of named guardrails. **The packaged root is `akili/templates/` inside the active tool's config root, resolved per `/akili-constitution` Step 8B — never `.claude/templates/`, which is the methodology source tree and exists in no consuming project** (pivot-corrected; see `execution.md` → `## Pivot Record: T3`). Add the unresolvable-root degrade: report the sub-check **unevaluated** rather than letting it collapse into "every persona unscored". Per DD-3 (the reversion-challenge outcome), **keep `leader.md`'s Delegation Ceiling and `implementer.md`'s Scope Discipline as illustrative anchors**, phrased so they cannot be read as the closed set. Preserve the existing no-overwrite remediation language (FR-5 `BUT`; Safe Update never overwrites).
 
 **Verification.**
 1. `grep -n "Delegation Ceiling\|Scope Discipline" .claude/commands/akili-audit.md` — both still present.
