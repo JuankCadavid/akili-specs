@@ -14,12 +14,13 @@ The command performs a four-step audit:
 
 1. **Read Project Specifications** — reads `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and any active specs in `docs/specs/`.
 2. **Scan Active Codebase** — extracts API surfaces, database schemas, UI components, modules, and dependencies using CodeGraph (if available) or standard file search.
-3. **Compare Documentation vs. Codebase Reality** — identifies discrepancies across five categories:
+3. **Compare Documentation vs. Codebase Reality** — identifies discrepancies across six categories:
    - Stale Specification (documented but missing in code)
    - Undocumented Feature (in code but missing from docs)
    - Visual/Design Token Mismatch
    - Technical Constraints Violation
    - Agent Guide Drift
+   - Phase→Tier Drift (project's phase→tier mapping vs. the packaged default, with a divergence-acceptance record so deliberate choices don't re-report)
 4. **Write Drift Report** — creates or updates `docs/specs/drift-report.md`.
 
 ## Output

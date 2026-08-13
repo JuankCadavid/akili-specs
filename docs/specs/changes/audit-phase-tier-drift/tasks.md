@@ -121,7 +121,7 @@ T3 touches a different category than T1/T2 and is parallel-safe with both. T2 ed
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS on attempt 2; NFR-5 overage escalated and accepted |
 | Size | M |
 | Depends on | T1, T2, T3 |
 | Requirements | FR-6 (all clauses), FR-7; NFR-2, NFR-3, NFR-4, NFR-5 final checks; `requirements.md` §8 gate execution |

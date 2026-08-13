@@ -148,3 +148,72 @@ The attempt-1 Implementer did not misreport: it compared, got `True`, and said `
 #### Lesson observed this task
 
 Three attempts, three different failure surfaces, one shared root: **claims about where files live in a consuming project, reasoned from the methodology source repo.** Attempt 1 used `.claude/templates/` (source-only path). Attempt 2 delegated to an authority silent on `--local`. Both were caught only by a reviewer that re-derived the paths from `bin/akili.js` rather than reading the prose for plausibility. The spec's own DD-1 already carried the rule that would have prevented all three — *derive from `TOOL_REGISTRY`, never enumerate* — and it took a pivot plus two rework rounds to apply it to a sibling sub-item. **A design principle recorded in one decision does not automatically reach the next one.**
+
+### T4 — Matrix row, mirror, CHANGELOG, closure sweep, walkthrough — PASS (attempt 2 of 3)
+
+- **Date:** 2026-08-13
+- **Attempts:** 2
+- **Files changed:** `.claude/commands/akili-audit.md` (`:59`, `:60`, `:105`, `:127`–`:128`), `docs/commands/akili-audit.md` (`:23`), `CHANGELOG.md` (`:13`)
+
+#### Attempt 1 — FAIL (three issues), but with two real gaps found and closed
+
+- **Surfaces written:** Conformance Matrix row at `:105` with **`Unevaluated`** added as a third status value (FR-4's degrade needs somewhere to be written); the `:125` reconciliation stated at `:127` — *clean is reported in the Matrix row, Identified Discrepancies stays silent* — plus `:128` extended so the checklist enforces its own new row; mirror bullet; `CHANGELOG.md` entry **classified minor** (new behavior in an existing command, guidance-only, matching both adjacent `Unreleased` entries — Reviewer confirmed against `AGENTS.md:99` / `docs/release-checklist.md:38`).
+- **Two walkthrough gaps found and fixed in-task, disclosed prominently rather than folded in:**
+  1. **Phase present in only one source** (branches 3/4) — `:60` said "report every difference" but never defined a difference when one side has no entry, while the finding shape demands four values that do not exist on the missing side. A literal agent had to invent behavior. Fixed by naming the case explicitly, including *"never guessing a tier value for the missing side"*.
+  2. **`--local` precedence** — `:59(c)`'s disjunction gave no rule for a host carrying both a home install and a `--local` install. Fixed with a probe-both-plus-precedence rule.
+- **Reviewer verdict:** `STATUS: FAIL`, three issues.
+
+#### The three FAIL issues
+
+**Issue 1 — a recorded divergence still silenced a phase after the *local* tier changed.** `:60` compared only the record's stated packaged tier. Walked: record states *T5 instead of packaged T1*; the project later moves the local tier to **T3**; packaged still T1 → record matches → **no finding**. A T3-vs-T1 divergence nobody accepted, silenced by a record that named T5. Violates DD-2's closing rule — *"The record acquits the difference it named; nothing more."*
+
+> **Leader error, recorded.** The T2 Reviewer raised this branch and the Leader recorded it in this log as owned by T4. When composing T4's nine walkthrough branches, the Leader wrote branch 7 as the *packaged*-tier case — already covered — and the *local*-tier case never reached the brief. The Implementer walked nine branches faithfully; none was this one. **A finding noted for later is not carried by the note alone when the same person composes the later step without re-reading it.**
+
+The Reviewer also named why no mechanical check would have caught it: *"it does not trip the disqualifier's literal wording (the agent guesses nothing; it follows the rule to a wrong result), which is why a grep-shaped or branch-list-shaped check misses it."*
+
+**Issue 2 — attempt 1's own fix created the mirror-image asymmetry.** `:59(c)` gained a precedence rule (`--local` first) while `:60(b)` still enumerated home-first under "stopping at the first hit". Same host, same run, opposite precedence — the audit would compare personas against `--local` templates while resolving phase tiers from home-root command files, two upstream baselines in one report. The previous round FAILed `:59(c)` for having *less* than `:60`; this was the inverse.
+
+**Issue 3 — NFR-5 budget reported satisfied in the one unit under which it cannot fail.** The Implementer reported `git numstat` (+4 net) after declining to reproduce the design's prose-density unit. The Reviewer recovered the unit — T1's `~28`-line estimate landed as **25.9 lines at 80 columns** — and measured the spec at **~89 against the ~60 ceiling, ~48% over**, dominated by a house-style CHANGELOG paragraph that `tasks.md` §4 budgeted at ~12 lines for all of T4. Its framing: *"Choosing the unit under which a gate cannot fail, having declined the one under which it might, is the same shape as the normalize-then-compare defect this spec's own log records"* — the third appearance of that family in this spec.
+
+#### Budget escalation — raised to the user, ACCEPTED
+
+Per `tasks.md` T4 gate 3 and `design.md` §9, the overage was **escalated, not trimmed**. The user accepted it. Assessment on record: an **estimating error, not scope creep** — `tasks.md` §4 never budgeted for a house-style CHANGELOG entry, and NFR-5 is a `SHOULD`. An escalated-and-accepted overage closes the gate; a silent pass would not have.
+
+#### Attempt 2 — PASS (effort `xhigh`)
+
+- **Fix 1:** the record comparison now checks **both** stored values — the record's `<tier>` against the project's current local tier, and its `<packaged-tier>` against the resolved packaged tier; a mismatch on **either** makes the record stale and the phase is re-reported.
+- **Fix 2:** the tie-break was aligned **upward**, not dropped — `:60(b)` gained the same rule, in a **byte-identical** phrase (`grep -c` of the full sentence returns 2). The Implementer chose verbatim structural matching deliberately: *"the strongest guarantee the two sub-items can never re-diverge in future edits."*
+- **Reviewer verdict:** `STATUS: PASS` — *"the both-values comparison re-reports a record whose local tier drifted while leaving a genuinely healthy record silent, making DD-2's 'acquits the difference it named' true of the text; the `--local`-first tie-break is now byte-identical in `:59(c)` and `:60(b)` and both resolve the same root on every input."*
+- **Reviewer method note:** it tested the **converse** as well as the failing case — a healthy record where nothing changed still produces no finding, so the fix did not trade a silencing defect for an NFR-2 noise defect. It also proved `:49`–`:58` byte-identical by extracting both versions and diffing, and probed an ambiguity in *"a matching record"* (phase-name vs value match), finding both readings converge on the same output.
+
+#### Full-spec closure sweep (Reviewer, final gate)
+
+Every clause of FR-1…FR-7 and NFR-1…NFR-4 discharged; **no requirement clause left undischarged by the spec as a whole.** All walkthrough branches answerable from the text alone, including both fall-throughs. NFR-5 closed as an accepted overage.
+
+#### ADVISORY (recorded, never gating — Advisory-Never-Grows: none becomes a task)
+
+1. **`design.md` §7 calls its 6-surface table "the closed set", but the shipped change also touches the two Verification Checklist bullets at `:127`/`:128`.** Both are mandated by `tasks.md` T4 (*"state it, do not leave it to inference"*) and serve FR-6 — a stale design table rather than scope creep. Worth a one-line reconciliation in §7 at archive time so the next closure sweep does not flag it.
+2. **The Matrix row fuses two independent checks** (`Phase→Tier Drift` + the `:59(c)` persona check) into one Aligned/Drifted/Unevaluated cell. A mixed state — phase→tier aligned, persona root unresolvable — must be carried in Notes or it disappears; a soft echo of FR-5's own *"indistinguishable from a clean result"* concern. No requirement mandates separate rows.
+3. **The mirror now says "six categories" while the command has twelve** — pre-existing staleness (it listed five of eleven before this spec), made internally consistent with the bullet added. FR-7 asks only for a summary-level mention; the Reviewer confirmed the scope call was right.
+
+- **Requirements covered:** FR-6 (all clauses), FR-7; NFR-2, NFR-3, NFR-4 final checks; NFR-5 escalated and accepted; `requirements.md` §8 gates executed.
+- **Final verification result:** PASS.
+
+---
+
+## 3. Execution Summary
+
+**All 4 tasks complete.** T1 and T2 landed the new category and its divergence-record mechanism; T3 replaced the hardcoded guardrail list with a structural persona check; T4 closed the surfaces and executed the §8 gates.
+
+| Metric | Value |
+|---|---|
+| Tasks | 4/4 PASS |
+| Reviewer FAIL rework rounds | 4 (T2 ×1, T3 ×2, T4 ×1) |
+| Pivots | 1 (T3 — `requirements.md` FR-5 named a path that exists in no consuming project) |
+| HALTs / FATAL_FAILs | 0 |
+| Budget | ~89 prose-lines vs ~60 ceiling — **escalated and accepted** |
+| Advisories | 3, all recorded, none promoted to a task |
+
+**The through-line worth carrying to the retrospective:** five of the six FAIL/pivot findings in this spec were the same defect family — **a claim about the world verified by a method structurally incapable of falsifying it.** A path that exists only in the repo where it was written. A byte-comparison that normalized away the bytes it was comparing. An authority cited for a fact it does not contain. A budget reported in the one unit under which it cannot fail. A record checked against one of the two values it stores. Every one passed its own check and failed the world.
+
+Only reviewers who **re-derived the claim from source** caught them — never the greps, and never the author.
