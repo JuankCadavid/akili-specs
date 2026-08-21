@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **Installer: single-file copies are now atomic, closing the TOCTOU symlink window in `copySingleFile` (Sentinel finding, PRs #9–#20).** `bin/akili.js` gains `atomicCopyFileSync`, copying to a `crypto.randomBytes`-named temp file with `fs.constants.COPYFILE_EXCL` and atomically `renameSync`-ing over the destination, replacing the last raw `fs.copyFileSync` call site that ran after the `removeTargetSymlinks` check. Same pattern and severity reclassification (reported up to CRITICAL, realistically LOW — the attacker must already control the destination directory) as the 2026-08-05 `atomicWriteFileSync` hardening; also buys crash-safety for interrupted installs. The twelve duplicate Sentinel PRs carrying this fix were closed in favor of this commit.
 
 ## [2.23.0] - 2026-08-13
 
