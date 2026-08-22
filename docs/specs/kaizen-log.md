@@ -20,6 +20,9 @@ commands read only the `## Active Lessons` table below — keep it at 10 rows or
 
 ## Entries
 
+> **Frozen.** The entries below are historical. New retrospectives write one file per spec
+> under `docs/specs/kaizen/`. Nothing here is rewritten, renumbered, or deleted.
+
 ### 2026-08-13 — changes/audit-phase-tier-drift
 
 **Metrics**
