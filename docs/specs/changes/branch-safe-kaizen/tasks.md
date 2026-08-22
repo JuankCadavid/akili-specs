@@ -68,7 +68,7 @@ T2/T3/T4 are parallel-safe after T1 (they consume names T1 defines: Branch Conte
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-5 (both scenarios, all clauses incl. Step 0.4 + Step 6 contracts), FR-2 solo-fast-path scenario (archive side), FR-3 (auto-offer on default branch), NFR-4 |

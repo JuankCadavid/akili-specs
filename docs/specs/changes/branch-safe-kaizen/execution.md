@@ -77,3 +77,23 @@
 **Reviewer verdict (sonnet): `STATUS: PASS`.** Independent re-verification: byte-identity confirmed by extraction+diff; "Date of Audit" confirmed as the real template field (not a paraphrase); Status/Severity values confirmed against design §5; NFR-1 confirmed via unchanged context lines for propose/specify digest reads; the "read-only count, not a lesson read" phrase consistent with T1's forward pointer. No advisories — none manufactured.
 
 **Forward pointer:** backlog-count and report-path prose contracts queued for T6's HITL walkthrough (presence proven, executability not claimed).
+
+---
+
+### T2 — `/akili-archive`: branch-gated syncs, backlog offer, report states
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-22 |
+| Files changed | `.claude/commands/akili-archive.md` (+25/−14) |
+| Requirements covered | FR-5 (both scenarios + Step 0.4/Step 6 contracts), FR-2 solo fast path (archive side), FR-3 auto-offer, NFR-4 |
+| Effort | high · Skills: `cognitive-doc-design` · Wave: parallel with T3/T4 |
+
+**Attempt 1 — Implementer (opus).** Five sites landed: Step 0.4 read list (digest + entry files + latest audit report, legacy fallbacks permanent); Step 3 gate comparing against the `Default Branch:` pin with typed spec-branch pending items and number-free ADRs; Step 4.3–4.4 delegating to the skill (removed a pre-existing inline duplication of the menu — a duplication *fix*, per Reviewer); Step 6 item 7 third state verbatim; Error Handling entry-file fallback + branch-termed writable set. Three greps + both disqualifiers PASS.
+
+**Leader adjudication of the flagged out-of-scope edit (accepted as in-scope):** Step 4.2's Learn recurrence sentence described a live digest write — branch-illegal under DD-3 after T1; leaving it would have made the command contradict the skill it delegates to and trip T6's §8 immediacy grep. Reviewer independently ruled it "exactly the self-inflicted factual drift the factual-claims sweep exists to catch." Two corollary additions (Step 6 item 6 spec-branch clause; Step 4.4 clean-run pending-items clause) likewise ruled required consequences of in-scope edits — the second closes a real walkthrough gap (Step 3's typed items survive a clean-run shortcut that skips phases 4.2–4.3).
+
+**Reviewer verdict (sonnet): `STATUS: PASS`.** Site-by-site conformance confirmed; both declared invariants byte-unchanged via diff context lines; delegation verified side-by-side against T1's SKILL.md (no contradiction, no duplicated mechanics); NFR-4 preserved.
+
+**ADVISORY (recorded — never gates):** Step 3's gate references the kaizen skill's Branch Context before the command formally loads the skill (Step 4) — a minor forward-reference; a one-line "loaded in Step 4" pointer would remove ambiguity for a strict reader. Candidate for T5's mirror pass or a future touch-up; not minted as a task.
