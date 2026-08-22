@@ -27,7 +27,7 @@ No arguments required. The command scans `docs/specs/` automatically.
 **Model checkpoint:** This phase runs best on **T5 Fast-Cheap** — file scanning and summarization; reasoning depth is not the bottleneck. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps that tier to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"Resume is T5 — the registry recommends `/model haiku`; you are on opus"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode). Never block on this; continuing on the current model is always allowed (and switching is rarely worth it for a single scan).
 
 1. **Read spec family manifests first.** `Glob` for every `family.md` under `docs/specs/` (excluding `archive/`) and read each one found — Document Control + ordered child table (schema defined once in `akili-constitution.md` Step 7 item 4; reference it here, don't restate it). For each manifest-listed child, verify its `Spec Path` folder actually exists; report any mismatch as drift on screen (KZ-002: aggregate claims are grep-falsified, not trusted) rather than reconciling or repairing the manifest or writing a drift report. Skip this item entirely when no `family.md` exists — zero added steps for flat-spec-only projects (NFR-1).
-2. List all directories under `docs/specs/` (excluding `archive/`). A folder whose only spec file is `family.md` is the family container, not a spec — it renders as the spec-family heading in Step 2, never as its own spec entry and never as an `/akili-specify` target.
+2. List all directories under `docs/specs/`. **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container — a folder whose only spec file is `family.md`. None of them is ever classified as a spec directory, so none of them can reach the incomplete-spec error path in Error Handling. The family container is the one carve-out that still renders: as the spec-family heading in Step 2, never as its own spec entry and never as an `/akili-specify` target.
 3. For each spec directory, read available files to determine current phase:
    - `proposal.md` exists → proposed
    - `requirements.md` exists → requirements defined
@@ -104,6 +104,14 @@ If `docs/specs/kaizen-log.md` exists, append a Kaizen footer line to either form
 ```markdown
 Kaizen: 3 active lessons (latest: KZ-003 — empty-state tokens before list UI)
 ```
+
+If `docs/specs/kaizen/` holds entry files, append a second footer line for the pending backlog: count every item whose `Status` is `pending` or `deferred` across all entry files (the same backlog the `kaizen` skill's Apply Mode collects — a scaffolded `README.md` or `.gitkeep` is not an entry file), name the highest `Severity` among them, and recommend the exact Apply Mode invocation:
+
+```markdown
+Kaizen backlog: 3 pending standardizations (1 High) — say "apply pending kaizen standardizations" on the default branch to work them
+```
+
+This is a read-only count, not a lesson read: lesson content still comes only from the `## Active Lessons` digest. `/akili-resume` never applies an item and never writes to an entry file — it reports the backlog and names the invocation that clears it (see Output).
 
 ### Step 3: Provide Full Briefing (if requested)
 

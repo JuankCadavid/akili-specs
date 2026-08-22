@@ -73,6 +73,7 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
    - `docs/specs/general-setup/`
    - package-level `CLAUDE.md` files
 4. Read nearby or related specs under `docs/specs/`.
+   - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container — a folder whose only spec file is `family.md`. `general-setup/` is still read as the template source named earlier in this step — as templates, never as a related spec.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
 5. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
 

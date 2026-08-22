@@ -93,7 +93,7 @@ T2/T3/T4 are parallel-safe after T1 (they consume names T1 defines: Branch Conte
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-6 (scenario + all clauses), FR-8 (scenario + all clauses), FR-3 (resume surfacing scenario, `BUT` no-write clause), NFR-1 (resume additive-only) |

@@ -57,3 +57,23 @@
 **Reviewer verdict (sonnet): `STATUS: PASS`.** All seven audit gates confirmed; Branch Context name verified real in T1's SKILL.md (not fabricated); renumbering fallout grepped — no stale cross-references; the checklist-gates-dirs-only judgment ruled correct (neither FR-7's scenario nor T4's falsifiers require pin-gating).
 
 **ADVISORY (recorded — never gates):** the checklist gates the two dirs but not the `Default Branch:` pin / write rule; consistent with FR-7 but a future task could gate the pin for parity with the checklist's other "confirm before presenting" bullets.
+
+---
+
+### T3 — Carve-outs at four scan sites; audit per-run path; resume footer
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-22 |
+| Files changed | `.claude/commands/akili-resume.md`, `akili-propose.md`, `akili-specify.md`, `akili-audit.md` (~40 content lines) |
+| Requirements covered | FR-6 (scenario + all clauses), FR-8 (scenario + all clauses, four sites), FR-3 (resume surfacing + `BUT` no-write), NFR-1 |
+| Effort | medium (precision-critical) · Skills: `cognitive-doc-design` · Wave: parallel with T2/T4 |
+
+**Attempt 1 — Implementer (opus).** One 245-byte carve-out block, byte-identical at the four enumeration sites, each followed by a site-specific consequence sentence (audit: `audits/` is audit output, never audit input; resume: never reaches the incomplete-spec error path). Audit Step 3 → `drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with Date-header/lexical ordering, pin-consumed branch test (no git chain restated), permanent untouched legacy fallback; checklist flipped to the new path. Resume footer additive; no-write contract byte-identical at :144. T3's three greps + both disqualifiers PASS (identity via extract-and-diff; placement re-read at each site).
+
+**Implementer judgment calls (both upheld):** (a) "textually identical" read as governing the enumeration block, with per-site consequence sentences — matches design row 11's wording; (b) footer counts `pending` OR `deferred` labeled "pending standardizations" — Reviewer ruled this **spec-mandated** (FR-3: "deferred… keeps counting in `/akili-resume`"; the "(1 High)" example is verbatim FR-3 scenario text).
+
+**Reviewer verdict (sonnet): `STATUS: PASS`.** Independent re-verification: byte-identity confirmed by extraction+diff; "Date of Audit" confirmed as the real template field (not a paraphrase); Status/Severity values confirmed against design §5; NFR-1 confirmed via unchanged context lines for propose/specify digest reads; the "read-only count, not a lesson read" phrase consistent with T1's forward pointer. No advisories — none manufactured.
+
+**Forward pointer:** backlog-count and report-path prose contracts queued for T6's HITL walkthrough (presence proven, executability not claimed).

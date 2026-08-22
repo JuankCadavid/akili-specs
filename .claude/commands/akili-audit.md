@@ -28,6 +28,7 @@ First, read the constitutional documentation baseline in the repository:
 2. `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
 3. `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
 4. Any active specs in `docs/specs/` that are not yet archived.
+   - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container — a folder whose only spec file is `family.md`. `audits/` matters most here: it holds this command's own prior drift reports, which are audit output and never audit input.
 
 ### Step 1: Scan Active Codebase
 
@@ -61,11 +62,21 @@ Audit for discrepancies, classifying findings under the following categories:
 
 ### Step 3: Write Drift Report
 
-Create or update (writing per `cognitive-doc-design`: lead with the verdict, tables over prose):
+Write **one report file per audit run** (per `cognitive-doc-design`: lead with the verdict, tables over prose), creating `docs/specs/audits/` if it does not exist:
 
 ```text
-docs/specs/drift-report.md
+docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md
 ```
+
+Separators are single hyphens. The three parts:
+
+| Part | Rule |
+|---|---|
+| `<YYYY-MM-DD>` | Today's date — the same value written into the report's `Date of Audit` header |
+| `[-<safe-branch>]` | The current branch (`git rev-parse --abbrev-ref HEAD`) through the archive's `$SAFE_NAME` rule (`/` → `--`, so `feat/b` → `feat--b`). Add it when the current branch is **not** the default branch, **and also when the default branch cannot be resolved** — an extra suffix never collides, a missing one can. The default branch is the `Default Branch:` line pinned in the constitution summary of the root `AGENTS.md`/`CLAUDE.md` — the same files Step 0's model checkpoint reads; read the pin there. No pin means unresolved, so add the suffix. Never restate a git resolution chain here — the full fallback resolution lives in the `kaizen` skill's Branch Context and is that skill's to own |
+| `[-N]` | A numeric suffix (`-2`, `-3`, …) only when the resulting filename already exists, so a same-day re-run never overwrites an earlier report |
+
+**Reading reports back.** The **most recent report** is the one with the highest `Date of Audit` header *inside* the report files, ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. Legacy `docs/specs/drift-report.md` is a permanent read fallback, used only when `docs/specs/audits/` holds no report file at all (a scaffolded `README.md` or `.gitkeep` is not a report). This command never modifies, overwrites, or deletes that legacy file.
 
 The Drift Report must follow this format:
 
@@ -121,7 +132,7 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
 
 Before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
 
-- [ ] `docs/specs/drift-report.md` exists, is non-empty, and carries a conformance score plus the date of audit.
+- [ ] This run's report file under `docs/specs/audits/` (`drift-<YYYY-MM-DD>[-<safe-branch>][-N].md`) exists, is non-empty, and carries a conformance score plus the date of audit. A legacy `docs/specs/drift-report.md` left in place by an older run never satisfies this item — it is a read fallback, not this run's output.
 - [ ] **The `Code Graph Used` field states which of the four states applied** — used, offered and declined, unavailable, or not applicable. A scan run without the graph is legitimate; a scan that never says so lets its conformance score be read with a confidence it did not earn.
 - [ ] Every discrepancy names both its **spec file** and its **code file**, with a remediation direction (change the code, or change the doc).
 - [ ] All drift categories in Step 2 were actually swept — including the ones with no findings, which are reported as clean rather than omitted. **A category silently skipped and a category with nothing to report look identical in the output**, which is what makes the omission free. For Phase→Tier Drift and the `:59(c)` persona check, that clean signal is the Conformance Matrix's **Methodology Conformance** row — a matching phase is never an entry in Identified Discrepancies, which stays silent on a match per that category's own "no checked, all good" rule.
