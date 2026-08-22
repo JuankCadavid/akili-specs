@@ -34,7 +34,7 @@ T2/T3/T4 are parallel-safe after T1 (they consume names T1 defines: Branch Conte
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | none |
 | Requirements | FR-1 (all scenarios + clauses), FR-2 (all four scenarios), FR-3 (Apply Mode definition, contradictory-edits scenario `AND IT MUST`), FR-4 (legacy-freeze scenario `BUT`), NFR-2, NFR-3, NFR-4 |

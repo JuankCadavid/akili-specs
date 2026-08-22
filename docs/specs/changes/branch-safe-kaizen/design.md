@@ -126,7 +126,7 @@ The skill's recurrence rule ("increment note, raise severity") is a digest write
 Standardizations, digest updates, and the three archive syncs share the §5 block schema and one apply loop. Rejected: separate formats per origin (five parsers, five menus). ADR items carry **no number** until apply (kills the `ADR-MMM` race at its root — allocation is the conflict, not the append).
 
 ### DD-5 — Filenames reuse the archive `$SAFE_NAME` convention
-`/`→`--` for spec and branch slugs; date-prefixed for chronology; re-run detection globs by slug suffix. Rejected: a new sanitization rule (two conventions to keep aligned) and counter-based names (counters are the disease).
+`/`→`--` for spec and branch slugs. Entry files carry **no date prefix** — the filename is exactly the safe slug and re-run detection is an exact-name existence check (CS-1: the earlier date-prefixed + glob scheme could not match its own filenames); audit reports keep the date prefix because they are per-run, not per-spec. Rejected: a new sanitization rule (two conventions to keep aligned) and counter-based names (counters are the disease).
 
 ### DD-6 — The guardrail governs side-effect writes, not a spec's own product
 Without the exemption for files named as deliverables in an approved `tasks.md`, the rule forbids this repository's own specs (personas/guides ARE the product here — the challenge cited this spec's §4 as self-contradicting). The side-effect/deliverable boundary is decided at specify time, where it is reviewable — not at write time by the agent.
