@@ -168,7 +168,7 @@ T2/T3/T4 are parallel-safe after T1 (they consume names T1 defines: Branch Conte
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1–T5 |
 | Requirements | FR-4 consumer scenario (`AND IT MUST` zero-consumer-diff), FR-9 gate, NFR-1, NFR-2, §8 all rows |

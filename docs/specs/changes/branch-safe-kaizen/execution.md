@@ -119,3 +119,27 @@
 **Reviewer verdict (sonnet): `STATUS: PASS`.** Independently re-ran both §8 greps — same counts, every hit sanctioned; parity spot-checks across all five mirrors confirmed; kaizen-log diff verified header-only; scope extension verified at exactly 3 sites with no T1–T4 output in the diff; NFR-2 "permanent fallback" language consistent.
 
 **ADVISORY (recorded — never gates):** CHANGELOG's file-list parenthetical names 11 of 15 touched files — incomplete enumeration in prose, not a false claim.
+
+---
+
+### T6 — Closure sweep, consumer-contract diff, walkthrough, packaging
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (Leader-inline: gate verifications are puntual work per Delegation Thresholds; no diff produced, no Reviewer applicable) |
+| Date | 2026-08-22 |
+| Requirements covered | FR-4 consumer scenario (`AND IT MUST` zero diff), FR-9 gate, NFR-1, NFR-2, §8 all rows |
+
+**Gate 1 — §8 greps:** path grep 35 hits, phrase grep 11 hits — counts identical to the sanction tables produced by T5's Implementer and independently reproduced by T5's Reviewer; hit-by-hit dispositions recorded in the T5 entry. Falsifier phrases (`the local edit now`, `every proposed edit now`): **0 hits repo-wide**.
+**Gate 2 — consumer contract:** `git diff d12f2c0..HEAD -- .claude/commands/akili-execute.md` = **0 lines** (untouched); propose/specify digest-read lines intact at their sites; resume diff = +9/−1, exactly carve-outs + footer. FR-4's zero-consumer-diff clause holds.
+**Gate 3 — KZ-004 enumeration:** carve-out block present at all four scan sites; **md5-identical** across the four files (`87a93ff0…`); every folder name lands in a named terminal branch.
+**Gate 4 — packaging:** `npm run verify:cli` exit 0 · `npm run pack:dry-run` exit 0 · `git diff --check` clean.
+**Gate 5 — HITL walkthrough (user-confirmed 2026-08-22):** all five scenarios (FR-2 ×4, FR-3 contradictory-edits) traced against the final skill text read at the source — every clause maps to an executable instruction; no step required unstated information. Outcome: **conclusive PASS**, not collapsed from grep-green.
+
+**Adjudication (user-confirmed):** legacy-unpinned asymmetry accepted as designed — `/akili-archive` Step 3 treats no-pin as spec branch (defers syncs as pending) while the skill's fuller Branch Context chain, loaded at Step 4, may resolve the default branch and offer the backlog apply in the same run, picking those items up immediately. Conservative and self-healing; the alternative (archive executing the full chain) would violate DD-1's no-restatement rule. Recorded here as the intended behavior.
+
+**Out-of-spec INFO carried for the retrospective:** (a) `docs/commands/akili-audit.md` "six categories" pre-existing staleness (predates this spec, untouched by decision); (b) digest-retirement tiebreak field unnamed (T1 advisory, inherited from spec wording); (c) T2's Branch Context forward-reference advisory; (d) process lesson — a Leader poke crossed a worker's queued delta report; verify working-tree state before re-instructing.
+
+## 3. Summary — Spec Complete
+
+**6/6 tasks PASS, zero rework attempts consumed, zero HALTs, zero pivots.** Budget: 6 tasks expected/6 actual · ~260 LOC expected / ~285 shipped-surface lines actual (within tripwire tolerance; the delta is the T5 mirror-correction work the stale archive mirror forced) · 1 review round per task expected/actual. Commits: `d12f2c0` (baseline), `ab58279` (T1), `6991aa9` (T4), `3b5e6c2` (T3), `b09a741` (T2), `2ea6575` (T5), + T6 closure. Model split held throughout: Implementers opus, Reviewers sonnet, Leader session model. One runtime interruption (T5, connection drop), recovered with one poke; no work FAIL anywhere in the run.
