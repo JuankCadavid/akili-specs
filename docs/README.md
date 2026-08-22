@@ -27,7 +27,7 @@ Use this documentation when you want the human-facing reference. The installable
 /akili-archive <spec-path>
 ```
 
-Every `/akili-archive` closes with the **Kaizen Loop** — a bounded retrospective (Measure → Learn → Standardize → Record, via the packaged `kaizen` skill) that appends lessons to `docs/specs/kaizen-log.md` so the next spec starts smarter. See [flow.md](flow.md#8-the-kaizen-loop).
+Every `/akili-archive` closes with the **Kaizen Loop** — a bounded retrospective (Measure → Learn → Standardize → Record, via the packaged `kaizen` skill) that writes one entry file per spec under `docs/specs/kaizen/`. Its pending standardizations are applied later on the default branch through the skill's Apply Mode, which refreshes the `## Active Lessons` digest so the next spec starts smarter. See [flow.md](flow.md#8-the-kaizen-loop).
 
 Use `/akili-resume` at the start of any session to see a dashboard of all active specs and where each one stands.
 

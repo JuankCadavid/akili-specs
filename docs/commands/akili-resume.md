@@ -22,14 +22,14 @@ No arguments required. The command scans `docs/specs/` automatically.
 The command performs a four-step scan, preceded by a manifest read:
 
 0. **Read spec-family manifests** — before the flat directory scan, reads every `family.md` found under `docs/specs/` so the dashboard can group children under their parent (manifest order, status, blocked-by) and the next-command recommendation can follow manifest order instead of folder-discovery order.
-1. **Scan Active Specs** — lists all directories under `docs/specs/` (excluding `archive/`)
+1. **Scan Active Specs** — lists all directories under `docs/specs/`, carving out the ones that are never a spec and never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container (a folder whose only spec file is `family.md`). None of them can reach the incomplete-spec error path; the family container is the one carve-out that still renders, as the spec-family heading
 2. **Determine Phase & Progress** — for each spec, identifies current phase (PROPOSE → SPECIFY → EXECUTE → TEST → VALIDATE → ARCHIVE), task progress, last action, and blockers
-3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec; if `docs/specs/kaizen-log.md` exists, appends a Kaizen footer line with the active-lesson count and the latest lesson (read from the `## Active Lessons` digest only)
+3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec; if `docs/specs/kaizen-log.md` exists, appends a Kaizen footer line with the active-lesson count and the latest lesson (read from the `## Active Lessons` digest only), and if `docs/specs/kaizen/` holds entry files, a second footer line counting every item whose `Status` is `pending` or `deferred`, naming the highest severity among them, and recommending the exact Apply Mode invocation — *"apply pending kaizen standardizations"*, on the default branch. That backlog line is a read-only count, not a lesson read: lesson content still comes only from the digest
 4. **Recommend Next Command** — suggests the next command based on current phase
 
 ## Output
 
-No files are created or modified. The command outputs a screen summary only.
+No files are created or modified. The command outputs a screen summary only — it reports the pending kaizen backlog and names the invocation that clears it, but never applies an item and never writes to an entry file.
 
 ### Single Spec
 

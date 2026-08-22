@@ -560,8 +560,8 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | `/akili-execute <spec-path>` | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
 | `/akili-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
 | `/akili-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
-| `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, Kaizen retrospective appended to `docs/specs/kaizen-log.md`, synced agent guides, CodeGraph re-index reminder |
-| `/akili-audit` | Detecting drift between specs and codebase reality | `docs/specs/drift-report.md` with conformance score and discrepancy matrix |
+| `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, one Kaizen entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, agent guides synced (or recorded as pending items on a spec branch), CodeGraph re-index reminder |
+| `/akili-audit` | Detecting drift between specs and codebase reality | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix |
 | `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
 
@@ -602,18 +602,27 @@ AKILI embeds the Japanese Kaizen philosophy of continuous improvement (改善 �
 
 ```text
 ┌─────────┐    ┌─────────┐    ┌──────────────┐    ┌──────────┐
-│ MEASURE │ ─▶ │  LEARN  │ ─▶ │ STANDARDIZE  │ ─▶ │  REPEAT  │
-│ rework, │    │ 0–3 root│    │ constitution │    │ next spec│
-│ pivots, │    │ -cause  │    │ templates,   │    │ reads the│
-│ bugs    │    │ lessons │    │ guides (HITL)│    │ lessons  │
+│ MEASURE │ ─▶ │  LEARN  │ ─▶ │ STANDARDIZE  │ ─▶ │  RECORD  │
+│ rework, │    │ 0–3 root│    │ propose the  │    │ one entry│
+│ pivots, │    │ -cause  │    │ 1–3 line edit│    │ file per │
+│ bugs    │    │ lessons │    │ branch-gated │    │ spec     │
 └─────────┘    └─────────┘    └──────────────┘    └──────────┘
-        every /akili-archive · logged in docs/specs/kaizen-log.md
+   every /akili-archive, on any branch · docs/specs/kaizen/<slug>.md
+                              │  pending items
+                              ▼
+                    ┌──────────────────────┐
+                    │      APPLY MODE      │
+                    │ HITL menu · approved │
+                    │ edits · digest       │
+                    └──────────────────────┘
+   default branch only · refreshes ## Active Lessons for the next spec
 ```
 
 - **Measure:** hunt MUDA (waste) in the spec's own evidence — Reviewer rework attempts, pivots, PRODUCT_BUGs, severe judgment-day findings, validation warnings, drift.
-- **Learn:** distill 0–3 lessons with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons are banned.
-- **Standardize:** propose 1–3 line edits to constitution guides, spec templates, design tokens, or agent personas — always human-approved. Small steps, never rewrites.
-- **Record:** append to the accumulative `docs/specs/kaizen-log.md`; a capped `## Active Lessons` digest is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume`.
+- **Learn:** distill 0–3 lessons with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons are banned; a root cause that already exists is recorded as a digest update instead of a duplicate lesson.
+- **Standardize:** propose one 1–3 line edit per lesson to constitution guides, spec templates, design tokens, or agent personas — small steps, never rewrites. The proposal is always shown to you; whether it is *written* depends on the branch, and no shared file is ever edited from a spec branch.
+- **Record:** write one entry file per spec at `docs/specs/kaizen/<safe-spec-slug>.md`, carrying the metrics, the lessons, and the pending standardizations. Two branches archiving in parallel produce two distinct files and zero conflicts.
+- **Apply (default branch only):** say *"apply pending kaizen standardizations"* — or accept the offer `/akili-archive` makes when it already runs there — to work the whole pending backlog through the approval menu, make the approved edits, and refresh the capped `## Active Lessons` digest, which is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume` together with the pending count.
 
 The loop improves on two levels: **Product** lessons harden the project you are building, while **Methodology** lessons (root causes in AKILI itself) are flagged for upstreaming — so the methodology learns from every tool built with it. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
 
@@ -761,7 +770,7 @@ See [OpenSpec Comparison](docs/openspec-comparison.md) for the current AKILI com
 
 ### Auxiliary commands
 
-- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces `docs/specs/drift-report.md` with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths. Run independently or after major implementation milestones.
+- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths — so audits from parallel branches coexist instead of overwriting each other. A legacy `docs/specs/drift-report.md` stays readable as a permanent fallback and is never modified. Run independently or after major implementation milestones.
 
 - `/akili-resume` — Resume work after a session break by scanning all active specs under `docs/specs/` and presenting a multi-spec dashboard. Shows current phase, progress bars, last action, blockers, and recommends the next command. If only one spec is active, goes directly to a detailed briefing. No arguments required.
 
@@ -808,7 +817,7 @@ Fallback rule:
 - `/akili-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
 - `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
 - `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
-- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) appending to `docs/specs/kaizen-log.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index.
+- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. On a spec branch the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the default branch.
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering

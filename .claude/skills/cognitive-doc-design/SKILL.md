@@ -28,7 +28,7 @@ Use it especially for:
 | `/akili-constitution` | `docs/prd.md` and the baseline docs |
 | `/akili-specify` | `requirements.md`, `design.md`, `tasks.md` |
 | `/akili-execute` | PR descriptions and review notes (PR and Review Docs section below) |
-| `/akili-archive` | The archive summary and Kaizen log entries |
+| `/akili-archive` | The archive summary and the Kaizen entry file under `docs/specs/kaizen/` |
 
 The AKILI templates in `docs/specs/general-setup/` win over the default Documentation Shape below — apply the Critical Patterns inside their structure.
 

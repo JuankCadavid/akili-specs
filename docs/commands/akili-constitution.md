@@ -39,6 +39,8 @@ Creates or enhances:
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
 - `docs/specs/general-setup/family.md` (a fourth template, Step 7: the manifest schema — Document Control plus an ordered child table — that `/akili-propose` and `/akili-specify` write only when a proposal is actually split into a spec family; its absence means the spec is flat, with no added obligations)
+- `docs/specs/kaizen/` (scaffolded with a one-line `README.md`: one kaizen entry file per spec, written by the `kaizen` skill's Record phase)
+- `docs/specs/audits/` (scaffolded with a one-line `README.md`: one drift report per `/akili-audit` run)
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.agents/leader.md`
@@ -48,7 +50,16 @@ Creates or enhances:
 
 Projects created before the TRD naming may still have `docs/system-design/design.md` (UX/UI blueprint) and `docs/detailed-design/detailed-design.md` (technical blueprint). The constitution treats those as the existing UX/UI Design document and TRD, and in Active-AKILI-SPECS mode offers to migrate them to `docs/ux-ui/design.md` and `docs/trd/trd.md`.
 
+Both scaffold READMEs are scaffolding, never content: a README never counts as a kaizen entry file or as an audit report for any reader, so a "most recent report" read that finds only the README concludes the directory holds none, and a pending-item count over `docs/specs/kaizen/` skips it.
+
 The root guides also carry a `## Module Guides` index: modules whose conventions diverge from the root get a thin child `CLAUDE.md`/`AGENTS.md`, and every child guide must be referenced from that index. `/akili-execute` records new-module impact notes and `/akili-archive` syncs the guides and recommends a CodeGraph re-index.
+
+## Branch Pin & Shared-File Write Discipline
+
+The constitution summary written into the root `CLAUDE.md`/`AGENTS.md` carries two rules that bind every command:
+
+- **`Default Branch: <name>`** — detected once at constitution time (`git symbolic-ref refs/remotes/origin/HEAD --short` with its `origin/` prefix stripped, or the user's answer when that ref is unset) and confirmed with the user before it is written. This pin is the primary source every AKILI command's branch test compares the checked-out branch against: commands read it from the root guides they already load, so no command duplicates a resolution procedure. When the pin is absent (legacy projects), the `kaizen` skill's **Branch Context** rule owns the fallback resolution and its safe default.
+- **The shared-file write discipline** — on a spec branch, lifecycle side-effect writes (kaizen standardizations, `/akili-archive` guide and TRD syncs, `/akili-audit` outputs) never edit shared guides, `.agents/` personas, packaged templates, or the TRD. Each would-be edit is recorded as a pending item and applied on the default branch. The packaged `leader.md` and `implementer.md` personas carry the same guardrail, with its exemption for files an approved `tasks.md` names as the spec's own deliverable — those are the spec's product, protected by the normal review flow, not a side effect. An inline-drafted persona must carry the guardrail *and* the exemption; dropping the exemption is not a shorter rule but a wrong one.
 
 ## Multi-Agent Harness Scaffolding
 

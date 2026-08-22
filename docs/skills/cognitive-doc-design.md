@@ -4,7 +4,7 @@
 
 Designs documentation that reduces cognitive load, using six patterns: lead with the answer, progressive disclosure, chunking, signposting, recognition over recall, and review empathy. AKILI generates many human-facing documents (PRD, TRD, requirements, reports, summaries) — this skill defines how to write them so readers scan, understand, and verify quickly. Authored by gentleman-programming (Apache-2.0).
 
-AKILI-adapted: a per-command document map (constitution → PRD/baseline, specify → spec docs, execute → PR docs, archive → summaries/Kaizen log); the `general-setup` templates win over its default Documentation Shape. Binding: `core`.
+AKILI-adapted: a per-command document map (constitution → PRD/baseline, specify → spec docs, execute → PR docs, archive → summaries/Kaizen entry files); the `general-setup` templates win over its default Documentation Shape. Binding: `core`.
 
 ## Use When
 
@@ -26,7 +26,7 @@ AKILI-adapted: a per-command document map (constitution → PRD/baseline, specif
 - `/akili-constitution` — writing `docs/prd.md`, the UX/UI design doc, and the TRD.
 - `/akili-specify` — writing `requirements.md`, `design.md`, and `tasks.md`.
 - `/akili-execute` — writing PR descriptions and review notes.
-- `/akili-archive` — writing `archive-summary.md` and Kaizen log entries (one-point lessons are recognition over recall).
+- `/akili-archive` — writing `archive-summary.md` and the Kaizen entry file under `docs/specs/kaizen/` (one-point lessons are recognition over recall).
 
 ## Source
 

@@ -97,3 +97,25 @@
 **Reviewer verdict (sonnet): `STATUS: PASS`.** Site-by-site conformance confirmed; both declared invariants byte-unchanged via diff context lines; delegation verified side-by-side against T1's SKILL.md (no contradiction, no duplicated mechanics); NFR-4 preserved.
 
 **ADVISORY (recorded — never gates):** Step 3's gate references the kaizen skill's Branch Context before the command formally loads the skill (Step 4) — a minor forward-reference; a one-line "loaded in Step 4" pointer would remove ambiguity for a strict reader. Candidate for T5's mirror pass or a future touch-up; not minted as a task.
+
+---
+
+### T5 — Mirrors, root docs, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3; one runtime interruption, no rework) |
+| Date | 2026-08-22 |
+| Files changed | 15 (~132 insertions / 62 deletions): docs/commands/{akili-archive, akili-audit, akili-resume, akili-constitution, README}.md, docs/skills/{kaizen, README, cognitive-doc-design}.md, `.claude/skills/cognitive-doc-design/SKILL.md` (adjudicated extension), AGENTS.md, README.md, docs/README.md, docs/flow.md, docs/specs/kaizen-log.md (header only), CHANGELOG.md |
+| Requirements covered | FR-9 (all incl. stale-mirror correction), FR-4 digest statements, NFR-2 |
+| Effort | high · Skills: `cognitive-doc-design` |
+
+**Runtime note:** the Implementer's connection dropped mid-response after 12 of 14 files were edited; recovered with a single poke (runtime failure, not a work FAIL — no attempt consumed). A later Leader poke crossed the worker's delta report in flight; the worker checked working-tree state before acting and avoided a double-apply. **Process lesson for the retrospective: verify state before re-instructing; a queued report may simply not have landed yet.**
+
+**Leader adjudication (scope extension, recorded):** the §8 phrase grep caught "Kaizen log entries" in `cognitive-doc-design` (skill + mirror) — an FR-9 hit that cannot be sanctioned as true. Disposition: FIX; scope extended by exactly 3 sites. Also recorded as out-of-spec INFO, deliberately untouched: `docs/commands/akili-audit.md` "six categories" staleness (predates this spec).
+
+**Attempt 1 — Implementer (opus).** All mirrors brought to parity with the final T1–T4 texts, including the **correction** of the archive mirror's pre-existing stale Step 3 summary; README Kaizen diagram redrawn (APPLY MODE box + branch captions); kaizen-log.md header updated with Active Lessons/Entries byte-untouched; CHANGELOG patch entry with the W-1 note. Full hit-by-hit sanction table produced: path grep 35 hits / phrase grep 11 hits (post-delta), 0 unsanctioned; falsifier phrases return zero hits repo-wide. Two parity divergences self-caught and fixed on the disqualifier re-read (dropped guide-sync clause; omitted Branch Context pointer). `docs/openspec-comparison.md` assessed, unchanged.
+
+**Reviewer verdict (sonnet): `STATUS: PASS`.** Independently re-ran both §8 greps — same counts, every hit sanctioned; parity spot-checks across all five mirrors confirmed; kaizen-log diff verified header-only; scope extension verified at exactly 3 sites with no T1–T4 output in the diff; NFR-2 "permanent fallback" language consistent.
+
+**ADVISORY (recorded — never gates):** CHANGELOG's file-list parenthetical names 11 of 15 touched files — incomplete enumeration in prose, not a false claim.

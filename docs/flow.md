@@ -77,11 +77,11 @@ You: /akili-validate changes/add-remember-me
 AI:  Creates validation-report.md with PASS/WARN/FAIL/BLOCKED findings
 
 You: /akili-archive changes/add-remember-me
-AI:  Runs the Kaizen retrospective (appends docs/specs/kaizen-log.md), moves completed work into docs/specs/archive/, and refreshes CodeGraph
+AI:  Runs the Kaizen retrospective (writes docs/specs/kaizen/<safe-spec-slug>.md), moves completed work into docs/specs/archive/, and refreshes CodeGraph
 
 Independent Auditing:
 You: /akili-audit
-AI:  Scans codebase and detects drift against baselines, generating docs/specs/drift-report.md
+AI:  Scans codebase and detects drift against baselines, generating docs/specs/audits/drift-<date>.md
 ```
 
 ## Fast-Track for Trivial Changes
@@ -150,8 +150,9 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/execution.md` | `/akili-execute` | Task execution history and evidence |
 | `docs/specs/<spec-path>/test-report.md` | `/akili-test` | Requirement-to-test matrix and coverage gaps |
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
-| `docs/specs/drift-report.md` | `/akili-audit` | Conformance auditing of documentation vs. codebase reality |
-| `docs/specs/kaizen-log.md` | `/akili-archive` | Accumulated metrics and root-cause lessons; the `## Active Lessons` digest is read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume` |
+| `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no report |
+| `docs/specs/kaizen/<safe-spec-slug>.md` | `/akili-archive` (Kaizen Record, any branch) | One entry file per spec: metrics, root-cause lessons, sub-threshold signals, and the pending-standardization queue |
+| `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (default branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
 
 ## Review Gates
@@ -219,7 +220,7 @@ For a new repository, stale documentation, or a major product pivot, start at `/
 
 ## Context Discipline (when to /compact, when to /clear)
 
-AKILI's file-based design exists precisely so that **conversation context is disposable at phase boundaries**: everything durable — specs, `execution.md`, `tasks.md`, guides, the kaizen log — lives in the repository, and `/akili-resume` rebuilds a session from files alone. That inverts the usual economics: resetting context is nearly free *at a boundary* and expensive *mid-task*, so the discipline is about **where**, not whether.
+AKILI's file-based design exists precisely so that **conversation context is disposable at phase boundaries**: everything durable — specs, `execution.md`, `tasks.md`, guides, the kaizen entry files and their digest — lives in the repository, and `/akili-resume` rebuilds a session from files alone. That inverts the usual economics: resetting context is nearly free *at a boundary* and expensive *mid-task*, so the discipline is about **where**, not whether.
 
 The agent **cannot** run `/compact` or `/clear` — those are user commands in the host. What the methodology does instead is have commands **recommend the right action at the right moment** (context checkpoints), the same pattern as model checkpoints:
 
@@ -280,7 +281,7 @@ To establish high-traceability between spec files and source code:
 * **Comment Tracing:** For complex algorithms, API entry points, or core models, developers/agents should place a reference comment: `// @akili-spec <spec-path>`.
 
 ### 2. Specification Drift Auditing (`/akili-audit`)
-Run `/akili-audit` independently to verify that the active codebase reflects active documentation. The command produces `docs/specs/drift-report.md` detailing:
+Run `/akili-audit` independently to verify that the active codebase reflects active documentation. The command writes one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — the branch slug added when the run is off the default branch or the default branch cannot be resolved, a numeric suffix on a same-day collision — so parallel runs coexist instead of overwriting one another. Readers take the most recent report by its `Date of Audit` header (ties broken by the newest filename, never filesystem mtime) and fall back to a legacy `docs/specs/drift-report.md` only when the directory holds no report at all. Each report details:
 * **Stale Specifications:** Documented endpoints/modules missing from code.
 * **Undocumented Code:** Active code additions completely missing from the PRD, UX/UI design, or TRD docs.
 * **Styling/Architecture Violations:** Active code violating styling tokens or engineering guidelines.
@@ -402,16 +403,31 @@ registry.
 
 AKILI embeds Kaizen — continuous improvement through small, disciplined steps — as an executable
 retrospective inside `/akili-archive`, powered by the packaged `kaizen` skill (authored by
-Juan Carlos Cadavid — jcadavid.com). Every archive runs one bounded pass:
+Juan Carlos Cadavid — jcadavid.com). The loop runs in **two phases with two different homes**, so
+parallel branches never contend for the same file.
+
+**Retrospective phase — any branch.** Every archive runs one bounded pass:
 
 * **Measure:** hunt waste (MUDA) in the spec's own evidence — Reviewer rework attempts, pivots,
-  PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift.
+  PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift (the most recent report
+  under `docs/specs/audits/`).
 * **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence. Generic lessons
-  are banned; a clean spec records a one-line clean-run entry instead.
-* **Standardize:** propose 1–3 line edits to constitution guides, `general-setup` templates, design
-  tokens, or `.agents/` personas. **Every edit outside the kaizen log requires human approval.**
-* **Record:** append to the accumulative `docs/specs/kaizen-log.md`. Its capped `## Active Lessons`
-  digest (10 rows max) is the only part other commands read.
+  are banned; a clean spec records a one-line clean-run entry instead. A root cause that already
+  exists becomes a `digest-update` pending item, never a duplicate lesson or a live digest edit.
+* **Standardize:** propose one 1–3 line edit per lesson to constitution guides, `general-setup`
+  templates, design tokens, or `.agents/` personas. The proposals are always presented for review;
+  whether they are *written* is gated on the branch — **no shared file is edited from a spec
+  branch, approved or not**, and on the default branch every such edit still requires approval.
+* **Record:** write one entry file per spec at `docs/specs/kaizen/<safe-spec-slug>.md`, carrying the
+  metrics, the lessons, the sub-threshold `## Noted, not a lesson` signals, and the pending-item
+  queue. Two branches archiving in parallel produce two distinct files and zero conflicts.
+
+**Apply phase — default branch only.** Reached through the skill's **Apply Mode** ("apply pending
+kaizen standardizations"), offered automatically by `/akili-archive` when it already runs on the
+default branch, and surfaced with its count and highest severity by `/akili-resume`. It works the
+whole backlog through the approval menu, applies what was approved, allocates ADR numbers for
+`trd-adr` items at that moment, and refreshes `docs/specs/kaizen-log.md`'s capped `## Active
+Lessons` digest (10 rows max) — the only part other commands read, and written by this phase alone.
 
 Lessons target either the **Product** (this project) or the **Methodology** itself — Methodology
 lessons are flagged for upstreaming to the AKILI repository, so the methodology learns from every
