@@ -118,7 +118,7 @@ T2/T3/T4 are parallel-safe after T1 (they consume names T1 defines: Branch Conte
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-7 (scenario + all clauses), FR-2 (pin as primary source), NFR-3 |

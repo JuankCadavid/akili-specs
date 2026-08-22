@@ -39,3 +39,21 @@
 **Final verification:** four T1 greps + two disqualifiers + immediacy grep + bounds check (9 hits, none weakened) — all green, evidence quoted in the attempt record above.
 
 **Forward pointers:** (a) FR-2's four scenarios + FR-3 contradictory-edits scenario queued for T6's HITL walkthrough (per plan). (b) T3 must write the resume footer consistent with T1's carve-out wording ("read-only count, not a lesson read"). (c) T6 parity read: DD-5 correction already applied by Leader.
+
+---
+
+### T4 — Constitution scaffold + `Default Branch:` pin; persona guardrails
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-08-22 |
+| Files changed | `.claude/commands/akili-constitution.md` (4 hunks: Step 0 dirs, Step 8 pin+rule, inline-fallback sentence, Verification Checklist), `.claude/templates/leader.md`, `.claude/templates/implementer.md` (appended `## 🔒 Shared-File Write Discipline` sections) |
+| Requirements covered | FR-7 (scenario + all clauses incl. W-7 checklist and B-27 inline-fallback), FR-2 (pin as primary source), NFR-3 |
+| Effort | medium · Skills: `cognitive-doc-design` · Wave: parallel with T2/T3 (disjoint files) |
+
+**Attempt 1 — Implementer (opus).** All four constitution sub-sites + both personas landed; personas purely additive at file-end (clear of the adjacent spec's Scope Discipline region), both carrying the own-deliverable exemption explicitly. T4's three greps PASS + disqualifier read confirmed exemption-not-bare-prohibition. Recorded judgment: Verification Checklist gates the two new dirs only, not the pin — per T4's literal scope.
+
+**Reviewer verdict (sonnet): `STATUS: PASS`.** All seven audit gates confirmed; Branch Context name verified real in T1's SKILL.md (not fabricated); renumbering fallout grepped — no stale cross-references; the checklist-gates-dirs-only judgment ruled correct (neither FR-7's scenario nor T4's falsifiers require pin-gating).
+
+**ADVISORY (recorded — never gates):** the checklist gates the two dirs but not the `Default Branch:` pin / write rule; consistent with FR-7 but a future task could gate the pin for parity with the checklist's other "confirm before presenting" bullets.

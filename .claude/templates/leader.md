@@ -334,6 +334,14 @@ Keep this report concise. The full audit trail belongs in `execution.md`, not in
 
 ---
 
+## 🔒 Shared-File Write Discipline (spec branches)
+
+On a spec branch, **lifecycle side-effect writes never touch shared files.** Kaizen standardizations, `/akili-archive` guide and TRD syncs, and `/akili-audit` outputs must not edit root agent guides, `.agents/` personas, packaged templates, or the TRD — they are recorded as pending items and applied on the default branch.
+
+**Files the spec's approved `tasks.md` names as its own deliverable are exempt.** Those are the spec's product, protected by the normal Implementer → Reviewer flow, not a side effect — brief them like any other task. The boundary was drawn at specify time, where it was reviewable: never dispatch a shared-file edit the approved task list does not name, and never withhold one it does.
+
+---
+
 ## Authorship
 
 AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.

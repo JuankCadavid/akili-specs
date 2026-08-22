@@ -35,10 +35,13 @@ For all three modes:
 1. Ensure `docs/` exists.
 2. Ensure `docs/specs/` exists.
 3. Ensure `docs/specs/general-setup/` exists (its templates, including `family.md` for spec families, are authored in Step 7).
-4. Ensure root `CLAUDE.md` exists or is enhanced.
-5. Ensure root `AGENTS.md` exists or is enhanced.
-6. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 8B).
-7. Default behavior is to enhance existing project docs in place instead of creating parallel copies.
+4. Ensure `docs/specs/kaizen/` exists, scaffolded with a one-line `README.md` stating its role: *one kaizen entry file per spec, written by the `kaizen` skill's Record phase.*
+5. Ensure `docs/specs/audits/` exists, scaffolded with a one-line `README.md` stating its role: *one drift report per `/akili-audit` run.*
+6. **Both READMEs are scaffolding, never content.** A README never counts as a kaizen entry file or as an audit report for any reader: a "most recent report" read that finds only the README must conclude the directory holds none, and a pending-item count over `docs/specs/kaizen/` must skip it.
+7. Ensure root `CLAUDE.md` exists or is enhanced.
+8. Ensure root `AGENTS.md` exists or is enhanced.
+9. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 8B).
+10. Default behavior is to enhance existing project docs in place instead of creating parallel copies.
 
 The constitutional baseline must cover these files:
 
@@ -350,6 +353,8 @@ The update should explain briefly:
 - Which model to switch to per AKILI-SPECS phase (the `## Model Routing` registry added in Step 8C)
 - How to start the local stack: point at the `## Local Environment` contract in `docs/infrastructure.md` (Step 6B) — agents consult it instead of guessing start commands
 - **Agent-lean verification commands:** record the canonical test/lint commands in their failure-only variant (a `test:agent` script, `--reporter=dot`/`--silent`, `eslint --quiet`) — a green run needs one summary line, and everything above it is waste paid on every verification of every task. The asymmetry rule travels with the commands: **failures always print complete and verbatim** (they are evidence — the Structured Feedback rule), only passing noise is suppressed. Personas inherit this automatically: Implementer and Tester run "the project's real command", so making the canonical command lean is the whole change
+- **The `Default Branch: <name>` pin:** write a literal `Default Branch: <name>` line into the constitution summary. Detect the name once, here, at constitution time — `git symbolic-ref refs/remotes/origin/HEAD --short` with its `origin/` prefix stripped, or the user's answer when that ref is unset — and **confirm it with the user before writing it**. This pin is the **primary source every AKILI command's branch test compares the checked-out branch against**: commands read it from the root guides they already load, so no command duplicates a resolution procedure and none needs to load a skill for one comparison. When the pin is absent (legacy projects), the `kaizen` skill's **Branch Context** rule owns the fallback resolution and its safe-default behavior; the pin exists so that fallback is the exception, not the path
+- **The shared-file write discipline:** on a spec branch, lifecycle side-effect writes — kaizen standardizations, `/akili-archive` guide/TRD syncs, `/akili-audit` outputs — **never edit shared guides, `.agents/` personas, packaged templates, or the TRD**. Each would-be edit is recorded as a pending item and applied on the default branch. This belongs in the root guides because it binds every command and every agent, including sessions that never load the `kaizen` skill
 - **The concurrency convention:** one AKILI session per checkout, additional sessions on `git worktree`, and no measurement command (build, benchmark, Lighthouse, E2E) run while a delegated agent is active. This belongs in the root guides rather than only in `.agents/leader.md` because it binds **every** session that opens the repo, including ones that never load a persona — and its failures are filesystem-level, so no diff review can catch them
 
 Preserve the repository's existing `CLAUDE.md` and `AGENTS.md` conventions and extend them.
@@ -390,7 +395,7 @@ The packaged methodology ships default personas under `akili/templates/` inside 
 - OpenCode: `~/.config/opencode/akili/templates/{leader,implementer,reviewer,tester}.md`
 - Antigravity: `~/.gemini/config/akili/templates/{leader,implementer,reviewer,tester}.md`
 
-If the packaged templates are available, prefer copying them as the seed; otherwise draft equivalent personas inline using the structure documented in this command and the `/akili-execute` and `/akili-test` commands.
+If the packaged templates are available, prefer copying them as the seed; otherwise draft equivalent personas inline using the structure documented in this command and the `/akili-execute` and `/akili-test` commands. An inline draft of `leader.md` or `implementer.md` **must carry the shared-file write-discipline guardrail** the packaged templates carry — the spec-branch prohibition on lifecycle side-effect writes **together with its exemption for files an approved `tasks.md` names as the spec's own deliverable**. Dropping the exemption is not a shorter rule, it is a wrong one: it forbids the work of any project whose guides, personas, or templates *are* the product.
 
 **Mode-specific scaffolding policy:**
 
@@ -864,6 +869,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 
 - [ ] `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and `docs/infrastructure.md` exist and are non-empty.
 - [ ] `docs/specs/general-setup/` templates exist, including `family.md`.
+- [ ] `docs/specs/kaizen/` and `docs/specs/audits/` exist, each holding its one-line README and nothing that a reader could mistake for a kaizen entry file or an audit report.
 - [ ] `.agents/` contains `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md`.
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.

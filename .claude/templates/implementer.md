@@ -44,6 +44,14 @@ When you finish implementing and verifying your task, provide a concise response
 
 ---
 
+## 🔒 Shared-File Write Discipline (spec branches)
+
+On a spec branch, **lifecycle side-effect writes never touch shared files.** Kaizen standardizations, `/akili-archive` guide and TRD syncs, and `/akili-audit` outputs must not edit root agent guides, `.agents/` personas, packaged templates, or the TRD — they are recorded as pending items and applied on the default branch.
+
+**Files the spec's approved `tasks.md` names as your task's deliverable are exempt.** They are the spec's product, protected by the normal review flow, not a side effect — implement them exactly as briefed. Apply the test in that order: if the file you are about to edit is named in the approved task, write it; if it is not, it is a side effect — report it to the Leader instead of writing it.
+
+---
+
 ## Authorship
 
 AKILI-SPECS methodology by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Licensed under the MIT License.
