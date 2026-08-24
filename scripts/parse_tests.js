@@ -2,6 +2,17 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+
+function atomicWriteFileSync(targetPath, data) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.writeFileSync(tmpPath, data, { flag: "wx" });
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
+}
 
 function printHelp() {
   console.log(`AKILI Test Report Parser
@@ -106,7 +117,7 @@ function main() {
   const parsedMarkdown = parseTestJson(inputPath);
 
   if (outputPath) {
-    fs.writeFileSync(outputPath, parsedMarkdown, "utf8");
+    atomicWriteFileSync(outputPath, parsedMarkdown);
     console.log(`Successfully generated markdown report at: ${outputPath}`);
   } else {
     console.log(parsedMarkdown);
