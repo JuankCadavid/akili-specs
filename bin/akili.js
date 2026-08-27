@@ -425,11 +425,15 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
-      fs.cpSync(sourcePath, targetPath, {
-        recursive: true,
-        force: true,
-        errorOnExist: false,
-      });
+      if (entry.isDirectory()) {
+        fs.cpSync(sourcePath, targetPath, {
+          recursive: true,
+          force: true,
+          errorOnExist: false,
+        });
+      } else {
+        atomicCopyFileSync(sourcePath, targetPath);
+      }
     }
     if (exists) overwritten += 1;
     else installed += 1;
