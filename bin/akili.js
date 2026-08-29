@@ -424,12 +424,16 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
-      removeTargetSymlinks(sourcePath, targetPath);
-      fs.cpSync(sourcePath, targetPath, {
-        recursive: true,
-        force: true,
-        errorOnExist: false,
-      });
+      if (entry.isDirectory()) {
+        removeTargetSymlinks(sourcePath, targetPath);
+        fs.cpSync(sourcePath, targetPath, {
+          recursive: true,
+          force: true,
+          errorOnExist: false,
+        });
+      } else {
+        atomicCopyFileSync(sourcePath, targetPath);
+      }
     }
     if (exists) overwritten += 1;
     else installed += 1;
