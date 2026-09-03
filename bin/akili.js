@@ -425,14 +425,28 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
-      fs.cpSync(sourcePath, targetPath, {
-        recursive: true,
-        force: true,
-        errorOnExist: false,
-      });
+      if (entry.isDirectory()) {
+        fs.mkdirSync(targetPath, { recursive: true });
+        const result = copyDirectoryContents(sourcePath, targetPath, args);
+        installed += result.installed;
+        overwritten += result.overwritten;
+        skipped += result.skipped;
+      } else {
+        atomicCopyFileSync(sourcePath, targetPath);
+        if (exists) overwritten += 1;
+        else installed += 1;
+      }
+    } else {
+      if (entry.isDirectory()) {
+        const result = copyDirectoryContents(sourcePath, targetPath, args);
+        installed += result.installed;
+        overwritten += result.overwritten;
+        skipped += result.skipped;
+      } else {
+        if (exists) overwritten += 1;
+        else installed += 1;
+      }
     }
-    if (exists) overwritten += 1;
-    else installed += 1;
   }
 
   return { installed, overwritten, skipped };
