@@ -38,6 +38,19 @@ function atomicCopyFileSync(sourcePath, targetPath) {
   }
 }
 
+function copyRecursiveSync(sourcePath, targetPath) {
+  const sourceStat = fs.lstatSync(sourcePath);
+  if (sourceStat.isDirectory()) {
+    fs.mkdirSync(targetPath, { recursive: true });
+    const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
+    for (const entry of entries) {
+      copyRecursiveSync(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
+    }
+  } else {
+    atomicCopyFileSync(sourcePath, targetPath);
+  }
+}
+
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SOURCE_CLAUDE = path.join(PACKAGE_ROOT, ".claude");
 const SOURCE_COMMANDS = path.join(SOURCE_CLAUDE, "commands");
@@ -425,11 +438,7 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
-      fs.cpSync(sourcePath, targetPath, {
-        recursive: true,
-        force: true,
-        errorOnExist: false,
-      });
+      copyRecursiveSync(sourcePath, targetPath);
     }
     if (exists) overwritten += 1;
     else installed += 1;

@@ -17,6 +17,30 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const crypto = require("crypto");
+
+function atomicCopyFileSync(sourcePath, targetPath) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.copyFileSync(sourcePath, tmpPath, fs.constants.COPYFILE_EXCL);
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
+}
+
+function copyRecursiveSync(sourcePath, targetPath) {
+  const sourceStat = fs.lstatSync(sourcePath);
+  if (sourceStat.isDirectory()) {
+    fs.mkdirSync(targetPath, { recursive: true });
+    const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
+    for (const entry of entries) {
+      copyRecursiveSync(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
+    }
+  } else {
+    atomicCopyFileSync(sourcePath, targetPath);
+  }
+}
 
 function removeTargetSymlinks(sourcePath, targetPath) {
   let sourceStat = null;
@@ -70,7 +94,7 @@ try {
   {
     const { src, dst, sensitive } = layout(path.join(base, "defended"));
     removeTargetSymlinks(src, dst);
-    fs.cpSync(src, dst, { recursive: true, force: true, errorOnExist: false });
+    copyRecursiveSync(src, dst);
     const sensitiveAfter = fs.readFileSync(sensitive, "utf8");
     const destStat = fs.lstatSync(path.join(dst, "sub", "inner.md"));
     const destContent = fs.readFileSync(path.join(dst, "sub", "inner.md"), "utf8");
