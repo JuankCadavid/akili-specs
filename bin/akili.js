@@ -38,6 +38,34 @@ function atomicCopyFileSync(sourcePath, targetPath) {
   }
 }
 
+// Recursive copy that never hands a destination path to a call that follows
+// symlinks. fs.cpSync(force) writes THROUGH a nested destination symlink on
+// current Node 22.x (proven by scripts/ci/install-symlink-probe.js), so the
+// removeTargetSymlinks check ahead of it left a TOCTOU window. Directories are
+// created with mkdirSync after unlinking anything non-directory squatting at
+// the path; every file lands via atomicCopyFileSync (COPYFILE_EXCL temp file +
+// renameSync, which replaces a symlink instead of following it).
+// Mirrored in scripts/ci/install-symlink-probe.js — keep in sync.
+function copyTreeSync(sourcePath, targetPath) {
+  if (!fs.statSync(sourcePath).isDirectory()) {
+    atomicCopyFileSync(sourcePath, targetPath);
+    return;
+  }
+  let targetStat = null;
+  try {
+    targetStat = fs.lstatSync(targetPath);
+  } catch (e) {
+    // Does not exist
+  }
+  if (targetStat && !targetStat.isDirectory()) {
+    fs.rmSync(targetPath, { force: true }); // symlink or stray file where a directory belongs
+  }
+  fs.mkdirSync(targetPath, { recursive: true });
+  for (const entry of fs.readdirSync(sourcePath, { withFileTypes: true })) {
+    copyTreeSync(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
+  }
+}
+
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SOURCE_CLAUDE = path.join(PACKAGE_ROOT, ".claude");
 const SOURCE_COMMANDS = path.join(SOURCE_CLAUDE, "commands");
@@ -425,11 +453,7 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
-      fs.cpSync(sourcePath, targetPath, {
-        recursive: true,
-        force: true,
-        errorOnExist: false,
-      });
+      copyTreeSync(sourcePath, targetPath);
     }
     if (exists) overwritten += 1;
     else installed += 1;
