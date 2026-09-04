@@ -2,12 +2,26 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { execFileSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
 const PACKAGE_PATH = path.join(ROOT, "package.json");
 const CHANGELOG_PATH = path.join(ROOT, "CHANGELOG.md");
 const RELEASES_DIR = path.join(ROOT, "releases");
+
+// Write via a wx temp file + renameSync so a symlink at the destination is
+// replaced, never followed, and an interrupted release cannot leave
+// package.json or CHANGELOG.md half-written. Mirrors bin/akili.js.
+function atomicWriteFileSync(targetPath, data) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.writeFileSync(tmpPath, data, { flag: "wx" });
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
+}
 
 function fail(message) {
   console.error(`ERROR: ${message}`);
@@ -77,7 +91,7 @@ function writeReleaseNotes(version, date, unreleased) {
   if (fs.existsSync(releasePath)) fail(`${releasePath} already exists.`);
 
   const body = `# v${version} - AKILI-SPECS methodology update\n\nRelease date: ${date}\n\n${unreleased.content}\n\n## Verification\n\nBefore publishing, run:\n\n\`\`\`bash\nnpm run verify:cli\nnpm run pack:dry-run\n\`\`\`\n\n## Publish\n\n\`\`\`bash\nnpm publish --access public --registry=https://registry.npmjs.org/\n\`\`\`\n`;
-  fs.writeFileSync(releasePath, body);
+  atomicWriteFileSync(releasePath, body);
 }
 
 function main() {
@@ -93,8 +107,8 @@ function main() {
   const unreleased = extractUnreleased(changelog);
 
   pkg.version = nextVersion;
-  fs.writeFileSync(PACKAGE_PATH, `${JSON.stringify(pkg, null, 2)}\n`);
-  fs.writeFileSync(CHANGELOG_PATH, updateChangelog(changelog, nextVersion, date, unreleased));
+  atomicWriteFileSync(PACKAGE_PATH, `${JSON.stringify(pkg, null, 2)}\n`);
+  atomicWriteFileSync(CHANGELOG_PATH, updateChangelog(changelog, nextVersion, date, unreleased));
   writeReleaseNotes(nextVersion, date, unreleased);
 
   console.log(`Prepared v${nextVersion}.`);

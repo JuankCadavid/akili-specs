@@ -2,14 +2,17 @@
 // platform/Node in the matrix, instead of assuming them from docs.
 //
 // Asserts two invariants:
-//   1. DEFENSE: removeTargetSymlinks + cpSync(force) never writes through a
+//   1. DEFENSE: removeTargetSymlinks + copyTreeSync never writes through a
 //      nested destination symlink — the sensitive target stays intact and the
-//      destination becomes a regular file. (Mirror of bin/akili.js
-//      removeTargetSymlinks — keep in sync.)
+//      destination becomes a regular file. Also asserts the atomic leaf copy
+//      alone (no prior removeTargetSymlinks pass) replaces a destination
+//      symlink, since that is what closes the TOCTOU window. (Mirror of
+//      bin/akili.js removeTargetSymlinks / atomicCopyFileSync / copyTreeSync —
+//      keep in sync.)
 //   2. RECORD: raw cpSync(force) behavior WITHOUT the defense is logged per
-//      platform/Node. Measured on Node 20.11/22.12 (macOS): cpSync replaces
-//      the destination symlink and does not write through it. If a platform
-//      in the matrix ever behaves differently, this log is the evidence.
+//      platform/Node. Measured: Node 18.20/20.11/22.12 replace the destination
+//      symlink; Node 22.23.1 writes THROUGH it (all three platforms). The
+//      installer no longer calls cpSync; this log stays as the evidence trail.
 //
 // Windows runners may forbid symlink creation without elevation — the probe
 // skips gracefully (exit 0) when symlinkSync throws EPERM.
@@ -17,6 +20,31 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const crypto = require("crypto");
+
+function atomicCopyFileSync(sourcePath, targetPath) {
+  const tmpPath = targetPath + "." + crypto.randomBytes(6).toString("hex") + ".tmp";
+  try {
+    fs.copyFileSync(sourcePath, tmpPath, fs.constants.COPYFILE_EXCL);
+    fs.renameSync(tmpPath, targetPath);
+  } finally {
+    try { fs.rmSync(tmpPath, { force: true }); } catch (e) {}
+  }
+}
+
+function copyTreeSync(sourcePath, targetPath) {
+  if (!fs.statSync(sourcePath).isDirectory()) {
+    atomicCopyFileSync(sourcePath, targetPath);
+    return;
+  }
+  let targetStat = null;
+  try { targetStat = fs.lstatSync(targetPath); } catch (e) {}
+  if (targetStat && !targetStat.isDirectory()) fs.rmSync(targetPath, { force: true });
+  fs.mkdirSync(targetPath, { recursive: true });
+  for (const entry of fs.readdirSync(sourcePath, { withFileTypes: true })) {
+    copyTreeSync(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
+  }
+}
 
 function removeTargetSymlinks(sourcePath, targetPath) {
   let sourceStat = null;
@@ -70,7 +98,7 @@ try {
   {
     const { src, dst, sensitive } = layout(path.join(base, "defended"));
     removeTargetSymlinks(src, dst);
-    fs.cpSync(src, dst, { recursive: true, force: true, errorOnExist: false });
+    copyTreeSync(src, dst);
     const sensitiveAfter = fs.readFileSync(sensitive, "utf8");
     const destStat = fs.lstatSync(path.join(dst, "sub", "inner.md"));
     const destContent = fs.readFileSync(path.join(dst, "sub", "inner.md"), "utf8");
@@ -79,6 +107,22 @@ try {
       process.exit(1);
     }
     console.log(`OK defense: nested destination symlink removed before copy on ${process.platform} ${process.version}`);
+  }
+
+  // 1b. ASSERT the atomic leaf copy closes the TOCTOU window on its own:
+  //     a symlink that (re)appears AFTER removeTargetSymlinks ran must still
+  //     be replaced, never written through.
+  {
+    const { src, dst, sensitive } = layout(path.join(base, "raced"));
+    copyTreeSync(src, dst); // no removeTargetSymlinks — simulates the link landing after the check
+    const sensitiveAfter = fs.readFileSync(sensitive, "utf8");
+    const destStat = fs.lstatSync(path.join(dst, "sub", "inner.md"));
+    const destContent = fs.readFileSync(path.join(dst, "sub", "inner.md"), "utf8");
+    if (sensitiveAfter !== "SENSITIVE ORIGINAL" || destStat.isSymbolicLink() || destContent !== "PACKAGED CONTENT") {
+      console.error(`FAIL: atomic copy wrote through a raced symlink on ${process.platform} ${process.version} — sensitive="${sensitiveAfter}", destIsLink=${destStat.isSymbolicLink()}`);
+      process.exit(1);
+    }
+    console.log(`OK atomic: raced destination symlink replaced, not followed, on ${process.platform} ${process.version}`);
   }
 } finally {
   fs.rmSync(base, { recursive: true, force: true });

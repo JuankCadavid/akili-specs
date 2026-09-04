@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **Installer: recursive copies are now atomic at every leaf, closing the last TOCTOU symlink window in `copyDirectoryContents` (Sentinel finding, PRs #21–#30).** `bin/akili.js` gains `copyTreeSync`, an explicit walk that creates directories with `mkdirSync` (after unlinking anything non-directory squatting at the path) and lands every file through the existing `atomicCopyFileSync` (`COPYFILE_EXCL` temp file + `renameSync`), replacing the `fs.cpSync(force)` call that ran after the `removeTargetSymlinks` check and that current Node 22.x writes through a nested destination symlink. `scripts/parse_tests.js` and `scripts/release.js` switch their `fs.writeFileSync` calls to the same `atomicWriteFileSync` pattern. Same severity reclassification as the 2026-08-05 and 2026-08-06 hardenings (reported up to CRITICAL, realistically LOW — the attacker must already control the destination directory); also buys crash-safety for interrupted installs and releases. The CI probe (`scripts/ci/install-symlink-probe.js`) mirrors the new helpers and adds a raced-symlink assertion that exercises the atomic leaf copy without the prior check. The ten duplicate Sentinel PRs carrying these fixes were closed in favor of this commit.
 
 ## [2.23.1] - 2026-08-22
 
