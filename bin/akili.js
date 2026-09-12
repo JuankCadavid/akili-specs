@@ -1129,6 +1129,7 @@ function writeUpdateCache(latest) {
 function fetchLatestVersion() {
   return new Promise((resolve) => {
     const req = https.get("https://registry.npmjs.org/-/package/akili-specs/dist-tags", { timeout: 1500 }, (res) => {
+      res.on("error", () => resolve(null));
       if (res.statusCode !== 200) {
         res.resume();
         return resolve(null);
