@@ -171,3 +171,61 @@ Cause: every extra round was a single-issue precision FAIL (KZ-001 over-claimed 
 | T2 implementation notes carried forward | Check 2 SKIP repro (`npm_config_registry=http://127.0.0.1:9`) does not reproduce on this machine because `akili-specs@2.23.2` is installed globally and `npx` resolves it offline; SKIP path verified via a PATH-shimmed fake `npx` replaying a captured `ECONNREFUSED` — CI runners are cold, so the literal repro applies there. Implementer narrowed SKIP classification to transport-error signatures after a generic `/registry/i` pattern misclassified a `404` as SKIP; ANSI-stripping fix in the fixture parser |
 | User decision | **Approved** (2026-09-16) — "Approve amendment, resume T2". T2 resumes on the amended FR-4: bounded delta to the script (source-equality classification, `EXPECTED-DIFF`), authoritative measurement re-taken by the Leader on a quiet tree after T3 lands, then Reviewer |
 
+### T3 — Constitution: Step 8C four hosts, 8E Codex wrappers, 8F Codex gate, Step 9
+
+| Field | Value |
+|---|---|
+| Status | in progress (attempt 2 open) |
+| Date | 2026-09-16 |
+| Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `cognitive-doc-design` (task default, kept) |
+| Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (diff 205+/33−, prose + scaffolded script) |
+| Forward pointers carried in the brief | no standalone `/reasoning` (T4/T5); subagents page schema + TOML `=` form (T5 review); effort enum six UI rungs, confirm live (T5); hooks page to fetch; tenant claim pinned-half + `Unverified:` negative (T4) |
+
+**Attempt 1** — `.claude/commands/akili-constitution.md` (205+/33−). Implementer verification: check 1 zero "all three" in 8C/8E/9/checklist (two survivors justified: modes, roles; also fixed "All three hosts restrict the Reviewer" → four); check 2 `sandbox_mode` ×5, Step 9 "the Reviewer is read-only by `sandbox_mode`"; check 3 six pins, exactly three `Unverified:` (8E sandbox + spawn; tenant negative; 8F `apply_patch` patch format); check 4 nine terminal branches enumerated (3 exit 0, 6 exit 2); check 5 `bash -n` clean, 10 fake payloads matched; `^model:` empty; `git diff --check` clean. Pins fetched: subagents (schema + `config.toml` keys, no tool allowlist), hooks (edits via `apply_patch`; `tool_input.command`; no `file_path`; denial = exit 2 + stderr OR `permissionDecision: "deny"` under `hookSpecificOutput`), config reference (`project_doc_max_bytes`, no default stated). Two script bugs found and fixed by the Implementer during check 5: GNU-only `sed \|` alternation (no-op on BSD sed) → `sed -nE`; indeterminate-path `apply_patch` fell through the path filter's `exit 0` → check moved before the `case`. Judgment call: tenant table placed in Step 8E (FR-8 wording), Step 9 references it.
+
+Reviewer verdict: **FAIL** (1 issue). Verified clean: 8C/8E/8F/9 content complete and matching design §5.3/§5.4; all four pins re-fetched and confirmed verbatim; `bash -n` clean; nine branches confirmed by the Reviewer's own runs; Claude Code Edit/Write behavior unchanged; `sed -E` portable on BSD; tenant-table placement correct (FR-8 outranks design §7 row 14). Issue, verbatim:
+
+1. **Discovered Issue:** The gate script's `apply_patch` path parse takes only the **first** `*** Update File:` header (`sed -nE '...' | head -n1`). `apply_patch` is a multi-file format. A single patch whose first header names any non-`tasks.md` file and whose later header names `docs/specs/*/tasks.md` with a `[ ]`→`[x]` flip resolves `fp` to the wrong file, falls through the path filter's `*) exit 0` default, and the checkbox is written with **no PASS evidence anywhere**. Reproduced with no `execution.md` present: `MULTI-FILE: app.ts first, tasks.md second, NO pass rc=0`; control `tasks.md first, NO pass rc=2`. Second vector, same root cause: a CRLF header leaves a trailing `\r` on `fp`, the `*/docs/specs/*/tasks.md)` glob no longer matches, same `exit 0` default. Reproduced, rc=0.
+   - **Violated Rule:** `requirements.md` FR-6 BUT ("must NOT fall through to exit 0 on a `docs/specs/*/tasks.md` path it cannot parse") and AND IT MUST (fail-closed); `design.md` §5.4 item 2; `tasks.md` T3 Verification 4 falsifier ("a `case` fall-through to `exit 0` still reachable for a `tasks.md` path").
+   - **Remediation:** Parse **all** headers; if **any** resolved path matches `docs/specs/*/tasks.md`, run the evidence check against that path (strip `\r`: `sed -nE 's/^\*\*\* (Update|Add) File: //p' | tr -d '\r'`). Restrict `new` content to that file's hunk (thorough) or treat the whole patch's `+` lines as `new` when any header matches (cheaper, still fail-closed). Update the branch-enumeration paragraph accordingly.
+
+ADVISORY (recorded, no rework): (Risk) the 8E six-rung enum claim carries no URL/date of its own — cross-reference the `docs/model-routing.md` pin; (Reliability) `*** Delete File:` on `tasks.md` is denied by the "unrecognized header" branch — message could say "unsupported verb"; (Readability) new `*)` catch-all denies tool names the old script routed down the Write path — unreachable under the shipped `Edit|Write` matcher.
+
+**Attempt 2** — `.claude/commands/akili-constitution.md` (241+/33−, net). Fix: `apply_patch` parse now extracts every `*** Update/Add/Delete File:` header (`sed -nE … | tr -d '\r'`), scans all of them, a `Delete` on `tasks.md` is denied ("unsupported verb"), `fp` empty ⇒ out of scope. Root cause per `systematic-debugging`: single-header assumption + no `\r` strip. Payload matrix 15 cases (10 attempt-1 regressions + multi-file app.ts-first no PASS ⇒ 2, same with PASS ⇒ 0, CRLF ⇒ 2, Delete ⇒ 2, control ⇒ 2). Branches 11 (4 exit 0, 7 exit 2), paragraph + host-data table updated. Both advisories applied (enum pins; "unsupported verb"). Checks 1–3 hold (`Last verified` 8, `Unverified:` 3), `bash -n`, `^model:`, `git diff --check` clean.
+
+Reviewer verdict: **FAIL** (1 issue). Verified fixed: both attempt-1 bypasses (multi-file ⇒ 2; CRLF ⇒ 2), Delete verb ⇒ 2, path with a space handled, cross-file `[x]` ⇒ false deny (acceptable under fail-closed; suggest one line of Step 8F prose), 11 branches confirmed by the Reviewer's own enumeration, ten attempt-1 cases unchanged (Claude Code behavior untouched), advisories landed, counts hold. Issue, verbatim:
+
+1. **Discovered Issue:** The apply_patch content extraction `new=$(printf '%s' "$cmd" | grep -E '^\+[^+]')` drops any added line whose own first character is `+`. A patch line `++ [x] T1` means the file gains the line `+ [x] T1` — a legal Markdown `+` bullet. That `[x]` never enters `new`, `count_x` reads 0, and the write is allowed with **no PASS evidence anywhere**. Reproduced: `LITERAL-PLUS line: tasks.md line starts with + rc=0 (expected rc=2)`.
+   - **Violated Rule:** `requirements.md` FR-6 AND IT MUST (fail-closed; content extracted lossily resolves to `exit 0` on a real `[x]` flip).
+   - **Remediation:** Drop the `[^+]`: `grep -E '^\+'`. The guard exists to skip a unified-diff `+++ b/file` header, and `apply_patch` has no such header. Over-counting can only cause a false deny (safe direction). Proportionality: zero `tasks.md` lines in this repo begin with `+`; one token, not a redesign.
+
+Leader adjudication: in scope (FR-6 fail-closed is T3's requirement); rework attempt 3 of 3 opened at effort `xhigh`.
+
+### T2 — Regression script + CI step (FR-4 gate, detection fixture)
+
+| Field | Value |
+|---|---|
+| Status | **Reviewer PASS (attempt 1, post-pivot) — task held at `[~]`: Done clause "CI evidence on all six matrix legs" open until pushed** |
+| Date | 2026-09-16 |
+| Implementer | `sonnet`, effort `high`; skills: `systematic-debugging` (task default, kept) |
+| Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (491-line new script; writes temp dirs only — no data-loss surface) |
+| Pivot | FR-4 amended before review (see `## Pivot Record: T2`); no rework attempt consumed by the pivot |
+
+**Attempt 1 (post-pivot)** — `scripts/ci/install-layout-regression.js` (new, 491 lines), `.github/workflows/ci.yml` (+3, step after the symlink probe, all legs), `docs/cli.md` (+4, "CI & Verification" paragraph stating the amended rule, SKIP, version assertion). Implementer verification: `node --check`, `git diff --check` clean; side A resolved version `2.23.2` asserted; falsifier `.claude/skills/tdd` renamed ⇒ exit 1 naming 15 paths, reverted; harness: side B mutated ≠ source ⇒ FAIL naming `commands/akili-execute.md`, source-equal ⇒ expected; SKIP path verified via PATH-shimmed fake `npx` replaying a captured `ECONNREFUSED` (local literal repro impossible: `akili-specs@2.23.2` installed globally, npx resolves offline); over-broad `/registry/i` SKIP pattern (misclassified a 404) narrowed to transport signatures; ANSI-strip bug in the fixture parser fixed. Two bugs found and fixed by the Implementer via `systematic-debugging`.
+
+**Leader quiet-tree run** (both Implementers idle, 2026-09-16): `Side A resolved version: 2.23.2`; `LAYOUT-IDENTICAL claude (3 expected source diffs)`; `LAYOUT-IDENTICAL opencode (3)`; `LAYOUT-IDENTICAL antigravity (18)`; `FIXTURE OK: codex ignored on a foreign-only shared skills root, detected once an akili-* command skill is present`; exit 0. The 24 `EXPECTED-DIFF` paths are exactly `akili-constitution.md` / `akili-execute.md` / `akili-test.md` in every installed location (claude+opencode: `commands/` ×3 each; antigravity: 3 workflow dirs + 3 skill dirs = 18). Log: scratchpad `t2-quiet-run.log`. (Run taken while T3 attempt 2 was under review — the constitution file changed again in T3 attempt 3 by two hunks; classification is source-equality so the verdict is unaffected; the T3-final tree is re-run at the wave gate.)
+
+Reviewer verdict: **PASS**. Summary: implements Pivot alternative (c) exactly. (a) `MIRROR_TOOL_REGISTRY`/`resolveSource` checked against `bin/akili.js` `TOOL_REGISTRY` + `installTool` on 18 harness cases (13 mapped correct, 5 unmapped ⇒ null ⇒ fail); mutation and stray-path falsifiers both reach `fail()`. (b) presence-only ⇒ fail. (c) SKIP only on ECONNREFUSED/ENOTFOUND/ETIMEDOUT/EAI_AGAIN across 10 samples; 404/403/EACCES/bad args/ERESOLVE ⇒ FAIL. (d) version assertion aborts on non-`2.23.2`; `npx.cmd` + `shell` on win32; `mkdtempSync` + `finally` cleanup; forward-slash keys; no deps. (e) fixture redirects `HOME` + `USERPROFILE`, both states asserted, ANSI stripped, `doctor` write paths `--fix`-guarded. (f) CI step on all six legs; docs paragraph accurate. (g) `require.main` guard holds.
+
+Open Done clause (Reviewer + Leader): T2 Verification 3 — six green matrix legs with `LAYOUT-IDENTICAL`/`IDENTICAL` (or a visible `SKIP` with reason; SKIP on every leg = inconclusive). The Windows leg is the only evidence for `npx.cmd`, `shell: true`, and path normalisation. **T2 remains `[~]` until the CI evidence is pasted here.**
+
+ADVISORY (recorded, no rework): (Risk) source-equality tolerance is near-tautological for a verbatim copy — the content leg's discriminating power is mapping resolution and cross-wired copies; **layout identity is what carries the gate** (stated here so a future reader does not over-read `LAYOUT-IDENTICAL`). (Reliability) `sideA.error` (npx absent) repeats the spawn failure per tool instead of aborting once. (Risk, Windows, low) spreading `process.env` then setting `USERPROFILE` can leave a differently-cased duplicate key.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-4 (amended scenario, all clauses incl. BUT SKIP), FR-1 auto-detection BUT (fixture automated), NFR-4 pending CI |
+| Decisions | Pivot alternative (c); `doctor` drives the fixture; SKIP restricted to transport signatures |
+| Issues | None at review; two Implementer-found bugs fixed pre-review |
+| Queued | CI matrix evidence (needs a push to `origin/master`) |
+| Final verification | Leader quiet-tree run exit 0 (above); Reviewer independent run identical |
+
