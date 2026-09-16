@@ -247,3 +247,5 @@ ADVISORY (recorded, no rework): (Risk) source-equality tolerance is near-tautolo
 
 **Wave-2 gate (gated mode):** T3 `[x]` (PASS on attempt 3 of 3), T2 `[~]` (Reviewer PASS, CI clause open). Next eligible: T6 (depends on T1/T3/T4/T5, all `[x]`). Budget: wave 2 consumed 4 review rounds (T2 ×1 + T3 ×3) against 2 budgeted; cumulative 10 rounds vs 8 (7 + 1 reserved) for the whole spec with T6/T7 still open. Presented to the user.
 
+**Wave-2 gate decision:** user chose *Push now + continue to T6* and *T7 after T6, same session* (user will run `npm install -g @openai/codex@latest` when T6 lands). Pushing `master` → `origin/master` for the T2 CI evidence.
+
