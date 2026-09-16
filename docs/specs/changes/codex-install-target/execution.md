@@ -249,3 +249,20 @@ ADVISORY (recorded, no rework): (Risk) source-equality tolerance is near-tautolo
 
 **Wave-2 gate decision:** user chose *Push now + continue to T6* and *T7 after T6, same session* (user will run `npm install -g @openai/codex@latest` when T6 lands). Pushing `master` → `origin/master` for the T2 CI evidence.
 
+**T2 CI evidence — run 35154662410 on `24b5b52` (all six legs): FAIL** at step "Codex install-layout regression"; every earlier step (syntax, verify:cli, dry-run/real install/doctor for all four tools incl. Codex, idempotent re-install, symlink probe) **passed on all six legs** (T1's Codex target is green on the matrix). Regression step output (ubuntu / Node 22, identical on the other legs):
+```
+FAIL claude: npx install exited 127
+sh: 1: akili: not found
+FAIL opencode: npx install exited 127
+sh: 1: akili: not found
+FAIL antigravity: npx install exited 127
+sh: 1: akili: not found
+FIXTURE OK: codex ignored on a foreign-only shared skills root, detected once an akili-* command skill is present
+##[error]Process completed with exit code 1.
+```
+Diagnosis (Leader): the side-A invocation relies on `npx` resolving the `akili` bin of `akili-specs@2.23.2`; on a cold runner the bin is not on PATH for the spawned shell. Locally it passed only because `akili-specs` is installed globally — the exact "both sides were not the published package" disqualifier T2 names; the local `Side A resolved version: 2.23.2` line came from the global install, not from npx. Not a SKIP case (no network failure; the package resolved). T2 reopened for rework (attempt 2); the fixture leg is green on all six legs.
+
+**T2 attempt 2** (reopened by CI evidence) — `scripts/ci/install-layout-regression.js` (130+/76−). Root cause confirmed by the Implementer on a masked PATH: `npx --yes akili-specs@2.23.2 …` resolves the command by package/bin name; the package's only bin is `akili`, so on a cold runner it exits 127 `sh: akili: not found`; local passes had been reading the global install (the T2 disqualifier). Fix: side A = `npm install --prefix <tmp-pkg> --no-save --no-audit --no-fund akili-specs@2.23.2` once, version read from `<tmp-pkg>/node_modules/akili-specs/package.json`, then `node <tmp-pkg>/node_modules/akili-specs/bin/akili.js install --tool <t> --target <tmp-a>`; `npm.cmd` + `shell` on win32. Implementer evidence: (a) global bin masked + `npm_config_prefix` isolated ⇒ `2.23.2` from the temp package.json, three `LAYOUT-IDENTICAL`, `FIXTURE OK`, exit 0; (b) normal PATH same; (c) `npm_config_registry=http://127.0.0.1:9` now genuinely reproduces ⇒ `SKIP: registry unreachable (ECONNREFUSED)`, exit 0; (d) `@0.0.0-nonexistent` ⇒ `FAIL: npm install --prefix exited 1` (ETARGET), exit 1; (e) `node --check`, `git diff --check` clean. `docs/cli.md` "via `npx --yes`" wording routed to T6 (owner of that file in flight).
+
+Reviewer verdict (attempt 2): **PASS**. Reproduced both the CI failure (old form under a masked PATH ⇒ 127) and the fix on the same bench; version and bin path now come only from the temp prefix (global/linked installs cannot satisfy side A — stronger than the attempt-1 banner parse); SKIP transport-only (ETARGET/404/EACCES/ERESOLVE/EEXIST ⇒ FAIL); `--prefix` layout correct on POSIX and Windows for non-global installs; temp prefix removed in `finally`, `--no-save` leaves the repo untouched; `classifyToolDiff`/`resolveSource` byte-unchanged so attempt-1 falsifiers stand. Open: six green matrix legs (only live proof for Windows/cold runner) and the `docs/cli.md` wording (T6). Pushing for CI run 2.
+

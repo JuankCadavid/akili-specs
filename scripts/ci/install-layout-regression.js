@@ -4,9 +4,23 @@
 // never causes a false-positive Codex auto-detection (T1 check 5 / W-3).
 //
 // Part 1 — three-target diff (FR-4, amended — Pivot Record T2):
-//   side A = npx --yes akili-specs@<PINNED_VERSION> install --tool <t> --target <tmp-a>
-//   side B = node bin/akili.js                      install --tool <t> --target <tmp-b>
-// for each of claude, opencode, antigravity.
+//   side A = npm install --prefix <tmp-pkg> akili-specs@<PINNED_VERSION>, then
+//            node <tmp-pkg>/node_modules/akili-specs/bin/akili.js install --tool <t> --target <tmp-a>
+//   side B = node bin/akili.js                                    install --tool <t> --target <tmp-b>
+// for each of claude, opencode, antigravity. Side A is resolved via
+// `npm install --prefix` (once, reused for all three tools), never `npx
+// <pkg>@<version> <args>` (rework, attempt 2): npx by default tries to run a
+// command whose NAME matches the requested spec, and akili-specs's only bin
+// is named `akili`, not `akili-specs` — on a cold runner with no pre-existing
+// global `akili` on PATH, that resolution fails outright (`sh: akili: command
+// not found`, exit 127 — reproduced locally by masking the global bin from
+// PATH; confirmed against CI run 35154662410). Locally this was invisible
+// because a global `akili-specs@2.23.2` install happened to shadow it, which
+// is itself the exact "side A resolved a local install, not the published
+// tarball" disqualifier this gate exists to prevent. `npm install --prefix`
+// + invoking the extracted bin.js directly sidesteps PATH/bin-name
+// resolution entirely and is deterministic regardless of what's globally
+// installed.
 //   1. Path lists must be identical — any path present on only one side FAILs.
 //   2. For a path present on both sides with a differing SHA-256, this is
 //      tolerated ONLY when side B's bytes are byte-identical to the
@@ -85,13 +99,16 @@ function rmTmp(dir) {
   }
 }
 
-// npx ships as npx.cmd on Windows; patched Node throws EINVAL spawning a
+// npm ships as npm.cmd on Windows; patched Node throws EINVAL spawning a
 // .cmd/.bat file without shell:true (CVE-2024-27980) — the same reason
 // bin/akili.js's execCliSync forces a shell on win32. Every argument here is
-// a static literal (tool name, pinned version, temp path we just created),
-// never untrusted input, so shell:true is safe in this one call site.
-function spawnNpx(args, opts) {
-  return spawnSync(isWindows ? "npx.cmd" : "npx", args, {
+// a static literal (package spec, temp path we just created), never
+// untrusted input, so shell:true is safe in this one call site. Only `npm
+// install --prefix` runs through this helper — the resolved package's own
+// bin.js is then invoked directly via `process.execPath` (no PATH/bin-name
+// resolution involved at all, see the attempt-2 header note).
+function spawnNpm(args, opts) {
+  return spawnSync(isWindows ? "npm.cmd" : "npm", args, {
     encoding: "utf8",
     shell: isWindows,
     ...opts,
@@ -138,11 +155,6 @@ function firstNetworkMatch(text) {
 function stripAnsi(str) {
   // eslint-disable-next-line no-control-regex
   return str.replace(/\x1b\[[0-9;]*m/g, "");
-}
-
-function extractVersion(output) {
-  const m = /akili-specs v(\S+)/.exec(stripAnsi(output));
-  return m ? m[1] : null;
 }
 
 function sha256(filePath) {
@@ -342,83 +354,125 @@ function autoDetectedList(output) {
     .filter(Boolean);
 }
 
+// Resolves the published side-A package exactly once (shared across all
+// three tools — it's the same package regardless of which tool is being
+// diffed). `npm install --prefix <tmp>` is deterministic regardless of any
+// globally-installed akili-specs: it always installs into a brand-new,
+// never-before-seen prefix, so it can never silently reuse a pre-existing
+// install the way `npx <pkg>@<version>` can (the disqualifier this gate
+// exists to catch — see the attempt-2 header note).
+//
+// Returns { binPath } on success, or null when the caller should stop
+// (either a SKIP was already printed, or a FAIL was already recorded).
+function resolvePublishedPackage(tmpPkg) {
+  const sideA = spawnNpm(
+    ["install", "--prefix", tmpPkg, "--no-save", "--no-audit", "--no-fund", `akili-specs@${PINNED_VERSION}`],
+    { cwd: REPO_ROOT }
+  );
+
+  if (sideA.error) {
+    fail(`FAIL: could not spawn npm (${sideA.error.message}). Ensure npm is on PATH.`);
+    return null;
+  }
+
+  const outA = `${sideA.stdout || ""}${sideA.stderr || ""}`;
+
+  if (sideA.status !== 0) {
+    const reason = firstNetworkMatch(outA);
+    if (reason) {
+      console.log(`SKIP: registry unreachable (${reason})`);
+      return null;
+    }
+    fail(`FAIL: npm install --prefix exited ${sideA.status}\n${outA}`);
+    return null;
+  }
+
+  const pkgJsonPath = path.join(tmpPkg, "node_modules", "akili-specs", "package.json");
+  let version = null;
+  try {
+    version = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8")).version;
+  } catch (e) {
+    fail(`FAIL: could not read resolved package.json at ${pkgJsonPath} (${e.message}).`);
+    return null;
+  }
+
+  console.log(`Side A resolved version: ${version || "<unparsed>"}`);
+  if (version !== PINNED_VERSION) {
+    fail(
+      `FAIL: side A resolved to akili-specs@${version || "unknown"}, expected @${PINNED_VERSION}. ` +
+        `Refusing to treat any IDENTICAL/LAYOUT-IDENTICAL result as evidence.`
+    );
+    return null;
+  }
+
+  const binPath = path.join(tmpPkg, "node_modules", "akili-specs", "bin", "akili.js");
+  if (!fs.existsSync(binPath)) {
+    fail(`FAIL: resolved package has no bin at ${binPath}.`);
+    return null;
+  }
+
+  return { binPath };
+}
+
 // Part 1 — three-target diff against the published baseline (FR-4).
 function runThreeTargetDiff() {
-  let sideAVersionChecked = false;
+  const tmpPkg = mkTmp("akili-regress-pkg-");
+  try {
+    const sideA = resolvePublishedPackage(tmpPkg);
+    if (!sideA) return; // SKIP or FAIL already reported by resolvePublishedPackage
 
-  for (const tool of SHIPPING_TARGETS) {
-    const tmpA = mkTmp(`akili-regress-a-${tool}-`);
-    const tmpB = mkTmp(`akili-regress-b-${tool}-`);
-    try {
-      const sideA = spawnNpx(
-        ["--yes", `akili-specs@${PINNED_VERSION}`, "install", "--tool", tool, "--target", tmpA],
-        { cwd: REPO_ROOT }
-      );
-
-      if (sideA.error) {
-        fail(`FAIL ${tool}: could not spawn npx (${sideA.error.message}). Ensure npx is on PATH.`);
-        continue;
-      }
-
-      const outA = `${sideA.stdout || ""}${sideA.stderr || ""}`;
-
-      if (sideA.status !== 0) {
-        const reason = firstNetworkMatch(outA);
-        if (reason) {
-          console.log(`SKIP: registry unreachable (${reason})`);
-          return; // whole gate SKIPs — the remaining targets share the same registry
-        }
-        fail(`FAIL ${tool}: npx install exited ${sideA.status}\n${outA}`);
-        continue;
-      }
-
-      if (!sideAVersionChecked) {
-        sideAVersionChecked = true;
-        const version = extractVersion(outA);
-        console.log(`Side A resolved version: ${version || "<unparsed>"}`);
-        if (version !== PINNED_VERSION) {
+    for (const tool of SHIPPING_TARGETS) {
+      const tmpA = mkTmp(`akili-regress-a-${tool}-`);
+      const tmpB = mkTmp(`akili-regress-b-${tool}-`);
+      try {
+        const sideAInstall = spawnSync(process.execPath, [sideA.binPath, "install", "--tool", tool, "--target", tmpA], {
+          encoding: "utf8",
+          cwd: REPO_ROOT,
+        });
+        if (sideAInstall.status !== 0) {
           fail(
-            `FAIL: side A resolved to akili-specs@${version || "unknown"}, expected @${PINNED_VERSION}. ` +
-              `npx may have resolved a local link/workspace — refusing to treat any IDENTICAL result as evidence.`
+            `FAIL ${tool}: published-package install exited ${sideAInstall.status}\n${sideAInstall.stdout || ""}${sideAInstall.stderr || ""}`
           );
-          return;
+          continue;
         }
-      }
 
-      const sideB = spawnAkili(["install", "--tool", tool, "--target", tmpB], { cwd: REPO_ROOT });
-      const outB = `${sideB.stdout || ""}${sideB.stderr || ""}`;
-      if (sideB.status !== 0) {
-        fail(`FAIL ${tool}: working-tree install exited ${sideB.status}\n${outB}`);
-        continue;
-      }
+        const sideB = spawnAkili(["install", "--tool", tool, "--target", tmpB], { cwd: REPO_ROOT });
+        const outB = `${sideB.stdout || ""}${sideB.stderr || ""}`;
+        if (sideB.status !== 0) {
+          fail(`FAIL ${tool}: working-tree install exited ${sideB.status}\n${outB}`);
+          continue;
+        }
 
-      const { presenceOnlyA, presenceOnlyB, expected, unresolved } = classifyToolDiff(
-        tool,
-        tmpB,
-        snapshotTree(tmpA),
-        snapshotTree(tmpB)
-      );
+        const { presenceOnlyA, presenceOnlyB, expected, unresolved } = classifyToolDiff(
+          tool,
+          tmpB,
+          snapshotTree(tmpA),
+          snapshotTree(tmpB)
+        );
 
-      for (const p of expected) {
-        console.log(`EXPECTED-DIFF ${tool} ${p} (source changed since ${PINNED_VERSION})`);
-      }
+        for (const p of expected) {
+          console.log(`EXPECTED-DIFF ${tool} ${p} (source changed since ${PINNED_VERSION})`);
+        }
 
-      const hasFail = presenceOnlyA.length > 0 || presenceOnlyB.length > 0 || unresolved.length > 0;
-      if (hasFail) {
-        const lines = [];
-        for (const p of presenceOnlyA) lines.push(`- only in published side A (npx akili-specs@${PINNED_VERSION}): ${p}`);
-        for (const p of presenceOnlyB) lines.push(`+ only in working tree side B (bin/akili.js): ${p}`);
-        for (const u of unresolved) lines.push(`~ ${u.path}: ${u.reason}`);
-        fail(`FAIL ${tool}:\n${lines.map((l) => "  " + l).join("\n")}`);
-      } else if (expected.length === 0) {
-        console.log(`IDENTICAL ${tool}`);
-      } else {
-        console.log(`LAYOUT-IDENTICAL ${tool} (${expected.length} expected source diffs)`);
+        const hasFail = presenceOnlyA.length > 0 || presenceOnlyB.length > 0 || unresolved.length > 0;
+        if (hasFail) {
+          const lines = [];
+          for (const p of presenceOnlyA) lines.push(`- only in published side A (akili-specs@${PINNED_VERSION}): ${p}`);
+          for (const p of presenceOnlyB) lines.push(`+ only in working tree side B (bin/akili.js): ${p}`);
+          for (const u of unresolved) lines.push(`~ ${u.path}: ${u.reason}`);
+          fail(`FAIL ${tool}:\n${lines.map((l) => "  " + l).join("\n")}`);
+        } else if (expected.length === 0) {
+          console.log(`IDENTICAL ${tool}`);
+        } else {
+          console.log(`LAYOUT-IDENTICAL ${tool} (${expected.length} expected source diffs)`);
+        }
+      } finally {
+        rmTmp(tmpA);
+        rmTmp(tmpB);
       }
-    } finally {
-      rmTmp(tmpA);
-      rmTmp(tmpB);
     }
+  } finally {
+    rmTmp(tmpPkg);
   }
 }
 
