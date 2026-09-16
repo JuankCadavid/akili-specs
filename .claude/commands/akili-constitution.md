@@ -486,12 +486,15 @@ project guides so the project does not depend on the package's `docs/` after ins
    scaffolded from OpenCode that omits the Claude Code column leaves the next Claude Code session
    with nothing to read, and silently breaks the Step 8E wrappers and every command's model
    checkpoint. **An unknown roster is a `<CONFIRM SLUG>` placeholder, never a dropped column.**
-   The supported hosts are **Claude Code, OpenCode, and Antigravity** — all three are install
-   targets of the packaged CLI, so all three get a column.
+   The supported hosts are **Claude Code, OpenCode, Antigravity, and Codex** — all four are install
+   targets of the packaged CLI, so all four get a column.
 
    **The CLI invocation for every host column.** A registry naming *which* host to reach without
    naming *how* forces every future session to guess a binary, and the product name is not
-   reliably the command — Antigravity's CLI is **`agy`**, not `antigravity`. That guess does not
+   reliably the command — Antigravity's CLI is **`agy`**, not `antigravity`; Codex's CLI is
+   **`codex`**, and inside it AKILI commands are invoked as skills with **`$akili-<name>`**, not a
+   `/akili-<name>` slash command (`Last verified: 2026-09-16` —
+   https://learn.chatgpt.com/docs/build-skills: "type `$` to mention a skill"). That guess does not
    fail loudly: it yields a confident "this host is unreachable" that then shapes the plan.
    **Ask the user for each invocation rather than probing the filesystem** — binaries vary with
    install method, live outside the repo, and an absent one may simply not be installed *here*
@@ -695,7 +698,7 @@ this step — the guidance-only flow keeps working.
   | `mainAgent: false` | Keeps Implementer/Reviewer/Tester out of the primary-agent picker — they are only ever dispatched. The Leader keeps `mainAgent: true` |
   | `tools` | The Reviewer's read-only role stops being an instruction and becomes a **restriction** |
 
-  **All three hosts restrict the Reviewer; what differs here is the failure mode.** Apply `tools`
+  **All four hosts restrict the Reviewer; what differs here is the failure mode.** Apply `tools`
   to the Reviewer and nowhere else — every other wrapper needs broad tool access — but note that on
   this host a mistake is far more expensive than on the other two. The vendor documents that an
   unmapped or misspelled tool name **hangs the subagent process**, so a wrong guess fails silently
@@ -713,6 +716,69 @@ this step — the guidance-only flow keeps working.
   picker selects the *primary* agent, and Implementer / Reviewer / Tester carry `mainAgent: false`
   precisely so they stay out of it. One entry is the success condition; four would mean the roles
   meant to be dispatch-only are selectable as main agents.
+
+- **OpenAI Codex:** create project-level `.codex/agents/akili-leader.toml`, `akili-implementer.toml`,
+  `akili-reviewer.toml`, and `akili-tester.toml`. TOML uses `key = value`, never YAML colons:
+
+  ```toml
+  name = "akili-reviewer"
+  description = "AKILI Reviewer — independent audit of the Implementer's diff against the spec."
+  developer_instructions = """
+  Read `.agents/reviewer.md` in the project root and adopt it fully as your persona and
+  operating contract before doing anything else.
+  """
+  model = "<registry Codex column value for T3>"
+  model_reasoning_effort = "high"
+  sandbox_mode = "read-only"
+  ```
+
+  | Field | Value rule |
+  |---|---|
+  | `name` | `akili-<role>` |
+  | `description` | One line: when the Leader should request this role |
+  | `developer_instructions` | **References** `.agents/<role>.md` ("read and follow it verbatim before acting") — never inlines the persona; `.agents/` stays the single source of truth, as on every other host |
+  | `model` | Registry's Codex column for the role's tier; Reviewer's model MUST differ from the Implementer's (rule 1 below) |
+  | `model_reasoning_effort` | Effort dial default per role: Leader `high`, Reviewer `high`, Implementer `medium`, Tester `medium` — overridable per task by the brief, same as every other host |
+  | `sandbox_mode` | **Reviewer only:** `"read-only"` — the write-axis half of author ≠ auditor (rule 2 below). Codex has no documented per-agent tool allowlist, so the sandbox is the restriction surface; Leader/Implementer/Tester omit the key and inherit |
+  | `mcp_servers` | Omitted (inherit) |
+
+  Pin: <https://learn.chatgpt.com/docs/agent-configuration/subagents> — `Last verified: 2026-09-16`.
+  The page states the three required fields (`name`, `description`, `developer_instructions`) and
+  lists `model`, `model_reasoning_effort`, `sandbox_mode`, and `mcp_servers` among the "other
+  supported `config.toml` keys"; it names no per-agent tool allowlist.
+
+  Effort mapping — AKILI dial → `model_reasoning_effort`: `low`→`low`, `medium`→`medium`,
+  `high`→`high`, `xhigh`→`xhigh`, `max`→`xhigh` (the models page — <https://learn.chatgpt.com/docs/models>,
+  `Last verified: 2026-09-16` — separately shows a six-rung UI enum — Low/Medium/High/Extra
+  High/Max/Ultra — that does not collapse cleanly onto this five-rung dial; confirm the enum the
+  live `/model` prompt actually accepts at execution time and correct this mapping if Codex rejects
+  `xhigh` — there is no standalone `/reasoning` command,
+  <https://learn.chatgpt.com/docs/cli/slash-commands>, `Last verified: 2026-09-16`).
+
+  **Codex spawn is model-driven, not a tool contract.** Once these wrappers exist, the Leader does
+  not call an explicit spawn tool — it requests the named role in the brief (*"request
+  `akili-reviewer` with this diff"*), and Codex itself spawns the subagent, routes the work, and
+  returns the consolidated result for the Leader to consume. Do not claim a `spawn_agent`-style
+  tool contract exists; the subagents page names none.
+
+  **Unverified:** whether `sandbox_mode = "read-only"` actually stops the Reviewer from writing,
+  and whether the spawn phrasing above matches what Codex does at runtime — both confirmed live
+  once the Codex install spec's live-validation task exercises them.
+
+  **`.agents/` gains a third tenant on this host** (one repo, three non-colliding uses of the same
+  directory name):
+
+  | Path | Tenant | Written by |
+  |---|---|---|
+  | `.agents/<role>.md` | AKILI personas (all hosts) | `/akili-constitution` Step 7 |
+  | `.agents/agents/akili-<role>/agent.md` | Antigravity wrappers | Step 8E, above |
+  | `.agents/skills/<name>/SKILL.md` | Codex repo-scope skills | `akili install --tool codex --local` |
+
+  Codex scans `.agents/skills` in every directory from the working directory up to the repository
+  root, plus the user-scope `$HOME/.agents/skills` (`Last verified: 2026-09-16` —
+  <https://learn.chatgpt.com/docs/build-skills>). **Unverified:** Codex is not documented to read
+  `.agents/<role>.md` at the `.agents/` root; the Codex install spec's live validation confirms the
+  tenant is collision-free.
 
 **Rules:**
 
@@ -735,14 +801,15 @@ this step — the guidance-only flow keeps working.
 
 ---
 
-### Step 8F: Scaffold Guardrail Hooks (Claude Code only, opt-in)
+### Step 8F: Scaffold Guardrail Hooks (opt-in)
 
-Offer to scaffold **guardrail hooks** into the project's `.claude/settings.json` — harness-level
-enforcement of methodology invariants that today live only as prose. The design rule that gates
-what belongs here: **a hook may block a violation; it must never perform an action the methodology
-routes through judgment.** Auto-committing, auto-formatting into the diff, auto-syncing state are
-*actors* and stay out — they would automate the exact moments the gates exist to protect (an
-auto-commit per edit would even empty the working-tree diff the Reviewer audits). Guardrails only.
+Offer to scaffold **guardrail hooks** into the project's `.claude/settings.json` and, on Codex,
+`.codex/hooks.json` — harness-level enforcement of methodology invariants that today live only as
+prose. The design rule that gates what belongs here: **a hook may block a violation; it must never
+perform an action the methodology routes through judgment.** Auto-committing, auto-formatting into
+the diff, auto-syncing state are *actors* and stay out — they would automate the exact moments the
+gates exist to protect (an auto-commit per edit would even empty the working-tree diff the Reviewer
+audits). Guardrails only.
 
 Ask the user first (one question): *"Scaffold the AKILI guardrail hook, so a task cannot be marked
 `[x]` without Reviewer PASS evidence in `execution.md` — enforced by the harness, not by prompt
@@ -750,28 +817,109 @@ discipline?"* If declined, skip — the prose rules keep working as before.
 
 **When accepted:**
 
-1. Write `.claude/hooks/akili-tasks-gate.sh` (executable) with exactly this content:
+1. Write the gate script (executable) with exactly this content. On Claude Code it lives at
+   `.claude/hooks/akili-tasks-gate.sh`. On Codex it lives at `.codex/hooks/akili-tasks-gate.sh`,
+   **unless `.claude/hooks/akili-tasks-gate.sh` already exists in the project**, in which case
+   point the Codex hook entry at that one instead of writing a second copy — one script, two host
+   entries:
 
    ```bash
    #!/bin/bash
    # AKILI guardrail: a task cannot flip to [x] without Reviewer PASS evidence
    # in the same spec's execution.md (evidence before checkbox).
-   # Scaffolded by /akili-constitution Step 8F. Claude Code PreToolUse hook.
+   # Scaffolded by /akili-constitution Step 8F. PreToolUse hook — Claude Code and Codex
+   # read the host-data table below for tool names and payload paths.
    input=$(cat)
+   tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
+   cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
    fp=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')
+   if [ "$tool" = "apply_patch" ] && [ -z "$fp" ]; then
+     # Codex's apply_patch names no file_path field directly, and it is a
+     # MULTI-FILE format: .tool_input.command can carry several
+     # "*** Update/Add/Delete File: <path>" headers in one call, each on its
+     # own line, possibly CRLF-terminated. Scan EVERY header — not just the
+     # first — and strip a trailing \r before matching, so a later header
+     # naming tasks.md is never hidden behind an earlier header naming
+     # something else, and a CRLF line ending never defeats the glob below.
+     if [ -z "$cmd" ]; then
+       echo "BLOCKED (AKILI guardrail): apply_patch payload carried neither .tool_input.file_path nor .tool_input.command; the gate cannot determine whether this write targets a tasks.md file, so it is denied fail-closed (Codex host-data table, /akili-constitution Step 8F)." >&2
+       exit 2
+     fi
+     headers=$(printf '%s' "$cmd" | sed -nE 's/^\*\*\* (Update|Add|Delete) File: (.*)$/\1 \2/p' | tr -d '\r')
+     if [ -z "$headers" ]; then
+       echo "BLOCKED (AKILI guardrail): apply_patch payload's command text carried no recognized \"*** Update File:\"/\"*** Add File:\"/\"*** Delete File:\" header; the gate cannot determine whether this write targets a tasks.md file, so it is denied fail-closed (Codex host-data table, /akili-constitution Step 8F)." >&2
+       exit 2
+     fi
+     is_delete=""
+     while IFS= read -r header_line; do
+       [ -z "$header_line" ] && continue
+       h_verb=${header_line%% *}
+       h_path=${header_line#* }
+       case "$h_path" in
+         */docs/specs/*/tasks.md|docs/specs/*/tasks.md)
+           fp="$h_path"
+           [ "$h_verb" = "Delete" ] && is_delete=1
+           ;;
+       esac
+     done <<HEADERS
+$headers
+HEADERS
+     if [ -n "$is_delete" ]; then
+       # Deleting a tasks.md file has no "new content" to extract at all —
+       # an unsupported verb for this gate. Deny rather than let a deletion
+       # (which trivially can't raise the [x] count) pass unexamined.
+       echo "BLOCKED (AKILI guardrail): apply_patch payload deletes $fp — unsupported verb for this gate (no new content to check), so the write is denied fail-closed (Codex host-data table, /akili-constitution Step 8F)." >&2
+       exit 2
+     fi
+     if [ -z "$fp" ]; then
+       # No header in this patch names a tasks.md path at all: genuinely out
+       # of scope, the same as any other non-tasks.md write.
+       exit 0
+     fi
+   fi
    case "$fp" in
      */docs/specs/*/tasks.md) ;;
      docs/specs/*/tasks.md) ;;
      *) exit 0 ;;
    esac
-   tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
-   if [ "$tool" = "Edit" ]; then
-     old=$(printf '%s' "$input" | jq -r '.tool_input.old_string // ""')
-     new=$(printf '%s' "$input" | jq -r '.tool_input.new_string // ""')
-   else
-     old=$(cat "$fp" 2>/dev/null || printf '')
-     new=$(printf '%s' "$input" | jq -r '.tool_input.content // ""')
-   fi
+   case "$tool" in
+     Edit)
+       old=$(printf '%s' "$input" | jq -r '.tool_input.old_string // ""')
+       new=$(printf '%s' "$input" | jq -r '.tool_input.new_string // ""')
+       ;;
+     Write)
+       old=$(cat "$fp" 2>/dev/null || printf '')
+       new=$(printf '%s' "$input" | jq -r '.tool_input.content // ""')
+       ;;
+     apply_patch)
+       # Codex host: .tool_input.command carries the whole patch as one string,
+       # not discrete old/new fields (host-data table below). A patch with no
+       # readable command text is denied fail-closed, never passed through
+       # (DD-6, §5.4 item 2 of the Codex install design) — this is the
+       # terminal branch a tasks.md write lands in when the gate cannot
+       # extract its new content at all.
+       if [ -z "$cmd" ]; then
+         echo "BLOCKED (AKILI guardrail): apply_patch payload for $fp carried no readable command text; the gate cannot extract the new content, so the write is denied fail-closed (Codex host-data table, /akili-constitution Step 8F)." >&2
+         exit 2
+       fi
+       old=""
+       # Every line starting with "+" is added content — apply_patch has no
+       # unified-diff "+++ b/file" header to exclude, so do NOT add a
+       # "not another +" guard here: a real added line "++ [x] ..." (a
+       # Markdown "+" bullet reading "+ [x] ...") would be silently dropped
+       # by such a guard, undercounting [x] and producing a false allow
+       # (attempt-2 defect this closes). Over-matching here only produces a
+       # false deny, the safe direction.
+       new=$(printf '%s' "$cmd" | grep -E '^\+' || printf '')
+       ;;
+     *)
+       # A matcher should only ever route Edit/Write/apply_patch here; an
+       # unrecognized tool name reaching a tasks.md path is denied rather
+       # than guessed at — another fail-closed terminal branch, never exit 0.
+       echo "BLOCKED (AKILI guardrail): unrecognized tool \"$tool\" writing to $fp; the gate cannot extract the new content, so the write is denied fail-closed (Codex host-data table, /akili-constitution Step 8F)." >&2
+       exit 2
+       ;;
+   esac
    count_x() { printf '%s' "$1" | grep -o '\[x\]' | wc -l | tr -d ' '; }
    [ "$(count_x "$new")" -le "$(count_x "$old")" ] && exit 0
    exec_md="$(dirname "$fp")/execution.md"
@@ -785,6 +933,51 @@ discipline?"* If declined, skip — the prose rules keep working as before.
    fi
    exit 0
    ```
+
+   **Every reachable terminal branch, and which one a `docs/specs/*/tasks.md` write lands in:**
+   four `exit 0` — no header in an `apply_patch` command names a tasks.md path at all; the resolved
+   path is outside `docs/specs/*/tasks.md` (non-`apply_patch` tools); the edit adds no new `[x]`;
+   `execution.md` already shows a `PASS` — and seven `exit 2`, all fail-closed: an `apply_patch`
+   call with **neither** `.tool_input.file_path` **nor** `.tool_input.command`; an `apply_patch`
+   command with no recognized `*** Update/Add/Delete File:` header at all; an `apply_patch` command
+   where **any** header matching a tasks.md path is a `*** Delete File:` (deletion is an unsupported
+   verb — there is no new content to check); an `apply_patch` call that resolved a tasks.md path
+   directly from `.tool_input.file_path` with an otherwise-empty `.tool_input.command`; a tool name
+   the host-data table below does not recognize; a missing `execution.md`; or an `execution.md`
+   with no `PASS`.
+
+   **`apply_patch` is multi-file, and its headers can be CRLF-terminated — the parser scans every
+   header, not just the first, and strips `\r` before matching (the attempt-1 defect this closes).**
+   A single call can carry several `*** Update/Add/Delete File:` lines; matching only the first
+   header let one naming `docs/specs/*/tasks.md` hide behind an earlier header naming something
+   else, and an unstripped trailing `\r` let a CRLF-terminated header defeat the exact-match glob —
+   both fell through to the path filter's `exit 0` default while genuinely writing a `[x]` with no
+   PASS evidence anywhere, the silent-pass failure DD-6 exists to close. The scan checks **every**
+   header before deciding: any header naming a tasks.md path routes to the evidence check (or the
+   Delete-verb deny above), and none of the three `apply_patch`-specific `exit 2` branches is ever
+   allowed to resolve to `exit 0`.
+
+   **Host-data table** (tool names and payload paths the script above reads):
+
+   | Host | Matcher / tool name | Path to the target file | Path to old/new content |
+   |---|---|---|---|
+   | Claude Code | `Edit`\|`Write` | `.tool_input.file_path` | Edit: `.tool_input.old_string` / `.tool_input.new_string`; Write: current file on disk / `.tool_input.content` |
+   | Codex | `apply_patch` (the hooks page: "file edits performed through `apply_patch`") | Not a direct field — parsed from **every** `*** Update/Add/Delete File: <path>` header line inside `.tool_input.command` (a single call can carry several; CRLF-terminated headers have their trailing `\r` stripped before matching) | `.tool_input.command` carries the entire patch as one string, not discrete old/new fields. **Unverified:** the exact patch format and whether the header-line parse above reliably finds every path, pending the Codex install spec's live payload capture |
+
+   **A known false deny, by design.** The `new` content extraction reads every `+`-prefixed line in
+   the *whole* multi-file `apply_patch` command, not just the hunk under the matched `tasks.md`
+   header — so a `[x]` added to an unrelated file in the same patch call can trip the evidence
+   check on a `tasks.md` write that itself added no checkbox. This is the safe direction (fail-closed
+   errs toward denying, never toward the silent-allow attempt-1/2 closed), so a maintainer seeing
+   this should record the PASS evidence rather than treat the denial as a script bug.
+
+   **Denial mechanism.** The hooks page documents two ways a hook may deny: exit code `2` with the
+   reason on stderr (what the script above already does, unchanged from the existing Claude Code
+   behavior), or a `permissionDecision: "deny"` object nested under `hookSpecificOutput` returned on
+   stdout (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/hooks>). Which one this
+   specific hook type actually needs on Codex is decided live: keep the stderr + exit 2 path as the
+   only mechanism for now, and add the stdout JSON form only if the Codex install spec's live check
+   shows Codex requires it for `PreToolUse` denial.
 
 2. Merge into the project's `.claude/settings.json` (**read it first; if it exists but is invalid
    JSON, stop and report — never overwrite a file you could not parse**):
@@ -808,6 +1001,31 @@ discipline?"* If declined, skip — the prose rules keep working as before.
    file is committed, so the guardrail binds every teammate's session in this repo, which is the
    point.
 
+3. **On Codex:** merge the equivalent entry into the project's `.codex/hooks.json` (**read it
+   first; if it exists but is invalid JSON, stop and name the file — never overwrite a file you
+   could not parse**), top-level `hooks` → `PreToolUse` → one entry with a matcher naming Codex's
+   file-write tool and a command hook invoking the same gate script:
+
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [
+         {
+           "matcher": "apply_patch",
+           "hooks": [
+             { "type": "command", "command": "bash .codex/hooks/akili-tasks-gate.sh" }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+   Same merge rules as `.claude/settings.json`: read first; abort on invalid JSON, naming the file;
+   append, never clobber a foreign entry; idempotent on re-run — detect the akili command string
+   before appending a second copy. Pin: <https://learn.chatgpt.com/docs/hooks> —
+   `Last verified: 2026-09-16`.
+
 **What the gate enforces and what it deliberately tolerates:** it blocks the `[x]`-without-evidence
 write for *everyone* in the checkout — agents mid-loop and humans alike; a human with a legitimate
 reason records the evidence or disables the hook, both of which are visible acts. The PASS check is
@@ -817,16 +1035,19 @@ that matters (a checkbox with no audit trail at all), and its ordering premise i
 wanting a sharper marker (per-task-ID matching) can harden the script; note the heuristic in the
 Step 9 summary either way.
 
-**Honesty across hosts:** hooks are Claude Code's mechanism. On OpenCode and Antigravity the same
-invariant remains prose (the commands' own rules) — record in the summary that the guardrail is
-*enforced* on Claude Code and *instructional* elsewhere, the same asymmetry Step 8E already
-documents for the Reviewer's `tools` restriction. On Windows the hook additionally depends on
-git-bash (`bash .claude/hooks/akili-tasks-gate.sh`) — normally already present because Claude Code
-on Windows requires Git for Windows, but name it if the project has Windows teammates.
+**Honesty across hosts:** the gate is **enforced** on Claude Code and Codex — both wire the script
+into a real `PreToolUse` hook. On OpenCode and Antigravity the same invariant remains
+**instructional** — prose only (the commands' own rules) — record in the summary which state
+applies, the same asymmetry Step 8E already documents for the Reviewer's write restriction. On
+Windows the hook additionally depends on git-bash (`bash .claude/hooks/akili-tasks-gate.sh`) —
+normally already present because Claude Code on Windows requires Git for Windows, but name it if
+the project has Windows teammates; Codex's own Windows git-bash dependency is unconfirmed and
+should be named as such if the project has Windows Codex users.
 
 **Mode policy:** Brand-new/Legacy — scaffold when accepted. Active AKILI-SPECS — never overwrite an
-existing `akili-tasks-gate.sh` (the project may have hardened it); create only if missing, and flag
-drift between an existing script and this template without touching it.
+existing `akili-tasks-gate.sh` or an existing `.codex/hooks.json` entry (the project may have
+hardened either); create only what is missing, and flag drift between an existing script and this
+template without touching it.
 
 ---
 
@@ -845,8 +1066,9 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
 - The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
-- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2)
-- The Step 8F guardrail hook: scaffolded (noting it is enforced on Claude Code and instructional on other hosts, and that the PASS check is the v1 heuristic), or declined
+- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. Also name the `.agents/` three-tenant table (personas / Antigravity wrappers / Codex skills, defined in Step 8E) so the user knows the layout is collision-free.
+- The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code and Codex, **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`).
+- **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it.
 - Any assumptions and open questions that still need validation
 
 Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
@@ -874,10 +1096,10 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
 - [ ] If Step 8E wrappers were generated, the **Reviewer** wrapper's state is named in the summary: either it carries the host's read-only restriction, or it was deliberately omitted (syntax unconfirmable, or a wrong tool name would hang the agent). Verify no *other* wrapper carries one — a restricted Leader, Implementer, or Tester is a broken role, not a stricter one. Both `author ≠ auditor` axes should hold: a Reviewer model different from the Implementer's (rule 1) **and** no write tools (rule 2).
-- [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written.
+- [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written. On a Codex project, the same holds for `.codex/hooks.json`: entry merged without clobbering, script located at `.codex/hooks/akili-tasks-gate.sh` or pointed at an existing `.claude/hooks/` copy, and the step stopped rather than wrote if the file was invalid JSON.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
-- [ ] That registry carries **every supported host column** (Claude Code, OpenCode, and Antigravity — all three are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
+- [ ] That registry carries **every supported host column** (Claude Code, OpenCode, Antigravity, and Codex — all four are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
 - [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.
 - [ ] A `## Skill Map` section exists in both root guides.
 - [ ] In Safe Update mode, no pre-existing user customization was overwritten in the baseline docs, `.agents/`, the registry, or the Skill Map.

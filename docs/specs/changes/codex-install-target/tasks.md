@@ -108,7 +108,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | T5 (registry column names the 8E defaults) |
 | Requirements | FR-5 (scenario + `BUT`/`AND IT MUST`), FR-6 (both scenarios + `AND IT MUST`/`BUT`), FR-7 (Step 8C clause), FR-8 tenant scenario (table lives here and in flow.md), FR-9 Step 9 byte-cap line, NFR-3, NFR-5 |

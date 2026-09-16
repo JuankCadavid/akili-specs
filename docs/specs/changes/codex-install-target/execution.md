@@ -175,7 +175,7 @@ Cause: every extra round was a single-issue precision FAIL (KZ-001 over-claimed 
 
 | Field | Value |
 |---|---|
-| Status | in progress (attempt 2 open) |
+| Status | **PASS** (attempt 3 of 3 — ceiling reached, not exceeded) |
 | Date | 2026-09-16 |
 | Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `cognitive-doc-design` (task default, kept) |
 | Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (diff 205+/33−, prose + scaffolded script) |
@@ -200,6 +200,20 @@ Reviewer verdict: **FAIL** (1 issue). Verified fixed: both attempt-1 bypasses (m
    - **Remediation:** Drop the `[^+]`: `grep -E '^\+'`. The guard exists to skip a unified-diff `+++ b/file` header, and `apply_patch` has no such header. Over-counting can only cause a false deny (safe direction). Proportionality: zero `tasks.md` lines in this repo begin with `+`; one token, not a redesign.
 
 Leader adjudication: in scope (FR-6 fail-closed is T3's requirement); rework attempt 3 of 3 opened at effort `xhigh`.
+
+**Attempt 3** — `.claude/commands/akili-constitution.md` (255+/33−, net). Fix: `grep -E '^\+[^+]'` → `grep -E '^\+'` in the `apply_patch` content extraction, with a seven-line comment stating why the `[^+]` guard must never return (no unified-diff `+++` header exists in `apply_patch`; over-matching only yields a false deny). One Step 8F paragraph "**A known false deny, by design.**" documents the cross-file `[x]` case. Implementer matrix 16 cases incl. `++ [x] T1` no PASS ⇒ 2 / with PASS ⇒ 0; Claude Code Edit/Write arms read `jq` fields (no line grep) — unaffected. Counts unchanged (`Last verified` 8, `Unverified:` 3, `sandbox_mode` 5), `^model:` empty, `bash -n`, `git diff --check` clean.
+
+Reviewer verdict: **PASS**. Re-extracted the block (fence 826–935), diffed against the attempt-2 copy (delta = the pattern + its comment), re-ran a 20-case matrix: `++ [x]` ⇒ 2 / with PASS ⇒ 0; attempt-1 bypasses stay closed (multi-file ⇒ 2, CRLF ⇒ 2, spaced path ⇒ 2); all seven fail-closed branches fire; Claude Code paths provably unaffected; false-deny paragraph accurate. Ten hunks, all inside 8C/8E/8F/9/checklist. PASS provisional on T7's live walkthrough (Codex tool name, raw payload shape, denial mechanism carried as `Unverified:`).
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-5 (scenario + BUT / AND IT MUST — text), FR-6 (both scenarios; fail-closed branch; corrupt-JSON abort), FR-7 Step 8C clause, FR-8 tenant scenario (table in 8E), FR-9 Step 9 byte-cap line (`project_doc_max_bytes`, default to confirm live), NFR-3, NFR-5 |
+| Decisions | Tenant table lives in Step 8E (FR-8 wording outranks design §7 row 14; Step 9 references it); `/model` sets effort, no `/reasoning`; denial = stderr + exit 2 now, `permissionDecision` JSON deferred to T7 (hooks page documents both); `Delete File` on `tasks.md` denied as unsupported verb; whole-patch `+`-line extraction accepted (false deny by design) |
+| Issues | Attempt 1: single-header parse + no `\r` strip (silent allow); attempt 2: `[^+]` guard dropped `+`-bullet lines (silent allow) — both closed. Implementer also found/fixed a GNU-only `sed \|` and an indeterminate-path fall-through before review |
+| Queued for T7 | Step 8E/8F executability walkthrough; `sandbox_mode` behavior; spawn phrasing; raw `PreToolUse` payload + host-data table values (`apply_patch` patch format); denial mechanism; `project_doc_max_bytes` default; tenant negative claim |
+| Queued for T6 | Mirror `docs/commands/akili-constitution.md` at parity (tenant table in 8E) |
+| Final verification | checks 1–5 green; Reviewer's own 20-case matrix green; `bash -n`; `^model:` empty; `git diff --check` |
+| Budget note | Consumed all 3 attempts (design §9 reserved one extra round for this task's T7 reopen; that reserve is now spent before T7) |
 
 ### T2 — Regression script + CI step (FR-4 gate, detection fixture)
 
