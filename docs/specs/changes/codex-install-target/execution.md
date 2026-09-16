@@ -92,3 +92,63 @@ ADVISORY (final verdict, recorded, no rework):
 | Final verification | checks 1–3 green; `git diff --check` clean |
 | Approval gate | `gated` — user asked at the wave-1 landing |
 
+### T1 — Installer: capability-flag registry, `codex` target, doctor, init, help
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-09-16 |
+| Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `systematic-debugging` (task default, kept); `tdd` not assigned (no unit harness) |
+| Reviewer | parallel lens mode (diff 224+/67− touches deletion/`--force` paths in a root shared with foreign tools — data-loss surface): Reviewer A `opus` (conformance + Readability/Reliability), Reviewer B `opus` (conformance + Risk/Resilience), both effort `high` |
+| Brief deviation | Diff handed to the Reviewers as a scratchpad file pointer (518 lines) rather than inline — these fallback Reviewers have `Read`, so the inline rule's rationale (a wrapper Reviewer cannot regenerate the diff) did not bind; both confirmed reading it whole |
+
+**Attempt 1** — file: `bin/akili.js` (224+/67−). Implementer verification (temp roots under scratchpad, `HOME` redirected for detection fixtures; marker check on real `~/.agents/skills`/`~/.codex` empty throughout): checks 1–11 all PASS — 35 `SKILL.md` (11 commands + 24 skills), 0 `commands` dirs, byte-identical to `.claude/` source; second run 42/42 `skip existing`, `--force` 42 overwritten, 0 `.tmp`; foreign `gsap-core` + `tdd` asserted present, skipped, not deleted, no STALE, exit 0; `--fix` restored `akili-execute`, no TypeError; detection fixture negative (5 foreign dirs) then positive (one `akili-execute/SKILL.md`); single-root `--target` sandboxed; `--dry-run` 0 files; `--commands-only` 11; `--skills-only` 24; `--tool all` 4 blocks + `--tool all` hint; `both` 2 blocks; `{claude, antigravity}` fixture ⇒ per-tool hints; `--target`+`all` rejected; codex binary vendor-ENOENT ⇒ NOT FOUND exit 0; `--tool claude` ⇒ no codex row; `grep -c 'tool === "antigravity"'` = 0; `^model:` empty; `node --check`, `npm run verify:cli`, `git diff --check` green.
+
+Implementer deviations (Not Done / Assumptions), adjudicated by both Reviewers as sound: (1) check 5 driven via `doctor` instead of `update` — `update` runs `npm install -g akili-specs@latest` live (pre-existing); `resolveTools` is the single detection entry point, reached by both. One real `akili update` ran once early (no-op, global already at 2.23.2, verified). (2) Two helpers `resolveToolTarget()` + `TOOL_ROOT_ARGS` replaced `values.tool === "antigravity"` comparisons to hit NFR-6's grep literally — behavior-preserving for the three shipping targets (both Reviewers traced it; T2 byte-diff is the gate). (3) Wizard verified by reading: piped-stdin `init` hangs on the original code too (pre-existing readline/non-TTY quirk, reproduced on stash) — 4=Codex, 5=Both, 6=All four, both Codex roots assigned in local/global branches.
+
+Reviewer B verdict: **PASS**. KZ-004 terminal-branch enumeration for every delete/overwrite path (7 branches; codex lands in a guarded or zero-iteration branch in each; `--force` is the one replacing path and FR-2 sanctions it). Detection never consults the raw skills dir; `--target` sandboxes; one-sided overrides sane; Windows paths via `path.join`/`resolve` + `.cmd` probe; env row cannot flip exit; atomic copy on both codex write paths. ADVISORY (B): W-9 line fires on the configured skills root under the single-root layout; `--force` blast radius in a shared root (suggest a warning line); `tool === "codex"` appears twice (W-9 could be registry data); `getToolRegistryInfo` now throws on unknown tool (unreachable past validation, failing loud preferred).
+
+Reviewer A verdict: **FAIL** (2 issues, both in the W-9 block). Verbatim:
+
+1. **Discovered Issue:** The W-9 informational line fires on the directory the run itself manages whenever the skills root sits under the Codex config home. Reproduced: `install --tool codex --target $T/single` then `doctor --tool codex --target $T/single` prints `INFO legacy manual copies present at $T/single/skills (not managed by akili-specs)` while the same run reports `HEALTHY ok 42 | missing 0`. `legacySkillsDir` is computed as `path.join(roots.root, "skills")` with no check that it differs from the resolved skills root.
+   - **Violated Rule:** `requirements.md` FR-3 "Legacy manual copies" (the standard root is what is checked; the line names the legacy copy as unmanaged — here the standard root *is* that directory, so the claim is false); `design.md` DD-2 makes `--target ~/.codex` a supported layout. `--codex-skills-target <codex-home>/skills` misfires the same way.
+   - **Remediation:** Print the line only when `legacySkillsDir` is not one of the resolved `skillDirs` (compare with `path.resolve` on both sides).
+2. **Discovered Issue:** `fs.readdirSync(legacySkillsDir)` is unguarded, so an unreadable or non-directory `<codex-home>/skills` aborts the whole doctor run. Reproduced with a plain file at that path: uncaught `ENOTDIR` stack trace, exit 1. Inside `--tool all` it kills the remaining tool blocks. `EACCES` does the same.
+   - **Violated Rule:** `requirements.md` FR-3 "Healthy install" (run exits 0); the diff's own `isToolInstalled` wraps the identical `readdirSync` in try/catch.
+   - **Remediation:** Wrap the `existsSync`/`readdirSync` pair in try/catch and treat a throw as "no legacy copies".
+
+ADVISORY (A): W-9 block gated on `tool === "codex"` (registry field would preserve data-not-branches); `toolTargetLabel(rootPath, roots, paths)` has a redundant parameter; W-9 line sits inside `shouldInclude("skills")` so `--commands-only` never surfaces legacy copies.
+
+Leader adjudication: both A issues are in-scope (W-9 is a T1 scope bullet; FR-3 is T1's requirement) — one rework attempt consumed. Advisories recorded; not folded into the rework.
+
+**Attempt 2** — `bin/akili.js` (239+/67−, net; delta vs attempt 1 confined to the W-9 block + comment). Fix: `legacySkillsDir` compared by `path.resolve` against the resolved `skillDirs` before probing (never fires on the managed root — single-root `--target` or `--codex-skills-target` under the codex home); the `existsSync`/`readdirSync` probe wrapped in try/catch (throw ⇒ "no legacy copies"), matching the `isToolInstalled` convention. Implementer verification (root cause reproduced first per `systematic-debugging`): (a) single-root and under-home split ⇒ no INFO line, `HEALTHY ok 42 | missing 0`, exit 0; (b) split layout with planted `<codex-home>/skills/akili-execute/SKILL.md` ⇒ INFO exactly once, exit 0, content unchanged; (c) plain file at `<codex-home>/skills` ⇒ exit 0, no stack trace, `--tool all` blocks still print; (d) T1 checks 3, 4, 9, 10, 11 re-run green. Marker check empty.
+
+Reviewer A verdict (retried once after a usage-limit runtime interruption — no work FAIL): **PASS**. Reproduced each fix on temp roots: issue 1 gone in both layouts, W-9 still fires on a genuine split-layout legacy dir (not dead code, FR-3 met); issue 2 gone (plain file ⇒ exit 0, summary renders). `skillDirs` is `doctorTool`'s function-level const from `paths.skills` (`[codexSkillsTarget]` for codex); optional catch binding is ES2019 (Node ≥ 10, package floor 18) and already used eight times in the file. Reviewer B's attempt-1 PASS stands (delta is inside the block B had flagged as advisory).
+
+ADVISORY (final, carried from attempt 1, recorded, no rework, never a task): W-9 gated on `tool === "codex"` (a `legacySkillsHint` registry field would preserve data-not-branches); `toolTargetLabel` redundant `rootPath` param; W-9 inside `shouldInclude("skills")` so `--commands-only` never surfaces legacy copies; `--force` in a shared root could carry a warning line; `getToolRegistryInfo` throws on unknown tool (unreachable, loud is preferred).
+
+Traceability: `// @akili-spec changes/codex-install-target` comment added by the Leader at the `TOOL_REGISTRY.codex` entry after the PASS (annotation only, no code change; `node --check` re-run).
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-1 (all four scenarios incl. every BUT / AND IT MUST), FR-2 (three scenarios + `--target` single-root), FR-3 (three scenarios + BUT), FR-4 code half (gate is T2), NFR-1, NFR-2 (byte-diff empty), NFR-3, NFR-6 |
+| Decisions | Detection fixture driven via `doctor` (same `resolveTools` path; `update` hits the live registry); `resolveToolTarget()` + `TOOL_ROOT_ARGS` helpers accepted as DD-1 applied to arg parsing (behavior-preserving, T2 byte-diff is the gate); wizard verified by reading (pre-existing non-TTY readline quirk) |
+| Issues | Attempt 1: W-9 false positive under single-root layout; unguarded `readdirSync` — both fixed |
+| Queued for T2 | Byte-identity of the three shipping targets' trees vs published 2.23.2; detection fixture automated |
+| Queued for T7 | Real `codex` binary env row (FR-3 healthy install); `/skills` shows 11 `akili-*` |
+| Constitution impact | No new module; CLI public surface grew (`--tool codex`, `--codex-target`, `--codex-skills-target`) — root guides updated by T6 per spec; **CodeGraph re-index pending** (`bin/akili.js` reshaped) for `/akili-archive` |
+| Final verification | checks 1–11 (attempt 1) + a–d and re-run 3/4/9/10/11 (attempt 2) green; `node --check`, `npm run verify:cli`, `git diff --check` green |
+| Approval gate | `gated` — user asked at the wave-1 landing |
+
+## Budget Tripwire — wave 1 (T1, T4, T5)
+
+| Metric | Budget (design §9) | Actual wave 1 | Delta |
+|---|---|---|---|
+| Review rounds | 1 per task + 1 reserved for the installer = 4 for these three | 6 (2 each) | **+2** |
+| Lines — installer | ~150 | 239+/67− (306 changed) | **~2×** |
+| Lines — model-routing | ~30 | 75+/9− | **~2.8×** |
+| Lines — execute/test/flow | ~35 (T4 share) | 16+/4− | under |
+| Lines — cumulative | ~560 total | ~410 changed with T2, T3, T6, T7 still open | on track to exceed |
+
+Cause: every extra round was a single-issue precision FAIL (KZ-001 over-claimed pin; TOML colon syntax; W-9 guard) fixed in one retry — no task approached the 3-attempt ceiling. Installer LOC overrun = the DD-1 helper extraction to zero the NFR-6 grep literally + explanatory comments + W-9 guards; model-routing overrun = the "Why these models" paragraph and effort-mapping table the scope asked for. Escalated to the user at the wave-1 gate (gated mode pauses there anyway).
+

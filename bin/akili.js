@@ -113,35 +113,51 @@ const defaultPaths = {
   claude: path.join(os.homedir(), ".claude"),
   opencode: path.join(os.homedir(), ".config", "opencode"),
   antigravity: path.join(os.homedir(), ".gemini"),
+  codex: path.join(os.homedir(), ".codex"),
+  codexSkills: path.join(os.homedir(), ".agents", "skills"),
 };
 
-// Tool Registry defining target directories mapping per tool
+// Tool Registry defining target directories mapping per tool. Each entry is a
+// function of a `roots` object ({ root } for the three tools whose skills and
+// resources live under one directory; { root, skillsRoot } for Codex, whose
+// Agent Skills root is shared with other tools and lives outside its config
+// home) so no entry has to know how CLI flags map to paths.
 const TOOL_REGISTRY = {
-  claude: (rootPath) => ({
-    commands: [path.join(rootPath, "commands")],
-    skills: [path.join(rootPath, "skills")],
-    resources: path.join(rootPath, "akili"),
-    legacyResources: path.join(rootPath, "sdd-jc"),
+  claude: (roots) => ({
+    commands: [path.join(roots.root, "commands")],
+    skills: [path.join(roots.root, "skills")],
+    resources: path.join(roots.root, "akili"),
+    legacyResources: path.join(roots.root, "sdd-jc"),
   }),
-  opencode: (rootPath) => ({
-    commands: [path.join(rootPath, "commands")],
-    skills: [path.join(rootPath, "skills")],
-    resources: path.join(rootPath, "akili"),
-    legacyResources: path.join(rootPath, "sdd-jc"),
+  opencode: (roots) => ({
+    commands: [path.join(roots.root, "commands")],
+    skills: [path.join(roots.root, "skills")],
+    resources: path.join(roots.root, "akili"),
+    legacyResources: path.join(roots.root, "sdd-jc"),
   }),
-  antigravity: (rootPath) => ({
+  antigravity: (roots) => ({
     commands: [
-      path.join(rootPath, "antigravity", "global_workflows"),
-      path.join(rootPath, "antigravity-cli", "global_workflows"),
-      path.join(rootPath, "antigravity-cli", "workflows"),
+      path.join(roots.root, "antigravity", "global_workflows"),
+      path.join(roots.root, "antigravity-cli", "global_workflows"),
+      path.join(roots.root, "antigravity-cli", "workflows"),
     ],
     skills: [
-      path.join(rootPath, "config", "skills"),
-      path.join(rootPath, "skills"),
-      path.join(rootPath, "antigravity-cli", "skills"),
+      path.join(roots.root, "config", "skills"),
+      path.join(roots.root, "skills"),
+      path.join(roots.root, "antigravity-cli", "skills"),
     ],
-    resources: path.join(rootPath, "config", "akili"),
-    legacyResources: path.join(rootPath, "config", "sdd-jc"),
+    resources: path.join(roots.root, "config", "akili"),
+    legacyResources: path.join(roots.root, "config", "sdd-jc"),
+    commandsAsSkills: true,
+  }),
+  // @akili-spec changes/codex-install-target — Codex: commands install as skills into a shared Agent Skills root
+  codex: (roots) => ({
+    commands: [],
+    skills: [roots.skillsRoot],
+    resources: path.join(roots.root, "akili"),
+    legacyResources: null,
+    commandsAsSkills: true,
+    sharedSkillsRoot: true,
   }),
 };
 
@@ -161,13 +177,18 @@ Commands:
   help      Show this help
 
 Options:
-  --tool <name>        Install target: claude, opencode, antigravity, both, or all.
+  --tool <name>        Install target: claude, opencode, antigravity, codex, both, or all.
+                       "both" = Claude Code + OpenCode. "all" = all four targets.
                        When omitted, install/update/doctor auto-detect already-installed
                        targets; if none are found they default to claude.
-  --target <path>      Target config directory for selected single tool
+  --target <path>      Target config directory for selected single tool.
+                       For --tool codex this selects a single-root sandbox layout:
+                       <path>/akili (resources) and <path>/skills (skills).
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
   --antigravity-target Antigravity config directory. Default: ~/.gemini
+  --codex-target       Codex config home (resources land at <path>/akili). Default: ~/.codex
+  --codex-skills-target Codex Agent Skills root (shared with other tools). Default: ~/.agents/skills
   --force              Overwrite existing files
   --dry-run            Show what would happen without writing files
   --commands-only      Install or check only commands
@@ -180,10 +201,13 @@ Examples:
   akili install
   akili install --local
   akili install --tool opencode
+  akili install --tool codex
   akili install --tool both --dry-run
   akili install --tool claude --target ./.claude
+  akili install --tool codex --codex-target ~/.codex --codex-skills-target ~/.agents/skills
   akili update --tool both --force
   akili doctor --tool all --fix
+  akili doctor --tool codex
   akili list
   akili notifications enable
 `);
@@ -203,6 +227,17 @@ function resolveUserPath(input) {
   return path.resolve(input.replace(/^~(?=$|\/|\\)/, os.homedir()));
 }
 
+// Shared --target / --<tool>-target / default resolution for a single tool: a
+// single-tool --target wins outright, then an explicitly-passed --<tool>-target
+// override, then the computed default (global or --local base). Parameterized
+// by tool name so this is data flowing through one function, not a per-tool
+// `values.tool === "<name>"` branch repeated for each target (DD-1 applied to
+// arg parsing, not just the registry).
+function resolveToolTarget(toolName, values, targetFlagKey, defaultPath, basePath) {
+  if (values.target && values.tool === toolName) return values.target;
+  return values[targetFlagKey] !== defaultPath ? values[targetFlagKey] : basePath;
+}
+
 function getArgs() {
   const options = {
     tool: { type: "string", default: "claude" },
@@ -210,6 +245,8 @@ function getArgs() {
     "claude-target": { type: "string", default: defaultPaths.claude },
     "opencode-target": { type: "string", default: defaultPaths.opencode },
     "antigravity-target": { type: "string", default: defaultPaths.antigravity },
+    "codex-target": { type: "string", default: defaultPaths.codex },
+    "codex-skills-target": { type: "string", default: defaultPaths.codexSkills },
     force: { type: "boolean", default: false },
     "dry-run": { type: "boolean", default: false },
     "commands-only": { type: "boolean", default: false },
@@ -234,8 +271,8 @@ function getArgs() {
       fail("Use only one of --commands-only or --skills-only");
     }
 
-    if (!["claude", "opencode", "antigravity", "both", "all"].includes(values.tool)) {
-      fail("--tool must be one of: claude, opencode, antigravity, both, all");
+    if (!["claude", "opencode", "antigravity", "codex", "both", "all"].includes(values.tool)) {
+      fail("--tool must be one of: claude, opencode, antigravity, codex, both, all");
     }
 
     if (values.target && (values.tool === "both" || values.tool === "all")) {
@@ -246,6 +283,8 @@ function getArgs() {
     const baseClaude = values.local ? path.join(process.cwd(), ".claude") : defaultPaths.claude;
     const baseOpencode = values.local ? path.join(process.cwd(), ".config", "opencode") : defaultPaths.opencode;
     const baseAntigravity = values.local ? path.join(process.cwd(), ".gemini") : defaultPaths.antigravity;
+    const baseCodex = values.local ? path.join(process.cwd(), ".codex") : defaultPaths.codex;
+    const baseCodexSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.codexSkills;
 
     // Whether the user explicitly passed --tool. When they did not, install/
     // update/doctor auto-detect already-installed targets instead of assuming
@@ -266,9 +305,18 @@ function getArgs() {
       skillsOnly: values["skills-only"],
       fix: values.fix,
       local: values.local,
-      claudeTarget: resolveUserPath(values.target && values.tool === "claude" ? values.target : (values["claude-target"] !== defaultPaths.claude ? values["claude-target"] : baseClaude)),
-      opencodeTarget: resolveUserPath(values.target && values.tool === "opencode" ? values.target : (values["opencode-target"] !== defaultPaths.opencode ? values["opencode-target"] : baseOpencode)),
-      antigravityTarget: resolveUserPath(values.target && values.tool === "antigravity" ? values.target : (values["antigravity-target"] !== defaultPaths.antigravity ? values["antigravity-target"] : baseAntigravity)),
+      claudeTarget: resolveUserPath(resolveToolTarget("claude", values, "claude-target", defaultPaths.claude, baseClaude)),
+      opencodeTarget: resolveUserPath(resolveToolTarget("opencode", values, "opencode-target", defaultPaths.opencode, baseOpencode)),
+      antigravityTarget: resolveUserPath(resolveToolTarget("antigravity", values, "antigravity-target", defaultPaths.antigravity, baseAntigravity)),
+      codexTarget: resolveUserPath(resolveToolTarget("codex", values, "codex-target", defaultPaths.codex, baseCodex)),
+      // --target with --tool codex selects a single-root sandbox layout: resources
+      // at <path>/akili (via codexTarget above) and skills at <path>/skills here —
+      // see DD-2. Without --target, the two roots resolve independently.
+      codexSkillsTarget: resolveUserPath(
+        values.target && values.tool === "codex"
+          ? path.join(values.target, "skills")
+          : (values["codex-skills-target"] !== defaultPaths.codexSkills ? values["codex-skills-target"] : baseCodexSkills)
+      ),
     };
 
     return args;
@@ -305,17 +353,37 @@ function listSkills() {
 
 function selectedTools(args) {
   if (args.tool === "both") return ["claude", "opencode"];
-  if (args.tool === "all") return ["claude", "opencode", "antigravity"];
+  if (args.tool === "all") return ["claude", "opencode", "antigravity", "codex"];
   return [args.tool];
 }
 
-const ALL_TOOLS = ["claude", "opencode", "antigravity"];
+const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex"];
 
 // A tool counts as installed when any of its target directories exists and is
 // non-empty. Checking commands / skills / resources covers --commands-only and
 // --skills-only installs too, not just full ones.
+//
+// Codex's skills root (`sharedSkillsRoot`) is the exception: it is shared with
+// other tools (e.g. a local Codex install populates `~/.agents/skills` with
+// foreign skills too), so a non-empty skills dir is not evidence Codex is
+// installed. Detection instead keys on the resources root (AKILI-owned) or on
+// the presence of a command skill file, never the raw skills directory.
 function isToolInstalled(tool, args) {
   const { paths } = getToolRegistryInfo(tool, args);
+  if (paths.sharedSkillsRoot) {
+    let resourcesNonEmpty = false;
+    try {
+      resourcesNonEmpty = fs.existsSync(paths.resources) && fs.readdirSync(paths.resources).length > 0;
+    } catch {
+      resourcesNonEmpty = false;
+    }
+    if (resourcesNonEmpty) return true;
+    const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+    return listCommands().some((cmdFile) => {
+      const cmdName = cmdFile.replace(/\.md$/, "");
+      return skillDirs.some((dir) => fs.existsSync(path.join(dir, cmdName, "SKILL.md")));
+    });
+  }
   const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
   const dirs = [...paths.commands, ...skillDirs, paths.resources];
   return dirs.some((dir) => {
@@ -353,12 +421,24 @@ function resolveTools(args) {
   return args.resolvedTools;
 }
 
-// Map a resolved tool list back to a --tool flag value for verify hints.
+// Map a resolved tool list back to a --tool flag value for verify hints. Returns
+// null when the set is neither the full four-tool "all" set nor the Claude+
+// OpenCode "both" pair — e.g. an auto-detected {claude, antigravity} pair must
+// not be told to check codex, so callers fall back to one hint per tool (W-13).
 function toolFlagFor(tools) {
   if (tools.length === 1) return tools[0];
   const set = new Set(tools);
   if (set.size === 2 && set.has("claude") && set.has("opencode")) return "both";
-  return "all";
+  if (set.size === ALL_TOOLS.length && ALL_TOOLS.every((t) => set.has(t))) return "all";
+  return null;
+}
+
+// One or more `akili doctor --tool <x>` command strings that together verify
+// exactly `tools`. A single string when `--tool all`/`--tool both` covers the
+// whole set, otherwise one string per tool in resolved order.
+function verifyHints(tools) {
+  const flag = toolFlagFor(tools);
+  return flag ? [flag] : tools;
 }
 
 function shouldInclude(type, args) {
@@ -462,14 +542,25 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
   return { installed, overwritten, skipped };
 }
 
+// Which parsed `args` fields feed each tool's `roots` object — data, not a
+// per-tool branch chain (DD-1 applied to arg → root mapping as well as the
+// registry itself).
+const TOOL_ROOT_ARGS = {
+  claude: (args) => ({ root: args.claudeTarget }),
+  opencode: (args) => ({ root: args.opencodeTarget }),
+  antigravity: (args) => ({ root: args.antigravityTarget }),
+  codex: (args) => ({ root: args.codexTarget, skillsRoot: args.codexSkillsTarget }),
+};
+
 function getToolRegistryInfo(tool, args) {
-  const rootPath =
-    tool === "claude"
-      ? args.claudeTarget
-      : tool === "opencode"
-      ? args.opencodeTarget
-      : args.antigravityTarget;
-  return { rootPath, paths: TOOL_REGISTRY[tool](rootPath) };
+  const roots = TOOL_ROOT_ARGS[tool](args);
+  return { rootPath: roots.root, roots, paths: TOOL_REGISTRY[tool](roots) };
+}
+
+// Header string for a tool's install/doctor block. Codex has two roots (config
+// home + shared skills root); every other tool has one (W-1).
+function toolTargetLabel(rootPath, roots, paths) {
+  return paths.sharedSkillsRoot ? `${rootPath} (skills → ${roots.skillsRoot})` : rootPath;
 }
 
 function cleanupLegacyFiles(tool, args) {
@@ -496,7 +587,11 @@ function cleanupLegacyFiles(tool, args) {
     }
   }
 
-  if (shouldInclude("skills", args)) {
+  // Legacy-skill cleanup never runs against a shared skills root (DD-11, CS-2):
+  // AKILI never owned that directory pre-Codex, so it has no legacy skills of
+  // its own to remove, and a foreign tool's directory there must never be
+  // touched by this loop.
+  if (shouldInclude("skills", args) && !paths.sharedSkillsRoot) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
       for (const skillName of LEGACY_SKILLS) {
@@ -530,13 +625,13 @@ function cleanupLegacyFiles(tool, args) {
 }
 
 function installTool(tool, args) {
-  const { rootPath, paths } = getToolRegistryInfo(tool, args);
+  const { rootPath, roots, paths } = getToolRegistryInfo(tool, args);
 
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
 
-  console.log(`\n${colors.cyan}${tool.toUpperCase()} target: ${rootPath}${colors.reset}`);
+  console.log(`\n${colors.cyan}${tool.toUpperCase()} target: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
 
   const cleaned = cleanupLegacyFiles(tool, args);
   if (cleaned > 0 && !args.dryRun) {
@@ -553,7 +648,7 @@ function installTool(tool, args) {
     for (const targetCommands of paths.commands) {
       add(copyDirectoryContents(SOURCE_COMMANDS, targetCommands, args));
     }
-    if (tool === "antigravity") {
+    if (paths.commandsAsSkills) {
       const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
       for (const cmdFile of listCommands()) {
         const cmdName = cmdFile.replace(/\.md$/, "");
@@ -792,7 +887,12 @@ function runUpdate(args) {
   }
   const updatedTools = args.resolvedTools || selectedTools(args);
   console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""} (see Install Summary above)`);
-  console.log(`  Verify: ${colors.cyan}akili doctor --tool ${toolFlagFor(updatedTools)}${colors.reset}`);
+  const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${h}`);
+  if (updateHints.length === 1) {
+    console.log(`  Verify: ${colors.cyan}${updateHints[0]}${colors.reset}`);
+  } else {
+    console.log(`  Verify: ${updateHints.map((h) => colors.cyan + h + colors.reset).join(" ; ")}`);
+  }
 }
 
 function summaryCounts(result) {
@@ -842,10 +942,21 @@ function runInstall(args) {
   if (tools.includes("opencode") && !args.dryRun) {
     console.log(`  - Restart ${colors.cyan}OpenCode${colors.reset} for installed commands and skills to be loaded.`);
   }
+  if (tools.includes("codex") && !args.dryRun) {
+    console.log(`  - Restart ${colors.cyan}Codex${colors.reset} or open a new chat for installed commands and skills to be loaded.`);
+  }
   if (args.dryRun) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
-    console.log(`  - Verify the installation with ${colors.cyan}akili doctor --tool ${toolFlagFor(tools)}${colors.reset}.`);
+    const installHints = verifyHints(tools).map((h) => `akili doctor --tool ${h}`);
+    if (installHints.length === 1) {
+      console.log(`  - Verify the installation with ${colors.cyan}${installHints[0]}${colors.reset}.`);
+    } else {
+      console.log(`  - Verify the installation with:`);
+      for (const h of installHints) {
+        console.log(`      ${colors.cyan}${h}${colors.reset}`);
+      }
+    }
     console.log(`  - Optional: ${colors.cyan}akili notifications enable${colors.reset} to hear about new versions at Claude Code session start.`);
   }
 }
@@ -893,13 +1004,13 @@ function hasInstalledSkill(skillDirsList, skill) {
 }
 
 function doctorTool(tool, args) {
-  const { rootPath, paths } = getToolRegistryInfo(tool, args);
+  const { rootPath, roots, paths } = getToolRegistryInfo(tool, args);
   const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
   let okCount = 0;
   let missing = 0;
   let fixed = 0;
 
-  console.log(`\n${colors.cyan}Checking ${tool.toUpperCase()}: ${rootPath}${colors.reset}`);
+  console.log(`\n${colors.cyan}Checking ${tool.toUpperCase()}: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
 
   if (shouldInclude("commands", args)) {
     console.log(`\n${colors.yellow}Commands:${colors.reset}`);
@@ -910,9 +1021,14 @@ function doctorTool(tool, args) {
         console.log(`  ${colors.green}OK${colors.reset} ${command}`);
       } else {
         if (args.fix) {
-          const targetPath = path.join(paths.commands[0], command);
-          copySingleFile(path.join(SOURCE_COMMANDS, command), targetPath, { force: true, dryRun: false });
-          if (tool === "antigravity") {
+          // No paths.commands[0] access when the tool has no raw commands dir
+          // (Codex: `commands: []`) — that indexed access on an empty array is
+          // undefined, and path.join(undefined, ...) throws (CS-1).
+          if (paths.commands.length > 0) {
+            const targetPath = path.join(paths.commands[0], command);
+            copySingleFile(path.join(SOURCE_COMMANDS, command), targetPath, { force: true, dryRun: false });
+          }
+          if (paths.commandsAsSkills) {
             const cmdName = command.replace(/\.md$/, "");
             for (const targetSkills of skillDirs) {
               copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(targetSkills, cmdName, "SKILL.md"), { force: true, dryRun: false });
@@ -948,19 +1064,57 @@ function doctorTool(tool, args) {
         }
       }
     }
-    for (const skillName of LEGACY_SKILLS) {
-      for (const targetSkills of skillDirs) {
-        const skillDir = path.join(targetSkills, skillName);
-        if (fs.existsSync(skillDir)) {
-          if (args.fix) {
-            fs.rmSync(skillDir, { recursive: true, force: true });
-            console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
-            fixed += 1;
-          } else {
-            console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
-            missing += 1;
+    // STALE scan never runs against a shared skills root (DD-11, CS-2): the
+    // directory holds foreign tools' skills too, and AKILI never wrote a
+    // legacy gsap-* copy there to begin with, so there is nothing of ours to
+    // find or remove — a `LEGACY_SKILLS` name match on a foreign dir (e.g. a
+    // real `gsap-core` skill some other tool ships) would be a false STALE.
+    if (!paths.sharedSkillsRoot) {
+      for (const skillName of LEGACY_SKILLS) {
+        for (const targetSkills of skillDirs) {
+          const skillDir = path.join(targetSkills, skillName);
+          if (fs.existsSync(skillDir)) {
+            if (args.fix) {
+              fs.rmSync(skillDir, { recursive: true, force: true });
+              console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
+              fixed += 1;
+            } else {
+              console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
+              missing += 1;
+            }
           }
         }
+      }
+    }
+
+    // FR-3 "Legacy manual copies": a pre-Codex-target manual copy at the old
+    // `~/.codex/skills/akili-*` location is neither required nor deleted — the
+    // shared `~/.agents/skills` root is what is checked. Informational only
+    // (W-9): never counted toward missing/fixed, never touched by --fix.
+    // Two guards: (1) `<codex-home>/skills` can legitimately BE the resolved
+    // skills root (single-root `--target`, or `--codex-skills-target` pointed
+    // under the codex home) — compare resolved paths so the line never fires
+    // on the directory this very run just verified as OK. (2) the probe must
+    // never throw (a non-directory or unreadable path there is treated as "no
+    // legacy copies"), matching the try/catch convention `isToolInstalled`
+    // already uses for the same kind of existsSync/readdirSync pair.
+    if (tool === "codex") {
+      const legacySkillsDir = path.join(roots.root, "skills");
+      const isManagedSkillsDir = skillDirs.some((dir) => path.resolve(dir) === path.resolve(legacySkillsDir));
+      let hasLegacyCopies = false;
+      if (!isManagedSkillsDir) {
+        try {
+          hasLegacyCopies =
+            fs.existsSync(legacySkillsDir) &&
+            fs.readdirSync(legacySkillsDir).some((name) => name.startsWith("akili-"));
+        } catch {
+          hasLegacyCopies = false;
+        }
+      }
+      if (hasLegacyCopies) {
+        console.log(
+          `  ${colors.yellow}INFO${colors.reset} legacy manual copies present at ${legacySkillsDir} (not managed by akili-specs)`
+        );
       }
     }
   }
@@ -1021,10 +1175,23 @@ const RECOMMENDED_ENV = [
     installHint: "npm install -g @playwright/cli",
     postInstall: "then run playwright-cli install --skills FROM YOUR HOME DIRECTORY (it writes to ./.claude/skills of the cwd)",
   },
+  {
+    name: "codex",
+    bin: "codex",
+    args: ["--version"],
+    appliesTo: ["codex"],
+    why: "the OpenAI Codex CLI itself — required to load and run the Codex-hosted skills this installer writes",
+    withoutIt: "Codex-hosted commands/skills cannot be loaded; if the binary is present but still reports NOT FOUND, it may be a broken vendor install (spawn ENOENT) — reinstalling usually fixes it, and on Windows only a codex.cmd shim is probed, not a standalone codex.exe",
+    installHint: "npm install -g @openai/codex",
+  },
 ];
 
-function checkEnvironment() {
-  return RECOMMENDED_ENV.map((dep) => {
+// `tools` restricts which rows print: a row with `appliesTo` only applies when
+// at least one resolved tool matches (DD-4) — e.g. Claude-only users are never
+// nagged about a missing `codex` binary. Rows without `appliesTo` (codegraph,
+// playwright-cli) always print, as before.
+function checkEnvironment(tools) {
+  return RECOMMENDED_ENV.filter((dep) => !dep.appliesTo || dep.appliesTo.some((t) => tools.includes(t))).map((dep) => {
     try {
       const version = execCliSync(dep.bin, dep.args, { stdio: ["ignore", "pipe", "ignore"], timeout: 5000 })
         .toString()
@@ -1055,7 +1222,7 @@ function runDoctor(args) {
 
   // Environment section — recommended tooling, reported once per run (not per
   // tool) and never counted toward missing/exit code.
-  const envResults = checkEnvironment();
+  const envResults = checkEnvironment(tools);
   console.log(`\n${colors.yellow}Environment (recommended, not required):${colors.reset}`);
   for (const dep of envResults) {
     if (dep.ok) {
@@ -1302,16 +1469,18 @@ async function runInteractiveInit() {
     `  1) Claude Code\n` +
     `  2) OpenCode\n` +
     `  3) Google Antigravity\n` +
-    `  4) Both (Claude Code + OpenCode)\n` +
-    `  5) All three\n` +
+    `  4) OpenAI Codex\n` +
+    `  5) Both (Claude Code + OpenCode)\n` +
+    `  6) All four\n` +
     `${colors.cyan}>${colors.reset} `
   );
 
   let tool = "claude";
   if (toolAnswer.trim() === "2") tool = "opencode";
   else if (toolAnswer.trim() === "3") tool = "antigravity";
-  else if (toolAnswer.trim() === "4") tool = "both";
-  else if (toolAnswer.trim() === "5") tool = "all";
+  else if (toolAnswer.trim() === "4") tool = "codex";
+  else if (toolAnswer.trim() === "5") tool = "both";
+  else if (toolAnswer.trim() === "6") tool = "all";
 
   console.log("");
   const scopeAnswer = await rl.question(
@@ -1341,11 +1510,15 @@ async function runInteractiveInit() {
     args.claudeTarget = path.join(cwd, ".claude");
     args.opencodeTarget = path.join(cwd, ".config", "opencode");
     args.antigravityTarget = path.join(cwd, ".gemini");
+    args.codexTarget = path.join(cwd, ".codex");
+    args.codexSkillsTarget = path.join(cwd, ".agents", "skills");
     console.log(`\n${colors.yellow}Setting up local project installation...${colors.reset}`);
   } else {
     args.claudeTarget = defaultPaths.claude;
     args.opencodeTarget = defaultPaths.opencode;
     args.antigravityTarget = defaultPaths.antigravity;
+    args.codexTarget = defaultPaths.codex;
+    args.codexSkillsTarget = defaultPaths.codexSkills;
     console.log(`\n${colors.yellow}Setting up global installation...${colors.reset}`);
   }
 

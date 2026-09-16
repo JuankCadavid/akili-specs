@@ -38,7 +38,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | none |
 | Requirements | FR-1 (all four scenarios, every `BUT`/`AND IT MUST`), FR-2 (all three scenarios + clauses), FR-3 (all three scenarios + `BUT`), FR-4 (code half — the gate is T2), NFR-1, NFR-3, NFR-6 |
