@@ -219,7 +219,7 @@ Reviewer verdict: **PASS**. Re-extracted the block (fence 826–935), diffed aga
 
 | Field | Value |
 |---|---|
-| Status | **Reviewer PASS (attempt 1, post-pivot) — task held at `[~]`: Done clause "CI evidence on all six matrix legs" open until pushed** |
+| Status | **PASS** (attempt 2 of 3 — attempt 1 Reviewer PASS was reopened by CI evidence; CI matrix green on run 2) |
 | Date | 2026-09-16 |
 | Implementer | `sonnet`, effort `high`; skills: `systematic-debugging` (task default, kept) |
 | Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (491-line new script; writes temp dirs only — no data-loss surface) |
@@ -265,4 +265,17 @@ Diagnosis (Leader): the side-A invocation relies on `npx` resolving the `akili` 
 **T2 attempt 2** (reopened by CI evidence) — `scripts/ci/install-layout-regression.js` (130+/76−). Root cause confirmed by the Implementer on a masked PATH: `npx --yes akili-specs@2.23.2 …` resolves the command by package/bin name; the package's only bin is `akili`, so on a cold runner it exits 127 `sh: akili: not found`; local passes had been reading the global install (the T2 disqualifier). Fix: side A = `npm install --prefix <tmp-pkg> --no-save --no-audit --no-fund akili-specs@2.23.2` once, version read from `<tmp-pkg>/node_modules/akili-specs/package.json`, then `node <tmp-pkg>/node_modules/akili-specs/bin/akili.js install --tool <t> --target <tmp-a>`; `npm.cmd` + `shell` on win32. Implementer evidence: (a) global bin masked + `npm_config_prefix` isolated ⇒ `2.23.2` from the temp package.json, three `LAYOUT-IDENTICAL`, `FIXTURE OK`, exit 0; (b) normal PATH same; (c) `npm_config_registry=http://127.0.0.1:9` now genuinely reproduces ⇒ `SKIP: registry unreachable (ECONNREFUSED)`, exit 0; (d) `@0.0.0-nonexistent` ⇒ `FAIL: npm install --prefix exited 1` (ETARGET), exit 1; (e) `node --check`, `git diff --check` clean. `docs/cli.md` "via `npx --yes`" wording routed to T6 (owner of that file in flight).
 
 Reviewer verdict (attempt 2): **PASS**. Reproduced both the CI failure (old form under a masked PATH ⇒ 127) and the fix on the same bench; version and bin path now come only from the temp prefix (global/linked installs cannot satisfy side A — stronger than the attempt-1 banner parse); SKIP transport-only (ETARGET/404/EACCES/ERESOLVE/EEXIST ⇒ FAIL); `--prefix` layout correct on POSIX and Windows for non-global installs; temp prefix removed in `finally`, `--no-save` leaves the repo untouched; `classifyToolDiff`/`resolveSource` byte-unchanged so attempt-1 falsifiers stand. Open: six green matrix legs (only live proof for Windows/cold runner) and the `docs/cli.md` wording (T6). Pushing for CI run 2.
+
+**T2 CI evidence — run 35155777597 on `76d6292`: all six legs SUCCESS** (ubuntu/macos/windows × Node 18/22), every step green. Regression step output per leg (log: scratchpad `t2-ci-run2-evidence.log`):
+
+| Leg | Side A version | claude | opencode | antigravity | Fixture |
+|---|---|---|---|---|---|
+| ubuntu / Node 22 | 2.23.2 | LAYOUT-IDENTICAL (3) | LAYOUT-IDENTICAL (3) | LAYOUT-IDENTICAL (18) | OK |
+| macos / Node 18 | 2.23.2 | LAYOUT-IDENTICAL (3) | LAYOUT-IDENTICAL (3) | LAYOUT-IDENTICAL (18) | OK |
+| windows / Node 18 | 2.23.2 | LAYOUT-IDENTICAL (202) | LAYOUT-IDENTICAL (202) | LAYOUT-IDENTICAL (625) | OK |
+| windows / Node 22 | 2.23.2 | LAYOUT-IDENTICAL (202) | LAYOUT-IDENTICAL (202) | LAYOUT-IDENTICAL (625) | OK |
+
+No `SKIP` on any leg (the disqualifier "SKIP on every leg" does not apply); the gate ran against the published package on every leg. **Windows observation (recorded, not a defect):** the expected-diff counts on Windows cover nearly every file because the runner's CRLF checkout makes side B (installed from the working tree) differ from the LF tarball while still equalling its working-tree source. The mapping leg (each B file must equal the source the registry mapping names) keeps its discriminating power on Windows; only the A-vs-B content comparison is blind there, and the four POSIX legs cover it. Layout identity — the leg that carries the gate (Reviewer advisory) — is proven on all six. A future line-ending normalisation before hashing would sharpen the Windows content leg; not minted as a task (advisory dies here).
+
+T2 Done clause satisfied: script + CI step merged; local runs (attempt 1 quiet-tree, final-tree) and CI evidence (run 1 failure diagnosed, run 2 green) recorded here; `docs/cli.md` paragraph present (its side-A wording is being corrected by T6, which owns that file). Requirements covered: FR-4 (amended, all clauses incl. Windows AND IT MUST, BUT SKIP), FR-1 auto-detection BUT (fixture automated on six legs), NFR-4 (matrix green with Codex in `--tool all` and doctor never failing on the absent binary — every leg).
 

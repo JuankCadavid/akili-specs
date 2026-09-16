@@ -83,7 +83,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-4 scenario (all clauses incl. `BUT` SKIP), FR-1 auto-detection `BUT` (fixture), NFR-4 |
