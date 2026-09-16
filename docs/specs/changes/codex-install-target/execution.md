@@ -56,7 +56,7 @@ Reviewer verdict: **PASS**. Summary: both issues closed against the source, not 
 
 | Field | Value |
 |---|---|
-| Status | in progress (attempt 2 open) |
+| Status | **PASS** (attempt 2 of 3) |
 | Date | 2026-09-16 |
 | Implementer | `sonnet`, effort `medium` (attempt 1) → `high` (attempt 2); skills: `cognitive-doc-design` (task default, kept) |
 | Reviewer | `opus`, effort `high` |
@@ -73,4 +73,22 @@ Reviewer verdict: **FAIL** (2 issues). Verified clean: subagents pin real (`http
    - **Remediation:** "best of the four" near line 130.
 
 ADVISORY (recorded, no rework): (Risk) "names no second flagship" overstates — page lists `gpt-5.5` "Previous-generation flagship" and `gpt-5.4` "Flagship model for professional work"; suggest "no second current-generation flagship". (Readability) *Enforced routing* intro still says "Both tools support a `model` field" with four rows — pre-existing; **forward pointer to T6's sweep** (not a DD-10 pattern).
+
+**Attempt 2** — `docs/model-routing.md` (75+/9−, net). Fixes: Enforced-routing Codex row and the `sandbox_mode` sentence now use TOML assignment form (`model =`, `model_reasoning_effort =`, `sandbox_mode = "read-only"`); "best of the three" → "best of the four"; advisory applied: "names no second current-generation flagship (`gpt-5.5` and `gpt-5.4` are listed but as previous-generation/retiring)". Implementer greps: no colon-form Codex keys remain; no "the three"/"both hosts"/"the other two" in file. Checks 1–3 green; `git diff --check` clean.
+
+Reviewer verdict: **PASS**. Summary: all four delta lines verify at the source — TOML form matches design §5.3 and the pinned subagents page; retirement wording confirmed verbatim on the pinned models page ("On October 14, 2026, GPT-5.5 will retire … from Codex"; "GPT-5.4 and GPT-5.4 mini retire from Codex on August 31, 2026"); remaining `model:` occurrences belong to the other hosts' frontmatter rows; only `docs/model-routing.md` changed.
+
+ADVISORY (final verdict, recorded, no rework):
+- (Readability) *Enforced routing* intro still opens "Both tools support a `model` field on agent definitions" with four rows — pre-existing, not a DD-10 pattern. **Forward pointer → T6 sweep.**
+- (Leader action, cross-task) `design.md` §5.3 and `tasks.md` T4 scope / T7 step 2 still say `/reasoning`; the pinned slash-commands page has no such command. **Forward pointer → T3 brief (Step 8E effort table must say `/model` sets effort; no `/reasoning`) and T7 brief (step 2 confirms the enum via `/model`).** Spec text left as-is (not a pivot: a docs claim, corrected at every artifact site); surfaced to the user at the gate.
+- (Risk) The two `<CONFIRM SLUG>` cells (T4 Terra, T6 Astra) rest on absence of evidence — the page states no context window and no vision capability for any Codex model. **Forward pointer → T7 step 2:** confirm against the live `/model` roster rather than assume.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-7 (registry half; BUT no unconfirmed model — every cell on the pinned page or `<CONFIRM SLUG>`), NFR-5 |
+| Decisions | Families not slugs (DD-3: Codex exposes only versioned names); T1 = T3 = Astra (only T2 ≠ T3 is binding, Claude Code precedent); `gpt-5.3-codex-spark` excluded (research preview); `/model` states the source, no `/reasoning` |
+| Issues | Attempt 1: TOML keys written in YAML colon form; preserved sentence made false by the new column — both fixed |
+| Queued for T7 | `<CONFIRM SLUG>` cells (step 2); effort enum accepted by `/model` (step 2); `sandbox_mode` behavior (step 3) |
+| Final verification | checks 1–3 green; `git diff --check` clean |
+| Approval gate | `gated` — user asked at the wave-1 landing |
 

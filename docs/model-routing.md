@@ -113,22 +113,32 @@ when you deliberately need to freeze a version, and record why next to the pin. 
 concrete (no alias mechanism), which is why they carry the Fallback column and the drift check
 below.
 
-| Tier | Claude Code | OpenCode Go | Antigravity | Fallback |
-|---|---|---|---|---|
-| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k3` | Gemini Pro (latest) | `opencode-go/kimi-k2.6` / `opencode-go/deepseek-v4-pro` / `sonnet` |
-| **T2 Coder** | `sonnet` | `opencode-go/glm-5.2` | Gemini Flash (latest) | `haiku` / `opencode-go/deepseek-v4-flash` |
-| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | Gemini Pro *(must differ from T2)* | `sonnet` / `opencode-go/kimi-k2.6` |
-| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | Gemini Pro (long context) | `opus` / `opencode-go/deepseek-v4-pro` |
-| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | Gemini Flash | `sonnet` / `opencode-go/mimo-v2.5` |
-| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak)* | **Gemini Pro (vision) — strongest column for this tier** | `opus` |
+| Tier | Claude Code | OpenCode Go | Antigravity | Codex | Fallback |
+|---|---|---|---|---|---|
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k3` | Gemini Pro (latest) | Astra (latest) | `opencode-go/kimi-k2.6` / `opencode-go/deepseek-v4-pro` / `sonnet` |
+| **T2 Coder** | `sonnet` | `opencode-go/glm-5.2` | Gemini Flash (latest) | Sol (latest) | `haiku` / `opencode-go/deepseek-v4-flash` |
+| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | Gemini Pro *(must differ from T2)* | Astra (latest) *(must differ from T2)* | `sonnet` / `opencode-go/kimi-k2.6` |
+| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | Gemini Pro (long context) | Terra (latest) `<CONFIRM SLUG>` (context window not stated on the pinned page) | `opus` / `opencode-go/deepseek-v4-pro` |
+| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | Gemini Flash | Luna (latest) | `sonnet` / `opencode-go/mimo-v2.5` |
+| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak)* | **Gemini Pro (vision) — strongest column for this tier** | Astra (latest) `<CONFIRM SLUG>` (vision/multimodal support not stated on the pinned page) | `opus` |
 
 **The Antigravity column names families, not slugs, deliberately.** Its roster moves faster than
 this document and its picker labels versions (`Gemini 3.6 Flash`) rather than exposing stable
 aliases — so the exact identifier is confirmed per project at `/akili-constitution` Step 8C, the
 same treatment any unconfirmed roster gets. Naming the family is the alias-first rule applied where
 no alias mechanism exists. **T6 is the row that matters here:** it is the one tier where this column
-is the best of the three, which is why the old *"prefer external Gemini"* note existed at all — see
+is the best of the four, which is why the old *"prefer external Gemini"* note existed at all — see
 *Cross-host dispatch* for how a session in another host actually reaches it.
+
+**The Codex column also names families, not slugs — same rule, a different reason.** Codex ships
+versioned model names (`gpt-6-astra`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) rather than a
+floating alias like `opus`, so pinning today's dated slug here would drift the day a new generation
+ships. The table instead names the tier family — **Astra**, **Sol**, **Terra**, **Luna**, in
+descending capability/cost order per the pinned page — and defers the exact dated slug to the
+project's own `/model` roster, confirmed at `/akili-constitution` Step 8C exactly like the
+Antigravity roster. **Last verified: 2026-09-16** against <https://learn.chatgpt.com/docs/models>.
+Two cells (T4, T6) carry `<CONFIRM SLUG>` because that page states no context-window or
+vision/multimodal capability for any Codex model — not because a name is missing from the roster.
 
 ### Why these models
 
@@ -177,6 +187,26 @@ cost*, not about which pool the budget comes from.
 
 All OpenCode Go slugs are taken from the [OpenCode Go model list](https://opencode.ai/docs/go).
 Confirm them against your own OpenCode configuration and adjust if your roster differs.
+
+**Codex.** The split stays inside one vendor's roster rather than crossing labs, so it leans on the
+pinned page's own capability language. **Sol → T2 Coder**: the page describes it as "the most
+capable GPT-5.6 model for complex coding, computer use, research, and cybersecurity" — the closest
+thing Codex's roster states to a coding-specialist workhorse. **Astra → T1 Architect and T3
+Auditor**: the newest-generation flagship ("our most capable model for complex work across code,
+apps, and research"), reserved for the low-volume, high-leverage Leader/architect and Reviewer
+roles. Author ≠ auditor holds here by *role*, not by a second top-tier family — Codex's pinned page
+names no second current-generation flagship (`gpt-5.5` and `gpt-5.4` are listed but as
+previous-generation/retiring) the way a cross-lab pin would — so if that ever reads as too thin, escalate
+the Reviewer's `model_reasoning_effort` (see *Enforced routing*) rather than leaving T2 = T3.
+**Terra → T4 Context-Ingest**: "balanced … everyday work," carrying `<CONFIRM SLUG>` because the
+page states no context-window figure. **Luna → T5 Fast-Cheap**: stated plainly as "fast and
+affordable." **T6 Multimodal defaults to Astra, `<CONFIRM SLUG>`**: the pinned page names no
+vision/multimodal capability for any Codex model, so prefer *Cross-host dispatch* to Claude Code
+(`sonnet`, vision) or Antigravity (Gemini Pro, vision) for real UI/UX design work rather than
+trusting an unconfirmed Codex vision path. The page also lists a fifth model,
+`gpt-5.3-codex-spark` — a text-only research preview "optimized for near-instant, real-time coding
+iteration" — left out of the tier table because a research preview is not a routing default, though
+it is worth trying by hand for a fast Implementer loop once it stabilizes.
 
 ### Frontier escalation tier (opt-in — pin, not alias)
 
@@ -324,6 +354,7 @@ there:
 | Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
 | OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/glm-5.2`) |
 | Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro` |
+| Codex | `.codex/agents/akili-{leader,implementer,reviewer,tester}.toml` (project-level) | `model =` from the registry's Codex column, plus `model_reasoning_effort =` — see below |
 
 **Antigravity binds more than the model — and the nesting is not optional.** Two corrections to
 what this document previously stated. First, agents are discovered under **`.agents/agents/`**, so a
@@ -353,6 +384,31 @@ generic subagents seeded with the persona content when they don't.
 
 **author ≠ auditor becomes structural:** `akili-reviewer` is pinned to a different model than
 `akili-implementer` in the wrapper files themselves — no human discipline required.
+
+**Codex binds effort as a native wrapper field, not a runtime instruction.**
+`.codex/agents/akili-<role>.toml` carries `model_reasoning_effort` alongside `model` — the second
+dial lives inside the same file, unlike Claude Code and OpenCode where effort is set per call. Map
+the AKILI effort dial onto the field directly:
+
+| AKILI dial | `model_reasoning_effort` |
+|---|---|
+| `low` | `low` |
+| `medium` | `medium` |
+| `high` | `high` |
+| `xhigh` | `xhigh` |
+| `max` | `xhigh` |
+
+The models page also lists a six-rung effort enum in its own UI (`Low`/`Medium`/`High`/`Extra
+High`/`Max`/`Ultra` — **Last verified: 2026-09-16**, <https://learn.chatgpt.com/docs/models>) that
+does not collapse cleanly onto AKILI's five-rung dial. **There is no standalone `/reasoning`
+command** — the CLI's `/model` command "choose[s] the active model (and reasoning effort, when
+available)" in one prompt (**Last verified: 2026-09-16**,
+<https://learn.chatgpt.com/docs/cli/slash-commands>); T7 of the Codex install spec confirms the
+enum that live `/model` prompt actually accepts and corrects this mapping if Codex rejects `xhigh`.
+The Reviewer wrapper alone also sets `sandbox_mode = "read-only"` — Codex has no documented per-agent
+tool allow-list, so the sandbox is the second structural guarantee of author ≠ auditor, paralleling
+Antigravity's `tools` allow-list above. Pin: <https://learn.chatgpt.com/docs/agent-configuration/subagents>
+— **Last verified: 2026-09-16**; `Unverified:` the `sandbox_mode` behavior itself, confirmed live at T7.
 
 ## Cross-host dispatch
 
@@ -393,6 +449,7 @@ product name is not reliably the command.
 | Claude Code | `claude` |
 | OpenCode | `opencode` |
 | Antigravity | **`agy`** — not `antigravity`, not `ag` |
+| Codex | `codex` — invocation is `$akili-<name>` (skills, not slash commands) |
 
 Antigravity is the case that proves the rule: sessions have repeatedly concluded the CLI *does not
 exist* after searching for the product name, and then had to walk it back. The failure is
@@ -534,6 +591,15 @@ model column.
   Step 8E agent bindings. Run the **Leader session on the T1 slug** (`opencode-go/kimi-k3`), and
   keep the Reviewer/validator on a different model (`deepseek-v4-pro`) than the Implementer
   (`glm-5.2`).
+- **Codex:** switch model and reasoning effort together with `/model` before a phase — there is no
+  separate `/reasoning` command; `/model` "choose[s] the active model (and reasoning effort, when
+  available)" in one prompt (**Last verified: 2026-09-16**,
+  <https://learn.chatgpt.com/docs/cli/slash-commands>). Use it to pick the registry's T1 family
+  (**Astra**) at `high` effort for `/akili-propose`, `/akili-validate`, and the `/akili-execute` /
+  `/akili-test` **Leader session**. With Step 8E wrappers in place, the execute/test triad routes
+  itself from `.codex/agents/akili-*.toml` (Implementer on **Sol**, Reviewer on **Astra**, both
+  with their own `model_reasoning_effort`) — the Leader session is the one seat you still set by
+  hand.
 
 ## Cross-tool safety
 

@@ -170,7 +170,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none |
 | Requirements | FR-7 (registry half; scenario `BUT` no unconfirmed model), NFR-5 |
