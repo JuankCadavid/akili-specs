@@ -83,13 +83,13 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-4 scenario (all clauses incl. `BUT` SKIP), FR-1 auto-detection `BUT` (fixture), NFR-4 |
 | Design refs | §7 row 24, DD-1 (gate), §8 defect table rows 1–4 |
 
-**Scope.** New `scripts/ci/install-layout-regression.js` (Node, no deps, Windows-safe paths): for each of `claude`, `opencode`, `antigravity`: run `npx --yes akili-specs@2.23.2 install --tool <t> --target <tmp-a>` and `node bin/akili.js install --tool <t> --target <tmp-b>`; compare sorted relative file lists and SHA-256 per file; print a unified list of differences and exit 1 on any. Wrap the npx call: on network/registry failure print `SKIP: registry unreachable (<error>)` and exit 0. Then run the T1 check-5 detection fixture in-process and fail on a false positive. Add a `ci.yml` step after the symlink probe. Document the script in `docs/cli.md`'s CI/verification section (one paragraph).
+**Scope.** New `scripts/ci/install-layout-regression.js` (Node, no deps, Windows-safe paths): for each of `claude`, `opencode`, `antigravity`: run `npx --yes akili-specs@2.23.2 install --tool <t> --target <tmp-a>` and `node bin/akili.js install --tool <t> --target <tmp-b>`; compare sorted relative file lists (must be identical) and SHA-256 per file; a content difference is tolerated **only** when side B's file is byte-identical to its working-tree source under `.claude/` (a canonical-file edit made by this spec, printed as `EXPECTED-DIFF <path>`); print a unified list of every other difference and exit 1 on any (Pivot Record T2, `execution.md`). Wrap the npx call: on network/registry failure print `SKIP: registry unreachable (<error>)` and exit 0. Then run the T1 check-5 detection fixture in-process and fail on a false positive. Add a `ci.yml` step after the symlink probe. Document the script in `docs/cli.md`'s CI/verification section (one paragraph).
 
 **Verification.**
 1. Run locally: three `IDENTICAL` lines, fixture `OK`, exit 0. Falsifier: temporarily rename a packaged skill dir ⇒ script must exit 1 naming the missing path; revert.
@@ -261,7 +261,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 | FR-3 | Healthy install (OK rows, exit 0, env version) | T1 (check 9), T7 (real binary) |
 | FR-3 | Binary absent/broken (`BUT` no exit-code flip) | T1 (check 9) |
 | FR-3 | Legacy manual copies (informational line) | T1 (W-9 line) |
-| FR-4 | Three targets unchanged (THEN identical, `AND IT MUST` Windows, `BUT` SKIP on registry failure) | T2 |
+| FR-4 | Three targets unchanged (THEN layout identical + content differences only where the working-tree source changed, `AND IT MUST` Windows, `BUT` SKIP on registry failure) | T2 |
 | FR-5 | Constitution on Codex (THEN prefer wrappers + Step 9 names files/models/read-only; `BUT` no model in commands/installer; `AND IT MUST` model-driven spawn documented + pinned) | T3 (text), T7 (steps 3, 5), T1/T4 (NFR-3 greps) |
 | FR-6 | Gate fires (THEN denied + message; `AND IT MUST` live + raw payload + host table + fail-closed; `BUT` no exit-0 fall-through) | T3 (text, fail-closed branch), T7 (step 4) |
 | FR-6 | Corrupt hooks file | T3 |

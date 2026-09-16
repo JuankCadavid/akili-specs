@@ -16,7 +16,7 @@
 
 ## 2. Executive Summary
 
-A developer whose host is OpenAI Codex CLI can run `akili install --tool codex` and get the full AKILI-SPECS lifecycle: the 11 commands installed as Codex skills (`$akili-execute`, …), the 24 packaged skills, and the helper resources, in the roots Codex's current docs define. `doctor`, `update`, `init`, and auto-detection treat Codex as a first-class target. The methodology's per-host guidance gains a Codex variant wherever it names hosts today, and on Codex the two guarantees that were Claude-Code-only become structural: **author ≠ auditor** via `.codex/agents/*.toml` model bindings, and the **`[x]`-without-evidence gate** via a `PreToolUse` hook. Nothing installed for Claude Code, OpenCode, or Antigravity changes byte-for-byte.
+A developer whose host is OpenAI Codex CLI can run `akili install --tool codex` and get the full AKILI-SPECS lifecycle: the 11 commands installed as Codex skills (`$akili-execute`, …), the 24 packaged skills, and the helper resources, in the roots Codex's current docs define. `doctor`, `update`, `init`, and auto-detection treat Codex as a first-class target. The methodology's per-host guidance gains a Codex variant wherever it names hosts today, and on Codex the two guarantees that were Claude-Code-only become structural: **author ≠ auditor** via `.codex/agents/*.toml` model bindings, and the **`[x]`-without-evidence gate** via a `PreToolUse` hook. The installer's layout and source→file mapping for Claude Code, OpenCode, and Antigravity do not change; the only content that changes on those hosts is what this spec edits in the canonical command files, and it changes identically for every host (amended by Pivot Record T2 — the original "byte-for-byte" wording contradicted FR-5/FR-8, which edit the shipped command files).
 
 ## 3. Glossary
 
@@ -152,7 +152,8 @@ The installer SHALL write, for Codex: every command as `<skills-root>/akili-<nam
 
 - GIVEN the tree produced by the **published** `akili-specs@2.23.2` (`npx --yes akili-specs@2.23.2 install --tool <t> --target <tmp-a>`) for each of the three targets
 - WHEN the working tree runs the same command into `<tmp-b>`
-- THEN the sorted relative file lists and per-file SHA-256 of the two trees are identical for every target (`scripts/ci/install-layout-regression.js`)
+- THEN the sorted relative file lists of the two trees are identical for every target (layout identity — `scripts/ci/install-layout-regression.js`)
+- AND every file whose SHA-256 differs between the two trees is byte-identical to its working-tree source under `.claude/` (a canonical-file edit made by this spec, reported `EXPECTED-DIFF <path>`), so the only content differences are the ones this spec made to shared files — never an installer mapping change
 - AND IT MUST hold on Windows paths too (CI matrix)
 - BUT the step must NOT fail the job when the npm registry is unreachable — it prints `SKIP` and exits 0, and the skip is visible in the log
 
@@ -253,7 +254,7 @@ Before the spec is complete, the installed result SHALL be exercised in a real C
 | Defect class this spec can produce | Gate that catches it | Falsifying input |
 |---|---|---|
 | Wrong Codex paths (skills or resources land where Codex does not look) | CI `install --tool all` + `doctor --tool all` on the matrix; live `/skills` shows `akili-*` | Install into a temp home and run doctor: a `MISSING` row. Live: `/skills` without `akili-*` |
-| Regression on Claude Code / OpenCode / Antigravity trees | FR-4 `diff -r` against a v2.23.2 baseline tree per target | Any non-empty diff or a changed `--dry-run` path list |
+| Regression on Claude Code / OpenCode / Antigravity trees | FR-4 layout diff against a v2.23.2 baseline tree per target, content diff tolerated only where side B equals its working-tree source | Any path-list diff, a content diff on a file whose working-tree source is unchanged, or a changed `--dry-run` path list |
 | Windows path handling in the new per-type roots | CI windows-latest jobs | A `\`/`/` mismatch surfacing as `MISSING` on Windows only |
 | Detection false positive from a shared `~/.agents/skills` | Unit-style check: populated `~/.agents/skills` with no `akili-*` and no `~/.codex/akili` ⇒ Codex not detected | Codex appearing in the auto-detected list in that fixture |
 | Stale or wrong Codex claim (docs churn) | Verification pins + live validation (FR-10) | Fetching a pinned URL that no longer states the claim; a live step behaving differently |
