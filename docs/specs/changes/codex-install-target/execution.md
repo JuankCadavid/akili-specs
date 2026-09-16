@@ -243,3 +243,7 @@ ADVISORY (recorded, no rework): (Risk) source-equality tolerance is near-tautolo
 | Queued | CI matrix evidence (needs a push to `origin/master`) |
 | Final verification | Leader quiet-tree run exit 0 (above); Reviewer independent run identical |
 
+**T2 addendum — final-tree run** (after T3 attempt 3 landed, `c7216b2`, tree quiet): `Side A resolved version: 2.23.2`; `LAYOUT-IDENTICAL claude (3)` / `opencode (3)` / `antigravity (18)`; `FIXTURE OK`; exit 0; the 24 `EXPECTED-DIFF` paths are still exactly `akili-constitution.md` / `akili-execute.md` / `akili-test.md` in their installed locations. Log: scratchpad `t2-final-run.log`. Local evidence complete; CI matrix evidence still open (needs a push of the six `[SPEC:…]` commits to `origin/master`).
+
+**Wave-2 gate (gated mode):** T3 `[x]` (PASS on attempt 3 of 3), T2 `[~]` (Reviewer PASS, CI clause open). Next eligible: T6 (depends on T1/T3/T4/T5, all `[x]`). Budget: wave 2 consumed 4 review rounds (T2 ×1 + T3 ×3) against 2 budgeted; cumulative 10 rounds vs 8 (7 + 1 reserved) for the whole spec with T6/T7 still open. Presented to the user.
+
