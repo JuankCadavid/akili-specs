@@ -10,7 +10,7 @@
 | Approval Mode | `pre-approved (user, 2026-09-17)` |
 | Status | Approved — ready for `/akili-execute` |
 | Date | 2026-09-17 |
-| Budget (design §12) | 6 tasks · ~230 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
+| Budget (design §12) | 7 tasks (6 + T7 from the T6 Pivot, 2026-09-17) · ~236 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Design review | Step 2.3 reversion challenge run (6 breakages, 4 closed pre-design); `judgment-day` not requested at Phase 2 (user chose Continue) |
 | Format precedent | `docs/specs/archive/2026-08-22-changes--branch-safe-kaizen/tasks.md` |
 
@@ -22,7 +22,9 @@ T1 (kaizen SKILL.md: Branch Context ×3, exclusive predicate, Kind/Status, re-ve
  ├─→ T3 (akili-resume.md: footer wording + count filter)
  ├─→ T4 (akili-constitution.md: Integration Branch pin + Safe Update; leader/implementer guardrail phrase)
  │
- T2,T3,T4 ──→ T5 (mirrors + root docs + CHANGELOG) ──→ T6 (closure greps + fixture walkthrough + packaging)
+ T2,T3,T4 ──→ T5 (mirrors + root docs + CHANGELOG) ──┬→ T6 (closure greps + fixture walkthrough + packaging)
+                                                     │
+ T7 (T6 Pivot: three one-clause closures in SKILL.md, akili-archive.md, akili-constitution.md) ──┘
 ```
 
 T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capable` predicate, `integration` context, `upstream` kind, `superseded`/`upstreamed` statuses). T5 mirrors final command text. T6 is the global gate. No circular dependencies.
@@ -177,9 +179,9 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M |
-| Depends on | T5 |
+| Depends on | T5, T7 |
 | Requirements | FR-2 (all scenarios walked), FR-3 (first-apply, merge, resume scenarios walked), FR-4 unparseable + out-of-budget scenarios walked, FR-7 (legacy no-pin scenario walked; `AND IT MUST` no constitution change), FR-8 post-sweep scenario, NFR-1, NFR-2, NFR-6; the requirements §8 accepted risk (prose executability) is discharged here as far as a walkthrough can |
 | Design refs | §3 flow, DD-2, DD-6, DD-8, DD-10, §12 budget |
 
@@ -198,6 +200,35 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 ---
 
+### T7 — Walkthrough closures (T6 Pivot, 2026-09-17)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | T5 (all three surfaces are committed; T7 edits them in place) |
+| Requirements | FR-4 `digest-update` clause + scenario "`digest-update` item, no digest yet" (all clauses); FR-2 hotfix scenario's new `AND IT MUST` (per-item sub-clauses); FR-1 release-cadence scenario's new `AND IT MUST` (name elicitation) |
+| Design refs | §7 rows 26–28, DD-11 |
+
+**Scope.** Three one-clause edits, one per file, nothing else:
+1. `.claude/skills/kaizen/SKILL.md`, Apply Mode step 3b: add one clause — for a `digest-update` item the `Target` is a `KZ-id`, not a path: "exists at HEAD" means a row with that ID in `## Active Lessons` **or** a lesson heading with that ID in any entry file under `docs/specs/kaizen/`; the fact probe is the recurrence claim (the source spec the item adds names a real entry file). An absent digest file alone never supersedes it.
+2. `.claude/commands/akili-archive.md`, Step 3 items 2, 3, and 4 — each item's own record-instead-of-write sub-clause: "**On a spec branch:**" → "**Off the apply-capable branch** (a spec branch, or the default branch while an `Integration Branch:` pin exists)**:**". Three substitutions; the gate paragraph and table are untouched.
+3. `.claude/commands/akili-constitution.md`, Step 8 `Integration Branch:` bullet, the detection sub-bullet: add one clause — after the yes/no, ask for the branch **name** explicitly; the pin is written with that name only.
+
+**Verification** (repo root; exclusions per the hazard note).
+1. `grep -n "KZ-id" .claude/skills/kaizen/SKILL.md` — a hit inside step 3b naming both resolution sources (digest row / entry-file lesson heading). Falsifier: 3b still reading "confirm the `Target` still exists at HEAD" with no `digest-update` clause (the pre-T7 text — the T6 fixture's INCONCLUSIVE 1).
+2. `grep -n "On a spec branch:" .claude/commands/akili-archive.md` — zero hits inside Step 3 items 2–4 (hits elsewhere, if any, enumerated with a reason). Falsifier: any of the three items still opening its sub-clause with "On a spec branch:" (INCONCLUSIVE 2).
+3. `grep -niE "ask (for|the user for) (the|its) (branch )?name|name of the (integration )?branch" .claude/commands/akili-constitution.md` — ≥1 hit inside the `Integration Branch:` bullet. Falsifier: the bullet still asking only "whether" (INCONCLUSIVE 3).
+Plus `git diff --stat` — exactly three files; `git diff --check` clean.
+
+**Disqualifiers.** All three greps are presence-assertions; the behavioral check is T6's re-walk of the three formerly INCONCLUSIVE steps. If any edit touches a sentence outside the three named sites, stop and report. If edit 2 changes the gate paragraph or the table, stop.
+
+**Done.** Three clauses land; greps 1–3 green; three-file diff; `git diff --check` clean; T6 re-walk queued.
+
+**Skills:** `cognitive-doc-design`.
+
+---
+
 ## 3. Coverage — scenario and clause level
 
 | Requirement · scenario / clause | Owner |
@@ -212,6 +243,9 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 | FR-4 deleted-component (`AND IT MUST` reason · `BUT NOT` write-and-sweep) | T1 · T6 (missing-Target item) |
 | FR-4 unparseable (`BUT NOT` skipped/guessed/half) | T1 · T6 (YAML fixture) |
 | FR-4 out-of-budget (`AND IT MUST NOT` expand) | T1 |
+| FR-4 `digest-update` no-digest scenario (`BUT NOT` superseded for a missing digest) *(Pivot)* | T7 · T6 (re-walk) |
+| FR-2 hotfix `AND IT MUST` per-item sub-clauses *(Pivot)* | T7 · T6 (re-walk) |
+| FR-1 `AND IT MUST` name elicitation *(Pivot)* | T7 · T6 (re-walk) |
 | FR-5 apply-with-methodology (`AND IT MUST` local half · `BUT NOT` guide/digest) | T1 · T6 |
 | FR-5 recorded-on-spec-branch (`BUT NOT` report from spec branch) | T1 · T2 (Step 4.3) |
 | FR-6 archive-report (`BUT NOT` fold) · per-site enumeration | T2 · T1 (Collect/Stamp) · T3 (footer) |
@@ -224,7 +258,7 @@ No gap is discharged by citing a different requirement; every row quotes the cla
 
 ## 4. Estimate and PR strategy
 
-**Estimated LOC:** ~230 lines of prose across 25 surfaces (design §12), plus the throwaway fixture in the scratchpad (not shipped).
+**Estimated LOC:** ~236 lines of prose across 28 surfaces (design §12; T7 added by the T6 Pivot), plus the throwaway fixture in the scratchpad (not shipped).
 
 **PR strategy: one PR.** The skill and the three commands describe one contract and must land together — a split PR would ship a command citing a predicate the skill does not yet define. Prose-only, under ~400 LOC; the review order for the PR description (`cognitive-doc-design`): read T1's Branch Context and Apply Mode diff first, then T2, then everything else is parity.
 

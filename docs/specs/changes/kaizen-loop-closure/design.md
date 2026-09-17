@@ -138,6 +138,9 @@ Sites are named by section, never by line (KZ-005). Each row is one bounded edit
 | 23 | `AGENTS.md`, `CLAUDE.md` (this repo) | Kaizen Loop bullet | Apply phase sentence in apply-capable terms |
 | 24 | `docs/commands/akili-archive.md`, `akili-resume.md`, `akili-constitution.md`; `docs/skills/kaizen.md`; `docs/skills/README.md` row; `docs/README.md`; `docs/flow.md` (artifact table row + §8 Kaizen Loop); `README.md` (Kaizen diagram + Apply bullet) | Sentences asserting where apply runs | Apply-capable wording; the FR-8 sanctioned-hit list is the closure set |
 | 25 | `CHANGELOG.md` | Unreleased | Added / Changed entries; classification per user decision |
+| 26 *(T6 Pivot)* | `.claude/skills/kaizen/SKILL.md` | Apply Mode step 3b | One clause: for `digest-update` items the Target probe resolves the `KZ-id` against the digest or any entry file's lesson heading; the fact probe is the recurrence claim (FR-4 amendment) |
+| 27 *(T6 Pivot)* | `.claude/commands/akili-archive.md` | Step 3 items 2, 3, 4 — each item's record-instead-of-write sub-clause | "On a spec branch:" → "Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists):" (FR-2 amendment) |
+| 28 *(T6 Pivot)* | `.claude/commands/akili-constitution.md` | Step 8 `Integration Branch:` bullet, detection sub-bullet | One clause: after the yes/no, ask for the branch name explicitly; the pin is written with that name only (FR-1 amendment) |
 
 Consumer commands `/akili-propose`, `/akili-specify`, `/akili-execute`: **no row** — their kaizen read is untouched (NFR-1); a diff there is a defect of this spec.
 
@@ -188,6 +191,9 @@ Apply Mode's invocation phrases are unchanged (the skill's `description:` field 
 ### DD-10 — The coherence gate is a phrase grep plus a union-semantics grep (KZ-006, KZ-002)
 Two greps, both required: the FR-8 phrase grep for surviving "only on the default branch" assertions, and the FR-2 union-semantics grep for surviving "default ∪ integration" wording — the second exists because the reversion challenge proved the first cannot see it. Each has a named pre-fix falsifier (the Apply Mode opening line; this spec's own pre-amendment FR-2).
 
+### DD-11 — Walk every existing consumer step against a new enumerated value *(added by the T6 Pivot, 2026-09-17)*
+The closure walkthrough found three places where a sentence written for the old value set (file targets; two branch contexts; a default-branch-only pin) still governed a step the new value reaches. The design named the steps to *add* (3b, 4b, 5.0, the third Branch Context row) but did not walk the *existing* steps per new value — the KZ-004 fall-through class applied to a design instead of a scan. Rule for this spec's closure and for the retrospective: when a design adds a value to an enumerated type (`Kind`, `Status`, Branch Context), the surface table lists every existing step that consumes that type and states what the new value does there. Rows 26–28 are that walk, done late. Rejected: recording the three as accepted residuals — the spec exists to make this loop executable by a literal reader, and each is a one-clause fix on a surface the spec already owns.
+
 ## 11. Reversion Challenge (Step 2.3) — outcomes
 
 | # | Breakage examined | Verdict | Closed by |
@@ -205,8 +211,8 @@ Two greps, both required: the FR-8 phrase grep for surviving "only on the defaul
 
 | Metric | Expected |
 |---|---|
-| Tasks | **6** |
-| Changed/added lines | **~230** across 25 surface rows (prose; no code) — skill ~110, archive ~35, constitution ~25, resume ~8, templates ~2, root/mirror docs ~40, CHANGELOG ~10 |
+| Tasks | **7** *(6 at design; T7 added by the T6 Pivot, 2026-09-17)* |
+| Changed/added lines | **~236** across 28 surface rows (prose; no code) — skill ~110, archive ~35, constitution ~25, resume ~8, templates ~2, root/mirror docs ~40, CHANGELOG ~10 |
 | Review rounds | **1 per task** — trip on the second FAIL of any one task |
 
-Depth re-check: **Standard holds.** Twenty-five surface rows and one extended cross-command concept is not Lite; no data/API/auth risk pushes it to Full. The predecessor shipped 17 surfaces at ~260 lines in 6 tasks — this design is the same shape with a smaller skill delta (the two-phase contract already exists; this spec edits its parameters).
+Depth re-check: **Standard holds.** Twenty-eight surface rows (25 at design, 3 from the T6 Pivot) and one extended cross-command concept is not Lite; no data/API/auth risk pushes it to Full. The predecessor shipped 17 surfaces at ~260 lines in 6 tasks — this design is the same shape with a smaller skill delta (the two-phase contract already exists; this spec edits its parameters).

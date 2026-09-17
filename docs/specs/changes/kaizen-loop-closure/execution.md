@@ -11,7 +11,7 @@
 | Leader model | Fable 5.1 (session model; no `## Model Routing` registry in this repo's root guides — packaged default `docs/model-routing.md` T1 = `opus` alias, session model stronger, passed silently) |
 | Implementer model | `sonnet` (T2, packaged default) — fallback sub-prompt path seeded by pointer to `.agents/implementer.md` (no Step 8E wrappers in this repo) |
 | Reviewer model | `opus` (T3, packaged default) — fallback sub-prompt path seeded by pointer to `.agents/reviewer.md`; author ≠ auditor held by model |
-| Budget (design §12) | 6 tasks · ~230 lines (prose) · 1 review round per task — trip on the second FAIL of any one task |
+| Budget (design §12) | 7 tasks (6 at design + T7 from the T6 Pivot, 2026-09-17) · ~236 lines (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Commit prefix | `[SPEC:changes/kaizen-loop-closure]` |
 | Wave plan | Wave 1: T1. Wave 2: T2 ∥ T3 ∥ T4 (disjoint files; no shared build output — prose only). Wave 3: T5. Wave 4: T6 (closing gate) |
 | Brief discipline | Reports open with `STATUS:` and stay under ~600 words (field lesson from the evidence corpus: the harness caps a worker's returned result and the verdict line was the one lost); verification runs foreground |
@@ -196,3 +196,37 @@ Reviewer verdict: **PASS.** "Both issues are closed and the three adopted refine
 | Issues | 1 FAIL: two contradictions the phrase grep cannot see (a falsified count; a surviving either/or) — the T5 Disqualifier's own warning, realized |
 | Final verification | FR-8 phrase grep zero; union grep zero; consumer diff empty; `git diff --check` clean (Implementer + Reviewer) |
 | Continue gate | auto-approved (pre-approved mode) |
+
+### T6 — Closure gate: two greps, fixture walkthrough, packaging
+
+| Field | Value |
+|---|---|
+| Status | **`[~]` — gate FAILED for the spec (3 INCONCLUSIVE walkthrough steps); escalated to the user** |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `xhigh`; skills: `cognitive-doc-design` |
+| Reviewer | not yet spawned — the gate result is spec-level, so the Pivot decision precedes further spend |
+
+**Attempt 1** — no repo file written. Closure greps: FR-8 phrase grep 0 hits; union grep 0 (spec folder excluded), 7 with it included — all grep definitions or the recorded supersession. `default branch` enumeration: 56 hits — pin 14, fallback 4, non-writing row 19, neither-pin clause 2, already apply-capable 17. Packaging: `verify:cli` exit 0 (11 commands / 24 skills / 7 resources), `pack:dry-run` exit 0 (275 files, 2.1 MB), `git diff --check` exit 0, working tree clean. Fixture (two pins, branches `master` / `qa-development-2026` / `feat/x`, three entry-file generations, README scaffold) and the full record at `<scratchpad>/t6/walkthrough.md`.
+
+Walkthrough: **8 PASS, 3 INCONCLUSIVE** (each a place where two shipped sentences can be read to disagree — the T6 Disqualifier's FAIL input):
+
+1. **Apply Mode step 3b on a `digest-update` item** (`Target` = `KZ-id`): 3b's generic "confirm the `Target` still exists at HEAD" vs the Kind table / Learn phase defining that Target as an ID resolvable via the digest *or* another entry file's lesson. No digest existed in the fixture, so the readings only happened to agree. (Forward pointer from the T1 Reviewer, realized.) **Pre-dates this spec; FR-4 names no case for it.**
+2. **`/akili-archive` Step 3 items 2–4 sub-clauses** still read "On a spec branch:" while the gate paragraph two paragraphs above says "off the apply-capable branch"; a reader following only the per-item clause has no instruction for `master`-with-pin. (T2 Reviewer advisory, realized as INCONCLUSIVE.) **FR-2's hotfix scenario states the behavior; the text under-enumerates it.**
+3. **`/akili-constitution` Step 8 pin bullet** asks "whether spec branches merge into one branch" — a yes/no — and never instructs eliciting the branch **name** the pin needs (the next bullet assumes "the named branch"). (T4 Reviewer note, realized.) **FR-1 says "confirmed with the user" and implies the name.**
+
+Two declared conflicts/readings, Leader-adjudicated: (a) `tasks.md` T6 Done says "fixture deleted" while the brief said "leave it for the Reviewer" — the fixture stays until the T6 Reviewer has used it, then is deleted at finalize; (b) the full fixture counts 6 pending (it also carries the YAML/missing-Target/KZ-id cases) while the FR-3 single-file scenario counts 3 — both recorded; the FR-3 file alone yields 3 as required.
+
+**Leader assessment.** All three are one-clause fixes on surfaces T1, T2, and T4 already own, and none contradicts a requirement — they are places the requirements did not enumerate. That is a **spec gap**, and the route for it is the Pivot Protocol, not a silent widening of closed tasks. Pre-approved mode never covers a Pivot. Escalated.
+
+## Pivot Record: T6 (2026-09-17)
+
+| Field | Value |
+|---|---|
+| Trigger | T6 closure walkthrough: 3 INCONCLUSIVE steps — two shipped sentences readable in disagreement at (1) Apply Mode 3b for `digest-update` items, (2) `/akili-archive` Step 3 items 2–4 sub-clauses, (3) `/akili-constitution` pin bullet's name elicitation |
+| Blocker | The requirements state the behavior (FR-4 re-verify, FR-2 hotfix, FR-1 confirm) but do not enumerate these three cases, so T1/T2/T4 shipped text that a literal reader can take two ways. Not an implementation error; a spec gap |
+| Alternatives | (a) accept as recorded gaps and archive — rejected by the user: leaves three live ambiguities in the loop this spec exists to make executable; (b) widen the closed tasks — rejected: closed tasks are not reopened silently; (c) **bounded Pivot: amend FR-1/FR-2/FR-4, add T7 (three one-clause edits), re-run T6** — chosen |
+| ADR impact | none (no TRD in this repo) |
+| Spec amendments | `requirements.md`: FR-4 gains a `digest-update` re-verify clause + scenario; FR-2 hotfix scenario gains an `AND IT MUST` for per-item sub-clauses; FR-1 gains an `AND IT MUST` for name elicitation. `design.md`: §7 rows 26–28, DD-11. `tasks.md`: T7 added; T6 now depends on T5 + T7; coverage table updated. Budget delta: tasks 6 → 7; LOC +~6; review rounds unchanged per task |
+| Correction Closure | Forward: grep of the spec folder for "6 tasks" / "six tasks" / "T2,T3,T4 ──→ T5 ──→ T6" — hits updated or sanctioned (recorded below). Backward: `execution.md` Document Control budget row and `tasks.md` Document Control budget row cite design §12 — both updated to 7 |
+| Briefs to re-issue | None outstanding — T1/T2/T4 are closed; T7 gets a fresh brief; T6's re-run brief carries the amended FR text |
+| User decision | **Pivot acotado + T7** (2026-09-17) |

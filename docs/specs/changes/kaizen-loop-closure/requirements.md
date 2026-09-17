@@ -86,6 +86,7 @@ The kaizen loop's Standardize step must **land** in the workflow real teams use.
 - WHEN Step 8 writes the constitution summary
 - THEN the user is offered `Integration Branch: develop`, shown what the pin asserts, and the line is written only on confirmation
 - AND IT MUST sit next to `Default Branch: main` so both pins are read from the same block every command already loads
+- AND IT MUST elicit the branch **name** from the user as a distinct step — a yes/no answer to "do you integrate on one branch first?" is not a name, and the pin cannot be written without one *(added by the T6 Pivot, 2026-09-17)*
 - BUT it must NOT be written unprompted, inferred from git, or set equal to the default branch
 
 #### Scenario: Trunk-based project
@@ -118,6 +119,7 @@ The kaizen skill's Branch Context SHALL resolve the checked-out branch into one 
 - WHEN `/akili-archive` resolves Branch Context
 - THEN the context is `default`, which is **not** apply-capable: Step 3 items 2–4 record `guide-sync` / `factual-sweep` / `trd-adr` pending items, Standardize records pending items, the Step 4.4 offer does not fire, and the one-line note names `develop`
 - AND IT MUST NOT allocate an `ADR-MMM`, create or edit the digest, or write any shared file on `master`
+- AND IT MUST state the non-writing rule at each of Step 3 items 2–4's **own** record-instead-of-write sub-clauses (not only in the gate paragraph above them), so a reader who lands on the item's clause alone has an instruction for the default-while-pinned case *(added by the T6 Pivot, 2026-09-17)*
 - BUT the hotfix's own spec folder, entry file, and `family.md` row flip stay writable exactly as on a spec branch
 
 #### Scenario: Both pins name the same branch
@@ -154,7 +156,7 @@ Apply Mode SHALL run on the apply-capable branch, and anywhere else SHALL declin
 
 ### FR-4: Re-verify before write
 
-Apply Mode SHALL run one **re-verify probe** per approved item before writing it: the `Target` path exists at HEAD, and the specific fact the `Edit` asserts is confirmed by one check (a grep for the symbol, file, or phrase the edit describes, or an existence check). An item whose probe fails SHALL end the pass as `superseded (reason)` — never written, never left `pending`. The probe SHALL be bounded to that single check; it SHALL NOT re-read the source spec, the archive, or the codebase beyond the named fact. An item the collector cannot parse (unknown `Status` encoding, missing `Target`, non-table pending block) SHALL be reported by file and item, left `pending` with a one-line note appended to the item, and never partially applied (KZ-004: the unparseable case is a named terminal branch of the collect step, not a fall-through).
+Apply Mode SHALL run one **re-verify probe** per approved item before writing it: the `Target` path exists at HEAD, and the specific fact the `Edit` asserts is confirmed by one check (a grep for the symbol, file, or phrase the edit describes, or an existence check). An item whose probe fails SHALL end the pass as `superseded (reason)` — never written, never left `pending`. The probe SHALL be bounded to that single check; it SHALL NOT re-read the source spec, the archive, or the codebase beyond the named fact. An item the collector cannot parse (unknown `Status` encoding, missing `Target`, non-table pending block) SHALL be reported by file and item, left `pending` with a one-line note appended to the item, and never partially applied (KZ-004: the unparseable case is a named terminal branch of the collect step, not a fall-through). For a `digest-update` item, whose `Target` is a `KZ-id` and not a path, "the `Target` exists at HEAD" SHALL mean: a row with that ID in the `## Active Lessons` digest, or a lesson heading with that ID in any entry file under `docs/specs/kaizen/`; the fact probe is the item's recurrence claim (the source spec it adds names a real entry file) *(added by the T6 Pivot, 2026-09-17)*.
 
 #### Scenario: A guide-sync item describes a deleted component
 
@@ -170,6 +172,13 @@ Apply Mode SHALL run one **re-verify probe** per approved item before writing it
 - WHEN Apply Mode collects
 - THEN the item is listed in the pass report as unparseable with its file and position, stays `pending`, and gains a one-line note
 - BUT it must NOT be skipped silently, guessed at, or half-applied
+
+#### Scenario: `digest-update` item, no digest yet *(added by the T6 Pivot, 2026-09-17)*
+
+- GIVEN a `digest-update` item targeting `KZ-changes--feature-a-1`, no `docs/specs/kaizen-log.md` in the project, and an entry file `changes--feature-a.md` carrying a lesson with that ID
+- WHEN Apply Mode re-verifies it
+- THEN the Target probe succeeds on the entry file's lesson heading, the fact probe checks the added source spec's entry file exists, and the item proceeds to the digest refresh
+- BUT it must NOT be closed as `superseded` merely because no digest file exists — the digest is created in the same pass
 
 #### Scenario: Probe is out of budget
 
