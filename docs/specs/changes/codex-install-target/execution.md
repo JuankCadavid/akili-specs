@@ -322,3 +322,5 @@ Reviewer verdict: **PASS**. Each fix verified at the source on the working tree;
 
 **Pre-T7 gate (gated mode):** T1–T6 `[x]`. T7 requires the user present with a current Codex CLI. Presented to the user.
 
+**Pre-T7 gate decision (2026-09-17):** user confirmed Codex CLI already updated ("YA FUE INSTALADO") and chose *Push now*. T7 starts.
+
