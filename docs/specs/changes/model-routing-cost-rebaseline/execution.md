@@ -58,3 +58,38 @@ Reviewer verdict: **PASS**. All three sites remediated; per-model claim matches 
 | Final verification | checks 1–6 green (Implementer + Reviewer independent runs); `git diff --check` clean |
 | Approval gate | `gated` — user asked at the T1 landing |
 
+### T2 — Constitution Step 8C/8E defaults, mirror parity, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `medium` (attempt 1) → `high` (attempt 2); skills: `cognitive-doc-design` (task default) |
+| Reviewer | `opus`, effort `high`, checklist mode (18+/10−, three files) |
+
+**Attempt 1** — `.claude/commands/akili-constitution.md` (Step 8C: Gemini 3.8 Flash effort-in-ID + Gemini 3.1 Pro auditor, `agy models`, dial → ID map, `<CONFIRM ID>`; Step 8E defaults leader/reviewer `deepseek-v4-pro`, implementer `deepseek-v4.1-flash`, tester `deepseek-v4-flash` + R7 clause), `docs/commands/akili-constitution.md` (parity), `CHANGELOG.md` (Unreleased → Changed, patch; "superseded" pointer on the Codex live-validation Astra/Sol sentence). Implementer checks 1–6 green; NFR-3 proxy: hand-scaffolded Step 8C table in scratchpad `mr-t2-scaffold/scaffold-model-routing.md`, zero cell differences vs `docs/model-routing.md`.
+
+Reviewer verdict: **FAIL** (1 issue). Verified clean: (a) Step 8C wording byte-consistent with `docs/model-routing.md` *Effort dial* and table; (b) Step 8E defaults exact + R7; (c) mirror parity never stronger; (d) FR-5 grep: single `gpt-6-astra` hit is inside the plan-gating rejection quote (a refused model, not a default); (e) CHANGELOG figures all match HEAD, patch stated, 5-hour correction attributed to Pivot T1, drift paragraph present; (f) `^model:` empty, only three files, `git diff --check` clean; (g) no "$60 assumption"; NFR-3 proxy confirmed cell by cell — **caveat recorded:** it is the author's own reconstruction, not an executed Step 8C; the executed check (scratch project + `/akili-audit`) stays at the closing HITL gate. Issue (verbatim claim): both CHANGELOG cross-references are inverted — the Changed entry says the plan-gating evidence is "already on record **above**" (it is below, in *Live validation*), and the *Live validation* paragraph says "**superseded below**" (the superseding Changed entry is above; "below" walks the reader into the shipped 2.23.2 block). Violated: `cognitive-doc-design` (navigational claims must resolve); CLAUDE.md Release Discipline. Remediation: "above" → "below" at the Changed entry; "superseded below" → "superseded above".
+
+**Attempt 2** — `CHANGELOG.md` only: line 21 "already on record above" → "below"; line 37 "superseded below" → "above". Reviewer verdict: **PASS** — both pointers resolve; the diff contains only the two word swaps; all attempt-1 findings on 8C/8E, mirror parity, FR-5 grep, figures and NFR checks stand. Carried caveat: the NFR-3 evidence is the Implementer's hand-reconstruction of Step 8C's output (zero cell differences, verified cell by cell by the Reviewer), not an executed scaffold + `/akili-audit` run — offered to the user at the closing gate as an optional executed check.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-2 Step 8C half (`agy models`, effort in the ID, dial → ID map), FR-5 (all clauses), NFR-2, NFR-4, NFR-5; NFR-3 by proxy (caveat above) |
+| Decisions | "superseded above" pointer placed in the Codex live-validation paragraph (the sentence that named Astra/Sol defaults), not in the Added entry |
+| Issues | Attempt 1: two inverted cross-reference words — fixed |
+| Final verification | checks 1–6 green (Implementer), (a)–(g) verified by the Reviewer; `git diff --check` clean |
+
+## 3. Summary — all tasks complete
+
+| Task | Status | Attempts | Notes |
+|---|---|---|---|
+| T1 registry + prose | `[x]` | 2 | Pivot Record T1 (5-hour vs monthly column) surfaced by the Implementer's source check; attempt-1 FAIL was the Leader's pre-pivot "$60" framing |
+| T2 constitution/mirror/CHANGELOG | `[x]` | 2 | attempt-1 FAIL: two inverted "above/below" pointers |
+
+**Budget (design §9 vs actual):** tasks 2 → 2; lines ~160 → ~190 (model-routing 122+/68−, constitution 18+/10−, CHANGELOG 6+/1−, mirror 4+/2−); review rounds 3 (2 + 1 reserved) → **4**. Overrun by one round; both FAILs were single-defect, one-retry fixes.
+
+**Open at close:** NFR-3 executed check (scratch project Step 8C + `/akili-audit` Model Registry Drift) optional — proxy PASS recorded. `/akili-audit` on existing projects will report intended drift until Step 8C is re-run (CHANGELOG states it). Release classification **patch**.
+
+**Kaizen candidates (for `/akili-archive`):** (1) a spec figure transcribed from a screenshot is not a source — the task's Source-of-truth rule caught a unit error (5-hour vs monthly) that three review rounds of the proposal/design had not; consider making "open the page, not the screenshot" a standing specify-time rule; (2) a Leader brief written before a pivot must be re-issued after it — the "$60" residue cost one round; (3) directional cross-references ("above/below") in release notes need the referent's position checked — cheap, twice bitten across two specs.
+

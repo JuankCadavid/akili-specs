@@ -68,7 +68,7 @@ T2 follows T1 because its slugs and wording are copied from T1's final table. No
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-2 (Step 8C half: `agy models` confirmation, effort in the ID), FR-5 (scenario, all clauses), NFR-2, NFR-4, NFR-5 |

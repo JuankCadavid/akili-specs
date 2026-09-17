@@ -476,9 +476,11 @@ project guides so the project does not depend on the package's `docs/` after ins
    to freeze a version, and record why. Fill the OpenCode column from the user's confirmed roster
    (slugs are concrete — no alias mechanism); if it is unknown, leave clearly-marked
    `<CONFIRM SLUG>` placeholders rather than guessing. Fill the **Antigravity** column the same way —
-   its picker labels versions rather than exposing stable aliases, so name the family (Gemini Pro /
-   Gemini Flash) and confirm the exact identifier with the user, placeholdering what they cannot
-   confirm.
+   name the family and effort ID rather than an alias: **Gemini 3.8 Flash** (effort carried in the
+   ID — `-high` / `-medium` / `-low`) for the volume tiers, and **Gemini 3.1 Pro** as the T3 auditor.
+   Confirm the exact ID with the user by running `agy models`, mapping the AKILI effort dial onto the
+   roster's three effort IDs per the registry's dial → ID map (`low`→`-low`, `medium`→`-medium`,
+   `high`/`xhigh`/`max`→`-high`), and placeholdering what cannot be confirmed with `<CONFIRM ID>`.
 
    Resolve the **Codex** column the same way: the registry names a tier family (Astra, Sol, Terra,
    Luna), and the exact dated slug for the Step 8E `model =` field is confirmed against the user's
@@ -668,10 +670,12 @@ this step — the guidance-only flow keeps working.
 
 - **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
   the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
-  the registry's OpenCode slugs (default: implementer `opencode-go/glm-5.2`, reviewer
-  `opencode-go/deepseek-v4-pro`, leader `opencode-go/kimi-k3` (T1 — orchestration judgment),
-  tester `opencode-go/deepseek-v4-flash` — the T2 fallback rather than the T2 primary, so the
-  Tester lands on a **different model than the Implementer** (author ≠ tester)).
+  the registry's OpenCode slugs (default: leader `opencode-go/deepseek-v4-pro` (T1 — orchestration
+  judgment), reviewer `opencode-go/deepseek-v4-pro`, implementer `opencode-go/deepseek-v4.1-flash`,
+  tester `opencode-go/deepseek-v4-flash`). **Leader and Reviewer share the T1/T3 model** — that is
+  not a break of `author ≠ auditor`, which is enforced between Implementer (`deepseek-v4.1-flash`)
+  and Reviewer (`deepseek-v4-pro`), the two roles the guarantee actually governs. The Tester still
+  lands on a **different model than the Implementer** (author ≠ tester).
 
   Apply the same **read-only restriction to the Reviewer wrapper only**, for the reason given in the
   Claude Code bullet. OpenCode's mechanism for this has changed across versions — it has been both a
