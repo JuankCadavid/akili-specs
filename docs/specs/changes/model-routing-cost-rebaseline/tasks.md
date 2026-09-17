@@ -33,7 +33,7 @@ T2 follows T1 because its slugs and wording are copied from T1's final table. No
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | none |
 | Requirements | FR-1 (scenario, all clauses), FR-2 (scenario, all clauses — registry half), FR-3 (scenario, all clauses), FR-4 (scenario, all clauses), NFR-1, NFR-5 |

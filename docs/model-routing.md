@@ -97,7 +97,7 @@ tier (to the deeper reasoner) to preserve independence.
 ## Model registry
 
 This is the single editable source of truth. Phases reference **tiers**; only this table names
-models. When models change, edit only this table. *Registry updated: 2026-07.*
+models. When models change, edit only this table. *Registry updated: 2026-09.*
 
 > **Worked example — the Opus 5 release required zero edits to this table.** When Anthropic shipped
 > Claude Opus 5, the `opus` alias moved to it on its own; T1/T3 followed automatically. That is the
@@ -113,22 +113,38 @@ when you deliberately need to freeze a version, and record why next to the pin. 
 concrete (no alias mechanism), which is why they carry the Fallback column and the drift check
 below.
 
-| Tier | Claude Code | OpenCode Go | Antigravity | Codex | Fallback |
+| Tier | Claude Code | OpenCode Go (requests/month @ that model's own limit — plan page monthly column) | Antigravity (family · effort ID) | Codex | Fallback |
 |---|---|---|---|---|---|
-| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/kimi-k3` | Gemini Pro (latest) | Astra (latest) | `opencode-go/kimi-k2.6` / `opencode-go/deepseek-v4-pro` / `sonnet` |
-| **T2 Coder** | `sonnet` | `opencode-go/glm-5.2` | Gemini Flash (latest) | Sol (latest) | `haiku` / `opencode-go/deepseek-v4-flash` |
-| **T3 Auditor** | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` | Gemini Pro *(must differ from T2)* | Astra (latest) *(must differ from T2)* | `sonnet` / `opencode-go/kimi-k2.6` |
-| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4-flash` | Gemini Pro (long context) | Terra (latest) `<CONFIRM SLUG>` (context window not stated on the pinned page) | `opus` / `opencode-go/deepseek-v4-pro` |
-| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` | Gemini Flash | Luna (latest) | `sonnet` / `opencode-go/mimo-v2.5` |
-| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/qwen3.7-max` *(weak)* | **Gemini Pro (vision) — strongest column for this tier** | Astra (latest) `<CONFIRM SLUG>` (vision/multimodal support not stated on the pinned page) | `opus` |
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | `opencode-go/glm-5.3` / `sonnet` |
+| **T2 Coder** | `sonnet` | `opencode-go/deepseek-v4.1-flash` (32,500 @ $15; 4x promo → 130,000 @ $60 through 2026-09-20) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | `opencode-go/deepseek-v4-flash` (65,000 @ $30) / `opencode-go/glm-5.3-flash` (31,580 @ $60) / `haiku` |
+| **T3 Auditor** *(≠ T2)* | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) *(≠ T2)* | Gemini 3.1 Pro (High) — `gemini-3.1-pro-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | `claude-sonnet-4-6` on Antigravity where exposed / `sonnet` |
+| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window (32,500 @ $15) | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (150,400 @ $60) / `opus` |
+| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | `opencode-go/qwen3.8-flash` (27,000 @ $30) / `sonnet` |
+| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/deepseek-v4-flash-vision-exp` (32,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | `opus` |
 
-**The Antigravity column names families, not slugs, deliberately.** Its roster moves faster than
-this document and its picker labels versions (`Gemini 3.6 Flash`) rather than exposing stable
-aliases — so the exact identifier is confirmed per project at `/akili-constitution` Step 8C, the
-same treatment any unconfirmed roster gets. Naming the family is the alias-first rule applied where
-no alias mechanism exists. **T6 is the row that matters here:** it is the one tier where this column
-is the best of the four, which is why the old *"prefer external Gemini"* note existed at all — see
-*Cross-host dispatch* for how a session in another host actually reaches it.
+**Each OpenCode cell carries its own per-model monthly dollar limit and its own requests-per-month
+figure** — the plan page sets the limit per model, not per plan, so there is no single cap to
+assume. `opencode-go/deepseek-v4-flash` is T2's higher-volume alternative: 65,000 requests/month at
+its $30 limit against `deepseek-v4.1-flash`'s 32,500 at $15. **Pins:** OpenCode figures ← plan page
+<https://opencode.ai/docs/go>
+(**Last verified: 2026-09-17**); Antigravity IDs ← `agy models` (**Last verified: 2026-09-17**);
+Codex families ← <https://learn.chatgpt.com/docs/models> (existing pin, **Last verified:
+2026-09-16**) + the T7 plan-gating paragraph below (existing).
+
+**The figures above are the plan page's *requests-per-month* column, re-read on 2026-09-17 — not
+the *requests-per-5-hour* column.** The two are easy to conflate (same table, adjacent columns) and
+differ by roughly 5×, so a monthly figure sourced from a screenshot of only the 5-hour column would
+understate every quota. `deepseek-v4.1-flash` additionally carries a temporary 4x promotional
+multiplier on the page (`$15` → `$60`, ending **2026-09-20**); the cell above pins the durable $15
+baseline and notes the expiring promo separately rather than defaulting to it.
+
+**The Antigravity column names concrete effort-IDs, confirmed against the live roster.** Its picker
+moves faster than this document, so every ID above is re-read from `agy models` rather than assumed
+from a UI label — the same treatment any concrete, alias-free identifier gets under the alias-first
+rule above. Confirm the family + effort mapping at `/akili-constitution` Step 8C with the same
+command. T6's vision path carries `<CONFIRM ID>` because the roster does not label a model
+vision-specific — see *Cross-host dispatch* for confirming the vision path per project rather than
+assuming this column is automatically the strongest for it.
 
 **The Codex column also names families, not slugs — same rule, a different reason.** Codex ships
 versioned model names (`gpt-6-astra`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) rather than a
@@ -144,11 +160,12 @@ evidence for any Codex model either, so both `<CONFIRM SLUG>` cells stay as plac
 
 **Plan gating, confirmed live 2026-09-17 (codex-cli 0.154.0, ChatGPT-account login):** only
 `gpt-5.6-terra` and `gpt-5.6-luna` were accepted; `gpt-6-astra` and `gpt-5.6-sol` both returned "The
-'\<model\>' model is not supported when using Codex with a ChatGPT account." T1/T3 (Astra) and T2
-(Sol) are therefore plan-gated on such accounts — confirm the account's own `/model` roster at
-`/akili-constitution` Step 8C before writing wrapper slugs. On an account where only Terra/Luna are
-usable, keep author ≠ auditor with the fallback pairing Reviewer `gpt-5.6-terra` ≠ Implementer
-`gpt-5.6-luna` rather than the registry's default Astra/Sol pair.
+'\<model\>' model is not supported when using Codex with a ChatGPT account." The registry's
+defaults — Terra for T1/T3/T4/T6, Luna for T2/T5 — are exactly the pair such an account can select;
+**Sol as the T1/T3 upgrade is plan-gated**, so confirm the account's own `/model` roster at
+`/akili-constitution` Step 8C before writing a Sol wrapper slug. Author ≠ auditor holds on such
+accounts with the default pairing itself — Reviewer `gpt-5.6-terra` ≠ Implementer `gpt-5.6-luna` —
+with no upgrade required.
 
 ### Why these models
 
@@ -175,48 +192,72 @@ cost*, not about which pool the budget comes from.
 
 **OpenCode Go.** The strongest open models anchor the highest-leverage tiers:
 
-- **GLM-5.2 → T2 Coder.** A-tier open coder (753B, GPQA 91.2), successor to GLM-5.1, purpose-built
-  for long autonomous coding runs — the recommended **default OpenCode workhorse**. (This row was
-  bumped 5.1 → 5.2 as a worked example of the *Replacing a model* runbook below.)
-- **Kimi K3 → T1 Architect.** S-tier open coder and the current-generation successor to K2.6 (which
-  drops to the T1 fallback), continuing the Kimi line's Agent Swarm lineage built for multi-step
-  decomposition — ideal for architectural trade-off reasoning and `/akili-explore`-style impact
-  analysis. It is the **slowest of the pack (~33 tok/s)**, which is fine for T1 (Leader/architect =
-  low-volume, latency-tolerant) but is exactly why it must **never** sit in the T2 fan-out. Concrete
-  slug, no alias: confirm it against your own OpenCode roster and follow the runbook when a newer
-  Kimi ships.
-- **DeepSeek V4 Pro → T3 Auditor.** A-tier (SWE-bench 80.6, Terminal-Bench 67.9), 1M context, and
-  crucially a *different* model than the GLM-5.2 coder — satisfying author ≠ auditor for
-  `/akili-validate` and the Reviewer.
-- **DeepSeek V4 Flash → T4 / T5 (and the T2 fallback).** 1M context, A-tier yet cheapest of the set
-  ($0.14 / $0.28 per 1M, SWE-bench 79.0), highest rate limit — right for bulk ingestion,
-  high-frequency formatting, and as a strong cheap coder fallback.
-- **Qwen3.7 Max → T6.** Best-effort only (Alibaba's flagship, the most likely open multimodal
-  option — Intelligence ~46, but pricey at ~$1.03/task). Open multimodal is weak; for real UI/UX
-  design work prefer an external **Gemini 3.1 Pro** (A-tier vision) or **Claude Sonnet** (vision).
+The single published metric this registry re-baselines on is **requests per month at each model's
+own dollar limit** (**Last verified: 2026-09-17**, <https://opencode.ai/docs/go>); no benchmark
+score enters the pick. `deepseek-v4-flash` is the
+higher-volume alternative to T2's `deepseek-v4.1-flash`: 65,000 requests/month at its $30 limit
+against 32,500 at $15.
 
-All OpenCode Go slugs are taken from the [OpenCode Go model list](https://opencode.ai/docs/go).
-Confirm them against your own OpenCode configuration and adjust if your roster differs.
+- **DeepSeek V4 Pro → T1 Architect, T3 Auditor.** 5,200 requests/month at the $15 limit — the same
+  model anchors both tiers; author ≠ auditor holds by role (Implementer vs. Reviewer), not by a
+  second OpenCode family, matching the Codex paragraph below.
+- **DeepSeek V4.1 Flash → T2 Coder, T4 Context-Ingest.** 32,500 requests/month at the $15 limit.
+  The page currently runs a temporary 4x promotion to the $60 limit (130,000 requests/month) that
+  ends **2026-09-20**; pin the durable $15 figure, not the expiring one. `<CONFIRM>` on T4's context
+  window — the page states no figure for it.
+- **DeepSeek V4 Flash → T5 Fast-Cheap.** 65,000 requests/month at the $30 limit — also T2's
+  higher-volume alternative, named above.
+- **DeepSeek V4 Flash Vision Exp → T6 Multimodal (Exp).** 32,500 requests/month at the $15 limit.
+  "Exp" here names a **plan-listed model with a published quota and config slug** — a different
+  standing than an unlisted research preview (see `gpt-5.3-codex-spark` in the Codex paragraph
+  below); still, for real UI/UX design work prefer *Cross-host dispatch* to Claude Code (`sonnet`,
+  vision) or Antigravity (Gemini 3.8 Flash (High) `<CONFIRM ID>`, vision).
+- **Single-vendor column, non-DeepSeek Fallback.** Every default above is DeepSeek — DD-2: Pro ≠
+  Flash already keeps author ≠ auditor structural, at a fraction of the per-request cost of
+  spreading defaults across vendors "for diversity." The Fallback column keeps `opencode-go/glm-5.3`
+  (1,080/mo @ $15), `opencode-go/glm-5.3-flash` (31,580/mo @ $60), `opencode-go/mimo-v2.5`
+  (150,400/mo @ $60), and `opencode-go/qwen3.8-flash` (27,000/mo @ $30) so a DeepSeek outage has a
+  non-DeepSeek escape.
+
+*(GLM 5.1 → 5.2 was the prior worked example for the* Replacing a model *runbook below; this
+re-baseline is the current one.)*
+
+All OpenCode Go slugs and figures are re-read from the
+[OpenCode Go model list](https://opencode.ai/docs/go) (**Last verified: 2026-09-17**). Confirm them
+against your own OpenCode configuration and adjust if your roster differs.
+
+**Antigravity.** The roster (`agy models`, **Last verified: 2026-09-17**) currently tops out at
+**Gemini 3.8 Flash** — the family this table routes to T1, T2, T4, T5, and T6, with the effort rung
+carried in the ID itself (`gemini-3.8-flash-high` / `-medium` / `-low`; see *Effort dial* below for
+the AKILI-rung mapping) rather than as a separate dial, since that is what the host actually
+exposes. **T3 Auditor uses Gemini 3.1 Pro (High)** (`gemini-3.1-pro-high`) instead — a different
+family from the T2 Flash coder — the only Pro generation the roster exposes, against a current 3.8
+Flash; that roster-generation gap, not a benchmark ranking, is the whole basis for keeping Pro off the default
+column even though it satisfies author ≠ auditor. Where a plan exposes it, prefer **Claude Sonnet
+4.6 (Thinking)** (`claude-sonnet-4-6`, confirmed in the same roster) as the T3 upgrade over Pro 3.1.
+T6's vision path carries `<CONFIRM ID>` because the roster does not label a model vision-specific;
+confirm the exact ID per project.
 
 **Codex.** The split stays inside one vendor's roster rather than crossing labs, so it leans on the
-pinned page's own capability language. **Sol → T2 Coder**: the page describes it as "the most
-capable GPT-5.6 model for complex coding, computer use, research, and cybersecurity" — the closest
-thing Codex's roster states to a coding-specialist workhorse. **Astra → T1 Architect and T3
-Auditor**: the newest-generation flagship ("our most capable model for complex work across code,
-apps, and research"), reserved for the low-volume, high-leverage Leader/architect and Reviewer
-roles. Author ≠ auditor holds here by *role*, not by a second top-tier family — Codex's pinned page
-names no second current-generation flagship (`gpt-5.5` and `gpt-5.4` are listed but as
-previous-generation/retiring) the way a cross-lab pin would — so if that ever reads as too thin, escalate
-the Reviewer's `model_reasoning_effort` (see *Enforced routing*) rather than leaving T2 = T3.
-**Terra → T4 Context-Ingest**: "balanced … everyday work," carrying `<CONFIRM SLUG>` because the
-page states no context-window figure. **Luna → T5 Fast-Cheap**: stated plainly as "fast and
-affordable." **T6 Multimodal defaults to Astra, `<CONFIRM SLUG>`**: the pinned page names no
+pinned page's own capability language. **Terra → T1 Architect, T3 Auditor, T4 Context-Ingest, T6
+Multimodal** (T4/T6 `<CONFIRM SLUG>`): the page describes it as "balanced … everyday work," and it
+is one of the two models selectable on a ChatGPT-account plan (see the plan-gating paragraph
+above) — `<CONFIRM SLUG>` on T4/T6 because the page states no context-window or vision/multimodal
+figure for any Codex model. **Sol** is named as the **plan-permitting upgrade** for T1/T3 — the
+page's "most capable GPT-5.6 model for complex coding, computer use, research, and cybersecurity" —
+where the account plan allows it; **Astra is removed from the defaults** entirely (plan-gated, per
+above). **Luna → T2 Coder, T5 Fast-Cheap**: stated plainly as "fast and affordable." Author ≠
+auditor holds here by *role* (Terra ≠ Luna), not by a second top-tier family — the pinned page names
+no second current-generation flagship the way a cross-lab pin would — so if that ever reads as too
+thin, escalate the Reviewer's `model_reasoning_effort` (see *Enforced routing*) rather than leaving
+T2 = T3. **T6 Multimodal defaults to Terra, `<CONFIRM SLUG>`**: the pinned page names no
 vision/multimodal capability for any Codex model, so prefer *Cross-host dispatch* to Claude Code
-(`sonnet`, vision) or Antigravity (Gemini Pro, vision) for real UI/UX design work rather than
-trusting an unconfirmed Codex vision path. The page also lists a fifth model,
-`gpt-5.3-codex-spark` — a text-only research preview "optimized for near-instant, real-time coding
-iteration" — left out of the tier table because a research preview is not a routing default, though
-it is worth trying by hand for a fast Implementer loop once it stabilizes.
+(`sonnet`, vision) or Antigravity (Gemini 3.8 Flash (High) `<CONFIRM ID>`, vision) for real UI/UX
+design work — confirm the exact vision path per project rather than assuming one column is
+strongest. The page also lists a fifth model, `gpt-5.3-codex-spark` — a text-only research preview
+"optimized for near-instant, real-time coding iteration" — left out of the tier table because a
+research preview is not a routing default, though it is worth trying by hand for a fast Implementer
+loop once it stabilizes.
 
 ### Frontier escalation tier (opt-in — pin, not alias)
 
@@ -270,6 +311,18 @@ dynamic** — the same T2 `sonnet` should run a trivial rename at `low` and a co
 `xhigh`. Whoever spawns the worker sets it: in `/akili-execute` and `/akili-test` that is the
 **Leader**, alongside its skill selection (same master-builder judgment — which tier, which skill,
 how hard it thinks).
+
+**Antigravity maps the dial onto its three effort IDs, not a separate setting.** The roster exposes
+effort as distinct IDs (`-high` / `-medium` / `-low`) rather than a dial the way Codex's
+`model_reasoning_effort` does, so the AKILI dial collapses onto them:
+
+| AKILI dial | Antigravity ID suffix |
+|---|---|
+| `low` | `-low` |
+| `medium` | `-medium` |
+| `high`, `xhigh`, `max` | `-high` (the roster exposes three rungs; the top three collapse) |
+
+Referenced from `/akili-constitution` Step 8C when confirming the exact ID with `agy models`.
 
 **Why it matters — the intelligence↔cost curve is steeply diminishing at the top.** Measured on a
 representative model (GPT-5.6 Sol, Artificial Analysis Intelligence Index):
@@ -362,7 +415,7 @@ personas there:
 | Tool | Native agent location | Model value |
 |---|---|---|
 | Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
-| OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/glm-5.2`) |
+| OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/deepseek-v4.1-flash`) |
 | Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro` |
 | Codex | `.codex/agents/akili-{leader,implementer,reviewer,tester}.toml` (project-level) | `model =` from the registry's Codex column, plus `model_reasoning_effort =` — see below |
 
@@ -570,7 +623,7 @@ model column.
 |---|---|
 | **Floating alias** (`opus` / `sonnet` / `haiku`, Claude Code) | **Nothing.** The alias auto-resolves to the latest generation of that family — this is exactly what alias-first buys you. Zero edits. |
 | **Concrete slug** (OpenCode `opencode-go/...`, a dated Claude pin, or `claude-fable-5`) | **Edit it** — no alias mechanism absorbs the change. Follow the 3 steps below. |
-| **You want to re-map a tier** (promote a new model into T1/T2/T3, e.g. Kimi K3 → T1) | Edit the tier's row, then reconcile wrappers — same 3 steps. Treat it as a *promotion to evaluate*, not an auto-swap (does it fit the tier? does it keep author ≠ auditor?). |
+| **You want to re-map a tier** (promote a new model into T1/T2/T3, e.g. GLM-5.3-Flash → T2) | Edit the tier's row, then reconcile wrappers — same 3 steps. Treat it as a *promotion to evaluate*, not an auto-swap (does it fit the tier? does it keep author ≠ auditor?). |
 
 **The 3 steps (concrete-slug or re-map case):**
 
@@ -602,16 +655,17 @@ model column.
   command's model checkpoint. With Step 8E bindings in place, the execute/test triad
   routes itself (Implementer on `sonnet`, Reviewer on `opus`, Leader = your session).
 - **OpenCode:** select the `opencode-go/...` model for each phase per the registry, or use the
-  Step 8E agent bindings. Run the **Leader session on the T1 slug** (`opencode-go/kimi-k3`), and
-  keep the Reviewer/validator on a different model (`deepseek-v4-pro`) than the Implementer
-  (`glm-5.2`).
+  Step 8E agent bindings. Run the **Leader session on the T1 slug** (`opencode-go/deepseek-v4-pro`),
+  and keep the Reviewer/validator on that same T3 slug (`opencode-go/deepseek-v4-pro`) — different
+  from the Implementer (`opencode-go/deepseek-v4.1-flash`).
 - **Codex:** switch model and reasoning effort together with `/model` before a phase — there is no
   separate `/reasoning` command; `/model` "choose[s] the active model (and reasoning effort, when
   available)" in one prompt (**Last verified: 2026-09-16**,
   <https://learn.chatgpt.com/docs/cli/slash-commands>). Use it to pick the registry's T1 family
-  (**Astra**) at `high` effort for `/akili-propose`, `/akili-validate`, and the `/akili-execute` /
-  `/akili-test` **Leader session**. With Step 8E wrappers in place, the execute/test triad routes
-  itself from `.codex/agents/akili-*.toml` (Implementer on **Sol**, Reviewer on **Astra**, both
+  (**Terra**) at `high` effort for `/akili-propose`, `/akili-validate`, and the `/akili-execute` /
+  `/akili-test` **Leader session** — confirm the account's own roster at Step 8C, since Sol upgrades
+  T1/T3 only where the plan allows it. With Step 8E wrappers in place, the execute/test triad routes
+  itself from `.codex/agents/akili-*.toml` (Implementer on **Luna**, Reviewer on **Terra**, both
   with their own `model_reasoning_effort`) — the Leader session is the one seat you still set by
   hand.
 

@@ -30,3 +30,31 @@
 | Task state | T1 `[~]`; the Implementer's edit already uses the monthly figures and states the promo separately — attempt 1 proceeds to review against the **amended** spec once the user approves |
 | User decision | **Approved** (2026-09-17) — "Aprobar y revisar T1": per-cell limits + monthly figures, promo noted; T1 attempt 1 proceeds to review against the amended spec |
 
+### T1 — `docs/model-routing.md`: table, prose, effort map, examples, runbook, cross-host
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `cognitive-doc-design` (task default) |
+| Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (120+/68−) |
+
+**Attempt 1** — `docs/model-routing.md` (120+/68−). Implementer followed the Source-of-truth rule, fetched the plan page and ran `agy models`, and surfaced the **5-hour vs monthly column** defect that became Pivot Record T1 (approved). Verification: check 1 fetched slug list (29) + roster pasted, all table slugs/IDs present; check 2 T2 ≠ T3 stated per column; check 3 zero benchmark tokens in the *Why these models* range; check 4 two `gpt-6-astra` prose survivors, none in a table row; check 5 Claude paragraphs byte-identical (after a self-caught boundary fix); check 6 five `Last verified: 2026-09-17`, `git diff --check` clean.
+
+Reviewer verdict: **FAIL** (1 issue). Verified live by the Reviewer: every quota figure matches the page's monthly column (V4 Pro 5,200 @ $15; V4.1 Flash $15 baseline 32,500 with "$60 · 4x · Ends Sep 20" 130,000 noted separately; V4 Flash 65,000 @ $30; Vision Exp 32,500 @ $15; GLM-5.3 1,080 @ $15; GLM-5.3-Flash 31,580 @ $60; MiMo-V2.5 150,400 @ $60; Qwen3.8 Flash 27,000 @ $30); slugs verbatim in the page's config table; `agy models` IDs present; checks 3–6 re-run PASS; DD-8, effort map, qualifiers, rows 9–12 landed. Issue (verbatim claim): the diff reinstates a single "$60 limit" assumption at three sites (table header `@ $60 limit unless noted`; under-table sentence; *Why these models* opener) although no default cell is at $60 (T1–T4 $15, T5 $30) and it offers `deepseek-v4-flash` as "the $30-limit alternative … if you prefer the lower cap" — inverted ($30 > $15; it is the higher-volume alternative) and asserting a selectable cap the page does not describe ("Usage limits are defined as monthly dollar amounts … for each model"). Violated: Pivot Record T1 revised direction; FR-1 SHALL (per-cell limit); design §5.1 header; tasks T1 scope; FR-4 AND clause ("higher-volume alternative"). Remediation: header verbatim from §5.1; both sentences → each cell carries its own limit and monthly figure; drop "$60 assumption" and "Option A + A1"; alternative framed as higher volume at a higher cap, attached to T2 (or add to T4 Fallback). Leader note: the "$60" residue came from my pre-pivot brief — brief error, not Implementer drift.
+
+ADVISORY (recorded): "cheapest tier of the set" for V4 Flash is an unpinned price ranking (say "most requests per cap" or drop); "two generations behind" is not countable from the `agy models` pin (roster shows one Pro generation); T3/T6 have no OpenCode Fallback entry (conformant to §5.1; FR-1's "per tier where one exists" reads broader).
+
+**Attempt 2** — `docs/model-routing.md` (122+/68−). Fixes: table header = design §5.1 verbatim; under-table sentence and *Why these models* opener state that each cell carries its own per-model monthly limit and figure ("the plan page sets the limit per model, not per plan, so there is no single cap to assume"); `deepseek-v4-flash` framed as T2's higher-volume alternative (65,000 @ $30 vs 32,500 @ $15); "$60 assumption", "Option A + A1" and the "$15/$30/$60" enumeration removed. Advisories applied: T5 superlative dropped after the Implementer checked the arithmetic (V4.1 Flash, V4 Flash and Vision Exp all tie at 2,166.7 requests/$ — "most requests per dollar" would have been false, KZ-002); Antigravity line → "the only Pro generation the roster exposes, against a current 3.8 Flash". Checks 2–6 re-run green; `grep '\$60'` → six hits, all promo note or a model's own limit.
+
+Reviewer verdict: **PASS**. All three sites remediated; per-model claim matches the page text verbatim (KZ-001 clear); FR-4 AND clause met at both sites; per-cell figures byte-identical to the attempt-1 rows verified against the raw page; checks 2–6 re-run by the Reviewer; both advisories correctly applied. ADVISORY (recorded): three edited lines wrap short of the file's column width — fold on next touch.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-1 (all clauses, monthly figures per Pivot T1), FR-2 registry half (IDs ∈ `agy models`, Pro ≠ Flash, Sonnet 4.6 upgrade, no benchmark ranking, dial → ID map), FR-3 (all clauses), FR-4 (all clauses), NFR-1, NFR-5 |
+| Decisions | Pivot Record T1 (monthly column; per-cell limits; promo noted with end date); T5 superlative removed rather than re-sourced |
+| Issues | Attempt 1: "$60 limit" framing carried from the Leader's pre-pivot brief — fixed |
+| Queued for T2 | Step 8C/8E defaults, mirror, CHANGELOG copy the final table (monthly figures, per-cell limits) |
+| Final verification | checks 1–6 green (Implementer + Reviewer independent runs); `git diff --check` clean |
+| Approval gate | `gated` — user asked at the T1 landing |
+
