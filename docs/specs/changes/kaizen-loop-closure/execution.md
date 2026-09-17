@@ -136,3 +136,26 @@ Reviewer verdict: **PASS.** "T4's constitution bullet and the two template phras
 | Issues | none |
 | Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
 | Continue gate | auto-approved (pre-approved mode) |
+
+### T2 — `/akili-archive`: gates on the apply-capable predicate, upstream clause, five-state report
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (full four-lens sweep) |
+
+**Attempt 1** — files: `.claude/commands/akili-archive.md` (10+/10−, 5 hunks). Five scoped sites edited (Step 3 gate; Step 4.3 upstream clause; Step 4.4 offer + note; Step 6 item 7 five statuses + report path; Error Handling writable set). **Leader pre-review catches (brief conformance under KZ-001, not Reviewer rounds):** five restatements in the same file still asserted the superseded rule — Step 3 item 4 heading and its ADR-numbering clause, Step 4.3 menu paragraph, Step 4.4 Record paragraph, Error Handling never-block bullet; returned to the Implementer, who fixed four, flagged the fifth (item 4 body) as outside the named list rather than widening, and applied it on the Leader's go-ahead. Implementer verification: greps 1–4 green; banned-phrase grep zero; `git diff --check` clean; remaining `default branch` hits enumerated with reasons; Step 5 move and Step 3 item 5 flip untouched.
+
+Reviewer verdict: **PASS.** "All five T2 sites land in apply-capable terms, the Step 3 gate cites the skill's predicate by name without restating a git procedure, and the FR-2 hotfix path (default branch + integration pin) is closed at every write site: items 2–4 record pending, ADR allocation is unreachable, the 4.4 offer stays silent and names the pinned branch." Reviewer re-ran greps 1–4 and the union-semantics grep (zero); five surviving `default branch` hits all sanctioned (predicate gloss, non-writing row, quoted banned phrase).
+
+**ADVISORY (recorded, no rework, no task):** READABILITY — Step 3 items 2–4's sub-clauses still say "On a spec branch:" alone (the line-131 umbrella covers default-while-pinned; silence, not disagreement); Step 6 item 6 reports "on a spec branch" only (reporting side, no write consequence). **Forward pointer → T6:** the walkthrough's hotfix-on-default step lands on those narrower sub-clauses after the umbrella — record whether a literal reader could disagree; if so it is a T6 INCONCLUSIVE, not a T5 edit.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-2 hotfix scenario (archive side, all clauses), FR-3 offer/note, FR-5 spec-branch scenario, FR-6 archive-report scenario, NFR-4 |
+| Decisions | Five in-file restatements aligned as brief conformance before review (KZ-001) |
+| Issues | none at review; the restatement class recurred (T1 → T2) — Kaizen candidate strengthened |
+| Final verification | greps 1–4 green (Implementer + Reviewer); union grep zero; `git diff --check` clean |
+| Continue gate | auto-approved (pre-approved mode) |
