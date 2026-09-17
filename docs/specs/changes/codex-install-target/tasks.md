@@ -221,7 +221,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1–T6 |
 | Requirements | FR-10 (scenario incl. blocked case), FR-5 `AND IT MUST` (spawn model-driven + Reviewer cannot write), FR-6 scenario (gate fires; raw payload), FR-7 `BUT` (roster), FR-8 `BUT` (Unattended), design §4 tenant claim, DD-9 menu check |

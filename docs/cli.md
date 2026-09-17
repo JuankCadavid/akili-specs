@@ -33,7 +33,7 @@ npx akili-specs install --tool all
 
 When `--tool` is omitted, `install`, `update`, and `doctor` **auto-detect already-installed
 targets** on disk (`~/.claude`, `~/.config/opencode`, `~/.gemini`, and — for Codex — a non-empty
-`~/.codex/akili` resources directory or an `akili-<cmd>/SKILL.md` command skill under
+`akili` resources directory under `$CODEX_HOME` (default `~/.codex`) or an `akili-<cmd>/SKILL.md` command skill under
 `~/.agents/skills`) and act on all of them — so a bare `akili update` refreshes every installed
 tool, not just Claude. A populated `~/.agents/skills` alone is **not** evidence of a Codex install:
 that root is shared with other tools honoring the Agent Skills standard, so detection keys on the
@@ -113,7 +113,7 @@ Default targets:
 Claude:      ~/.claude
 OpenCode:    ~/.config/opencode
 Antigravity: ~/.gemini
-Codex:       ~/.codex (resources) + ~/.agents/skills (commands and skills)
+Codex:       $CODEX_HOME if set, else ~/.codex (resources) + ~/.agents/skills (commands and skills)
 ```
 
 Claude install layout:
@@ -240,7 +240,7 @@ The CLI installs helper resources under the target `akili/` directory:
 section gains a `codex` row (`codex --version`) with the same never-fails semantics: a missing or
 broken binary (including the known vendor `ENOENT` on some 0.66.0 installs) reports NOT FOUND with
 the install hint (`npm install -g @openai/codex`) and does not flip the exit code or count toward
-`missing`. Separately, if `~/.codex/skills/akili-*` exists from an old manual copy while the standard
+`missing`. Separately, if `<codex config home>/skills/akili-*` (`$CODEX_HOME`, default `~/.codex`) exists from an old manual copy while the standard
 root (`~/.agents/skills`) is complete, `doctor --tool codex` prints one informational line naming the
 legacy copy as present and unmanaged — it is never required and never deleted, because the installer
 never wrote there.

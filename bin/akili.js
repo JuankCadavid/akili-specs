@@ -113,7 +113,16 @@ const defaultPaths = {
   claude: path.join(os.homedir(), ".claude"),
   opencode: path.join(os.homedir(), ".config", "opencode"),
   antigravity: path.join(os.homedir(), ".gemini"),
-  codex: path.join(os.homedir(), ".codex"),
+  // @akili-spec changes/codex-install-target — T1 delta (T7 CODEX_HOME finding):
+  // Codex's own config home follows $CODEX_HOME when set (glossary: "config home
+  // $CODEX_HOME, default ~/.codex"). This is the global default only — --local
+  // keeps ./.codex, and --codex-target/--target still override it exactly as
+  // before. codexSkills below is unaffected: Codex's Agent Skills root does not
+  // follow CODEX_HOME.
+  codex:
+    process.env.CODEX_HOME && process.env.CODEX_HOME.trim() !== ""
+      ? resolveUserPath(process.env.CODEX_HOME.trim())
+      : path.join(os.homedir(), ".codex"),
   codexSkills: path.join(os.homedir(), ".agents", "skills"),
 };
 
@@ -187,7 +196,7 @@ Options:
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
   --antigravity-target Antigravity config directory. Default: ~/.gemini
-  --codex-target       Codex config home (resources land at <path>/akili). Default: ~/.codex
+  --codex-target       Codex config home (resources land at <path>/akili). Default: $CODEX_HOME if set, else ~/.codex
   --codex-skills-target Codex Agent Skills root (shared with other tools). Default: ~/.agents/skills
   --force              Overwrite existing files
   --dry-run            Show what would happen without writing files

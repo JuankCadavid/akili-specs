@@ -479,8 +479,10 @@ function runThreeTargetDiff() {
 // Part 2 — detection fixture (T1 check 5, W-3): a shared, foreign-populated
 // skills root must not cause a false-positive Codex auto-detection; a real
 // akili-* command skill must cause a true positive. Driven via a spawned
-// `node bin/akili.js doctor` (no --tool) with HOME (and USERPROFILE on
-// Windows) pointed at a scratch home, so the real ~/.agents is never read.
+// `node bin/akili.js doctor` (no --tool) with HOME, USERPROFILE (Windows),
+// and CODEX_HOME pinned to a scratch home, so neither the real ~/.agents nor
+// an inherited $CODEX_HOME (which now drives Codex detection — T1 delta) is
+// ever read.
 function runDetectionFixture() {
   const tmpHome = mkTmp("akili-regress-fixture-");
   try {
@@ -495,7 +497,7 @@ function runDetectionFixture() {
     }
     // No akili-* skill dir and no <home>/.codex/akili — both left absent.
 
-    const env = { ...process.env, HOME: tmpHome, USERPROFILE: tmpHome };
+    const env = { ...process.env, HOME: tmpHome, USERPROFILE: tmpHome, CODEX_HOME: path.join(tmpHome, ".codex") };
 
     const before = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
     const beforeOut = `${before.stdout || ""}${before.stderr || ""}`;
