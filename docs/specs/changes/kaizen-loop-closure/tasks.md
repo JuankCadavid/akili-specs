@@ -127,7 +127,7 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-1 (both scenarios; `AND IT MUST` adjacent to `Default Branch:`; `BUT NOT` unprompted / inferred from git / equal to default; Safe Update clause: add pin only when missing + rewrite adjacent discipline sentence + persona-drift line), FR-8 for the two templates (`.claude/templates/leader.md`, `implementer.md` guardrail phrase) |

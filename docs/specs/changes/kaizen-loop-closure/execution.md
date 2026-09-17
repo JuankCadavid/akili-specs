@@ -113,3 +113,26 @@ Reviewer verdict: **PASS.** "The appended clause closes the gap I raised. All th
 | Issues | 1 FAIL: the FR-7 neither-pin population had no reading — same lesson class as T1 (a new value walked against the pinned cases, not against the no-pin legacy case) |
 | Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
 | Continue gate | auto-approved (pre-approved mode) |
+
+### T4 — `/akili-constitution`: `Integration Branch:` pin; persona guardrail phrase
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (checklist mode, diff < 50 LOC) |
+
+**Attempt 1** — files: `.claude/commands/akili-constitution.md` (8+/1− — new Step 8 bullet with seven sub-bullets after the `Default Branch:` bullet; discipline bullet reworded), `.claude/templates/leader.md` (1−/1+), `.claude/templates/implementer.md` (1−/1+). Implementer verification: grep 1 → 8 `Integration Branch` hits, all in Step 8, one "confirm", one "trunk", none with a git heuristic; grep 2 → zero "applied on the default branch" across the three files; grep 3 → two template files, one hunk each; `git diff --check` clean. Two declared readings, **Leader-adjudicated as satisfied**: (a) verification 3's "≤3 changed lines total" met as 2 changed lines (4 diff rows, 1−/1+ per file); (b) the Safe Update clause describes the old phrase instead of quoting it, to avoid self-tripping grep 2.
+
+Reviewer verdict: **PASS.** "T4's constitution bullet and the two template phrase swaps satisfy FR-1, FR-8, and design rows 20–22 as an executable scaffolding procedure. All three verifications reproduce clean at the source, no contradiction with the `Default Branch:` bullet above it, and no path by which an agent writes or infers the pin unprompted." Reviewer confirmed: bullet immediately after `Default Branch:`; detection is a question with the git heuristic explicitly refused; assertion sentence verbatim per FR-1; when-to / when-not-to; one name ≠ default; Safe Update's three halves present and consistent with the command's existing persona contract (DD-7); templates match FR-8 wording plus FR-2 exclusivity; union-semantics grep zero over the three files; `implementer.md` one hunk, item 14 untouched.
+
+**Forward pointer → T6 (Reviewer, noted not an issue):** the pin's ask is phrased as a yes/no and does not separately instruct collecting the branch name (implied by surrounding clauses) — walk the FR-1 release-cadence scenario and record whether the shipped text yields the name unambiguously.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-1 (both scenarios, all clauses, Safe Update clause), FR-8 (constitution bullet + two templates) |
+| Decisions | Verification 3 read as changed source lines; old phrase described, not quoted |
+| Issues | none |
+| Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
+| Continue gate | auto-approved (pre-approved mode) |
