@@ -38,16 +38,16 @@ No new files. Edited: `docs/model-routing.md`, `.claude/commands/akili-constitut
 
 ### 5.1 The new registry table (target state)
 
-| Tier | Claude Code | OpenCode Go (req/mo @ $60 limit unless noted) | Antigravity (family · effort ID) | Codex | Fallback |
+| Tier | Claude Code | OpenCode Go (requests/month @ that model's own limit — plan page monthly column) | Antigravity (family · effort ID) | Codex | Fallback |
 |---|---|---|---|---|---|
-| T1 Architect | `opus` | `opencode-go/deepseek-v4-pro` (1,050 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | `opencode-go/glm-5.3` / `sonnet` |
-| T2 Coder | `sonnet` | `opencode-go/deepseek-v4.1-flash` (26,000) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | `opencode-go/deepseek-v4-flash` (13,000 @ $30) / `opencode-go/glm-5.3-flash` (6,320) / `haiku` |
+| T1 Architect | `opus` | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | `opencode-go/glm-5.3` / `sonnet` |
+| T2 Coder | `sonnet` | `opencode-go/deepseek-v4.1-flash` (32,500 @ $15; 4× promo to $60/130,000 ends 2026-09-20) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | `opencode-go/deepseek-v4-flash` (65,000 @ $30) / `opencode-go/glm-5.3-flash` (31,580 @ $60) / `haiku` |
 | T3 Auditor *(≠ T2)* | `opus` | `opencode-go/deepseek-v4-pro` *(≠ T2)* | Gemini 3.1 Pro (High) — `gemini-3.1-pro-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | `claude-sonnet-4-6` on Antigravity where exposed / `sonnet` |
-| T4 Context-Ingest | `sonnet` | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (30,100) / `opus` |
-| T5 Fast-Cheap | `haiku` | `opencode-go/deepseek-v4-flash` (13,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | `opencode-go/qwen3.8-flash` (5,400 @ $30) / `sonnet` |
-| T6 Multimodal | `sonnet` | `opencode-go/deepseek-v4-flash-vision-exp` (6,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | `opus` |
+| T4 Context-Ingest | `sonnet` | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (150,400 @ $60) / `opus` |
+| T5 Fast-Cheap | `haiku` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | `opencode-go/qwen3.8-flash` (27,000 @ $30) / `sonnet` |
+| T6 Multimodal | `sonnet` | `opencode-go/deepseek-v4-flash-vision-exp` (32,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | `opus` |
 
-Pins: OpenCode figures ← plan page <https://opencode.ai/docs/go> (`Last verified: <edit date>`); Antigravity IDs ← `agy models` (`Last verified: <edit date>`); Codex families ← <https://learn.chatgpt.com/docs/models> (existing pin) + the T7 plan-gating paragraph (existing). "Registry updated" → edit date.
+Pins: OpenCode figures ← plan page <https://opencode.ai/docs/go> **monthly column** (`Last verified: <edit date>`; the page also shows a per-5-hour column — Pivot Record T1); Antigravity IDs ← `agy models` (`Last verified: <edit date>`); Codex families ← <https://learn.chatgpt.com/docs/models> (existing pin) + the T7 plan-gating paragraph (existing). "Registry updated" → edit date.
 
 ### 5.2 Effort dial → Antigravity effort ID
 
@@ -62,7 +62,7 @@ Stated once in *Effort dial* and referenced from Step 8C.
 ### 5.3 *Why these models* — target structure
 
 1. Claude Code paragraph — **unchanged**. *Rate limits are per-generation* — **unchanged**.
-2. **OpenCode Go** — opens with the metric and the $60 assumption; one bullet per tier naming slug + requests/month; one sentence for the $30 alternative (`deepseek-v4-flash` for T2/T4); one sentence on the single-vendor column and why the Fallback column keeps `glm-5.3`, `glm-5.3-flash`, `mimo-v2.5`, `qwen3.8-flash`; T6 "Exp" caveat + cross-host note. No benchmark figures.
+2. **OpenCode Go** — opens with the metric (requests per month at each model's own limit); one bullet per tier naming slug + requests/month + limit; one sentence for the higher-volume alternative (`deepseek-v4-flash`, 65,000 @ $30) and the V4.1 Flash promo expiry; one sentence on the single-vendor column and why the Fallback column keeps `glm-5.3`, `glm-5.3-flash`, `mimo-v2.5`, `qwen3.8-flash`; T6 "Exp" caveat + cross-host note. No benchmark figures.
 3. **Antigravity** — roster generation as the basis (3.8 Flash current; 3.1 Pro two generations back), effort-in-ID rule, T3 = Pro for different weights, Claude Sonnet 4.6 (Thinking) as the preferred T3 upgrade where exposed, `<CONFIRM ID>` vision on T6.
 4. **Codex** — existing paragraph trimmed: Terra/Luna defaults, Sol upgrade, Astra removed from defaults; plan-gating paragraph kept as is.
 
@@ -103,13 +103,13 @@ Verdict: R3 and R4 required design changes (DD-8, row 11); R1, R2, R5 required s
 
 ## 8. Design Decisions
 
-- **DD-1 — One selection metric, pinned.** Requests per month under the per-model limit, from the plan page. Rejected: mixing benchmark scores from memory (unpinned; the KZ-001/KZ-002 exposure in the current text) and vendor pricing pages (a different unit than the plan users actually buy).
+- **DD-1 — One selection metric, pinned.** Requests per **month** under each model's own per-model limit, from the plan page's monthly column (the proposal transcribed the per-5-hour column from a screenshot — Pivot Record T1; picks unchanged, figures ~5× higher). Rejected: mixing benchmark scores from memory (unpinned; the KZ-001/KZ-002 exposure in the current text) and vendor pricing pages (a different unit than the plan users actually buy).
 - **DD-2 — Single-vendor OpenCode column with a non-DeepSeek Fallback.** Pro ≠ Flash keeps author ≠ auditor structurally; the Fallback column keeps `glm-5.3`, `glm-5.3-flash`, `mimo-v2.5`, `qwen3.8-flash` so a DeepSeek outage has an escape. Rejected: spreading defaults across vendors "for diversity" at 5–20× the per-request cost.
 - **DD-3 — Antigravity effort lives in the ID.** The roster exposes `-high/-medium/-low`; naming the family + effort per tier is the alias-first rule applied to what the host actually exposes. §5.2 collapses the top three AKILI rungs onto `-high`.
 - **DD-4 — Antigravity T3 = Gemini 3.1 Pro (High) (proposal A1).** Different weights than the Flash coder; low-volume role tolerates the older generation. Rejected A3 (Flash High: same model, weaker independence); A2 (Claude Sonnet 4.6) named as the preferred upgrade where the plan exposes it, not the default (plan-dependent).
 - **DD-5 — Codex default Terra, Sol as upgrade, Astra removed.** Selectable on ChatGPT accounts (T7 evidence); Sol/Astra are plan-gated. Rejected: Sol default (fails with "not supported" until changed).
 - **DD-6 — Unpinned benchmarks removed, not re-sourced.** Re-sourcing seven figures across four vendors is research this spec does not budget; the metric in DD-1 replaces them. Any future benchmark claim needs its own pin.
-- **DD-8 — "Exp" on the plan ≠ "research preview" off it.** `deepseek-v4-flash-vision-exp` is listed on the plan page with a published quota (6,500 @ $15) and a config slug; `gpt-5.3-codex-spark` was excluded because it is a research preview with no routing standing. The T6 bullet states this distinction explicitly and keeps cross-host dispatch (Antigravity Gemini 3.8 Flash `<CONFIRM ID>`, Claude `sonnet`) as the recommended path for real UI/UX work. Rejected: leaving T6 on `qwen3.7-max` (170 requests @ $30, self-described weak) or leaving the cell empty (an empty default cell is the drift audit's failure mode).
+- **DD-8 — "Exp" on the plan ≠ "research preview" off it.** `deepseek-v4-flash-vision-exp` is listed on the plan page with a published quota (32,500/month @ $15) and a config slug; `gpt-5.3-codex-spark` was excluded because it is a research preview with no routing standing. The T6 bullet states this distinction explicitly and keeps cross-host dispatch (Antigravity Gemini 3.8 Flash `<CONFIRM ID>`, Claude `sonnet`) as the recommended path for real UI/UX work. Rejected: leaving T6 on `qwen3.7-max` (self-described weak) or leaving the cell empty (an empty default cell is the drift audit's failure mode).
 - **DD-7 — Patch release.** Registry refresh is documentation the release process already expects; no command, target, or behavior changes.
 
 ## 9. Budget (Step 2.4 — tripwire for `/akili-execute`)

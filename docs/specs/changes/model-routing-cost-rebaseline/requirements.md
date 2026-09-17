@@ -21,7 +21,7 @@ The packaged default registry in `docs/model-routing.md` (and everything that co
 
 | Term | Meaning |
 |---|---|
-| **Per-model limit** | OpenCode Go's monthly dollar cap per model ($15 / $30 / $60) inside the $10/month subscription; the plan page shows the **requests per month** that cap buys for each model |
+| **Per-model limit** | OpenCode Go's monthly dollar cap per model ($15 / $30 / $60) inside the $10/month subscription; the plan page shows two columns — **requests per 5 hour** and **requests per month** — for what that cap buys. The registry uses the **monthly** column (Pivot Record T1: the proposal's figures were the 5-hour column) |
 | **Registry default** | The tier table in `docs/model-routing.md` → *Model registry*, copied by `/akili-constitution` Step 8C into each project's `## Model Routing` |
 | **Effort ID** | An Antigravity model identifier that includes the reasoning effort (`gemini-3.8-flash-high`) — the roster exposes effort as distinct IDs, not a separate dial |
 | **Pin** | `Last verified: <date>` + URL (or the command that produced the roster, e.g. `agy models`) next to a claim |
@@ -50,7 +50,7 @@ The packaged default registry in `docs/model-routing.md` (and everything that co
 
 ### FR-1: OpenCode Go column re-baselined on requests-per-month
 
-The registry SHALL set the OpenCode Go column to `opencode-go/deepseek-v4-pro` (T1, T3), `opencode-go/deepseek-v4.1-flash` (T2, T4), `opencode-go/deepseek-v4-flash` (T5), `opencode-go/deepseek-v4-flash-vision-exp` (T6), SHALL state the assumed per-model limit ($60) next to the table, and SHALL give each cell its requests-per-month figure pinned to the plan page.
+The registry SHALL set the OpenCode Go column to `opencode-go/deepseek-v4-pro` (T1, T3), `opencode-go/deepseek-v4.1-flash` (T2, T4), `opencode-go/deepseek-v4-flash` (T5), `opencode-go/deepseek-v4-flash-vision-exp` (T6), SHALL give each cell its own per-model monthly dollar limit and its **requests-per-month** figure (the plan page's monthly column, never its per-5-hour column) pinned to the plan page, and SHALL note the `deepseek-v4.1-flash` 4× promo (to $60, ends 2026-09-20) separately from its $15 baseline (Pivot Record T1).
 
 #### Scenario: Every cell is a live slug with a pinned quota
 
@@ -98,7 +98,7 @@ The registry SHALL set Codex to Terra (T1, T3, T4, T6) and Luna (T2, T5), SHALL 
 - GIVEN the edited `docs/model-routing.md`
 - WHEN every line of *Why these models* containing a digit is inspected
 - THEN each figure is either within a sentence carrying `Last verified` + a source, or is a tier/version label (T1…T6, 3.8, V4.1), or is gone
-- AND the OpenCode paragraph opens with the metric and the $60 assumption, and states the alternative pick at $30 (`deepseek-v4-flash`) in one sentence
+- AND the OpenCode paragraph opens with the metric (requests per month at each model's own limit) and names `deepseek-v4-flash` (65,000 @ $30) as the higher-volume alternative to `deepseek-v4.1-flash` (32,500 @ $15) in one sentence
 - BUT it must NOT retain "GPQA", "SWE-bench", "Terminal-Bench", "tok/s", "$/task", "Intelligence ~46" or similar unpinned benchmark language from the current text
 - AND IT MUST keep the Claude Code paragraph and the *Rate limits are per-generation* paragraph unchanged
 

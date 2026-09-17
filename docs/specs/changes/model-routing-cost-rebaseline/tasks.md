@@ -33,7 +33,7 @@ T2 follows T1 because its slugs and wording are copied from T1's final table. No
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M |
 | Depends on | none |
 | Requirements | FR-1 (scenario, all clauses), FR-2 (scenario, all clauses — registry half), FR-3 (scenario, all clauses), FR-4 (scenario, all clauses), NFR-1, NFR-5 |
@@ -41,7 +41,7 @@ T2 follows T1 because its slugs and wording are copied from T1's final table. No
 
 **Scope.** `docs/model-routing.md` only:
 
-- *Model registry*: replace the tier table with design §5.1 (all six rows, five columns + Fallback); "Registry updated: 2026-09"; under the table one sentence stating the OpenCode per-model limit assumption ($60) and the $30 alternative, plus the three pins (plan page; `agy models`; Codex models page).
+- *Model registry*: replace the tier table with design §5.1 (all six rows, five columns + Fallback); "Registry updated: 2026-09"; under the table one sentence stating that each OpenCode cell carries its own per-model monthly dollar limit and its **requests per month** (the page also shows a per-5-hour column — never mix them), the V4.1 Flash 4× promo (to $60, ends 2026-09-20) noted separately from its $15 baseline, plus the three pins (plan page; `agy models`; Codex models page).
 - *Why these models*: rewrite the OpenCode, Antigravity and Codex paragraphs per §5.3; keep the Claude Code and *Rate limits are per-generation* paragraphs byte-identical; keep the GLM 5.1→5.2 worked-example parenthetical as history (row 10); T6 bullet carries the DD-8 "Exp on the plan ≠ research preview" sentence and the cross-host note; drop every unpinned benchmark figure (FR-4 list).
 - *Effort dial*: add the §5.2 dial → Antigravity ID map (three lines). Do **not** touch the GPT-5.6 Sol table in that section (R6 scope guard).
 - *Enforced routing*, *How to apply per tool*, *Cross-host dispatch*, *Frontier escalation*: replace example slugs with the new ones; cross-host vision line → Gemini 3.8 Flash (High) `<CONFIRM ID>` vision; drop "best of the four" → "confirm per project" (row 11).
