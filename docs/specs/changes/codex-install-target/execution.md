@@ -417,3 +417,5 @@ Reviewer (`fable`) verdict on the T1 delta attempt 1: **FAIL** (1 issue). Verifi
 
 **Kaizen candidates (for `/akili-archive`):** (1) pairing tasks on "disjoint files" alone — the installer reads `.claude/` as input, so T2's measurement overlapped T3's edit (Leader error, recorded); (2) local `npx <pkg>` verification shadowed by a global install — the CI cold runner was the first honest run (T2); (3) "pin what the source states" failed three separate times on first attempt (T4 tenant claim, T5 flagship claim, reopen `/goal` quotes) — a pre-review self-check "does the quoted text appear verbatim on the page?" would have saved three rounds; (4) a spec falsifier (`diff` of condensed mirrors; byte-identical trees) written without checking the artifact's shape (T2 pivot, T6 adjudication); (5) Reviewer usage-limit interruptions ×3 — the model-fallback rule worked (`fable`), worth stating in the registry as the T3 fallback for Claude Code.
 
+
+**Final CI — run 35239991368 on `eed0c6f` (all seven tasks `[x]`, `CODEX_HOME` delta included): SUCCESS on all six legs** (ubuntu/macos/windows × Node 18/22). Spec complete; ready for `/akili-archive` and a **minor** release.
