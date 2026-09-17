@@ -152,7 +152,7 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T2, T3, T4 |
 | Requirements | FR-8 (all sites in the §4 closure set outside the command/skill/template files; post-sweep scenario's sanctioned-hit enumeration), NFR-1 (consumer mirrors untouched) |

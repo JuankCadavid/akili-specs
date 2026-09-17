@@ -159,3 +159,40 @@ Reviewer verdict: **PASS.** "All five T2 sites land in apply-capable terms, the 
 | Issues | none at review; the restatement class recurred (T1 → T2) — Kaizen candidate strengthened |
 | Final verification | greps 1–4 green (Implementer + Reviewer); union grep zero; `git diff --check` clean |
 | Continue gate | auto-approved (pre-approved mode) |
+
+### T5 — Mirrors, root docs, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **IN PROGRESS** — attempt 1 FAIL, attempt 2 dispatched |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (full sweep, 10 files 56+/37−) |
+
+**Attempt 1** — files: `AGENTS.md`, `CHANGELOG.md`, `README.md`, `docs/README.md`, `docs/commands/akili-archive.md`, `docs/commands/akili-constitution.md`, `docs/commands/akili-resume.md`, `docs/flow.md`, `docs/skills/README.md`, `docs/skills/kaizen.md`. Implementer verification: FR-8 phrase grep zero; union grep zero; consumer diff empty; `git diff --check` clean; per-file parity statements; CHANGELOG bullets checked against `git log --stat -4`. Declared assumption, **Leader-adjudicated correct:** this repo's `CLAUDE.md` has no Kaizen Loop bullet (verified by grep) — nothing to rewrite.
+
+Reviewer verdict: **FAIL** (2 issues) — greps clean, NFR-1 intact, eight of ten files at parity. Verbatim:
+
+1. **Discovered Issue:** `docs/commands/akili-constitution.md:59` still reads "carries **two rules** that bind every command:" while the diff added a third bullet under it (`Default Branch:` pin, `Integration Branch:` pin, shared-file write discipline). The miscount is introduced by this diff.
+   - **Violated Rule:** `tasks.md` T5 Scope — the mirrors must reach "parity with its rewritten command sections"; `requirements.md` FR-8: "Mirrors SHALL reach parity with their commands in the rewritten sections". `CLAUDE.md` also binds `cognitive-doc-design` for human-facing docs.
+   - **Remediation Suggestion:** Change "two rules" to "three rules" at `docs/commands/akili-constitution.md:59`.
+2. **Discovered Issue:** `docs/flow.md:445-447` still reads "Lessons target **either** the **Product** (this project) **or** the **Methodology** itself — Methodology lessons are flagged for upstreaming to the AKILI repository". The shipped skill overturns exactly that: `.claude/skills/kaizen/SKILL.md:100` — "**Dual (Product + Methodology) lessons:** both, not either" — and `:99` — "record a `Kind: upstream` pending item ... it is collected into one upstream report". Every sibling surface was rewritten this pass: `AGENTS.md:30`, `docs/commands/akili-archive.md:71` and `docs/skills/kaizen.md:25` (both "the **Methodology** (recorded as a `Kind: upstream` pending item), or both"). `docs/flow.md` §8 is the one that kept the superseded binary. This is the case T5's own Disqualifier names: "Grep 1 finds phrases, not contradictions".
+   - **Violated Rule:** `tasks.md` T5 Scope — "`docs/flow.md` artifact-table row for `kaizen-log.md` and **§8 Kaizen Loop**"; Disqualifiers — "per-surface parity read (command vs mirror) for the rewritten sections". `requirements.md` FR-8 parity clause.
+   - **Remediation Suggestion:** Rewrite `docs/flow.md:445-447` to the sibling wording: lessons target the Product, the Methodology (recorded as a `Kind: upstream` pending item on any branch, collected into one upstream report at apply time and flipped to `upstreamed`), or both.
+
+ADVISORY (recorded): README "flagged for upstreaming" lags the new vocabulary; `docs/flow.md` artifact table has no row for the new `upstream-<date>.md` artifact (outside T5 scope — **not added; recorded for the kaizen retrospective as a docs gap**); `.claude/commands/akili-archive.md` Step 6 item 6 "on a spec branch" (T2 residual, already recorded); `docs/commands/akili-archive.md` "either branch" vs command's "any branch"; `docs/skills/kaizen.md` "now has three rows" changelog voice.
+
+**Leader decisions (attempt 1 → 2):** both issues stand. Three advisories **adopted into the attempt-2 brief as parity refinements within T5's own surfaces** (README upstream clause; "either branch" → "any branch" in the archive mirror, matching the command; drop "now" in the kaizen mirror) — recorded here as Leader decisions, not advisory-driven scope growth. The `upstream-<date>.md` artifact-table row is **not** adopted: a new row is scope T5 does not own; it goes to the retrospective. Effort bumped to `xhigh`. This is T5's first FAIL — no tripwire.
+
+**Attempt 2** — files: the same ten plus nothing new. Edits: "two rules" → "three rules" (constitution mirror); `docs/flow.md` §8 closing sentence rewritten to the dual-lesson / `Kind: upstream` / upstream-report / `upstreamed` wording; `README.md` Kaizen closing sentence likewise; archive mirror "either branch" → "any branch"; kaizen mirror "now has" → "has". Implementer verification: greps 1–3 clean; `git diff --check` clean; full re-read of each rewritten section against its shipped source.
+
+Reviewer verdict: **PASS.** "Both issues are closed and the three adopted refinements land without over-claiming." Reviewer re-ran both closure greps (zero each), the consumer diff (empty), `git diff --check` (clean); semantics of the two upstream sentences checked against the skill's dual-lesson rule and step 4b (recording on any branch; report at apply time; "or both"); parity confirmed on attempt 1 unchanged for the other files. ADVISORY: none new.
+
+| Field | Value |
+|---|---|
+| **Final status** | **PASS** (attempt 2 of 3) |
+| Requirements covered | FR-8 (closure set outside command/skill/template files; post-sweep scenario), NFR-1 |
+| Decisions | Three advisories adopted as in-surface parity refinements (recorded above); `upstream-<date>.md` artifact row deferred to the retrospective as a docs gap |
+| Issues | 1 FAIL: two contradictions the phrase grep cannot see (a falsified count; a surviving either/or) — the T5 Disqualifier's own warning, realized |
+| Final verification | FR-8 phrase grep zero; union grep zero; consumer diff empty; `git diff --check` clean (Implementer + Reviewer) |
+| Continue gate | auto-approved (pre-approved mode) |

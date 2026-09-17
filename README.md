@@ -623,16 +623,16 @@ AKILI embeds the Japanese Kaizen philosophy of continuous improvement (改善 �
                     │ HITL menu · approved │
                     │ edits · digest       │
                     └──────────────────────┘
-   default branch only · refreshes ## Active Lessons for the next spec
+   apply-capable branch · refreshes ## Active Lessons for the next spec
 ```
 
 - **Measure:** hunt MUDA (waste) in the spec's own evidence — Reviewer rework attempts, pivots, PRODUCT_BUGs, severe judgment-day findings, validation warnings, drift.
 - **Learn:** distill 0–3 lessons with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons are banned; a root cause that already exists is recorded as a digest update instead of a duplicate lesson.
-- **Standardize:** propose one 1–3 line edit per lesson to constitution guides, spec templates, design tokens, or agent personas — small steps, never rewrites. The proposal is always shown to you; whether it is *written* depends on the branch, and no shared file is ever edited from a spec branch.
+- **Standardize:** propose one 1–3 line edit per lesson to constitution guides, spec templates, design tokens, or agent personas — small steps, never rewrites. The proposal is always shown to you; whether it is *written* depends on the branch, and no shared file is ever edited from a spec branch, or from the default branch while an `Integration Branch:` pin exists.
 - **Record:** write one entry file per spec at `docs/specs/kaizen/<safe-spec-slug>.md`, carrying the metrics, the lessons, and the pending standardizations. Two branches archiving in parallel produce two distinct files and zero conflicts.
-- **Apply (default branch only):** say *"apply pending kaizen standardizations"* — or accept the offer `/akili-archive` makes when it already runs there — to work the whole pending backlog through the approval menu, make the approved edits, and refresh the capped `## Active Lessons` digest, which is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume` together with the pending count.
+- **Apply (apply-capable branch):** say *"apply pending kaizen standardizations"* — or accept the offer `/akili-archive` makes when it already runs there — to work the whole pending backlog through the approval menu, re-verify each approved item before writing it, make the approved edits, collect approved Methodology items into an upstream report, and refresh the capped `## Active Lessons` digest, which is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume` together with the pending count. The apply-capable branch is the pinned integration branch when one is set, otherwise the default branch — never both.
 
-The loop improves on two levels: **Product** lessons harden the project you are building, while **Methodology** lessons (root causes in AKILI itself) are flagged for upstreaming — so the methodology learns from every tool built with it. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
+The loop improves on two levels: **Product** lessons harden the project you are building, while **Methodology** lessons (root causes in AKILI itself) are recorded as a `Kind: upstream` pending item, collected into one upstream report at apply time, and flipped to `upstreamed` — so the methodology learns from every tool built with it. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
 
 ## Spec Folder Shape
 
@@ -825,7 +825,7 @@ Fallback rule:
 - `/akili-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
 - `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
 - `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
-- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. On a spec branch the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the default branch.
+- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering

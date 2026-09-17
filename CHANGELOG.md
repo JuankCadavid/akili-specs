@@ -6,9 +6,22 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **Optional `Integration Branch: <name>` constitution pin, confirmed with the user and never inferred.** `/akili-constitution` Step 8 offers a second pin, written immediately after `Default Branch:`, for projects that route spec branches through one shared integration branch before it reaches the default branch. Detection is a direct question — never a branch-name heuristic or merge-history inference — takes exactly one name distinct from the default branch, and Safe Update adds it only when absent, never rewriting an existing pin.
+- **Apply Mode re-verify step and the `superseded` status.** Before writing each HITL-approved pending item, the `kaizen` skill's Apply Mode now runs one bounded probe (Target exists at HEAD, plus the one fact the `Edit` names); a refuted item closes as `superseded (reason)` instead of being written, and an unverifiable one is presented to the user rather than guessed.
+- **Upstream report, `Kind: upstream`, and the `upstreamed` status.** Methodology lessons (and the upstream half of a dual Product + Methodology lesson) are now recorded as a `Kind: upstream` pending item on any branch. Apply Mode collects every approved one into a single `docs/specs/kaizen/upstream-<date>.md` report and flips them to `upstreamed (date, report)`.
+
+### Changed
+
+- **Apply Mode and `/akili-archive`'s shared-file gates now run on one apply-capable branch, never two.** The `kaizen` skill defines an exclusive predicate — the pinned integration branch when the `Integration Branch:` pin exists, otherwise the default branch, never both — and the default branch is held to the spec branch's non-writing rule while a pin stands. `/akili-archive` Step 3's gate, Step 4.4's backlog offer, and Step 6's report all cite this predicate by name instead of comparing against the default-branch pin alone; Step 6 now reports all five standardization states (`applied`, `deferred`, `pending`, `superseded`, `upstreamed`).
+- **The `## Active Lessons` digest is normalized before every refresh.** Apply Mode dedupes existing rows by `ID` and re-enforces the 10-row cap before adding new rows, closing drift a hand-edited or pre-pin digest could carry.
+- **`/akili-resume`'s Kaizen footer names the pinned apply-capable branch and counts only `pending`/`deferred` items**, explicitly excluding `applied`, `rejected`, `superseded`, and `upstreamed` from the backlog count.
+- Root guides (`AGENTS.md`, `README.md`, `docs/flow.md`, `docs/README.md`, `docs/skills/kaizen.md`, `docs/skills/README.md`), the `akili-archive`/`akili-resume`/`akili-constitution` command mirrors under `docs/commands/`, and the packaged `leader.md`/`implementer.md` guardrail phrase are updated to the apply-capable-branch wording throughout.
+
 ### Notes
 
-- No unreleased changes yet.
+- Release classification proposed: **minor** (new pin + new Kind/Status vocabulary); user may override at release time.
 
 ## [2.24.0] - 2026-09-17
 

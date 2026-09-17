@@ -152,7 +152,7 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
 | `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no report |
 | `docs/specs/kaizen/<safe-spec-slug>.md` | `/akili-archive` (Kaizen Record, any branch) | One entry file per spec: metrics, root-cause lessons, sub-threshold signals, and the pending-standardization queue |
-| `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (default branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
+| `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (the apply-capable branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
 
 ## Review Gates
@@ -425,21 +425,27 @@ parallel branches never contend for the same file.
 * **Standardize:** propose one 1–3 line edit per lesson to constitution guides, `general-setup`
   templates, design tokens, or `.agents/` personas. The proposals are always presented for review;
   whether they are *written* is gated on the branch — **no shared file is edited from a spec
-  branch, approved or not**, and on the default branch every such edit still requires approval.
+  branch, or from the default branch while an `Integration Branch:` pin exists, approved or not**,
+  and on the apply-capable branch every such edit still requires approval.
 * **Record:** write one entry file per spec at `docs/specs/kaizen/<safe-spec-slug>.md`, carrying the
   metrics, the lessons, the sub-threshold `## Noted, not a lesson` signals, and the pending-item
   queue. Two branches archiving in parallel produce two distinct files and zero conflicts.
 
-**Apply phase — default branch only.** Reached through the skill's **Apply Mode** ("apply pending
-kaizen standardizations"), offered automatically by `/akili-archive` when it already runs on the
-default branch, and surfaced with its count and highest severity by `/akili-resume`. It works the
-whole backlog through the approval menu, applies what was approved, allocates ADR numbers for
-`trd-adr` items at that moment, and refreshes `docs/specs/kaizen-log.md`'s capped `## Active
-Lessons` digest (10 rows max) — the only part other commands read, and written by this phase alone.
+**Apply phase — the apply-capable branch only** (the pinned integration branch when the
+`Integration Branch:` pin exists, otherwise the default branch — never both). Reached through the
+skill's **Apply Mode** ("apply pending kaizen standardizations"), offered automatically by
+`/akili-archive` when it already runs there, and surfaced with its count and highest severity by
+`/akili-resume`. It works the whole backlog through the approval menu, re-verifies each approved
+item before writing it (closing a refuted one as `superseded` instead), applies what was approved,
+allocates ADR numbers for `trd-adr` items at that moment, collects approved Methodology items into
+one upstream report (flipping them to `upstreamed`), and refreshes `docs/specs/kaizen-log.md`'s
+capped `## Active Lessons` digest (10 rows max, normalized first) — the only part other commands
+read, and written by this phase alone.
 
-Lessons target either the **Product** (this project) or the **Methodology** itself — Methodology
-lessons are flagged for upstreaming to the AKILI repository, so the methodology learns from every
-tool built with it. The retrospective never blocks the archive.
+Lessons target the **Product** (this project), the **Methodology** itself — recorded as a
+`Kind: upstream` pending item on any branch, collected into one upstream report at apply time and
+flipped to `upstreamed` — or both, so the methodology learns from every tool built with it. The
+retrospective never blocks the archive.
 
 ### 9. Skill Binding (Governance)
 
