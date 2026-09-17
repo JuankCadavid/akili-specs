@@ -394,6 +394,7 @@ The packaged methodology ships default personas under `akili/templates/` inside 
 - Claude Code: `~/.claude/akili/templates/{leader,implementer,reviewer,tester}.md`
 - OpenCode: `~/.config/opencode/akili/templates/{leader,implementer,reviewer,tester}.md`
 - Antigravity: `~/.gemini/config/akili/templates/{leader,implementer,reviewer,tester}.md`
+- Codex: `./.codex/akili/templates/{leader,implementer,reviewer,tester}.md` (local) / `~/.codex/akili/templates/{leader,implementer,reviewer,tester}.md` (global)
 
 If the packaged templates are available, prefer copying them as the seed; otherwise draft equivalent personas inline using the structure documented in this command and the `/akili-execute` and `/akili-test` commands. An inline draft of `leader.md` or `implementer.md` **must carry the shared-file write-discipline guardrail** the packaged templates carry — the spec-branch prohibition on lifecycle side-effect writes **together with its exemption for files an approved `tasks.md` names as the spec's own deliverable**. Dropping the exemption is not a shorter rule, it is a wrong one: it forbids the work of any project whose guides, personas, or templates *are* the product.
 
@@ -478,6 +479,15 @@ project guides so the project does not depend on the package's `docs/` after ins
    its picker labels versions rather than exposing stable aliases, so name the family (Gemini Pro /
    Gemini Flash) and confirm the exact identifier with the user, placeholdering what they cannot
    confirm.
+
+   Resolve the **Codex** column the same way: the registry names a tier family (Astra, Sol, Terra,
+   Luna), and the exact dated slug for the Step 8E `model =` field is confirmed against the user's
+   own `/model` roster **and account plan** — the roster is plan-gated (observed 2026-09-17,
+   codex-cli 0.154.0: on a ChatGPT-account login only `gpt-5.6-terra` and `gpt-5.6-luna` were
+   accepted; `gpt-6-astra` and `gpt-5.6-sol` returned "not supported when using Codex with a ChatGPT
+   account"). On an account where the top two families are gated, keep author ≠ auditor with the
+   fallback pairing Reviewer `gpt-5.6-terra` ≠ Implementer `gpt-5.6-luna` rather than the registry's
+   default Astra/Sol pair.
 
    **Emit every host column, always — including the hosts you are not currently running in.** The
    registry belongs to the *project*, not to the session that scaffolded it: the repository outlives
@@ -748,22 +758,27 @@ this step — the guidance-only flow keeps working.
   supported `config.toml` keys"; it names no per-agent tool allowlist.
 
   Effort mapping — AKILI dial → `model_reasoning_effort`: `low`→`low`, `medium`→`medium`,
-  `high`→`high`, `xhigh`→`xhigh`, `max`→`xhigh` (the models page — <https://learn.chatgpt.com/docs/models>,
-  `Last verified: 2026-09-16` — separately shows a six-rung UI enum — Low/Medium/High/Extra
-  High/Max/Ultra — that does not collapse cleanly onto this five-rung dial; confirm the enum the
-  live `/model` prompt actually accepts at execution time and correct this mapping if Codex rejects
-  `xhigh` — there is no standalone `/reasoning` command,
-  <https://learn.chatgpt.com/docs/cli/slash-commands>, `Last verified: 2026-09-16`).
+  `high`→`high`, `xhigh`→`xhigh`, `max`→`max` (confirmed live 2026-09-17, codex-cli 0.154.0:
+  `-c model_reasoning_effort=<v>` accepted all six rungs — `low`, `medium`, `high`, `xhigh`, `max`,
+  `ultra` — on `gpt-5.6-luna`; `ultra` exists above `max` with no AKILI dial rung mapped to it.
+  Server-side clamping beyond what the CLI accepts is not observable from the CLI. There is no
+  standalone `/reasoning` command (third independent fetch,
+  <https://learn.chatgpt.com/docs/cli/slash-commands>, `Last verified: 2026-09-17`).
 
-  **Codex spawn is model-driven, not a tool contract.** Once these wrappers exist, the Leader does
-  not call an explicit spawn tool — it requests the named role in the brief (*"request
-  `akili-reviewer` with this diff"*), and Codex itself spawns the subagent, routes the work, and
-  returns the consolidated result for the Leader to consume. Do not claim a `spawn_agent`-style
-  tool contract exists; the subagents page names none.
+  **Codex spawn is model-driven; an observed mechanism, not a cited contract.** The Leader requests
+  the named role in the brief (*"request `akili-reviewer` with this diff"*); the subagents page
+  documents no tool name, so DD-7's "model-driven, no tool contract to cite" framing stands.
+  **Observed live 2026-09-17 (codex-cli 0.154.0):** the Leader's own rollout shows it calling a
+  `spawn_agent` tool (`namespace: "collaboration"`, `agent_type` set to the wrapper's `name`,
+  `fork_turns: "all"`) once per requested role; the subagent's final report returns to the Leader,
+  and the spawned thread is inspectable with `/subagents`. This is undocumented, observed API — not
+  a contract the constitution text cites as guaranteed — so it is recorded as a dated pin, not a
+  spec.
 
-  **Unverified:** whether `sandbox_mode = "read-only"` actually stops the Reviewer from writing,
-  and whether the spawn phrasing above matches what Codex does at runtime — both confirmed live
-  once the Codex install spec's live-validation task exercises them.
+  **`sandbox_mode` — read-only denial observed live 2026-09-17 (codex-cli 0.154.0):** a session run
+  with `sandbox_mode = "read-only"` and asked to create a file was denied — `patch rejected: writing
+  is blocked by read-only sandbox; rejected by user approval settings` — no file was created.
+  Applies per-wrapper, per the pinned subagents page.
 
   **`.agents/` gains a third tenant on this host** (one repo, three non-colliding uses of the same
   directory name):
@@ -776,9 +791,9 @@ this step — the guidance-only flow keeps working.
 
   Codex scans `.agents/skills` in every directory from the working directory up to the repository
   root, plus the user-scope `$HOME/.agents/skills` (`Last verified: 2026-09-16` —
-  <https://learn.chatgpt.com/docs/build-skills>). **Unverified:** Codex is not documented to read
-  `.agents/<role>.md` at the `.agents/` root; the Codex install spec's live validation confirms the
-  tenant is collision-free.
+  <https://learn.chatgpt.com/docs/build-skills>). **Confirmed live 2026-09-17 (codex-cli 0.154.0):**
+  asked to enumerate every non-`akili-` skill it can see, Codex did not surface `.agents/<role>.md`
+  (or an `akili-<role>` name) as a skill — the tenant is collision-free.
 
 **Rules:**
 
@@ -962,7 +977,11 @@ HEADERS
    | Host | Matcher / tool name | Path to the target file | Path to old/new content |
    |---|---|---|---|
    | Claude Code | `Edit`\|`Write` | `.tool_input.file_path` | Edit: `.tool_input.old_string` / `.tool_input.new_string`; Write: current file on disk / `.tool_input.content` |
-   | Codex | `apply_patch` (the hooks page: "file edits performed through `apply_patch`") | Not a direct field — parsed from **every** `*** Update/Add/Delete File: <path>` header line inside `.tool_input.command` (a single call can carry several; CRLF-terminated headers have their trailing `\r` stripped before matching) | `.tool_input.command` carries the entire patch as one string, not discrete old/new fields. **Unverified:** the exact patch format and whether the header-line parse above reliably finds every path, pending the Codex install spec's live payload capture |
+   | Codex | `apply_patch` (confirmed live 2026-09-17, codex-cli 0.154.0 — the hooks page: "file edits performed through `apply_patch`") | No `.tool_input.file_path` field (confirmed live) — parsed from **every** `*** Update/Add/Delete File: <path>` header line inside `.tool_input.command`, which carries an **absolute** path (a single call can carry several; CRLF-terminated headers have their trailing `\r` stripped before matching) | `.tool_input.command` carries the entire patch as one string, not discrete old/new fields (confirmed live); added lines are `+`-prefixed hunk lines |
+
+   **Raw `PreToolUse` payload, confirmed live 2026-09-17 (codex-cli 0.154.0).** Codex's top-level
+   fields are: `session_id, turn_id, transcript_path, cwd, hook_event_name, model, permission_mode,
+   tool_name, tool_input, tool_use_id`.
 
    **A known false deny, by design.** The `new` content extraction reads every `+`-prefixed line in
    the *whole* multi-file `apply_patch` command, not just the hunk under the matched `tasks.md`
@@ -974,10 +993,10 @@ HEADERS
    **Denial mechanism.** The hooks page documents two ways a hook may deny: exit code `2` with the
    reason on stderr (what the script above already does, unchanged from the existing Claude Code
    behavior), or a `permissionDecision: "deny"` object nested under `hookSpecificOutput` returned on
-   stdout (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/hooks>). Which one this
-   specific hook type actually needs on Codex is decided live: keep the stderr + exit 2 path as the
-   only mechanism for now, and add the stdout JSON form only if the Codex install spec's live check
-   shows Codex requires it for `PreToolUse` denial.
+   stdout (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/hooks>). **Decided live
+   2026-09-17 (codex-cli 0.154.0):** stderr + exit 2 is honored — Codex logged `ERROR
+   codex_core::tools::router: error=Command blocked by PreToolUse hook: …` and blocked the write; the
+   `permissionDecision` JSON form was not needed.
 
 2. Merge into the project's `.claude/settings.json` (**read it first; if it exists but is invalid
    JSON, stop and report — never overwrite a file you could not parse**):
@@ -1026,6 +1045,20 @@ HEADERS
    before appending a second copy. Pin: <https://learn.chatgpt.com/docs/hooks> —
    `Last verified: 2026-09-16`.
 
+**Hook trust (Codex only).** A scaffolded `.codex/hooks.json` entry is not active until the user
+trusts it: tell the user to run `/hooks` in a Codex session and trust the new or changed hook — the
+pinned slash-commands page: "Inspect configured hooks, **trust new or changed hooks**, or disable
+non-managed hooks before they run" (<https://learn.chatgpt.com/docs/cli/slash-commands>,
+`Last verified: 2026-09-17`). Non-interactive `codex exec` automation has no session in which to run
+`/hooks`, so it needs `--dangerously-bypass-hook-trust` instead. Until one of these happens, the
+gate is scaffolded but inert.
+
+**Commits under the sandbox (Codex only).** `[x]` writes the gate allows still have to be committed:
+Codex's default `workspace-write` sandbox protects `.git/` (a commit attempt failed live with
+`.git/index.lock: Operation not permitted`, codex-cli 0.154.0, 2026-09-17), so `/akili-execute`
+Step 3's commit needs an approval (`--approve-for-me` or interactive) rather than running under the
+bare sandbox.
+
 **What the gate enforces and what it deliberately tolerates:** it blocks the `[x]`-without-evidence
 write for *everyone* in the checkout — agents mid-loop and humans alike; a human with a legitimate
 reason records the evidence or disables the hook, both of which are visible acts. The PASS check is
@@ -1067,7 +1100,7 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
 - The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. Also name the `.agents/` three-tenant table (personas / Antigravity wrappers / Codex skills, defined in Step 8E) so the user knows the layout is collision-free.
-- The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code and Codex, **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`).
+- The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code and Codex, **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert.
 - **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it.
 - Any assumptions and open questions that still need validation
 

@@ -139,6 +139,16 @@ project's own `/model` roster, confirmed at `/akili-constitution` Step 8C exactl
 Antigravity roster. **Last verified: 2026-09-16** against <https://learn.chatgpt.com/docs/models>.
 Two cells (T4, T6) carry `<CONFIRM SLUG>` because that page states no context-window or
 vision/multimodal capability for any Codex model — not because a name is missing from the roster.
+T7 of the Codex install spec's live validation gathered no context-window or vision-capability
+evidence for any Codex model either, so both `<CONFIRM SLUG>` cells stay as placeholders.
+
+**Plan gating, confirmed live 2026-09-17 (codex-cli 0.154.0, ChatGPT-account login):** only
+`gpt-5.6-terra` and `gpt-5.6-luna` were accepted; `gpt-6-astra` and `gpt-5.6-sol` both returned "The
+'\<model\>' model is not supported when using Codex with a ChatGPT account." T1/T3 (Astra) and T2
+(Sol) are therefore plan-gated on such accounts — confirm the account's own `/model` roster at
+`/akili-constitution` Step 8C before writing wrapper slugs. On an account where only Terra/Luna are
+usable, keep author ≠ auditor with the fallback pairing Reviewer `gpt-5.6-terra` ≠ Implementer
+`gpt-5.6-luna` rather than the registry's default Astra/Sol pair.
 
 ### Why these models
 
@@ -396,19 +406,23 @@ the AKILI effort dial onto the field directly:
 | `medium` | `medium` |
 | `high` | `high` |
 | `xhigh` | `xhigh` |
-| `max` | `xhigh` |
+| `max` | `max` |
 
-The models page also lists a six-rung effort enum in its own UI (`Low`/`Medium`/`High`/`Extra
-High`/`Max`/`Ultra` — **Last verified: 2026-09-16**, <https://learn.chatgpt.com/docs/models>) that
-does not collapse cleanly onto AKILI's five-rung dial. **There is no standalone `/reasoning`
+**Confirmed live 2026-09-17 (codex-cli 0.154.0):** `-c model_reasoning_effort=<v>` accepted all six
+rungs — `low`, `medium`, `high`, `xhigh`, `max`, `ultra` — on `gpt-5.6-luna`. The models page's own
+UI enum (`Low`/`Medium`/`High`/`Extra High`/`Max`/`Ultra` — **Last verified: 2026-09-16**,
+<https://learn.chatgpt.com/docs/models>) is confirmed accurate; AKILI's five-rung dial maps
+`max`→`max`, and `ultra` exists above it with no AKILI rung mapped to it (server-side clamping
+beyond what the CLI accepts is not observable from the CLI). **There is no standalone `/reasoning`
 command** — the CLI's `/model` command "choose[s] the active model (and reasoning effort, when
-available)" in one prompt (**Last verified: 2026-09-16**,
-<https://learn.chatgpt.com/docs/cli/slash-commands>); T7 of the Codex install spec confirms the
-enum that live `/model` prompt actually accepts and corrects this mapping if Codex rejects `xhigh`.
+available)" in one prompt (**Last verified: 2026-09-17** — third independent fetch,
+<https://learn.chatgpt.com/docs/cli/slash-commands>).
 The Reviewer wrapper alone also sets `sandbox_mode = "read-only"` — Codex has no documented per-agent
 tool allow-list, so the sandbox is the second structural guarantee of author ≠ auditor, paralleling
 Antigravity's `tools` allow-list above. Pin: <https://learn.chatgpt.com/docs/agent-configuration/subagents>
-— **Last verified: 2026-09-16**; `Unverified:` the `sandbox_mode` behavior itself, confirmed live at T7.
+— **Last verified: 2026-09-16**. **Confirmed live 2026-09-17 (codex-cli 0.154.0):** a session run with
+`sandbox_mode = "read-only"` and asked to create a file was denied — `patch rejected: writing is
+blocked by read-only sandbox; rejected by user approval settings`.
 
 ## Cross-host dispatch
 
