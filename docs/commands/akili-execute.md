@@ -84,6 +84,11 @@ The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved rel
 
 - **Claude Code / OpenCode:** Leader delegates by spawning the Step 8E agent wrappers when present (each wrapper loads its own persona, so the Leader sends a pointer brief — task scope plus spec section anchors, not inlined content); without wrappers, it spawns focused subagent or sub-prompt contexts seeded with the persona file plus task/diff context.
 - **Google Antigravity:** Leader calls `invoke_subagent` using prompts read from `.agents/`.
+- **Codex:** if `.codex/agents/akili-implementer.toml` / `akili-reviewer.toml` exist (Step 8E), the Leader requests the named `akili-implementer` / `akili-reviewer` role by name with the brief — Codex itself spawns it, routes the work, and waits; the Leader consumes the consolidated result. Without wrappers, it falls back to a sub-prompt seeded with the persona file, as on the other hosts. **Unverified:** this is documented as model-driven orchestration, not a named tool contract — the Codex install spec's live validation confirms the mechanism.
+
+**Model checkpoint:** the Leader runs best on **T1**. If the project's `## Model Routing` registry maps T1 to a stronger model than the current session, switch with `/model` in Claude Code, the OpenCode model selector, or `/model` in Codex (which also sets reasoning effort when available — there is no separate `/reasoning` command; `Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/cli/slash-commands>). The registry is a floor, not a ceiling: if the session model is already the stronger one, this is a stale registry entry, not a reason to downgrade.
+
+**Unattended Mode:** for Codex there is **no verified equivalent** to Claude Code's `/goal` looping — the same wording used for OpenCode — so run Codex sessions attended until this is exercised live.
 
 ## Next Step
 

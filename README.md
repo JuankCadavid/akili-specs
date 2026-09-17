@@ -11,7 +11,7 @@
 
 # AKILI
 
-### Supercharge Claude Code, OpenCode, and Google Antigravity with constitution-first, self-improving spec intelligence
+### Supercharge Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI with constitution-first, self-improving spec intelligence
 
 **Durable product context · traceable requirements · governed releases · a methodology that learns from every spec · 100% local methodology files**
 
@@ -31,12 +31,13 @@
   <img alt="Claude Code supported" src="https://img.shields.io/badge/Claude%20Code-supported-7c3aed?style=for-the-badge">
   <img alt="OpenCode supported" src="https://img.shields.io/badge/OpenCode-supported-7c3aed?style=for-the-badge">
   <img alt="Google Antigravity supported" src="https://img.shields.io/badge/Google%20Antigravity-supported-7c3aed?style=for-the-badge">
+  <img alt="OpenAI Codex CLI supported" src="https://img.shields.io/badge/OpenAI%20Codex%20CLI-supported-7c3aed?style=for-the-badge">
   <img alt="CodeGraph aware" src="https://img.shields.io/badge/CodeGraph-aware-7c3aed?style=for-the-badge">
 </p>
 
 </div>
 
-Portable Claude Code, OpenCode, and Google Antigravity configuration for the AKILI-SPECS methodology.
+Portable Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI configuration for the AKILI-SPECS methodology.
 
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
@@ -48,7 +49,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 
 → **[Documentation Hub](docs/README.md)**: full AKILI documentation<br>
 → **[Flow](docs/flow.md)**: constitution-to-archive lifecycle<br>
-→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity)<br>
+→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity + Codex)<br>
 → **[Commands](docs/commands/README.md)**: slash command reference<br>
 → **[Skills](docs/skills/README.md)**: packaged skill reference<br>
 → **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>
@@ -57,7 +58,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 
 ## Repository Structure
 
-> **Note for contributors:** `.claude/` is the canonical source for **all three install targets** (Claude Code, OpenCode, Antigravity) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
+> **Note for contributors:** `.claude/` is the canonical source for **all four install targets** (Claude Code, OpenCode, Antigravity, Codex) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
 
 - `.claude/commands/` — custom AKILI-SPECS command prompts
 - `.claude/skills/` — required and preferred skills used by the methodology
@@ -131,7 +132,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Node.js ≥ 18 | CLI | `akili install/update/doctor` cannot run (`engines` enforced) |
 | `npm` or `pnpm` | CLI | No install/update path; the CLI probes both to detect how it was installed |
 | Git | Methodology | Commits per task, worktree concurrency, HALT rollback, the tasks.md evidence gate, and `/akili-archive` all assume a git repo — the methodology is not designed for untracked folders |
-| A host tool: Claude Code, OpenCode, and/or Google Antigravity | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
+| A host tool: Claude Code, OpenCode, Google Antigravity, and/or OpenAI Codex CLI | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
 
 **Recommended (degrades gracefully):**
 
@@ -145,7 +146,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Dependency | Feature | Notes |
 |---|---|---|
 | Python 3 + `google-auth` + `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | Plus a Google service-account key; the rest of `/akili-seo` runs without Python |
-| Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present |
+| Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present. Codex's own Windows git-bash dependency is unconfirmed — name it explicitly for Windows Codex users |
 | Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command works without them (see `docs/skills/governance.md`) |
 
 `akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every push.
@@ -165,8 +166,9 @@ codegraph init -i
 | Claude | You use Claude Code slash commands and Claude skills | `~/.claude` |
 | OpenCode | You use OpenCode commands and skills | `~/.config/opencode` |
 | Antigravity | You use Google Antigravity global workflows and skills | `~/.gemini` |
+| Codex | You use OpenAI Codex CLI and its Agent Skills | `~/.agents/skills` (commands and skills) + `~/.codex` (resources) |
 | Both | You switch between Claude Code and OpenCode | Claude + OpenCode paths |
-| All | You use Claude, OpenCode, and Google Antigravity | All three paths |
+| All | You use Claude, OpenCode, Google Antigravity, and Codex | All four paths |
 
 ### Step 2: Install
 
@@ -221,6 +223,12 @@ Check Antigravity installation:
 npx akili-specs doctor --tool antigravity
 ```
 
+Check Codex installation:
+
+```bash
+npx akili-specs doctor --tool codex
+```
+
 Check all:
 
 ```bash
@@ -231,11 +239,11 @@ Expected result: every command, skill, and helper resource shows `OK`.
 
 ### Step 4: Restart Your Tool
 
-Restart Claude Code, OpenCode, or Antigravity after installation. Running sessions may not pick up new commands or skills until the tool restarts.
+Restart Claude Code, OpenCode, Antigravity, or Codex (or open a new chat) after installation. Running sessions may not pick up new commands or skills until the tool restarts.
 
 ### Step 5: Confirm Commands Are Available
 
-In your tool of choice, confirm AKILI commands are available (either as slash commands or workflows):
+In your tool of choice, confirm AKILI commands are available (as slash commands, workflows, or — on Codex — skills invoked with `$`, e.g. `$akili-constitution`):
 
 ```text
 /akili-constitution
@@ -451,8 +459,8 @@ The helper resources under the target `akili/` folder support commands such as `
 
 If commands do not appear:
 
-- run `akili doctor --tool <claude|opencode|both>`
-- restart Claude Code or OpenCode
+- run `akili doctor --tool <claude|opencode|antigravity|codex|both|all>`
+- restart Claude Code, OpenCode, Antigravity, or Codex
 - confirm you installed into the expected target path
 - rerun install with `--force` if old files should be replaced
 
@@ -541,7 +549,7 @@ Run `/akili-constitution` first in a new repository, after a major product pivot
 - **Legacy (Discovery Setup):** real code exists but the AKILI-SPECS baseline does not. Inspects code, docs, architecture, tests, package manifests, and routes before drafting baseline docs, and customizes `.agents/` personas to the detected stack and design tokens.
 - **Active AKILI-SPECS (Safe Update):** the AKILI-SPECS baseline and possibly customized `.agents/` already exist. Upgrades weak sections, fills missing files, and extends `.agents/` non-destructively — never overwrites custom persona rules.
 
-For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, and Google Antigravity receive the same project guidance.
+For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, Google Antigravity, and Codex receive the same project guidance.
 
 For existing projects, CodeGraph is an optional acceleration path. If `.codegraph/` exists, agents should use it for semantic code exploration, symbol lookup, callers/callees, and impact checks. If `.codegraph/` is missing and the `codegraph` CLI is available, the agent should ask whether to run `codegraph init -i`. If the CLI itself is not installed, the agent says so once — with the install command (`npm install -g @colbymchenry/codegraph`) — and continues. Either way the methodology proceeds with normal `Glob`, `Grep`, and file reads at the **same scan scope**: a missing graph lowers the confidence the reports record, it never shrinks the analysis.
 
@@ -851,7 +859,7 @@ if 3 consecutive FAILs → HALT, mark task [~], present full audit trail for hum
 - **Maximum retries.** A hard ceiling of 3 rework attempts per task prevents infinite loops and token waste.
 - **Structured feedback.** The Reviewer's report is passed back unchanged to the next Implementer spawn — no paraphrasing.
 - **Pivot protocol.** If discovery proves the spec itself is wrong (not the implementation), the loop stops immediately and a `## Pivot Record` is opened in `execution.md` for user sign-off — rework retries are not consumed on a broken spec.
-- **Cross-tool.** `.agents/` is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the same harness runs under Claude Code, OpenCode, and Google Antigravity (the latter invokes `invoke_subagent` using the same persona files).
+- **Cross-tool.** `.agents/` is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the same harness runs under Claude Code, OpenCode, Google Antigravity (which invokes `invoke_subagent` using the same persona files), and Codex (which requests the named `.codex/agents/akili-*.toml` role by name when present, or falls back to a sub-prompt seeded with the persona file).
 
 **`/akili-test` — Leader → Tester(s):** The same Leader pattern drives testing, but delegation is token-aware. The Leader partitions the work into suites and applies a **Deployment Rule**: Lite depth or a single trivial suite runs **inline** (no subagent spawn — spawning would cost more tokens than it saves); Standard/Full depth or multiple **independent** suites get **one Tester per suite**, spawned **in parallel** when they touch different files, and sequentially when they share files/fixtures. Each Tester receives only its suite's requirements, scenarios, and test command — never the full spec set — and its context is discarded on completion, so per-suite contexts never accumulate. A Tester runs a bounded 3-attempt inner loop and distinguishes a **test defect** (fix the test) from a **product defect** (keep the test red, report `PRODUCT_BUG`). Ideally a Tester runs on a different model than the Implementer that wrote the code (author ≠ tester).
 
@@ -872,7 +880,8 @@ Fast-Cheap, and Multimodal. A single editable **registry** binds each tier to a 
 
 This is **guidance-first and model-agnostic**: no `model:` frontmatter is added to commands and the
 installer injects nothing. You switch models yourself (Claude Code `/model`, OpenCode model
-selector), and `/akili-constitution` scaffolds a `## Model Routing` registry into each project's
+selector, Codex `/model` — which also sets reasoning effort when available), and
+`/akili-constitution` scaffolds a `## Model Routing` registry into each project's
 `AGENTS.md` / `CLAUDE.md`.
 
 Key principles: **ARCHITECT = BUILDER** (the model that designs also builds), **author ≠ auditor**

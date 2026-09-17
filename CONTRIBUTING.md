@@ -11,7 +11,7 @@ Thank you for your interest in improving AKILI-SPECS. This project packages a sp
 
 ## Why Everything Lives Under `.claude/`
 
-Despite the name, `.claude/` is **not Claude-only configuration** — it is the canonical source for all three install targets (Claude Code, OpenCode, Google Antigravity). The installer (`bin/akili.js`) maps its `commands/`, `skills/`, and `templates/` into each tool's own config layout. It must live at that literal path because this repository dogfoods its own methodology: Claude Code sessions working on this repo load the `/akili-*` commands and skills directly from it. So when your change should reach OpenCode or Antigravity users, you still edit `.claude/` — there is no per-tool copy to keep in sync. See `.claude/README.md` for the full mapping.
+Despite the name, `.claude/` is **not Claude-only configuration** — it is the canonical source for all four install targets (Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI). The installer (`bin/akili.js`) maps its `commands/`, `skills/`, and `templates/` into each tool's own config layout. It must live at that literal path because this repository dogfoods its own methodology: Claude Code sessions working on this repo load the `/akili-*` commands and skills directly from it. So when your change should reach OpenCode, Antigravity, or Codex users, you still edit `.claude/` — there is no per-tool copy to keep in sync. See `.claude/README.md` for the full mapping.
 
 ## What Contributions Look Like
 

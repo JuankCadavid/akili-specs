@@ -279,3 +279,46 @@ No `SKIP` on any leg (the disqualifier "SKIP on every leg" does not apply); the 
 
 T2 Done clause satisfied: script + CI step merged; local runs (attempt 1 quiet-tree, final-tree) and CI evidence (run 1 failure diagnosed, run 2 green) recorded here; `docs/cli.md` paragraph present (its side-A wording is being corrected by T6, which owns that file). Requirements covered: FR-4 (amended, all clauses incl. Windows AND IT MUST, BUT SKIP), FR-1 auto-detection BUT (fixture automated on six legs), NFR-4 (matrix green with Codex in `--tool all` and doctor never failing on the absent binary — every leg).
 
+### T6 — Mirrors, root docs, CHANGELOG, closure sweep
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3; attempt-2 Implementer retried once after a usage-limit runtime interruption — no edits had landed) |
+| Date | 2026-09-16 |
+| Implementer | `sonnet`, effort `high` (attempt 1) → `xhigh` (attempt 2); skills: `cognitive-doc-design` (task default, kept) |
+| Reviewer | `opus`, effort `high`, single reviewer full four-lens sweep (13 files, 156+/46−) |
+| Leader adjudication (Verification 3) | `docs/commands/*.md` are condensed prose summaries by pre-existing repo convention (constitution mirror ~108 lines vs ~1118-line source), so the prescribed byte-empty `diff` is structurally unreachable and converting them to full copies is unbudgeted. **Content parity** is the criterion: every Codex fact in the edited source sections present in the mirror with the same pinned wording and `Unverified:` markers; a mirror stating a claim more strongly than its source is a FAIL (KZ-001 class). Not a pivot — a mis-stated falsifier |
+
+**Attempt 1** — 13 files (`.claude/README.md`, `AGENTS.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `README.md`, `docs/README.md`, `docs/cli.md`, `docs/commands/README.md`, `docs/commands/akili-{constitution,execute,test}.md`, `docs/flow.md`, `docs/model-routing.md`). Implementer verification: DD-10 sweep run over `*.md`, `bin/akili.js`, `scripts/` (excl. `docs/specs/`, `node_modules/`); tables by eye (README Step 1, `docs/cli.md` defaults, `.claude/README.md`) four targets; parity diff non-empty (reported inconclusive, see adjudication); doctor on a fresh temp install 11/11 commands, 24/24 skills, 7/7 resources, `HEALTHY ok 42`; `git diff --check` clean; `^model:` empty; `verify:cli` green. `docs/cli.md` CI paragraph re-worded after the T2 rework (side A = isolated `npm install --prefix`).
+
+**Sweep log (attempt 1, Implementer + Leader additions):**
+- Fixed: `.claude/README.md:1,14` ("all four" / "other three targets"), `docs/flow.md:390` (model-routing paragraph gained Codex), `README.md:169`, `docs/cli.md:147` (superseded by the new Codex layout block), `docs/model-routing.md` *Enforced routing* intro ("Both tools" → four) and *Cross-tool safety* host phrase (T5 forward pointers).
+- Justified — intentional three-target regression scope (Codex has no 2.23.2 baseline): `bin/akili.js:121`, `scripts/ci/install-layout-regression.js:10,11,36,358`.
+- Justified — "three" is not hosts: `README.md:552` + `.claude/commands/akili-constitution.md:33` (constitution modes), `docs/flow.md:311` (harness roles), `docs/flow.md:351` (`.agents/` tenants, per design §4), `.claude/commands/akili-execute.md:244-245` (rework attempts), `.claude/commands/akili-specify.md:382` (spec docs), `.claude/commands/akili-constitution.md:656` (roles), `scripts/ci/install-symlink-probe.js:14` (OS platforms), **`.jules/sentinel.md:19` (OS platforms — "Node 22.23.1 (all three platforms)"; added by the Leader after the Reviewer found it missing from the log)**, `.claude/skills/ai-agent-development/references/*` (unrelated domain).
+- Justified — historical, frozen records: `CHANGELOG.md:81,86,146,175,608`, `releases/v0.5.0.md:14`, `releases/v2.18.0.md:7`, `releases/v2.20.0.md:8`, `releases/v2.21.4.md:7`, `releases/v2.21.5.md:11` (the class ruling covers every past CHANGELOG/releases entry).
+- Already four-host: `bin/akili.js:180,275` (T1).
+
+Reviewer verdict: **FAIL** (5 issues, all one-to-three-line fixes). Verified clean: `docs/cli.md` paragraph now states `npm install --prefix` (gate item satisfied); four-row tables; `docs/cli.md` flags/layouts/detection/wizard/doctor section; `AGENTS.md` names `.codex/agents/akili-*.toml`; 8C/8E/8F/Step 9 mirror content present and correctly qualified except the items below; execute/test mirror spawn bullets carry `Unverified:`; KZ-002 falsifier re-run by the Reviewer (11 command skills, no `commands/`, `HEALTHY ok 42`, codex env row NOT FOUND without failing); CHANGELOG structure (Added/Fixed/Deviations/Unverified, "minor", three deviations, FR-4 amendment, T7 list). Issues, verbatim (abridged to the claim + remediation; the full report was relayed to the Implementer unchanged):
+
+1. Mirror `docs/commands/akili-constitution.md` tenant table drops the source's `Unverified:` sentence ("Codex is not documented to read `.agents/<role>.md` at the `.agents/` root") + build-skills pin — "all hosts" reads stronger than the source. Remediation: append the sentence + pin.
+2. Mirror Step 8F asserts the `apply_patch` header parse flatly; source marks the payload shape `Unverified:` pending T7 (source 3 markers, mirror 1). Remediation: add the `Unverified:` clause.
+3. `docs/commands/akili-execute.md` and `akili-test.md` carry the `/model` claim with no pin (sources: `Last verified: 2026-09-16` + slash-commands URL). Remediation: carry the pin into both.
+4. DD-10 hit `.jules/sentinel.md:19` ("all three platforms") not in the sweep log. **Resolved by the Leader above (OS platforms, non-host) — no file edit.**
+5. `CHANGELOG.md` regression-gate entry still says "guard against a false pass from a locally-linked `npx`"; the shipped script uses `npm install --prefix` and reads the version from the sandbox `package.json`. Remediation: one clause.
+
+ADVISORY (recorded, no rework): CHANGELOG headline still says "byte-for-byte" (body retracts it; suggest "layout-identity"); `docs/cli.md` "Codex still reads `~/.codex/skills` as a legacy root" carries no pin (design §5.2 claim; DD-8 class); frozen-record hits enumerated above.
+
+**Attempt 2** — same files (188+/47− incl. `execution.md`). Fixes: constitution mirror tenant table now followed by the pinned scan-scope sentence + `**Unverified:**` negative claim; Step 8F mirror paragraph carries the source's `**Unverified:**` on the payload shape (mirror `Unverified:` 3 = source 3); execute/test mirrors carry `Last verified: 2026-09-16` + slash-commands URL in the `/model` sentence (1/1 each); CHANGELOG regression-gate entry names the isolated `npm install --prefix` sandbox and the `package.json` version read, headline "layout-identity"; `docs/cli.md` `--target ~/.codex` legacy-root claim marked `**Unverified:**` after fetching the build-skills page (it does not state the legacy location) — conservative direction. `git diff --check` clean.
+
+Reviewer verdict: **PASS**. Each fix verified at the source on the working tree; DD-10 re-run on the final text yields exactly the adjudicated survivor set, no new file; KZ-002 falsifier stands (11 command skills, no `commands/`, `HEALTHY ok 42`); `^model:` empty. ADVISORY (recorded): the constitution mirror's Step 8F states the `.codex/hooks.json` `PreToolUse` mechanism without the hooks-page pin the source carries (covered by the `Unverified:` marker; mirrors are condensed prose) — **forward pointer → T7**: when the hooks page is re-fetched for the live payload capture, carry the pin into the mirror.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-9 (doctor 11/11 falsifier; pattern-set sweep with every hit updated or justified; Step 9 byte-cap line asserted present in source and mirror), FR-1 init/help docs, FR-2 flag docs (`--target` single-root), NFR-5 |
+| Decisions | Content parity (not byte parity) for the condensed `docs/commands/` mirrors; frozen-record class ruling for historical CHANGELOG/releases hits; legacy-root claim marked `Unverified:` rather than pinned |
+| Issues | Attempt 1: three dropped qualifiers in mirrors, one unlogged sweep hit, one stale `npx` phrase — all closed |
+| Queued for T7 | Hooks-page pin into the constitution mirror; `Unverified:` items listed in CHANGELOG |
+| Final verification | sweep survivors all justified (log above); tables four rows; doctor 11/11; `git diff --check`; `^model:` empty; `verify:cli` green |
+
+**Pre-T7 gate (gated mode):** T1–T6 `[x]`. T7 requires the user present with a current Codex CLI. Presented to the user.
+

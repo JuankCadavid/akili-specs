@@ -387,7 +387,7 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 | `/akili-audit` | T4 + T3 |
 | `/akili-archive` | T5 |
 
-A single editable registry binds each tier to a model **per tool** (Claude Code, OpenCode, and Antigravity),
+A single editable registry binds each tier to a model **per tool** (Claude Code, OpenCode, Antigravity, and Codex),
 using **floating aliases** (`opus`/`sonnet`/`haiku`) wherever they exist so the registry survives
 model generations without edits. `/akili-constitution` (Step 8C) scaffolds a `## Model Routing`
 copy into the project's `AGENTS.md` / `CLAUDE.md`.

@@ -345,9 +345,9 @@ where diminishing returns bite hardest.
 
 The `/akili-execute` and `/akili-test` fan-out (Implementer, Reviewer, Testers) is where most
 tokens are spent — and a generic subagent **inherits the session model**, which silently breaks
-author ≠ auditor when the whole session runs on one model. Both tools support a `model` field on
-**agent definitions** (never on commands), so `/akili-constitution` Step 8E binds the personas
-there:
+author ≠ auditor when the whole session runs on one model. Every supported host supports a `model`
+field on **agent definitions** (never on commands), so `/akili-constitution` Step 8E binds the
+personas there:
 
 | Tool | Native agent location | Model value |
 |---|---|---|
@@ -610,7 +610,7 @@ model column.
   user's approval in Step 8E.
 - **No installer changes.** Nothing here is force-injected. `/akili-constitution` scaffolds a project
   copy of this registry into `AGENTS.md` / `CLAUDE.md` as plain Markdown — identical handling across
-  Claude Code, OpenCode, and Google Antigravity.
+  Claude Code, OpenCode, Google Antigravity, and Codex.
 - **Per-project override.** Edit the registry inside your project's `AGENTS.md` / `CLAUDE.md` to
   pin different models; this package's copy is only the default.
 - **The registry is host-complete, always.** It belongs to the **project**, not to the session that

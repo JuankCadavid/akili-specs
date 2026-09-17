@@ -195,7 +195,7 @@ T1, T4, T5 are parallel-safe (disjoint files). T2 follows T1 (it exercises the n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1, T3, T4, T5 |
 | Requirements | FR-9 (scenario + both `AND IT MUST` clauses — Step 9 line is T3's, asserted here), FR-1 `init`/help docs, FR-2 flag docs, NFR-5 |

@@ -25,6 +25,10 @@ The main session acts as the **Leader** (orchestrator). It partitions testing in
 
 If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold it.
 
+**Cross-tool spawn:** Claude Code / OpenCode spawn the Step 8E `akili-tester` wrapper when present; Google Antigravity uses `invoke_subagent`; **Codex**, if `.codex/agents/akili-tester.toml` exists, has the Leader request the named `akili-tester` role by name with the suite's context slice — Codex spawns it, routes the work, and waits. Without wrappers, every host falls back to a sub-prompt seeded with `tester.md`. **Unverified:** the exact Codex spawn mechanism, per the model-driven-orchestration note in `/akili-execute`; the Codex install spec's live validation confirms it.
+
+**Model checkpoint:** the Leader runs best on **T1**; Testers route through their Step 8E wrapper (T2) when present. Switch with `/model` in Claude Code, the OpenCode model selector, or `/model` in Codex (also sets reasoning effort when available — no separate `/reasoning` command; `Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/cli/slash-commands>). The registry is a floor, not a ceiling: a stronger session model than the registry entry means the registry is stale, not that you should downgrade.
+
 ## Inputs
 
 Reads:
