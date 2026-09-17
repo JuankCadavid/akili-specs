@@ -147,10 +147,12 @@ wait-longer signal.** The return leg fails the same way the send leg does. Field
 judges dispatched, both went idle without delivering their findings — repeatedly in one session —
 while the coordinator kept waiting for reports that were never coming. An idle worker's turn has
 **ended**: nothing further arrives without new input, so waiting on it is waiting on nobody. The
-protocol: **(1)** on idle-without-report, **poke immediately, once** — a direct message demanding
-the contracted report wakes an idle worker and usually recovers the result it produced but never
-sent; **(2)** check whether the worker wrote its output to a file and simply skipped the final
-send — pull the artifact directly if so; **(3)** if the poke yields nothing, the dispatch has
+protocol: **(1)** on idle-without-report, first check whether the worker wrote its output to a
+file or the working tree and simply skipped the final send — pull the artifact directly if so,
+since **a poke citing stale evidence invites a double-apply**; **(2)** if nothing was produced,
+poke immediately, once — a direct message demanding the contracted report wakes an idle worker
+and usually recovers the result it produced but never sent; **(3)** if the poke yields nothing,
+the dispatch has
 failed — re-dispatch with a brief that makes the delivery the explicit last act of the turn
 (*"your turn does not end until the report message is sent"*), or recover per the runtime-failure
 fallback for that role. State the report as the turn's terminating action in the brief too —

@@ -306,7 +306,7 @@ A minimal PASS-on-first-attempt entry can be compact; a HALT or rework entry mus
   1. Stop the rework loop. Mark the current task as `[~]` (blocked) — even if rework attempts remain.
   2. Document the blocker, alternatives, and revised technical direction in `execution.md` inside a new `## Pivot Record: <Task ID>` section. If the pivot overturns an architecture decision recorded in the TRD, name the affected `ADR-NNN` in the Pivot Record — decisions are never edited in place; `/akili-archive`'s constitution sync writes the superseding ADR.
   3. Modify the spec's `requirements.md`, `design.md`, and/or `tasks.md` to map out the updated plan — then **close the correction with a two-direction sweep** (see `/akili-specify` → *Correction Closure*): grep the superseded value across the whole spec folder (forward — the old value survives at sites the pivot analysis did not cite), and grep references *to* the corrected sections (backward — a document that cited the old text may now assert a falsehood). A pivot amended by its cited-site list alone has failed both ways in the field and cost an extra review round.
-  4. Stop, explain the situation to the user, and obtain explicit review/approval on the pivot before resuming execution.
+  4. Stop, explain the situation to the user, and obtain explicit review/approval on the pivot before resuming execution. Before resuming, **re-issue every Implementer brief already dispatched for the affected task** with the amended text — a brief composed before the pivot carries the superseded value, and the Implementer will honor it faithfully into a FAIL.
 
 ---
 

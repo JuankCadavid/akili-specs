@@ -56,6 +56,7 @@ docs/specs/<spec-path>/tasks.md
 ## Key Rules
 
 - Requirements describe observable behavior, not implementation details.
+- A number transcribed from a screenshot or pasted table is proposal context, not a source — confirm it against the page or command it came from before it enters a requirement, scenario, or design cell.
 - Key requirements include Given/When/Then scenarios.
 - Design extends the current architecture instead of replacing it.
 - Tasks reference requirements, design sections, dependencies, done criteria, verification, and relevant skills.

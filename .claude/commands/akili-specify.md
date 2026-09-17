@@ -138,6 +138,7 @@ Guidelines:
 - align with `proposal.md` when present
 - reference existing specs when this work extends another feature
 - use measurable, testable language
+- **numbers from images are not sources** — a figure transcribed from a screenshot or a pasted table is proposal context; before it enters a requirement, scenario, or design cell, open the page (or run the command) it came from, confirm the column and unit, and pin it — the unit error the screenshot hides is the one no downstream grep can see
 - separate goals from requirements
 - write behavior contracts, not implementation plans
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure UI states (loading, error, empty, success) and responsive behaviors are captured as explicit requirements.
@@ -372,7 +373,7 @@ Wait for the user's response before moving on.
 
 A correction is not applied when the cited site is fixed — it is applied when the superseded value is gone from everywhere it lived. Amendments guided only by a finding's list of sites fail in **both directions**: *forward* (the old value survives at sites the finding did not cite) and *backward* (fixing one document falsifies what other documents asserted by citing it — a class of defect that has cost extra review rounds in the field). On every Adjust round that changes a value, name, count, or behavior claim:
 
-1. **Sweep forward:** grep the superseded value across the whole spec folder and the baseline docs it cites. The correction closes only when every hit is updated or recorded as intentionally kept.
+1. **Sweep forward:** grep the superseded value across the whole spec folder and the baseline docs it cites. The correction closes only when every hit is updated or recorded as intentionally kept. The forward sweep greps the superseded concept's paraphrase terms as well as its literal strings — a paraphrase that survives the literal grep is the KZ-006 blindness in sweep form.
 2. **Sweep backward:** grep for references *to* the corrected section and re-read what each referrer asserts — a document that cited the old text may now state a falsehood.
 
 This is the same sweep `/akili-archive` mandates for root guides (its factual-claims sweep exists because per-item syncs only fire where a finding points — which is exactly how a stale claim survives). A spec Adjust round earns it for the same reason.

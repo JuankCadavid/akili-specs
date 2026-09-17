@@ -49,7 +49,7 @@
 | Target | `.claude/templates/leader.md` (+ mirror parity where applicable) |
 | Edit | In the idle-without-report protocol, reorder: check the worker's artifact/working tree **before** the single poke — a poke citing stale evidence invites a double-apply. |
 | Severity | Low |
-| Status | deferred |
+| Status | applied (2026-09-17) |
 
 ### P2
 
@@ -59,4 +59,4 @@
 | Target | `.claude/commands/akili-specify.md` — Correction Closure (+ `docs/commands/akili-specify.md` mirror) |
 | Edit | Add: the forward sweep greps the superseded concept's paraphrase terms as well as its literal strings — a paraphrase that survives the literal grep is the KZ-006 blindness in sweep form. |
 | Severity | Medium |
-| Status | deferred |
+| Status | applied (2026-09-17) |

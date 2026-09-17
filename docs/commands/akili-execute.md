@@ -76,7 +76,7 @@ On `FAIL`, every finding lists three fields so the Implementer has actionable in
 - **Structured feedback.** The Reviewer's FAIL report is passed back unchanged to the next Implementer — no paraphrasing.
 - **No scope creep.** The Implementer keeps changes minimal and within task scope; broad refactors require user approval.
 - **No completion without PASS.** A task is never marked `[x]` until the Reviewer PASSes.
-- **Pivot Protocol takes precedence.** If discovery proves the spec itself is wrong, the loop stops immediately and a `## Pivot Record` is opened in `execution.md` for user sign-off — rework retries are not consumed on a broken spec.
+- **Pivot Protocol takes precedence.** If discovery proves the spec itself is wrong, the loop stops immediately and a `## Pivot Record` is opened in `execution.md` for user sign-off — rework retries are not consumed on a broken spec, and any Implementer brief already dispatched for the affected task is re-issued with the amended text before resuming.
 
 ## Cross-tool support
 
