@@ -1,6 +1,6 @@
 ---
 name: kaizen
-description: "Trigger: kaizen, retrospective, continuous improvement, mejora continua, /akili-archive Kaizen step, apply pending kaizen standardizations, kaizen apply, aplicar estandarizaciones kaizen. Run the bounded two-phase Kaizen loop: Measure → Learn → Standardize → Record on any branch, then apply the pending backlog on the default branch."
+description: "Trigger: kaizen, retrospective, continuous improvement, mejora continua, /akili-archive Kaizen step, apply pending kaizen standardizations, kaizen apply, aplicar estandarizaciones kaizen. Run the bounded two-phase Kaizen loop: Measure → Learn → Standardize → Record on any branch, then apply the pending backlog on the apply-capable branch."
 license: MIT
 metadata:
   author: Juan Carlos Cadavid — jcadavid.com
@@ -21,16 +21,16 @@ Load this skill when:
 
 - `/akili-archive` reaches its **Kaizen Retrospective** step (the primary, automatic trigger),
 - the user explicitly requests a kaizen retrospective / continuous-improvement pass over a spec or project, or
-- **Apply Mode** — the user asks to *apply pending kaizen standardizations* ("kaizen apply", "aplicar estandarizaciones kaizen"), or `/akili-archive` finishes a retrospective with the default branch checked out and offers the pending backlog.
+- **Apply Mode** — the user asks to *apply pending kaizen standardizations* ("kaizen apply", "aplicar estandarizaciones kaizen"), or `/akili-archive` finishes a retrospective with the apply-capable branch checked out and offers the pending backlog.
 
 The loop runs in two phases with two different homes:
 
 | Phase | Runs where | Writes |
 |---|---|---|
 | **Retrospective** (Measure → Learn → Standardize → Record) | any branch | the spec's own entry file under `docs/specs/kaizen/` |
-| **Apply** (the pending backlog) | the default branch only | HITL-approved shared files, the digest, and status flips in entry files |
+| **Apply** (the pending backlog) | runs only on the **apply-capable branch** (Branch Context) | HITL-approved shared files, the digest, and status flips in entry files |
 
-Apply Mode is **standalone**: no spec argument, no active archive — it works over the whole pending backlog, so it stays reachable long after the specs that produced it were archived. Invoked on a spec branch, it declines in one line ("Apply Mode runs only on the default branch — see Branch Context; the pending backlog stays recorded and is re-offered there") and does nothing else. No separate kaizen command exists; this is an activation of this skill.
+Apply Mode is **standalone**: no spec argument, no active archive — it works over the whole pending backlog, so it stays reachable long after the specs that produced it were archived. Invoked anywhere else, it declines in one line naming the apply-capable branch — its pinned name when the `Integration Branch:` pin exists, otherwise the resolved default branch ("Apply Mode runs only on `<apply-capable branch>` — see Branch Context; the pending backlog stays recorded and is re-offered there") — and does nothing else. No separate kaizen command exists; this is an activation of this skill.
 
 The retrospective is **bounded**: one pass, at most 3 lessons, one entry file. It must never block the archive or any other command that invoked it.
 
@@ -86,7 +86,7 @@ Then distill **0 to 3** lessons. Hard rules:
 - Classify each lesson's **target**:
   - **Product** (default): the root cause lives in this project — its guides, templates, design tokens, or personas.
   - **Methodology**: the root cause is AKILI itself — an ambiguous command step, a template gap, a missing skill. These lessons make the methodology learn from every tool built with it.
-  - **Product + Methodology** (dual): the lesson fixes this project *and* names nothing project-specific — no stack, domain, or local convention (a universal persona rule is the standing example). A generalizable lesson is a template gap in disguise: propose the local edit **and** the upstream. The local edit is applied or recorded pending according to Branch Context (phase 3); the upstream recommendation is recorded in the entry file either way.
+  - **Product + Methodology** (dual): the lesson fixes this project *and* names nothing project-specific — no stack, domain, or local convention (a universal persona rule is the standing example). A generalizable lesson is a template gap in disguise: propose the local edit **and** the upstream. The local edit is applied or recorded pending according to Branch Context (phase 3); the upstream recommendation is recorded as a `Kind: upstream` pending item in the entry file either way.
 
 ### 3. Standardize (branch-gated HITL)
 
@@ -96,8 +96,8 @@ For each lesson, propose **exactly one** minimal edit (1–3 lines) targeting th
 - `docs/specs/general-setup/` templates — spec-authoring rules
 - `docs/ux-ui/design.md` — missing tokens or visual rules
 - `.agents/` personas — harness-role rules (append-only, never rewrite)
-- **Methodology lessons:** no local edit — record the proposal in the entry file and recommend upstreaming it to the AKILI methodology repository.
-- **Dual (Product + Methodology) lessons:** both, not either — the local edit follows the branch gate below, *and* the upstream recommendation is recorded in the entry file.
+- **Methodology lessons:** no local edit — record a `Kind: upstream` pending item (`Target: methodology`, `Edit` = the proposed upstream text) in the entry file, on any branch. The proposal is still presented to the user; it is collected into one upstream report at the next apply pass (see Apply Mode).
+- **Dual (Product + Methodology) lessons:** both, not either — the local edit follows the branch gate below, *and* the upstream half is recorded as its own `Kind: upstream` pending item, independent of how the local edit resolves.
 
 Assign a severity: **High** = caused a HALT, pivot, or PRODUCT_BUG; **Medium** = caused rework or a severe finding; **Low** = friction only.
 
@@ -105,19 +105,20 @@ Then resolve **Branch Context** (Hard Rules). It decides whether each proposed e
 
 | Branch Context | What Standardize does |
 |---|---|
-| **Spec branch** (or unresolved) | Record every proposed edit as a pending item (`Kind: standardization`, `Status: pending`) with its exact target and verbatim text. **Present the lessons and their proposed edits to the user anyway** — the gate moves the *write*, not the *review* — and say in one line that they await the apply phase on the default branch. No HITL apply menu fires. No shared file is edited: not a persona, guide, template, design doc, TRD, or the digest. |
-| **Default branch** | Run the HITL menu below and apply approved edits in this pass (solo fast path — today's behavior), then stamp each item's `Status` in the entry file. |
+| **Spec branch** (or unresolved) | Record every proposed edit as a pending item (`Kind: standardization`, `Status: pending`) with its exact target and verbatim text. **Present the lessons and their proposed edits to the user anyway** — the gate moves the *write*, not the *review* — and say in one line that they await the apply phase on the apply-capable branch. No HITL apply menu fires. No shared file is edited: not a persona, guide, template, design doc, TRD, or the digest. |
+| **Default branch, while an `Integration Branch:` pin exists** | The same as a spec branch: record every proposed edit as a pending item and present it to the user anyway. No HITL menu fires here — the default branch is not the writer while the pin stands — and the one-line note names the pinned integration branch instead of saying "the default branch". |
+| **Apply-capable branch** (the pinned integration branch when the pin exists, otherwise the default branch) | Run the HITL menu below and apply approved edits in this pass (solo fast path — today's behavior), then stamp each item's `Status` in the entry file. |
 
-The menu, on the default branch:
+The menu, on the apply-capable branch:
 
 1. **Apply all** — make every proposed edit in this pass
 2. **Apply selected** — user picks by lesson ID
 3. **Defer all** — record the proposals as `deferred`; they stay in the backlog and are re-offered at every later apply pass
 4. **Type something** — adjust a proposal before applying
 
-Recommend option 1 when any High-severity lesson exists, otherwise option 3. Writing the entry file is automatic; **every edit outside the entry file requires this approval** — and on a spec branch no such edit happens at all, approved or not.
+Recommend option 1 when any High-severity lesson exists, otherwise option 3. Writing the entry file is automatic; **every edit outside the entry file requires this approval** — and on a spec branch, or on the default branch while an integration pin exists, no such edit happens at all, approved or not.
 
-Standardize decides; Record writes. On a spec branch the pending items are composed here and land in the entry file in phase 4; on the default branch the edits are applied here and their resulting statuses are stamped into the same entry file in phase 4 — one write, not two.
+Standardize decides; Record writes. On a spec branch — or on the default branch while an integration pin exists — the pending items are composed here and land in the entry file in phase 4; on the apply-capable branch the edits are applied here and their resulting statuses are stamped into the same entry file in phase 4 — one write, not two.
 
 ### 4. Record
 
@@ -126,7 +127,7 @@ Write the retrospective to `docs/specs/kaizen/<safe-spec-slug>.md` — one file 
 1. Derive the filename from the spec path with the archive's `$SAFE_NAME` rule (`/` → `--`): `changes/feature-a` → `changes--feature-a.md`. **No date prefix** — the date lives in the entry's Document Control.
 2. Re-run detection is an **exact-name existence check** on that path — never a glob. If the file exists (the archive was re-run for the same spec), update it in place; never create a second file for the same spec.
 3. Create `docs/specs/kaizen/` if it does not exist. In a legacy project this is the only structural change the retrospective makes.
-4. Never prepend to `## Entries` and never touch `## Active Lessons` in `docs/specs/kaizen-log.md` — the apply phase on the default branch is the digest's single writer, and the legacy entries are frozen.
+4. Never prepend to `## Entries` and never touch `## Active Lessons` in `docs/specs/kaizen-log.md` — the apply phase on the apply-capable branch is the digest's single writer, and the legacy entries are frozen.
 
 #### The entry file
 
@@ -193,6 +194,7 @@ A clean run keeps the same shape with the Metrics table and a one-line statement
 | `guide-sync` | `/akili-archive`'s agent-guide sync, deferred from a spec branch |
 | `factual-sweep` | `/akili-archive`'s factual-claims sweep, deferred from a spec branch |
 | `trd-adr` | `/akili-archive`'s TRD & ADR sync — the superseding decision text, carrying **no ADR number** (numbers are allocated at apply time) |
+| `upstream` | A Methodology lesson's proposed edit to the AKILI methodology repository, or the upstream half of a dual lesson. `Target` is the literal `methodology`; `Edit` is the proposed upstream text. Recorded by Standardize on any branch |
 
 **`Status` values:**
 
@@ -202,14 +204,16 @@ A clean run keeps the same shape with the Metrics table and a one-line statement
 | `applied (date)` | Written by an apply menu, with the date it was applied |
 | `rejected (reason)` | Declined by the user; the reason is recorded so it is not blindly re-proposed |
 | `deferred` | The user chose **Defer** in an apply menu (solo fast path included): the item stays in the backlog, keeps being counted by `/akili-resume`, and is re-offered at every later apply pass. Deferral is a visible postponement, never a terminal state |
+| `superseded (reason)` | The re-verify probe refuted the item's premise at apply time; closed without writing; the reason names what changed and, when known, which spec changed it |
+| `upstreamed (date, report)` | Collected into the named upstream report; closed on the project side. Terminal for `upstream` items only |
 
 ## Apply Mode — Working the Pending Backlog
 
-Runs **only on the default branch** (Branch Context). Invocation: *"apply pending kaizen standardizations"* (also "kaizen apply", "aplicar estandarizaciones kaizen"); `/akili-archive` offers it automatically when its own retrospective ran on the default branch, and `/akili-resume` recommends it. Input: every pending item in every entry file — not one spec's. Output: HITL-approved edits, a refreshed digest, and stamped statuses.
+Runs **only on the apply-capable branch** (Branch Context — the pinned integration branch when the `Integration Branch:` pin exists, otherwise the default branch; never both). Invocation: *"apply pending kaizen standardizations"* (also "kaizen apply", "aplicar estandarizaciones kaizen"); `/akili-archive` offers it automatically when its own retrospective ran on the apply-capable branch, and `/akili-resume` recommends it there, by its pinned name. Input: every pending item in every entry file — not one spec's. Output: HITL-approved edits, a refreshed digest, stamped statuses, and — when the backlog holds `upstream` items — one upstream report.
 
-1. **Collect.** Scan `docs/specs/kaizen/*.md` for items whose `Status` is `pending` or `deferred`. Process them in **entry-filename lexical order** — one deterministic order, so the same backlog yields the same result on any run. If there is nothing to apply, say so in one line and stop.
+1. **Collect.** Scan `docs/specs/kaizen/*.md` for items whose `Status` is `pending` or `deferred`. Process them in **entry-filename lexical order** — one deterministic order, so the same backlog yields the same result on any run. If there is nothing to apply, say so in one line and stop. An item the collector cannot parse (an unknown `Status` encoding, a missing `Target`, a non-table pending block) is this step's own named outcome, not a fall-through: list it in the pass report by file and position, leave its `Status` as `pending`, append one one-line note to the item, and move on — never guessed at, never silently skipped, never half-applied.
 
-2. **Group by `Target`** — a file path, or a `KZ-id` for `digest-update` items. Three outcomes, in this order:
+2. **Group by `Target`** — a file path, a `KZ-id` for `digest-update` items, or the literal `methodology` for `upstream` items. Three outcomes, in this order: the first (Merge) applies to `KZ-id` targets; the second and third (Dedupe, Decide) apply only to **file targets**. `upstream` items are exempt from all three — however many share the `methodology` target, and however their `Edit` text differs, every `upstream` item groups under `methodology` and is collected **whole**, unmerged, in step 4b:
 
    | Case | Rule |
    |---|---|
@@ -219,19 +223,35 @@ Runs **only on the default branch** (Branch Context). Invocation: *"apply pendin
 
 3. **Present the HITL menu** over the grouped items — the same four options as the Standardize phase (Apply all / Apply selected / Defer / adjust).
 
-4. **Apply what was approved**, per `Kind`:
+3b. **Re-verify.** Before writing each item the user approved, run one bounded probe: confirm the `Target` still exists at HEAD, then confirm the one specific fact the `Edit` names with one grep or existence check — nothing wider than that. Three outcomes only:
+   - The probe holds → proceed to step 4.
+   - The probe is refuted → the item closes as `superseded (reason)`: never written; the reason names what changed.
+   - The fact cannot be settled by a single check → present the item to the user as **unverifiable**, with the reason; the user decides apply / defer / reject. Re-verify never expands into an investigation and never re-reads the source spec, the archive, or the codebase beyond the one named fact.
+
+   `upstream` items are exempt from this probe: their `Target` is the literal `methodology`, not a path, and their `Edit` names no fact in this repository for a grep or existence check to confirm — they pass to step 4b unprobed.
+
+4. **Apply what was approved and re-verified**, per `Kind`:
    - `standardization`, `guide-sync`, `factual-sweep` — write the recorded 1–3 lines to the recorded target.
    - `trd-adr` — allocate the next free `ADR-MMM` **at this moment**, sequentially in the processing order above, append the decision to `docs/trd/trd.md`, and flip the ADR it supersedes to `superseded by ADR-MMM`. If `docs/trd/trd.md` does not exist, leave the item `pending`, add a one-line note in the item block saying why, and move on — never invent the file.
    - `digest-update` — handled in step 5.
+   - `upstream` — handled in step 4b.
+
+4b. **Upstream report.** Collect every approved `upstream` item into one file, `docs/specs/kaizen/upstream-<YYYY-MM-DD>[-N].md` (a numeric suffix on a same-day collision), written only on the apply-capable branch:
+   - Header: project, apply-capable branch (by pinned name), date, methodology version installed, item count.
+   - One row per item: lesson ID, source entry file, severity, one-line root cause, the proposed upstream edit verbatim from the item.
+   - Footer: the invocation the methodology maintainer runs to intake it (`/akili-propose` with the report as context) — a recommendation, not automation.
+
+   Flip each collected item's `Status` to `upstreamed (<date>, <report path>)`. `upstream` items add no digest row and are never written into a guide, persona, template, or design doc. A scaffolded `README.md` under `docs/specs/kaizen/` is never an upstream report. If no `upstream` items were approved this pass, skip this step and write no file.
 
 5. **Refresh the digest in the same pass.** This step is the `## Active Lessons` table's only writer:
+   0. **Normalize first.** Dedupe the digest's existing rows by `ID` — a digest inherited from a hand edit or a pre-pin merge can carry duplicates — then re-enforce the 10-row cap through the retirement rule below, before any new row is added.
    1. Apply the merged `digest-update` items first (severity raises, added source specs, recurrence notes).
    2. Then add a row for each newly applied lesson.
    3. Keep the table at **10 rows or fewer**. If it would exceed 10, retire `Applied` rows — the ones institutionalized longest first. Never retire a `Deferred` row or a row still linked to a pending item.
-   4. If `docs/specs/kaizen-log.md` does not exist, create it with the header and the digest section only.
+   4. If `docs/specs/kaizen-log.md` does not exist, create it with the header and the digest section only, on the apply-capable branch.
    5. If it still carries a populated legacy `## Entries` section without the freeze note, add the freeze note (below) on this first apply pass. Historical entries are never rewritten, renumbered, or deleted.
 
-6. **Stamp statuses** back into each source entry file: `applied (date)`, `rejected (reason)`, or `deferred`. Nothing is silently dropped — a declined menu leaves every item `pending`, and the backlog is re-offered next pass.
+6. **Stamp statuses** back into each source entry file: `applied (date)`, `rejected (reason)`, `deferred`, `superseded (reason)`, or `upstreamed (date, report)`. Nothing is silently dropped — a declined menu leaves every item `pending`, and the backlog is re-offered next pass.
 
 ## Kaizen Log Format
 
@@ -241,7 +261,7 @@ Runs **only on the default branch** (Branch Context). Invocation: *"apply pendin
 # Kaizen Log
 
 Continuous-improvement record for this project. The `## Active Lessons` digest below is
-refreshed only by the `kaizen` skill's Apply Mode, on the default branch. Other AKILI
+refreshed only by the `kaizen` skill's Apply Mode, on the apply-capable branch. Other AKILI
 commands read only this table — keep it at 10 rows or fewer. Per-retrospective entries
 live in `docs/specs/kaizen/`, one file per spec.
 
@@ -268,14 +288,22 @@ Both ID grammars coexist in the digest: legacy `KZ-###` rows keep their IDs, new
 
 ### Branch Context
 
-Every write decision in this skill turns on one question: **is the checked-out branch the default branch?** Resolve it once per run and refer to the answer by name ("Branch Context") everywhere else. Plain `git` only — no host-specific API.
+Every write decision in this skill turns on one question: **which branch, if any, is apply-capable right now?** Resolve it once per run and refer to the answer by name ("Branch Context") everywhere else. Plain `git` only — no host-specific API.
 
 1. **Current branch:** `git rev-parse --abbrev-ref HEAD`.
 2. **Default branch — the pin first.** The `Default Branch:` line in the constitution summary of the root `AGENTS.md` / `CLAUDE.md`. `/akili-constitution` writes it, and every command already loads those files, so in a pinned project the resolution ends here.
 3. **No pin (legacy projects):** `git symbolic-ref refs/remotes/origin/HEAD --short`, stripping the leading `origin/`. This ref is unset in many clones until someone runs `git remote set-head origin --auto` — an error here is normal, not exceptional; fall through quietly.
 4. **Still unresolved — the unique `main`/`master` rule.** Among local and `origin/` branches, if exactly one of `main` or `master` exists, that is the default branch. If **both** exist, the result is *unresolved* — never guess.
+5. **Integration Branch: pin, and nothing else.** The `Integration Branch: <name>` line in the same constitution summary block, immediately after `Default Branch:`, is the **sole source** for this resolution.
+6. **Context value:** `integration` when the current branch equals the integration pin from step 5; else `default` when it equals the default branch resolved in steps 2–4; else `spec`. Unresolved or failed default-branch resolution still yields `spec` — deferring is always safe.
+
+No fallback of any kind exists for step 5: no branch-name heuristic (`develop`, `staging`, …), no ref lookup, no merge-history inference. A missing pin means `integration` cannot occur; it is never inferred from git.
 
 `git config init.defaultBranch` is **never consulted** at any step: it describes the name *newly created* repositories get, not the branch this repository integrates into, so it resolves the wrong branch silently.
+
+**Apply-capable predicate (defined once here; every other surface cites it by name):** `integration` when the `Integration Branch:` pin exists; `default` when it does not. **Never both** — exactly one branch per project is apply-capable at any time. When the integration pin exists, a checkout of the default branch resolves to `default` and is **non-writing**: every gate that would otherwise write there records pending items instead and names the integration branch as the place to apply (Writable set, below).
+
+**Both pins naming the same branch:** the integration pin is redundant. The context is `default`, it is apply-capable, and the skill says so in one line so the redundancy is visible rather than silently ignored.
 
 **On unresolved or failure** — both `main` and `master` present, detached HEAD, no git repository — **treat the context as a spec branch and defer**: deferring is always safe, applying is not. Say so in one line and name the remedy — pin `Default Branch: <name>` in the constitution summary.
 
@@ -283,13 +311,14 @@ Every write decision in this skill turns on one question: **is the checked-out b
 
 | Branch Context | What this skill may write |
 |---|---|
-| Spec branch (or unresolved) | The spec's own entry file `docs/specs/kaizen/<safe-spec-slug>.md` — nothing else. No persona, guide, template, design doc, TRD, or digest |
-| Default branch | The above, plus HITL-approved shared files and the digest, through the Standardize menu or Apply Mode |
+| Spec branch (or unresolved), or the default branch while an `Integration Branch:` pin exists | The spec's own entry file `docs/specs/kaizen/<safe-spec-slug>.md` — nothing else. No persona, guide, template, design doc, TRD, or digest. (With the pin present, the default branch is held to this same restriction — it is not the writer while the pin stands.) |
+| Apply-capable branch (the pinned integration branch when the pin exists, otherwise the default branch) | The above, plus HITL-approved shared files and the digest, through the Standardize menu or Apply Mode |
 
 ### Standing rules
 
 - **Never block the archive** (or any invoking command). Missing inputs or a declined menu → write a metrics-only or clean-run **entry file** and continue. The fallback write target is always the entry file, never the log.
-- **The digest has one writer:** Apply Mode, on the default branch. No retrospective phase writes `## Active Lessons` on any branch for any reason — recurrence included; it becomes a `digest-update` pending item.
+- **The digest has one writer:** Apply Mode, on the apply-capable branch. No retrospective phase writes `## Active Lessons` on any branch for any reason — recurrence included; it becomes a `digest-update` pending item.
+- **Accepted residual:** while an `Integration Branch:` pin exists, a spec branch cut from the default branch (a hotfix) does not see standardizations applied on the integration branch until the next release merge — the same visibility any developer has of unmerged sibling work.
 - **Never edit a shared file without explicit HITL approval** — and never from a spec branch, approval or not.
 - Legacy `## Entries` are **frozen**: read them as history, never rewrite, renumber, or delete them. There is no migration step.
 - Digest capped at **10 Active Lessons**; retire institutionalized lessons instead of letting the table grow.
