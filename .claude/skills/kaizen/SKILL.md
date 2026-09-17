@@ -230,6 +230,8 @@ Runs **only on the apply-capable branch** (Branch Context — the pinned integra
 
    `upstream` items are exempt from this probe: their `Target` is the literal `methodology`, not a path, and their `Edit` names no fact in this repository for a grep or existence check to confirm — they pass to step 4b unprobed.
 
+   For a `digest-update` item, the `Target` is a `KZ-id`, not a path: "exists at HEAD" means a row with that ID in the `## Active Lessons` digest, or a lesson heading with that ID in any entry file under `docs/specs/kaizen/`; the fact probe is the item's recurrence claim (the source spec the item adds names a real entry file). An absent `docs/specs/kaizen-log.md` alone never supersedes it — the digest is created in the same pass.
+
 4. **Apply what was approved and re-verified**, per `Kind`:
    - `standardization`, `guide-sync`, `factual-sweep` — write the recorded 1–3 lines to the recorded target.
    - `trd-adr` — allocate the next free `ADR-MMM` **at this moment**, sequentially in the processing order above, append the decision to `docs/trd/trd.md`, and flip the ADR it supersedes to `superseded by ADR-MMM`. If `docs/trd/trd.md` does not exist, leave the item `pending`, add a one-line note in the item block saying why, and move on — never invent the file.

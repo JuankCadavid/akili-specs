@@ -230,3 +230,23 @@ Two declared conflicts/readings, Leader-adjudicated: (a) `tasks.md` T6 Done says
 | Correction Closure | Forward: grep of the spec folder for "6 tasks" / "six tasks" / "T2,T3,T4 ──→ T5 ──→ T6" — hits updated or sanctioned (recorded below). Backward: `execution.md` Document Control budget row and `tasks.md` Document Control budget row cite design §12 — both updated to 7 |
 | Briefs to re-issue | None outstanding — T1/T2/T4 are closed; T7 gets a fresh brief; T6's re-run brief carries the amended FR text |
 | User decision | **Pivot acotado + T7** (2026-09-17) |
+
+### T7 — Walkthrough closures (T6 Pivot)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (checklist mode, 6+/4−) |
+
+**Attempt 1** — files: `.claude/skills/kaizen/SKILL.md` (3b: `digest-update` Target/fact resolution; an absent digest never supersedes), `.claude/commands/akili-archive.md` (Step 3 items 2, 3, 4 sub-clauses → "Off the apply-capable branch (…)"; item 3's unbolded opener normalized — Leader-adjudicated in-site), `.claude/commands/akili-constitution.md` (detection sub-bullet: ask for the branch name as its own step; "never inferred" intact). Implementer verification: greps 1–3 green; three-file diff; `git diff --check` clean; gate paragraph and table untouched.
+
+Reviewer verdict: **PASS.** "T7's three one-clause closures each resolve their formerly INCONCLUSIVE reading, and nothing outside rows 26-28 moved." Confirmed: no reading under which a missing digest alone yields `superseded`; agreement with step 5.4 and the Kind table; the three sub-clauses carry the same predicate as the gate paragraph; repo-wide "On a spec branch:" zero outside the spec folder; the constitution clause binds the name without weakening the guardrail or the Confirm sub-bullet.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-4 `digest-update` clause + no-digest scenario; FR-2 per-item `AND IT MUST`; FR-1 name-elicitation `AND IT MUST` |
+| Issues | none |
+| Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
+| Continue gate | auto-approved (pre-approved mode) |

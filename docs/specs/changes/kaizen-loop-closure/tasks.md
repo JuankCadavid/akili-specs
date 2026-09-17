@@ -204,7 +204,7 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T5 (all three surfaces are committed; T7 edits them in place) |
 | Requirements | FR-4 `digest-update` clause + scenario "`digest-update` item, no digest yet" (all clauses); FR-2 hotfix scenario's new `AND IT MUST` (per-item sub-clauses); FR-1 release-cadence scenario's new `AND IT MUST` (name elicitation) |
