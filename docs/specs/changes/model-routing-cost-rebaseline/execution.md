@@ -93,3 +93,5 @@ Reviewer verdict: **FAIL** (1 issue). Verified clean: (a) Step 8C wording byte-c
 
 **Kaizen candidates (for `/akili-archive`):** (1) a spec figure transcribed from a screenshot is not a source — the task's Source-of-truth rule caught a unit error (5-hour vs monthly) that three review rounds of the proposal/design had not; consider making "open the page, not the screenshot" a standing specify-time rule; (2) a Leader brief written before a pivot must be re-issued after it — the "$60" residue cost one round; (3) directional cross-references ("above/below") in release notes need the referent's position checked — cheap, twice bitten across two specs.
 
+
+**Closing-gate decisions (user, 2026-09-17):** push to `origin/master` now; NFR-3 closed on the proxy evidence (executed scratch check declined — the first project that re-runs Step 8C is the live drift check). Spec complete; ready for `/akili-archive` and a **patch** release.
