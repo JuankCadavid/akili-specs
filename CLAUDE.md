@@ -1,6 +1,6 @@
 # Claude Guidance
 
-This repository packages the AKILI-SPECS methodology for reuse in Claude Code and OpenCode.
+This repository packages the AKILI-SPECS methodology for reuse in Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI.
 
 ## Start Here
 
