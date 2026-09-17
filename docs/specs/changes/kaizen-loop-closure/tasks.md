@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `pre-approved (user, 2026-09-17)` |
-| Status | Approved — ready for `/akili-execute` |
+| Status | Executed — 7/7 tasks PASS (2026-09-17) |
 | Date | 2026-09-17 |
 | Budget (design §12) | 7 tasks (6 + T7 from the T6 Pivot, 2026-09-17) · ~236 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Design review | Step 2.3 reversion challenge run (6 breakages, 4 closed pre-design); `judgment-day` not requested at Phase 2 (user chose Continue) |
@@ -179,7 +179,7 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T5, T7 |
 | Requirements | FR-2 (all scenarios walked), FR-3 (first-apply, merge, resume scenarios walked), FR-4 unparseable + out-of-budget scenarios walked, FR-7 (legacy no-pin scenario walked; `AND IT MUST` no constitution change), FR-8 post-sweep scenario, NFR-1, NFR-2, NFR-6; the requirements §8 accepted risk (prose executability) is discharged here as far as a walkthrough can |

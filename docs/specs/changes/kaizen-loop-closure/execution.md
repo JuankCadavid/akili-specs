@@ -250,3 +250,32 @@ Reviewer verdict: **PASS.** "T7's three one-clause closures each resolve their f
 | Issues | none |
 | Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
 | Continue gate | auto-approved (pre-approved mode) |
+
+**T6 — Attempt 2 (after the Pivot, HEAD `5c1b18c`)** — same fixture, unmodified; re-walk of the three formerly INCONCLUSIVE steps, all **PASS** on the T7 text (quoted in the record): 3b's `digest-update` clause is one coherent test (digest row *or* entry-file lesson heading; an absent digest alone never supersedes); Step 3 items 2–4 each open with the gate paragraph's own parenthetical; the pin bullet elicits the name as its own step. **0 of 11 sub-steps INCONCLUSIVE.** Greps: FR-8 phrase grep 0; union grep 0 outside the spec folder, 7 inside (all sanctioned); `default branch` enumeration 59 (+3 = the three new non-writing-row phrases T7 added). Packaging: `verify:cli` 0 (11 commands / 24 skills / 7 resources), `pack:dry-run` 0 (275 files), `git diff --check` 0, working tree clean. Fixture fact recorded honestly: the fixture's `digest-update` item targeted an orphan `KZ-002`, so the literal 3b result there is `superseded` — the FR-4 "no digest yet" scenario was walked on the text (Reviewer confirmed it passes) but not exercised by that fixture value.
+
+Reviewer verdict: **PASS.** "I re-walked all nine checks against the shipped text at HEAD `5c1b18c` and reproduced both closure greps. Every walkthrough step the record marks PASS is backed by a sentence that exists verbatim in the shipped file, and I found no pair of shipped sentences that can be read to disagree on any walked step. The three attempt-1 INCONCLUSIVE readings are genuinely closed by T7." Reviewer additionally confirmed live on the fixture that with both pins removed `git symbolic-ref` fails and the unique-`master` rule resolves the default branch.
+
+ADVISORY (recorded, kaizen inputs): RELIABILITY — Apply Mode step 5 raises a `digest-update` on an existing row (5.1) and adds rows only for newly applied lessons (5.2); in the FR-4 bootstrap case (recurrence recorded before any digest exists) no sentence creates the row for that ID — silence, not disagreement; a future clause. READABILITY — archive Step 3 item 4's heading "(apply-capable branch)" labels the item rather than the write. HOUSEKEEPING — done: the walkthrough record is preserved at `docs/specs/changes/kaizen-loop-closure/t6-walkthrough.md`; the fixture is deleted from the scratchpad.
+
+| Field | Value |
+|---|---|
+| **Final status** | **PASS** (attempt 2 of 3 — attempt 1 was the gate's own FAIL that triggered the Pivot) |
+| Requirements covered | FR-2, FR-3, FR-4, FR-7 walked; FR-8 post-sweep scenario; NFR-1, NFR-2, NFR-6; §8 accepted risk discharged as far as a walkthrough can |
+| Decisions | Fixture kept until the Reviewer used it, then deleted; FR-3 count read from the scenario-shaped file (3); orphan `KZ-002` recorded as a fixture-composition fact |
+| Issues | Attempt 1: 3 INCONCLUSIVE → Pivot → T7 |
+| Final verification | 0 INCONCLUSIVE; both greps clean; packaging green; tree clean |
+| Continue gate | auto-approved (pre-approved mode) — no eligible task remains |
+
+## 3. Summary
+
+| Field | Value |
+|---|---|
+| Tasks | 7 / 7 `[x]` (T1–T5 as designed; T7 added by the T6 Pivot; T6 the closing gate) |
+| Reviewer rounds | T1 ×3 (tripwire fired at the 2nd FAIL; user chose to proceed), T2 ×1, T3 ×2, T4 ×1, T5 ×2, T7 ×1, T6 ×1 (+ the gate's own attempt-1 FAIL) — 11 verdicts, 4 FAILs |
+| Leader pre-review catches | 3 (T1 step-2 wording; T2 five in-file restatements; T2 fifth ADR clause flagged by the Implementer) — none consumed a Reviewer round |
+| Pivots | 1 (T6 → T7; FR-1/FR-2/FR-4 amended; DD-11) |
+| HALTs / FATAL_FAILs | 0 / 0 |
+| Budget | tasks 6 → 7 (Pivot); LOC ~230 → ~236 est., actual prose delta across 15 shipped files ≈ 210 lines; review rounds: 1/task budgeted, T1 and T3 and T5 exceeded by one each |
+| Commits | 8 on `master`, all `[SPEC:changes/kaizen-loop-closure]` |
+| Kaizen candidates (Methodology) | (1) When a design adds a value to an enumerated type, walk every existing consumer step against it (DD-11) — the root cause of 3 of the 4 FAILs and all 3 INCONCLUSIVEs; (2) a Leader pre-review grep of in-file restatements of a changed rule (KZ-001 class) removed three would-be Reviewer rounds — worth a persona line; (3) docs gap: `docs/flow.md` artifact table lacks a row for `upstream-<date>.md`; (4) Apply Mode bootstrap: no sentence creates a digest row for a `digest-update` whose ID predates the digest |
+| Next | `/akili-validate changes/kaizen-loop-closure` (or `/akili-archive` directly, as the prose-only predecessor did — no test suite exists for command text; the walkthrough record is the behavioral evidence) |
