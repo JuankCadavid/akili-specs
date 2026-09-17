@@ -102,7 +102,7 @@ T2/T3/T4 are parallel-safe after T1 (they cite names T1 defines: the `apply-capa
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-3 resume scenario (count = 3 with 1 superseded + 2 upstreamed present; recommendation by pinned name; `BUT NOT` write any file), FR-6 enumeration at the footer site, NFR-1 (additive change only) |

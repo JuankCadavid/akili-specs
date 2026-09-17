@@ -79,3 +79,37 @@ Reviewer verdict: **PASS.** "The 3b carve-out and the narrowed 4b precondition c
 | Issues | Two FAILs, same class — new `Kind` vs. pre-existing Apply Mode steps not walked per Kind at design time. **Kaizen candidate (Methodology):** when a design adds a value to an enumerated type (Kind, Status, context), the surface table must walk every existing consumer step against the new value — the KZ-004 fall-through rule applied to designs, not scans |
 | Final verification | greps 1–5 green (Implementer + Reviewer independently); `git diff --check` clean |
 | Continue gate | auto-approved (pre-approved mode) |
+
+### T3 — `/akili-resume`: footer names the pinned branch, counts only `pending`/`deferred`
+
+| Field | Value |
+|---|---|
+| Status | **IN PROGRESS** — attempt 1 FAIL, attempt 2 dispatched |
+| Date | 2026-09-17 |
+| Implementer | `sonnet`, effort `medium` (attempt 1) → `high` (attempt 2); skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (checklist mode, diff < 50 LOC) |
+
+**Attempt 1** — files: `.claude/commands/akili-resume.md` (2+/2−, one hunk). Implementer verification: `superseded` in the exclusion list (1 hit); old example phrase zero; diff confined to the footer; `git diff --check` clean; `Kaizen: N active lessons` line and read-only sentence byte-identical.
+
+Reviewer verdict: **FAIL** (1 issue), verbatim:
+
+1. **Discovered Issue:** The footer resolves the branch name from two sources only, the `Integration Branch:` pin and then the `Default Branch:` pin, and in the same sentence forbids both a skill load and a git resolution procedure. In a legacy project with neither pin, an agent reading only the shipped text has no name to print and no permitted way to obtain one. The superseded wording, "on the default branch to work them", named the branch without any pin. This is a reachable regression for the population FR-7 protects, and T6's fixture keeps `Default Branch: master` in its no-pin walk, so the walkthrough will not exercise it either.
+   - **Violated Rule:** `requirements.md` FR-7: "A project with neither pin SHALL keep the existing fallback resolution and defer-on-failure default." Also `tasks.md` §3 coverage: "No gap is discharged by citing a different requirement." T6 owns the FR-7 walk, but a walkthrough can only report the gap, not supply the missing clause.
+   - **Remediation Suggestion:** Append one clause to the same sentence covering the neither-pin case, without adding a git procedure. For example: "and when neither pin exists, the footer recommends the invocation without naming a branch, since the apply-capable branch is resolved by the skill's existing fallback at apply time." Nothing else in the paragraph needs to move.
+
+**Leader decisions (attempt 1 → 2):** issue stands. Remediation chosen: when neither pin exists, the footer says "the default branch" in place of a name (that is what the skill's fallback resolves without pins; no git procedure added). **Forward pointer → T6:** the fixture's no-pin walk must also remove `Default Branch:` (neither pin), not only the integration pin — the Reviewer is right that the planned fixture would not exercise this.
+
+**Attempt 2** — files: `.claude/commands/akili-resume.md` (2+/2−, one hunk). Edit: one clause appended to the footer sentence — when neither pin exists, say "the default branch" in place of a name (the population the skill's Branch Context fallback resolves; no git procedure, no skill load). Implementer verification 1–3 green; `git diff --check` clean.
+
+Reviewer verdict: **PASS.** "The appended clause closes the gap I raised. All three populations now have a stated output, the clause cannot fire when a pin exists, and the earlier checks still hold at the source." Reviewer re-ran: old example phrase 0 hits; FR-8 default-only patterns 0 in this file; one file 2+/2−; active-lessons line and read-only sentence byte-identical.
+
+**Forward pointer → T5:** the new clause contains the bare words "the default branch" (fallback-resolution sentence — an FR-8 sanctioned form); enumerate it in T5's sanctioned-hit list rather than rewriting it.
+
+| Field | Value |
+|---|---|
+| **Final status** | **PASS** (attempt 2 of 3) |
+| Requirements covered | FR-3 resume scenario (all clauses), FR-6 footer enumeration, FR-7 neither-pin population, NFR-1 |
+| Decisions | Neither-pin output = the generic phrase "the default branch" (not "no branch named") — matches what the skill's fallback resolves |
+| Issues | 1 FAIL: the FR-7 neither-pin population had no reading — same lesson class as T1 (a new value walked against the pinned cases, not against the no-pin legacy case) |
+| Final verification | greps 1–3 green (Implementer + Reviewer); `git diff --check` clean |
+| Continue gate | auto-approved (pre-approved mode) |

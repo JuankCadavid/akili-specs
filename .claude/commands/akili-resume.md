@@ -105,10 +105,10 @@ If `docs/specs/kaizen-log.md` exists, append a Kaizen footer line to either form
 Kaizen: 3 active lessons (latest: KZ-003 — empty-state tokens before list UI)
 ```
 
-If `docs/specs/kaizen/` holds entry files, append a second footer line for the pending backlog: count every item whose `Status` is `pending` or `deferred` across all entry files (the same backlog the `kaizen` skill's Apply Mode collects — a scaffolded `README.md` or `.gitkeep` is not an entry file), name the highest `Severity` among them, and recommend the exact Apply Mode invocation:
+If `docs/specs/kaizen/` holds entry files, append a second footer line for the pending backlog: count every item whose `Status` is `pending` or `deferred` across all entry files — and only those two; explicitly exclude `applied`, `rejected`, `superseded`, and `upstreamed` items from the count (KZ-004) — across the same backlog the `kaizen` skill's Apply Mode collects (a scaffolded `README.md` or `.gitkeep` is not an entry file). Name the highest `Severity` among the counted items, then recommend the exact Apply Mode invocation naming the apply-capable branch by its pinned name — the `Integration Branch:` pin in the constitution summary of the root `AGENTS.md`/`CLAUDE.md` already loaded when it exists, otherwise the `Default Branch:` pin there (the kaizen skill's apply-capable predicate; the pin is already in hand, so this reads it directly — no skill load, no git resolution procedure); when neither pin exists, name it generically as "the default branch" rather than a specific name — the same population the skill's Branch Context fallback resolves for, so no git procedure or skill load is needed here either:
 
 ```markdown
-Kaizen backlog: 3 pending standardizations (1 High) — say "apply pending kaizen standardizations" on the default branch to work them
+Kaizen backlog: 3 pending standardizations (1 High) — say "apply pending kaizen standardizations" on `develop` to work them
 ```
 
 This is a read-only count, not a lesson read: lesson content still comes only from the `## Active Lessons` digest. `/akili-resume` never applies an item and never writes to an entry file — it reports the backlog and names the invocation that clears it (see Output).
