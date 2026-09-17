@@ -95,3 +95,5 @@ Reviewer verdict: **FAIL** (1 issue). Verified clean: (a) Step 8C wording byte-c
 
 
 **Closing-gate decisions (user, 2026-09-17):** push to `origin/master` now; NFR-3 closed on the proxy evidence (executed scratch check declined — the first project that re-runs Step 8C is the live drift check). Spec complete; ready for `/akili-archive` and a **patch** release.
+
+**Final CI — run 35249366761 on `b37a6ed`: SUCCESS on all six legs** (ubuntu/macos/windows × Node 18/22). Spec complete.
