@@ -97,7 +97,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none |
 | Requirements | FR-7 (constitution half: the four fields + absent-value rule in the template description), NFR-3 (no migration) |
