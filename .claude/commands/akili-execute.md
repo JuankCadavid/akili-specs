@@ -163,8 +163,17 @@ Delegate to the Implementer with a **pointer brief, not an anthology**. A host w
 - any Active Lessons from `docs/specs/kaizen-log.md` relevant to the task's domain — **copied rows, never a pointer**: a pointer would make the worker read the full log, which costs more than the rows. Pointer-vs-copy is decided by economy, not dogma — point at what the worker would read anyway, copy what spares it a bigger read
 - **any forward pointers recorded in `execution.md` against this task — copied, and re-read at the moment you compose this brief.** Earlier tasks' Reviewers routinely defer a branch to a later task, and the Leader records it; the record creates the appearance of ownership without the mechanism of transfer. A pointer filed three tasks ago is not carried by having been filed — the brief carries it or nobody does
 - the verification command to run before reporting completion (copied)
+- the task's `Falsifier`, `Red run`, and `Consumers` fields, copied beside the verification command (hand-off from `changes/gate-falsifiability`): instruct the Implementer to run every suite `Consumers` names and to report the assertion the red failed on. When the task carries none of these fields, the brief says so instead of copying nothing silently: `no Falsifier / Red run / Consumers fields in this task`
 
 The Implementer must keep changes minimal and within task scope, follow the design spec exactly unless the spec is clearly incomplete or contradictory, and run the verification before reporting completion.
+
+**Brief contract.** The brief is law to the worker: whatever it adds or drops is executed faithfully, so what goes into it is bound by five clauses.
+
+- **(a) Narrow-never-widen.** The brief may restrict a task — fewer files, a tighter scope, an explicit order — but must add no fallback, option, "honest alternative", or deliverable the task text lacks; if the task cannot be done as written, that is a spec gap for the Pivot Protocol, never a workaround in the brief. `AGENTS.md`'s *Scope only grows through approval* binds the brief exactly as it binds advisories, and a tag of `[advisory-grade]` does not lift this clause — narrow-never-widen still governs. **Falsifier:** a brief line offering to record an unmeasurable value "as not measurable" for a task that requires the measurement.
+- **(b) Convention files, by lookup.** Name every convention file governing the target using this two-step lookup and nothing wider: walk the target's folder up to the repository root, listing every agent guide (`CLAUDE.md` / `AGENTS.md`) and every cap or contract file such a guide names, one listing per level; then add the constitution's `## Module Guides` entries whose path prefixes the target, plus any file the task or design already cites. A chain deeper than the *Delegation Thresholds*' read budget goes to a scout, never an open-ended search. When the lookup finds nothing, say so: `convention files: none found by lookup`. **Falsifier:** zero convention files named for a target whose folder holds a `CLAUDE.md`.
+- **(c) Source-or-`UNVERIFIED`.** Every infrastructure or third-party fact the brief states — an environment-variable meaning, a message envelope, a response key, a route — cites a source the worker can read (file + section, or a command output) or carries the marker `UNVERIFIED — confirm at source before relying on it`. **Falsifier:** a bare "the env var means X" with no source and no marker.
+- **(d) Advisory-grade tagging.** Any item the Leader adds beyond the task text is tagged `[advisory-grade]`; the Reviewer audits an advisory-grade item as `ADVISORY` only and can never FAIL the task on it. The tag lowers the item's tier — it does not license the addition, and narrow-never-widen (a) still forbids new scope; a Leader who needs the scope raises it to the user. **Falsifier:** a brief whose Leader-added test item is untagged and reads as though it were already part of the task.
+- **(e) Copied verification fields.** Alongside the verification command, the brief carries the task's `Falsifier`, `Red run`, and `Consumers` fields — see the bullet above. **Falsifier:** a brief that copies the command alone for a task whose fields are present.
 
 #### 2.3 — Spawn Reviewer
 
@@ -174,9 +183,10 @@ When the Implementer reports completion, the Leader:
 1. Extracts the **git diff** of changes since the start of the attempt. To save tokens, the Reviewer MUST ONLY be given the diff, not the entire source files, unless absolutely necessary for context.
 2. Spawns the Reviewer with:
    - the persona: **nothing** when spawning the Step 8E wrapper (its body loads `.agents/reviewer.md`); persona content only in the fallback sub-prompt path
-   - the **git diff — always inline, the one payload that can never become a pointer**: it is ephemeral working state, not a project file, and the wrapper-restricted Reviewer has no `Bash` to regenerate it
+   - the **git diff, delivered by size**: a diff of ≤ 300 lines stays inline — it is ephemeral working state, not a project file. Above 300 lines, the Leader writes the diff it extracted to a file in the session scratchpad, outside the working tree, and the brief names the path with the instruction to `Read` it; the wrapper-restricted Reviewer keeps `Read` (only `Bash` is withheld), so the file resolves. A **non-host** Reviewer keeps the inline diff at any size — the same standing exception Step 2.2 already names for non-host workers
    - **pointers** to the relevant sections of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md` — the Reviewer keeps `Read`/`Grep`/`Glob` precisely so it can follow them
    - the Implementer's verification evidence (copied — transient worker output, it lives in no file)
+   - **execute-time spec edits since the previous PASS**: each `requirements.md` / `design.md` section the Leader edited during execution — without changing an approved requirement's meaning — is listed as a named conformance check (e.g. "conformance to `design.md#<section>` as amended <date>"); the same sections are carried once more in the next task's Reviewer brief, then drop. Record the edit in the current entry's *decisions made* at the moment you make it. **Boundary:** an edit that changes what an approved requirement means is a Pivot (*Error Handling & Pivot Protocol*, cited by name) — never an edit-carry
 
 **Review lens modes (4R):** the Reviewer audits spec conformance (the gate) plus four advisory lenses — **readability, reliability, resilience, risk** — per `.agents/reviewer.md`. The mode is selected by the task's effort dial; there is no separate configuration:
 
@@ -187,7 +197,7 @@ When the Implementer reports completion, the Leader:
 
 `ADVISORY` findings are recorded in `execution.md` with the task's entry and never trigger rework — the 3-attempt ceiling binds to spec conformance only.
 
-The Reviewer is read-only. It must conclude with either:
+The Reviewer is read-only. Its returned message is a **report contract**: the first line is `STATUS:` — nothing before it — followed by the summary, then the issues list, then `ADVISORY`; the whole message stays under **~600 words**. Issues beyond the ceiling go to a file in the session scratchpad that the Leader reads by path, with the count stated on the summary line (e.g. `ISSUES: 5 — 3 inline, 2 in <path>`); the *Structured Feedback* rule (2.4, below) then relays the report **and** the overflow file verbatim to the next Implementer. The `STATUS:` line reads one of:
 
 - **`STATUS: PASS`** + a 1–2 sentence summary (+ optional `ADVISORY` block with 4R lens findings)
 - **`STATUS: FAIL`** + a structured list of issues, each containing:

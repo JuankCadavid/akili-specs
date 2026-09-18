@@ -45,7 +45,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | none |
 | Requirements | FR-1 (a)–(e) and all five scenarios (`BUT NOT` executable fallback · `AND IT MUST` one listing per level · `BUT NOT` zero files with a `CLAUDE.md` present · `BUT NOT` bare fact · `AND IT MUST` respect (a) under the tag · `BUT` absent-fields line); FR-2 scenario (`AND IT MUST` record in decisions made · `BUT NOT` change meaning — Pivot boundary); FR-3 all three scenarios (`AND IT MUST` verdict intact · `BUT NOT` paraphrase the overflow file · `AND IT MUST` write from the extracted diff · `BUT NOT` inside the working tree · non-host inline); NFR-2, NFR-4, NFR-6 |
