@@ -163,3 +163,25 @@ T5's checkbox is held until the user decides how to close these (gated mode; one
 | Correction Closure | Forward: grep of the spec folder for "5 tasks", "~120", "11 surface", "Eleven surface" — updated in `tasks.md`, `design.md`, `execution.md` Document Control; `proposal.md` hits are sanctioned history. Backward: `t5-walkthrough.md` cites rule text that T6 changes — it is a dated record of HEAD `c3c7918` and stays as is; the re-run appends to it |
 | Briefs to re-issue | None outstanding — T1–T4 closed; T6 gets a fresh brief; T5's re-run brief carries the amended FR text |
 | User decision | **Pivot acotado + T6** (2026-09-18) |
+
+### T6 — Pivot closures: executed falsifier, attribute, viewport axis, stub behavior
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design`; briefed to run the verification exactly as `tasks.md` states it (lesson from T2) |
+| Reviewer | `opus`, effort `high` — the T5 Reviewer, context intact, who had found the gaps |
+
+**Attempt 1** — files: `.claude/commands/akili-specify.md` (rules 1, 3, 6 — 3−/3+), `docs/commands/akili-specify.md` (two sub-list lines — 2−/2+). Implementer verification: T6 checks 1–5 green as written; restatement grep clean ("class list" gone everywhere); CHANGELOG Unreleased bullet re-read — holds.
+
+Reviewer verdict: **PASS.** "Both held-out gaps I raised are now closed by general sentences that stand without their parentheticals." Held-out (b) rejected by "The Done criteria require the falsifier **executed against the post-change code**… a gate that stays green under its own falsifier asserts nothing"; held-out (c) rejected by "two viewports that differ on the dimension the gate depends on… or a second, shorter height that forces the intended scrolling ancestor". FR-3's "attribute" and FR-1's "stub behavior" carried; rules 2, 4, 5 byte-identical; KZ-OTV-2 correctly characterized inside the inert-fixture parenthetical.
+
+ADVISORY (recorded, out of T6's scope): the `tdd` skill's *Inert fixture* bullet prescribes "the fix is a fixture row on which the readings diverge" — the wrong remedy for a broken-selector instance; follow-up.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-1 amended statement + "Selector that matches nothing" scenario; FR-3 attribute presence; FR-6 item 4 axis |
+| Issues | none |
+| Final verification | checks 1–5 green (Implementer + Reviewer) |
+| Continue gate | covered by the user's Pivot approval (T6, then re-run the closure) |

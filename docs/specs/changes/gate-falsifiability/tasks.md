@@ -176,7 +176,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T4 (edits committed text in place) |
 | Requirements | FR-1 amended statement (stub behavior; falsifier executed against the post-change code) + scenario "Selector that matches nothing" (all clauses incl. `BUT NOT` pre-change red alone); FR-3 "class/attribute presence" (shipped text under-delivered it); FR-6 item 4 as amended (viewports differ on the dimension the gate depends on; scenario "One viewport height") |
