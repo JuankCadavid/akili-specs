@@ -253,6 +253,7 @@ Guidelines:
 - record meaningful trade-offs and rejected alternatives for non-trivial decisions
 - call out data, API, security, error-handling, observability, and rollback concerns when relevant
 - keep design decisions practical enough that an implementer can act without re-discovery
+- **New enumerated values walk their consumers.** When the design adds a value to an existing enumerated type (a status, a kind, a mode, a branch context), the surface table lists every existing step that consumes that type and states what the new value does there — a step written for the old value set is read literally against the new one, and naming only the steps you *add* is the KZ-004 fall-through class applied to a design instead of a scan (three of four Reviewer FAILs in `changes/kaizen-loop-closure`).
 - **Code Suppression:** DO NOT generate code snippets or implementation examples in `design.md`. Design decisions must remain conceptual to conserve output tokens. The actual code will be written during execution.
 
 #### Step 2.3 — Challenge Reversions

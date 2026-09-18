@@ -8,7 +8,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - `.claude/commands/` contains installable AKILI-SPECS command prompts.
 - `.claude/skills/` contains installable methodology skills.
 - `.claude/templates/` contains the default Leader, Implementer, Reviewer, and Tester personas used by the AKILI multi-agent harness. `/akili-constitution` copies these into each project's `.agents/` directory.
-- `bin/akili.js` installs commands, skills, and helper resources (including the agent templates) into Claude, OpenCode, and Google Antigravity config directories.
+- `bin/akili.js` installs commands, skills, and helper resources (including the agent templates) into Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI config directories.
 - `scripts/release.js` prepares controlled npm package releases.
 - `docs/release-checklist.md` documents the release process.
 

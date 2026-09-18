@@ -29,6 +29,7 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
 
 4. **Rework Loop, Traceability & Escalation (operational contract lives in the command):**
    * Run the loop exactly as `/akili-execute` Step 2 defines it: 3-attempt ceiling, `FATAL_FAIL` fail-fast, verbatim structured feedback + Attempt History on retries, **effort bumped one level per retry** (a fix that failed is usually under-thinking, not missing instructions), HALT + Automatic Rollback after 3.
+   * **Pre-review restatement sweep (rules documents):** when a task changes a rule that the same file restates elsewhere, grep that file for the superseded phrasing and its paraphrases *before* spawning the Reviewer; a surviving restatement is brief non-conformance returned to the Implementer, not a Reviewer finding — one such sweep spared three review rounds in `changes/kaizen-loop-closure`.
    * Finalize per Step 3 — **evidence before checkbox**: append `execution.md` first, then flip `tasks.md`, then commit with the AKILI standard (`[SPEC:<spec-path>] <message>`). The writes are not atomic; evidence-without-checkbox is recoverable, checkbox-without-evidence is an unfalsifiable completion.
    * Pivot Protocol, Constitution Impact blocks, and the HALT format are Step 3.5/4 and *Error Handling* in the command — apply them as written.
 

@@ -19,6 +19,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **`/akili-resume`'s Kaizen footer names the pinned apply-capable branch and counts only `pending`/`deferred` items**, explicitly excluding `applied`, `rejected`, `superseded`, and `upstreamed` from the backlog count.
 - Root guides (`AGENTS.md`, `README.md`, `docs/flow.md`, `docs/README.md`, `docs/skills/kaizen.md`, `docs/skills/README.md`), the `akili-archive`/`akili-resume`/`akili-constitution` command mirrors under `docs/commands/`, and the packaged `leader.md`/`implementer.md` guardrail phrase are updated to the apply-capable-branch wording throughout.
 
+- **Two Kaizen standardizations from the `changes/kaizen-loop-closure` retrospective (Apply Mode, default branch):** `/akili-specify` Step 2.2 gains the guideline *new enumerated values walk their consumers*; `leader.md` item 4 gains the *pre-review restatement sweep* for rules documents. `AGENTS.md`'s installer line now names all four install targets (factual sweep).
+
 ### Notes
 
 - Release classification proposed: **minor** (new pin + new Kind/Status vocabulary); user may override at release time.
