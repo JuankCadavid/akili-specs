@@ -54,7 +54,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 **Verification** (repo root; hazard exclusions).
 1. `grep -n "name the input that would make the check fail" .claude/commands/akili-specify.md` — exactly the pre-change hit, byte-identical (NFR-5). *Falsifier:* the bullet reworded or moved.
-2. `grep -c "Falsifier\|Red run\|Disqualifier\|Consumers" .claude/commands/akili-specify.md` — ≥ 6, with hits in the "Each task should include" list, the block, and the Verification Checklist. *Falsifier:* the checklist still reading only "verification guidance that accounts for the negative scenarios" with no field names.
+2. *(amended by the Leader at T1 attempt 1, 2026-09-18 — the original `grep -c` counts matching lines, not occurrences; the intent was occurrences at three sites)* `grep -o "Falsifier\|Red run\|Disqualifier\|Consumers" .claude/commands/akili-specify.md | wc -l` — ≥ 6, and `grep -n` shows hits in the "Each task should include" list, the block, and the Verification Checklist. *Falsifier:* the checklist still reading only "verification guidance that accounts for the negative scenarios" with no field names.
 3. `grep -nE "Angular|Cypress|Tailwind|Jest|ts-jest|jsdom|ng build" .claude/commands/akili-specify.md` — every new hit inside `(...)`; pre-existing hits enumerated as untouched. *Falsifier:* a rule sentence containing `ng build` outside a parenthetical.
 4. `git diff -U0 -- .claude/commands/akili-specify.md | grep -c "^+"` — ≤ ~30 added lines (NFR-1). *Falsifier:* a 60-line block.
 5. `git diff --check` clean.
@@ -71,7 +71,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none |
 | Requirements | FR-8 (scenario: red names its assertion; setup red reported as not-a-red; `AND IT MUST` keep the existing three anti-patterns and seam rules), FR-2 (loop half), FR-10 (`tdd` agrees with the block's names) |

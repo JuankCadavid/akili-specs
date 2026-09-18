@@ -38,3 +38,41 @@ Reviewer verdict: **PASS.** "The single-line edit to Step 7 item 3 names all fou
 | Issues | none |
 | Final verification | greps 1–3 green (Implementer + Reviewer) |
 | Continue gate | gated — presented to the user when wave 1 lands (T1, T2 still in flight) |
+
+### T2 — `tdd` skill: two anti-patterns, red on the assertion, evidence row
+
+| Field | Value |
+|---|---|
+| Status | **IN PROGRESS** — attempt 1 FAIL, attempt 2 dispatched |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `medium` (attempt 1) → `high` (attempt 2); skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (checklist mode, 4+/2−) |
+
+**Attempt 1** — files: `.claude/skills/tdd/SKILL.md` (three hunks: +2 anti-patterns; "Red before green" clause; evidence row). Implementer verification: 5 anti-pattern bullets; grep hits in three sections (**against the brief's pattern, not the task's — see below**); `description:` diff zero; `git diff --check` clean.
+
+Reviewer verdict: **FAIL** (1 issue), verbatim:
+
+1. **Discovered Issue:** Verification 2's grep returns three hits — SKILL.md:39, :40 (Anti-patterns) and :60 (AKILI Integration). Nothing in Rules of the loop matches. Line 44 reads "The red must fail on the behavioral assertion", so neither `fails on the behavioral assertion` nor `failed on` matches. The completion report states hits in all three sections; that claim does not hold.
+   - **Violated Rule:** tasks.md, T2 Verification 2 — "`grep -n "Inert fixture\|Plumbing test\|fails on the behavioral assertion\|failed on" .claude/skills/tdd/SKILL.md` — hits in Anti-patterns, Rules of the loop, and the AKILI Integration table."
+   - **Remediation Suggestion:** Cheapest fix is the shipped wording: "The red fails on the behavioral assertion — a red from setup, …", which makes the specified pattern hit line 44 with no change of meaning. Alternatively, correct the evidence to say the Rules-of-the-loop clause is confirmed by reading line 44, and record the grep as two-site, not three.
+
+Verified clean by the Reviewer: 5 bullets; inert fixture distinct from tautological; loop clause, evidence row and FR-2 agree; zero framework names; description, existing anti-patterns, seam section and other rows byte-identical.
+
+**Leader adjudication (root cause is the brief, not the Implementer):** the Leader's brief transcribed verification 2 with the pattern `behavioral assertion` instead of the task's `fails on the behavioral assertion`; the Implementer's "three sections" claim was true against the brief's grep and false against the task's. This is the brief-contract defect class the parallel spec `changes/leader-brief-contract` addresses (a brief that alters the task's governing text) — recorded here as evidence for that spec and for this retrospective. Remedy: the Reviewer's first option (wording "The red fails on…"), one word, no change of meaning; the attempt is consumed because the task's verification is the binding one. Effort bumped to `high`.
+
+**Runtime event (2026-09-18, ~16:54 local):** the provider session limit killed three workers at once — the T1 Implementer (after delivering its pre-review correction), the T2 Reviewer (before its attempt-2 verdict), and the parallel worktree agent drafting `changes/leader-brief-contract`. Per the runtime-failure rule this consumes **no rework attempt**; workers were resumed by message once the limit reset (context intact where it survived). Recorded as field evidence for `changes/leader-brief-contract` item (c) — runtime events as first-class loop events.
+
+**T1 attempt 1 — Leader pre-review catch (KZ-005):** the field list and the constitution template cite "the Falsifiability block" by name, but the block's intro carried no name. Returned to the Implementer as brief/task conformance (not a Reviewer round); fixed — the intro now opens "**Falsifiability** — this rule is necessary and not sufficient…". Two Implementer flags adjudicated: (a) T1 verification 2's `grep -c` counted lines (3) where the intent was occurrences (9) — **`tasks.md` amended** to `grep -o … | wc -l ≥ 6`, a verification-wording correction, not a scope change; (b) the Step 1.2 "Situation" table is the defect-class table — correct home.
+
+**T2 — Attempt 2** — files: `.claude/skills/tdd/SKILL.md` (one word: "must fail" → "fails" in "Red before green"). Implementer verification run exactly as `tasks.md` states: anti-pattern bullets 5; V2 hits at lines 39, 40 (Anti-patterns), 44 (Rules of the loop), 60 (AKILI Integration); description diff zero; `git diff --check` clean.
+
+Reviewer verdict: **PASS.** "Verification 2, run with the literal pattern from tasks.md T2, now returns four hits across all three required sections… Nothing else moved since attempt 1… That change does not alter the rule's meaning and keeps the loop clause in agreement with the evidence row and with FR-2." (Reviewer resumed after the provider-limit interruption; context intact.)
+
+| Field | Value |
+|---|---|
+| **T2 final status** | **PASS** (attempt 2 of 3) |
+| Requirements covered | FR-8 (scenario + `AND IT MUST` existing anti-patterns/seams kept), FR-2 (loop half), FR-10 (`tdd` agrees with the block's names) |
+| Decisions | Attempt consumed although the root cause was the Leader's brief paraphrasing the task's grep — the task's verification is binding; recorded as brief-defect evidence |
+| Issues | 1 FAIL — evidence discrepancy from a brief transcription error (Leader) |
+| Final verification | V1–V4 green as written (Implementer + Reviewer) |
+| Continue gate | gated — presented to the user when wave 1 lands |

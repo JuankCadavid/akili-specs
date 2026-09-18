@@ -36,10 +36,12 @@ Ask: "What's the public interface, and which seams should we test?"
 - **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
 - **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
 - **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead — one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
+- **Inert fixture** — the correct implementation and the most plausible wrong one read the same on the fixture, so the assertion cannot discriminate. The tell: mutate the logic the test claims to prove and the test stays green; the fix is a fixture row on which the readings diverge.
+- **Plumbing test** — the test renders or exercises a fragment authored in the test file (a copied template, a hand-built structure) instead of the real artifact, so it proves the test's own wiring. The tell: delete the feature from the real file and the test stays green; the fix is a lock on the real artifact (a static read of the shipped file or a rendered measurement of the shipped element).
 
 ## Rules of the loop
 
-- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
+- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features. The red fails on the behavioral assertion — a red from setup, a missing dependency, an unmatched intercept, a timeout, or a mock that never reaches the timing under test is not a red.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
 
@@ -55,7 +57,7 @@ In AKILI projects this skill runs **inside the Implementer's inner loop**, assig
 | **Bug Mode is already TDD** | `/akili-specify` Bug Mode mandates a regression test **red before the fix, green after** — this skill generalizes that same discipline to feature tasks. On a bugfix task, the two are one loop: the mandatory regression test is the first red. |
 | **Refactoring belongs to review** | The upstream rule maps 1:1 onto the AKILI harness: the Reviewer's 4R lenses and the `simplify` pass own refactoring. The Implementer's loop stays red → green; do not gold-plate inside it. |
 | **No duplication with `/akili-test`** | TDD tests are the *author's* tracer bullets at unit seams; `/akili-test`'s Testers remain the **independent** proof (author ≠ tester): negative constraints, integration, E2E. Testers cite existing TDD coverage in their per-scenario matrix instead of rewriting it, and add what the author's loop does not cover. |
-| **Verification evidence** | The Implementer's completion report cites the red → green history as verification evidence: the test file(s), the scenario each test proves, and the final green run. A test that was never seen red is not TDD evidence — say so rather than implying it. |
+| **Verification evidence** | The Implementer's completion report cites the red → green history as verification evidence: the test file(s), the scenario each test proves, and the final green run. A test that was never seen red is not TDD evidence — say so rather than implying it. Each cited red names the assertion it failed on; a red that failed in setup is reported as not-a-red rather than implied as TDD evidence. |
 
 One sentence to remember: *the spec supplies the expected values, the design supplies the seams, the Leader supplies the assignment — the loop supplies only the discipline.*
 
