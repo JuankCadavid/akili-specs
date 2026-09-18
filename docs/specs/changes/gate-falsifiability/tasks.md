@@ -39,7 +39,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | none |
 | Requirements | FR-1 (both scenarios: mutation + diverging rows recorded; `BUT NOT` accept a named-only mutation), FR-2 (both scenarios: red rejected on timeout/intercept; deferred timing required; `BUT NOT` "was red" satisfies Bug Mode), FR-3 (both scenarios: source lock paired; geometry vs clipping ancestor; `BUT NOT` count green fragment tests), FR-4 (scenario + `AND IT MUST` falsifier), FR-5 (both scenarios; `BUT NOT` owner-suites-only; `AND IT MUST NOT` assert no coverage without the grep), FR-6 (three scenarios; `BUT NOT` font-timing as regression), FR-7 (specify half: field list + absent-value rule; `BUT NOT` omit a field), FR-9, FR-10 (block/table/checklist agree; KZ-006 lead unchanged; `BUT` no "named input alone is evidence" sentence), NFR-1 (≤ ~25 lines), NFR-2, NFR-5 |

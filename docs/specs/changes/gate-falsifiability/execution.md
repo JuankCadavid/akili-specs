@@ -76,3 +76,33 @@ Reviewer verdict: **PASS.** "Verification 2, run with the literal pattern from t
 | Issues | 1 FAIL — evidence discrepancy from a brief transcription error (Leader) |
 | Final verification | V1–V4 green as written (Implementer + Reviewer) |
 | Continue gate | gated — presented to the user when wave 1 lands |
+
+### T1 — `/akili-specify`: Falsifiability block, fields, defect-class rows, checklist
+
+| Field | Value |
+|---|---|
+| Status | **IN PROGRESS** — Reviewer PASS on attempt 1; one clause-level gap adjudicated as owed before `[x]` |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (full sweep; read all eight corpus citations at the source) |
+
+**Attempt 1** — files: `.claude/commands/akili-specify.md` (16+ lines, 4 hunks, five named sites). Implementer verification: KZ-006 bullet byte-identical; occurrences 9 at three sites; framework grep — only pre-existing `jsdom` plus new names inside parentheticals; ≤ 30 added lines; `git diff --check` clean. Leader pre-review catch (KZ-005: unnamed block) fixed before review.
+
+Reviewer verdict: **PASS.** "All five sites land at the sections T1 names, four hunks, nothing outside them. KZ-006 is byte-identical and keeps its position… I read all eight corpus citations at the source and every falsifier matches what the entry reports… FR-10 holds: no sentence claims a named input alone makes a check evidence." NFR-1/NFR-2/NFR-5 confirmed; rule 6's length carved out by design §3's checklist exception.
+
+ADVISORY (verbatim summary): READABILITY — rule 2's parenthetical is bare spec names with no falsifier text. RELIABILITY — FR-2's second scenario also asks for the positive obligation (deferred observables or the harness's equivalent) and "a green under synchronous mocks is not evidence"; rule 2 carries only the negative form, and T5's walkthrough does not use that entry. READABILITY — Step 1.2's column header reads "Situation". FYI — DD-5's cross-citation by name (rules 1 and 3 naming inert fixture / plumbing test) unmet in this direction.
+
+**Leader adjudication:** the RELIABILITY item is a **clause-level coverage gap, not an advisory** — FR-2's "Race hidden by synchronous mocks" scenario is owned by T1 in the coverage table, and its THEN carries the positive obligation the shipped rule omits. Per the rule that a task with an outstanding gap never reaches `[x]` even on a PASS, T1 stays open for one clause. Folded into the same touch as Leader-adopted refinements within T1's own surface: rule 2's parenthetical gains the falsifier text; rules 1 and 3 name the `tdd` anti-patterns (inert fixture, plumbing test) for FR-10/DD-5 coherence. The "Situation" header is left as is (content matches design row 1; renaming a pre-existing header is outside T1). The Reviewer is asked to confirm the touched lines only.
+
+**T1 owed-clause touch (post-PASS, Leader-adjudicated):** three lines in the block — rule 1 names the `tdd` *inert fixture*; rule 2 gains FR-2's positive obligation (deferred timing so the race is exercised; a green under synchronous mocks is not evidence for the class) and falsifier text in its parenthetical; rule 3 names the `tdd` *plumbing test*. Implementer verification: KZ-006 lead unchanged; framework grep unchanged; 16 added lines; `git diff --check` clean.
+
+Reviewer confirm-only: **PASS holds.** "FR-2 second scenario now fully carried… DD-5 cross-citations resolve: the tdd skill at HEAD carries *Inert fixture* (line 39) and *Plumbing test* (line 40) under exactly those labels. Framework grep unchanged." Note (non-gating): rule 2 wraps past four lines on a narrow terminal, still shorter than rule 6.
+
+| Field | Value |
+|---|---|
+| **T1 final status** | **PASS** (attempt 1 of 3 + one Leader-adjudicated owed-clause touch, Reviewer-confirmed) |
+| Requirements covered | FR-1..FR-7 (specify half), FR-9, FR-10, NFR-1, NFR-2, NFR-5 |
+| Decisions | Pre-review catch: block named (KZ-005); verification 2 amended to count occurrences; "Situation" table accepted as the defect-class home (header left as is); RELIABILITY advisory treated as an owed FR-2 clause, not an advisory |
+| Issues | none at review |
+| Final verification | greps 1–5 green (Implementer + Reviewer, eight corpus citations read at the source) |
+| Continue gate | gated — presented to the user now (wave 1 landed) |
