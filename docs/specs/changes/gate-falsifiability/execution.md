@@ -185,3 +185,34 @@ ADVISORY (recorded, out of T6's scope): the `tdd` skill's *Inert fixture* bullet
 | Issues | none |
 | Final verification | checks 1–5 green (Implementer + Reviewer) |
 | Continue gate | covered by the user's Pivot approval (T6, then re-run the closure) |
+
+**T5 — Attempt 2 (after the Pivot, HEAD `83029ff`)** — greps 1–3 clean over the full T1–T6 range; re-walk of the three rules T6 touched: no regression; held-out (b) and (c) both rejected by general sentences; packaging green; tree clean. Record appended to `t5-walkthrough.md`.
+
+Reviewer confirm-only: **PASS.** "All five quoted sentences exist verbatim at HEAD `83029ff`… No regression… Nothing withholds PASS… On (b), I judged the general sentence alone. 'A gate that stays green under its own falsifier asserts nothing' rejects the attribute-selector case without the parenthetical."
+
+ADVISORY (recorded, follow-up): the `tdd` skill's *Inert fixture* bullet prescribes "a fixture row on which the readings diverge" as the fix — the wrong remedy when the instance is a broken selector rather than thin data.
+
+| Field | Value |
+|---|---|
+| **T5 final status** | **PASS** (attempt 2 of 3 — attempt 1 PASSed its own gate; the Leader's held-out challenge triggered the Pivot) |
+| Requirements covered | FR-1..FR-6 retro-fit walked (five named + three held-out cases); FR-10 post-edit scenario; NFR-2, NFR-4, NFR-6 |
+| Decisions | Walkthrough strengthened with strip-the-parenthetical + held-out cases (the spec's own rule 1 applied to its gate); record returned inline after the scratchpad became unavailable, persisted by the Leader as `t5-walkthrough.md` |
+| Issues | 1 runtime interruption (expired login) — no attempt consumed |
+| Final verification | 0 INCONCLUSIVE; greps clean; packaging green; tree clean |
+| Continue gate | gated — no eligible task remains |
+
+## 3. Summary
+
+| Field | Value |
+|---|---|
+| Tasks | 6 / 6 `[x]` (T1–T5 as designed; T6 added by the T5 Pivot) |
+| Reviewer rounds | T1 ×1 (+ one Reviewer-confirmed owed-clause touch), T2 ×2, T3 ×1, T4 ×1, T5 ×1 + confirm (+ the held-out challenge), T6 ×1 — 9 verdicts, 1 FAIL |
+| Leader pre-review catches | 1 (T1: the block carried no name while two surfaces cited it — KZ-005) |
+| Pivots | 1 (T5 → T6: executed falsifier; attribute presence; viewport axis; stub behavior; FR-1/FR-6 amended; DD-9) |
+| HALTs / FATAL_FAILs / tripwires | 0 / 0 / 0 |
+| Runtime interruptions | 2 (provider session limit — 3 workers; expired login — 1 worker); none consumed an attempt; all resumed by message |
+| Budget | tasks 5 → 6 (Pivot); LOC ~126 est. vs ~55 shipped lines across 7 files; review rounds 1/task budgeted, T2 exceeded by one |
+| Commits | 9 on `master`, all `[SPEC:changes/gate-falsifiability]` |
+| Kaizen candidates (Methodology) | (1) **A retro-fit walkthrough over cases the rules cite is an inert fixture** — the strip-the-parenthetical test plus held-out cases found a real spec gap and two under-deliveries a 5/5 PASS had hidden; (2) **a Leader brief that paraphrases a task's verification command changes the gate** (T2's only FAIL) — corroborates `changes/leader-brief-contract`; (3) **under-delivery of requirement nouns** ("attribute", the viewport axis) passed a full Reviewer sweep — a clause-by-clause noun check of each FR statement against the shipped sentence would have caught both at T1; (4) follow-up: `tdd` *Inert fixture* remedy wording |
+| Hand-offs owed by `changes/leader-brief-contract` | `/akili-execute` Step 2.2 brief copies `Falsifier`, `Red run`, `Consumers`; `reviewer.md` verifies the recorded red run and traces the mutation |
+| Next | `/akili-archive changes/gate-falsifiability` (prose-only; the walkthrough record is the behavioral evidence) |

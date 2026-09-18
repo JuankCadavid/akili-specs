@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | Approved — ready for `/akili-execute` |
+| Status | Executed — 6/6 tasks PASS (2026-09-18) |
 | Date | 2026-09-18 |
 | Budget (design §11) | 6 tasks (5 + T6 from the T5 Pivot, 2026-09-18) · ~126 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Design review | Step 2.3 reversion challenge not triggered (no reverting DD); `judgment-day` not requested at Phase 2 (user chose Continue) |
@@ -151,7 +151,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T4, T6 |
 | Requirements | FR-1..FR-6 (retro-fit walked), FR-10 post-edit scenario (framework grep; contradiction grep; no "named input alone" sentence), NFR-2, NFR-4, NFR-6 (residual discharged as far as a walkthrough can) |
