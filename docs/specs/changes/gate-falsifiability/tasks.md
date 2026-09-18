@@ -10,7 +10,7 @@
 | Approval Mode | `gated` |
 | Status | Approved — ready for `/akili-execute` |
 | Date | 2026-09-18 |
-| Budget (design §11) | 5 tasks · ~120 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
+| Budget (design §11) | 6 tasks (5 + T6 from the T5 Pivot, 2026-09-18) · ~126 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Design review | Step 2.3 reversion challenge not triggered (no reverting DD); `judgment-day` not requested at Phase 2 (user chose Continue) |
 | Format precedent | `docs/specs/archive/2026-09-18-changes--kaizen-loop-closure/tasks.md` |
 | Dogfooding | Every task below carries the four Verification fields this spec introduces (`Falsifier`, `Red run`, `Disqualifier`, `Consumers`) with the absent-value rule |
@@ -22,7 +22,9 @@ T1 (akili-specify.md: Step 1.2 rows · field list · Falsifiability block · pre
 T2 (tdd SKILL.md: +2 anti-patterns · red-on-assertion · evidence row)          } T1 ∥ T2 ∥ T3 — disjoint files
 T3 (akili-constitution.md: Step 7 item 3 task.md description)
         │
-T1,T2,T3 ──→ T4 (mirrors + CHANGELOG) ──→ T5 (closure greps + parallel-safety diff + retro-fit walkthrough + packaging)
+T1,T2,T3 ──→ T4 (mirrors + CHANGELOG) ──┬→ T5 (closure greps + parallel-safety diff + retro-fit walkthrough + packaging)
+                                        │
+T6 (T5 Pivot: executed falsifier, attribute, viewport axis, stub behavior — Step 3.2 + mirror) ──┘
 ```
 
 T1/T2/T3 are parallel-safe (different files, prose only, no shared build output). T4 mirrors final text. T5 is the global gate. No circular dependencies.
@@ -149,9 +151,9 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M |
-| Depends on | T4 |
+| Depends on | T4, T6 |
 | Requirements | FR-1..FR-6 (retro-fit walked), FR-10 post-edit scenario (framework grep; contradiction grep; no "named input alone" sentence), NFR-2, NFR-4, NFR-6 (residual discharged as far as a walkthrough can) |
 | Design refs | DD-3, DD-7, §11 budget |
 
@@ -170,11 +172,44 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 ---
 
+### T6 — Pivot closures: executed falsifier, attribute, viewport axis, stub behavior (T5 Pivot, 2026-09-18)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | T4 (edits committed text in place) |
+| Requirements | FR-1 amended statement (stub behavior; falsifier executed against the post-change code) + scenario "Selector that matches nothing" (all clauses incl. `BUT NOT` pre-change red alone); FR-3 "class/attribute presence" (shipped text under-delivered it); FR-6 item 4 as amended (viewports differ on the dimension the gate depends on; scenario "One viewport height") |
+| Design refs | §7 rows 12–15, DD-9 |
+
+**Scope.** Four clauses, two files, nothing else:
+1. `.claude/commands/akili-specify.md`, Falsifiability block, **rule 1**: "fixture row(s)" → "fixture row(s) or stub behavior"; append the executed-falsifier obligation — the Done criteria require the mutation run against the post-change code (revert the change or apply the named mutation and observe the gate go red); a gate that stays green under its own falsifier asserts nothing — with one held-out example in the parenthetical (an attribute selector that stopped matching once the fix turned the attribute into a binding — `bugfix--other-fields-toc-visibility` KZ-OTV-2). Keep the existing example.
+2. 〃 **rule 3**: "or a class list" → "or a class or attribute list".
+3. 〃 **rule 6**, the viewport item: "use at least **two viewports** including the squeeze band where columns starve" → "use at least **two viewports** that differ on the dimension the gate depends on — a second width including the squeeze band where columns starve, or a second, shorter height that forces the intended scrolling ancestor".
+4. `docs/commands/akili-specify.md`, Falsifiability sub-list: the *Expressible falsifier* line gains "and run the mutation against the post-change code"; the *Rendered-measurement checklist* line's "at least two viewports including the squeeze band" → "at least two viewports differing on the dimension the gate depends on".
+
+**Verification** (repo root; hazard exclusions).
+1. `grep -n "post-change code" .claude/commands/akili-specify.md docs/commands/akili-specify.md` — one hit in each, inside rule 1 / the *Expressible falsifier* line.
+2. `grep -n "class or attribute list" .claude/commands/akili-specify.md` — one hit, inside rule 3.
+3. `grep -n "differ on the dimension\|differing on the dimension" .claude/commands/akili-specify.md docs/commands/akili-specify.md` — one hit in each.
+4. `grep -n "name the input that would make the check fail" .claude/commands/akili-specify.md` — byte-identical (NFR-5).
+5. `git diff --stat` — exactly two files; `git diff --check` clean.
+
+**Falsifier:** rule 1 still reading only "names the mutation *and* the fixture row(s)" with no executed-mutation clause — the pre-T6 text, which admitted held-out case (b). **Red run:** `n/a (no test gate)`. **Disqualifier:** greps prove words landed; the behavioral check is T5's re-walk of held-out case (b) and case (c) against the shipped general sentence. If an edit touches any rule other than 1, 3, 6 or any mirror line other than the two named, stop and report. **Consumers:** `docs/commands/akili-specify.md` (edited here); `CHANGELOG.md` Unreleased bullet names the checklist items generically — re-read it and report whether it still holds (expected: holds).
+
+**Done.** Four clauses land; greps 1–5 green; two-file diff; T5 re-walk queued.
+
+**Skills:** `cognitive-doc-design`.
+
+---
+
 ## 3. Coverage — scenario and clause level
 
 | Requirement · scenario / clause | Owner |
 |---|---|
 | FR-1 single-element fixture (`BUT NOT` named-only · `AND IT MUST` rows) · every-row-pinned | T1 · T5 (toc-center-guard) |
+| FR-1 selector-that-matches-nothing (`BUT NOT` pre-change red alone) · executed falsifier · stub behavior *(Pivot)* | T6 · T5 (re-walk, held-out b) |
+| FR-3 attribute presence · FR-6 viewport axis *(Pivot — shipped text under-delivered)* | T6 · T5 (re-walk, held-out c) |
 | FR-2 red on intercept timeout (`BUT NOT` "was red") · race under sync mocks | T1 · T2 (loop half) |
 | FR-3 fragment mirrored (`BUT NOT` 210 green) · visible but clipped | T1 · T5 (sp-shell-app-viewport) |
 | FR-4 green tests, broken build (`AND IT MUST` falsifier) | T1 · T5 (lead-center-full-catalog) |
@@ -190,7 +225,7 @@ No gap is discharged by citing a different requirement; every row quotes the cla
 
 ## 4. Estimate and PR strategy
 
-**Estimated LOC:** ~120 lines of prose across 11 surface rows (design §11).
+**Estimated LOC:** ~126 lines of prose across 15 surface rows (design §11; T6 added by the T5 Pivot).
 
 **PR strategy: one PR.** The block, the fields, the template description, and the `tdd` tells describe one contract; the mirrors must land with them. Under ~400 LOC, prose-only. Review order for the PR description (`cognitive-doc-design`): T1's Falsifiability block first, then T2, then parity.
 

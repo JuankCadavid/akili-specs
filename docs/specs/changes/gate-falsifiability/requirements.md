@@ -72,7 +72,7 @@
 
 ### FR-1: A gate's falsifier must be expressible by its fixture
 
-Every test gate in `tasks.md` SHALL name its falsifier (the mutation or input that produces FAIL — KZ-006) **and** the fixture row(s) on which the correct and the mutated implementation produce different readings. A fixture on which the named mutation leaves the reading unchanged SHALL be treated as no gate: the task is not accepted until the fixture diverges on the axis the mutation moves.
+Every test gate in `tasks.md` SHALL name its falsifier (the mutation or input that produces FAIL — KZ-006) **and** the fixture row(s) on which the correct and the mutated implementation produce different readings. A fixture on which the named mutation leaves the reading unchanged SHALL be treated as no gate: the task is not accepted until the fixture diverges on the axis the mutation moves. The fixture MAY be rows or programmed stub behavior — the rule is about the reading, not the data's shape. And the task's Done criteria SHALL require the falsifier **executed against the post-change code**: revert the change or apply the named mutation and observe the gate go red. Naming the diverging rows is necessary; running the mutation is what proves the gate is attached to the behavior — a gate that stays green under its own falsifier asserts nothing *(added by the T5 Pivot, 2026-09-18)*.
 
 #### Scenario: Counting formula with a single-element fixture
 
@@ -87,6 +87,13 @@ Every test gate in `tasks.md` SHALL name its falsifier (the mutation or input th
 - GIVEN a gate over an ordered pipeline and a fixture where every row is already pinned, so the pre- and post-change sets coincide
 - WHEN the task's `Falsifier` is written
 - THEN the task requires at least one unpinned row so the pipeline-order mutation produces a different output (`changes--reporting-favorite-indicators` KZ-3)
+
+#### Scenario: Selector that matches nothing *(added by the T5 Pivot, 2026-09-18)*
+
+- GIVEN a regression test that selects an element by an attribute the fix converts into a property binding, so after the fix the selector silently matches nothing
+- WHEN the task's `Falsifier` is executed against the post-change code (the fix reverted)
+- THEN the test stays green — it reads the same on the buggy and the fixed code — and the task rejects it as no gate, requiring a selector bound to something the change does not move (`bugfix--other-fields-toc-visibility` KZ-OTV-2)
+- BUT it must NOT accept an assertion-level pre-change red as sufficient on its own: a test can be red before the change for one reason and green after it for another
 
 ### FR-2: The red run is recorded evidence and fails on the assertion
 
@@ -153,7 +160,7 @@ When a task extends or changes a shared exported symbol (a map, a constant, a ty
 
 ### FR-6: Rendered-measurement checklist for layout gates
 
-When a gate asserts size, overflow, visibility, position, or containment of a rendered element, the task SHALL satisfy a six-item checklist: (1) the **baseline** reading of the pre-existing element is measured before any zero-overflow assertion (a container that is a swipe strip by design already overflows); (2) the harness has the production **fonts** (text and icon faces) loaded before measuring, or self-hosts them; (3) the assertion reads **geometry** (bounding rects, scroll metrics, computed style), never class presence; (4) at least **two viewports**, including the squeeze band where columns starve; (5) viewport ACs are stated in **effective CSS px** with the host zoom named; (6) where a scroll boundary is near, **clip containment** per FR-3. Gates that assert none of those properties are exempt.
+When a gate asserts size, overflow, visibility, position, or containment of a rendered element, the task SHALL satisfy a six-item checklist: (1) the **baseline** reading of the pre-existing element is measured before any zero-overflow assertion (a container that is a swipe strip by design already overflows); (2) the harness has the production **fonts** (text and icon faces) loaded before measuring, or self-hosts them; (3) the assertion reads **geometry** (bounding rects, scroll metrics, computed style), never class presence; (4) at least **two viewports that differ on the dimension the gate depends on** — a second width including the squeeze band where columns starve, or a second, shorter height that forces the intended scrolling ancestor *(axis named by the T5 Pivot, 2026-09-18)*; (5) viewport ACs are stated in **effective CSS px** with the host zoom named; (6) where a scroll boundary is near, **clip containment** per FR-3. Gates that assert none of those properties are exempt.
 
 #### Scenario: Zero overflow asserted on a swipe strip
 

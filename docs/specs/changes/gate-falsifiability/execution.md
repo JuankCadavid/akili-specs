@@ -11,7 +11,7 @@
 | Leader model | Fable 5.1 (session model; no `## Model Routing` registry in this repo's root guides — packaged default T1 = `opus` alias, session model stronger, passed silently) |
 | Implementer model | `sonnet` (T2, packaged default) — fallback sub-prompt path seeded by pointer to `.agents/implementer.md` (no Step 8E wrappers in this repo) |
 | Reviewer model | `opus` (T3, packaged default) — fallback sub-prompt path seeded by pointer to `.agents/reviewer.md`; author ≠ auditor held by model |
-| Budget (design §11) | 5 tasks · ~120 lines (prose) · 1 review round per task — trip on the second FAIL of any one task |
+| Budget (design §11) | 6 tasks (5 at design + T6 from the T5 Pivot, 2026-09-18) · ~126 lines (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Commit prefix | `[SPEC:changes/gate-falsifiability]` |
 | Wave plan | Wave 1: T1 ∥ T2 ∥ T3 (disjoint files; prose only). Wave 2: T4. Wave 3: T5 (closing gate) |
 | Parallel spec | `changes/leader-brief-contract` is being specified concurrently in an isolated worktree; it owns `/akili-execute`, `leader.md`, `reviewer.md` — this run never touches them (NFR-4) |
@@ -126,3 +126,40 @@ Reviewer verdict: **PASS.** "T4 mirrors are at parity with the shipped HEAD text
 | Issues | none |
 | Final verification | greps 1–5 green (Implementer + Reviewer); NFR-4 diff empty |
 | Continue gate | gated — presented to the user before T5 |
+
+### T5 — Closure gate: greps, parallel-safety diff, retro-fit walkthrough, packaging
+
+| Field | Value |
+|---|---|
+| Status | **IN PROGRESS** |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `xhigh`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` |
+
+**Runtime event (2026-09-18, ~19:20 local):** the T5 Implementer died on an expired login right after starting part (a) — no repo file written, no attempt consumed. The user re-authenticated; the worker was resumed by message. The session scratchpad announced earlier became unavailable in the same event, so the record's destination changed: the Implementer returns the walkthrough record in its report and the Leader persists it as `t5-walkthrough.md` in this spec folder (the task's "no repo file written by this task" still holds for the worker). Second runtime interruption of this run (first: provider session limit during wave 1) — both recorded as evidence for `changes/leader-brief-contract` item (c).
+
+**T5 — Attempt 1** — no repo file written by the worker. Greps 1–3 clean (one sanctioned pre-existing `jsdom` hit); walkthrough 5/5 rejected by a quoted shipped sentence; packaging green. Full record: `t5-walkthrough.md` (persisted by the Leader).
+
+**Leader challenge before accepting the gate (the spec's own rule 1, applied to its closure gate):** all five walked cases are cited by name inside the rules' parentheticals — the walkthrough was at risk of being an inert fixture. The Reviewer was asked to (1) strip the parenthetical and judge the general sentence, and (2) walk three held-out corpus gates the block does not cite.
+
+Reviewer verdict: **PASS** on the task's gate — "all five named cases survive the strip-the-parenthetical test — each is rejected by a class-level sentence that stands without its corpus citation, so the gate is not an inert fixture." Greps re-run independently; parallel-safety diff also empty over the full T1–T4 range.
+
+**HELD-OUT findings (Leader adjudication pending with the user):**
+- (a) REJECTED — rule 1 / `tdd` inert fixture. Advisory: "fixture row(s)" reads tabular; a programmed stub is not a row.
+- (b) **INCONCLUSIVE** — a class FR-1/FR-3 claim: an always-false-negative selector passes rules 1–3 because nothing obliges executing the mutation against the post-change code. **Spec gap** (no requirement asks for it). Compounded by a **T1 under-delivery**: shipped rule 3 says "a class list"; FR-3 says "class/attribute presence".
+- (c) REJECTED weakly — **T1 under-delivery** against FR-6 scenario 3: "two viewports" names no axis; the requirement's "second, shorter height that forces the intended scrolling ancestor" was dropped.
+
+T5's checkbox is held until the user decides how to close these (gated mode; one item is a requirement amendment, which is Pivot territory).
+
+## Pivot Record: T5 (2026-09-18)
+
+| Field | Value |
+|---|---|
+| Trigger | T5's gate PASSed (5/5), but the Leader's held-out challenge found one INCONCLUSIVE case in a class FR-1/FR-3 claim to cover, plus two shipped-text under-deliveries against approved requirements |
+| Blocker | (1) **Spec gap:** nothing requires the falsifier to be *executed* against the post-change code, so a test that is red before the change for one reason and green after it for another passes rules 1–3 (`bugfix--other-fields-toc-visibility` KZ-OTV-2). (2) **T1 under-delivery:** shipped rule 3 says "a class list"; FR-3 says "class/attribute presence". (3) **T1 under-delivery:** shipped rule 6 says "two viewports" with no axis; FR-6 scenario 3 requires a second, shorter height. (4) Advisory adopted: "fixture row(s)" does not cover programmed stub behavior |
+| Alternatives | (a) close as is, four follow-ups — rejected by the user; (b) fix only the two under-deliveries — rejected: leaves the class the spec exists to close open; (c) **bounded Pivot: amend FR-1 (+scenario) and FR-6 item 4 wording, add T6 (four clauses, two files), re-run the closure on the touched rules and held-out (b), (c)** — chosen |
+| ADR impact | none |
+| Spec amendments | `requirements.md`: FR-1 statement (stub behavior; executed falsifier) + scenario "Selector that matches nothing"; FR-6 item 4 names the axis. `design.md`: §7 rows 12–15, DD-9, budget 5 → 6 tasks / ~126 LOC / 15 rows. `tasks.md`: T6 added; T5 depends on T4 + T6 and is `[~]` pending re-run; coverage rows added |
+| Correction Closure | Forward: grep of the spec folder for "5 tasks", "~120", "11 surface", "Eleven surface" — updated in `tasks.md`, `design.md`, `execution.md` Document Control; `proposal.md` hits are sanctioned history. Backward: `t5-walkthrough.md` cites rule text that T6 changes — it is a dated record of HEAD `c3c7918` and stays as is; the re-run appends to it |
+| Briefs to re-issue | None outstanding — T1–T4 closed; T6 gets a fresh brief; T5's re-run brief carries the amended FR text |
+| User decision | **Pivot acotado + T6** (2026-09-18) |

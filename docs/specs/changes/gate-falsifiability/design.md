@@ -85,6 +85,10 @@ Sites by section, never by line (KZ-005).
 | 9 | `.claude/commands/akili-constitution.md` | Step 7 item 3 | `task.md` description names the four Verification fields and the absent-value rule |
 | 10 | `docs/commands/akili-specify.md`, `docs/skills/tdd.md`, `docs/commands/akili-constitution.md` | the mirrored sections | parity |
 | 11 | `CHANGELOG.md` | Unreleased | Added: Falsifiability block, four fields, `tdd` anti-patterns; classification per user decision |
+| 12 *(T5 Pivot)* | `.claude/commands/akili-specify.md` | Falsifiability block, rule 1 | "fixture row(s)" → "fixture row(s) or stub behavior"; + the **executed falsifier** clause: the Done criteria require the mutation run against the post-change code (revert the change or apply the named mutation → red); one held-out corpus example in the parenthetical (`bugfix--other-fields-toc-visibility` KZ-OTV-2) |
+| 13 *(T5 Pivot)* | 〃 | Falsifiability block, rule 3 | "a class list" → "a class or attribute list" (FR-3 as approved) |
+| 14 *(T5 Pivot)* | 〃 | Falsifiability block, rule 6, viewport item | "at least **two viewports** including the squeeze band…" → two viewports **differing on the dimension the gate depends on** (a second width incl. the squeeze band, or a second, shorter height that forces the intended scrolling ancestor) |
+| 15 *(T5 Pivot)* | `docs/commands/akili-specify.md` | Falsifiability sub-list, *Expressible falsifier* and *Rendered-measurement checklist* lines | parity with rows 12 and 14 at summary altitude |
 
 **Consumer walk — every existing consumer of a task's Verification, and what the new fields do there:**
 
@@ -135,6 +139,9 @@ The `/akili-execute` brief must copy the new fields to the Implementer, and `rev
 ### DD-7 — Retro-fit walkthrough as the behavioral gate (NFR-6, KZ-006)
 Prose rules have no automated check. The substitute is a literal reader applying the shipped rules to five corpus gates that passed the old rules; the flagging sentence is quoted per case. A case no sentence flags is INCONCLUSIVE, which is a FAIL for the closing task — the same discipline `changes/kaizen-loop-closure` T6 used, which found three real gaps.
 
+### DD-9 — A named falsifier is not an executed one *(added by the T5 Pivot, 2026-09-18)*
+The closure walkthrough's five cases were all cited inside the rules, so the Leader had the Reviewer strip the parentheticals and walk three held-out corpus gates. One held-out gate (an attribute selector that stops matching once the fix lands) passed rules 1–3: the rule asked the author to *name* diverging rows, and nothing asked anyone to *run* the mutation after the change. The fix is the smallest one that closes the class: rule 1's Done obligation is the falsifier executed against the post-change code. Two T1 under-deliveries against approved requirements surfaced in the same pass and are corrected with it (rule 3's "attribute"; rule 6's viewport axis). Lesson for the retrospective: a retro-fit walkthrough over cases the rules cite is an inert fixture; held-out cases are what made this gate bite. Rejected: recording the four items as follow-ups — three of them are requirement text this spec already approved and did not ship.
+
 ### DD-8 — No `/akili-test` change (consumer walk outcome)
 Testers prove scenarios independently; the fields are task-side artifacts. Walked and recorded as holds, so a later reader does not assume it was overlooked.
 
@@ -142,8 +149,8 @@ Testers prove scenarios independently; the fields are task-side artifacts. Walke
 
 | Metric | Expected |
 |---|---|
-| Tasks | **5** |
-| Changed/added lines | **~120** across 11 surface rows (prose) — specify ~45, tdd ~15, constitution ~4, mirrors ~40, CHANGELOG ~8 |
+| Tasks | **6** *(5 at design; T6 added by the T5 Pivot, 2026-09-18)* |
+| Changed/added lines | **~126** across 15 surface rows (prose) — specify ~45, tdd ~15, constitution ~4, mirrors ~40, CHANGELOG ~8 |
 | Review rounds | **1 per task** — trip on the second FAIL of any one task |
 
-Depth re-check: **Standard holds.** Eleven surface rows across three commands/skills and three mirrors is more than Lite; no cross-cutting contract or data risk pushes it to Full.
+Depth re-check: **Standard holds.** Fifteen surface rows (11 at design, 4 from the T5 Pivot) across three commands/skills and three mirrors is more than Lite; no cross-cutting contract or data risk pushes it to Full.
