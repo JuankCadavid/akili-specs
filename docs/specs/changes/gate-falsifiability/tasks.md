@@ -122,7 +122,7 @@ T1/T2/T3 are parallel-safe (different files, prose only, no shared build output)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1, T2, T3 |
 | Requirements | FR-10 (mirrors agree; framework neutrality in mirrors), NFR-4 (consumer-command mirrors untouched) |

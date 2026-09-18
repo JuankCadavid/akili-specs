@@ -37,7 +37,7 @@ Creates or enhances:
 - `docs/trd/trd.md`
 - `docs/specs/general-setup/requirements.md`
 - `docs/specs/general-setup/design.md`
-- `docs/specs/general-setup/task.md`
+- `docs/specs/general-setup/task.md` (Step 7 item 3: task format, dependency graph format, testing expectations, and execution conventions, including the four Verification fields — `Falsifier`, `Red run`, `Disqualifier`, `Consumers` — named in `/akili-specify` Step 3.2's Falsifiability block, with the absent-value rule: `n/a (no test gate)` / `none (no shared symbol changed)`, never blank)
 - `docs/specs/general-setup/family.md` (a fourth template, Step 7: the manifest schema — Document Control plus an ordered child table — that `/akili-propose` and `/akili-specify` write only when a proposal is actually split into a spec family; its absence means the spec is flat, with no added obligations)
 - `docs/specs/kaizen/` (scaffolded with a one-line `README.md`: one kaizen entry file per spec, written by the `kaizen` skill's Record phase)
 - `docs/specs/audits/` (scaffolded with a one-line `README.md`: one drift report per `/akili-audit` run)

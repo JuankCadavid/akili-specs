@@ -106,3 +106,23 @@ Reviewer confirm-only: **PASS holds.** "FR-2 second scenario now fully carried�
 | Issues | none at review |
 | Final verification | greps 1–5 green (Implementer + Reviewer, eight corpus citations read at the source) |
 | Continue gate | gated — presented to the user now (wave 1 landed) |
+
+### T4 — Mirrors and CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (checklist mode, 23+/3− across four files) |
+
+**Attempt 1** — files: `docs/commands/akili-specify.md` (+10: two defect-class gates, four fields, six-rule Falsifiability sub-list, checklist items), `docs/skills/tdd.md` (five anti-patterns with tells, red-on-assertion clause, evidence extension), `docs/commands/akili-constitution.md` (task.md entry names the four fields and absent values), `CHANGELOG.md` (+2: Added bullet, patch-classification Note). Implementer verification: greps 1–5 green; per-file parity read; CHANGELOG surfaces matched to commits f6aaefa / d6d728d / 12f437b; a first-draft drop of "testing expectations" in the constitution mirror caught by the Implementer on comparison and fixed before reporting.
+
+Reviewer verdict: **PASS.** "T4 mirrors are at parity with the shipped HEAD text; no over-claim found, and the under-claims are summary-altitude compressions the task itself sanctions… CHANGELOG claims all trace to surfaces T1-T3 actually changed. Verified per file against the source, not by grep alone." Reviewer's readings recorded: rule 2's and rule 5's mirror lines omit the positive timing obligation and the CI-skipped/token-gated clause — acceptable compression (FR-10 asks the mirror to agree, not enumerate; FR-2/FR-5 are owned by T1/T5); the mirror has no presence-assertion bullet, so T1's trailing clause has no mirror target.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-10 (mirrors agree; neutrality), NFR-4 |
+| Issues | none |
+| Final verification | greps 1–5 green (Implementer + Reviewer); NFR-4 diff empty |
+| Continue gate | gated — presented to the user before T5 |
