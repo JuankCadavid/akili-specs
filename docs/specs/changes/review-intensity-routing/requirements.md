@@ -15,13 +15,13 @@
 | Format precedent | `docs/specs/archive/2026-09-19-changes--leader-brief-contract/requirements.md`. This repo has **no** `docs/specs/general-setup/` (`ls docs/specs/general-setup/` → `No such file or directory`, run at `a909216`); `docs/prd.md`, `docs/ux-ui/design.md` and `docs/trd/trd.md` do not exist here either |
 | Adjacent specs | `changes/scoped-constitution-reads` (proposal only) owns `.claude/templates/implementer.md` and `tester.md` — disjoint from this spec's files (NFR-7). Both add a `CHANGELOG.md` `Unreleased` entry: **merge serially** |
 | Depends on | `changes/gate-falsifiability` (shipped, v2.25.0) — FR-1's predicate leans on its Falsifiability block |
-| Validation corpus | Ten archived specs under `docs/specs/archive/` carry an `execution.md` with per-task records — roughly 59 tasks across `ai-agent-development-skill` (6), `goal-driven-execution` (1), `spec-family-ordering` (6), `audit-phase-tier-drift` (5), `branch-safe-kaizen` (6), `codex-install-target` (7), `model-routing-cost-rebaseline` (2), `gate-falsifiability` (9), `kaizen-loop-closure` (7), `leader-brief-contract` (10), plus `changes/premise-ledger` (10, unarchived). Counted at `a909216`. **Held-out discipline:** the shipped text may cite `premise-ledger` tasks only; every other spec's tasks are reserved for the closure walkthrough and must never be named in shipped text |
+| Validation corpus | Ten archived specs under `docs/specs/archive/` carry an `execution.md` with per-task records — **54** task records across `ai-agent-development-skill` (6), `goal-driven-execution` (1), `spec-family-ordering` (6), `audit-phase-tier-drift` (5), `branch-safe-kaizen` (6), `codex-install-target` (7), `model-routing-cost-rebaseline` (2), `gate-falsifiability` (6), `kaizen-loop-closure` (7), `leader-brief-contract` (8), plus `changes/premise-ledger` (10, unarchived). Re-counted at judgment round 1, finding S-2: the earlier figure said ~59 and overcounted the two newest specs. **Usable corpus is much smaller (finding S-4):** FR-1 reads the `Falsifier` / `Consumers` / `Disqualifier` fields, which `changes/gate-falsifiability` introduced on 2026-09-18, so eight of the ten archived specs carry **zero** `Consumers` fields. Only `gate-falsifiability` (6) and `leader-brief-contract` (8) can be run through the predicate as written — **14 held-out records**, plus `premise-ledger`'s 10, which are cited and therefore not held out. **Held-out discipline:** the shipped text may cite `premise-ledger` tasks only; every other spec's tasks are reserved for the closure walkthrough and must never be named in shipped text |
 
 ## 2. Executive Summary
 
 Today a Reviewer runs after every Implementer, unconditionally, and the methodology says so in a sentence that forbids collapsing the gate. That is correct for work whose verification cannot prove itself, and pure cost for work whose verification can.
 
-This spec makes the Reviewer conditional on **proof rather than on size**: a task may close without one only when it executed its own `Falsifier` and watched the gate go red, its verification is fully deterministic, it changes nothing others consume, and no override applies. Because the skip must be *earned* by running a falsification that roughly half of tasks skip today, the change raises the verification floor while lowering audit cost.
+This spec makes the Reviewer conditional on **proof rather than on size**: a task may close without one only when it executed its own `Falsifier` and watched the gate go red, its verification is fully deterministic, it changes nothing others consume, and no override applies. Because the skip must be *earned* by running a falsification that **six of ten tasks skip today** (four of ten execute it), the change raises the verification floor while lowering audit cost.
 
 One duty is added and never waived: the task's evidence is re-run by a context other than its author. That preserves the property that actually catches the dangerous failure — an author reporting green on something red — at near-zero cost, and leaves only the judgment audit conditional.
 
@@ -58,7 +58,7 @@ One duty is added and never waived: the task's evidence is re-run by a context o
 - Depth already bands, existence does not: `reviewer.md:43–45` (`< 50 LOC` checklist · `50–200` full four-lens · `> 200` parallel lenses).
 - The unattended-run condition names only two accepted states: `akili-execute.md:283` — *"`[x]` with matching PASS or `REVIEW_WAIVED` evidence"*.
 - The registry already prescribes a cheap Implementer: `docs/model-routing.md` model registry — T2 Coder → `sonnet`, T3 Auditor → `opus` *(must differ from T2)*.
-- Falsifiers are required but under-executed: `/usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md` → **6**, concentrated in five of ten tasks.
+- Falsifiers are required but under-executed: `/usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md` → **6** hits, which map to **four of ten tasks** (T1 ×2, T2, T4, T7 ×2) when each hit is traced to its enclosing task header. Corrected at judgment round 1, finding S-1: the earlier reading said five.
 
 **In scope:**
 
@@ -114,6 +114,7 @@ A task MAY close without a conformance Reviewer **only when all four conditions 
 - The predicate SHALL be defined in **one place** and cited by name everywhere else (NFR-2).
 - A task whose `Review` field says `skip-eligible` but whose report fails any condition SHALL receive a normal conformance review; the field is a **claim to be proved**, never a guarantee.
 - The Leader SHALL NOT substitute its own judgment that a task "looks simple" for any condition.
+- When a task's `skip-eligible` claim is **not earned**, the mismatch between plan and report SHALL be reported at the task's continue gate **even under `pre-approved` mode**, because FR-9's trial depends on the mismatch rate (DD-12).
 
 #### Scenario: A one-line pointer edit that proved its gate
 
@@ -283,7 +284,8 @@ Before this behavior becomes the default, it SHALL run as a **measured trial**, 
 - the trial's extent — a number of specs or tasks, fixed at approval;
 - that every trial spec reports its **escaped defects** (§3) alongside its `REVIEW_SKIPPED` count;
 - that the trial reports the **falsifier execution rate** before and after;
-- an **abort criterion**: what escaped-defect result reverts the change, decided at approval rather than after the data arrives.
+- an **abort criterion**: what escaped-defect result reverts the change, decided at approval rather than after the data arrives;
+- that the closure gate evaluates the predicate against the **14 held-out task records** that carry the fields FR-1 reads, and states that limit rather than implying the full corpus (DD-11).
 
 The `kaizen` Measure table SHALL gain a row for tasks closed under `REVIEW_SKIPPED` and a row for escaped defects, and its **clean-run predicate SHALL NOT classify a run as clean** when it contains a skipped task with an escaped defect — such a run is precisely the one whose retrospective must not be skipped.
 

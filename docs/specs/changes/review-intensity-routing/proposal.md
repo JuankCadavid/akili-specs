@@ -56,14 +56,14 @@ One hit, and it is the opposite of a permission: `akili-execute.md:320`, the `RE
 
 Those six are T1, T2, T3, T4, T6 and T8; T5 and T9 ran `sonnet`; T7 and T10 record workers under other field names and also ran `opus` on their assembly workers.
 
-**The falsifier is required but not universally executed.** `/akili-specify` Step 3.2 Falsifiability rule 1 already requires it: *"The Done criteria require the falsifier **executed against the post-change code**: revert the change or apply the named mutation and observe the gate go red — a gate that stays green under its own falsifier asserts nothing."* In practice, executed falsifiers are recorded on roughly half the run:
+**The falsifier is required but not universally executed.** `/akili-specify` Step 3.2 Falsifiability rule 1 already requires it: *"The Done criteria require the falsifier **executed against the post-change code**: revert the change or apply the named mutation and observe the gate go red — a gate that stays green under its own falsifier asserts nothing."* In practice, executed falsifiers are recorded on a minority of the run:
 
 ```
 /usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md
 6
 ```
 
-Six mentions, concentrated in T1, T2, T4, T7 and T10. **This is the lever.** Making an executed falsifier the price of skipping review raises the floor on verification while lowering audit cost.
+Six mentions, falling in **four** distinct tasks — T1 (×2), T2, T4, T7 (×2). *(Corrected at judgment round 1, finding S-1: this line first said five tasks and named T10, which has no matching hit.)* **This is the lever.** Making an executed falsifier the price of skipping review raises the floor on verification while lowering audit cost.
 
 ### What the one measured run shows
 
@@ -203,7 +203,7 @@ Against the measured run: T5 is the one task that would plausibly clear the pred
 ## 13. Success Criteria
 
 1. Two readers applying the predicate independently to the ten tasks of the `premise-ledger` run reach the same skip set.
-2. Falsifier execution rate rises above its current baseline of roughly half the tasks.
+2. Falsifier execution rate rises above its current baseline of **four of ten tasks**.
 3. Every skipped task carries a `REVIEW_SKIPPED` record naming the predicate evidence and the re-run result.
 4. Every task, skipped or not, carries an evidence re-run result by a non-author.
 5. **Escaped defects are reported**: any defect found at `/akili-test`, `/akili-validate`, a later task, or HITL in a task that skipped review. Non-zero is a finding that feeds the next revision, not a failure.

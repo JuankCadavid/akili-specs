@@ -9,7 +9,7 @@
 | Reason offered | `design.md` §11 carried an open `UNVERIFIED` premise of **High** Impact (P-14), which the shipped Step 2.5 rule says makes **Review Design** the recommendation |
 | Judges | Two, blind and parallel, both on `sonnet` — a different model than the design's author (`opus`), satisfying author ≠ auditor |
 | Round | 1 of at most 2 |
-| Status | **escalated to the user for the round-one correction decision** (Decision Gates: "Both judges confirm severe finding → Ask before round-one correction") |
+| Status | **approved** — round-one correction applied, re-judgment declined by the user (*Fix only*). Lineage closed at round 1; it is not reset or extended |
 
 ## Ledger-first attack (the shipped rule, exercised)
 
@@ -61,7 +61,24 @@ The protocol records a one-judge finding as **suspect with its command as run**,
 
 ## Verdict
 
-**`JUDGMENT: ESCALATED ⚠️`** — pending the user's round-one correction decision.
+**`JUDGMENT: APPROVED ✅`** — round one corrected, re-judgment declined.
+
+## Round-one correction — applied 2026-09-19
+
+The user chose **Fix only** at the correction gate. All five severe findings were applied and each was verified by a deterministic re-run rather than by a second judgment:
+
+| ID | Fix | Verification |
+|---|---|---|
+| S-1 | "five of ten" → **four of ten (T1, T2, T4, T7)** in `requirements.md` §4, `design.md` P-11, `proposal.md` §3 and its success criterion | `grep -c "five of ten"` → 0 across all three |
+| S-2 | corpus "~59" → **54**, with `gate-falsifiability` 6 and `leader-brief-contract` 8 | `grep -c "^### T[0-9]"` per archive → 6+1+6+5+6+7+2+6+7+8 = 54 |
+| S-3 | "nine citing surfaces" → **eight**, at all three sites | `grep -c "nine citing surfaces"` → 0 |
+| S-4 | corpus usability disclosed; **P-15** added as the depended-on premise that had no row; **DD-11** states the closure gate uses the 14 records that carry the fields and says so rather than reconstructing the rest | ledger now 15 rows, count line `14 verified · 1 UNVERIFIED`; `grep -c "Consumers" docs/specs/archive/*/tasks.md` → 0 for eight specs, 9 and 13 for the two |
+| S-5 | `docs/model-routing.md` added to `design.md` §4 | `sed` over §4 → 1 hit |
+| I-1 | **DD-12** added: a predicate mismatch is reported at the continue gate **even under `pre-approved`**, because FR-9's trial depends on the mismatch rate | FR-1 bullet + DD-12 present |
+
+**Correction Closure sweep, both directions.** Forward: the superseded figures return 0 hits outside `judgment.md`, which must keep them because they *are* the findings. Backward: referrers were re-read, and the sweep caught one more — `requirements.md`'s executive summary still said "roughly half", now stated as six of ten skip and four of ten execute.
+
+I-2 and I-3 remain information rows; neither was fixed and neither gates the spec.
 
 The design's *mechanism* survived the attack. Both judges independently confirmed the consumer walk is complete, that eleven of fourteen premise rows reproduce verbatim at source, and that the predicate correctly forces review on the archived FAIL cases they could test it against — so NFR-6 is not refuted.
 

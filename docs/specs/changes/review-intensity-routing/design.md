@@ -11,7 +11,7 @@
 | Source | `requirements.md` (FR-1..FR-11, NFR-1..8), `proposal.md` revision 2 |
 | Consumer walk (KZ-changes--kaizen-loop-closure-1) | **This design's central risk.** `REVIEW_SKIPPED` adds a value to the **closure-state enumeration**, and `Review` adds a new enumerated field. Every existing consumer of both is walked in §7.2. The walk **found two surfaces the approved scope had missed**, and `requirements.md` §4 was amended at Phase 2 to add them |
 | Reversion challenge (Step 2.3) | Run inline on **DD-8**, the one decision that removes shipped behavior — the absolute reading of `leader.md:82`. Outcome in §12 |
-| Premise Ledger | §11. **Fourteen rows** — thirteen verified at `a909216`, one `UNVERIFIED` of **High** Impact (P-14, settled by the closure task). This is the first spec authored after `changes/premise-ledger` shipped, so the section is exercised rather than described |
+| Premise Ledger | §11. **Fifteen rows** — fourteen verified at `a909216`, one `UNVERIFIED` of **High** Impact (P-14, settled by the closure task). P-15 was added at judgment round 1, finding S-4: a depended-on premise that had carried no row. This is the first spec authored after `changes/premise-ledger` shipped, so the section is exercised rather than described |
 | Format precedent | `docs/specs/archive/2026-09-19-changes--leader-brief-contract/design.md` |
 | Delegation record | None. All exploration was targeted greps under the *Delegation Thresholds*' inline allowance; no scout was spawned |
 
@@ -23,7 +23,7 @@ The closure rule moves from two accepted states to three. That single change is 
 
 ## 3. Architecture Overview
 
-**One definition, nine citing surfaces.**
+**One definition, eight citing surfaces.**
 
 | Role | Surface | What it holds |
 |---|---|---|
@@ -54,6 +54,7 @@ No new packaged file. Edited files only:
 | `.claude/templates/leader.md` | persona — the amended collapse paragraph, thresholds, recording |
 | `.claude/templates/reviewer.md` | persona — depth bands with bound effort |
 | `.claude/skills/kaizen/SKILL.md` | skill — Measure rows, clean-run predicate, report template |
+| `docs/model-routing.md` | registry — review intensity as a third dimension; the Verifier at T5 (finding S-5: this row was missing) |
 | `docs/commands/*.md`, `docs/skills/kaizen.md` | mirrors |
 | `CHANGELOG.md` | `Unreleased` |
 
@@ -160,7 +161,7 @@ Not applicable — no UI surface.
 
 | Contract | Owner | Users |
 |---|---|---|
-| Skip predicate, overrides, re-run duty | `/akili-execute` Step 2.3 block | nine citing surfaces |
+| Skip predicate, overrides, re-run duty | `/akili-execute` Step 2.3 block | eight citing surfaces |
 | Closure-state set | `/akili-execute` Execution Log Format | closure rule, `/goal`, resume, kaizen |
 | `Falsifier` / `Consumers` / `Disqualifier` fields | `/akili-specify` Step 3.2 Falsifiability block — **read, never edited** (NFR-1) | the predicate's conditions 1–3 |
 | `REVIEW_WAIVED` record and flags | `/akili-execute` — read, never edited | the distinctness rule |
@@ -197,9 +198,15 @@ The consumer walk found `akili-resume` and the `kaizen` clean-run predicate. Def
 ### DD-10 — The trial's numbers are set at approval, not here
 Extent and abort criterion are left to the user at the Step 2.5 gate. Writing them now would let the author of the change choose the bar it must clear.
 
+### DD-11 — The closure gate evaluates the predicate against the 14 records that carry the fields, and says so *(added at judgment round 1, finding S-4)*
+FR-1 reads `Falsifier`, `Consumers` and `Disqualifier`. Those fields were introduced by `changes/gate-falsifiability` on 2026-09-18, so only two archived specs carry them — 14 held-out task records. The closure gate uses those 14 and **states the limit** rather than implying the full 54. Rejected: reconstructing the fields for older tasks from their execution logs, which would manufacture the very evidence the gate is supposed to test, and would let the author of the predicate decide what each old task "would have" recorded. Consequence accepted: the held-out evidence base is smaller than the corpus, and FR-9's trial is what compensates over time.
+
+### DD-12 — A predicate mismatch is reported at the continue gate even under `pre-approved` *(added at judgment round 1, finding I-1)*
+DD-6 makes a skip routine, which under `pre-approved` would auto-pass. But a task whose `skip-eligible` claim was **not earned** is a signal the spec author misjudged the work, and FR-9's trial needs that mismatch rate to argue from data. So the mismatch is reported at the continue gate regardless of mode — consistent with the existing rule that `pre-approved` covers routine progress and never absorbs an exception. Rejected: silent fallback to a normal review, which is safe for the task and lossy for the measurement.
+
 ## 11. Premise Ledger
 
-`Premise Ledger: 13 verified · 1 UNVERIFIED (1 High, 0 Low)` — verified at `a909216`, all commands run from the repository root.
+`Premise Ledger: 14 verified · 1 UNVERIFIED (1 High, 0 Low)` — verified at `a909216`, all commands run from the repository root.
 `Blast-radius triggers:` **consumer** fires (the closure-state set and the new `Review` field are read by other commands — P-2, P-3, P-4, P-5, P-6); **shared-state** fires (the closure-state condition is read by more than one command — same rows); **live-path** fires (the design names the Leader's runtime decision chain from report to spawn-or-skip — P-1).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -214,9 +221,10 @@ Extent and abort criterion are left to the user at the Step 2.5 gate. Writing th
 | P-8 | `reviewer.md` bands depth by LOC and binds no effort | `location` | `reviewer.md:43–45` | `a909216` | FR-6 has nothing to amend — Low | — |
 | P-9 | The registry sets T2 `sonnet` and T3 `opus` *(≠ T2)* | `data-env` | `docs/model-routing.md` model registry table | `a909216` | FR-7's "default to T2" names the wrong tier — Low | — |
 | P-10 | No existing rule permits closing without a Reviewer | `existence` | `/usr/bin/grep -rn -i "skip the reviewer\|without a reviewer\|no reviewer\|reviewer optional\|omit the reviewer" .claude/commands .claude/templates` → 1 hit, `akili-execute.md:320`, the waiver record | `a909216` | The change is partly redundant — **High** | — |
-| P-11 | Falsifiers are executed on roughly half of tasks today | `data-env` | `/usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md` → 6, in five of ten tasks | `a909216` | The predicate's incentive claim is overstated — Low | — |
+| P-11 | Falsifiers are executed on a minority of tasks today | `data-env` | `/usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md` → 6 hits; each hit traced to its enclosing `^### T` header → **four** distinct tasks (T1 ×2, T2, T4, T7 ×2) | `a909216` | The predicate's incentive claim is overstated — Low | — |
 | P-12 | `implementer.md` and `tester.md` belong to an adjacent open spec | `other` | `docs/specs/changes/scoped-constitution-reads/proposal.md` §5 Scope rows for both files | `a909216` | NFR-7's parallel-safety claim fails — Low | — |
-| P-13 | Archived execution logs supply ~59 held-out task records for the closure gate | `existence` | Loop over `docs/specs/archive/*/execution.md` counting task records → ten specs, 6+1+6+5+6+7+2+9+7+10 | `a909216` | The closure gate has no held-out corpus and DD-13-style validation is impossible — **High** | — |
+| P-13 | Archived execution logs hold **54** task records | `existence` | `/usr/bin/grep -c "^### T[0-9]" docs/specs/archive/*/execution.md` → 6+1+6+5+6+7+2+6+7+8 = 54 | `a909216` | The corpus size is misstated — Low | — |
+| P-15 | Only **14** of those records carry the task fields FR-1's predicate reads | `data-env` | `/usr/bin/grep -c "Consumers" docs/specs/archive/*/tasks.md` → 0 for eight specs; `gate-falsifiability` 9, `leader-brief-contract` 13 — the two specs shipped on or after `gate-falsifiability` introduced the fields, covering 6 + 8 = 14 task records | `a909216` | The closure gate's held-out evidence base is far smaller than the corpus size suggests, and DD-11 is unnecessary — **High** | — |
 | P-14 | Every archived task whose Reviewer returned a FAIL would be forced to review by an override | `consumer` | `UNVERIFIED — confirm at source before relying on it` | — | NFR-6 is refuted and the predicate must change — **High** | Settled by the closure task, which applies the predicate to every archived FAIL task. Owner: the closure task |
 
 ## 12. Reversion Challenge (Step 2.3) — outcome
@@ -235,4 +243,4 @@ No other DD removes delivered behavior; the rest add rules or widen an existing 
 | Shipped lines (added or changed, packaged files and mirrors) | **~120** |
 | Review rounds | **10** — one per task plus two rework rounds |
 
-Nine prose tasks across seven packaged files match **Standard**. Nothing pushes to Full: no data, API, auth, or installer surface, and the risk is handled by FR-9's trial rather than by rollout machinery. Nothing allows Lite: one definition with nine citing surfaces and a changed enumeration is exactly where restatement drift happens.
+Nine prose tasks across seven packaged files match **Standard**. Nothing pushes to Full: no data, API, auth, or installer surface, and the risk is handled by FR-9's trial rather than by rollout machinery. Nothing allows Lite: one definition with eight citing surfaces and a changed enumeration is exactly where restatement drift happens.
