@@ -244,6 +244,7 @@ Minimum content:
 8. Frontend / UX Component Architecture
 9. Shared Contracts or Package Extensions
 10. Design Decisions
+11. Premise Ledger
 
 Guidelines:
 
@@ -256,6 +257,61 @@ Guidelines:
 - call out data, API, security, error-handling, observability, and rollback concerns when relevant
 - keep design decisions practical enough that an implementer can act without re-discovery
 - **New enumerated values walk their consumers.** When the design adds a value to an existing enumerated type (a status, a kind, a mode, a branch context), the surface table lists every existing step that consumes that type and states what the new value does there — a step written for the old value set is read literally against the new one, and naming only the steps you *add* is the KZ-004 fall-through class applied to a design instead of a scan (three of four Reviewer FAILs in `changes/kaizen-loop-closure`).
+- **Premise Ledger.** A **premise** is a statement the design makes about the **existing** system — code, data, environment, contract, or standing rule — that the design takes as given rather than creates. `design.md` carries a **Premise Ledger** section holding one row per premise the design depends on. This block is the single definition of its row shape, classes, triggers, and citation rules; every other surface cites it by name and restates none of it.
+
+  - **Admission — the dependence test.** A claim earns a row only when *if this claim were false, a design decision, a task, or the scope would change*. Yes → row; no → no row. A true statement about the repository whose falsity changes no decision, task, or scope item is trivia and stays out.
+  - **Written first.** The Premise Ledger is written **before** the design decisions that build on it. That is an order of work, not a position in the document: a premise discovered while a decision is being written is admitted before that decision is finished, because a decision already written reads as its own justification (a design that named a sibling form as the target "with matching fields" never wrote the row that would have tested which component the URL actually mounts — `changes--kp-report-modal-auto-create`).
+  - **Row shape — seven columns.**
+
+    | Column | Content | Absent-value |
+    |---|---|---|
+    | `#` | `P-n`, stable within the spec | — |
+    | Claim | One sentence about the existing system, stated so it can be false | — |
+    | Class | One value from the closed set below | — |
+    | Citation (as run) | Per the citation rules below | `UNVERIFIED — confirm at source before relying on it` |
+    | Verified at | Short commit SHA the citation was run against | `—` when `UNVERIFIED` |
+    | If false | The design decision, task, or scope item that changes, with Impact `High` or `Low` | — |
+    | Settled by | For `UNVERIFIED` rows: the settling check and its owner | `—` when verified |
+
+    `#`, Claim, Class, and *If false* have no absent value — every row fills them. Impact is `High` when a false premise overturns a design decision, discards a task, or makes the spec unnecessary, and `Low` when a task adjusts and the approach stands.
+  - **Two fixed lines open the section:** the **count line** — verified, `UNVERIFIED`, and the `UNVERIFIED` split by Impact — and the **trigger line**, naming which blast-radius triggers fired, or reading `Blast-radius triggers: none apply — <reason>` when none did.
+  - **Stated-empty.** A design that names no existing code, data, contract, or rule replaces the table with one line: `Premise Ledger: none — <reason>`. An absent section is never a valid empty state (KZ-004).
+  - **Classes — a closed set of seven.**
+
+    | Class | The claim says | Row required when |
+    |---|---|---|
+    | `location` | Where a behavior lives, or who owns it | the dependence test admits it |
+    | `existence` | Something exists, does not exist, or is already fixed | the dependence test admits it |
+    | `data-env` | A fact about data, vocabulary, configuration, or an environment | the dependence test admits it |
+    | `other` | Any other premise, including a standing project rule the design relies on or must obey | the dependence test admits it |
+    | `live-path` | The code the design changes is what the named user action actually reaches | its trigger below fires |
+    | `shared-state` | Which siblings share the state or lifecycle the design changes, and what each does with it | its trigger below fires |
+    | `consumer` | Who reads the contract the design changes | its trigger below fires |
+
+    `other` is the stated fall-through: a premise the six named classes do not fit is still a row, classed `other` — the set is closed without being brittle (KZ-004). "Secondary source" is not a class; it is what citation rule (d) forbids.
+  - **Blast-radius triggers.** The last three classes are required only when their trigger fires. A triggered class with no row is a defect; an untriggered class with no row is correct, and the trigger line is what makes the two distinguishable.
+
+    | Trigger — the design… | Required row | The row must contain |
+    |---|---|---|
+    | names a user action, or a branch point (a portfolio, an API version, a flag) | `live-path` | the dispatch chain from the entry point to the changed code, naming each branch point and the branch taken; the changed code's own `file:line` proves the code exists, not that the user reaches it (`bugfix--evidence-storage-link-validation` KZ-EVL-1) |
+    | changes state, a service, a base class, or a lifecycle hook that more than one component uses | `shared-state` | every sibling, each with its mechanism at `file:line` — all of them, never a sample, and a count without the list is not a row (`changes--realtime-section-completion`) |
+    | changes an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field | `consumer` | every reader found by a search over the whole repository, with the command, pattern, and scope as run — end-to-end suites and suites CI skips included, never a list derived from the files sitting beside the changed component (`changes--sidebar-toggle-consolidation` KZ-STC-1) |
+
+    When no trigger fires, write the line in full: `Blast-radius triggers: none apply — <reason>`.
+  - **Citation rules.** Each rule ships with the reading that falsifies a row claiming to meet it.
+    - **(a) As run.** A citation is a `file:line`, or a command with its pattern, its scope, and the hit or count it returned, and it reproduces from the repository root at the row's *Verified at* commit. **Falsifier:** a citation a reader cannot re-run because its scope or its pattern is unstated.
+    - **(b) Negative existence.** A "no X exists" claim — no coverage, no consumer, no prior fix, no writer — quotes the command, pattern, and scope **verbatim as run** and includes the concept's known alternate names, because a "verified absent" claim is only as true as its search pattern. **Falsifier:** the row records a pattern other than the one executed (`changes--clear-filters` KZ-changes--clear-filters-1).
+    - **(c) Parity.** A "same as the sibling" claim names the sibling's mechanism at `file:line`. **Falsifier:** a parity row whose evidence is a component name, a comment, or a resemblance between two field lists.
+    - **(d) Primary source.** A citation points at the code that writes or reads the thing, the definition of the contract, or the route or dispatch table. A UI label, a comment, a component name, a document, another spec's summary, and a person's recollection are **secondary**. A fact stated by a person, **including the user**, is recorded `UNVERIFIED` with `user-stated` in *Settled by* until a primary source confirms it. **Falsifier:** a response field cited to the label the UI paints (`changes--result-indicator-back-link`), a reachability fact written as verified on the strength of the statement that produced it (`bugfix--emerging-result-contributor-catalog`), or a schema cited as proof that the data is written (`changes--my-work-board`).
+    - **(e) Run before written.** A citation stating a present-tense reading is executed **before** it is written, never reconstructed afterwards (KZ-changes--leader-brief-contract-2). **Falsifier:** a count in a row that no command run in the session produced.
+  - **`UNVERIFIED` is a visible state, never a blank and never an omitted row.** A premise the architect cannot verify keeps its row and carries the row shape's `UNVERIFIED` marker in its citation cell — byte for byte the string `/akili-execute` Step 2.2 clause (c) gives the brief contract, so one grep finds every open fact in a spec folder. A premise about an environment no command in the repository can reach is still a row (`changes--cognito-email-otp-login`). *Settled by* names the **settling check** — the first check able to confirm or refute the claim — and **one owner**: a task ID, `judgment-day`, the HITL pause, or a named person. "To be confirmed" with no owner is not a row.
+  - **Hand-off — what leaves the Premise Ledger.** Three cases reach `tasks.md` through fields that already exist; no new task field is added.
+    - A `consumer` row is copied into the owning task's existing `Consumers` field, beside the test files Step 3.2's **Consumer Sweep** rule finds. One owner per sweep: that rule owns the test-file sweep, the Premise Ledger owns the design-time readers (other apps, reports, siblings), and the field holds the union.
+    - An `UNVERIFIED` row is settled by its owning task **as that task's first step**, before anything is built on it, and the task's Done criteria record the outcome.
+    - A premise a check **refutes** goes to the Pivot Protocol (`/akili-execute` — *Error Handling & Pivot Protocol*), never into a quiet edit of the approved design.
+    - **All other classes have no hand-off** — they act through their *If false* cell, which is why that cell names a decision, a task, or a scope item rather than a consequence in the abstract.
+  - **Every depth, no minimum.** Lite, Standard, and Full carry the same row shape and the same two opening lines. There is no minimum row count — a design writes the rows its dependence test admits and no others.
+  - **Bug Mode source of rows.** The proposal's **Blast Radius** results become rows, each cited with the commit it was verified at. When the proposal carries no Blast Radius section — an older proposal, or a bug specified without a proposal — the architect runs those same four checks (already fixed · live path · siblings · consumers, defined in `/akili-propose`) during Step 2.1 and writes the results as rows here.
 - **Code Suppression:** DO NOT generate code snippets or implementation examples in `design.md`. Design decisions must remain conceptual to conserve output tokens. The actual code will be written during execution.
 
 #### Step 2.3 — Challenge Reversions
