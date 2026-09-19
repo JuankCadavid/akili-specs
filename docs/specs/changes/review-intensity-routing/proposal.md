@@ -103,6 +103,8 @@ Six mentions, concentrated in T1, T2, T4, T7 and T10. **This is the lever.** Mak
 | `/akili-constitution` Step 7 item 3 | The `task.md` template description names the `Review` field, citing Step 3.2 rather than redefining it |
 | Mirrors + `CHANGELOG.md` | Four mirrors and the changelog entry |
 
+**Scope grew at Phase 2, by the rule that exists to catch this.** The specify phase's mandated consumer walk found that adding `REVIEW_SKIPPED` adds a value to the **closure-state enumeration**, and two existing consumers read that set without knowing the new value: `/akili-resume`'s closed-task reporting line, and the `kaizen` skill's clean-run predicate, which would have classified a run containing a skipped task with an escaped defect as *clean* and skipped its retrospective. Both are in `requirements.md` §4; this table is left as approved intent.
+
 ## 6. Non-Goals
 
 - **No change to `implementer.md` or `tester.md`** — owned by `changes/scoped-constitution-reads`. The "no Reviewer follows; your verification is the gate" instruction rides in the Leader's brief, keeping the specs on disjoint files.
