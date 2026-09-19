@@ -120,7 +120,7 @@ Structured Feedback relays report **and** overflow file verbatim.
 
 Per attempt, `execution.md` records `runtime events: <kind> ×n → <rung that recovered>`.
 
-**Mid-climb rule** *(T6 Pivot, 2026-09-19 — DD-12)*: the "Enters ladder at" column ships in the command as one *Entry rungs* sentence. A later event in the same attempt, of any kind, continues the climb from the rung already reached; a spent rung is never re-run; a rung whose condition does not hold is skipped. One `runtime events:` line per attempt names every event and the single recovering rung.
+**Mid-climb rule** *(T6 Pivot, 2026-09-19 — DD-12)*: the "Enters ladder at" column ships in the command as one *Entry rungs* sentence. A later event in the same attempt, of any kind, continues the climb from the rung already reached — or from its own entry rung when that is higher (the climb never moves backwards, and a death with a surviving context never detours through rung 2's fresh spawn); a spent rung is never re-run; a rung whose condition does not hold is skipped. One `runtime events:` line per attempt names every event and the single recovering rung.
 
 ### 5.5 `REVIEW_WAIVED` record (Execution Log Format)
 
