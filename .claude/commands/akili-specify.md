@@ -297,7 +297,7 @@ Guidelines:
     | Trigger — the design… | Required row | The row must contain |
     |---|---|---|
     | names a user action, or a branch point (a portfolio, an API version, a flag) | `live-path` | the dispatch chain from the entry point to the changed code, naming each branch point and the branch taken; the changed code's own `file:line` proves the code exists, not that the user reaches it (`bugfix--evidence-storage-link-validation` KZ-EVL-1) |
-    | changes state, a service, a base class, or a lifecycle hook that more than one component uses | `shared-state` | every sibling, each with its mechanism at `file:line` — all of them, never a sample, and a count without the list is not a row (`changes--realtime-section-completion`) |
+    | changes state, a service, a base class, or a lifecycle hook that more than one component uses, or a condition or signal more than one block or component reads | `shared-state` | every sibling, each with its mechanism at `file:line` — a sibling is any reader of that state, condition, or signal, a conditional block in the same template included; all of them, never a sample, and a count without the list is not a row (`changes--realtime-section-completion`) |
     | changes an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field | `consumer` | every reader found by a search over the whole repository, with the command, pattern, and scope as run — end-to-end suites and suites CI skips included, never a list derived from the files sitting beside the changed component (`changes--sidebar-toggle-consolidation` KZ-STC-1) |
 
     When no trigger fires, write the line in full: `Blast-radius triggers: none apply — <reason>`.

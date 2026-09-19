@@ -75,7 +75,7 @@ The stated-empty form replaces the table with `Premise Ledger: none — <reason>
 | Trigger fires when the design… | Required row | Row must contain |
 |---|---|---|
 | names a user action or a branch point | `live-path` | the dispatch chain, entry point to changed code, each branch point and the branch taken |
-| changes state, a service, a base class, or a lifecycle hook that more than one component uses, or a condition or signal more than one block or component reads | `shared-state` | every sibling, each with its mechanism at `file:line` — a sibling is any reader of that state or condition, a conditional block in the same template included (DD-15) |
+| changes state, a service, a base class, or a lifecycle hook that more than one component uses, or a condition or signal more than one block or component reads | `shared-state` | every sibling, each with its mechanism at `file:line` — a sibling is any reader of that state, condition, or signal, a conditional block in the same template included (DD-15) |
 | changes an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field | `consumer` | every reader found by a whole-repository search, command as run |
 
 ### 5.4 Citation rules (FR-3)
@@ -235,7 +235,7 @@ Each case is judged against the general sentence with its parenthetical stripped
 The three actions are keyed to a citation, to the marker, and to a missing row. A row with an empty evidence cell, and a row cited to a document, sit between them: the literal reader scored both severe without being sent anywhere. The rule now routes both into action 2 rather than adding a fourth action, because the work is the same work — attempt the refutation at the primary source, report `not re-run` when the host cannot reach it. Rejected: raising the severity of an uncited row, which changes what a bad row costs without changing what the judge does.
 
 ### DD-15 — The `shared-state` trigger is worded by what is read, not by what holds it *(pivot amendment, 2026-09-19)*
-"State, a service, a base class, or a lifecycle hook" names the containers a value lives in, so a template condition more than one block reads fell outside the trigger while being exactly the sibling relationship the class exists for. The trigger gains "a condition or signal more than one block or component reads", and *sibling* is defined by reading rather than by ownership. Rejected: a new class, which would break the closed set of seven and every enumeration built on it (§7.2).
+"State, a service, a base class, or a lifecycle hook" names the containers a value lives in, so a template condition more than one block reads fell outside the trigger while being exactly the sibling relationship the class exists for. The trigger gains "a condition or signal more than one block or component reads", and *sibling* is defined by reading rather than by ownership, over all three read-targets the FR-2 bullet names — state, condition, signal — so no branch of the trigger reaches a row whose definition does not. Rejected: a new class, which would break the closed set of seven and every enumeration built on it (§7.2).
 
 ## 11. Premise Ledger
 

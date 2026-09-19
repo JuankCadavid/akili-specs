@@ -315,3 +315,40 @@ ADVISORY: none (suppressed by band).
 | Final verification | checks 1–6 green as written (Implementer, reproduced by the Reviewer); mirror "no change" recorded with its grep |
 | Budget | review rounds used: **9 of 12** (re-sized at the pivot); shipped lines 130 of ~160 |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T9 — `/akili-specify`: the `shared-state` trigger reaches a shared condition
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `sonnet`, effort `medium` (attempt 1) → `high` (attempt 2); skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (1+/1−, < 50 LOC band with a term-by-term FR-2 walk) — author ≠ auditor held by model |
+| Wave | ran in parallel with T8 (disjoint files) |
+
+**Attempt 1** — files changed: `.claude/commands/akili-specify.md` (the `shared-state` trigger row of the Step 2.2 block: trigger widened with "or a condition or signal more than one block or component reads", *must contain* cell gains a sibling definition). `docs/commands/akili-specify.md` recorded **no change** on the falsifying grep (KZ-002): one hit, line 62, which cites the block by name and lists the seven classes without wording any trigger. Implementer verification: check 1 `condition or signal` = 1; check 2 `more than one component uses` = 1; check 3 `git diff --numstat 178ce97` = `1 1`; check 4 class-table line 291 byte-identical; check 5 Falsifiability-block diff empty; check 6 held-out slug grep = 1 hit, the pre-existing one. Runtime events: none.
+
+Reviewer verdict: **FAIL** (1 issue), verbatim:
+
+1. **Discovered Issue:** The trigger fires on "a condition or signal more than one block or component reads", but the *must contain* cell defines a sibling as "any reader of that **state or condition**". The word *signal* is dropped. A literal reader whose trigger fired on a signal has no definition telling them a signal reader is a sibling, so the enumeration obligation has no subject on that branch. Under NFR-3 this block is the only place the definition ships, so the term is absent everywhere.
+   * **Violated Rule:** `requirements.md` FR-2, the sibling bullet: "A **sibling** is any reader of the same state, condition, or signal — including another conditional block in the same template — not only a component that owns it." `design.md` §5.3 as amended carries the same two-term drop, so the divergence originates upstream of this diff, not in the Implementer's transcription.
+   * **Remediation Suggestion:** In `.claude/commands/akili-specify.md:300`, read "a sibling is any reader of that state, condition, or signal, a conditional block in the same template included". Align `design.md` §5.3's row to the same three terms so the design and the shipped line stay byte-comparable for T10's gate (a)–(g) re-run.
+
+**Leader adjudication:** the issue stands, and the Reviewer's upstream trace is correct — **the defect originated in the Leader's own pivot edit to `design.md` §5.3**, which dropped a term the approved FR-2 bullet carries; the Implementer transcribed the design faithfully. Attempt consumed (Reviewer FAIL). Before re-briefing, the Leader corrected `design.md` §5.3 and extended DD-15 to state the alignment over all three read-targets — an **execute-time spec edit** that restores conformance to an approved requirement rather than changing its meaning, so it is an edit and not a Pivot (recorded here at the moment it was made, and carried into the Reviewer brief as a named conformance check). Attempt 2 delivered by message to the same Implementer with the report verbatim, an Attempt History line, and effort bumped `medium` → `high`.
+
+**Attempt 2** — files changed: the same one line, now reading "a sibling is any reader of that state, condition, or signal, a conditional block in the same template included". Implementer re-ran all six checks plus the mirror grep and the sweep: unchanged readings, `1  1`, class table and Falsifiability block identical, sweep shows two `shared-state` hits with *sibling* defined once. Leader re-ran the term-for-term comparison between the shipped line and `design.md` §5.3: identical. `Not Done / Assumptions`: none. **runtime events: provider-limit death ×1 (session limit), idle-without-report ×1 → recovered at the original auditor after the limit reset; a fresh replacement Reviewer had been dispatched on the same tier and is redundant.**
+
+Reviewer verdict (same Reviewer, context intact): **PASS.** "The sibling definition now spans the same three read-targets the trigger names, so no branch of the widened trigger reaches a row whose definition does not, and the closed set of seven classes and three triggers survives untouched." Eight confirmations re-run at source: same three read-targets on both sides; `1  1`; class-table line 291 diffs empty; the Falsifiability block begins at line 406 and the only changed line is 300, so it cannot have moved; *sibling* defined once; seven class rows and three trigger rows with `other` still the stated fall-through; zero held-out slugs; design and shipped line agree term for term, so T10's comparison has a clean match. Mirror "no change" adjudicated **correct** under FR-11.
+
+ADVISORY: none (suppressed by band).
+
+| Field | Value |
+|---|---|
+| **T9 final status** | **PASS** (attempt 2 of 3) |
+| Requirements covered | FR-2's amended `shared-state` trigger row, its amended sibling bullet, and the scenario *sibling block on the same condition* (`AND IT MUST` include blocks whose gate resolves to the same state · `BUT NOT` read as untriggered because no service, base class, or lifecycle hook changed); NFR-3, NFR-4 |
+| Decisions | The amendment widens the third trigger rather than adding a fourth or an eighth class, so §7.2's class × reader enumeration stays true (DD-15) |
+| Issues | 1 FAIL — a dropped term between the trigger and its definition, **originating in the Leader's spec edit**, not the implementation. Noted for the retrospective: the pivot amendment was written into `design.md` without re-reading the approved FR-2 bullet term by term, which is the same class of defect KZ-changes--gate-falsifiability-2 names, one level upstream |
+| Execute-time spec edits | `design.md` §5.3 row and DD-15 — aligned to FR-2's three read-targets (state, condition, signal), made before attempt 2 and carried into the Reviewer brief as a named conformance check |
+| Final verification | checks 1–6 green as written (Implementer, reproduced by the Reviewer); mirror "no change" recorded with its grep; shipped line and `design.md` §5.3 agree term for term |
+| Budget | review rounds used: **11 of 12** (re-sized at the pivot); shipped lines 130 of ~160 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 2 |

@@ -339,7 +339,7 @@ T8 ∥ T9 — disjoint files, no shared build output. Both land before T10, whic
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none (amends T1's shipped block) |
 | Requirements | FR-2's amended `shared-state` trigger row, its amended sibling bullet, and the scenario *sibling block on the same condition* (`AND IT MUST` include blocks whose own gate resolves to the same state · `BUT NOT` read as untriggered because no service, base class, or lifecycle hook changed); NFR-3, NFR-4 |
