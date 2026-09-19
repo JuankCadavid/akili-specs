@@ -139,6 +139,7 @@ Guidelines:
 - reference existing specs when this work extends another feature
 - use measurable, testable language
 - **numbers from images are not sources** — a figure transcribed from a screenshot or a pasted table is proposal context; before it enters a requirement, scenario, or design cell, open the page (or run the command) it came from, confirm the column and unit, and pin it — the unit error the screenshot hides is the one no downstream grep can see
+- **claims about current behavior cite or mark** — a statement in *System Context & Scope* about how the system behaves today carries its evidence inline: a citation as run, or the marker `UNVERIFIED — confirm at source before relying on it` when nothing here settles it. `requirements.md` holds no table of these claims — at Phase 2 the ones that pass the dependence test become rows of the **Premise Ledger**, whose citation rules, classes, and row shape are defined once in the Step 2.2 *Premise Ledger* block
 - separate goals from requirements
 - write behavior contracts, not implementation plans
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure UI states (loading, error, empty, success) and responsive behaviors are captured as explicit requirements.
@@ -206,6 +207,8 @@ Wait for the user's response before moving on.
 #### Step 2.1 — Explore
 
 Use `brainstorming` to explore trade-offs before writing.
+
+**Verify premises while the code is open.** A claim the design will take as given about the existing system is cheapest to check now, in the pass that already has the file open — checking it at Step 2.2, after the decision resting on it is drafted, tests a premise against a design that already reads as its own justification. Record each check as a citation as run and carry it into the **Premise Ledger** the design writes (Step 2.2 — *Premise Ledger* block, which defines what a citation must contain). When exploration is delegated, the scout returns its findings as citations as run, never as a summary the architect would have to re-derive. In **Bug Mode** the proposal's **Blast Radius** results are those citations; when the proposal carries no Blast Radius section, run its four checks — already fixed · live path · siblings · consumers, defined in `/akili-propose` — here, during exploration.
 
 If the feature is architecturally significant (a new module or service, a new integration or data flow, a persistence or communication-topology change, or any stated NFR impact), load `software-architect` and apply its Decision Spine: NFR scenarios with measurable responses, tactics, robust-vs-lite sizing, pattern selection bound to named problems, and ADR-style design decisions. When a design decision overturns an existing TRD ADR, record it as **superseding** (name the old `ADR-NNN`; the archive sync writes the new entry and flips the old one to `superseded`) — never rewrite an accepted ADR in place.
 
@@ -320,7 +323,7 @@ Guidelines:
 
 Trigger: a DD that removes, disables, or inverts something the codebase already ships — a blend mode, a fallback, a guard, a cache, a retry, a defaulted prop. Adding is not a reversion; taking away is.
 
-The challenge is deliberately small — **one reviewer, one question: "what does removing this break?"** Not a `judgment-day` panel (that stays the opt-in Step 2.4 pass for the design as a whole), not a fan-out. The Delegation Ceiling applies: this is a two-minute pass bought to avoid two rework rounds, and it stops being worth it the moment it grows.
+The challenge is deliberately small — **one reviewer, one question: "what does removing this break?"** Not a `judgment-day` panel (that stays the **Review Design** option of Step 2.5 — *Present & Approve* for the design as a whole), not a fan-out. The Delegation Ceiling applies: this is a two-minute pass bought to avoid two rework rounds, and it stops being worth it the moment it grows.
 
 Record the answer next to the DD. If the challenge names a concrete breakage the design does not address, fix the design now — reaching `tasks.md` with it costs an Implementer spawn, a Reviewer spawn, and a rework attempt to learn the same thing.
 
@@ -342,7 +345,7 @@ Write the three numbers into `design.md` as a **budget**. They are not a cap on 
 
 #### Step 2.5 — Present & Approve
 
-Present a clear summary of the generated design on the screen (including the architecture, data models, API endpoints, and main design decisions) so the user can review what was done before deciding. Include the **budget** from Step 2.4 and the outcome of any **reversion challenge** from Step 2.3 — both are decisions the user is entitled to overrule.
+Present a clear summary of the generated design on the screen (including the architecture, data models, API endpoints, and main design decisions) so the user can review what was done before deciding. Include the **budget** from Step 2.4 and the outcome of any **reversion challenge** from Step 2.3 — both are decisions the user is entitled to overrule. Print the **Premise Ledger**'s count line as written, and every `UNVERIFIED` row in full — claim, Impact, and the *Settled by* owner — since a row that stays inside the document is a row the user cannot correct. When any open row carries `High` Impact, recommend **Review Design** and name the rows that drove the recommendation; the recommendation does not gate the menu, and **Continue** stays available because the user may hold knowledge the repository does not. Under `pre-approved` this adds no stop — judgment-day always runs in that mode, so the Premise Ledger is attacked either way.
 
 Then explicitly ask the user how to proceed, providing these options:
 
@@ -457,6 +460,10 @@ After all three documents are approved, verify:
 - [ ] The chosen depth is appropriate for the risk and size of the work — and was **re-checked against the finished design** (Step 2.4), not left as the Phase 0 guess
 - [ ] `design.md` records a **budget** (expected tasks, LOC, review rounds) that `/akili-execute` can trip against
 - [ ] Every DD that **reverts already-delivered behavior** carries the outcome of its Step 2.3 challenge
+- [ ] `design.md` carries a **Premise Ledger** — the table, or the stated-empty line with its reason; an absent section is not an empty one
+- [ ] Every Premise Ledger row carries a citation as run, or the `UNVERIFIED` marker with a named owner in *Settled by*
+- [ ] Every blast-radius trigger the design fires has its row, and a design that fires none carries the `Blast-radius triggers: none apply — <reason>` line
+- [ ] Every `UNVERIFIED` row is owned by a named task or check — and every `consumer` row also appears in its owning task's `Consumers` field
 - [ ] `requirements.md` names the **defect classes this spec can produce** and maps each to the command that catches it — with any class lacking an automated check either substituted (human check at a HITL pause, or a T6 visual review) or recorded as an accepted risk
 - [ ] Requirements describe observable behavior, not implementation details
 - [ ] Key requirements include Given/When/Then scenarios with strict `BUT` and `AND IT MUST` rules where applicable

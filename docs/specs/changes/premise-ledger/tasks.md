@@ -76,7 +76,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-5 five bullets and scenario *open High-impact premise* (`AND` the user can still choose Continue · `BUT NOT` hide the row inside the document only); FR-6 specify half (Step 1.2 cites or marks; `BUT NOT` a bare fact; cites the block, restates nothing); FR-8 second and third bullets; FR-4 fourth bullet (hand-off named in the checklist, Falsifiability block untouched) |

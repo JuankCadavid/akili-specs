@@ -100,3 +100,30 @@ ADVISORY: none.
 | Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer) |
 | Budget | review rounds used: 3 of 9; shipped lines: 72 of ~150 |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T2 — `/akili-specify`: Step 1.2, Step 2.1, Step 2.3 pointer, Step 2.5, Verification Checklist
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `opus`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `fable`, effort `high` (9+/2− lines of long prose, treated as the 50–200 band) |
+| Wave | ran in parallel with T3, T4, T5 (sequential after T1 on the same file) |
+
+**Attempt 1** — files changed: `.claude/commands/akili-specify.md` (five hunks: Step 1.2 *claims about current behavior cite or mark* bullet after *numbers from images are not sources*; Step 2.1 *Verify premises while the code is open* paragraph with the scout rule and the Bug Mode no-Blast-Radius branch; Step 2.3 phrase swap "the opt-in Step 2.4 pass" → "the **Review Design** option of Step 2.5 — *Present & Approve*"; Step 2.5 summary sentence gains the count line, every `UNVERIFIED` row in full, the **Review Design** recommendation that "does not gate the menu, and **Continue** stays available", and the `pre-approved` no-stop clause; four Verification Checklist items). Implementer verification, run as `tasks.md` states it: check 1 `opt-in Step 2.4 pass` = 0; check 2 Step 2.5 hit at line 326 inside the Step 2.3 paragraph with **Review Design**; check 3 `Premise Ledger` = 11 (up 5 from T1's 6), hits at 142, 211, 348, 463, 464; check 4 both menus vs `571edaf` diff empty, 5 lines each; check 5 Falsifiability range diff empty, 8 lines; check 6 Step 2.3 hunk `@@ -267 +326 @@`, one line in, one out. Falsifiers for 4 and 6 executed on scratch copies (reflow → three changed lines; sixth menu option → diff non-empty). Held-out slugs 0; marker byte-identical. `git diff --numstat` = `9 2`. Pre-review sweep (Leader re-ran): seven `Step 2.[345]` hits, each naming its own step; Step 2.3 and 2.5 paragraphs read whole. `Not Done / Assumptions`: no gap; one note on check 4 (below). Runtime events: none.
+
+Reviewer verdict: **PASS.** "All five T2 sites land as FR-5, FR-6, FR-8, FR-4 (fourth bullet), NFR-3 and NFR-6 specify them; every check the Implementer reported was re-run independently from the working tree and 571edaf and reproduced, and the disqualifier read finds no "requires" / "blocks until" wording in Step 2.5 and no restated citation rule in Step 1.2." Gate-by-gate walk recorded by the Reviewer: Step 1.2 (FR-6 bullets 1–2, NFR-3), Step 2.1 (FR-5 bullet 1, design §5.5 — matches the T1 block's Bug Mode sentence in substance), Step 2.3 (FR-8 bullets 2–3, §7.1 row 5), Step 2.5 (FR-5 bullets 2–4, scenario `AND` / `BUT NOT`, DD-11, agrees with the Approval Mode paragraph), checklist (FR-5 last bullet, FR-4 bullet 3, DD-6); Falsifiability block and Step 2.2 untouched; hunks at 142, 211, 326, 348, 463 only; coherence: no surviving sentence contradicts an insertion.
+
+ADVISORY (recorded, not acted on): **Readability** — Step 2.5 prints the count line but not the trigger line; FR-5 does not ask for it. **Risk** — Step 2.1 and the T1 block say the four checks are "defined in `/akili-propose`", which lands with T4; T6/T7's parity read should confirm T4's names match `already fixed · live path · siblings · consumers` (T4's brief already carries this pointer; T4 shipped FR-9's names, each containing the short form).
+
+| Field | Value |
+|---|---|
+| **T2 final status** | **PASS** (attempt 1 of 3) |
+| Requirements covered | FR-5 five bullets and scenario *open High-impact premise*; FR-6 specify half; FR-8 second and third bullets; FR-4 fourth bullet (checklist item; Falsifiability block untouched) |
+| Decisions | none beyond the brief |
+| Issues | none. **Note for T7 (Implementer finding, verified by reading `tasks.md` T2):** check 4's `sed` range as written ends at option 5, so its own falsifier (a sixth option) leaves the diff empty; the Implementer compared to the closing blank line of each menu block instead, which fires. T7's gate reads should use the closing-blank-line form. Not a spec edit — `tasks.md` is left as approved; recorded here for the closure task and the retrospective |
+| Execute-time spec edits | none |
+| Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer); sweep 0 |
+| Budget | review rounds used: 4 of 9; shipped lines: 81 of ~150 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
