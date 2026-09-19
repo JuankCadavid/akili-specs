@@ -7,7 +7,7 @@ metadata:
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: core
-  version: "1.7"
+  version: "1.8"
 ---
 
 ## Activation Contract
@@ -23,6 +23,19 @@ Load only when the user explicitly requests Judgment Day or equivalent dual/adve
 - Only the parent orchestrator merges/persists findings, launches the fix actor, launches scoped re-judgment, and updates native counters.
 - Fix only severe findings confirmed by both judges. WARNING/SUGGESTION rows remain `info`.
 - Judges must contrast every count, total, and quantity the target asserts against the prose of the other in-scope documents. Documents agreeing with each other is not corroboration — it is often one wrong idea copied forward; a figure contradicted by any in-scope document's own prose is a finding.
+- Before any other reading, judges attack the design's Premise Ledger at its source: re-run or re-read every citation, try to refute every `UNVERIFIED` row with their own search, and look for premises the design depends on that carry no row. A premise is never accepted because the requirements and the design agree on it — only the source settles it. Row shape, classes, and triggers are defined in `/akili-specify` Step 2.2 — *Premise Ledger* block and are not restated here; this rule sets only what a bad row costs.
+
+  | Judge finds | Severity |
+  |---|---|
+  | The source contradicts a premise | **severe** |
+  | A citation does not reproduce at its verified-at commit | **severe** |
+  | The design names existing code and has no Premise Ledger, or a false stated-empty line | **severe** |
+  | A triggered class with no row | **severe** |
+  | A depended-on premise with no row | finding, severity by Impact |
+  | A premise confirmed | not a finding |
+
+  **Read-only is not no-search.** A read-only judge writes nothing. Within that contract it may read and search the repository, and read its history where the host allows (the packaged judge tool set searches but has no shell). A judge that cannot run a cited command re-derives from the cited files where feasible and reports that row `not re-run` — never as confirmed. **The protocol is unchanged:** two-judge confirmation still gates auto-fix, and a premise contradiction reported by one judge is recorded as suspect **with its command as run**, so the architect settles it with a single re-run.
+
 - Permit at most two fix rounds and two scoped re-judgments. Re-judgment sees only the frozen ledger plus fix delta and may record fix-caused defects.
 - Terminal transaction states are only `approved | escalated`; never reset or extend an exhausted lineage.
 
@@ -61,7 +74,7 @@ These reference files are not packaged with AKILI-SPECS. When they are unavailab
 
 | AKILI moment | How to use this skill |
 |---|---|
-| `/akili-specify` Step 2.3 — **Review Design** option | The user-selected blind dual review of `design.md` before tasks are written; the target is the approved requirements + draft design |
+| `/akili-specify` Step 2.5 — *Present & Approve*, **Review Design** option | The user-selected blind dual review of `design.md` before tasks are written; the target is the approved requirements + draft design, and judges attack the Premise Ledger first |
 | `/akili-archive` Kaizen Measure | Severe confirmed findings from Judgment Day runs are a signal row in the `kaizen` retrospective |
 
 Adaptation rules:

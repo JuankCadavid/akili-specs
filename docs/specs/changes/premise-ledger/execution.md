@@ -73,3 +73,30 @@ ADVISORY: none (suppressed by band).
 | Final verification | checks 1–3 green as written (Implementer, re-run by the Reviewer) |
 | Budget | review rounds used: 2 of 9; shipped lines: 57 of ~150 |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T3 — `judgment-day`: ledger-first Hard Rule, Integration row, version
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `opus`, effort `high`; skills: `cognitive-doc-design`, `judgment-day` read as the artifact under edit |
+| Reviewer | `fable`, effort `high` (15+/2−, < 50 LOC band with a full FR-7 term-by-term walk because the edit is protocol-sensitive) |
+| Wave | ran in parallel with T2, T4, T5 |
+
+**Attempt 1** — files changed: `.claude/skills/judgment-day/SKILL.md` (frontmatter `version` 1.7 → 1.8; one Hard Rule inserted directly after the count-contrast rule — three actions, six-row severity table, read-only clarification and `not re-run` inside the same bullet, protocol-unchanged sentence with the one-judge contradiction recorded as suspect with its command as run; AKILI-SPECS Integration row 1 retargeted to `/akili-specify` Step 2.5 — *Present & Approve*, **Review Design** option, usage cell gains "judges attack the Premise Ledger first"). Implementer verification, run as `tasks.md` states it: check 1 `Step 2\.3` = 0, `Step 2\.5` = 1; check 2 six pre-existing ledger lines byte-identical to `571edaf`, three added hits all "Premise Ledger"; check 3 `not re-run` = 1; check 4 backticked class tokens = 0 (all seven checked); check 5 only two `-` lines (frontmatter, Integration row), none in Decision Gates / Execution Steps / Output Contract; check 6 `version: "1.8"` = 1; held-out slugs 0; no corpus entry named; baselines re-run at `571edaf` (1 / 0 and 0). `git diff --numstat` = `15 2`. Pre-review sweep (Leader re-ran the ledger grep): six old hits unchanged, three new all "Premise Ledger"; Hard Rules list read whole — the new rule and the count-contrast rule agree that cross-document agreement is not corroboration. `Not Done / Assumptions`: one judgment call (capability wording rendered as prose, semicolon → comma). Runtime events: none.
+
+Reviewer verdict: **PASS.** "The T3 diff satisfies FR-7 term by term, FR-8 first and third bullets, NFR-3/5/6, DD-7/DD-8 and design §5.7/§7.1 rows 8–10; all six T3 verification checks re-run green on the working tree and the Decision Gates protocol is untouched." Severity table byte-matches FR-7 cell for cell; `\bthe ledger\b` = 0; the Integration row's target verified to exist at both `571edaf` and the working tree. Judgment call adjudicated ACCEPT: design §5.7 gives the capability wording as content, not a mandated string; all three capabilities and the "where the host allows" qualifier survive, and "no-search" is the host-neutral rendering NFR-5 asks for.
+
+ADVISORY: none.
+
+| Field | Value |
+|---|---|
+| **T3 final status** | **PASS** (attempt 1 of 3) |
+| Requirements covered | FR-7 (three actions, six severity rows, three bullets, scenarios *plausible premises* and *judge without a shell*); FR-8 first and third bullets; NFR-5, NFR-6 |
+| Decisions | none beyond the adjudicated wording call |
+| Issues | none |
+| Execute-time spec edits | none |
+| Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer) |
+| Budget | review rounds used: 3 of 9; shipped lines: 72 of ~150 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |

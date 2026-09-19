@@ -112,7 +112,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-7 three actions, severity table (six rows), three bullets, and scenarios *plausible premises* (`BUT NOT` accept a premise because requirements and design agree), *judge without a shell* (`BUT NOT` count the row as confirmed); FR-8 first and third bullets; NFR-5, NFR-6 |
