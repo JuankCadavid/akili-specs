@@ -245,7 +245,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` — blocked: the closure gate fired. Gates (a)–(g) green; the literal-reader walkthrough fails this task's own Disqualifier. See `## Pivot Record: T7` in `execution.md` — user decision pending |
 | Size | L |
 | Depends on | T6 |
 | Requirements | NFR-1, NFR-2, NFR-3, NFR-4, NFR-6, NFR-7; `requirements.md` §8 rows *rule a literal reader cannot execute* and *ceremony*; FR-2 last bullet (class × reader enumeration); proposal success criteria 1–6 |
