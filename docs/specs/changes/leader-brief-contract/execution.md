@@ -156,3 +156,30 @@ ADVISORY (recorded; does not gate): the design's closure falsifier lists `FATAL_
 | Final verification | checks 1–7 green as amended (Implementer + Reviewer; Leader for 6, 7, sweeps) |
 | Continue gate | gate not answered — continued (unattended chained run) |
 | Forward pointers | **→ T6:** read the NFR-8 closure falsifier as "invariant wording unchanged" — show each `-`/`+` pair rather than trusting a literal `^-` grep (rows rewritten by design: the runtime table's Reviewer row in T2, `leader.md` item 4 here) |
+
+### T5 — Mirror, root docs, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `opus`, effort `high` (lens checklist, 15+/6−, three files; diff delivered as a scratchpad file, 88 lines) |
+
+**Attempt 1** — files changed: `docs/commands/akili-execute.md` (*Per-task loop*: event-lane line + waiver close; *Reviewer output contract*: report-contract paragraph; *Outputs*: final-status vocabulary + `## REVIEW_WAIVED` record; *Guardrails*: attempt accounting, brief contract, no-completion-without-PASS-or-waiver, rollback by tree state), `docs/skills/kaizen.md` (Core Rules Measure enumeration, one appended phrase), `CHANGELOG.md` (`Unreleased`: one Added bullet, one Changed bullet, one classification Note — **patch proposed; the user decides**). Implementer verification as `tasks.md` states it: 1 → one hit, the sanctioned clean-tree row of Step 4 item 1; 2 → 4 hits (loop, Outputs ×2, Guardrails); 3 → every hit inside this spec's own folder (excluded by the Grep hazard), 0 outside; 4 → both under `## [Unreleased]`; 5 → empty. Sweep: 0 hits. `git diff --check` clean. `Not Done / Assumptions`: none (the report's tail was cut by the harness after item 4; the Leader ran item 5, the sweep and `--check` itself, then obtained the tail by message before closing — Step 2.3 item 0). Runtime events: none.
+
+FR-9 candidate hits, each with its disposition (Implementer-enumerated, Reviewer re-ran the greps): `docs/flow.md` loop diagram "if PASS → …" — holds (happy path; a waiver is not PASS), not edited; `README.md` Git-dependency cell "HALT rollback" — holds, not edited; `README.md` "if PASS → …" — holds, not edited; `docs/README.md` — no candidate hits; `docs/skills/kaizen.md` Measure enumeration — turned incomplete by T4's new Measure row, **edited** (in scope per design §7 row 23).
+
+Reviewer verdict: **PASS.** "The mirror reaches summary-level parity on all four sections with no over-claim, under-claim of a design §9 contract name, or surviving superseded rule; all five verification greps, the pre-review sweep, and every CHANGELOG surface claim reproduce independently." Per-section parity recorded (Per-task loop · Reviewer output contract · Outputs · Guardrails — all at parity). On the Leader's named question: omitting `FATAL_FAIL` from the mirror's report-contract sentence "does **not** under-claim: the mirror contains zero occurrences of that status anywhere… naming a status the mirror never defines would be the drift." CHANGELOG bullets checked as aggregate claims against `git diff --stat 66d4a0d..HEAD` — each surface named does what the bullet says.
+
+ADVISORY: none raised.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-9 (statement + post-sweep scenario), NFR-4, NFR-7 |
+| Decisions | T2's READABILITY advisory (the "PASSes or HALTs" trigger) was passed to the Implementer tagged `[advisory-grade]`, as a note on where a summary could go wrong — it added no scope (T5 already required the waiver close in *Per-task loop*). T3's verification-1 amendment was carried once more in this Reviewer brief; it now drops |
+| Issues | none at review |
+| Execute-time spec edits | none |
+| Final verification | checks 1–5 green as written (Implementer + Reviewer; Leader for 5, sweep, `--check`) |
+| Continue gate | gate not answered — continued (unattended chained run) |
+| Release note for the user | The CHANGELOG proposes **patch** as the task text requires. This spec ships a new record type, a new final-status value and new recovery ladders that three other commands read — under the repo's own semver discipline that may be **minor**. The user's call at release time |

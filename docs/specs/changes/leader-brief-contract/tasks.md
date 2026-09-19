@@ -186,7 +186,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T3, T4 |
 | Requirements | FR-9 post-sweep scenario (`BUT` no surviving restatement; sanctioned hits enumerated); NFR-4; NFR-7 |
