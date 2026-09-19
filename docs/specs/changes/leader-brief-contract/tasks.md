@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | Approved — batch approval by the user, 2026-09-18 (drafted by a worktree agent on the Leader's behalf) |
+| Status | Executing — 5/6 `[x]`; T6 `[~]` escalated 2026-09-18 (approved by the user in batch, 2026-09-18; drafted by a worktree agent on the Leader's behalf) |
 | Date | 2026-09-18 |
 | Budget (design §12) | 6 tasks · ~210 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
 | Design review | Step 2.3 reversion challenge run inline (DD-3, DD-6 — both real breakages, both closed); `judgment-day` not run in draft mode |
@@ -216,7 +216,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` — attempt 1 FAIL (Case 2 INCONCLUSIVE); escalated to the user, see `execution.md` → *Escalation: T6* |
 | Size | M |
 | Depends on | T5 |
 | Requirements | FR-1 widened-brief scenario (walked); FR-3 400-line-diff scenario (walked); FR-4 provider-limit-death and spawn-failure scenarios (walked, `BUT NOT` count as FAIL); FR-5 quota-block and `pre-approved` scenarios (walked, `BUT NOT` auto-approve); FR-6 nine-PASSed-tasks and unattributed scenarios (walked, `BUT NOT` blanket restore / touch unattributed); FR-7 hand-off wording; FR-8 waived-run Measure scenario (walked); FR-9 post-sweep scenario; NFR-3 (old log reads as no waiver); the `requirements.md` §8 accepted risk discharged as far as a walkthrough can |
