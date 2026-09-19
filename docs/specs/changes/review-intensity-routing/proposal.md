@@ -1,8 +1,14 @@
-# Proposal: Review Intensity and Model Routing by Task Category
+# Proposal: Review Intensity and Model Routing by Proven Verification
 
-**Recommendation:** classify every task into one of four **complexity categories** with objective predicates, bind each category to a **review intensity** (`none` / `checklist` / `full` / `lenses`) and to a model pairing, and let a task close without a Reviewer **only** in the two lowest categories, under a new `REVIEW_SKIPPED` record that is never confused with `REVIEW_WAIVED`. The skip list is decided at `/akili-specify` and **approved by the user at the tasks gate**, not chosen by the Leader mid-run.
+**Recommendation:** split one conflated decision into **two orthogonal ones**, and add a duty that is never skipped.
 
-**The headline finding is a correction to the premise.** On the one run where this was measured end to end, skipping Reviewers would have saved almost nothing. The over-spend was on the Implementer side: six of the ten tasks ran their Implementer on `opus` where the registry's own default for that role is `sonnet`, and the two assembly-heavy tasks ran their main workers there too. The cost lever is right-sizing the Implementer and the review *depth*, not deleting the gate.
+1. **Does a conformance Reviewer run?** Decided by an objective predicate: the task's `Falsifier` was **executed and observed red**, its verification is fully deterministic, and no override applies. Not by size, not by a category, not by the Leader's impression that a task looks easy.
+2. **How deep does it go, and on which models?** Decided by task category and diff size — this is where most of the speed actually comes from.
+3. **Always, regardless of either:** the task's evidence is **re-run by someone other than its author**, mechanically, with no judgment. Cheap, fast, and never waived.
+
+**The skip is earned, not granted.** A task qualifies to close without a Reviewer only by having *proved its own gate can fail*. That is more verification work than today's default, not less, and it is the reason this proposal argues quality goes up rather than down.
+
+**Speed comes first from right-sizing, not from skipping.** On the one run measured end to end, the category-based skip this proposal originally recommended would have saved **one review round in fifteen**, while six of ten tasks ran an Implementer two tiers above the registry default and a one-line diff drew a `high`-effort review.
 
 ## 1. Document Control
 
@@ -13,101 +19,106 @@
 | Type | **Change** |
 | Approval Mode | `gated` (no up-front end-to-end mandate given) |
 | Date | 2026-09-19 |
-| Status | Draft — awaiting approval |
-| Depends on | none open |
-| Parallel-safe | **yes** with `changes/scoped-constitution-reads`, **on one condition**: that spec owns `.claude/templates/implementer.md` and `tester.md` (its Scope table, rows for both files) and states "No change to the Reviewer" and no change to the Leader's load order. This proposal owns `leader.md` and `reviewer.md` and **deliberately does not touch `implementer.md`** (§6). Both add a `CHANGELOG.md` `Unreleased` entry — merge serially |
-| Evidence | `docs/specs/archive`-bound run of `changes/premise-ledger`, executed 2026-09-19: ten tasks, full per-task Reviewer records in its `execution.md`, budget actuals independently re-verified by that spec's Reviewer in `walkthrough.md` §6 |
-| Series note | Not part of the 2026-09-17 tier 2–3 queue; this arose from the `premise-ledger` run itself |
+| Status | Draft — **revision 2**, awaiting approval |
+| Revision note | Revision 1 gated the skip on a four-category ladder. Rejected during review with the user: it moved two variables toward less quality at once (cheaper Implementer **and** no Reviewer) on a class of tasks defined by size rather than by evidence. Revision 2 gates the skip on proven verification instead, and adds the always-on evidence re-run |
+| Depends on | `changes/gate-falsifiability` (**shipped**, v2.25.0) — this proposal leans directly on its Falsifiability block, which is what makes "executed falsifier" a thing a task can be required to have |
+| Parallel-safe | **yes** with `changes/scoped-constitution-reads`: that spec owns `.claude/templates/implementer.md` and `tester.md` and states "No change to the Reviewer" and no change to the Leader's load order. This proposal owns `leader.md` and `reviewer.md` and **deliberately does not touch `implementer.md`** (§6). Both add a `CHANGELOG.md` `Unreleased` entry — merge serially |
+| Evidence | The `changes/premise-ledger` run, executed 2026-09-19: ten tasks with full per-task Reviewer records in its `execution.md`; budget actuals independently re-verified by that spec's Reviewer in `walkthrough.md` §6 |
 
 ## 2. Intent
 
-Make **when to spawn a Reviewer** and **which model runs each role** a decision the methodology states by rule, rather than a reflex that spawns a full independent audit for a one-line pointer edit and an over-provisioned Implementer for a mechanical one.
+Gain real speed on easy tasks **without** weakening the correctness guarantee, by making the Reviewer conditional on evidence that the task's own gate works, rather than on how small the task looks.
 
 ## 3. Problem / Current Behavior
 
-Every claim below carries a citation as run or the `UNVERIFIED — confirm at source before relying on it` marker, per `/akili-specify` Step 2.2's *Premise Ledger* block.
+Every claim carries a citation as run or the `UNVERIFIED — confirm at source before relying on it` marker, per `/akili-specify` Step 2.2's *Premise Ledger* block.
 
-**The Reviewer is currently unconditional, and one sentence makes that explicit.** `.claude/templates/leader.md:82` reads: *"The Reviewer is not self-verification — never collapse it… That independence is the methodology's core correctness guarantee and is not an efficiency cost to optimize away."*
+**The Reviewer is unconditional, and one sentence makes that explicit.** `.claude/templates/leader.md:82`: *"The Reviewer is not self-verification — never collapse it… That independence is the methodology's core correctness guarantee and is not an efficiency cost to optimize away."*
 
-**No rule anywhere permits closing a task without a Reviewer verdict.** Negative-existence check, run at `01496af` from the repository root, alternate phrasings included:
+**No rule permits closing a task without a Reviewer verdict.** Negative-existence check, run at `01496af` from the repository root, alternate phrasings included:
 
 ```
 /usr/bin/grep -rn -i "skip the reviewer\|without a reviewer\|no reviewer\|reviewer optional\|omit the reviewer" .claude/commands .claude/templates
 ```
 
-One hit, and it is the opposite of a permission: `akili-execute.md:320`, the `REVIEW_WAIVED` record, which exists for when the gate was **owed and lost**.
+One hit, and it is the opposite of a permission: `akili-execute.md:320`, the `REVIEW_WAIVED` record, for when the gate was **owed and lost**.
 
-**The closure rule is hard.** `akili-execute.md:330`: *"A task with neither a `PASS` nor a `REVIEW_WAIVED` record in `execution.md` is not closable."* Any skip therefore needs a third record type, or the task literally cannot close.
+**The closure rule is hard.** `akili-execute.md:330`: *"A task with neither a `PASS` nor a `REVIEW_WAIVED` record in `execution.md` is not closable."* Any skip needs a third record, or the task cannot close.
 
-**Depth already scales; the decision to review at all does not.** `reviewer.md:43–45` bands review depth by diff size (`< 50 LOC` checklist, `50–200` full four-lens, `> 200` parallel lenses). Nothing bands the *existence* of the review.
+**Depth already scales; existence does not.** `reviewer.md:43–45` bands depth by diff size (`< 50 LOC` checklist, `50–200` full four-lens, `> 200` parallel lenses). Nothing bands whether the review happens.
 
-**The registry already prescribes a cheap Implementer.** `docs/model-routing.md` model registry: T2 Coder → `sonnet`, T3 Auditor → `opus` *(must differ from T2)*. The `premise-ledger` run did not follow it. Counted at `01496af` over that spec's `execution.md`:
+**The registry already prescribes a cheap Implementer, and the run ignored it.** Registry: T2 Coder → `sonnet`, T3 Auditor → `opus` *(must differ from T2)*. Counted at `01496af`:
 
 ```
 /usr/bin/grep -c '^| Implementer | `opus`' docs/specs/changes/premise-ledger/execution.md
 6
 ```
 
-Those six are T1, T2, T3, T4, T6 and T8. T5 and T9 ran `sonnet`. T7 and T10 record their workers under a different field name (`Delegation shape` and `Workers` respectively) and ran their gates runner, card scout and assembler on `opus` as well, which is why a task-level count and a field-level count differ — the field-level six is the figure this proposal uses.
+Those six are T1, T2, T3, T4, T6 and T8; T5 and T9 ran `sonnet`; T7 and T10 record workers under other field names and also ran `opus` on their assembly workers.
 
-### What the one measured run actually shows
+**The falsifier is required but not universally executed.** `/akili-specify` Step 3.2 Falsifiability rule 1 already requires it: *"The Done criteria require the falsifier **executed against the post-change code**: revert the change or apply the named mutation and observe the gate go red — a gate that stays green under its own falsifier asserts nothing."* In practice, executed falsifiers are recorded on roughly half the run:
 
-Source: `docs/specs/changes/premise-ledger/execution.md` per-task records; totals re-verified by that spec's Reviewer in `walkthrough.md` §6.
+```
+/usr/bin/grep -c -i "falsifier.*execut\|execut.*falsifier" docs/specs/changes/premise-ledger/execution.md
+6
+```
+
+Six mentions, concentrated in T1, T2, T4, T7 and T10. **This is the lever.** Making an executed falsifier the price of skipping review raises the floor on verification while lowering audit cost.
+
+### What the one measured run shows
 
 | Measure | Value |
 |---|---|
 | Tasks | 10 |
 | Review rounds | 15 |
-| Rounds that returned FAIL | 4 |
+| Rounds returning FAIL | 4 |
 | Tasks where a FAIL occurred | 3 (T7, T9, T10) |
 | Rework attempts consumed | 4, against 2 budgeted |
 
-**Size did not predict value.** T5 and T9 were both single-line changes. T5's Reviewer found nothing; T9's caught a defect that would have shipped a rule whose own definition did not cover one branch of its trigger.
+**Size did not predict value.** T5 and T9 were both one-line changes. T5's review found nothing; T9's caught a defect that would have shipped a rule whose own definition failed to cover one branch of its trigger.
 
-**What separated them was whether the task created an obligation or cited one.** T5 added a clause pointing at a block defined elsewhere. T9 changed the semantics of a closed enumeration that three other readers execute.
+**Three of the four rework attempts were on derived evidence** — the Leader's assembled counts and claims in T7 and T10, the artifact with no task spec to conform to.
 
-**Three of the four rework attempts were on derived evidence, not on shipped text** — the Leader's own assembled counts and claims in T7 and T10, the one artifact with no task spec to conform to.
-
-**Confound, stated rather than hidden.** Seven of ten tasks passed clean on the first attempt while running `opus` Implementers at `high` effort against unusually complete task specs. This run cannot separate "the Reviewer was unnecessary" from "the Implementer was over-provisioned so the Reviewer found nothing." That is precisely why §13 proposes measurement before this becomes a default.
+**Confound, stated rather than hidden.** Seven of ten tasks passed clean while running `opus` Implementers at `high` effort. This run cannot separate "the Reviewer was unnecessary" from "the Implementer was over-provisioned." §13 measures this rather than assuming it.
 
 ## 4. Proposed Outcome
 
-- Every task carries a **category** with objective predicates a reader can apply without judgment about their own work.
-- Category binds **review intensity** and a **model pairing**.
-- `trivial` and `simple` may close with no Reviewer, recorded as `REVIEW_SKIPPED` with its category and the verification that stood in.
-- `standard` and `complex` always get a Reviewer, on a model different from the Implementer's.
-- A set of **overrides** no category can defeat forces a Reviewer regardless.
-- The per-spec skip list is visible to the user **at the `tasks.md` approval gate**.
+- A task closes without a conformance Reviewer **only** when it has proved its own gate can fail, and no override applies.
+- A task's evidence is **always** re-run by a non-author, mechanically, recorded per task.
+- Implementer model, Reviewer model and review depth are chosen by rule and the deviation recorded, instead of defaulting upward.
+- `REVIEW_SKIPPED` records a gate that was **never owed**, and stays permanently distinguishable from `REVIEW_WAIVED`, a gate **owed and lost**.
+- The list of tasks that plan to skip is visible to the user **at the `tasks.md` approval gate**.
 
 ## 5. Scope
 
 | Surface | Change |
 |---|---|
-| `/akili-specify` Step 3.2 | A `Review` field per task (`none` / `checklist` / `full` / `lenses`) with its category and a one-line reason; absent-value rule; Verification Checklist item so the skip list is visible at the gate |
-| `/akili-execute` Step 2.3 | Becomes conditional on the task's `Review` field; the Leader may raise intensity freely, and may lower it only within the category rules |
-| `/akili-execute` Step 2.4 + Execution Log Format | `REVIEW_SKIPPED` record; the "not closable" rule gains its third accepted state; the `/goal` unattended condition updated to accept it |
-| `.claude/templates/leader.md` | The Delegation Ceiling's *never collapse it* paragraph amended, plus the category table and the overrides |
-| `.claude/templates/reviewer.md` | Depth bands re-expressed against category rather than raw LOC, keeping LOC as a secondary input |
-| `docs/model-routing.md` | **Review intensity** as a third dimension beside tier and effort; a category → role → model table |
+| `/akili-specify` Step 3.2 | A `Review` field per task (`skip-eligible` / `checklist` / `full` / `lenses`) with a one-line reason; `skip-eligible` is a *claim to be proved at execute time*, never a guarantee; Verification Checklist item so the skip list is visible at the gate |
+| `/akili-execute` Step 2.3 | Reviewer spawn becomes conditional on the **skip predicate**, evaluated against the Implementer's actual report, not against the plan |
+| `/akili-execute` Step 2.2 / new step | The **evidence re-run** duty: Leader-inline by default, a T5 Verifier spawn when the command set is large; its result recorded per task |
+| `/akili-execute` Step 2.4 + Execution Log Format | `REVIEW_SKIPPED` record with its predicate evidence; the "not closable" rule gains its third accepted state; the `/goal` condition updated |
+| `.claude/templates/leader.md` | The *never collapse it* paragraph amended to the predicate; model/effort selection recorded like skill deviations already are |
+| `.claude/templates/reviewer.md` | Depth bands keyed to category first, diff size second; effort bound to band so a one-line diff cannot draw a `high`-effort sweep |
+| `docs/model-routing.md` | **Review intensity** as a third dimension beside tier and effort; the always-on Verifier duty mapped to T5 |
 | `/akili-constitution` Step 7 item 3 | The `task.md` template description names the `Review` field, citing Step 3.2 rather than redefining it |
 | Mirrors + `CHANGELOG.md` | Four mirrors and the changelog entry |
 
 ## 6. Non-Goals
 
-- **No change to `implementer.md` or `tester.md`** — owned by `changes/scoped-constitution-reads`. The "your verification is the gate, no Reviewer follows" instruction is carried by the Leader's brief, which keeps the two specs on disjoint files.
-- **No change to the `author ≠ auditor` rule itself.** Where a Reviewer runs, it still runs on a different model.
-- **No change to `REVIEW_WAIVED`.** A waiver stays what it is: a gate owed and lost.
-- **No automatic category inference at execute time** in the recommended option; the category is authored at specify time and approved.
-- **No change to the 3-attempt rework ceiling, the Pivot Protocol, or the budget tripwire.**
+- **No change to `implementer.md` or `tester.md`** — owned by `changes/scoped-constitution-reads`. The "no Reviewer follows; your verification is the gate" instruction rides in the Leader's brief, keeping the specs on disjoint files.
+- **No weakening of `author ≠ auditor`.** Where a Reviewer runs, it runs on a different model.
+- **No change to `REVIEW_WAIVED`.**
+- **No skip for a task that did not execute its falsifier**, however small it looks.
+- **No change** to the 3-attempt ceiling, the Pivot Protocol, or the budget tripwire.
 
 ## 7. Affected Users, Systems, And Specs
 
 | Affected | How |
 |---|---|
-| Every project running `/akili-execute` | Fewer Reviewer spawns on low-category tasks; cheaper Implementers by default |
-| The user at the `tasks.md` gate | Gains a visible list of which tasks will not be independently reviewed, before execution starts |
+| Projects running `/akili-execute` | Cheaper Implementers by default, depth-bound review effort, fewer Reviewer spawns on tasks that proved their gate |
+| The user at the `tasks.md` gate | Sees which tasks intend to skip review, before execution |
 | `changes/scoped-constitution-reads` | Adjacent, disjoint files, serial `CHANGELOG` merge |
-| Consuming projects | Pick the change up on the next install; specs written before it read as "no `Review` field", defaulting to today's behavior |
+| Consuming projects | Specs written before this read as "no `Review` field" and default to today's behavior |
 
 ## 8. Visual Reference
 
@@ -119,74 +130,84 @@ Source: `docs/specs/changes/premise-ledger/execution.md` per-task records; total
 
 ### ADDED Requirements
 
-- Four task categories with objective predicates and worked examples.
-- A `Review` field on every task, with an absent-value that means today's behavior.
-- A `REVIEW_SKIPPED` record with category, the verification that stood in, and who approved the skip list.
-- Override conditions that force a Reviewer regardless of category.
-- A category → model pairing in the routing registry.
+- The **skip predicate**: executed falsifier observed red, fully deterministic verification, no override.
+- The **evidence re-run** duty, performed by a non-author and recorded.
+- `REVIEW_SKIPPED`, distinct from `REVIEW_WAIVED`.
+- Recorded model and effort selection per task, with deviations justified.
 
 ### MODIFIED Requirements
 
-- `reviewer.md`'s depth bands keyed to category first, diff size second.
 - `/akili-execute` Step 2.3 becomes conditional.
-- The task-closure rule accepts a third record.
-- The `/goal` unattended-run condition accepts `REVIEW_SKIPPED`.
+- `reviewer.md` depth bands bind effort, not only lens count.
+- The closure rule accepts a third record; the `/goal` condition follows.
 
 ### REMOVED Requirements
 
-- **The absolute reading of `leader.md:82`** — that the Implementer to Reviewer gate is *never* collapsed. This removes behavior the methodology currently ships, so `/akili-specify` Step 2.3's **reversion challenge** applies to it by name.
+- **The absolute reading of `leader.md:82`.** This removes shipped behavior, so `/akili-specify` Step 2.3's **reversion challenge** applies to it by name.
 
 ## 10. Approach Options
 
 | # | Option | Trade-off |
 |---|---|---|
-| **A** | **Runtime-only.** The Leader classifies each task as it executes and skips where the rules allow. | Cheapest to build, no spec-format change. **Weakest governance:** the agent that benefits from skipping decides to skip, with nothing visible to the user beforehand. Category inflation downward is unchecked |
-| **B** | **Specify-time field, user-approved, Leader may only raise.** *(recommended)* | The skip list is authored with full design context, is visible at the `tasks.md` gate, and the Leader can add review but not remove it beyond what was approved. Costs one new task field and a checklist item |
-| **C** | **Fully derived, no new field.** Compute the category mechanically from the existing `Size`, `Consumers`, `Falsifier`, `Red run` and `Disqualifier` fields at execute time. | No format change and no human gate. The derivation is brittle where those fields are thin, and it makes a safety-relevant decision invisible until it has already been taken |
+| **A** | **Category-gated skip** (revision 1). Four categories; the two lowest skip review. | Rejected with the user. Predicts from size, which the evidence shows does not predict defect risk, and pairs the skip with a cheaper Implementer so two variables move toward less quality at once |
+| **B** | **Proof-gated skip plus always-on evidence re-run.** *(recommended)* | The skip is earned by executing the falsifier, so verification rises where audit falls. Categories survive as depth guidance. Costs one task field, one new record, and a small always-on duty |
+| **C** | **No skip at all; right-sizing only.** Keep every Reviewer, fix models and depth. | Safest, and captures most of the speed, since the measured skip saving was 1 round in 15. Leaves genuinely mechanical tasks paying for a full audit, and does not raise falsifier execution |
 
-### On running Sonnet for both roles on basic tasks
-
-Explicitly considered and **not recommended**. A same-model Reviewer pays the full price of a review while the methodology already grades its independence as lost — `akili-execute.md:330` defines exactly that state as the `same-model` waiver flag. For those tasks the cheaper and more honest configuration is **no Reviewer**, with the Leader re-running the task's deterministic verification inline, which the *Delegation Thresholds* already permit as inline work. The Sonnet-on-both-sides saving is achieved better by Option B's `none` category than by a degraded audit.
+**On running Sonnet for both roles on basic tasks:** considered and not recommended in any option. A same-model Reviewer pays full price for an audit the methodology itself grades as independence lost (`akili-execute.md:330`, the `same-model` waiver flag). Where a review is warranted, keep the models different; where it is not, skip it honestly and keep the cheap re-run.
 
 ## 11. Recommended Approach
 
-**Option B.** The categories and their predicates:
+**Option B.**
 
-| Category | Objective predicates (all must hold) | Review | Implementer | Reviewer |
+**The skip predicate.** All must hold, evaluated against what the Implementer actually reported:
+
+1. The task's `Falsifier` was **executed against the post-change code and observed red**, per Step 3.2 Falsifiability rule 1.
+2. Verification is **fully deterministic** — every check a command with a pass/fail result; the `Disqualifier` names no read.
+3. `Consumers: none`.
+4. No override applies.
+
+**Overrides, none of which any category or predicate defeats:** the task defines or edits an obligation other readers execute; it touches a closed enumeration or shared contract; it produces derived evidence a later gate consumes; it reverts delivered behavior; it is a rework attempt after a FAIL; it touches a security or data-loss surface; or the Leader judges review warranted, which it may always do.
+
+**The always-on duty.** Whatever the predicate says, the evidence is re-run by a context other than the author, comparing outputs against the Implementer's report. Leader-inline when it is a handful of commands, which the *Delegation Thresholds* already class as inline work; a T5 Verifier spawn when the set is large. Output is `VERIFIED` or `MISMATCH`, and a mismatch is an implicit FAIL that consumes an attempt exactly as a failed verification does today.
+
+**Categories, demoted to depth guidance:**
+
+| Category | Typical marker | Depth if reviewed | Implementer | Reviewer |
 |---|---|---|---|---|
-| **trivial** | Cites or renames an obligation defined elsewhere; creates none · `Consumers: none` · verification fully deterministic · `Disqualifier` names no read | `none` | T5 Fast-Cheap or T2 | — |
-| **simple** | Authors local text or code · no shared contract, no closed enumeration · verification fully deterministic | `none` by default | T2 | — |
-| **standard** | Authors a rule or behavior against a complete task spec · verification includes a read | `checklist` | T2 | T3, different model |
-| **complex** | Defines or edits an obligation others execute · **or** touches a closed enumeration or shared contract · **or** produces derived evidence a later gate consumes · **or** ships a security / data-loss surface | `full` or `lenses` | T2 or T1 | T3, different model, effort `high`+ |
+| trivial | cites an obligation defined elsewhere | `checklist`, low effort | T5 or T2 | T3, different model |
+| simple | local authored text, no shared contract | `checklist` | T2 | T3, different model |
+| standard | authors a rule against a complete spec | `checklist` or `full` | T2 | T3, different model |
+| complex | defines an obligation, edits an enumeration, or assembles derived evidence | `full` or `lenses`, effort `high`+ | T2 or T1 | T3, effort `high`+ |
 
-**Overrides that force a Reviewer regardless of category:** any rework attempt after a FAIL; `Consumers` is not `none`; the output is derived evidence feeding a gate; the task reverts delivered behavior; the Leader's own judgment, which may always raise but never lower.
-
-Against the measured run, this classifies T5 as `trivial`, T1–T4, T6 and T8 as `standard`, and T7, T9 and T10 as `complex` — **saving one review round in fifteen**. That is the honest projected saving on this dataset, and it is deliberately small: the categories are drawn where the evidence supports them, not where the savings would be largest.
+Against the measured run: T5 is the one task that would plausibly clear the predicate, so the direct saving stays **one round in fifteen**, honestly stated. The larger savings are the six Implementer spawns moved to T2 and the effort-bound depth on small diffs.
 
 ## 12. Risks, Dependencies, And Open Questions
 
 | Risk | Mitigation |
 |---|---|
-| **This is a safety-reducing change.** Agents under cost pressure will reach for the lowest category | Predicates are objective and checkable; the skip list is user-approved at the gate; overrides cannot be defeated; every skip is recorded and countable |
-| **External validity.** The evidence is one spec of prose tasks in the methodology's own repo | §13 makes the first N specs a measured trial rather than a default; code-heavy specs may show a different Reviewer yield |
-| **The confound.** Cheap Implementer plus mandatory Reviewer may beat expensive Implementer plus skippable Reviewer, and this run cannot separate them | The trial records Implementer model per task alongside escaped defects, so the next retrospective can separate them |
-| **Record blurring.** If `REVIEW_SKIPPED` and `REVIEW_WAIVED` merge in practice, the honest-metric property of the waiver dies | They are defined by different causes and carry different fields; `/akili-audit` and the kaizen Measure step count them separately |
-| Parallel-safety with `scoped-constitution-reads` | Disjoint files by construction (§6); serial `CHANGELOG` merge |
+| **Falsifier quality becomes load-bearing.** A weak or inert falsifier would let the predicate pass work that was never really gated | The dependency is explicit: `changes/gate-falsifiability` already ships the *inert fixture* anti-pattern and the executed-red requirement. The trial counts escaped defects specifically in skipped tasks |
+| **Predicate gaming.** A task could be written with a trivially deterministic verification to qualify | The skip list is visible at the `tasks.md` gate before execution, and the overrides are evaluated against what the task *does*, not how its verification is phrased |
+| **This still reduces coverage** relative to today | The always-on re-run preserves the "a non-author confirmed the evidence" property at near-zero cost; only the judgment audit is conditional |
+| **External validity.** One prose spec in the methodology's own repo | §13 runs a measured trial before default adoption |
+| **The confound** between cheaper Implementer and skipped Reviewer | The trial records Implementer model per task beside escaped defects so the next retrospective can separate them |
+| **Record blurring** between `SKIPPED` and `WAIVED` | Different causes, different fields, counted separately by `/akili-audit` and the kaizen Measure step |
 
 **Open questions for the user:**
 
-1. Should `simple` default to `none` (recommended) or to `checklist`, with `none` requiring an explicit reason?
-2. Should the Leader be allowed to lower intensity at all mid-run when a task turns out smaller than specified, or only ever raise it?
-3. Trial length before this becomes the default: the next two specs, or a fixed number of tasks?
+1. Should the Leader be allowed to lower review intensity mid-run when a task proves simpler than specified, or only ever raise it? My inclination is raise-only.
+2. Trial length before default adoption: the next two specs, or a fixed task count?
+3. Should `skip-eligible` tasks that **fail** their predicate at execute time simply get a normal review, silently, or should the mismatch between plan and outcome be reported at the continue gate? My inclination is report it, since it is a signal the spec author misjudged the task.
 
 ## 13. Success Criteria
 
-1. A reader applying the predicates to the ten tasks of the `premise-ledger` run, without seeing this proposal's own classification, reproduces it for at least nine.
-2. Every skipped task in the trial carries a `REVIEW_SKIPPED` record naming its category and the verification that stood in.
-3. The trial reports **escaped defects**: any defect found at `/akili-test`, `/akili-validate`, a later task, or HITL, in a task that skipped review. A non-zero count is a finding, not a failure, and feeds the next revision.
-4. Implementer model distribution moves toward the registry default, measured as the share of Implementer spawns on T2 versus T1.
-5. No task closes with neither a `PASS`, a `REVIEW_WAIVED`, nor a `REVIEW_SKIPPED`.
-6. `leader.md`'s amended paragraph still forbids collapsing the gate for efficiency in `standard` and `complex`, verifiable by reading it against the original.
+1. Two readers applying the predicate independently to the ten tasks of the `premise-ledger` run reach the same skip set.
+2. Falsifier execution rate rises above its current baseline of roughly half the tasks.
+3. Every skipped task carries a `REVIEW_SKIPPED` record naming the predicate evidence and the re-run result.
+4. Every task, skipped or not, carries an evidence re-run result by a non-author.
+5. **Escaped defects are reported**: any defect found at `/akili-test`, `/akili-validate`, a later task, or HITL in a task that skipped review. Non-zero is a finding that feeds the next revision, not a failure.
+6. Implementer spawns on T2 rise as a share of the total.
+7. No task closes with neither a `PASS`, a `REVIEW_WAIVED`, nor a `REVIEW_SKIPPED`.
+8. `leader.md`'s amended paragraph still forbids collapsing the gate for efficiency wherever the predicate does not hold.
 
 ## 14. Next Step
 
@@ -194,7 +215,7 @@ Against the measured run, this classifies T5 as `trivial`, T1–T4, T6 and T8 as
 /akili-specify changes/review-intensity-routing
 ```
 
-Standard depth. The spec should carry its own Premise Ledger, and it is a natural dogfooding case: its own `tasks.md` will contain tasks in all four categories, so the classification gets exercised by the change that defines it.
+Standard depth. The spec carries its own Premise Ledger and is a natural dogfooding case: its own tasks will span the depth categories, and at least one should be written to clear the skip predicate so the mechanism is exercised by the change that defines it.
 
 ---
 
