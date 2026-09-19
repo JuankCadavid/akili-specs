@@ -20,7 +20,7 @@ Both judges attacked `design.md` §11 before reading the design decisions, as th
 | P-1, P-2, P-3, P-4, P-5, P-6, P-7, P-8, P-9, P-10, P-12 | **Reproduced exactly** at their cited lines and commands, by both judges independently |
 | P-11 | Grep count (6) reproduces; the **interpretation built on it does not** — see S-1 |
 | P-13 | Arithmetic is internally consistent but **two addends are wrong at source** — see S-2 |
-| P-14 (`UNVERIFIED`, High) | Correctly left open. Neither judge refuted it; both spot-checked it against archived FAIL cases and found the predicate correctly forces review. **But its settling plan is undermined by S-3** |
+| P-14 (`UNVERIFIED`, High) | Correctly left open. Neither judge refuted it; both spot-checked it against archived FAIL cases and found the predicate correctly forces review. **But its settling plan is undermined by S-4** |
 | Depended-on premise with no row | None found by either judge |
 
 ## Findings
