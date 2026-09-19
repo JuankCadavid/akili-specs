@@ -27,9 +27,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Notes
 
-- Release classification proposed: **minor** (new pin + new Kind/Status vocabulary); user may override at release time.
-- Release classification proposed for `changes/gate-falsifiability`: **patch** (guidance refinement, no new command or vocabulary consumed by other commands); user may override.
-- Release classification proposed for `changes/leader-brief-contract`: **patch** (guidance refinement to `/akili-execute` and its personas, no new command or installer change); user may override.
+- Release classified **minor**: the batch adds new behavior other commands consume — the optional `Integration Branch:` constitution pin, the `upstream` Kind with the `superseded` / `upstreamed` statuses, and the `## REVIEW_WAIVED` record with the `WAIVED (flag)` final status read by `/akili-resume`, the `kaizen` skill, and `/akili-archive`. `changes/gate-falsifiability` alone would have been a patch (guidance refinement). No new command or install target; no breaking change — existing `tasks.md` and `execution.md` files stay valid without migration.
 
 ## [2.24.0] - 2026-09-17
 
