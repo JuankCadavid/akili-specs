@@ -305,7 +305,7 @@ Create or enhance the canonical templates under `docs/specs/general-setup/`.
 These files define the format that `/akili-specify` must follow later:
 
 1. `requirements.md` — requirement numbering, structure, and writing standards
-2. `design.md` — architecture, data model, API, frontend, and decision-record structure
+2. `design.md` — architecture, data model, API, frontend, and decision-record structure, including the Premise Ledger section named in `/akili-specify` Step 2.2's *Premise Ledger* block, with its row shape and absent-values inherited from that block and never redefined here
 3. `task.md` — task format, dependency graph format, testing expectations, and execution conventions, including the four Verification fields (`Falsifier`, `Red run`, `Disqualifier`, `Consumers`) named in `/akili-specify` Step 3.2's Falsifiability block, with the absent-value rule: `n/a (no test gate)` for `Red run` when the gate is not a test, `none (no shared symbol changed)` for `Consumers`, and no field ever left blank
 4. `family.md` — the manifest schema a **spec family** (a parent spec folder plus the child spec folders produced when its scope was chunked) uses to track order, dependencies, and status. `/akili-propose` or `/akili-specify` authors one **per spec family** only when a proposal is actually split — its absence means the spec is flat, with zero added obligations. Schema:
 

@@ -46,3 +46,30 @@ ADVISORY (4R, recorded, not acted on): **Readability** — the block's rule (c) 
 | Final verification | checks 1–7 green as written (Implementer, re-run by the Reviewer); sweep 0 non-conforming; check-5 falsifier executed red on a scratch copy |
 | Budget | review rounds used: 1 of 9; shipped lines: 56 of ~150 (T1 estimate ~45) |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T5 — `/akili-constitution` Step 7: the `design.md` template description names the ledger
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `sonnet`, effort `low` (mechanical, one line); skills: `cognitive-doc-design` |
+| Reviewer | `fable`, effort `high` scaled to the < 50 LOC band (1+/1−; ADVISORY suppressed) |
+| Wave | ran in parallel with T2, T3, T4 (disjoint files, no shared build output) |
+
+**Attempt 1** — files changed: `.claude/commands/akili-constitution.md` (Step 7 item 2, one line replaced: the `design.md` template description gains "including the Premise Ledger section named in `/akili-specify` Step 2.2's *Premise Ledger* block, with its row shape and absent-values inherited from that block and never redefined here"). Implementer verification, run as `tasks.md` states it: check 1 `Premise Ledger` count 1, first hit on the Step 7 item 2 line; check 2 `git diff --numstat 571edaf` = `1 1`; check 3 backticked class-token grep = 0. Disqualifier read: names the block, copies no columns. `Not Done / Assumptions`: none. Runtime events: none.
+
+Reviewer verdict: **PASS.** "Step 7 item 2 now names the Premise Ledger as a section of the `design.md` template and cites `/akili-specify` Step 2.2's *Premise Ledger* block for its definition, in item 3's … shape; row shape and absent-values are declared inherited from that block, and no class, trigger, or column is restated locally, satisfying FR-10 and the scenario's BUT NOT (NFR-3, DD-1, §7.1 row 15)." Re-ran checks 1–3 (file line count 1163 at both `571edaf` and the working tree) and confirmed the cited block exists at `617ee1b`.
+
+ADVISORY: none (suppressed by band).
+
+| Field | Value |
+|---|---|
+| **T5 final status** | **PASS** (attempt 1 of 3) |
+| Requirements covered | FR-10 statement and scenario *new project constitution* (`BUT NOT` redefine classes or triggers locally); NFR-3 |
+| Decisions | `sonnet` at `low` effort for a one-line mechanical change |
+| Issues | none |
+| Execute-time spec edits | none |
+| Final verification | checks 1–3 green as written (Implementer, re-run by the Reviewer) |
+| Budget | review rounds used: 2 of 9; shipped lines: 57 of ~150 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |

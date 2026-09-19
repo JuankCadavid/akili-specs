@@ -181,7 +181,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T1 |
 | Requirements | FR-10 statement and scenario *new project constitution* (`BUT NOT` redefine classes or triggers locally) |
