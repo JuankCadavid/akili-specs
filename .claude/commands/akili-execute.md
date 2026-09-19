@@ -59,12 +59,14 @@ If `.agents/` is missing, run `/akili-constitution` first to scaffold it. Do not
 
 The Leader does not write production code itself unless the rework loop is exhausted and the user has explicitly approved a fallback.
 
-**Runtime-failure fallback (per role):** when the harness itself cannot spawn a subagent (spawn error, terminal/pane failure — an environment blocker, not a work FAIL), retry once, then degrade by role — never improvise ad-hoc:
+**Runtime-failure fallback (per role):** a **runtime event** is neither a work FAIL nor a spec problem — **spawn failure** (the harness could not start the worker), **provider-limit death** (the worker was killed mid-task by a quota, rate, or session limit), **pane / terminal timeout** (a transient host failure), or **idle-without-report** (the worker's turn ended without its contracted report — handled entirely by `leader.md`'s idle-without-report protocol, cited by name, nothing restated here). Closing the enumeration, these are **not** runtime events and consume an attempt or stop the loop by the existing rules: an Implementer-reported verification failure (implicit FAIL), a Reviewer `FAIL`, a `FATAL_FAIL`, a Pivot-Detection stop, and a project-stack outage (Step 2.1's environment pre-check and `leader.md` → *Deferring a check*).
 
-| Role | Fallback on runtime failure |
+**Accounting rule:** an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else. No runtime event touches the attempt counter. Each role climbs its own fixed ladder, rung by rung, never improvising:
+
+| Role | Ladder (climbed in order; each rung recorded per attempt) |
 |---|---|
-| Implementer | Ask the user to approve the Leader-inline fallback (the no-code rule above stands — runtime failure does not waive it). Record the failure and the decision in `execution.md` |
-| Reviewer | **Never inline** — the Leader reviewing work it supervised breaks `author ≠ auditor`, and a runtime failure does not suspend a correctness constraint. Offer the user: a different model (`/model`), a cross-host dispatch (per the registry), or an explicit recorded waiver |
+| Implementer | **1** retry once immediately (spawn failure, pane timeout) — for a provider-limit death, first **probe the tree** for partial edits and record them · **2** retry-after-N (N = 3 minutes, one retry, background wait, announced — the background-wait rule in `leader.md` → *Winding down*) · **3** resume-by-message when the worker's context survives (message the worker; the contracted report is the terminating act; verify delivery per `leader.md`) · **4** a fresh worker audits the partial diff and continues (the brief carries the partial diff as the starting state) · **5** the existing Leader-inline ask — a user stop; the no-code rule stands |
+| Reviewer | **Never inline** — the Leader reviewing work it supervised breaks `author ≠ auditor`, and a runtime failure does not suspend a correctness constraint. **1** retry once · **2** retry-after-N (same terms) · **3** a different model (`/model`) or the registry's cross-host dispatch · **4** waiver — **is** a `REVIEW_WAIVED` record (Execution Log Format, below) — a user stop; **never inline without the record** |
 | Tester | The `/akili-test` Deployment Rule already defines the inline path — use it and record it |
 
 **Delegation Thresholds:** the Leader's inline-vs-delegate boundary is quantified in `.agents/leader.md` → *Delegation Thresholds* (inline only for 1-file checks and puntual verifications; 4+ full-file reads → scout subagent; 2+ non-trivial file writes → Implementer; CodeGraph lookups don't count toward the read threshold). Apply it to your own research inside this command — e.g. investigating a Reviewer FAIL across many files is scout work, not Leader-inline work.
@@ -125,6 +127,7 @@ loop:
   extract git diff
   spawn Reviewer with diff + spec context
   receive Reviewer verdict (PASS | FAIL)
+  on runtime event: recover per the runtime table; attempt unchanged
   if PASS:
     finalize task (Step 3)
     exit loop
@@ -208,11 +211,11 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 
 #### 2.4 — Loop Guardrails
 
-- **Maximum Retries:** A hard ceiling of **3 rework attempts** per task. This prevents infinite loops and token waste.
+- **Maximum Retries:** A hard ceiling of **3 rework attempts** per task. This prevents infinite loops and token waste. **Accounting rule** (Step 2 preamble, *Runtime-failure fallback*): an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else — a runtime event recovered per that table's ladder never touches this ceiling.
 - **Advisory Never Gates:** `ADVISORY` (4R lens) findings are recorded in `execution.md` but never count as FAIL issues, never trigger rework, and never consume attempts. If an advisory finding is serious enough to block, the Reviewer must restate it as a spec-violation FAIL issue (or the Leader escalates it to the user as a potential spec gap via the Pivot Protocol).
 - **Advisory Never Becomes A Task:** an advisory is **recorded and dies there**. You may not mint a new task in this spec from one, and you may not widen an existing task to absorb it. The rule above stops advisories from *gating*; this one stops them from *growing the spec* — the other direction, and the one that does the real damage. **A task not in the approved `tasks.md` is scope the user never approved**, and it arrives with none of the review the approved tasks got: no requirement backing it, no design decision, no budget line. Advisories are also the *least*-vetted findings in the run, so this path grows scope fastest from the weakest evidence. The only route from advisory to new work is out of this spec: record it, finish what was approved, and let the user decide whether it earns a proposal. When an advisory genuinely cannot wait, that is a **spec gap** — escalate via the Pivot Protocol and let the user reopen the spec, which re-runs the budget and the approval gate rather than bypassing both.
 - **Wind Down Before You Run Out:** a rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus adjudication. **Do not open one you cannot see through.** When context runs low, follow *Winding down* in `.agents/leader.md` (already in your context — that section is canonical): finish or park the task in flight (`[~]` + full attempt history, never silently), spend what remains on `execution.md`, and transfer ownership rather than leaving a supervised delegation outstanding — with the user's explicit ask able to lift that default.
-- **Budget Tripwire:** `design.md` carries a budget from `/akili-specify` Step 2.4 (expected tasks, LOC, review rounds). When actual execution exceeds it, **stop and escalate to the user** with the delta and the cause — do not continue on the assumption that finishing is what was wanted. Exceeding a budget is information, not failure; the cost of a mis-sized spec is only recoverable while it is still running. A spec with no recorded budget (written before this existed, or `Lite` depth) simply skips this check.
+- **Budget Tripwire:** `design.md` carries a budget from `/akili-specify` Step 2.4 (expected tasks, LOC, review rounds). When actual execution exceeds it, **stop and escalate to the user** with the delta and the cause — do not continue on the assumption that finishing is what was wanted. Exceeding a budget is information, not failure; the cost of a mis-sized spec is only recoverable while it is still running. A spec with no recorded budget (written before this existed, or `Lite` depth) simply skips this check. Review rounds count Reviewer verdicts only — a runtime event and the rung that recovered it never add a round.
 - **Fail-Fast (FATAL_FAIL):** If the Reviewer issues a `STATUS: FATAL_FAIL`, immediately HALT the loop, mark the task `[~]`, and trigger the Pivot Protocol. Do not consume remaining rework attempts.
 - **Structured Feedback:** On `FAIL`, pass the full Reviewer report unchanged to the next Implementer spawn. Do not paraphrase.
 - **Escalation on HALT:** After 3 failed attempts (or a FATAL_FAIL), mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
@@ -220,7 +223,7 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 
 ### Step 3: Finalize on PASS
 
-Only after a Reviewer `PASS`:
+Only after a Reviewer `PASS` — or, when the Reviewer ladder was exhausted, after the `REVIEW_WAIVED` record is written —:
 
 1. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
 2. Update `tasks.md` from `[ ]` (or `[~]`) to `[x]`.
@@ -248,13 +251,22 @@ This also makes the ordering machine-checkable — a gate on `tasks.md` writes c
 
 If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 
-1. **Automatic Rollback:** Run `git restore .` and `git clean -fd` to revert the working tree to a clean state. Do not leave broken code for the user to clean up.
+1. **Rollback, by tree state.** Determine the state of the working tree before restoring anything:
+
+   | Tree state | Action | `## HALT` records |
+   |---|---|---|
+   | **Clean** — only the halted task's changes are uncommitted | Run `git restore .` and `git clean -fd` to revert the working tree to a clean state. Do not leave broken code for the user to clean up | "clean tree — blanket restore" |
+   | **Holds other PASSed work** — uncommitted changes attributable to earlier PASSed task entries | Restore scoped to the halted task's pathspec: the explicit file paths from its attempt entries' *files changed* lines — `git restore -- <paths>` for tracked files, `git clean -f -- <paths>` for the listed untracked files, **never a directory glob** | the pathspec used |
+   | **Holds unattributed changes** — paths no task entry accounts for (another session, the user) | Run the pathspec restore above; the unattributed paths are **never restored** — escalate to the user | the unattributed paths, listed as "unattributed — not restored" |
+
+   After any restore, run `git status --porcelain` and report what remains. **Residual:** a file the Implementer changed and did not report is outside the pathspec — the same hole the log format already has, now visible in the post-restore status.
 2. Mark the task `[~]` in `tasks.md`.
 3. Append a final `## HALT: <Task ID>` block to `execution.md` containing:
    - all three Reviewer `FAIL` reports
    - all three Implementer summaries
    - the verification output of the final attempt
    - the Leader's hypothesis on the root cause (spec ambiguity, missing context, environmental issue, etc.)
+   - the tree-state branch taken, the pathspec used (if any), and any paths listed "unattributed — not restored"
 3. Present the blocker to the user with a clear question — for example: *"The Reviewer rejected three attempts on the same `design token compliance` finding. The spec at `design.md#tokens` does not list a token for this surface. How would you like to proceed?"*
 4. Do **not** advance to the next task automatically after a HALT.
 
@@ -262,11 +274,11 @@ If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 
 After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
 
-**Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance.
+**Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance. A `REVIEW_WAIVED` decision and the Leader-inline ask (Implementer ladder rung 5) are stops for the user too, never auto-passed — both remove or replace the correctness gate, the same class of exception the list above already covers.
 
 **Unattended Mode (Claude Code + `pre-approved` only):** when the user asks for a run that finishes without them watching, recommend launching it with `/goal` in Claude Code — after each turn a small fast model checks the condition and starts another turn until it holds ([docs](https://code.claude.com/docs/en/goal.md)). Use this canonical condition, with `<spec-path>` and `<N>` resolved:
 
-> Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
+> Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS or `REVIEW_WAIVED` evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
 
 The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
 
@@ -290,18 +302,30 @@ Minimum sections:
 
 Each task entry must record:
 
-- final status (PASS / HALT / pivot)
+- final status (`PASS` / `WAIVED (flag)` / `HALT` / `pivot`)
 - date
 - task ID and title
 - number of Implementer attempts run
-- for each attempt: files changed, Implementer verification command + result, Reviewer verdict + summary or full FAIL findings
+- for each attempt: files changed, Implementer verification command + result, Reviewer verdict + summary or full FAIL findings, and a `runtime events: <kind> ×n → <rung>` line naming any runtime events recovered on that attempt and the rung that recovered them
 - any `ADVISORY` (4R lens) findings from the final Reviewer verdict, labeled as advisory
 - requirements covered
-- decisions made
+- decisions made — including any execute-time spec edits (file + section + reason), recorded at the moment each edit is made
 - issues encountered
 - final verification result
 
 A minimal PASS-on-first-attempt entry can be compact; a HALT or rework entry must include the full attempt-by-attempt history.
+
+**`## REVIEW_WAIVED: <Task ID>`** — written by the Leader, before `[x]`, whenever a task closes without a Reviewer `PASS` from an independent context on a different model at the registry's tier:
+
+| Field | Content |
+|---|---|
+| `flag` | `inline` · `same-model` · `degraded-pair` |
+| cause | the events and rungs exhausted, in order |
+| approved by | the user — never the Leader alone (message / time) |
+| verification that stood in | command, exit status, who ran it |
+| models | Implementer / auditor (if any) |
+
+The flags name which property of the gate was lost: **`inline`** — no independent context (the Leader audited work it supervised); **`same-model`** — an independent context, but on the Implementer's model; **`degraded-pair`** — an independent context on a different model, below the registry's tier or outside it (a `PASS` was issued and stands — the record accompanies it so the metric stays honest). The task entry's Reviewer field reads `WAIVED (inline)` or `WAIVED (same-model)` for the first two, and `PASS (degraded-pair: <impl>/<rev>)` for the third. **A task with neither a `PASS` nor a `REVIEW_WAIVED` record in `execution.md` is not closable.** Step 2.3 item 0 (a `Not Done / Assumptions` gap blocks `[x]` even on PASS) applies to a waiver identically. An `execution.md` written before this record existed carries no `## REVIEW_WAIVED` blocks — its absence reads as "no waiver recorded", never as an inferred PASS.
 
 ---
 
