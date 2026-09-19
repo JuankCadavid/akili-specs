@@ -189,6 +189,8 @@ The Step 2 preamble table SHALL name the event vocabulary — **spawn failure**,
 
 Terminal branches of each event (KZ-004): a spawn failure has no partial work and starts at rung 1; a provider-limit death may or may not leave context (rung 3 if it does, rung 4 if it does not); a pane timeout usually clears within minutes (rungs 1–2); idle-without-report is handled entirely by `leader.md`'s poke-once / replace-on-second-idle protocol (KZ-003) and enters this ladder only at "replace", as a fresh spawn.
 
+**Mid-climb events** *(added by the T6 Pivot, 2026-09-19)*: a later runtime event in the same attempt, of any kind, **continues the climb from the rung already reached** — a spent rung is never re-run, and a rung whose condition does not hold (rung 3 when no worker context exists) is skipped — and the attempt's `runtime events:` line names every event and the one rung that recovered the attempt. The ladder therefore stays bounded per attempt: a flapping host cannot loop rungs 1–2. The command SHALL state each event kind's entry rung (the paragraph above) and this rule in the *Runtime-failure fallback* block.
+
 #### Scenario: Implementer killed by a rate limit mid-task, context intact (`changes--reporting-favorite-indicators.md`)
 
 - GIVEN an Implementer killed by an HTTP 429 mid-T-2, with files already edited and its context still addressable
@@ -209,6 +211,13 @@ Terminal branches of each event (KZ-004): a spawn failure has no partial work an
 - GIVEN an Implementer spawn that produced nothing
 - WHEN the Leader retries on a different model and it completes
 - THEN the attempt counter reads 1, and the attempt entry records `runtime event: spawn failure → retry (model swapped)`
+
+#### Scenario: A different event arrives mid-climb *(added by the T6 Pivot, 2026-09-19)*
+
+- GIVEN an Implementer spawn that failed, a rung-1 retry that failed again, and a rung-2 retry (after the announced 3-minute background wait) that hit a pane timeout
+- WHEN the Leader handles the third event
+- THEN it continues the climb: rung 3 is skipped (no worker context exists to message), rung 4 spawns a fresh worker, and the attempt records `runtime events: spawn failure ×2, pane timeout ×1 → fresh worker` with the attempt counter unchanged
+- BUT it must NOT re-run rung 1 or rung 2 for the new event kind, and must NOT put the Leader-inline ask to the user before rung 4
 
 #### Scenario: Idle-without-report
 

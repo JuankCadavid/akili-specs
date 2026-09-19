@@ -10,7 +10,7 @@
 | Approval Mode | `gated` |
 | Status | Executing — 5/6 `[x]`; T6 `[~]` escalated 2026-09-18 (approved by the user in batch, 2026-09-18; drafted by a worktree agent on the Leader's behalf) |
 | Date | 2026-09-18 |
-| Budget (design §12) | 6 tasks · ~210 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task |
+| Budget (design §12) | 6 tasks · ~210 LOC (prose) · 1 review round per task — trip on the second FAIL of any one task · *T6 Pivot (2026-09-19): T2 re-opened for one owed clause, T6 re-run for Cases 2–3 — one extra round each, user-approved* |
 | Design review | Step 2.3 reversion challenge run inline (DD-3, DD-6 — both real breakages, both closed); `judgment-day` not run in draft mode |
 | Verification fields | Every task carries `Falsifier`, `Red run`, `Disqualifier`, `Consumers` (introduced by `changes/gate-falsifiability`, 2026-09-18); `n/a (no test gate)` and `none (no shared symbol changed)` are the absent values. All gates here are prose edits: `Red run` is `n/a` throughout, and the behavioral substitute is T6's fixture walkthrough |
 | Cross-spec hand-offs | Rows 3 and 15 of design §7 carry the two `changes/gate-falsifiability` lines (T1 and T3); T6 byte-compares them against that spec's design §7 consumer-walk rows |
@@ -81,7 +81,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[x]` |
+| Status | `[~]` — re-opened by the T6 Pivot (2026-09-19) for one owed clause: see **T2 owed clause** below |
 | Size | L |
 | Depends on | T1 (same file; sequential) |
 | Requirements | FR-4 all four scenarios (`AND IT MUST` record the event line, counter unchanged · `BUT NOT` count as FAIL / spawn fresh while the old can answer / ask inline early · `BUT NOT` inline or waiver ask before rungs exhausted · `BUT NOT` restate poke mechanics); FR-5 all five scenarios (`AND IT MUST` before `[x]` · `BUT NOT` read 0 FAILs as exercised — record side · `AND IT MUST` keep PASS for degraded-pair · `BUT NOT` auto-approve a waiver · no-migration read); FR-6 all three scenarios (`AND IT MUST` derive from attempt entries · `BUT NOT` blanket on a dirty tree · clean tree byte-identical · `BUT NOT` touch unattributed files); NFR-2, NFR-3, NFR-8 |
@@ -96,6 +96,8 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 - **Step 4 item 1**: the three-branch tree-state table from design §5.6 (clean → today's two commands byte-identical; other PASSed work → explicit-file pathspec from the attempt entries' *files changed*, `git restore -- <paths>`, `git clean -f -- <paths>`, never a directory glob; unattributed changes → never restored, listed, escalate); post-restore `git status --porcelain` reported; the residual sentence; the `## HALT` block gains "pathspec used / unattributed — not restored".
 - **Step 5 *Approval Mode***: +1 sentence — the `REVIEW_WAIVED` decision and the Leader-inline ask are stops, never auto-passed; the `/goal` canonical condition reads "matching PASS or `REVIEW_WAIVED` evidence".
 - **Execution Log Format**: per-attempt `runtime events: <kind> ×n → <rung>` line; *decisions made* gains "execute-time spec edits (file + section + reason)"; final status `PASS / WAIVED (flag) / HALT / pivot`; new record type `## REVIEW_WAIVED: <Task ID>` with the five fields and the three flags defined per design §5.5 (which property was lost; how the task entry reads; `degraded-pair` accompanies a standing PASS); the closability sentence ("a task with neither a PASS nor a `REVIEW_WAIVED` is not closable"); one line: old logs without the block read as "no waiver recorded".
+
+**T2 owed clause (T6 Pivot, 2026-09-19 — FR-4 terminal-branches paragraph + *Mid-climb events*; design §5.4, DD-12).** In the *Runtime-failure fallback* block of `.claude/commands/akili-execute.md`, between the **Accounting rule** paragraph and the ladder table or directly after the table — one paragraph, nothing else in the file: **(i)** each event kind's entry rung — spawn failure: no partial work, rung 1; pane / terminal timeout: rung 1, usually cleared by rung 2; provider-limit death: rung 1's tree probe, then rung 3 when the worker's context survives and rung 4 when it does not; idle-without-report: enters this ladder only at `leader.md`'s replace step, as a fresh spawn (pointer — mechanics not restated); **(ii)** the mid-climb rule — a later event in the same attempt, of any kind, continues the climb from the rung already reached; a spent rung is never re-run; a rung whose condition does not hold is skipped; the attempt's `runtime events:` line names every event and the one rung that recovered it. `docs/commands/akili-execute.md` changes only if a sentence there turns false. *Verification:* `grep -n "Entry rungs" .claude/commands/akili-execute.md` — 1 hit inside the *Runtime-failure fallback* block; `grep -n "continues the climb" .claude/commands/akili-execute.md` — 1 hit, same paragraph; `grep -nc "poke" .claude/commands/akili-execute.md` — 0; T2 verification 1–7 re-run, unchanged results; `git diff --stat` — one file (two if the mirror turns false, stated). *Falsifier:* the current block — both greps 0; a paragraph that gives entry rungs but no mid-climb sentence leaves T6 Case 2 undecidable. *Red run:* `n/a (no test gate)`. *Disqualifier:* greps prove the words — read the paragraph as a literal Leader against FR-4's mid-climb scenario and the death-with-context scenario; if either still needs the design to decide a step, it is not done. *Consumers:* `none (no shared symbol changed)` — T6 re-walks Cases 2 and 3.
 
 **Verification** (repo root; exclusions per the hazard note).
 
@@ -227,7 +229,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 | Case | Steps walked | Expected recorded outcome |
 |---|---|---|
 | **HALT on a dirty tree** (FR-6) | Step 4 item 1 on the fixture tree | branch "holds other PASSed work" chosen; pathspec = T-9's files only, explicit paths; the two unattributed files listed, not restored; `git status --porcelain` reported; HALT block names both |
-| **Spawn failure mid-task** (FR-4) | Runtime table Implementer row on "spawn failed twice, then a pane timeout" | rungs 1 → 2 (3 min, background, announced) → recorded `runtime events: spawn failure ×2, pane timeout ×1 → retry-after-N`; attempt counter unchanged; no inline ask |
+| **Spawn failure mid-task** (FR-4) | Runtime table Implementer row + *Entry rungs* sentence on "spawn failed, the rung-1 retry failed again, the rung-2 retry hit a pane timeout" | *(amended by the T6 Pivot, 2026-09-19 — the original `→ retry-after-N` was derivable from no reading: rung 2's one retry is spent when the timeout arrives)* rungs 1 → 2 (3 min, background, announced) → rung 3 skipped (no worker context) → rung 4 fresh worker; recorded `runtime events: spawn failure ×2, pane timeout ×1 → fresh worker`; attempt counter unchanged; no re-run of rung 1 or 2; no inline ask |
 | **Provider-limit death, context alive** (FR-4) | same row | tree probe → rung 3 resume-by-message; the contracted report as terminating act; no fresh spawn |
 | **Reviewer waiver** (FR-5, FR-8, FR-3) | Reviewer row → Step 5 under `pre-approved` → Log Format → Step 3 → `/akili-resume` Step 1 → kaizen Measure + clean-run | rungs 1–3 exhausted; stop (no auto-approve); `## REVIEW_WAIVED: T-9` with `flag: inline`, five fields; entry reads `WAIVED (inline)`; written before `[x]`; resume reports it as last action, not blocked; Measure counts 1, run not clean. Also: `reviewer.md` read as the Reviewer — first line `STATUS:` |
 | **Widened brief** (FR-1) | Step 2.2 block against a draft brief offering "record as not measurable" for T-9 and naming zero convention files for a target whose fixture folder holds a `CLAUDE.md` | both clauses flag it, each by its falsifier sentence; T-4's brief copies the three fields; T-9's brief says `no Falsifier / Red run / Consumers fields in this task` |
@@ -235,6 +237,8 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 | **Old log** (NFR-3) | resume + kaizen on the old-style `execution.md` | "no waiver recorded"; no error, no inference |
 
 Any step where two shipped sentences can be read to disagree is recorded **INCONCLUSIVE** — never PASS. (d) `npm run verify:cli && npm run pack:dry-run && git diff --check`.
+
+**T6 attempt 2 scope (T6 Pivot, 2026-09-19).** After T2's owed clause PASSes: re-walk **Cases 2 and 3 only**, as a literal agent on the shipped text, quoting the deciding sentences; re-run §8 rows 6 and 11 and the packaging chain (the only gates the new paragraph can disturb); append to `t6-walkthrough.md` via the Leader. Cases 1, 4–7 and parts (a) rows 1–2, 4, 9–10 and (b) stand as Reviewer-CONFIRMED at `1dc7894` — the owed clause touches none of their deciding sentences; the Reviewer confirms that claim.
 
 **Verification** (repo root; exclusions per the hazard note).
 
@@ -269,6 +273,7 @@ Any step where two shipped sentences can be read to disagree is recorded **INCON
 | FR-4 death-with-context (`AND IT MUST` event line · `BUT NOT` FAIL / fresh spawn / early inline) | T2 · T6 |
 | FR-4 pane-timeouts (`BUT NOT` inline or waiver ask early) | T2 · T6 |
 | FR-4 spawn-dies-first (counter reads 1) | T2 · T6 |
+| FR-4 mid-climb scenario (`BUT NOT` re-run rung 1 or 2 · no inline ask before rung 4) · entry rungs per kind *(T6 Pivot)* | T2 (owed clause) · T6 (attempt 2, Cases 2–3) |
 | FR-4 idle-without-report (`BUT NOT` restate poke) | T2 (pointer; grep 2) |
 | FR-4 accounting rule in 2.4 and `leader.md` item 4 | T2 · T3 |
 | FR-5 quota-block scenario (`AND IT MUST` before `[x]` · `BUT NOT` read as exercised) | T2 · T4 · T6 |

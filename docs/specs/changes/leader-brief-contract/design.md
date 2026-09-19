@@ -120,6 +120,8 @@ Structured Feedback relays report **and** overflow file verbatim.
 
 Per attempt, `execution.md` records `runtime events: <kind> ×n → <rung that recovered>`.
 
+**Mid-climb rule** *(T6 Pivot, 2026-09-19 — DD-12)*: the "Enters ladder at" column ships in the command as one *Entry rungs* sentence. A later event in the same attempt, of any kind, continues the climb from the rung already reached; a spent rung is never re-run; a rung whose condition does not hold is skipped. One `runtime events:` line per attempt names every event and the single recovering rung.
+
 ### 5.5 `REVIEW_WAIVED` record (Execution Log Format)
 
 ```
@@ -159,7 +161,7 @@ Sites by section, never by line (KZ-005). T-numbers assigned in `tasks.md`.
 
 | # | File | Section | Change |
 |---|---|---|---|
-| 1 | `.claude/commands/akili-execute.md` | Step 2 preamble, *Runtime-failure fallback* paragraph + table | Event vocabulary (§5.4); accounting rule sentence; Implementer row → five rungs; Reviewer row → four rungs, waiver **is** `REVIEW_WAIVED`; Tester row unchanged; idle-without-report row = pointer to `leader.md` |
+| 1 | `.claude/commands/akili-execute.md` | Step 2 preamble, *Runtime-failure fallback* paragraph + table | Event vocabulary (§5.4) **incl. the *Entry rungs* sentence and the mid-climb rule (DD-12, T6 Pivot)**; accounting rule sentence; Implementer row → five rungs; Reviewer row → four rungs, waiver **is** `REVIEW_WAIVED`; Tester row unchanged; idle-without-report row = pointer to `leader.md` |
 | 2 | 〃 | Step 2 loop pseudocode | One branch after "receive Implementer report" / "receive Reviewer verdict": `on runtime event: recover per the runtime table; attempt unchanged` |
 | 3 | 〃 | Step 2.2, after the "verification command (copied)" bullet | +1 bullet: copied `Falsifier` / `Red run` / `Consumers` with the absent-value line (hand-off) |
 | 4 | 〃 | Step 2.2, new **Brief contract** block after the bullet list | Clauses (a)–(e) per §5.1, each with its falsifier; (d)'s two halves in one paragraph |
@@ -286,6 +288,9 @@ KZ-changes--model-routing-cost-rebaseline-2 covers the Pivot; the frequent case 
 ### DD-11 — Rules by class; corpus names in parentheticals (NFR-4)
 The evidence project's stack, harness, and file names appear only inside `(...)` as examples. The FR-9 framework grep is the gate.
 
+### DD-12 — Entry rungs ship with the ladder; a mid-climb event continues the climb *(added by the T6 Pivot, 2026-09-19)*
+T6's closure walkthrough found Case 2 undecidable: §5.4's "Enters ladder at" column and FR-4's terminal-branches paragraph never reached the command (T2 under-delivery), and nothing approved said whether a second event of a different kind re-enters the ladder or continues it (spec gap). The user chose **continue the climb** (2026-09-19): it bounds the ladder per attempt (at most rungs 1, 2, 4 of spawning, then the user stop), needs no re-entry cap, and keeps one recovering rung per attempt line. Rejected: re-entry by kind — unbounded on a flapping host without a new counter. Consequence, accepted with the decision: T6 Case 2's expected outcome, written before the rule existed, was not derivable from either reading (rung 2's one retry is spent when the pane timeout arrives); it is amended to `→ fresh worker` (rung 4).
+
 ## 11. Reversion Challenge (Step 2.3) — outcomes
 
 | DD | Reverted behavior | Question asked | Answer | Closed by |
@@ -300,6 +305,6 @@ The evidence project's stack, harness, and file names appear only inside `(...)`
 |---|---|
 | Tasks | **6** |
 | Changed/added lines | **~210** across 24 surface rows (prose; no code) — `akili-execute.md` ~125, `leader.md` ~10, `reviewer.md` ~20, three consumers ~8, `docs/commands` mirror ~30, flow/README ~0–4, CHANGELOG ~12 |
-| Review rounds | **1 per task** — trip on the second FAIL of any one task |
+| Review rounds | **1 per task** — trip on the second FAIL of any one task. *(T6 Pivot, 2026-09-19: T2 re-opened for one owed clause and T6 re-run for Cases 2–3 — one extra round each, approved by the user; tasks stay at 6)* |
 
 Depth re-check: **Standard holds.** Twenty-four surface rows, one new record type with three readers, and two reverting DDs is not Lite; no data, API, or auth surface pushes it to Full. The predecessor of the same shape (`changes/kaizen-loop-closure`) shipped 28 rows at ~236 lines in 7 tasks.
