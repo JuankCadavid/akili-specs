@@ -60,7 +60,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 3.2, immediately after the "a presence-assertion is not a behavioral proof" bullet |
 | Edit | New bullet: **a walkthrough over the cases its rules cite is an inert fixture.** When a task's gate is a walkthrough or retro-fit of example cases against shipped prose, the task names at least one **held-out** case the text does not cite, and every case is judged against the general sentence with its parenthetical example stripped — a case the reader can find by its citation proves the citation, not the rule. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-09-19) |
 
 ### P2
 
@@ -70,10 +70,15 @@
 | Target | `.claude/templates/reviewer.md` — Audit Checklist, **Requirement Conformance** item (append) |
 | Edit | Append: Walk each cited FR **statement** term by term, not only its scenarios — every noun and obligation the requirement names ("class/attribute", "a second, shorter height", a positive `MUST`) appears in the shipped text or is a FAIL issue; a requirement obligation missing from the implementation is never an ADVISORY. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-09-19) — with the wording `changes--leader-brief-contract` P3 specified ("statement, table and every paragraph under it") |
 
 No `guide-sync` item (no `## Constitution Impact` blocks — no module created or reshaped). No `factual-sweep` item (root `CLAUDE.md` / `AGENTS.md` swept: no statement about Step 3.2, task fields, or the `tdd` anti-pattern count exists to falsify). No `trd-adr` item (no TRD in this repo; Pivot ADR impact: none). No `digest-update` item (no root cause repeats an existing lesson).
 
 ## Apply pass
 
 Not run. Backlog across `docs/specs/kaizen/`: **2 pending** (this file), highest severity **High** — recommendation would be option 1 (Apply all). Sequencing note for whoever applies: P2's target, `reviewer.md`, is owned by `changes/leader-brief-contract` (its FR-7 edits the same checklist), and P1's target, `/akili-specify`, is under that spec's zero-diff constraint (NFR-1/NFR-7). Apply both **after** that spec lands, so its parallel-safety gates are not tripped by an unrelated hunk; the re-verify probe (step 3b) will confirm both targets still read as quoted.
+
+
+## Apply pass (2026-09-19, default branch)
+
+Run from `/akili-archive changes/leader-brief-contract`, after that spec landed (the sequencing note above). Menu: option 1 (Apply all) — chosen by the user. Re-verify (step 3b): P1 — the presence-assertion bullet exists in `/akili-specify` Step 3.2; P2 — the **Requirement Conformance** item exists in `reviewer.md`'s Audit Checklist; both written. The "Not run" section above is superseded by this pass.

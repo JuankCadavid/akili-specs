@@ -67,7 +67,7 @@
 | Target | `.claude/templates/leader.md` — item 4, the *Pre-review restatement sweep (rules documents)* bullet (append) |
 | Edit | Append: The sweep also reads **every paragraph that received an insertion, whole**: a surviving verb, subject or list structure written for the old rule that now contradicts the inserted one ("the first line is X" beside "must conclude with…"), or the task's instruction verb shipped as rule text ("gains", "+1 clause"), is the same non-conformance — a warning in the brief does not prevent it; the read does. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-09-19) |
 
 ### P2
 
@@ -77,7 +77,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 3.2, Falsifiability block, rule 1 (append one sentence) |
 | Edit | Append to rule 1: A `Falsifier`, a verification count, or an expected outcome that states a **present-tense reading** ("the pre-change file: grep = 1", "1 hit", "→ rung 2") is **run or walked before it is written** — the count names its baseline (pre-existing hits enumerated), and an expected outcome is derived from the text the task will ship, never from the intent behind it. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-09-19) |
 
 ### P3
 
@@ -87,6 +87,11 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add source spec `changes/leader-brief-contract`; raise severity Medium → **High** (recurrence caused a Pivot); recurrence note: "FR-4's terminal-branches paragraph never shipped and a term-by-term Reviewer PASSed it — the walk stopped at the table; walk every paragraph of the FR, including the ones after its table". When `changes--gate-falsifiability` P2 is applied, its `reviewer.md` text should read "each cited FR **statement, table and every paragraph under it**". |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-09-19) — digest row created for KZ-changes--gate-falsifiability-2 with both source specs, severity High, recurrence note |
 
 No `guide-sync` item (no `## Constitution Impact` blocks — no module created or reshaped). No `factual-sweep` item (root `CLAUDE.md` / `AGENTS.md` swept: `AGENTS.md`'s Multi-Agent Harness line states only the 3-attempt ceiling, still true; no statement about diff delivery, rollback, or runtime fallback exists to falsify). No `trd-adr` item (no TRD in this repo; Pivot ADR impact: none).
+
+
+## Apply pass (2026-09-19, default branch)
+
+Standardize menu over the whole backlog (5 items: 2 from `changes--gate-falsifiability`, 3 here; highest severity High): **option 1 (Apply all) — chosen by the user**. Processed in entry-filename order. Grouping: two items target `.claude/commands/akili-specify.md` with differing text at **different sites** (a new Step 3.2 bullet; one sentence appended to Falsifiability rule 1) — complementary, not competing, so both were applied under the user's Apply-all rather than put to a Decide prompt; stated here so the choice is visible. Re-verify (step 3b): every Target exists at HEAD and the one fact each Edit names holds (presence-assertion bullet; rule 1's closing sentence; Requirement Conformance item; pre-review restatement sweep bullet; the lesson heading `KZ-changes--gate-falsifiability-2` in its entry file) — all written, none superseded. KZ-006's lead bullet in `/akili-specify` stays byte-identical. Mirror: `docs/commands/akili-specify.md` *Expressible falsifier* line gained one clause; `CHANGELOG.md` `Unreleased` → Changed carries the pass. Digest: normalized (10 unique rows before); retired the four rows institutionalized longest — `KZ-changes--model-routing-cost-rebaseline-1`, `-2`, `KZ-changes--branch-safe-kaizen-1`, `-2` (all applied in the first 2026-09-17 pass; each still live in its standardized home; none linked to a pending item; no `Deferred` row retired) — and added four rows. Cap holds at 10. Backlog after this pass: 0 pending across `docs/specs/kaizen/`.

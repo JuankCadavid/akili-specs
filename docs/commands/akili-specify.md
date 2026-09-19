@@ -63,7 +63,7 @@ docs/specs/<spec-path>/tasks.md
 - Verification commands are matched to the spec's named defect classes, including two explicit gates: a **compiler-only defect** (gate: the project's build/type-check command, needed when the compiler is stricter than the test runner) and a **layout/geometry defect** (gate: a rendered measurement per the rendered-measurement checklist below, or the existing HITL/T6 substitute when one isn't available).
 - Every task's verification carries four named fields — **Falsifier**, **Red run**, **Disqualifier**, and **Consumers** — with absent values written as `n/a` or `none`, never left blank.
 - **Falsifiability:** a task's verification must name an input that would make the check fail, not only a criterion for passing. Six rules apply:
-  - *Expressible falsifier* — name the mutation and the fixture row or stub behavior where correct and mutated readings diverge, and run the mutation against the post-change code.
+  - *Expressible falsifier* — name the mutation and the fixture row or stub behavior where correct and mutated readings diverge, and run the mutation against the post-change code; a count or expected outcome stated as a present-tense reading is run or walked before it is written.
   - *Assertion-level red run* — the `Red run` cited must fail on the behavioral assertion, not on setup, an intercept, a timeout, or a synchronous mock.
   - *Real-artifact lock* — presence and visibility claims bind to the shipped file or a rendered measurement, never a fragment authored in the test.
   - *Compile gate* — when the build/type-check is stricter than the test runner, a task assigning into a typed contract includes it in Verification.
