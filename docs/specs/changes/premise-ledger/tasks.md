@@ -146,7 +146,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-9 four-check table, four bullets, and scenarios *ticket closed by a teammate* (`AND` a fixing hit ends the proposal · `BUT NOT` search only the current branch), *cosmetic bug* (*Already fixed?* still runs; others may read `n/a — <reason>`); FR-6 propose half and scenario *proposal states current behavior* (`BUT NOT` a bare fact) |

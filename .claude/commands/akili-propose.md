@@ -99,7 +99,7 @@ The proposal `frontmatter`/header should record the detected type as `Type: Bug 
 
 - Load the `systematic-debugging` skill.
 - Capture the **observed symptom**, concrete **reproduction steps**, and the **confirmed root cause** (not a guess) before recommending any fix.
-- Assess **impact/scope** (what else the root cause touches).
+- Record the **Blast Radius**: four checks — **Already fixed?**, **Live path?**, **Siblings on the same state**, **Downstream consumers** — each written into the Bug Diagnosis section of that name with its citation as run and its result. The four are recorded together, but they do not all run at this point in the list. **Already fixed?** runs **first**, before any root-cause work: it is the cheapest check and the only one that can make the whole spec unnecessary. **Live path?** runs as part of confirming the root cause above — a cause sitting on code the reproduction never reaches is not a confirmed cause. The two enumerations run after that, and they feed scope rather than the diagnosis. Two results stop the work: a history hit that already fixes the symptom → report it to the user and stop, no spec (a ticket a teammate closed on another branch — `bugfix--innovation-dev-p25-save-500`); the code to patch sitting off the live path → the root cause is **not** confirmed and the diagnosis reopens.
 - Recommend a **fix strategy** and route it by size: a genuinely cosmetic one-liner → `/akili-quick`; anything with logic, data, or a behavior change → `/akili-specify` (Lite) in Bug Mode, which requires a regression test.
 - These go in the proposal's **Bug Diagnosis** section (Step 2), which replaces the Requirement Delta Preview for bugs.
 
@@ -167,6 +167,8 @@ Create a concise proposal following `cognitive-doc-design` (lead with the answer
 13. Success Criteria
 14. Next Step
 
+**Claims about current behavior cite or mark — every track.** Each sentence in *Problem / Current Behavior* that states how the system behaves today carries, inline, either a citation as run or the marker `UNVERIFIED — confirm at source before relying on it`. Never a bare fact. What counts as a citation as run, and which sources are primary, are defined once in the `/akili-specify` Step 2.2 — *Premise Ledger* block; read the rules there rather than re-deriving them here. The proposal holds no ledger of its own: at `/akili-specify` Phase 2 the claims a design decision depends on become rows in that design's **Premise Ledger**.
+
 If an Active Lesson from `docs/specs/kaizen-log.md` applies to this change's domain, reflect it in Scope or Risks and cite its ID (e.g. `KZ-003`).
 
 ### Visual Reference
@@ -199,8 +201,18 @@ For a **Bug** request, replace the Requirement Delta Preview with a diagnosis pr
 ### Root Cause (confirmed)
 - The actual underlying cause, confirmed by investigation — not a hypothesis. Cite the code path / commit / condition responsible.
 
-### Impact & Scope
-- What else the same root cause affects; blast radius; data integrity or security implications.
+### Blast Radius
+Four checks, each recorded with its result and either its citation as run or `UNVERIFIED — confirm at source before relying on it` naming the owner who will settle it. Citation rules are defined in the `/akili-specify` Step 2.2 — *Premise Ledger* block; this section does not restate them.
+
+| Check | Recorded as | Result |
+|---|---|---|
+| **Already fixed?** | History query over the target files **and** the ticket ID, **across all branches**, quoted as run | A hit that fixes the symptom ends the proposal — report it and stop, no spec |
+| **Live path?** | The dispatch chain the reproduction actually travels: entry point → the code to patch, each branch point named | Off the path → the root cause is not confirmed; the diagnosis reopens |
+| **Siblings on the same state** | Enumeration, each sibling with its mechanism at `file:line` | Feeds scope |
+| **Downstream consumers** | Enumeration, including tests and other apps | Feeds scope |
+
+- A check that does not apply reads `n/a — <reason>`; **Already fixed?** is never `n/a` — it runs for every bug, a cosmetic one included.
+- What else the same root cause affects; data integrity or security implications.
 
 ### Fix Strategy
 - The smallest safe correction, and the route: `/akili-quick` only if the fix is genuinely cosmetic with no logic; otherwise `/akili-specify` (Lite) in Bug Mode, which requires a regression test (red before the fix, green after).
@@ -255,6 +267,7 @@ Before presenting the proposal, verify:
 - [ ] The spec slug is kebab-case; when derived from a free-text argument, the derivation is recorded in Document Control (never a sentence interpolated into a path).
 - [ ] Approval Mode is recorded — `gated` by default; `pre-approved` only on an explicit user mandate, with who and when.
 - [ ] For a bug: reproduction steps and a **confirmed** root cause are documented (not a guess).
+- [ ] For a bug: the four **Blast Radius** checks are recorded, each with its citation as run or the `UNVERIFIED` marker — **Already fixed?** first, before the root-cause work, and never `n/a`.
 - [ ] Scope and non-goals are explicit.
 - [ ] The proposed outcome is behavior-focused.
 - [ ] Affected specs or code areas are listed.
@@ -269,7 +282,7 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 1. proposal path
 2. resolved spec path
 3. detected request type (Bug / Change / Trivial)
-4. recommended approach (for a bug: the confirmed root cause and fix strategy)
+4. recommended approach (for a bug: the confirmed root cause, the **Blast Radius** result, and the fix strategy)
 5. visual reference status (Figma, generated mockup with its path, or none)
 6. main risks or open questions
 7. next command to run after approval (matched to the type)

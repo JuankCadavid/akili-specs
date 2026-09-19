@@ -127,3 +127,32 @@ ADVISORY (recorded, not acted on): **Readability** — Step 2.5 prints the count
 | Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer); sweep 0 |
 | Budget | review rounds used: 4 of 9; shipped lines: 81 of ~150 |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T4 — `/akili-propose`: Bug Track run order, Blast Radius section, cite-or-mark, checklist, report
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `opus`, effort `high`; skills: `cognitive-doc-design`, `systematic-debugging` (read for vocabulary, not run) |
+| Reviewer | `fable`, effort `high` (17+/4− lines of long prose, 50–200 band) |
+| Wave | ran in parallel with T2, T3, T5 |
+
+**Attempt 1** — files changed: `.claude/commands/akili-propose.md` (four sites: the Bug Track *impact/scope* bullet → the **Blast Radius** bullet with the four checks under FR-9's names, the run order, and both stop outcomes; Step 2 gains the *Claims about current behavior cite or mark — every track* sentence citing the block; the Bug Diagnosis template's `### Impact & Scope` → `### Blast Radius` with the four-check table, the `n/a — <reason>` / never-`n/a` bullet, and the surviving data-integrity/security line beneath; a Review Checklist bug item; *Report To User* item 4 names the Blast Radius result). Implementer verification, run as `tasks.md` states it: check 1 `Impact & Scope` 0 / `impact/scope` 0 (baseline 1 / 1); check 2 four "blast radius" hits (Bug Track, heading, checklist, report), all naming the one section; check 3 `already fixed` 4 lines, the Bug Track line reads "runs **first**, before any root-cause work"; check 4 two marker occurrences, both byte-identical to `akili-execute.md`'s, no near-miss; check 5 `Premise Ledger` 2, both citing the block; check 6 `data integrity` 1 hit (line 215, inside the Blast Radius section); "impact" sweep 0 hits; held-out slugs 0; no backticked class tokens; falsifiers for checks 4 and 6 executed on a discarded scratch copy. `git diff --numstat` = `17 4`. Pre-review sweep (Leader re-ran): "impact" 0 hits; four "blast radius" hits, one section. `Not Done / Assumptions`: no gap; three judgment calls (below). Runtime events: none.
+
+Reviewer verdict: **PASS.** "The diff fulfils every FR-9 table cell, all four bullets, both scenarios' `AND`/`BUT NOT` clauses, the FR-6 propose half with its scenario, and design §5.8 / §7.1 rows 11–14; all six verification checks re-run green at source and the disqualifiers (no "current branch only" history query, no restatement of citation rules (a)–(e)) are clear." Also re-run: frozen-path `git diff --stat` empty (NFR-1), `git diff --check` clean, the Bug Track paragraph read whole (symptom → reproduction → root cause → Blast Radius → fix strategy, the run-order sentence contradicting none), and the check names match the T1 block's Bug Mode shorthand (the forward pointer from T1's Reviewer, closed). Line 270's bare `` `UNVERIFIED` `` is a reference to the marker, not an instance, and does not trip T7 gate (c).
+
+Judgment calls, all adjudicated conforming: (1) the surviving data-integrity line drops "blast radius;" because the heading now owns the name; (2) the template's marker "naming the owner who will settle it" matches FR-9 bullet 2 and the Glossary's *Settling check*; (3) check 4 passes under both the deduplicated and the per-instance reading.
+
+ADVISORY (recorded, not acted on): **Readability** — the Bug Track bullet says each check is written "with its citation as run and its result", omitting the `UNVERIFIED` alternative the template and checklist carry. **Readability** — the Step 2 sentence paraphrases the dependence test as "the claims a design decision depends on", narrower than the block's decision / task / scope; harmless because the block governs at Phase 2.
+
+| Field | Value |
+|---|---|
+| **T4 final status** | **PASS** (attempt 1 of 3) |
+| Requirements covered | FR-9 (four-check table, four bullets, scenarios *ticket closed by a teammate* and *cosmetic bug*); FR-6 propose half and scenario *proposal states current behavior* |
+| Decisions | none beyond the adjudicated calls; T1's forward pointer (check names aligned with the block's parenthetical) carried in the brief and confirmed closed by the Reviewer |
+| Issues | none |
+| Execute-time spec edits | none |
+| Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer); sweep 0 |
+| Budget | review rounds used: 5 of 9; shipped lines: 98 of ~150 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
