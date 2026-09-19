@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.25.0] - 2026-09-19
+
 ### Added
 
 - **Falsifiability block, four task Verification fields, two `tdd` anti-patterns, and two defect-class rows (`changes/gate-falsifiability`).** `/akili-specify` Step 3.2 extends the existing falsifying-input rule with a **Falsifiability** block beneath the KZ-006 bullet: six named rules — *Expressible falsifier*, *Assertion-level red run*, *Real-artifact lock*, *Compile gate*, *Consumer Sweep*, and a *Rendered-measurement checklist* (baseline, fonts, real geometry, two viewports, effective CSS px with zoom, clip containment) that applies only when a gate asserts size, overflow, visibility, position, or containment. Every task now carries four named Verification fields — `Falsifier`, `Red run`, `Disqualifier`, `Consumers` — with the absent-value rule (`n/a`/`none`, never blank); the fields are named in `/akili-specify`'s task list and Verification Checklist, and in the scaffolded `docs/specs/general-setup/task.md` template description (`/akili-constitution` Step 7 item 3). The `tdd` skill gains two anti-patterns — **inert fixture** (a fixture the named mutation can't discriminate) and **plumbing test** (a test that proves its own fragment, not the shipped artifact) — plus a red-fails-on-the-assertion clause in "Red before green" and an extension to the Implementer's cited-red evidence row (names the assertion it failed on; a setup red is reported as not-a-red). `/akili-specify`'s Step 1.2 defect-class table gains two rows: a *compiler-only defect* (gate: build/type-check) and a *layout/geometry defect* (gate: a rendered measurement, or the existing HITL/T6 substitute). Mirrors (`docs/commands/akili-specify.md`, `docs/skills/tdd.md`, `docs/commands/akili-constitution.md`) brought to parity.
@@ -28,7 +34,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - Release classified **minor**: the batch adds new behavior other commands consume — the optional `Integration Branch:` constitution pin, the `upstream` Kind with the `superseded` / `upstreamed` statuses, and the `## REVIEW_WAIVED` record with the `WAIVED (flag)` final status read by `/akili-resume`, the `kaizen` skill, and `/akili-archive`. `changes/gate-falsifiability` alone would have been a patch (guidance refinement). No new command or install target; no breaking change — existing `tasks.md` and `execution.md` files stay valid without migration.
-
 ## [2.24.0] - 2026-09-17
 
 ### Added
