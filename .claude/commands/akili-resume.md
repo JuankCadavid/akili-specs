@@ -45,6 +45,7 @@ For each spec, determine:
 - **Progress:** Count `[x]` vs total tasks in `tasks.md`
 - **Last Action:** Most recent entry in `execution.md` (if exists)
 - **Blocked:** Any `[~]` tasks or unresolved FAIL findings
+- **`REVIEW_WAIVED` block:** A `## REVIEW_WAIVED: <Task ID>` block is a closed task's last action — report it there with its flag (e.g. "T-4 closed — REVIEW_WAIVED (inline)"), never as a *Blocked* item.
 
 ### Step 2: Present Dashboard
 

@@ -148,7 +148,7 @@ Before moving the folder, **load the `kaizen` skill and follow its loop contract
 
 #### 4.1 — Measure
 
-Extract the improvement signals listed in the skill's Measure table from the spec's own evidence: Reviewer FAIL rework attempts, HALTs and FATAL_FAILs, `## Pivot Record` blocks, PRODUCT_BUG findings, severe judgment-day findings, validation FAIL/WARN counts, `/akili-quick` escalations, and drift attributable to this spec.
+Extract the improvement signals listed in the skill's Measure table from the spec's own evidence: Reviewer FAIL rework attempts, HALTs and FATAL_FAILs, `## Pivot Record` blocks, PRODUCT_BUG findings, severe judgment-day findings, validation FAIL/WARN counts, `/akili-quick` escalations, tasks closed under `REVIEW_WAIVED` (by flag), and drift attributable to this spec.
 
 If every signal is clean, record a one-line **clean run** entry in Step 4.4 and skip 4.2–4.3.
 

@@ -134,7 +134,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Command | 1. `grep -n "narrow" .claude/templates/leader.md` — 1 hit, inside Delegation Discipline, same bullet as "UNVERIFIED" and "advisory-grade". 2. `grep -n "by tree state" .claude/templates/leader.md` — 1 hit in item 4. 3. `grep -n "mutation" .claude/templates/reviewer.md` — ≥ 1 in the Audit Checklist with "fixture" in the same item and "n/a" in the same item. 4. `grep -n "advisory-grade" .claude/templates/reviewer.md` — 1 hit in the 4R section. 5. `grep -n "600 words" .claude/templates/reviewer.md` — 1 hit above Option A. 6. `git diff --stat -- .claude/templates/` — exactly two files; `implementer.md` and `tester.md` absent (NFR-7). 7. `git diff -U0 -- .claude/templates/leader.md \| grep -E "^-.*(Poke once|replace on the second idle|Pre-review restatement)"` — empty |
+| Command | 1. *(amended by the Leader at T3 attempt 1, 2026-09-18 — the pre-change file already held two unrelated hits: "augment, narrow, or override" in the skill-decision bullet and "Scope such tasks narrower" under cross-host dispatch; both sanctioned and unchanged)* `grep -n "narrow" .claude/templates/leader.md` — exactly **one new** hit (3 total), inside Delegation Discipline, same bullet as "UNVERIFIED" and "advisory-grade". 2. `grep -n "by tree state" .claude/templates/leader.md` — 1 hit in item 4. 3. `grep -n "mutation" .claude/templates/reviewer.md` — ≥ 1 in the Audit Checklist with "fixture" in the same item and "n/a" in the same item. 4. `grep -n "advisory-grade" .claude/templates/reviewer.md` — 1 hit in the 4R section. 5. `grep -n "600 words" .claude/templates/reviewer.md` — 1 hit above Option A. 6. `git diff --stat -- .claude/templates/` — exactly two files; `implementer.md` and `tester.md` absent (NFR-7). 7. `git diff -U0 -- .claude/templates/leader.md \| grep -E "^-.*(Poke once|replace on the second idle|Pre-review restatement)"` — empty |
 | Falsifier | Pre-change files: greps 1–5 all 0. A checklist item reading "check that the red test exists" passes a naive grep for "red" but fails grep 3's "mutation" + "fixture" clause; an `implementer.md` hunk fails grep 6 |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | Grep 1 proves the words landed, not that the paragraph stops at principle — read it: if it restates the two-step lookup or the 300-line rule operationally, DD-1's division is broken with grep-green. Grep 3 cannot see wording drift from the source spec — T6 byte-compares. If the diff reorders `reviewer.md`'s three option blocks or edits their text, stop |
@@ -152,7 +152,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T2 |
 | Requirements | FR-8 both scenarios (`BUT NOT` write a clean-run entry · `BUT NOT` write any file from resume) and the per-site enumeration; NFR-1 (one clause per file, no other hunk) |

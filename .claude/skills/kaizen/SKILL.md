@@ -67,10 +67,11 @@ Extract improvement signals from the spec's own evidence:
 | Validation FAIL / WARN counts | `validation-report.md` |
 | Escalations from `/akili-quick` into this spec | `docs/specs/quick/quick-log.md`, if applicable |
 | Drift attributable to this spec | the most recent report in `docs/specs/audits/`, legacy `docs/specs/drift-report.md` as fallback |
+| Tasks closed under `REVIEW_WAIVED` (by flag) | `execution.md` `## REVIEW_WAIVED` blocks — `inline` / `same-model` = no exercised gate; `degraded-pair` = exercised, noted |
 
 **Most recent report** means the highest `Date` header *inside* the report files, ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. A scaffolded `README.md` or `.gitkeep` is not a report: fall back to legacy `docs/specs/drift-report.md` only when the directory holds **no report file at all**. Both reads are optional — a missing drift source is a blank row, not a blocker.
 
-If every signal is clean (zero rework, no pivots, no product bugs, no severe findings), write a one-line **clean run** entry file in phase 4 and skip phases 2–3. A clean spec teaches nothing new — say so.
+If every signal is clean (zero rework, no pivots, no product bugs, no severe findings, and no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`), write a one-line **clean run** entry file in phase 4 and skip phases 2–3. A clean spec teaches nothing new — say so.
 
 ### 2. Learn
 
@@ -155,6 +156,7 @@ Write the retrospective to `docs/specs/kaizen/<safe-spec-slug>.md` — one file 
 | PRODUCT_BUGs | 1 (resolved) | test-report.md |
 | Judgment-day severe findings | 2 | design.md review notes |
 | Validation FAIL / WARN | 0 / 2 | validation-report.md |
+| Tasks closed under `REVIEW_WAIVED` (by flag) | 0 | execution.md |
 
 ## Lessons
 

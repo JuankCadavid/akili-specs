@@ -100,3 +100,28 @@ ADVISORY (recorded; none gates, none becomes a task):
 | Final verification | checks 1–7 green as amended (Implementer + Reviewer + Leader for 7 and the sweep) |
 | Continue gate | gate not answered — continued (unattended chained run); 0 FAILs on T2, tripwire not reached |
 | Forward pointers | **→ T6:** the Step 3 hook sentence's `matching PASS` hit is sanctioned (DD-7) — carry it into T6's enumerated sanctioned list when `requirements.md` §8 row 2 is re-run repo-wide. **→ T5 (advisory-grade, a note — not scope):** the mirror's summary of the per-task loop should not inherit the narrower "PASSes or HALTs" trigger where the command's body now covers a waived close. **→ T3's Reviewer brief:** carries the `tasks.md` T2 verification-5 edit once more (edit-carry rule) |
+
+### T4 — Consumers name their `REVIEW_WAIVED` branch (one clause each)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `medium`; skills: `cognitive-doc-design`; ran in parallel with T3 (disjoint files) |
+| Reviewer | `opus`, effort `medium-high` (lens checklist, 5+/2−, three files) |
+
+**Attempt 1** — files changed: `.claude/commands/akili-resume.md` (Step 1, one bullet), `.claude/skills/kaizen/SKILL.md` (Measure row; clean-run conjunct; Metrics example row), `.claude/commands/akili-archive.md` (Step 4.1, one phrase). Implementer verification as `tasks.md` states it: 1 → resume 1 (Step 1), kaizen 3 (row, clean-run sentence, Metrics example), archive 1 (Step 4.1); 2 → the sentence contains "waiver"; 3 → three files, 5+/2−, hunks only in the named sections; 4 → empty. Sweep: one hit, the amended sentence. `git diff --check` clean (Leader re-ran stat, check and sweep). `Not Done / Assumptions`: none. Runtime events: none.
+
+Reviewer verdict: **PASS.** "All five FR-8 obligations land in the shipped text, both scenarios resolve correctly against it, and the diff is bounded to the three named sites with no other hunk (NFR-1)." Walked FR-8's statement term by term; swept the kaizen skill for any surviving sentence that would still permit a one-line clean-run entry on a waived run — none; "report it there" judged unambiguous (the Leader's named question); `degraded-pair` kept separate as "exercised, noted".
+
+ADVISORY: none raised.
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-8 (statement, per-site enumeration, both scenarios incl. `BUT NOT` clean-run entry · `BUT NOT` write from resume), NFR-1 |
+| Decisions | The clean-run conjunct carries the literal `REVIEW_WAIVED` ("no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`") so that verification 1's "kaizen ≥ 3" holds while keeping the Scope wording's meaning — flagged in the brief, Reviewer-confirmed equivalent to FR-8 |
+| Issues | none |
+| Execute-time spec edits | none for T4 |
+| Final verification | checks 1–4 green as written (Implementer + Reviewer) |
+| Continue gate | gate not answered — continued (unattended chained run) |
+| Forward pointers | → T5: `docs/skills/kaizen.md` mirror check (T4 *Consumers*); → T6: waived-run Measure walk |
