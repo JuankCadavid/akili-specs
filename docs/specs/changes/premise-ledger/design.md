@@ -75,7 +75,7 @@ The stated-empty form replaces the table with `Premise Ledger: none — <reason>
 | Trigger fires when the design… | Required row | Row must contain |
 |---|---|---|
 | names a user action or a branch point | `live-path` | the dispatch chain, entry point to changed code, each branch point and the branch taken |
-| changes state, a service, a base class, or a lifecycle hook that more than one component uses | `shared-state` | every sibling, each with its mechanism at `file:line` |
+| changes state, a service, a base class, or a lifecycle hook that more than one component uses, or a condition or signal more than one block or component reads | `shared-state` | every sibling, each with its mechanism at `file:line` — a sibling is any reader of that state or condition, a conditional block in the same template included (DD-15) |
 | changes an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field | `consumer` | every reader found by a whole-repository search, command as run |
 
 ### 5.4 Citation rules (FR-3)
@@ -95,7 +95,7 @@ The summary repeats the count line, lists every `UNVERIFIED` row in full, and ad
 
 ### 5.7 Judge rule (FR-7)
 
-One new Hard Rule, placed directly after the existing count-contrast rule because it is that rule's counterpart: the first sends judges across documents, this one sends them to the source. It carries, in order: the three actions (re-run every citation, try to refute every `UNVERIFIED` row, look for depended-on premises with no row); the severity table from FR-7; the read-only clarification; the `not re-run` report value; and the sentence that the two-judge protocol is unchanged. It names the *Premise Ledger* block for row shape and triggers and restates neither.
+One new Hard Rule, placed directly after the existing count-contrast rule because it is that rule's counterpart: the first sends judges across documents, this one sends them to the source. It carries, in order: the three actions (re-run every citation, try to refute every `UNVERIFIED` row, look for depended-on premises with no row); **the reach clause** (DD-14) — a row citing neither a citation as run nor the marker, and a row citing a secondary source, are attacked as `UNVERIFIED` under action 2, because re-reading a document settles the document and not the system; the severity table from FR-7; the read-only clarification; the `not re-run` report value; and the sentence that the two-judge protocol is unchanged. It names the *Premise Ledger* block for row shape and triggers and restates neither.
 
 The capability wording is "read and search the repository; read its history where the host allows". The packaged read-only tool set has search but no shell (§11 P-9), so a history query is the realistic `not re-run` case.
 
@@ -132,6 +132,9 @@ Not applicable — no programmatic interface. The "API" of this change is the bl
 | 17 | `docs/flow.md` · Bug walkthrough "captures" line | "impact/scope" → "blast radius" | FR-11 |
 | 18 | `README.md` | Read for a falsified sentence; expected none — confirmed by grep at execute, not assumed here (KZ-002) | FR-11 |
 | 19 | `CHANGELOG.md` · `Unreleased` | Replace the "No unreleased changes yet." note with the entry and the classification | FR-11 |
+| 20 | `judgment-day/SKILL.md` · Hard Rules *(pivot amendment)* | The reach clause of §5.7, between the three actions and the severity table; `version` 1.8 → 1.9 | FR-7 |
+| 21 | `akili-specify.md` · Step 2.2 block, trigger table *(pivot amendment)* | The `shared-state` row of §5.3 as amended; one line replaced | FR-2 |
+| 22 | `CHANGELOG.md` · `Unreleased` *(pivot amendment)* | The two bullets describing the judge rule and the triggers are brought to the amended text | FR-11 |
 
 ### 7.2 Consumer walk
 
@@ -228,6 +231,12 @@ The shipped text may cite the entries the requirements' scenarios cite. It **mus
 
 Each case is judged against the general sentence with its parenthetical stripped. Expected outcomes are **not** written in this design: they are derived from the shipped text when the walkthrough task runs (KZ-changes--leader-brief-contract-2). One held-out case is known to be hard — in `result-sidebar-collapse-mobile` the false premise lived in a task's selector, not in the design — so "the shipped text does not demand this row" is a legitimate, reportable result there.
 
+### DD-14 — The judge rule reaches a row its citations cannot settle *(pivot amendment, 2026-09-19)*
+The three actions are keyed to a citation, to the marker, and to a missing row. A row with an empty evidence cell, and a row cited to a document, sit between them: the literal reader scored both severe without being sent anywhere. The rule now routes both into action 2 rather than adding a fourth action, because the work is the same work — attempt the refutation at the primary source, report `not re-run` when the host cannot reach it. Rejected: raising the severity of an uncited row, which changes what a bad row costs without changing what the judge does.
+
+### DD-15 — The `shared-state` trigger is worded by what is read, not by what holds it *(pivot amendment, 2026-09-19)*
+"State, a service, a base class, or a lifecycle hook" names the containers a value lives in, so a template condition more than one block reads fell outside the trigger while being exactly the sibling relationship the class exists for. The trigger gains "a condition or signal more than one block or component reads", and *sibling* is defined by reading rather than by ownership. Rejected: a new class, which would break the closed set of seven and every enumeration built on it (§7.2).
+
 ## 11. Premise Ledger
 
 `Premise Ledger: 12 verified · 1 UNVERIFIED (0 High, 1 Low)` — verified at `571edaf`, all commands run from the repository root.
@@ -261,8 +270,8 @@ The two pointer fixes (FR-8) correct a reference and remove no behavior. No othe
 
 | Measure | Estimate |
 |---|---|
-| Tasks | **7** — block · remaining `/akili-specify` sites · `judgment-day` · `/akili-propose` · constitution clause · mirrors and changelog · closing walkthrough |
-| Shipped lines (added or changed, packaged files and mirrors) | **~150**; the spec-local walkthrough document is outside this count |
-| Review rounds | **9** — one per task plus two rework rounds |
+| Tasks | **10** — block · remaining `/akili-specify` sites · `judgment-day` · `/akili-propose` · constitution clause · mirrors and changelog · closing walkthrough · **judge-rule reach amendment · trigger amendment and its mirrors · closure re-gate** |
+| Shipped lines (added or changed, packaged files and mirrors) | **~160** — 126 shipped through T6, plus ~10 for the two amendments and their mirrors; the spec-local walkthrough document is outside this count |
+| Review rounds | **12** — one per task, two rework rounds, and the closure re-gate's own round |
 
-Seven small prose tasks across four packaged files match **Standard**. Nothing pushes to Full: no data, API, auth, or installer surface. Nothing allows Lite: one definition with six citing surfaces is where restatement drift happens.
+**Re-sized at the pivot (2026-09-19).** The original budget read 7 tasks · ~150 lines · 9 rounds; T7's closure gate fired and the user approved Option B, which reopens two rules at their source and re-walks three cases. The overrun is two tasks' worth of rework and three review rounds, spent on the finding the closure gate exists to produce. Ten small prose tasks across four packaged files still match **Standard**. Nothing pushes to Full: no data, API, auth, or installer surface. Nothing allows Lite: one definition with six citing surfaces is where restatement drift happens.

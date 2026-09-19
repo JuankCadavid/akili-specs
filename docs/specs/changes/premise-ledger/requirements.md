@@ -15,6 +15,7 @@
 | Adjacent specs | `changes/scoped-constitution-reads` (proposal only) owns `implementer.md` / `tester.md` — disjoint files. Both add a `CHANGELOG.md` `Unreleased` entry: **merge serially** |
 | Series | Third of five tier 2–3 specs; hands one input to `budget-and-concurrency` (premise rot at execute time, §4 non-goals) |
 | Evidence corpus | `/Users/jcadavid/orca/workspaces/onecgiar_pr/qa-development-2026/docs/specs/kaizen/` (read-only). 110 entry files plus a `README.md`. Every entry a scenario cites was re-read at the source on 2026-09-19 (KZ-001), lesson line in parentheses: `kp-report-modal-auto-create` (L29), `evidence-storage-link-validation` (L25), `innovation-dev-p25-save-500` (L26), `realtime-section-completion` (L34, L38), `sidebar-toggle-consolidation` (L26–28), `my-work-board` (L34), `result-indicator-back-link` (L30–31), `bilateral-review-ux-polish` (L34), `clear-filters` (L33–34), `cognito-email-otp-login` (L29), `emerging-result-contributor-catalog` (L26–27). A scout re-read the proposal's 14 cited items (16 entry files) independently: 11 confirmed, 3 partial, 0 not found. **Partials, recorded so no scenario leans on them:** in `realtime-section-completion` the side-effect premise caused the first Pivot and one FAIL, while the second Pivot and the discarded work belong to a different lesson; in `result-indicator-back-link` the premise caused the Pivot, and the FAIL had another cause; the phrase "paid for themselves" is not in the two files the proposal attaches it to. `sidebar-toggle-consolidation` carries **two** defects — consumers inventoried from co-located unit tests only (L27) and a positive "no automated coverage" assertion (L28) — and is cited under FR-2 for the first. Seven held-out entries that neither the requirements nor any shipped file cites are reserved for the closing walkthrough and are named in `design.md` DD-13 and `tasks.md` |
+| Pivot amendment (2026-09-19) | **FR-2 and FR-7 amended after T7's closure gate fired**, with the user's approval of Option B in `execution.md` → *Pivot Record: T7*. The gate's fresh literal reader could not reach the key premise in four cases: the judge rule's three actions do not cover a row that is uncited or cited to a secondary source (F1, F2), and the `shared-state` trigger did not fire on a template condition more than one block reads (F3). FR-7 gains a clause and two scenarios; FR-2's trigger row, its sibling bullet, and one scenario are widened. The fourth finding (F9, no deployed-revision comparison in the Blast Radius) is **not** amended here — it is an environment fact outside FR-9's code-premise framing and is recorded as an input to the series. Tasks T8–T10 carry the amendment; T1–T6 stay as shipped except where T8/T9 name them |
 | Discovery beyond the proposal | **A second stale pointer.** `/akili-specify` Step 2.3 calls the judgment-day panel "the opt-in Step 2.4 pass"; the **Review Design** option lives in Step 2.5. Same class and same file as the proposal's `judgment-day` pointer — folded into FR-8 |
 
 ## 2. Executive Summary
@@ -132,11 +133,11 @@ This spec makes each such claim a **row in a Premise Ledger** inside `design.md`
 | `data-env` | A fact about data, vocabulary, configuration, or an environment | Dependence test |
 | `other` | Any other premise, including a standing project rule the design relies on or must obey | Dependence test |
 | `live-path` | The code the design changes is what the named user action actually reaches | **Trigger:** the design names a user action, or a branch point (a portfolio, an API version, a flag) |
-| `shared-state` | Which siblings share the state or lifecycle the design changes, and what each does with it | **Trigger:** the design changes state, a service, a base class, or a lifecycle hook more than one component uses |
+| `shared-state` | Which siblings share the state or lifecycle the design changes, and what each does with it | **Trigger:** the design changes state, a service, a base class, or a lifecycle hook more than one component uses, **or a condition or signal more than one block or component reads** |
 | `consumer` | Who reads the contract the design changes | **Trigger:** the design changes an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field |
 
 - When no trigger applies, the ledger SHALL say so in one line: `Blast-radius triggers: none apply — <reason>`. A triggered class with no row is a defect; an untriggered class with no row is correct.
-- A `shared-state` row SHALL enumerate every sibling, each with its mechanism at `file:line`. A count without the list is not a row.
+- A `shared-state` row SHALL enumerate every sibling, each with its mechanism at `file:line`. A count without the list is not a row. A **sibling** is any reader of the same state, condition, or signal — including another conditional block in the same template — not only a component that owns it.
 - A `live-path` row SHALL give the dispatch chain from the entry point to the code changed, naming each branch point and the branch taken.
 - Every class value SHALL be walked against its three readers — Step 2.5 counts, the judge rule, the task hand-off — so none falls through (KZ-changes--kaizen-loop-closure-1).
 
@@ -148,7 +149,13 @@ This spec makes each such claim a **row in a Premise Ledger** inside `design.md`
 - AND IT MUST enumerate all of them, not a sample
 - BUT it must NOT stand as "no section has a save side effect" with no enumeration
 
-#### Scenario: Fix on a versioned path (`bugfix--evidence-storage-link-validation.md`, KZ-EVL-1)
+#### Scenario: Sibling block on the same condition
+
+- GIVEN a design that changes a condition gating one block of a template, where another block in the same template is gated on the same underlying state
+- WHEN the triggers are evaluated
+- THEN the `shared-state` trigger fires on the condition, and the row enumerates every block reading it, each at `file:line`
+- AND IT MUST include blocks whose own gate is written differently but resolves to the same state
+- BUT it must NOT be read as untriggered because no service, base class, or lifecycle hook changed (`bugfix--evidence-storage-link-validation.md`, KZ-EVL-1)
 
 - GIVEN a fix scoped to one function and a reproduction that starts from a user action
 - WHEN the `live-path` trigger fires
@@ -271,6 +278,7 @@ One Hard Rule SHALL be added. Judges SHALL, before any other reading:
 | A depended-on premise with no row | finding, severity by Impact |
 | A premise confirmed | not a finding |
 
+- **A row the citations cannot settle is attacked, not merely scored.** Action 1 needs a citation and action 2 is written for the marker, so two row states fall between them: a citation cell holding **neither** a citation as run nor the marker, and a citation pointing at a **secondary source** (§3) rather than the primary one. Both SHALL be treated as `UNVERIFIED` for action 2 — the judge attempts the refutation at the primary source, and reports the row `not re-run` where its host cannot reach that source. Re-reading a document settles the document, never the system it describes. Recording the severity without attempting the refutation does not discharge this rule.
 - **Read-only is not no-`grep`.** A read-only judge writes nothing; reading files, searching, and reading history are within the contract. A judge whose host cannot run a command SHALL re-derive from the cited files and SHALL report command rows it could not re-run as `not re-run` — never as confirmed.
 - **Protocol unchanged.** Two-judge confirmation still gates auto-fix. A premise contradiction reported by one judge is recorded as suspect **with the command as run**, so the architect settles it with one re-run.
 - The rule SHALL always say "Premise Ledger" in full (§3, NFR-6).
@@ -281,6 +289,21 @@ One Hard Rule SHALL be added. Judges SHALL, before any other reading:
 - WHEN two judges follow the shipped rule literally
 - THEN each judge re-runs each citation before reading the design decisions, and the contradicted ones surface as severe
 - BUT it must NOT accept a premise because the requirements and the design agree on it
+
+#### Scenario: Premise with no citation at all (`changes--bilateral-review-ux-polish.md`)
+
+- GIVEN a ledger row whose citation cell holds neither a citation as run nor the `UNVERIFIED` marker
+- WHEN a judge follows the rule literally, before reading the design decisions
+- THEN the judge attacks the row as though it were marked `UNVERIFIED`, searching for the primary source itself
+- AND IT MUST report what that search returns, including `not re-run` when the source is out of reach
+- BUT it must NOT be discharged by recording the severity alone
+
+#### Scenario: Premise cited to a document
+
+- GIVEN a row whose citation names a design document, a research note, a guide, or another spec
+- WHEN the judge re-reads what the citation names
+- THEN the re-read settles the document only, and the judge goes on to the primary source the document describes
+- BUT it must NOT count the document's agreement with the design as confirmation
 
 #### Scenario: Judge without a shell
 
@@ -387,12 +410,12 @@ One Hard Rule SHALL be added. Judges SHALL, before any other reading:
 | ID | Name | Gate |
 |---|---|---|
 | FR-1 | Ledger section, row shape, dependence test, stated-empty | read of Step 2.2 block + walkthrough (location case, prose-only case) |
-| FR-2 | Closed classes and triggers | class × reader enumeration + walkthrough (shared-state, live-path, consumer, backend-only) |
+| FR-2 | Closed classes and triggers | class × reader enumeration + walkthrough (shared-state, live-path, consumer, backend-only, sibling-block-on-the-same-condition) |
 | FR-3 | Citation rules (a–e) | read of block + walkthrough (negative-existence, secondary-source, user-stated, data cases) |
 | FR-4 | `UNVERIFIED` routing and task hand-off | read of block + Falsifiability-block identity check |
 | FR-5 | Step 2.1, Step 2.5, checklist | read of the three sites |
 | FR-6 | Upstream cite-or-mark | restatement grep + read of both sites |
-| FR-7 | Ledger-first Hard Rule | vocabulary grep + walkthrough (plausible-premises case) |
+| FR-7 | Ledger-first Hard Rule | vocabulary grep + walkthrough (plausible-premises case, uncited row, document-cited row) |
 | FR-8 | Stale pointers | pointer grep |
 | FR-9 | Bug Track Blast Radius | single-owner grep + walkthrough (already-fixed case) |
 | FR-10 | Constitution template description | restatement grep + read |

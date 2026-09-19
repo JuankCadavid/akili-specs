@@ -24,7 +24,7 @@ T1 (akili-specify.md: Minimum content item 11 + the Premise Ledger block)
  T2, T3, T4, T5 ──→ T6 (mirrors · flow.md · README check · CHANGELOG) ──→ T7 (closure: global gates · walkthrough · packaging)
 ```
 
-T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cites the block by the name T1 ships and touches a different file. T2 may run beside them. T6 mirrors final text. T7 is the global gate. No circular dependencies.
+**Pivot amendment:** T8–T10 were added 2026-09-19 and are graphed in §2b below. T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cites the block by the name T1 ships and touches a different file. T2 may run beside them. T6 mirrors final text. T7 is the global gate. No circular dependencies.
 
 **Global verification caveat.** Every grep below is a **presence-assertion**: it proves text landed, not that an architect or a judge following it behaves correctly. Prose executability has no automated check (`requirements.md` §8, accepted risk). The behavioral substitute is T7's walkthrough. A task may not report PASS on grep-green alone where its Done criteria name a read.
 
@@ -285,6 +285,123 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 ---
 
+## 2b. Pivot amendment tasks (T8–T10)
+
+**Added 2026-09-19** after T7's closure gate fired and the user approved Option B of `execution.md` → *Pivot Record: T7*. T1–T6 stay as shipped; these three tasks amend two rules at the sites T8/T9 name and re-run the gate. Baselines below were **run at `178ce97`** before they were written (KZ-changes--leader-brief-contract-2). Every header note of §2 — grep hazard, held-out discipline, pre-review sweep, scope discipline — binds these tasks unchanged.
+
+**Held-out discipline, restated for the re-walk.** Cases 2, 11 and 12 are re-walked in T10. `changes--kp-cgspace-browse` and `bugfix--toc-unmapped-orange-notes` remain **held out** and must not be named in any shipped file or in `requirements.md`; the amendment's new scenarios are written generically or cite `changes--bilateral-review-ux-polish`, which was already cited before the pivot.
+
+```
+T8 (judgment-day SKILL.md: reach clause · version) ─┐
+T9 (akili-specify.md: shared-state trigger · mirror check) ─┴─→ T10 (CHANGELOG · re-gate · re-walk cases 2, 11, 12 · walkthrough update) → closes T7
+```
+
+T8 ∥ T9 — disjoint files, no shared build output. Both land before T10, which is the only task touching `CHANGELOG.md` (NFR-8, serial merge).
+
+---
+
+### T8 — `judgment-day`: the reach clause in the ledger-first Hard Rule
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | none (amends T3's shipped rule) |
+| Requirements | FR-7's new bullet *A row the citations cannot settle is attacked, not merely scored* and its two scenarios *premise with no citation at all* (`AND IT MUST` report what the search returns · `BUT NOT` discharged by recording the severity alone), *premise cited to a document* (`BUT NOT` count the document's agreement as confirmation); NFR-3, NFR-5, NFR-6 |
+| Design refs | §5.7 as amended, DD-14 |
+
+**Scope.** Edit `.claude/skills/judgment-day/SKILL.md`:
+
+- **The ledger-first Hard Rule:** insert the reach clause **between the three actions and the severity table** — a row whose citation cell holds neither a citation as run nor the `UNVERIFIED` marker, and a row whose citation names a secondary source rather than the primary one, are attacked under action 2 as though marked `UNVERIFIED`: the judge searches for the primary source itself, and reports the row `not re-run` where its host cannot reach it. Re-reading a document settles that document, never the system it describes. Recording the severity does not discharge the attempt.
+- **Frontmatter:** `version` 1.8 → 1.9.
+- What a secondary source *is* stays cited to the Premise Ledger block's citation rule (d); the rule does not restate it (NFR-3).
+- `docs/skills/judgment-day.md` mirror: **run the falsifying grep first** (KZ-002) — `grep -n -i "unverified\|citation\|secondary" docs/skills/judgment-day.md`. Extend the Core Rules line only if a hit shows it now reads falsely; otherwise record "no change" with the command and its output.
+
+**Verification** (repo root).
+
+| Field | Value |
+|---|---|
+| Command | On `.claude/skills/judgment-day/SKILL.md`: **1.** `grep -c "secondary source"` ≥ 1. **2.** `grep -c "not re-run"` ≥ 2 — the pre-existing report value plus the clause's own. **3.** `grep -n 'version: "1.9"'` = 1 hit and `grep -c 'version: "1.8"'` = 0. **4.** The clause sits between the three actions and the severity table: `grep -n` the action sentence, the clause, and the table header, and read the three line numbers in ascending order. **5.** No backticked class token (`live-path`, `shared-state`, `data-env`) in the file, and citation rules (a)–(e) are not restated. **6.** `git diff -U0 178ce97 -- <file>` shows no `-` line in Decision Gates, Execution Steps, or Output Contract |
+| Falsifier | At `178ce97`: check 1 reads **0**, check 2 reads **1**, check 3 reads **0 / 1** (all run) — each fails today. For 4: put the clause after the severity table → the line numbers come back descending. For 5: define "secondary source" inline instead of citing rule (d) → restatement caught |
+| Red run | `n/a (no test gate)` |
+| Disqualifier | Greps count words. **Read the clause:** if it tells the judge to *score* an uncited row without also telling it to *search*, FR-7's `BUT NOT` ("discharged by recording the severity alone") is unmet with every grep green. If the document branch says only "re-read the document" without sending the judge on to the primary source, the second scenario's `BUT NOT` is unmet. If the clause adds a fourth action rather than routing both states into action 2, DD-14 is violated |
+| Consumers | `kaizen` Measure row *Severe judgment-day findings* and `/akili-specify` Step 2.5 findings menu — both walked in design §7.2 as **holds**, unchanged by a clause that alters what a judge does rather than what a finding is; neither file is edited. `docs/skills/judgment-day.md` mirror: this task |
+
+**Pre-review sweep.** Read the Hard Rules list whole: the reach clause, the three actions, and the count-contrast rule do not contradict one another on what a judge does before reading the design decisions.
+
+**Done.** Both scope bullets land or are recorded "no change" with evidence; verification 1–6 run; disqualifier read.
+
+**Skills:** `cognitive-doc-design`.
+
+---
+
+### T9 — `/akili-specify`: the `shared-state` trigger reaches a shared condition
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | none (amends T1's shipped block) |
+| Requirements | FR-2's amended `shared-state` trigger row, its amended sibling bullet, and the scenario *sibling block on the same condition* (`AND IT MUST` include blocks whose own gate resolves to the same state · `BUT NOT` read as untriggered because no service, base class, or lifecycle hook changed); NFR-3, NFR-4 |
+| Design refs | §5.3 as amended, DD-15 |
+
+**Scope.** Edit `.claude/commands/akili-specify.md`, the Step 2.2 *Premise Ledger* block only:
+
+- **Trigger table, `shared-state` row:** the trigger gains "or a condition or signal more than one block or component reads"; the *must contain* cell defines a **sibling** as any reader of that state or condition, a conditional block in the same template included. The `live-path` and `consumer` rows, the class table, and every other part of the block are untouched.
+- `docs/commands/akili-specify.md` mirror: **run the falsifying grep first** (KZ-002) — `grep -n -i "trigger\|shared-state" docs/commands/akili-specify.md`. The mirror cites the triggers rather than wording them, so expect no change; edit only if a hit shows a sentence turned false, otherwise record "no change" with the command and its output.
+
+**Verification** (repo root).
+
+| Field | Value |
+|---|---|
+| Command | On `.claude/commands/akili-specify.md`: **1.** `grep -c "condition or signal"` ≥ 1. **2.** `grep -c "more than one component uses"` = 1 — the amended row keeps the original container list. **3.** `git diff --numstat 178ce97 -- <file>` reads `1  1`: exactly one line replaced, the trigger row. **4.** The class table's `shared-state` row is byte-identical to `178ce97` (`diff` of the two `grep -n` outputs for the class-table line). **5.** Falsifiability-block identity, re-run as T1 check 5. **6.** Held-out slug grep over the file = 1 hit, the pre-existing `programme-results-created-by-filter` |
+| Falsifier | At `178ce97`: check 1 reads **0** (run), so it fails today. For 3: reword the class table as well → `2  2`. For 4: move the sibling definition into the class table → the class-table `diff` is non-empty |
+| Red run | `n/a (no test gate)` |
+| Disqualifier | **Read the row:** if the *must contain* cell now demands the sibling list only for state that a component "owns", the scenario's `AND IT MUST` is unmet with check 1 green. If the amendment adds an eighth class or a fourth trigger instead of widening the third, the closed set breaks and §7.2's enumeration goes stale — stop |
+| Consumers | `docs/commands/akili-specify.md` (this task, by the grep above); `/akili-constitution` Step 7 item 2 and `docs/skills/judgment-day.md` cite the block by name and word no trigger — **hold**, walked at `178ce97` |
+
+**Pre-review sweep.** `grep -n "shared-state" .claude/commands/akili-specify.md` — two hits, the class table and the trigger table; read both whole and confirm they do not now define *sibling* two ways.
+
+**Done.** Both scope bullets land or are recorded "no change" with evidence; verification 1–6 run; disqualifier read.
+
+**Skills:** `cognitive-doc-design`.
+
+---
+
+### T10 — Closure re-gate: CHANGELOG, re-walk of Cases 2, 11, 12, walkthrough update
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | M |
+| Depends on | T8, T9 |
+| Requirements | FR-11 (CHANGELOG entry matches the shipped text); NFR-1, NFR-3, NFR-6; `requirements.md` §8 row *rule a literal reader cannot execute*; the amended FR-2 and FR-7 scenarios; proposal success criterion 2 |
+| Design refs | DD-13, DD-14, DD-15, §13 as re-sized |
+
+**Scope.**
+
+- `CHANGELOG.md` `Unreleased`: the judge-rule bullet gains the reach clause; the Premise Ledger bullet's trigger sentence gains the shared condition. Classification stays **minor**. No other entry is touched, and this is the only task in the amendment that edits this file (NFR-8).
+- **Re-run the global gates** that the amendment can move: (a) frozen paths and the Falsifiability-block identity, (b) defined once, (c) marker bytes, (d) held-out slugs, (e) rules by class, (g) packaging. Gate (f)'s class × reader table is re-read for the `shared-state` row only. Record each command and output in `walkthrough.md` §2 as an **amendment pass**, beside the original readings rather than replacing them.
+- **Re-walk Cases 2, 11 and 12** with a **fresh literal reader that has not seen this spec, the earlier verdicts, or the key** — the same isolation T7 used, cards taken unchanged from the prepared deck. Cases 11 and 12 are judged against the amended judge rule; Case 2 against the amended block.
+- Update `walkthrough.md`: §3's three rows and the headline counts, §7's success-criterion 2, and a new **§8 Amendment pass** recording what moved and what did not. Sections that did not change are left as written.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | **1.** `grep -c "secondary source\|condition or signal" CHANGELOG.md` ≥ 2. **2.** Gates (a)–(e), (g) re-run with output recorded; (a) and (g) must be green as before. **3.** The three re-walked cases each carry a verdict and a quoted general sentence, parenthetical stripped. **4.** `walkthrough.md` §8 states, per case, the verdict before and after the amendment. **5.** Held-out slug grep over `.claude docs README.md CHANGELOG.md` = 0 |
+| Falsifier | At the T8/T9 commits: check 1 reads **0** (run before this task is written). For 3: a verdict quoted from a parenthetical is struck, as in T7. For 4: a case whose verdict does not move, recorded as though it did, contradicts its own quoted sentence |
+| Red run | `n/a (no test gate)` |
+| Disqualifier | The re-walk is **not evidence** if the reader has seen the amendment's rationale, the earlier verdicts, the key, or this spec. A case that still returns `INCONCLUSIVE` on its key premise is reported as still open — **the amendment is not re-amended to chase it**; that outcome goes to the user exactly as the first gate's did. Cases 5, 13 and 14 are not re-walked: nothing they turn on changed, and re-walking them with a different reader would produce movement that is reader variance rather than text |
+| Consumers | `none (no shared symbol changed)` |
+
+**Done.** CHANGELOG amended; the named gates re-run with outputs recorded; three cases re-walked by a fresh reader; `walkthrough.md` §2, §3, §7 updated and §8 written; the T7 entry in `execution.md` closed by the Leader with the re-gate result.
+
+**Skills:** `cognitive-doc-design`.
+
+
+---
+
 ## 3. Coverage — scenario and clause level
 
 | Requirement · scenario or clause (quoted) | Owner |
@@ -326,7 +443,10 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 | NFR-5 | T3 (capability wording) |
 | NFR-6 | T1 check 2, T3 check 2, T4 check 4, T7 gate (c) |
 | NFR-7 | T7 — read: no shipped sentence makes a command fail on a design without the section |
-| NFR-8 | T6 (CHANGELOG merged serially) |
+| NFR-8 | T6 (CHANGELOG merged serially); T10 is the only amendment task touching `CHANGELOG.md` |
+| FR-7 · reach clause · *premise with no citation at all* · *premise cited to a document* | T8; re-walked in T10 (Cases 11, 12) |
+| FR-2 · amended `shared-state` trigger · sibling bullet · *sibling block on the same condition* | T9; re-walked in T10 (Case 2) |
+| FR-11 · CHANGELOG matches the amended text | T10 |
 
 No requirement is cleared by citing a different one. Every `BUT` and `AND IT MUST` clause above is quoted from `requirements.md`.
 
@@ -341,6 +461,9 @@ No requirement is cleared by citing a different one. Every `BUT` and `AND IT MUS
 | T5 | ~1 |
 | T6 | ~40 |
 | T7 | 0 shipped · ~120 spec-local (`walkthrough.md`) |
-| **Total** | **~150 shipped** |
+| T8 | ~4 |
+| T9 | ~1 |
+| T10 | ~5 shipped · walkthrough update |
+| **Total** | **~160 shipped** (126 through T6, ~10 in the amendment) |
 
 **PR strategy: single.** Well under ~400 lines, prose only, one definition with citing surfaces that must land together — a split would ship surfaces that cite a block that does not exist yet. This repo's flow commits to `master` per task with the `[SPEC:changes/premise-ledger]` prefix; one commit per task keeps each Reviewer diff under the 300-line inline threshold.
