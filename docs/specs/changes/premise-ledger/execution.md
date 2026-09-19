@@ -276,3 +276,42 @@ All four sit in the **approved requirements**, so each is a spec gap rather than
 | Not amended | **F9** (no deployed-revision comparison in the Blast Radius) — an environment fact outside FR-9's code-premise framing, recorded as an input to the series. F4–F8 and F10–F13 stay as recorded findings; none caused a case failure |
 | Correction Closure sweep (two directions) | **Forward** — `grep -rn "a base class, or a lifecycle hook"` over the spec folder: 6 hits. The two live rule sites (`requirements.md` FR-2 table, `design.md` §5.3) carry the amended wording; the remaining four are historical records that must keep the superseded text — `execution.md` F3, `walkthrough.md` F3 and F11 (the reader's own words), and `walkthrough.md` §4's quotation of the base trigger row. `grep -rn "three actions"`: every live site amended, the rest historical or T8's own scope. **Backward** — `grep -rn "FR-7"` and the §5.3/§5.7 references: `design.md` §7.1 rows 8–9 and §11 P-11 re-read, both still true; `tasks.md` T3's Requirements row describes what T3 shipped and is superseded by T8, which the §2b note states |
 | Briefs to re-issue (Pivot Protocol step 4) | none outstanding — no Implementer brief was in flight when the gate fired |
+
+### T8 — `judgment-day`: the reach clause in the ledger-first Hard Rule
+
+| Field | Value |
+|---|---|
+| Status | **PASS (degraded-pair: opus/sonnet)** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `opus`, effort `high`; skills: `cognitive-doc-design`, `judgment-day` read as the artifact under edit |
+| Reviewer | `sonnet`, effort `high` — see the runtime events line and `## REVIEW_WAIVED: T8` below |
+| Wave | ran in parallel with T9 (disjoint files) |
+
+**Attempt 1** — files changed: `.claude/skills/judgment-day/SKILL.md` (the reach clause inserted between the three actions and the severity table, inside the same bullet per DD-7; `version` 1.8 → 1.9). `docs/skills/judgment-day.md` recorded **no change** on the falsifying grep (KZ-002): `grep -n -i "unverified\|citation\|secondary" docs/skills/judgment-day.md` returned one line, the Core Rules summary, which is abbreviated rather than false. Implementer verification, run as `tasks.md` states it: check 1 `secondary source` = 1; check 2 `not re-run` = 2; check 3 `version: "1.9"` 1 hit and `1.8` = 0; check 4 ordering ascending — action sentence 26, clause 28, severity table header 30; check 5 backticked class tokens 0, only "rule (d)" named; check 6 two hunks only, no `-` line in Decision Gates, Execution Steps, or Output Contract. `git diff --numstat` = `3 1`. Pre-review sweep (Leader re-ran, Hard Rules list read whole): the reach clause routes both row states into action 2 and adds no action; it does not contradict the count-contrast rule. `Not Done / Assumptions`: one judgment call (below). **runtime events: provider-limit death ×1 → rung 3 (different model).**
+
+Reviewer verdict: **PASS.** "The inserted clause names both fallen-through row states (empty citation cell; secondary-source citation), routes both into action 2 exactly as DD-14 specifies, imposes an explicit search duty … and for the document branch explicitly sends the judge past the document to the primary source." All six checks reproduced; no held-out slug, corpus name, or class token leaked — which the Reviewer was asked to weigh especially, because T10 re-walks two of those cases against this exact text.
+
+Judgment call adjudicated **sound**: the surviving sentence "this rule sets only what a bad row costs" bounds the rule against the Premise Ledger block, which owns row shape and classes, not against the rule's own search actions — actions 1–3 already required search before this amendment, so the clause extends action 2 rather than widening what the rule is for. Mirror "no change" adjudicated **sound**: the mirror's line is a high-level summary that already omits the severity table and the round ceiling, and "try to refute every `UNVERIFIED` row by its own search" remains true and claims no exclusivity.
+
+ADVISORY: none (suppressed by band).
+
+## REVIEW_WAIVED: T8
+
+| Field | Content |
+|---|---|
+| `flag` | `degraded-pair` |
+| cause | The Reviewer spawned for this task on `fable` (the session model at the time, standing in for T3) died mid-task: *"You're out of usage credits. Run /usage-credits to keep using Fable 5.1 or /model to switch models."* That is a **provider-limit death**, a runtime event — no attempt consumed. The Reviewer ladder was climbed to **rung 3, a different model**: rungs 1 and 2 (retry, retry-after-N) were skipped because an exhausted credit balance is deterministic rather than transient, and the ladder's entry rule sends a provider-limit death past a retry that cannot succeed. Rung 4, the waiver, was **not** reached — an independent context on a different model did audit the diff |
+| approved by | Not a user stop. The correctness gate was **kept**, not removed: `author ≠ auditor` holds (Implementer `opus`, Reviewer `sonnet`, independent context, diff-only brief). This record exists because the auditor sat **below** the packaged T3 tier, so the metric stays honest; the user is told in the run report |
+| verification that stood in | None stood in — the full audit ran. The Reviewer independently reproduced checks 1–6, the held-out and class-token greps, and both judgment calls |
+| models | Implementer `opus` / auditor `sonnet` |
+
+| Field | Value |
+|---|---|
+| **T8 final status** | **PASS (degraded-pair: opus/sonnet)** (attempt 1 of 3) |
+| Requirements covered | FR-7's amended bullet *A row the citations cannot settle is attacked, not merely scored* and both new scenarios, *premise with no citation at all* (`AND IT MUST` report what the search returns · `BUT NOT` discharged by recording the severity alone) and *premise cited to a document* (`BUT NOT` count the document's agreement as confirmation); NFR-3, NFR-5, NFR-6 |
+| Decisions | The clause routes both row states into action 2 rather than adding a fourth action (DD-14). Reviewer moved from `fable` to `sonnet` on the provider-limit death, preserving author ≠ auditor over restoring the tier — the alternative, `opus`, would have made author and auditor the same model, which is the property the gate exists for |
+| Issues | none |
+| Execute-time spec edits | none |
+| Final verification | checks 1–6 green as written (Implementer, reproduced by the Reviewer); mirror "no change" recorded with its grep |
+| Budget | review rounds used: **9 of 12** (re-sized at the pivot); shipped lines 130 of ~160 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |

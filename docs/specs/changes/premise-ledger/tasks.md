@@ -304,7 +304,7 @@ T8 ∥ T9 — disjoint files, no shared build output. Both land before T10, whic
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none (amends T3's shipped rule) |
 | Requirements | FR-7's new bullet *A row the citations cannot settle is attacked, not merely scored* and its two scenarios *premise with no citation at all* (`AND IT MUST` report what the search returns · `BUT NOT` discharged by recording the severity alone), *premise cited to a document* (`BUT NOT` count the document's agreement as confirmation); NFR-3, NFR-5, NFR-6 |

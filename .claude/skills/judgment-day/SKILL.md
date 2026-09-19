@@ -7,7 +7,7 @@ metadata:
   adapted-by: "Juan Carlos Cadavid — jcadavid.com"
   adapted-for: "AKILI-SPECS"
   binding: core
-  version: "1.8"
+  version: "1.9"
 ---
 
 ## Activation Contract
@@ -24,6 +24,8 @@ Load only when the user explicitly requests Judgment Day or equivalent dual/adve
 - Fix only severe findings confirmed by both judges. WARNING/SUGGESTION rows remain `info`.
 - Judges must contrast every count, total, and quantity the target asserts against the prose of the other in-scope documents. Documents agreeing with each other is not corroboration — it is often one wrong idea copied forward; a figure contradicted by any in-scope document's own prose is a finding.
 - Before any other reading, judges attack the design's Premise Ledger at its source: re-run or re-read every citation, try to refute every `UNVERIFIED` row with their own search, and look for premises the design depends on that carry no row. A premise is never accepted because the requirements and the design agree on it — only the source settles it. Row shape, classes, and triggers are defined in `/akili-specify` Step 2.2 — *Premise Ledger* block and are not restated here; this rule sets only what a bad row costs.
+
+  **A row the citations cannot settle is attacked, not merely scored.** Action 1 needs a citation and action 2 is written for the marker, so two row states fall between them: a citation cell holding neither a citation as run nor the `UNVERIFIED` marker, and a citation naming a secondary source rather than the primary one. Which sources count as secondary is set by citation rule (d) of the `/akili-specify` Step 2.2 — *Premise Ledger* block, and is not restated here. Both states are attacked under **action 2**, as though the row carried the marker: the judge searches for the primary source itself and reports what that search returns, including `not re-run` where its host cannot reach that source. Re-reading a document settles that document, never the system it describes, so a document that agrees with the design is not confirmation. Recording a severity from the table below without attempting that refutation does not discharge this rule.
 
   | Judge finds | Severity |
   |---|---|
