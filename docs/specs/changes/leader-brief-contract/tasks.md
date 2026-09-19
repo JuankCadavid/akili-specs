@@ -119,7 +119,7 @@ T1 → T2 are **sequential** (same file — two Implementers on `akili-execute.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T2 |
 | Requirements | FR-1 (`leader.md` restates the principle without re-deriving mechanics); FR-3 (`reviewer.md` restates the report contract where the options are defined; mode-table note); FR-4 (item 4 accounting clause; "by tree state"); FR-6 (item 4 wording); FR-7 both scenarios (`BUT NOT` accept the test's name · diverging-values remediation) + the absent-`Red run` skip clause; FR-1 (d) consumer — advisory-grade audited as `ADVISORY` (design §7 C); NFR-4, NFR-8 |

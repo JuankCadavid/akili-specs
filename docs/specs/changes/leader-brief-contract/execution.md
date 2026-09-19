@@ -125,3 +125,34 @@ ADVISORY: none raised.
 | Final verification | checks 1–4 green as written (Implementer + Reviewer) |
 | Continue gate | gate not answered — continued (unattended chained run) |
 | Forward pointers | → T5: `docs/skills/kaizen.md` mirror check (T4 *Consumers*); → T6: waived-run Measure walk |
+
+### T3 — Personas: `leader.md` principle + item 4 clauses; `reviewer.md` audit item, 4R clause, mode note, report contract
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-18 |
+| Implementer | `sonnet`, effort `medium-high`; skills: `cognitive-doc-design`; ran in parallel with T4 (disjoint files) |
+| Reviewer | `opus`, effort `high` (lens checklist, 7+/3−, two files, six sites) |
+
+**Attempt 1** — files changed: `.claude/templates/leader.md` (spawn-mechanics bullet "diff-inline rule" → "diff-delivery rule"; new **Brief contract (principle)** bullet in Delegation Discipline; item 4 first bullet: runtime-events clause + "rollback **by tree state**"), `.claude/templates/reviewer.md` (Audit Checklist **Red Run & Mutation Trace** item with the skip clause; 4R `[advisory-grade]` clause; mode-table note on a file-delivered diff; Structured Review Output lead → report contract). Implementer verification as `tasks.md` states it (item 1 as amended): 1 → 3 hits, two pre-existing and sanctioned, one new in Delegation Discipline beside `UNVERIFIED` and `advisory-grade`; 2 → 1 (item 4); 3 → 1, with "fixture" and "n/a" in the same item; 4 → 1 (4R); 5 → 1, above Option A; 6 → two files, `implementer.md` / `tester.md` absent; 7 → empty. Sweep: 0 hits in both files. `git diff --check` clean. Runtime events: none.
+
+**Leader pre-review return (brief/task conformance — no Reviewer round, attempt counter unchanged).** Three items, fixed by the same Implementer by message and re-verified by the Leader:
+1. `reviewer.md`'s new lead paragraph ended "Conclude with one of three statuses:" against its own "the **first line** is `STATUS:`" — **the same defect that was T1's only FAIL**, and one the T3 brief had warned about by name. Now "The `STATUS:` line reads one of:"; `conclude` → 0 hits in the file.
+2. The audit item's heading cited "`changes/gate-falsifiability` FR-7" — a false pointer (FR-7 is this spec's requirement; in that spec the number is the task-template-fields requirement), inside a persona that deploys to consumer projects where a repo-internal spec ID resolves to nothing. Parenthetical removed; rule text unchanged.
+3. `leader.md` item 4: the inserted clause used an em dash inside a comma list ("…canonical, HALT + rollback…" read as one phrase) → the parenthetical form design §7 row 14 gives.
+
+`Not Done / Assumptions` (Implementer, first report), adjudicated — none outstanding: verification 1's "1 hit" was unsatisfiable as written; the pre-change file held two unrelated `narrow` hits (HEAD count = 2, confirmed by the Leader).
+
+Reviewer verdict: **PASS.** "All six sites land as specified across the two files, every FR statement term checks out against the shipped sentences, and the three option blocks are byte-identical to HEAD." The principle bullet "stops at principle per DD-1. No two-step lookup, no 300-line rule". The 4R clause's "can never FAIL the task" "does not over-claim" — it restates committed Step 2.2 clause (d). Hand-off rule content matches the archived `gate-falsifiability` design, differing only by the skip clause. The Reviewer applied the new checklist item to T3 itself: `Red run` reads `n/a (no test gate)` — skipped and said so. On the amended verification 1: "It changes no scope and no meaning, only the counting baseline… a correction, not a relaxation."
+
+ADVISORY (recorded; does not gate): the design's closure falsifier lists `FATAL_FAIL` among phrases that must not appear on a removed line, yet design row 14 mandates editing the one `leader.md` bullet that contains it; the invariant wording is preserved verbatim inside the rewritten line — "the closure gate will need to read that falsifier as 'invariant wording unchanged' rather than as a literal grep."
+
+| Field | Value |
+|---|---|
+| Requirements covered | FR-1 (`leader.md` principle without mechanics; (d) consumer in 4R), FR-3 (`reviewer.md` report contract; mode-table note), FR-4 (item 4 accounting clause), FR-6 (item 4 wording), FR-7 (both scenarios + absent-`Red run` skip), NFR-4, NFR-7, NFR-8 |
+| Decisions | **Execute-time spec edit:** `tasks.md` — T3 Verification item 1 — amended to sanction the two pre-existing `narrow` hits and require exactly one new hit (3 total); a verification-wording correction, listed in the Reviewer's brief as a named check and Reviewer-confirmed. (Committed with T4's `tasks.md` write, `840cd0e`.) T2's verification-5 amendment was carried once more in this Reviewer brief, per the edit-carry rule; it now drops |
+| Issues | 0 Reviewer FAILs. Pre-review: a repeat of T1's surviving-verb defect despite a named warning in the brief — a warning in prose did not prevent it; a grep in the task's pre-review sweep would have (retrospective input) |
+| Final verification | checks 1–7 green as amended (Implementer + Reviewer; Leader for 6, 7, sweeps) |
+| Continue gate | gate not answered — continued (unattended chained run) |
+| Forward pointers | **→ T6:** read the NFR-8 closure falsifier as "invariant wording unchanged" — show each `-`/`+` pair rather than trusting a literal `^-` grep (rows rewritten by design: the runtime table's Reviewer row in T2, `leader.md` item 4 here) |
