@@ -402,3 +402,254 @@ Owning task by section: T2 (runtime table). T6 is the gate that surfaced it.
 - **RELIABILITY.** The record's Case 3 attributes a context condition to rung 4 that the shipped rung 4 does not carry. Not outcome-bearing here, but it is the Disqualifier's exact pattern and would have hidden a real gap in a case that turned on it.
 - **READABILITY.** Case 1 quotes the Step 4 rows truncated before their `## HALT` records column and never cites item 3 at `:269`, which is the sentence that actually resolves the composition question the record raised as its one stated assumption.
 - **READABILITY.** The Case 6 demonstration file is 344 lines for a case the task names "400-line". Same branch, but the record reads as though it walked the stated input.
+
+---
+
+# Attempt 2 — after the T6 Pivot and T2's owed clause (2026-09-19, HEAD `528c8ad`)
+
+Persisted by the Leader from the attempt-2 Implementer's scratchpad record. Scope: Cases 2 and 3 re-walked on the shipped *Entry rungs* paragraph; §8 rows 6 and 11; packaging; isolation check for Cases 1, 4–7. The worker wrote no repo file.
+
+
+No repo file written by this task. All authority quoted below is `.claude/commands/akili-execute.md` at HEAD (`528c8ad`), confirmed byte-verbatim by fixed-string `grep` before being written down. `requirements.md` FR-4 text is named-conformance context only (per the brief), never the deciding authority.
+
+## Case 2 — Spawn failure mid-task (amended)
+
+**Input** (task's amended row): the spawn failed, the rung-1 retry failed again, the rung-2 retry hit a pane timeout.
+
+### Step-by-step walk
+
+**Event 1 — spawn failure, entry.**
+Deciding sentence, *Entry rungs* paragraph:
+> "a spawn failure leaves no partial work and starts at rung 1"
+Rung: **1**. Action, ladder table Implementer row:
+> "**1** retry once immediately (spawn failure, pane timeout) …"
+Leader retries once immediately. Announced: no (rung 1 is immediate, not the announced background wait — that is rung 2's clause).
+
+**Event 2 — the rung-1 retry fails again (a second spawn failure).**
+Deciding sentence, *Entry rungs* mid-climb clause:
+> "A later event in the same attempt, of any kind, **continues the climb** from whichever is higher — the rung already reached, or the new event's own entry rung … the climb never moves backwards … A spent rung is never re-run"
+Rung already reached = 1 (spent). New event's own entry rung (spawn failure) = 1. Higher of (1, 1) = 1, already spent → climb continues to the next rung: **2**. Action, ladder table:
+> "**2** retry-after-N (N = 3 minutes, one retry, background wait, announced — the background-wait rule in `leader.md` → *Winding down*)"
+Leader waits 3 minutes in the background, announced, then retries once.
+
+**Event 3 — that rung-2 retry hits a pane timeout.**
+Deciding sentence, *Entry rungs* mid-climb clause (same sentence as above): rung already reached = 2 (just spent). New event's own entry rung (pane timeout) per:
+> "a pane / terminal timeout starts at rung 1 and is usually cleared by rung 2"
+= 1. Higher of (2, 1) = **2** — already spent, never re-run. Climb continues to **3**. Ladder table rung 3:
+> "**3** resume-by-message when the worker's context survives (message the worker; the contracted report is the terminating act; verify delivery per `leader.md`)"
+Condition ("when the worker's context survives") does not hold — no worker was ever running (every event so far has been a spawn failure or a timeout on a retry attempt, never a live worker). Deciding sentence for the skip:
+> "a rung whose condition does not hold (rung 3, when no worker context exists to message) is skipped"
+Rung 3 **skipped**. Climb continues to **4**:
+> "**4** a fresh worker audits the partial diff and continues (the brief carries the partial diff as the starting state)"
+Rung 4 recovers the attempt: a fresh worker is spawned, briefed with the partial diff as starting state.
+
+### Recorded line and accounting
+Deciding sentence, Log Format:
+> "a `runtime events: <kind> ×n → <rung>` line naming any runtime events recovered on that attempt and the rung that recovered them"
+Recorded: `runtime events: spawn failure ×2, pane timeout ×1 → fresh worker`.
+Attempt counter: deciding sentence —
+> "an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else. No runtime event touches the attempt counter."
+→ unchanged. No re-run of rung 1 or 2: "A spent rung is never re-run" (quoted above). No inline ask: rung 5 ("the existing Leader-inline ask") is never reached because rung 4 recovers the attempt.
+
+### Parenthetical-stripping check
+- Entry-rungs clauses for spawn failure and pane timeout carry no parentheticals — nothing to strip, both still decide their entry rungs as written.
+- Ladder rung 1 cell: `(spawn failure, pane timeout)` is a true parenthetical. Stripped: "retry once immediately — for a provider-limit death, first probe the tree for partial edits and record them." The general sentence still decides rung 1 = retry-once for this event, by elimination (the only named exception is provider-limit death, which this isn't).
+- Mid-climb sentence's rung-3-skip clause carries the parenthetical `(rung 3, when no worker context exists to message)`. Stripped: "a rung whose condition does not hold … is skipped." Still decides the skip, because rung 3's *condition* is independently stated in the ladder table itself ("when the worker's context survives") — the parenthetical is a restatement/example, not the sole carrier of the rule.
+- Accounting rule and "spent rung never re-run" carry no parentheticals.
+
+**No other shipped sentence supports a different outcome.** The only candidate tension is the paragraph's opening clause "the ladder is climbed in order as the table above states" versus the mid-climb clause allowing rung skips — these do not conflict: "climbed in order" means rungs are never revisited or taken out of sequence, and the mid-climb clause is the stated mechanism for *which* rung is next, including a stated skip condition. No sentence anywhere says a second event of a different kind re-enters at its own lower rung, or that rung 3 must be attempted even with no worker context.
+
+**Verdict: PASS.** Final recorded line: `runtime events: spawn failure ×2, pane timeout ×1 → fresh worker`. This matches the task's amended Expected recorded outcome exactly (derived independently, not read off that column — the column was consulted only after the derivation above was complete).
+
+---
+
+## Case 3 — Provider-limit death, context alive
+
+**Input**: an Implementer is killed by a provider limit mid-task; its context survives (addressable/resumable).
+
+### Step-by-step walk
+
+**Event — provider-limit death, entry.**
+Deciding sentence, *Entry rungs* paragraph:
+> "a provider-limit death starts at rung 1's tree probe, then continues to rung 3 when the worker's context survives the death, or to rung 4 when it does not"
+Rung 1 action, ladder table:
+> "**1** … for a provider-limit death, first **probe the tree** for partial edits and record them"
+Leader probes the tree, records partial edits. Context survives (given) → the entry-rungs sentence names the next step directly: **rung 3**.
+
+**Rung 3.** Ladder table:
+> "**3** resume-by-message when the worker's context survives (message the worker; the contracted report is the terminating act; verify delivery per `leader.md`)"
+Condition ("worker's context survives") holds. Leader messages the worker; the contracted report is the terminating act; delivery is verified per `leader.md`. This recovers the attempt — Log Format: "the rung that recovered them" (singular) — so the climb ends here.
+
+**Rung 2 and rung 4 — not reached.**
+- *Which shipped sentence says the death does not pass through rung 2?* The entry-rungs sentence itself: "…starts at rung 1's tree probe, **then continues to rung 3**…" names rung 3, not rung 2, as the direct continuation from the tree probe. No rung-2 step is named in this event kind's routing.
+- *Which shipped sentence says no fresh worker is spawned?* Two shipped facts combine: (a) the entry-rungs sentence routes this death to rung 3, which recovers the attempt (ends the climb, per the Log Format's "the rung that recovered them"); (b) rung 4 is the only rung the ladder table labels "a fresh worker audits the partial diff and continues" — the sole occurrence of "fresh worker" in the ladder row. Since the climb ends at rung 3, rung 4 is never reached, so no fresh worker is spawned. (The mid-climb clause's phrase "never detouring through a lower rung's fresh spawn" also exists in this same paragraph and would reinforce this for a *later* event arriving mid-climb, but Case 3 as stated is a single first event, not a composed mid-climb sequence, so I rest the "no fresh spawn" conclusion on (a)+(b) above rather than stretch that clause's stated scope.)
+
+### Parenthetical-stripping check
+- Entry-rungs clause for provider-limit death carries no parenthetical — nothing to strip, still decides the rung-1-then-rung-3 route.
+- Ladder rung 1 cell: `(spawn failure, pane timeout)` is a parenthetical attached to a different clause (rung 1's default action); the provider-limit-death clause follows it via em-dash, outside the parens, and survives stripping unchanged.
+- Ladder rung 3 cell: `(message the worker; the contracted report is the terminating act; verify delivery per \`leader.md\`)` is a parenthetical. Stripped, the sentence reads "resume-by-message when the worker's context survives" — this still decides the **rung** (3) and the **route**, but the specific operational detail "the contracted report is the terminating act" lives only inside the parenthetical and does not survive stripping. I flag this rather than silently treating the parenthetical as ordinary shipped prose: the *rung* is general-sentence-decided; the *terminating-act mechanic* is parenthetical-only.
+- Ladder rung 4 cell: `(the brief carries the partial diff as the starting state)` is a parenthetical; stripped, "a fresh worker audits the partial diff and continues" still stands and still labels rung 4 as the fresh-spawn rung.
+
+**Does any other shipped sentence support a different outcome?** The paragraph's opening clause — "each event kind starts the climb at a fixed rung, and from there the ladder is climbed in order as the table above states" — could be read as requiring every event to pass through every rung in sequence (1, 2, 3, 4…), which would force this death through rung 2 before rung 3. I record this as the competing reading rather than silently discard it. But no sentence anywhere states that reading explicitly for this event kind, while the entry-rungs sentence explicitly and specifically routes a provider-limit death straight from "rung 1's tree probe" to "rung 3" — the more specific clause, addressed to this exact event kind, immediately following the general one in the same paragraph. Reading "climbed in order" as "never regresses, and each kind's own stated path is its order" (rather than "visits every numbered rung") is the only reading that leaves the entry-rungs sentence's explicit "then continues to rung 3" from doing any work at all — a reading that makes an approved sentence surplusage is disfavored. Under the specific clause, rung 2 is not visited.
+
+**Verdict: PASS** (CONFIRMED, converging independently with the T2 owed-clause Reviewer's sequence (a): "death with context first → probe, rung 3"). Recorded outcome: tree probe (rung 1) → rung 3 resume-by-message → the contracted report is the terminating act (rung 3's parenthetical) → no fresh spawn (rung 4 never reached). Matches the task's Expected recorded outcome.
+
+---
+
+## §8 row 6 — idle-without-report / "poke" restated
+
+```
+$ grep -nc "poke" .claude/commands/akili-execute.md
+0
+```
+0 occurrences total (a fortiori 0 outside a pointer phrase). PASS.
+
+## §8 row 11 — invariant wording unchanged, re-run over `66d4a0d..HEAD`
+
+```
+$ git diff -U0 66d4a0d..HEAD -- .claude/commands/akili-execute.md .claude/templates/leader.md .claude/templates/reviewer.md docs/commands/akili-execute.md \
+  | grep -nE '^-.*(3 rework attempts|FATAL_FAIL|Poke once, then replace|author ≠ auditor)'
+```
+Five `-` lines returned, identical in count and content to the five attempt 1 recorded (confirmed by direct comparison against `docs/specs/changes/leader-brief-contract/t6-walkthrough.md` rows 92–114):
+
+1. `-| Reviewer | **Never inline** … breaks \`author ≠ auditor\` …` → `+` widens the row into five rungs (sanctioned, FR-4); `author ≠ auditor` byte-identical.
+2. `-- **Maximum Retries:** A hard ceiling of **3 rework attempts** per task. This prevents infinite loops and token waste.` → `+` appends the Accounting-rule clause; "3 rework attempts" byte-identical.
+3. `-**Approval Mode …` (the `FATAL_FAIL` sentence) → `+` appends the REVIEW_WAIVED/inline-ask carve-out; `FATAL_FAIL` byte-identical.
+4. `-   * Run the loop exactly as … HALT + Automatic Rollback after 3.` → `+` changes only "Automatic Rollback" → "rollback by tree state" (FR-6's own intentional change, not one of the four protected phrases); `FATAL_FAIL` byte-identical.
+5. `-- **Maximum retries.** Hard ceiling of 3 rework attempts per task. After 3 consecutive FAILs the loop HALTS …` → `+` appends the runtime-event carve-out; "3 rework attempts" byte-identical.
+
+`git diff --stat 528c8ad~1..528c8ad` confirms the T2 owed-clause commit touched only `.claude/commands/akili-execute.md` with `2 ++` / `0 --` — a pure insertion, so it could not have produced a sixth pair. Confirmed, not assumed: **PASS, unchanged**.
+
+## Packaging chain
+
+```
+$ npm run verify:cli && npm run pack:dry-run && git diff --check
+```
+`verify:cli` → lists 11 commands / 24 skills / 7 resources, exit 0. `pack:dry-run` → `npm pack --dry-run` succeeds, 275 files, `akili-specs-2.24.0.tgz`, exit 0. `git diff --check` → no output, exit 0 (no whitespace errors). Combined exit: **0**.
+
+```
+$ git status --short
+```
+No output — **working tree clean**.
+
+## Step 4 — Entry-rungs isolation check for Cases 1, 4–7
+
+Claim under test (attempt-2 scope block): the *Entry rungs* paragraph touches none of the deciding sentences of Cases 1 and 4–7. Deciding sentences pulled from `t6-walkthrough.md` (attempt-1 record §Part (c) + Reviewer rulings §4), each re-confirmed verbatim at HEAD by fixed-string `grep`:
+
+| Case | Deciding sentence(s) | Verbatim at HEAD? |
+|---|---|---|
+| 1 — HALT dirty tree | Step 4 table rows 2–3 ("Holds other PASSed work…", "Holds unattributed changes…") + item 3 ("the tree-state branch taken, the pathspec used…") | Confirmed unchanged |
+| 4 — Reviewer waiver | Reviewer ladder rung 4 row; Step 5 `pre-approved` REVIEW_WAIVED-stop sentence; Log Format `## REVIEW_WAIVED` header sentence; Step 3 "Only after a Reviewer `PASS` — or …" ; `reviewer.md` "first line is `STATUS:`" | Confirmed unchanged |
+| 5 — Widened brief | Brief-contract clause (a) and (b) Falsifiers; the absent-fields line ("the brief says so instead of copying nothing silently…") | Confirmed unchanged |
+| 6 — 400-line diff | The diff-delivered-by-size sentence (≤300 inline / >300 to scratchpad file / non-host exception) | Confirmed unchanged |
+| 7 — Old log | "its absence reads as 'no waiver recorded', never as an inferred PASS"; `akili-resume.md`'s REVIEW_WAIVED-block clause; `kaizen/SKILL.md` Measure row + clean-run sentence | Confirmed unchanged |
+
+None of these sentences live inside, quote, or reference the *Entry rungs* paragraph (they sit in Step 4, the Reviewer ladder row, Step 5, the Log Format, the Brief-contract block, the diff-delivery bullet, `reviewer.md`, `akili-resume.md`, and `kaizen/SKILL.md` — all sections other than the *Entry rungs* paragraph itself, which sits solely inside the Implementer-ladder discussion). Claim confirmed: no case among 1, 4–7 moved or changed as a result of the T2 owed-clause insertion. (The `leader.md` item-4 idle-without-report protocol and the command's pointer to it were also re-checked: `.claude/commands/akili-execute.md` line 62 still points to it by name — "handled entirely by `leader.md`'s idle-without-report protocol, cited by name, nothing restated here" — and restates nothing, matching row 6's 0-hit grep above.)
+
+## Not Done / Assumptions
+None. Case 2 and Case 3 were each derived from the shipped command text alone before being compared to the task's expected column; both land PASS. Rows 6 and 11, packaging, and the Case 1/4–7 isolation check all re-ran clean.
+
+---
+
+# Reviewer verdict on attempt 2 (2026-09-19, `opus`, HEAD `528c8ad`)
+
+Persisted verbatim by the Leader from the Reviewer's scratchpad verdict file. **PASS — Cases 2 and 3 CONFIRMED; the carry for Cases 1, 4–7 holds; gates reproduce. 0 FAIL issues, 4 advisories.**
+
+
+STATUS: PASS. Cases 2 and 3 CONFIRMED. Q4 carry holds. Q5 reproduces. 0 FAIL issues, 4 advisories.
+
+All 15 sentences the record quotes were confirmed byte-verbatim at HEAD by fixed-string `grep` before any judging. No MISS.
+
+---
+
+## Q1 — Case 2, rung 4 with nothing to audit — **decided; one reading only**
+
+Ruling: the shipped text decides that the climb lands on rung 4 and a fresh worker is spawned. "audits the partial diff" is a description of the fresh worker's brief, not a condition of the rung. Three independent grounds, each surviving parenthetical-stripping:
+
+1. **Conditions in this block are marked with "when", and rung 4 carries none.** The Implementer ladder row contains exactly one occurrence of "when" (`grep -c` on the row = 1), and it is rung 3's: "**3** resume-by-message **when** the worker's context survives". The entry-rungs sentence uses the same marker twice: "continues to rung 3 **when** the worker's context survives the death, or to rung 4 **when** it does not". Rung 4's cell has no "when" and no other conditional. Neither marker sits in a parenthetical, so the convention survives stripping.
+2. **The entry-rungs sentence enters rung 4 on a property of the event, not on a diff existing.** "…or to rung 4 when it does not" routes a context-less provider-limit death to rung 4 with no requirement that the rung-1 tree probe found anything. A death seconds after spawn probes an empty tree and still goes to rung 4. So rung 4 is not gated on a partial diff.
+3. **The task's own INCONCLUSIVE test is not met.** tasks.md T6: "Any step where two shipped sentences can be read to disagree is recorded INCONCLUSIVE." Reading B (rung 4 skipped for want of a diff, landing on rung 5's user stop) rests on no second shipped sentence. It requires reading an unmarked condition into rung 4's cell. No shipped sentence states it.
+
+Note the shipped text names the no-partial-work case exactly once — "a spawn failure leaves no partial work and starts at rung 1" — and uses that fact only to justify the entry rung, never to limit rung 4. Reading B would also leave a spawn failure with no rung in its own ladder that ever starts a worker.
+
+Consistent with FR-4's mid-climb scenario `BUT` ("must NOT put the Leader-inline ask to the user before rung 4"), though that requirement was not used to decide the step.
+
+**Advisory 1.** The record never ran this test. It asserts rung 4 is briefed "with the partial diff as starting state" when the fixture has none — a situational claim that is false on its own inputs. Not outcome-bearing (the rung and the recorded line are right), but it is the same species as the mis-attribution the attempt-1 verdict flagged, and it left the Leader's sharpest question unanswered in the record itself.
+
+## Q2 — "announced", and the recorded line's shape
+
+**Announcement: shipped, but parenthetical-only.** Rung 2's cell: "**2** retry-after-N (N = 3 minutes, one retry, background wait, announced — the background-wait rule in `leader.md` → *Winding down*)". Everything operative — the 3 minutes, the background wait, the announcement — sits inside the parenthesis. Stripped, rung 2 reads "retry-after-N": still decides the rung, decides no detail. Identical status to rung 3's terminating act, which the record *did* flag in Case 3.
+
+**Advisory 2.** The record's Case 2 parenthetical-stripping check enumerates rung 1, the mid-climb skip clause, the accounting rule and the spent-rung clause, and omits rung 2's parenthetical — the one carrying a detail the walk asserts ("Leader waits 3 minutes in the background, announced"). Its own test applied unevenly across the two cases. Not outcome-bearing: neither the rung nor the recorded line moves.
+
+**Line shape: admitted by a general sentence.** Entry rungs, final clause: "the attempt's `runtime events:` line names **every event that occurred** and **the single rung** that recovered the attempt." Several kinds, one rung — exactly `spawn failure ×2, pane timeout ×1 → fresh worker`. The Log Format's prose gloss agrees ("naming any runtime events recovered on that attempt and the rung that recovered them"). The template `<kind> ×n → <rung>` is a placeholder; naming rung 4 by its label ("fresh worker") rather than its number matches the form the user-approved Pivot wrote into T6's amended Expected column.
+
+## Q3 — Case 3
+
+**Past rung 2:** the entry-rungs sentence, general and unparenthesised — "a provider-limit death starts at rung 1's tree probe, **then continues to rung 3** when the worker's context survives the death". Rung 2 is named nowhere in this kind's routing. Reinforced by the mid-climb clause: "still goes to rung 3 even when the attempt is only at rung 1 or 2".
+
+**Excluding a fresh spawn:** rung 3's condition holds and rung 3 recovers the attempt; the climb ends there, by the entry-rungs clause "the single rung that recovered the attempt" (and the Log Format's "the rung that recovered them"). Rung 4 is the only rung the ladder labels a fresh worker, and it is never reached.
+
+**Attempt-1 mis-attribution not repeated.** Checked directly: the record attributes no context condition to rung 4. It identifies rung 4 only as "the only rung the ladder table labels 'a fresh worker audits the partial diff and continues'". Clean.
+
+**The flagged parenthetical — advisory-grade, not a FAIL.** "the contracted report is the terminating act" does live only inside rung 3's parenthetical. Stripping it removes detail and raises no competing reading: the rung, the route and the no-fresh-spawn conclusion all stand on the general text. FR-4's own ladder states the same phrase parenthetically, so shipped is at parity with the approved requirement, not below it. The worker was right to flag rather than to launder it.
+
+**"Climbed in order" vs "continues to rung 3" — not two sentences.** Both clauses are in one sentence, the general clause followed by its own per-kind enumeration after the em-dash. The enumeration *is* that sentence's definition of each kind's order. The shipped skip rule ("a rung whose condition does not hold … is skipped") independently proves "in order" tolerates omission rather than requiring every numbered rung. The record's anti-surplusage reasoning reaches the same place and is sound.
+
+**Advisory 3.** The record's Case 3 conclusion is sound but longer than the text needs; the mid-climb clause "never detouring through a lower rung's fresh spawn" that it declines to lean on in fact concerns rungs *below* 3 (the rung-1/2 retries are themselves fresh spawns), not rung 4. Declining to stretch it was the right call for the wrong reason.
+
+## Q4 — scope claim: **carries**
+
+```
+git diff --stat 1dc7894..HEAD -- .claude docs/commands docs/skills CHANGELOG.md README.md docs/flow.md
+ .claude/commands/akili-execute.md | 2 ++
+ 1 file changed, 2 insertions(+)
+```
+Exactly one shipped change: the *Entry rungs* paragraph plus its blank line. Zero deletions.
+
+Every deciding sentence the attempt-1 verdict relied on, re-confirmed verbatim at HEAD by fixed-string `grep`:
+
+| Case | Deciding sentence | At HEAD |
+|---|---|---|
+| 1 | Step 4 item 3 "the tree-state branch taken, the pathspec used…" | verbatim |
+| 4 | Step 5 "A `REVIEW_WAIVED` decision and the Leader-inline ask … never auto-passed"; Log Format `## REVIEW_WAIVED: <Task ID>` header; Step 3 "Only after a Reviewer `PASS` — or…"; `reviewer.md` `STATUS:` | verbatim |
+| 5 | "(a) Narrow-never-widen"; "(b) Convention files, by lookup"; absent-fields line "no Falsifier / Red run / Consumers fields in this task" | verbatim |
+| 6 | "Above 300 lines, the Leader writes the diff it extracted to a file in the session scratchpad, outside the working tree" | verbatim |
+| 7 | "its absence reads as \"no waiver recorded\", never as an inferred PASS"; `akili-resume.md` waiver clause; `kaizen/SKILL.md` REVIEW_WAIVED | verbatim |
+
+Only line *numbers* moved: the insertion at line 72 shifts everything below it by +2, so the attempt-1 verdict's `:169`, `:175`, `:176` are now 171, 177, 178. Sentences unchanged. Rulings for Cases 1, 4–7 and parts (a) rows 1–2, 4, 9–10 and (b) carry. Nothing must be re-walked.
+
+**Also checked, beyond the brief: §8 row 12 (mirror contradiction).** The paragraph landed only in `.claude/commands/akili-execute.md`. `docs/commands/akili-execute.md` (105 lines) never enumerates rungs at all — it cites the ladder by name ("recovers per the Leader's per-role ladder") and carries no "Runtime-failure fallback", "Accounting rule", "retry-after-N" or "runtime events" text. So no mirror contradiction is possible from this insertion, and the Leader's claim that rows 6 and 11 are the only gates the paragraph can disturb holds for row 12 too.
+
+## Q5 — gates: **reproduce**
+
+| Gate | Result |
+|---|---|
+| §8 row 6 — `grep -nc "poke" .claude/commands/akili-execute.md` | 0 |
+| §8 row 11 — five `-`/`+` pairs over `66d4a0d..HEAD`, no sixth | 5, confirmed |
+| `npm run verify:cli` | exit 0 — 11 commands, 24 skills, 7 resources, v2.24.0 |
+| `npm run pack:dry-run` | exit 0 — 275 files, `akili-specs-2.24.0.tgz`, 2.1 MB |
+| `git diff --check` | exit 0 |
+
+Row 11's five pairs match the five attempt 1 recorded, in the same order. A sixth was structurally impossible: `git diff --stat 528c8ad~1..528c8ad` shows the shipped file changed by `2 ++` with zero deletions — a pure insertion cannot add a `-` line. Confirmed, not assumed.
+
+`git diff --check` passes with the Leader's uncommitted append to `t6-walkthrough.md` present, so the record's "working tree clean" line (true when the worker ran it, before the Leader persisted) does not affect the gate either way.
+
+## Q6 — CHANGELOG — **advisory, not a FAIL**
+
+No sentence of the `Unreleased` bullet becomes false. It describes "a per-role recovery ladder (Implementer: five rungs ending in a Leader-inline ask; Reviewer: four rungs, never inline, ending in the waiver record)" — still exactly true after the insertion, which adds no rung and reorders none.
+
+**Advisory 4.** Unmentioned user-facing behavior. The paragraph ships four rules no CHANGELOG sentence covers: per-event-kind entry rungs; the mid-climb continue-from-the-higher rule; spent-rung-never-re-run and condition-skip; and the `runtime events:` line naming every event and the single recovering rung. The repo's Release Discipline ("every user-facing methodology … change should be reflected in `CHANGELOG.md`") reaches this.
+
+Routed as advisory, not a FAIL issue, because CHANGELOG parity appears in none of T6's gates: not in its Verification `Command`, not in its `Falsifier`, not in its `Done`, and §8 has no CHANGELOG row. It is a T2-owed-clause omission surfacing at the closure gate, not a T6 defect. Suggested fix, one clause appended to the existing leader-brief-contract bullet under `### Added`: name the per-kind entry rungs and the mid-climb continuation rule, and the `runtime events:` line's shape. The Leader should close it before the spec ships.
+
+---
+
+## Advisory summary
+
+1. Case 2's walk never tests whether rung 4 is skippable, and asserts a partial diff the fixture does not have.
+2. Case 2's parenthetical-stripping check omits rung 2's parenthetical, the sole carrier of "3 minutes / background / announced" that the walk asserts.
+3. Case 3's reason for declining the "lower rung's fresh spawn" clause is wrong, though the decision to decline was right.
+4. CHANGELOG `Unreleased` does not mention the entry-rung and mid-climb rules (Release Discipline).
+
+None is outcome-bearing. None consumes a rework attempt.

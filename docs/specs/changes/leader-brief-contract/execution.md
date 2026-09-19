@@ -275,3 +275,47 @@ Finding recorded by the Reviewer, **deliberately not an issue** (recorded; it do
 | Final verification | owed-clause greps + T2 checks 1–7 green (Implementer + Reviewer; Leader for the greps, `--check`, stat, `-`-line count = 0) |
 | Continue gate | covered by the user's Pivot approval ("adelante": re-open T2, then re-walk Cases 2–3) |
 | Forward pointers | **→ T6 attempt 2:** walk Cases 2 and 3 on the shipped *Entry rungs* paragraph; carry the FR-4 clarification as a named check; the Reviewer-row scoping note above is context, not a case |
+
+### T6 — attempt 2 (after the Pivot and T2's owed clause)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `sonnet`, effort `xhigh`; skills: `cognitive-doc-design`; fresh worker; wrote no repo file |
+| Reviewer | `opus`, effort `xhigh`; fresh worker; no diff to size — audited the record, confirmed all 15 quoted sentences byte-verbatim at HEAD `528c8ad`, re-ran the gates |
+
+**Attempt 2** — files changed: none in the repo. Record appended by the Leader to `t6-walkthrough.md`, with the Reviewer's verdict verbatim beneath it. Brief: Reviewer FAIL from attempt 1 delivered by pointer to this log's verbatim copy (it lives in a project file), with a one-line Attempt History; the worker was told to derive each outcome from a quoted shipped sentence **before** consulting the task's expected column. Result: **Case 2 PASS** — rung 1 → rung 2 (3-minute background wait, announced) → rung 3 skipped (no worker context) → rung 4 fresh worker; recorded `runtime events: spawn failure ×2, pane timeout ×1 → fresh worker`; attempt counter unchanged; no re-run of rungs 1–2; no inline ask. **Case 3 PASS** — tree probe → rung 3 resume-by-message; no fresh spawn. §8 row 6 = 0; row 11 = the same five `-`/`+` pairs, every invariant phrase byte-identical, no sixth (the owed clause was a pure insertion); packaging exit 0; repo clean. Isolation check: every deciding sentence of Cases 1, 4–7 still verbatim at HEAD. `Not Done / Assumptions`: none. Runtime events: none.
+
+Reviewer verdict: **PASS.** "Cases 2 and 3 both CONFIRMED on shipped general sentences, Q4's carry holds, Q5 reproduces exactly. 0 FAIL issues, 4 advisories." On the Leader's named question (rung 4 with nothing to audit): "one reading, not two… Every condition in this block is marked with 'when': the Implementer ladder row contains exactly one occurrence, rung 3's. Rung 4 carries none… the entry-rungs sentence routes a context-less death 'or to rung 4 when it does not', with no requirement that the rung-1 tree probe found anything — so rung 4 turns on the event, not on a diff existing." Carry for Cases 1, 4–7: "One shipped change, one file, 2 insertions, 0 deletions. Every deciding sentence… is verbatim at HEAD; only line numbers moved… Nothing must be re-walked."
+
+ADVISORY (recorded; none outcome-bearing, none consumes an attempt, none becomes a task): (1) the record never tested whether rung 4 is skippable and asserts a partial diff the sequence does not have; (2) its parenthetical-stripping check skipped rung 2, whose parenthetical is the sole carrier of "3 minutes / background / announced"; (3) its stated reason for declining the "lower rung's fresh spawn" clause in Case 3 is wrong, though the decision was right; (4) `CHANGELOG.md` `Unreleased` did not mention the entry-rung and mid-climb rules.
+
+**Leader action on advisory 4 — treated as Pivot closure, not as an advisory-minted task.** The Pivot added user-facing behavior after T5 had written the CHANGELOG entry; the Pivot Record's Correction Closure swept the spec folder and did not sweep `CHANGELOG.md`. The repo's Release Discipline (root `CLAUDE.md`) makes the entry mandatory, so the Leader appended **one clause** to this spec's existing `### Added` bullet (entry rung per event kind; continue from the higher of rung reached and entry rung; spent rung never re-run; conditional rung skipped; the `runtime events:` line's shape). One file, one clause, inside the delegation table's inline threshold. **Not Reviewer-audited** — stated here so the user can read it at release time; every surface it names is in commit `528c8ad`.
+
+| Field | Value |
+|---|---|
+| **T6 final status** | **PASS** (attempt 2 of 3 — attempt 1 FAILed on Case 2 INCONCLUSIVE → escalation → user-approved Pivot → T2 owed clause → re-walk) |
+| Requirements covered | FR-1, FR-3, FR-4 (incl. the mid-climb scenario), FR-5, FR-6, FR-7, FR-8, FR-9 walked or gated; NFR-3; the `requirements.md` §8 accepted residual discharged as far as a walkthrough can |
+| Decisions | Attempt 1's seven-case record stands for Cases 1, 4–7 (Reviewer-confirmed carry); CHANGELOG clause added by the Leader as Pivot closure |
+| Issues | 1 FAIL (attempt 1) — see *Escalation: T6* and the Pivot Record |
+| Final verification | 0 INCONCLUSIVE across seven cases; §8 greps clean with the enumerated sanctions; hand-off lines match; packaging green |
+| Continue gate | no eligible task remains |
+
+## 3. Summary
+
+| Field | Value |
+|---|---|
+| Tasks | 6 / 6 `[x]` — no task added; T2 re-opened once for an owed clause (T6 Pivot) |
+| Reviewer verdicts | 10 — T1 ×2, T2 ×2 (original + owed clause), T3 ×1, T4 ×1, T5 ×1, T6 ×2, plus T1's confirm counted in its two. **2 FAILs** (T1 attempt 1: surviving verb contradicting the inserted first-line rule; T6 attempt 1: Case 2 INCONCLUSIVE) |
+| Leader pre-review returns | 4, none consuming an attempt — T2 (deleted NFR-8 invariant sentence; missing FR-5 clause; instruction verb shipped as rule text), T3 (the T1 defect repeated; a false FR citation; a broken list), T2 owed clause (death arriving mid-climb decided two ways). Plus one Leader challenge on T6 attempt 1 that named the Case 2 gap before the Reviewer ruled on it |
+| Pivots | 1 (T6 → FR-4 *Mid-climb events* + scenario, DD-12, T2 owed clause, T6 Case 2 outcome amended to `→ fresh worker`) — user decision 2026-09-19 |
+| HALTs / FATAL_FAILs / waivers | 0 / 0 / 0 |
+| Budget | Tasks 6 planned / 6 executed. Review rounds: 1 per task budgeted; T1, T2 and T6 used 2 — T1's second was its one FAIL (tripwire is the *second* FAIL of a task: never reached); T2's and T6's seconds were approved with the Pivot. LOC: ~210 estimated vs ~75 shipped lines across 10 files |
+| Runtime events | 1 provider-limit death (T2's Reviewer) → resume-by-message; 1 harness truncation of an Implementer report (T5) → tail obtained by message. Neither consumed an attempt |
+| Execute-time spec edits | `tasks.md` T2 verification 5 and T3 verification 1 (counting baselines — pre-existing hits the spec author had not seen); `requirements.md` FR-4 / `design.md` §5.4 / `tasks.md` owed-clause block — the "higher of rung reached and entry rung" clarification, Reviewer-ruled an edit-carry. Each was listed as a named check in the next two Reviewer briefs, as the rule this spec ships requires |
+| Commits | 10 on `master`, all `[SPEC:changes/leader-brief-contract]`, nothing pushed |
+| Gate handling | `gated` mode. 2026-09-18: the user launched the run in a chained instruction and was absent; the Leader continued only after each PASS, logged every unanswered gate, and **stopped at the first exception** (T6 FAIL). 2026-09-19: resumed on the user's explicit "adelante" to both escalation questions |
+| Open items for the user | (1) **Release class:** CHANGELOG proposes patch as the task text required; a new record type, a new final-status value and recovery ladders read by three other commands may be **minor** under the repo's semver discipline. (2) **Follow-up candidate:** the *Entry rungs* death branch is numbered from the Implementer row; on the Reviewer row rung 4 is the waiver. The sentence self-scopes ("rung 1's tree probe" exists only on the Implementer row) and the same shape is in approved FR-4 — a one-clause `/akili-quick` candidate, not fixed here. (3) **T2 advisories left as recorded:** the pseudocode's event branch sits after the Reviewer verdict only; Step 5 still opens "After a task PASSes or HALTs" and Step 3 is still headed "Finalize on PASS". (4) The CHANGELOG clause above was not Reviewer-audited. (5) Two kaizen standardizations from the `gate-falsifiability` archive are still `pending`; their targets are free once this spec is archived |
+| Kaizen candidates (Methodology) | (1) **A surviving verb contradicts an inserted rule** — T1's FAIL, repeated in T3 despite a prose warning in the brief: a warning did not prevent it, a `conclude` grep in the task's pre-review sweep would have. (2) **Requirement content dropped in shipping, passed by a term-by-term Reviewer** (FR-4 terminal branches in T2) — second spec in a row (KZ-changes--gate-falsifiability-2 recurs): the Reviewer walked the statement but not the paragraph *after* the table. (3) **An expected-outcome column written before the rule exists pulls the walker toward it** — T6 attempt 1 landed on the column; "derive first, compare last" in the brief fixed it. (4) **A Pivot's Correction Closure sweeps the spec folder, not the CHANGELOG** — user-facing text written by an earlier task went stale. (5) **Verification counts written without running them on the pre-change file** (T2 v5, T3 v1) — two amendments |
+| Next | `/akili-archive changes/leader-brief-contract`; then kaizen Apply Mode over the backlog |
