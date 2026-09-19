@@ -72,9 +72,20 @@ If `docs/specs/kaizen-log.md` exists, the command reads its `## Active Lessons` 
 - Success Criteria
 - Next Step
 
+**Claims about current behavior cite or mark — every track.** Each sentence in *Problem / Current Behavior* that states how the system behaves today carries its evidence inline: a citation as run, or the `UNVERIFIED` marker. Never a bare fact. The proposal keeps no ledger of its own — what counts as a citation and which sources are primary are defined in the `/akili-specify` Step 2.2 *Premise Ledger* block, and at Phase 2 the claims a design decision depends on become rows in that design's **Premise Ledger**.
+
 ## Bug Track
 
-For a bug, the proposal replaces the Requirement Delta Preview with a **Bug Diagnosis** produced with the `systematic-debugging` skill: observed symptom, reproduction steps, **confirmed** root cause (not a guess), impact/scope, and a fix strategy. No fix is proposed until the root cause is confirmed. The fix then routes by size — a purely cosmetic one-liner to `/akili-quick`, anything with logic to `/akili-specify` (Lite) in Bug Mode, which requires a regression test (red before the fix, green after).
+For a bug, the proposal replaces the Requirement Delta Preview with a **Bug Diagnosis** produced with the `systematic-debugging` skill: observed symptom, reproduction steps, **confirmed** root cause (not a guess), a **Blast Radius**, and a fix strategy. No fix is proposed until the root cause is confirmed. The fix then routes by size — a purely cosmetic one-liner to `/akili-quick`, anything with logic to `/akili-specify` (Lite) in Bug Mode, which requires a regression test (red before the fix, green after).
+
+The **Blast Radius** is four checks, each recorded with its result and either its citation as run or the `UNVERIFIED` marker naming the owner who will settle it. They are recorded together, but they do not all run at the same point in the flow:
+
+1. **Already fixed?** — runs **first**, before any root-cause work: the cheapest check, and the only one that can make the whole spec unnecessary. A history hit that fixes the symptom is reported to the user and the proposal ends there, with no spec.
+2. **Live path?** — runs as part of confirming the root cause. A cause sitting on code the reproduction never reaches is not confirmed, and the diagnosis reopens.
+3. **Siblings on the same state** — an enumeration, run after the diagnosis; it feeds scope.
+4. **Downstream consumers** — likewise an enumeration that feeds scope.
+
+A check that does not apply reads `n/a` with its reason. **Already fixed?** is the exception: it runs for every bug, a cosmetic one included.
 
 ## Visual Input & Mockup Fallback
 

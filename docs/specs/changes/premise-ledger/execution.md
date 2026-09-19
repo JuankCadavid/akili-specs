@@ -156,3 +156,29 @@ ADVISORY (recorded, not acted on): **Readability** — the Bug Track bullet says
 | Final verification | checks 1–6 green as written (Implementer, re-run by the Reviewer); sweep 0 |
 | Budget | review rounds used: 5 of 9; shipped lines: 98 of ~150 |
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |
+
+### T6 — Mirrors, `docs/flow.md`, README check, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1 of 3) |
+| Date | 2026-09-19 |
+| Implementer | `opus`, effort `high`; skills: `cognitive-doc-design` |
+| Reviewer | `fable`, effort `high` (28+/5− across six files, 50–200 band; parity read is the gate) |
+
+**Attempt 1** — files changed: `docs/commands/akili-specify.md` (Key Rules gains a **Premise Ledger** bullet — the only mirror that names the seven classes — and the approval bullet gains the count line / open rows / Review Design recommendation with Continue available); `docs/commands/akili-propose.md` (cite-or-mark paragraph after the structure list; Bug Track paragraph's "impact/scope" → "a **Blast Radius**" plus a four-item ordered list with run order, stop outcomes, and the `n/a` exception); `docs/commands/akili-constitution.md` (`general-setup/design.md` line gains the item-2 parenthetical in item 3's shape); `docs/skills/judgment-day.md` (one Core Rules line, ledger-first); `docs/flow.md:111` ("impact/scope" → "blast radius"); `CHANGELOG.md` `Unreleased` (three Added bullets — Premise Ledger, ledger-first judging, Blast Radius — one Fixed bullet for the two stale pointers, and the Notes line stating the proposed classification **minor** with its reasoning); `README.md` **no change**, falsifying grep run first (KZ-002): `grep -n -i "impact/scope\|impact & scope\|Step 2\.[345]\|premise" README.md` → no output, exit 1. Implementer verification, run as `tasks.md` states it: check 1 literal sweep = 0 (2 at HEAD before the edit); check 2 `Premise Ledger` per mirror 2 / 1 / 1 / 1; check 3 `No unreleased changes yet` = 0, `premise-ledger` = 4 hits on lines 11–17 inside `Unreleased`; check 4 held-out slugs 0; check 5 parity read recorded per mirror (specify PASS; propose PASS after two self-corrections during the read — an owner obligation the command does not state for *Problem / Current Behavior* removed, "do not run together" softened to the command's "do not all run at this point"; constitution PASS; judgment-day PASS); scope guard over `.claude bin scripts package.json` = 0 lines; `git diff --check` clean. Forward pointers walked: (a) the T1 block's Bug Mode parenthetical and T4's check names are the same four checks in the same order, short form vs FR-9's full names, with the parenthetical citing `/akili-propose` as the definition; (b) neither mirror names a step number for Review Design, so neither can go stale. `git diff --numstat`: CHANGELOG 11/1 · constitution mirror 1/1 · propose mirror 12/1 · specify mirror 2/1 · flow 1/1 · judgment-day mirror 1/0. Pre-review sweep (Leader re-ran check 1): 0. `Not Done / Assumptions`: no gap; one judgment call — class names and column names kept out of `CHANGELOG.md` under the strict reading of "nowhere else outside the command" (the Leader agrees: the changelog is a summary surface and the scope bullet names only the specify mirror as the exception). Runtime events: none.
+
+Reviewer verdict: **PASS.** "All six T6 hunks conform to FR-11, NFR-3, NFR-6 and NFR-8; the parity read (FR-11 *post-sweep read*) finds no mirror sentence describing the Bug Diagnosis, the design contents, or the Review Design step differently from its command at HEAD." Reviewer's own parity read, per mirror: specify PASS (bullet matches block lines 263–311 and Step 2.5 line 348; class names appear on this line only across docs/, README, CHANGELOG); propose PASS (list matches command lines 101–103; on the Leader's question, "run after the diagnosis" and the command's "run after that" name the same moment — both texts use lowercase "the diagnosis" for the root-cause work); constitution PASS (matches command line 308); judgment-day PASS (clause for clause against SKILL.md line 26); flow PASS (numstat 1/1); CHANGELOG PASS (every factual claim checked against HEAD and `571edaf`, including the two old pointer phrases present at base and gone at HEAD; classification reasoning matches requirements §1). All Implementer checks reproduced; corpus-slug grep over the six files = 0.
+
+ADVISORY (recorded, not acted on): **Readability** — the CHANGELOG judgment-day bullet twice says bare "ledger" ("puts the ledger before any other reading", "has no ledger"); NFR-6's gate is scoped to `SKILL.md`, and the T6 directive itself says "ledger-first judging". **Readability** — "run after the diagnosis" (propose mirror item 3, CHANGELOG Blast Radius bullet) is one capital away from a false reading; "after the root cause is confirmed" would remove the ambiguity if a later pass touches these lines.
+
+| Field | Value |
+|---|---|
+| **T6 final status** | **PASS** (attempt 1 of 3) |
+| Requirements covered | FR-11 three bullets and scenario *post-sweep read*; NFR-3 (mirrors cite, never redefine); NFR-8 (CHANGELOG entry written; `changes/scoped-constitution-reads` has not yet written its own — merge serially) |
+| Decisions | README recorded "no change" on the falsifying grep's empty output (FR-11 bullet 2, KZ-002); class names confined to the specify mirror |
+| Issues | none |
+| Execute-time spec edits | none |
+| Final verification | checks 1–5 green as written (Implementer, re-run by the Reviewer); parity read recorded twice (Implementer and Reviewer) |
+| Budget | review rounds used: 6 of 9; shipped lines: 126 of ~150 |
+| Continue gate | gate not answered — continued (unattended run); PASS on attempt 1 |

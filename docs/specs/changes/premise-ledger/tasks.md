@@ -209,7 +209,7 @@ T1 → T2 are **sequential** — same file. T3 ∥ T4 ∥ T5 after T1: each cite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T2, T3, T4, T5 |
 | Requirements | FR-11 three bullets and scenario *post-sweep read*; NFR-3 (mirrors cite, never redefine); NFR-8 |

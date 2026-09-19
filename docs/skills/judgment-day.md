@@ -14,6 +14,7 @@ AKILI-adapted: the findings ledger persists as `docs/specs/<spec-path>/judgment.
 
 ## Core Rules
 
+- Before any other reading, each judge attacks the design's **Premise Ledger** at its source — re-running or re-reading every citation, trying to refute every `UNVERIFIED` row by its own search, and hunting premises the design depends on that carry no row; agreement between the requirements and the design never settles a premise, only the source does.
 - Two judges operate independently and cannot see each other's output.
 - Each judge produces structured findings with severity levels.
 - Findings are reconciled after both judges report.

@@ -108,7 +108,7 @@ Bugs are **not** treated exactly like normal changes — a bug starts from a *sy
 You: /akili-propose checkout-total-wrong the cart total is off by one item after removing a product
 AI:  ✓ classifies this as a Bug (records Type: Bug)
      ✓ loads systematic-debugging
-     ✓ captures: observed symptom, reproduction steps, CONFIRMED root cause, impact/scope
+     ✓ captures: observed symptom, reproduction steps, CONFIRMED root cause, blast radius
      ✓ recommends a fix strategy and the route
 
 You: /akili-specify bugfix/checkout-total-wrong
