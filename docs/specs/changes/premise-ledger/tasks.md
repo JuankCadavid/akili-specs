@@ -347,7 +347,7 @@ T8 ∥ T9 — disjoint files, no shared build output. Both land before T10, whic
 
 **Scope.** Edit `.claude/commands/akili-specify.md`, the Step 2.2 *Premise Ledger* block only:
 
-- **Trigger table, `shared-state` row:** the trigger gains "or a condition or signal more than one block or component reads"; the *must contain* cell defines a **sibling** as any reader of that state or condition, a conditional block in the same template included. The `live-path` and `consumer` rows, the class table, and every other part of the block are untouched.
+- **Trigger table, `shared-state` row:** the trigger gains "or a condition or signal more than one block or component reads"; the *must contain* cell defines a **sibling** as any reader of that state, condition, or signal — all three read-targets FR-2's bullet names, so no branch of the trigger reaches a row whose definition does not — a conditional block in the same template included. The `live-path` and `consumer` rows, the class table, and every other part of the block are untouched.
 - `docs/commands/akili-specify.md` mirror: **run the falsifying grep first** (KZ-002) — `grep -n -i "trigger\|shared-state" docs/commands/akili-specify.md`. The mirror cites the triggers rather than wording them, so expect no change; edit only if a hit shows a sentence turned false, otherwise record "no change" with the command and its output.
 
 **Verification** (repo root).
