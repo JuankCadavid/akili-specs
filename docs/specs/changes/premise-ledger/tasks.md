@@ -245,7 +245,7 @@ T1 (akili-specify.md: Minimum content item 11 + the Premise Ledger block)
 
 | Field | Value |
 |---|---|
-| Status | `[~]` — blocked: the closure gate fired. Gates (a)–(g) green; the literal-reader walkthrough fails this task's own Disqualifier. See `## Pivot Record: T7` in `execution.md` — user decision pending |
+| Status | `[x]` — failed the first closure pass 2026-09-19, Pivot approved, closed at the T10 amendment pass the same day; both readings kept in `walkthrough.md` |
 | Size | L |
 | Depends on | T6 |
 | Requirements | NFR-1, NFR-2, NFR-3, NFR-4, NFR-6, NFR-7; `requirements.md` §8 rows *rule a literal reader cannot execute* and *ceremony*; FR-2 last bullet (class × reader enumeration); proposal success criteria 1–6 |
@@ -372,7 +372,7 @@ T8 ∥ T9 — disjoint files, no shared build output. Both land before T10, whic
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T8, T9 |
 | Requirements | FR-11 (CHANGELOG entry matches the shipped text); NFR-1, NFR-3, NFR-6; `requirements.md` §8 row *rule a literal reader cannot execute*; the amended FR-2 and FR-7 scenarios; proposal success criterion 2 |

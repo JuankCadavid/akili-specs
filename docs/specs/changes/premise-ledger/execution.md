@@ -354,3 +354,56 @@ ADVISORY: none (suppressed by band).
 | Continue gate | gate not answered — continued (unattended run); PASS on attempt 2 |
 
 **Correction Closure follow-up (T9, backward direction).** A **second Reviewer** had been dispatched for T9 attempt 2 when the first went idle after its session limit; the first recovered and delivered, so the second was redundant — it audited independently and also returned **PASS**, and its eight confirmations were checked by md5 rather than by `diff`. It caught one thing the Leader's pivot sweep missed: `tasks.md` T9's **scope bullet** still read "any reader of that state or condition", two terms, stale against the FR-2 bullet it points at. Fixed 2026-09-19: the bullet now names all three read-targets and says why. `grep -rn "state or condition"` over the spec folder and the packaged tree now returns one hit, the verbatim Reviewer FAIL quoted in T9's attempt-1 record, which must keep the superseded wording because it is evidence of what was found. Recorded for the retrospective: the forward sweep checked the *rule* sites and the *live* documents but not the **task scope bullets**, which are instructions to a future worker and go stale the same way.
+
+### T10 — Closure re-gate: CHANGELOG, re-walk of Cases 2, 11, 12, walkthrough update
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 3 of 3 — the ceiling was reached but not exceeded) |
+| Date | 2026-09-19 |
+| Workers | Gates + CHANGELOG: `opus`, effort `high`. Re-walk: a **fresh literal reader** on `sonnet`, a different context and a different model from the first gate's reader. §3/§7/§8 assembly: the Leader, as T10's scope assigns |
+| Reviewer | `sonnet`, effort `high`, full sweep of the ~900-line closure document by path |
+
+**Gates half.** `CHANGELOG.md`'s two bullets amended to the shipped text; the six movable gates re-run and recorded in `walkthrough.md` §2 as an **Amendment pass** beside the original readings, which were left exactly as written. All six green, no decisive figure moved except three the amendment is expected to change (the skill's *Premise Ledger* mentions 3 → 4 and its size, and `akili-specify.md`'s size). Gate (f) re-read for the `shared-state` row: **0 empty cells**, and structurally so — no reader is keyed to the trigger's text, since Step 2.5 reads status and Impact, the judge reads "a triggered class", and the hand-off reads the class name. The CHANGELOG falsifier was run **before** the edit and read 0, then 2 after. Implementer judgment call, accepted: the judge-rule bullet still said "Skill version 1.7 → 1.8" while the frontmatter reads 1.9, so it was corrected inside the same bullet rather than shipping a sentence the file no longer supports.
+
+**Re-walk half.** Cases 2, 11 and 12 re-walked against the amended text by a reader that saw only the block, the Hard Rules section, and those three cards. **All three cases now reach their key premise**, each on a sentence that did not exist before the amendment: Case 2's primary bullet moves `INCONCLUSIVE` → **DEMANDED** on the widened trigger's sibling clause; Case 11's three uncited premises move `INCONCLUSIVE` → **DEMANDED** ×3 on the reach clause's empty-cell sentence; Case 12's two key premises move `INCONCLUSIVE` → **DEMANDED** on the empty-cell sentence and the document sentence. Findings **F1, F2 and F3 are closed**. F9 stays unamended as a series input. Two new findings recorded, neither gating: **F14** (a claim that also feeds a triggered row's required content has no stated route to its own row) and **F15** (a design's citation to its own enumeration is classified by neither rule) — F15 is recorded with its direction stated, because that premise read `DEMANDED` at the first gate and `INCONCLUSIVE` now. Proposal success criterion 2 flips to **met**.
+
+**Attempt 1** — Reviewer **FAIL**: §8's isolation row attributed "Read nothing outside the three permitted inputs" to the reader's verdicts file, where that sentence does not appear; it is the reader's wording from its **completion report** to the Leader. Violated the document's own Evidence rule. Fixed by naming both provenances and quoting the verdicts file's positive "Inputs read:" line verbatim. The Reviewer also flagged §6 as stale against the re-sized budget, which the Leader rewrote in the same attempt.
+
+**Attempt 2** — Reviewer **FAIL**: the rewritten §6's Full-run shipped-lines cell read **130** against a breakdown summing to **132**. The Leader had taken 130 from the cumulative `git diff --numstat 571edaf HEAD` (+128 −14) while the breakdown is per task. Fixed to 132, with **both countings recorded and the divergence explained** — a line a later task re-changed is counted once cumulatively and twice per task (T9 replaced the trigger row T1 added; T10 replaced two CHANGELOG lines T6 added).
+
+**Attempt 3** — Reviewer **PASS**: "The shipped-lines fix is arithmetically correct and independently verified; nothing else in the document moved." The Reviewer re-ran every per-commit `numstat` and summed 132 itself, reproduced the cumulative +128 −14, and confirmed §3, §7, §8 and the lead paragraph byte-identical to the prior attempt. It required one bookkeeping correction before close, which the Leader made: **review rounds 15, not 14, and rework attempts 4, not 3** — T10 drew two Reviewer FAILs, so it consumed two attempts by the accounting rule.
+
+| Field | Value |
+|---|---|
+| **T10 final status** | **PASS** (attempt 3 of 3) |
+| Requirements covered | FR-11 (CHANGELOG matches the amended text); NFR-1, NFR-3, NFR-6, NFR-8; `requirements.md` §8 row *rule a literal reader cannot execute* — **now satisfied on all three re-walked cases**; the amended FR-2 and FR-7 scenarios; proposal success criterion 2 |
+| Decisions | The re-walk used a second fresh reader rather than the first, because one reader cannot un-see the text it already judged; the confound is recorded in §8's *What this pass does not claim*. Cases 1, 3–10, 13 and 14 were **not** re-walked: nothing they turn on changed, and movement under a different reader would be reader variance rather than text |
+| Issues | 2 Reviewer FAILs, both on the Leader's own evidence record rather than on shipped text — a misattributed quote and an arithmetic error inside the budget table. Noted for the retrospective: the closure document's assembler is the Leader, and the Leader's work in this spec drew three of the run's four rework attempts (T9's dropped term, T10's quote, T10's arithmetic) |
+| Execute-time spec edits | none in this task |
+| Final verification | six gates re-run green with outputs; three cases re-walked with quoted sentences; CHANGELOG falsifier run before the edit; every figure re-derived by the Reviewer |
+| Budget | **tripwire fired** — review rounds 15 against 12, rework attempts 4 against 2. Tasks 10/10 and shipped lines 132 against ~160 are both inside budget. Escalated to the user in the run report |
+| Continue gate | last task in the spec; **stopped for the user** with the tripwire |
+
+## T7 — closed by the amendment
+
+T7's rework loop was stopped by a Pivot, not by its attempt ceiling, and the Pivot Record above is what the user answered. The amendment it authorised is shipped (T8, T9), its gate is re-run (T10), and the three cases that failed T7's Disqualifier now reach their key premise. **T7's gate result therefore stands as: failed at the first pass on 2026-09-19, closed at the amendment pass the same day**, with both readings kept in `walkthrough.md` — the first-gate verdict as history, the amendment pass as the current state. T7 moves `[~]` → `[x]`; its deliverable, `walkthrough.md`, exists and is Reviewer-PASSed as a faithful record twice, once per pass.
+
+## 3. Summary — all tasks complete
+
+| Task | Status | Attempts | Reviewer |
+|---|---|---|---|
+| T1 Premise Ledger block + item 11 | `[x]` PASS | 1 | `fable` |
+| T2 Step 1.2 · 2.1 · 2.3 · 2.5 · checklist | `[x]` PASS | 1 | `fable` |
+| T3 `judgment-day` ledger-first rule | `[x]` PASS | 1 | `fable` |
+| T4 `/akili-propose` Blast Radius | `[x]` PASS | 1 | `fable` |
+| T5 constitution template clause | `[x]` PASS | 1 | `fable` |
+| T6 mirrors · flow · README · CHANGELOG | `[x]` PASS | 1 | `fable` |
+| T7 closure gate | `[x]` failed first pass → Pivot → closed at the amendment pass | 2 | `fable` |
+| T8 judge-rule reach clause | `[x]` PASS (degraded-pair: opus/sonnet) | 1 | `sonnet` |
+| T9 `shared-state` trigger widened | `[x]` PASS | 2 | `opus` ×2 |
+| T10 closure re-gate | `[x]` PASS | 3 | `sonnet` |
+
+**What shipped:** the Premise Ledger definition and its ten citing surfaces, the ledger-first judge rule with its reach clause, the four-check Blast Radius, the constitution template clause, four mirrors, one flow line, and a `CHANGELOG.md` `Unreleased` entry proposing **minor**. 132 shipped lines across four packaged files and five documents; no packaged file added, so the installer is untouched and `verify:cli` / `pack:dry-run` stay green at 275 files.
+
+**What the closure gate bought:** three false-premise classes the shipped text could not have caught — an uncited ledger row, a row cited to a document, and a shared condition read by more than one block — each found by a reader that had never seen the spec, each closed at its source with the user's approval, and each re-tested by a second blind reader. Two further ambiguities (F14, F15) and one unamended finding (F9) are recorded for the next spec rather than chased here.
