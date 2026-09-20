@@ -425,10 +425,10 @@ One line: bind the recording clause to the single trigger the spec states (escal
 
 | Field | Value |
 |---|---|
-| Status | **`[~]` — Implementer complete and Leader-verified; parked before review at the budget tripwire** |
+| Status | **PASS** — parked before review at the tripwire, released by the user, audited and closed |
 | Date | 2026-09-19 |
 | Implementer attempts | 1 (complete, not yet audited) |
-| Review rounds | **0 — the Reviewer was not dispatched.** Running total for the spec stays 8 of 10 |
+| Review rounds | 1 (`PASS` first time, dispatched after the user released the run) — running total for the spec: 9 |
 | Shipped lines | 6 insertions / 1 deletion across two files (estimate was ~12) |
 | Working tree | both edits **left in place, uncommitted** |
 
@@ -485,3 +485,33 @@ It cites the table **and then enumerates it**. The premise was verified by readi
 #### Outstanding on resume
 
 The Reviewer audit, unstarted. Attempts remaining: 3 of 3 — none consumed.
+
+#### Review — dispatched after the user released the run
+
+The user was presented with the tripwire delta and chose to continue and accept the overrun. The Reviewer was dispatched then, not before.
+
+*Reviewer verdict:* **`PASS`**, first time, no issues.
+
+> SUMMARY: Both edits satisfy FR-4's `/akili-resume` bullet and FR-9's three obligations, and the amended clean-run predicate survives the disqualifier: no run containing an escaped defect reads clean. Waiver rows and the surviving "a clean spec teaches nothing new" sentence are intact; nothing merges the two records.
+
+**On the hardest question — an escaped defect in a task that *was* fully reviewed.** The brief asked whether keying the clause to *"any task carrying a `REVIEW_SKIPPED` record"* leaves a hole. The Reviewer ruled the narrow keying **correct**, on three grounds:
+
+1. `requirements.md` §3 defines *escaped defect* as occurring *"in a task that skipped its conformance review"* — under that definition the term **cannot denote** a defect in a reviewed task, so naming the record loses nothing.
+2. FR-9's own sentence is scoped the same way — *"a skipped task with an escaped defect."*
+3. **There is no resulting hole in the predicate.** A later-found defect in a reviewed task still fails an existing conjunct: at `/akili-test` it is a `PRODUCT_BUG`, at `/akili-validate` a validation FAIL/WARN — both already Measure rows and both already in the conjunction.
+
+Widening the clause would have been an unrequested redefinition of a §3 glossary term. The Reviewer also ruled that *"carrying a `REVIEW_SKIPPED` record"* does not silently annex `REVIEW_WAIVED` tasks — correct, since §3 distinguishes *never owed* from *owed and lost*, and the waiver keeps its own conjunct keyed to `inline`/`same-model`.
+
+**On the escaped-defect Measure row (§3, term for term):** all five finding locations reproduced in §3's order with the skipped-task qualifier kept, and the Source column mapping 1:1 onto them. Nothing dropped, nothing added; the `(§3)` label points back at the definition rather than forking it.
+
+**On NFR-3:** nothing sums skips and waivers — two adjacent but separate Measure rows, separately greppable labels, separate template rows, two separate conjuncts in the predicate. No metric is phrased as "tasks without a Reviewer `PASS`", the anti-pattern FR-4's scenario forbids.
+
+**On FR-4's `/akili-resume` bullet — the Implementer's judgment call is upheld**, and on better grounds than the Leader's provisional acceptance. The deciding text is FR-4's own qualifier: report the skip *"with its predicate basis, **exactly as it reports a waiver**"*. The waiver line prints one element of a five-field record, so *exactly as* **mandates** the compact parallel form rather than merely permitting it. The Reviewer added a distinction the Leader had not drawn: *"predicate basis" is not "the record's four fields" — the fields are what FR-4's table says the record contains; the basis is what made the gate not owed.* The shipped exemplar carries exactly that. It also confirmed line 49 is the file's **only** closure-state enumeration, so no second site omits the new state.
+
+*`ADVISORY`:* none — suppressed under the `< 50 LOC` band.
+
+*Runtime events:* none. This verdict arrived complete — the first on this spec not to be truncated.
+
+#### Final verification result
+
+All five task checks green, re-run independently by the Leader (`VERIFIED`). The clean-run falsifier executed as a two-direction case walk with the classification flipping CLEAN → NOT CLEAN. Disqualifier read rather than counted. Reviewer `PASS` on the first attempt, with the Implementer's one judgment call upheld on the requirement's own text. **The `/akili-archive` premise refutation recorded above remains open and belongs to the user, not to this task.**

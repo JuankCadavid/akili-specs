@@ -46,6 +46,7 @@ For each spec, determine:
 - **Last Action:** Most recent entry in `execution.md` (if exists)
 - **Blocked:** Any `[~]` tasks or unresolved FAIL findings
 - **`REVIEW_WAIVED` block:** A `## REVIEW_WAIVED: <Task ID>` block is a closed task's last action — report it there with its flag (e.g. "T-4 closed — REVIEW_WAIVED (inline)"), never as a *Blocked* item.
+- **`REVIEW_SKIPPED` block:** A `## REVIEW_SKIPPED: <Task ID>` block is a closed task's last action — report it there with its predicate basis (e.g. "T-6 closed — REVIEW_SKIPPED (predicate held, no override applied)"), never as a *Blocked* item.
 
 ### Step 2: Present Dashboard
 

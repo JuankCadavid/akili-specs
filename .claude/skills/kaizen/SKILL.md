@@ -68,10 +68,12 @@ Extract improvement signals from the spec's own evidence:
 | Escalations from `/akili-quick` into this spec | `docs/specs/quick/quick-log.md`, if applicable |
 | Drift attributable to this spec | the most recent report in `docs/specs/audits/`, legacy `docs/specs/drift-report.md` as fallback |
 | Tasks closed under `REVIEW_WAIVED` (by flag) | `execution.md` `## REVIEW_WAIVED` blocks — `inline` / `same-model` = no exercised gate; `degraded-pair` = exercised, noted |
+| Tasks closed under `REVIEW_SKIPPED` (by task) | `execution.md` `## REVIEW_SKIPPED` blocks — each task's predicate evidence (Review intensity, Step 2.3) |
+| Escaped defects (§3) | a defect found after a task closed — at `/akili-test`, `/akili-validate`, a later task, the closure gate, or HITL — in a task carrying a `REVIEW_SKIPPED` record: `test-report.md`, `validation-report.md`, `execution.md` (later tasks), closure gate output, HITL notes |
 
 **Most recent report** means the highest `Date` header *inside* the report files, ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. A scaffolded `README.md` or `.gitkeep` is not a report: fall back to legacy `docs/specs/drift-report.md` only when the directory holds **no report file at all**. Both reads are optional — a missing drift source is a blank row, not a blocker.
 
-If every signal is clean (zero rework, no pivots, no product bugs, no severe findings, and no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`), write a one-line **clean run** entry file in phase 4 and skip phases 2–3. A clean spec teaches nothing new — say so.
+If every signal is clean (zero rework, no pivots, no product bugs, no severe findings, no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`, and no escaped defect in any task carrying a `REVIEW_SKIPPED` record), write a one-line **clean run** entry file in phase 4 and skip phases 2–3. A clean spec teaches nothing new — say so. A `REVIEW_SKIPPED` record with no escaped defect against it is routine and does not by itself break the clean read; an escaped defect against one does.
 
 ### 2. Learn
 
@@ -157,6 +159,8 @@ Write the retrospective to `docs/specs/kaizen/<safe-spec-slug>.md` — one file 
 | Judgment-day severe findings | 2 | design.md review notes |
 | Validation FAIL / WARN | 0 / 2 | validation-report.md |
 | Tasks closed under `REVIEW_WAIVED` (by flag) | 0 | execution.md |
+| Tasks closed under `REVIEW_SKIPPED` (by task) | 0 | execution.md |
+| Escaped defects (§3) | 0 | test-report.md / validation-report.md |
 
 ## Lessons
 
