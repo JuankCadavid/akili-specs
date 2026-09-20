@@ -1148,7 +1148,6 @@ function fetchLatestVersion() {
           resolve(null);
         }
       });
-      res.on("error", () => resolve(null));
     });
     req.on("error", () => resolve(null));
     req.on("timeout", () => {
