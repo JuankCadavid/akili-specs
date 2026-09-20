@@ -50,7 +50,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 3.2 task-quality rules |
 | Edit | **A removal or rename sweep is keyed on the obligation, not on the identifier being removed.** A rule that mandates the thing you are deleting may never name it — *"written to both root guides"* survives every `grep` for the filename. Specify the sweep on what the rule *obliges* (`both`, `each`, the collective plural), and read every hit. |
 | Severity | Medium |
-| Status | pending |
+| Status | `applied (2026-09-20)` |
 
 ### P2
 
@@ -60,7 +60,7 @@
 | Target | `KZ-changes--kaizen-loop-closure-2` |
 | Edit | Add `changes/agents-md-canonical` as a source spec; raise severity **Medium → High**; append the recurrence note: *"recurred — the paraphrase clause did not cover an obligation stated in a collective noun that never names the superseded identifier (`:1128`, 'both root guides'), costing a second rework round."* |
 | Severity | High |
-| Status | pending |
+| Status | `applied (2026-09-20)` |
 
 ### P3
 
@@ -70,4 +70,4 @@
 | Target | `KZ-changes--gate-falsifiability-2` |
 | Edit | Add `changes/agents-md-canonical` as a source spec; append the recurrence note: *"recurred in a consolidation rather than a shipping pass — a content-preservation check specified at `^## ` heading granularity reported green while the only copy of the `tdd` skill binding was deleted; two independent reads confirmed it clean."* |
 | Severity | High (already) |
-| Status | pending |
+| Status | `applied (2026-09-20)` |
