@@ -699,3 +699,118 @@ Per *Advisory Never Gates* and *Advisory Never Becomes A Task*.
 #### Final verification result
 
 All six checks green, re-run independently by the Leader (`VERIFIED`), plus the NFR-1 and command-scope constraint checks. Baselines executed at `c87187f`. KZ-002's falsifying grep run before the README/flow edits, with "no change" recorded against its output rather than asserted. **The parity read is recorded per mirror with source line citations — a PASS without it would not have been a PASS.**
+
+---
+
+### T9 — Closure gate
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 |
+| Review rounds | 1 (`PASS` first time) — **final total for the spec: 13** |
+| Shipped lines | **0 shipped** · 163 spec-local (`closure.md`) |
+| Requirements covered | NFR-1..NFR-6, NFR-8; FR-9 (trial terms recorded); `requirements.md` §8 |
+
+**Files changed:** `docs/specs/changes/review-intensity-routing/closure.md` — created. **No packaged file edited**, as the task requires.
+
+#### Attempt 1 — Reviewer `PASS`
+
+*Gates (a)–(g): all pass.* The Leader independently re-ran **(a)** — frozen paths empty — and **(g)**: `npm run verify:cli` exit 0, `npm run pack:dry-run` exit 0, `git diff --check` exit 0, run with the tree quiet and no worker active. The Reviewer re-confirmed (b) and (c).
+
+*Gate (d) carries a documented discrepancy rather than a clean pass.* Two hits exist in shipped files — `akili-specify.md:309` (a kaizen lesson id) and `akili-execute.md:177` (a dependency hand-off) — both **byte-identical at `c87187f`** and neither naming a task record. Under `requirements.md`'s governing wording (*task records* reserved) this is a **PASS**; under `tasks.md`'s stricter wording (*no shipped file may name either spec*) it would **FAIL**. The discrepancy is stated in `closure.md` rather than resolved silently — the same finding this spec's T2 entry already recorded.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`** — the held-out count, gates (a) and (g) all re-executed independently and matched.
+
+#### The results that matter
+
+| Test | Result |
+|---|---|
+| **Held-out record count** | **12, not 14** — established by counting, not inherited |
+| **Predicate walk** | **0 of 12 qualify.** Condition 2 is the dominant disqualifier, failing on all 12; condition 3 fails independently on 5; overrides (a)/(b)/(c) fire on 8+ |
+| **Inert test (NFR-6)** | **PASS** — 0/12, not 12/12. The predicate is not a rule nothing can fail |
+| **Refutation test (NFR-6)** | **PASS** — no held-out task whose Reviewer returned a real FAIL qualifies. The sharpest case is `leader-brief-contract` T6, the one corpus task whose review caught a real Pivot-triggering defect: the predicate excludes it on **two independent grounds** |
+| **Mutation falsifier** | **Executed — and produced NO FLIP** |
+
+**P-15 is refuted, exactly as P-7 was.** DD-11 and P-15 assert 14 held-out records. The Implementer counted `### T` headers instead of inheriting the figure: `gate-falsifiability` 6/6, but `leader-brief-contract` has **6 in `tasks.md` and 8 in `execution.md`** — the two extras being `T2 (re-opened)` and `T6 — attempt 2`, **Pivot-driven re-executions rather than independent task records**. Since FR-1 reads fields that live in `tasks.md`, the usable base is **12**. The Leader verified this independently. **Two of this spec's fifteen premises were refuted by executing it**, both by reading a source past the point the original verification stopped.
+
+#### Q1 — the mutation falsifier produced no flip. Ruled: the *falsifier* is mis-specified, not the walk.
+
+T9's own `Falsifier` cell asserts that a walk whose decisions do not move under the mutation *"was reading the tasks, not the text."* The Implementer executed the mutation properly, observed no flip, and **reported it as a finding rather than manufacturing the expected result**.
+
+The Reviewer ruled the Implementer right and the task text wrong:
+
+> `tasks.md` T9's Falsifier assumes override (c) is the marginal disqualifier for report-producing records. It is not: condition 2 and override (c) both target the same structural property — a walkthrough is neither a pass/fail command nor consumer-free — so deleting (c) cannot move a record that already fails condition 2. On this corpus no record has (c) as its sole ground, so the mutation is **structurally incapable** of isolating it. That is a defect in the falsifier's design, not evidence the walk read task metadata.
+
+It then established the walk's standing **on independent grounds rather than on the Implementer's say-so**, spot-checking two records itself against the shipped predicate and quoting their archived `Disqualifier` text verbatim.
+
+**And it named the residual, unprompted — this is the honest part and it is recorded as the reason the walk clears:**
+
+> Residual, and it is real: text-sensitivity was never *positively* demonstrated. A mutation that deletes **condition 2** would have flipped records and shown the walk moves with the text. Nobody ran it. My two-record spot-check substitutes for it; **record that as the reason the walk clears, not the executed mutation.**
+
+#### Q2 — zero yield across thirteen tasks. Ruled (a) + (b), explicitly not (c).
+
+The predicate qualified **nothing**: 0 of 12 held-out records, plus this spec's own T6, the single task it classified `skip-eligible`, which did not earn the claim.
+
+NFR-6 passes on its literal terms — not inert, not refuted. But NFR-6 tests only those two directions, and the Leader put the third to the Reviewer explicitly: a predicate that qualifies nothing delivers no speed, and speed is the change's entire justification.
+
+> Zero-of-thirteen is the expected outcome of a deliberately strict predicate against an unrepresentative corpus: **both held-out specs are methodology-prose specs whose `Disqualifier`s necessarily instruct a reader to read, so condition 2 fails by construction.** A code spec with a unit-test `Disqualifier` behaves differently. That is a corpus limit, not a predicate defect.
+>
+> Not (c). **Widening any condition now would fit the rule to the data it was meant to be tested against** — T9's own `Disqualifier` forbids exactly that, and a revision is a user decision under the Pivot Protocol.
+
+**On prominence, it found the one thing `closure.md` does not say:**
+
+> `closure.md` states 0/12 in its verdict paragraph, its summary table, §3, §4 and §8. A reader cannot miss the number. **What it never states is the *consequence*** — that the skip component may deliver zero speed, leaving Implementer right-sizing and effort banding as the change's entire benefit, which `proposal.md` already measures at one round in fifteen. §8 frames the result as predicate robustness; **the user approving a three-spec trial needs it framed as yield.**
+
+#### `ADVISORY` findings — recorded, and going no further
+
+| Lens | Finding |
+|---|---|
+| Risk | The zero-yield **consequence** should reach the user framed in the change's own terms, not only as a count. *"This is the honest-terms finding, not a rule violation; I am not gating on it."* |
+| Readability | **Condition 3 applied inconsistently** in the walk: `none (no shared symbol changed)` treated as passing on 10 records while `gate-falsifiability` T4's *"none beyond the mirrors themselves"* is flagged ambiguous. Both are qualified `none`s. Verdict-neutral, since condition 2 fails universally — but it is **a live instance of §8's *rule a literal reader cannot execute* row** |
+| Readability | §7 states the line delta as "+16 / +40"; total churn is 176 against a ~120 budget for *"added or changed"* lines, which a reader could miss |
+
+**None was actioned.** The RISK item asks for the framing to be **carried to the user at the continue gate**, which is a Leader duty and not an edit — `closure.md` was not amended, because acting on an advisory inside the spec that produced it is what *Advisory Never Becomes A Task* forbids. The second item is a genuine methodology observation and travels to the retrospective as such.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| Implementer stayed on **T2 `sonnet` at `xhigh`**, with no tier escalation | The work is careful reading and tabulation over 12 records rather than novel reasoning, and keeping the Implementer at T2 left `opus` free for the audit — which is where the judgment was actually needed, and where it paid for itself twice |
+| The Reviewer was asked to **rule on Q1 and Q2 rather than confirm them**, with all outcomes left open including "the walk must be redone" and "the predicate needs revision" | A closure gate that only ever confirms is the inert gate its own spec warns about |
+| `closure.md` **not amended** for the RISK advisory | Advisories are recorded and die there. The framing is carried to the user by the Leader at the continue gate instead |
+
+#### Final verification result
+
+Gates (a)–(g) pass, with (d)'s discrepancy stated rather than resolved silently; (a) and (g) re-run independently by the Leader with the tree quiet. The held-out base is **12**, established by counting and verified twice. **Inert test passes; refutation test passes.** The mutation falsifier was executed and its null result reported honestly; the walk's standing rests on the Reviewer's independent two-record spot-check, which is recorded as such. Trial terms byte-identical to FR-9. Budget actuals reported with their cause.
+
+---
+
+## 3. Summary — all tasks complete
+
+| Measure | Budgeted (`design.md` §13) | Actual | Delta |
+|---|---|---|---|
+| Tasks | 9 | **9** | — |
+| Shipped lines | ~120 | **136 insertions / 40 deletions across 17 packaged files** | over, ~13% on insertions |
+| Review rounds | 10 | **13** | **+3** |
+| Implementer attempts | — | 12 across 9 tasks |
+| Tasks needing rework | — | **3** (T1, T2, T5), plus T3 | |
+
+**Final status: 9 of 9 `[x]`.** Every task closed on a Reviewer `PASS` from an independent context on a different model — `author ≠ auditor` held on all nine, Implementer at T2 `sonnet` throughout with **no tier escalation on any task**, Reviewer at T3 `opus`. **No `REVIEW_WAIVED` and no `REVIEW_SKIPPED` record was written**: the gate was never lost, and never earned away.
+
+**Why the overrun.** Five Reviewer FAILs, and four shared one shape: a rule inserted beside a surviving neighbour that contradicts it, or an obligation whose named mechanism cannot deliver it. **Three of those were defects in the approved documents, not in the implementation** — FR-10 undelivered by any shipped sentence; FR-5 naming a Verification Checklist that provably runs *after* the gate it was meant to guard; and two Premise Ledger entries (P-7, P-15) verified by reading a source only as far as the clause that agreed with them. The budget assumed two rework rounds for a prose spec with one definition and eight citing surfaces; it needed three, because the spec itself carried defects that only surface when someone executes it literally.
+
+**Two scope additions**, both escalated and both user-approved: the Step 3.3 presentation site (T5) and surface 15b, `/akili-archive`'s signal list (T8). Neither was absorbed by widening a task.
+
+**The dogfooding result, stated plainly.** This spec designed exactly one `skip-eligible` task to test its own rule. **The predicate refused it**, on the task's own `Disqualifier`. Across the 12 held-out records and this spec's T6, the predicate has qualified **zero of thirteen tasks examined**. It is not inert and it is not refuted — but on this evidence the skip component's measured yield is zero, and the change's benefit rests on Implementer right-sizing and effort banding. The three-spec trial the user fixed, with one escaped defect as the abort criterion, is what will settle whether that holds outside a corpus of methodology-prose specs.
+
+**Leader errors recorded, as a pattern rather than three slips.** Three Leader-added brief checks asserted absolute thresholds that pre-existing text already violated (the held-out grep in T2, the `deterministic` grep in T7, the DD-11 CHANGELOG grep in T8), and none was tagged `[advisory-grade]` as the brief contract's clause (d) requires. In all three cases the Implementer flagged the conflict rather than silently editing out-of-scope text or silently passing — the correct behavior, and the reason none of them cost a rework attempt.
+
+**Open items carried out of this spec** — none may be absorbed by a task here:
+
+1. **P-15 correction, 14 → 12**, in `design.md` DD-11 and §11, matching P-7's already-recorded refutation.
+2. **The `requirements.md` / `tasks.md` discrepancy** on held-out naming: `tasks.md` §2 states a stricter rule than the FR-level text supports.
+3. **A `/akili-specify` Step 3.2 authoring check** — a task may be classified `skip-eligible` only if its `Disqualifier` names no read or judgment. T6's contradiction was determinable at specify time from two adjacent fields, and nothing looked. Raised by T6's Reviewer, declined as a task here under *Advisory Never Becomes A Task*.
+4. **T9's `Falsifier` is mis-specified** — deleting override (c) cannot isolate it on a corpus where condition 2 fails first. A condition-2 mutation would demonstrate text-sensitivity positively.
+5. **Condition 3's treatment of qualified `none` values** (`"none beyond the mirrors themselves"`) is a live instance of §8's *rule a literal reader cannot execute*.
