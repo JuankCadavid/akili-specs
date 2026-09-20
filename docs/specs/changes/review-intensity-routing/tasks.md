@@ -215,7 +215,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | **`skip-eligible`** — this task **cites** an obligation defined in `/akili-specify` Step 3.2 and creates none; `Consumers: none`; its verification is three greps and a `numstat`, all deterministic. **The claim is proved at execute time by FR-1, not granted here.** If the Implementer does not execute the falsifier, a `checklist` review follows and the mismatch is reported (DD-12) |
 | Depends on | T5 (the field must exist before the template can name it) |

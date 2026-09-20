@@ -543,3 +543,85 @@ Widening the clause would have been an unrequested redefinition of a §3 glossar
 #### Final verification result
 
 All five task checks green, re-run independently by the Leader (`VERIFIED`). The clean-run falsifier executed as a two-direction case walk with the classification flipping CLEAN → NOT CLEAN. Disqualifier read rather than counted. Reviewer `PASS` on the first attempt, with the Implementer's one judgment call upheld on the requirement's own text. **The `/akili-archive` premise refutation recorded above remains open and belongs to the user, not to this task.**
+
+---
+
+### T6 — `/akili-constitution` Step 7 item 3: the template description names the `Review` field
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 |
+| Review rounds | 1 (`PASS` first time) — running total for the spec: 11 |
+| Shipped lines | 1 line replaced (`numstat` exactly `1  1`; estimate was ~1) |
+| Requirements covered | FR-5 (constitution half), NFR-2 |
+| `Review` field as planned | **`skip-eligible`** — the one task in this spec carrying that claim |
+| **Predicate outcome** | **NOT EARNED — a conformance Reviewer was owed and ran.** See the walk below |
+
+**Files changed:** `.claude/commands/akili-constitution.md`, line 309 only.
+
+#### The predicate walk — this spec's own rule, applied to its own task
+
+This is the task the spec designated as its live test of FR-1. The Leader walked the four conditions against the **Implementer's actual report**, never against the plan (DD-7).
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | `Falsifier` executed against post-change code, gate observed **red**, command and red output recorded | ✅ **PASS** — baseline at `c87187f` read `Review` **0** in the item-3 line and `skip-eligible` **0** file-wide, both observed red; the `numstat` mutation on a scratch copy moved the reading from `1  1` to **`2  2`** |
+| 2 | Verification fully deterministic; **the task's `Disqualifier` names no read or judgment** | ❌ **FAIL** |
+| 3 | `Consumers` reads `none` | ✅ **PASS** — *"none (no shared symbol changed)"* |
+| 4 | No override applies | moot — condition 2 already failed |
+
+**Condition 2 fails on the task's own `Disqualifier`**, quoted verbatim from `tasks.md`:
+
+> A clause that says "a review field" without naming `/akili-specify` Step 3.2 cites nothing — check 1 catches the name but **read it** to confirm the citation. If the clause restates the four values' meaning rather than naming them, NFR-2 is violated
+
+It names a read. FR-1 condition 2 excludes exactly that.
+
+**Outcome: the `skip-eligible` claim was not earned, and a conformance Reviewer was spawned** — which is FR-1's third scenario (*Plan says skip, report does not earn it*) executing as written: *"THEN the Leader spawns a conformance Reviewer and records that the predicted skip was not earned … BUT it must NOT be recorded as a `REVIEW_SKIPPED`."* No `REVIEW_SKIPPED` record was written for T6. **Per DD-12 the mismatch is reported at the continue gate**, and it was.
+
+**This is not an Implementer failure.** The Implementer executed the falsifier properly and recorded its red — condition 1, the expensive condition, passed. The claim failed on a property of the *task text*, fixed at specify time.
+
+**Note on how this run treated the rule.** The Leader did **not** use the shipped predicate to skip a review in the run that writes it: the command executing is the one loaded at session start, and the block's own consumers (the mirrors) were unwritten. The predicate was walked and **recorded** rather than acted on. In the event it independently demanded the review the Leader was going to run anyway, so the two never conflicted — but the order of reasoning matters for the audit trail, and the walk stands as evidence for T9 rather than as a decision.
+
+#### Attempt 1 — Reviewer `PASS`
+
+*What landed:* one line. The item-3 description gains a clause naming the `Review` field with its four values and citing `/akili-specify` Step 3.2 for its absent-value rule, in the same shape the sentence already uses for the four Verification fields.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `Review` in line 309 **1** · `skip-eligible` file-wide **1** (the clause is the only mention) · `git diff --numstat c87187f` exactly **`1  1`** · `deterministic` **0** · one file modified.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**.
+
+*Reviewer verdict:* **`PASS`**, first time, no issues.
+
+> SUMMARY: The shipped clause on line 309 names the `Review` field, cites `/akili-specify` Step 3.2 — where the field is in fact defined … enumerates the four values without restating their meaning, and defers the absent-value rule rather than duplicating it, so NFR-2 holds.
+
+The Reviewer re-ran the gate itself and added a precision the brief had not asked for: the citation names **Step 3.2 plainly rather than its *Falsifiability* block**, which is correct, since `Review` sits in the field list and not in that block.
+
+*`ADVISORY`:* suppressed per the `< 50 LOC` band.
+
+*Runtime events:* none.
+
+#### Observation from the review — recorded here and going no further
+
+The Leader asked the Reviewer whether a `Disqualifier` demanding a read makes `skip-eligible` unreachable **by construction**. It **corrected the framing**:
+
+> the two are **not** mutually exclusive by construction … a task can legitimately carry a purely mechanical `Disqualifier` ("the grep count is not 1") alongside `skip-eligible`; the predicate then clears. What is true is narrower … `/akili-specify` Step 3.2 defines `skip-eligible` as a claim proved at execute time but imposes **no authoring constraint tying the classification to the `Disqualifier` it is written next to**. T6's contradiction … was fully determinable at specify time from two adjacent fields in the same task table, and nothing looked. The execute-time refusal is the system working, but it is working late: the cost is a spawned review that the spec author could have avoided by writing `checklist`.
+
+Its suggested remedy — a one-line authoring check in Step 3.2, *"a task may be classified `skip-eligible` only if its `Disqualifier` names no read or judgment (FR-1 condition 2)"*, citing FR-1 rather than restating it.
+
+**The Reviewer called this "a candidate task for this spec". It is declined as such, and the reason is a rule, not a preference.** *Advisory Never Becomes A Task*: a finding surfaced during a run may not mint a task inside that run, and no existing task may be widened to absorb it. It carries no requirement, no design decision and no budget line, and it arrives with less vetting than the approved work. The route from here runs **out** of this spec — recorded, carried to the closure gate and the retrospective, and the user decides whether it earns a proposal. **T8 will not absorb it.**
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| The predicate was **walked and recorded, not acted on** | The rule is not in force for the run that writes it; the executing command is the one loaded at session start and the block's consumers were still unwritten. Acting on a rule mid-construction is the shortcut this spec exists to prevent |
+| **No `REVIEW_SKIPPED` record written for T6** | The claim was not earned. FR-1's third scenario is explicit: *"BUT it must NOT be recorded as a `REVIEW_SKIPPED`"* |
+| The mismatch was **reported at the continue gate** | DD-12 — the mismatch rate is what FR-9's trial argues from, so it surfaces regardless of approval mode |
+| The Reviewer's Step 3.2 suggestion is **recorded, not implemented** | *Advisory Never Becomes A Task*. It goes to the user as a candidate proposal, outside this spec |
+| Implementer ran at **T2 `sonnet`, effort `low`** — the cheapest spawn of the run | One mechanical line against a complete spec. No tier escalation, so nothing to record under the rule T3 just shipped |
+
+#### Final verification result
+
+All four checks green, re-run independently by the Leader (`VERIFIED`). Falsifier executed with red observed on both paths — the baseline readings and the `numstat` mutation. Disqualifier read rather than counted, by the Implementer and again by the Reviewer. Reviewer `PASS` on the first attempt. **The predicate's verdict for this task was `review required`, and it is recorded as evidence for T9's inert and refutation tests: the predicate declined to qualify a task its own author had predicted would qualify.**
