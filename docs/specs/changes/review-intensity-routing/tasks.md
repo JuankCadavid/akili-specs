@@ -244,7 +244,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M |
 | Review | `full` — the kaizen clean-run predicate decides whether a retrospective runs at all; overrides (a) and (c) |
 | Depends on | T2 (the record must exist before its consumers can read it) |

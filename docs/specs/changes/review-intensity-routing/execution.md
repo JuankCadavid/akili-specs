@@ -418,3 +418,70 @@ All six checks green on attempt 2, re-run independently by the Leader (`VERIFIED
 #### Outstanding on resume
 
 One line: bind the recording clause to the single trigger the spec states (escalation above T2), naming the effort chosen rather than treating effort as a second independent trigger. The Reviewer's suggested wording is in Issue 1 above. Attempts remaining: 2 of 3.
+
+---
+
+### T7 — `/akili-resume` and `kaizen`: downstream consumers of the closure state
+
+| Field | Value |
+|---|---|
+| Status | **`[~]` — Implementer complete and Leader-verified; parked before review at the budget tripwire** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 (complete, not yet audited) |
+| Review rounds | **0 — the Reviewer was not dispatched.** Running total for the spec stays 8 of 10 |
+| Shipped lines | 6 insertions / 1 deletion across two files (estimate was ~12) |
+| Working tree | both edits **left in place, uncommitted** |
+
+**Why parked:** the tripwire had already fired when this Implementer reported. Dispatching its Reviewer would spend round 9 of a 10-round budget on a decision the user has not yet made. The work is finished and independently re-verified; only the audit is held.
+
+#### Attempt 1 — Implementer complete, Reviewer not dispatched
+
+*What landed:* `/akili-resume` gains a `REVIEW_SKIPPED` closed-task reporting bullet mirroring the `REVIEW_WAIVED` exemplar. `kaizen/SKILL.md` gains a `REVIEW_SKIPPED` Measure row, an escaped-defect Measure row, the clean-run predicate clause, and the matching report-template rows.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `REVIEW_SKIPPED` in `akili-resume.md` **1** · in `kaizen/SKILL.md` **4** · `escaped defect` **3** · `REVIEW_WAIVED` **3** (unchanged — the waiver rows were added beside, never replaced) · `git diff --stat` → 6 insertions, 1 deletion across exactly the two files in scope.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`** — every value matched.
+
+*Falsifier — executed as a two-direction case walk, which is what this task's check 4 actually demands.* The Implementer took a concrete scenario — task T-5 closes under `REVIEW_SKIPPED`, a defect traced to it later surfaces at `/akili-validate`, every other signal clean — and ran it through both texts:
+
+| Predicate | Classification |
+|---|---|
+| **Pre-edit** (keyed only to rework, pivots, product bugs, severe findings, waiver flags) | **CLEAN** — the predicate never mentions skips or escaped defects, so every listed condition holds. Phases 2–3 skipped; the retrospective that should have caught this never runs |
+| **Amended** | **NOT CLEAN** — the added clause fails for T-5. Learn and Standardize proceed, and the escaped defect is measured |
+
+The two answers differ, which is what makes this an executed falsifier rather than a quoted one. The Implementer also confirmed the conjunction is scoped correctly: a `REVIEW_SKIPPED` task with **no** escaped defect against it still reads clean, and it added an explicit sentence saying so — skipping alone is routine and must not by itself break the clean read.
+
+*`Not Done / Assumptions` returned — carried verbatim:*
+
+> One judgment call: FR-4's bullet says `/akili-resume` reports the skip "with its predicate basis." The `REVIEW_SKIPPED` record has four fields — I read "predicate basis" as the first field's short form for a one-line dashboard entry (matching the `REVIEW_WAIVED` exemplar's compactness, which shows only the `flag`, not all five of its fields), not as a demand to print all four fields inline.
+
+**Leader ruling: reasonable, and consistent with the exemplar the task named.** `/akili-resume` produces a dashboard briefing, not an audit dump, and the waiver bullet it mirrors prints one field. Left as written; the Reviewer may still overturn it when the audit runs.
+
+#### ⚠️ Finding that falsifies a verified premise — a sixteenth surface is needed
+
+The brief asked the Implementer to **confirm rather than assume** design §7.2's claim that `/akili-archive` *holds*. It did not hold. The Leader re-read the line independently and confirms the finding.
+
+`design.md` §7.2 states: *"`akili-archive.md:151` | 'Extract the improvement signals listed in **the skill's** Measure table' | **holds** — it cites the table rather than restating it."* Premise Ledger **P-7** records the same claim as `existence`-class and **verified at `a909216`**, quoting that same opening clause.
+
+The actual line, read whole:
+
+> Extract the improvement signals listed in the skill's Measure table from the spec's own evidence: Reviewer FAIL rework attempts, HALTs and FATAL_FAILs, `## Pivot Record` blocks, PRODUCT_BUG findings, severe judgment-day findings, validation FAIL/WARN counts, `/akili-quick` escalations, **tasks closed under `REVIEW_WAIVED` (by flag)**, and drift attributable to this spec.
+
+It cites the table **and then enumerates it**. The premise was verified by reading the first clause and stopping before the colon — precisely the failure mode this repo's standing lesson **KZ-001** names: *"when pinning a source, read it past the section you came for — the costliest review FAIL class is a claim contradicted elsewhere in its own pinned source."*
+
+**Consequence, which P-7 itself already wrote:** *"If false → A sixteenth surface is needed — Low."* That line now enumerates `REVIEW_WAIVED` while omitting the `REVIEW_SKIPPED` and escaped-defect rows this task just added, so `/akili-archive` will extract a stale signal set.
+
+**Not fixed, and deliberately so.** `/akili-archive.md` is in no task's scope in this spec — it is not in `requirements.md` §4, not in design §4 or §7.1, and not in any task. Fixing it here would be scope the user never approved, and the *Advisory Never Becomes A Task* rule forbids minting work from a finding inside a running spec. **This goes to the user as a spec gap**, together with the tripwire decision. It is small — one line, adding two signal names — but it is new scope and P-7 must be corrected from `verified` to `refuted`.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| **The Reviewer was not dispatched** | The tripwire had already fired. Auditing would spend a budgeted round against a decision the user has not made |
+| The `/akili-archive` gap is **reported, not fixed** | Out of every approved scope surface. The route from finding to new work runs through the user, not through a Leader widening a task |
+| The Implementer's *"predicate basis"* reading was **accepted by the Leader**, subject to the pending audit | It matches the `REVIEW_WAIVED` exemplar the task named, and `/akili-resume` is a dashboard rather than an audit surface |
+| **Leader error — a second mis-specified brief check.** The brief asserted `grep -c "deterministic"` should be **0** in both files; it is **1** in `kaizen/SKILL.md` | The hit is pre-existing, unrelated text (*"one deterministic order"*, about lexical filename ordering in Apply Mode), and the baseline at `c87187f` is **1** as well — confirmed by the Leader. This is the same error class as the mis-specified held-out check in T2: a Leader-added check asserting an absolute value that pre-existing text already violates, and again untagged as advisory-grade. The Implementer flagged it rather than silently passing or editing out-of-scope text, which is correct on both counts |
+
+#### Outstanding on resume
+
+The Reviewer audit, unstarted. Attempts remaining: 3 of 3 — none consumed.
