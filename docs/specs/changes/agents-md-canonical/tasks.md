@@ -66,7 +66,7 @@ Sequential: T2 applies in this repo the rule T1 ships, so T1 defines the shape T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `checklist` — applies T1's rule to two local files; creates no obligation others execute |
 | Depends on | T1 |
