@@ -43,7 +43,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Review | `full` — defines the obligation every other surface cites; override (a) |
 | Depends on | none |

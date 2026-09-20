@@ -118,7 +118,7 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 ### Step 2: Execute Task via Rework Loop
 
-The Leader executes each task through a bounded loop. The loop terminates on Reviewer `PASS`, on HALT after 3 failed attempts, or on a Pivot.
+The Leader executes each task through a bounded loop. The loop terminates on a passing verdict — a Reviewer `PASS`, or a task that meets **Review intensity** (Step 2.3) with no Reviewer owed — on HALT after 3 failed attempts, or on a Pivot.
 
 ```text
 attempt = 1
@@ -127,10 +127,16 @@ loop:
   spawn Implementer with task scope + design context + feedback (if any)
   receive Implementer report (changes + verification evidence)
   extract git diff
-  spawn Reviewer with diff + spec context
-  receive Reviewer verdict (PASS | FAIL)
+  evidence re-run (non-author) -> VERIFIED | MISMATCH   # Review intensity, Step 2.3 — always, never waived
+  if MISMATCH:
+    verdict = FAIL
+  elif Review intensity met (Step 2.3) and no override applies:
+    verdict = PASS
+  else:
+    spawn Reviewer with diff + spec context
+    verdict = Reviewer verdict (PASS | FAIL)
   on runtime event: recover per the runtime table; attempt unchanged
-  if PASS:
+  if verdict == PASS:
     finalize task (Step 3)
     exit loop
   else (FAIL):
@@ -138,7 +144,7 @@ loop:
     if attempt >= 3:
       HALT, mark task [~], present audit trail (Step 4)
       exit loop
-    feedback = Reviewer issues
+    feedback = Reviewer issues, or the re-run's MISMATCH evidence if no Reviewer ran
     effort = bump one level (medium → high → xhigh)   # a failed fix is usually under-thinking
     attempt += 1
     continue loop
@@ -169,6 +175,7 @@ Delegate to the Implementer with a **pointer brief, not an anthology**. A host w
 - **any forward pointers recorded in `execution.md` against this task — copied, and re-read at the moment you compose this brief.** Earlier tasks' Reviewers routinely defer a branch to a later task, and the Leader records it; the record creates the appearance of ownership without the mechanism of transfer. A pointer filed three tasks ago is not carried by having been filed — the brief carries it or nobody does
 - the verification command to run before reporting completion (copied)
 - the task's `Falsifier`, `Red run`, and `Consumers` fields, copied beside the verification command (hand-off from `changes/gate-falsifiability`): instruct the Implementer to run every suite `Consumers` names and to report the assertion the red failed on. When the task carries none of these fields, the brief says so instead of copying nothing silently: `no Falsifier / Red run / Consumers fields in this task`
+- **when its own verification may be the gate:** the brief tells the Implementer that, absent an override, its executed falsifier and fully deterministic verification may be the only check this task gets before it closes — see *Review intensity* at Step 2.3.
 
 The Implementer must keep changes minimal and within task scope, follow the design spec exactly unless the spec is clearly incomplete or contradictory, and run the verification before reporting completion.
 
@@ -182,11 +189,39 @@ The Implementer must keep changes minimal and within task scope, follow the desi
 
 #### 2.3 — Spawn Reviewer
 
+**Review intensity.** A task MAY close without a conformance Reviewer only when all four conditions hold, evaluated by the Leader against the **Implementer's actual report — never against the task's `Review` field or the plan**:
+
+| # | Condition |
+|---|---|
+| 1 | The task's `Falsifier` was **executed against the post-change code and the gate observed red**, and the report records the command and its red output |
+| 2 | Every check in the task's Verification is **fully deterministic** — a command with a pass/fail result; the task's `Disqualifier` names no read or judgment |
+| 3 | The task's `Consumers` field reads `none` |
+| 4 | No override below applies |
+
+- The predicate is defined **here, and only here** — every other surface cites it by name.
+- A task whose `Review` field says `skip-eligible` but whose report fails any condition receives a normal conformance review; the field is a **claim to be proved**, never a guarantee.
+- The Leader does not substitute its own judgment that a task "looks simple" for any condition — a diff's size decides nothing here.
+- When a `skip-eligible` claim is **not earned**, the mismatch between plan and report is reported at the task's continue gate (Step 5) **even under `pre-approved` mode**.
+
+**Overrides — stated immediately beneath the predicate, so no reader meets one without the other.** A conformance Reviewer is spawned, whatever the predicate says, when **any** of these holds, evaluated against **what the task does**, never against how its verification is phrased:
+
+| # | Override |
+|---|---|
+| a | The task defines or edits an obligation other readers execute |
+| b | The task touches a closed enumeration, a shared contract, an exported symbol, a selector or DOM hook, an emitted event, a response shape, or a stored field |
+| c | The task produces **derived evidence** a later gate consumes — counts, aggregated claims, a walkthrough, a report |
+| d | The task reverts behavior already delivered |
+| e | The task is a **rework attempt** following any FAIL |
+| f | The task touches a security, authentication, or data-loss surface |
+| g | The Leader judges a review warranted — always permitted, and never requiring justification |
+
+**The evidence re-run — always, by a non-author.** For **every** task, whether or not a conformance Reviewer runs, the task's verification is re-executed by a context other than the one that authored the change, and the outputs compared against what the author reported. The re-run is **mechanical**: re-execute the commands and compare — it is not an audit of the diff against the spec, and it carries no authority to judge conformance. Two execution modes, both acceptable: **Leader-inline** (already classed as inline work under *Delegation Thresholds*), or a spawned **Verifier** when the command set crosses the inline threshold. The result is recorded per task as `VERIFIED` or `MISMATCH`, naming the command and both outputs on a mismatch. A `MISMATCH` is an **implicit FAIL**, consuming a rework attempt exactly as an Implementer-reported verification failure does today. **The re-run is never waived — by any category, predicate, mode, or approval setting.**
+
 When the Implementer reports completion, the Leader:
 
 0. **Checks the report for a `Not Done / Assumptions` field first.** If present, the task is not complete regardless of what else the report says: carry that text into `execution.md` verbatim and treat it as scope still owed — re-spawn for the remainder, or mark `[~]` and escalate. A task with an outstanding gap never reaches `[x]`, **even on a Reviewer `PASS`** — the Reviewer audits what was written, not what was omitted.
 1. Extracts the **git diff** of changes since the start of the attempt. To save tokens, the Reviewer MUST ONLY be given the diff, not the entire source files, unless absolutely necessary for context.
-2. Spawns the Reviewer with:
+2. Spawns a conformance Reviewer with the following — unless **Review intensity** (above) is met and no override applies, in which case this step is skipped and the task proceeds directly to Step 3:
    - the persona: **nothing** when spawning the Step 8E wrapper (its body loads `.agents/reviewer.md`); persona content only in the fallback sub-prompt path
    - the **git diff, delivered by size**: a diff of ≤ 300 lines stays inline — it is ephemeral working state, not a project file. Above 300 lines, the Leader writes the diff it extracted to a file in the session scratchpad, outside the working tree, and the brief names the path with the instruction to `Read` it; the wrapper-restricted Reviewer keeps `Read` (only `Bash` is withheld), so the file resolves. A **non-host** Reviewer keeps the inline diff at any size — the same standing exception Step 2.2 already names for non-host workers
    - **pointers** to the relevant sections of `requirements.md`, `design.md`, `trd.md`, and `docs/ux-ui/design.md` — the Reviewer keeps `Read`/`Grep`/`Glob` precisely so it can follow them
@@ -214,6 +249,7 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 #### 2.4 — Loop Guardrails
 
 - **Maximum Retries:** A hard ceiling of **3 rework attempts** per task. This prevents infinite loops and token waste. **Accounting rule** (Step 2 preamble, *Runtime-failure fallback*): an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else — a runtime event recovered per that table's ladder never touches this ceiling.
+- **Evidence Re-Run Never Waived:** the non-author re-run defined in *Review intensity* (Step 2.3) runs on every task, whatever the mode, category, or approval setting — a `MISMATCH` is an **implicit FAIL**, consuming a rework attempt exactly as an Implementer-reported verification failure does.
 - **Advisory Never Gates:** `ADVISORY` (4R lens) findings are recorded in `execution.md` but never count as FAIL issues, never trigger rework, and never consume attempts. If an advisory finding is serious enough to block, the Reviewer must restate it as a spec-violation FAIL issue (or the Leader escalates it to the user as a potential spec gap via the Pivot Protocol).
 - **Advisory Never Becomes A Task:** an advisory is **recorded and dies there**. You may not mint a new task in this spec from one, and you may not widen an existing task to absorb it. The rule above stops advisories from *gating*; this one stops them from *growing the spec* — the other direction, and the one that does the real damage. **A task not in the approved `tasks.md` is scope the user never approved**, and it arrives with none of the review the approved tasks got: no requirement backing it, no design decision, no budget line. Advisories are also the *least*-vetted findings in the run, so this path grows scope fastest from the weakest evidence. The only route from advisory to new work is out of this spec: record it, finish what was approved, and let the user decide whether it earns a proposal. When an advisory genuinely cannot wait, that is a **spec gap** — escalate via the Pivot Protocol and let the user reopen the spec, which re-runs the budget and the approval gate rather than bypassing both.
 - **Wind Down Before You Run Out:** a rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus adjudication. **Do not open one you cannot see through.** When context runs low, follow *Winding down* in `.agents/leader.md` (already in your context — that section is canonical): finish or park the task in flight (`[~]` + full attempt history, never silently), spend what remains on `execution.md`, and transfer ownership rather than leaving a supervised delegation outstanding — with the user's explicit ask able to lift that default.
