@@ -200,6 +200,8 @@ The consumer walk found `akili-resume` and the `kaizen` clean-run predicate. Def
 ### DD-10 — The trial's numbers are set at approval, not here
 Extent and abort criterion are left to the user at the Step 2.5 gate. Writing them now would let the author of the change choose the bar it must clear.
 
+**Settled 2026-09-19, by the user, during execution** — the Step 2.5 gate passed without them being fixed, and the Leader escalated rather than choosing them itself when T9 came into view. **Extent: 3 complete specs. Abort: one escaped defect reverts.** Recorded verbatim in `requirements.md` FR-9; T9 carries them into `closure.md`. The decision procedure mattered as much as the values: the options were presented with their trade-offs and no recommendation weighted toward the lenient end, so the bar was not chosen by the party whose work it judges.
+
 ### DD-11 — The closure gate evaluates the predicate against the 14 records that carry the fields, and says so *(added at judgment round 1, finding S-4)*
 FR-1 reads `Falsifier`, `Consumers` and `Disqualifier`. Those fields were introduced by `changes/gate-falsifiability` on 2026-09-18, so only two archived specs carry them — 14 held-out task records. The closure gate uses those 14 and **states the limit** rather than implying the full 54. Rejected: reconstructing the fields for older tasks from their execution logs, which would manufacture the very evidence the gate is supposed to test, and would let the author of the predicate decide what each old task "would have" recorded. Consequence accepted: the held-out evidence base is smaller than the corpus, and FR-9's trial is what compensates over time.
 

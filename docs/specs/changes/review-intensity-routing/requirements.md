@@ -280,7 +280,18 @@ When a conformance Reviewer runs, its depth SHALL be chosen by the task's catego
 
 ### FR-9: Trial, measurement, and abort criterion
 
-Before this behavior becomes the default, it SHALL run as a **measured trial**, and the spec SHALL state:
+Before this behavior becomes the default, it SHALL run as a **measured trial**.
+
+**The trial's terms, fixed by the user at approval (2026-09-19) and recorded verbatim per DD-10:**
+
+| Term | Value as approved |
+|---|---|
+| **Extent** | **3 complete specs.** The skip runs end to end across the next three specs — roughly 20–30 task records — after which the trial is reviewed and the behavior is confirmed, amended, or reverted |
+| **Abort criterion** | **One escaped defect reverts the change.** A single defect escaping a task that closed under `REVIEW_SKIPPED` — found at `/akili-test`, `/akili-validate`, a later task, the closure gate, or HITL — aborts the trial |
+
+The abort criterion is deliberately the strictest of the options offered, and the reason is the spec's own argument: this change is justified by the claim that an *earned* skip **raises** the verification floor rather than lowering it, because the skip must be paid for with an executed falsifier. **One escape falsifies that claim.** The criterion is also purely objective — no severity judgment is made at abort time, which is what DD-10 exists to prevent.
+
+The spec SHALL state:
 
 - the trial's extent — a number of specs or tasks, fixed at approval;
 - that every trial spec reports its **escaped defects** (§3) alongside its `REVIEW_SKIPPED` count;
