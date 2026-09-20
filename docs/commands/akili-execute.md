@@ -30,7 +30,9 @@ Reads:
 
 ## Behavior
 
-`/akili-execute` runs each task through a bounded rework loop. The caller acts as the **Leader** and delegates to two subordinate roles:
+`/akili-execute` runs each task through a bounded rework loop. The caller acts as the **Leader** and delegates to two subordinate roles.
+
+Each task may carry a `Review` field (`skip-eligible` / `checklist` / `full` / `lenses`), written at `/akili-specify`. It is a **claim**, not an instruction: at Step 2.3 the Leader proves a `skip-eligible` claim against the Implementer's actual report — never against the field or the plan — before a Reviewer is skipped. A `tasks.md` with no `Review` field predates this and gets a Reviewer on every task, exactly as before.
 
 | Role | File | Responsibilities |
 |---|---|---|
@@ -44,17 +46,18 @@ Reads:
 1. Leader selects the next [ ] or [~] task whose dependencies are complete
 2. Spawn Implementer with task scope, design context, and prior FAIL feedback (if rework)
 3. Implementer writes code and runs the verification command
-4. Leader extracts git diff
-5. Spawn Reviewer with diff + relevant spec slices
-6. Reviewer returns STATUS: PASS or STATUS: FAIL
+4. Leader extracts git diff and re-runs the verification itself (or via a Verifier) — always, on every task, never waived
+5. If the re-run mismatches the Implementer's report, the task FAILs outright
+6. Otherwise: spawn a Reviewer, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies — in which case the Reviewer is skipped and the task closes REVIEW_SKIPPED
+7. Reviewer returns STATUS: PASS or STATUS: FAIL
    (a runtime event — spawn failure, provider-limit death, pane/terminal timeout — recovers per the Leader's per-role ladder; the attempt count is unchanged)
 
-if PASS, or the Reviewer ladder is exhausted and a REVIEW_WAIVED record is written → append execution.md, then update tasks.md to [x], commit, advance to next task
+if PASS, REVIEW_SKIPPED, or the Reviewer ladder is exhausted and a REVIEW_WAIVED record is written → append execution.md, then update tasks.md to [x], commit, advance to next task
 if FAIL  → log issues; if attempts < 3, respawn Implementer with the unchanged Reviewer report
 if 3 consecutive FAILs → HALT, mark task [~], present full audit trail
 ```
 
-On PASS, if the task created a new module/package or moved a module boundary, the Leader also appends a `## Constitution Impact: <Task ID>` block to `execution.md` (child guide needed, parent `## Module Guides` index entry, pending CodeGraph re-index). `/akili-archive` consumes these notes during Constitution & Graph Sync.
+On a task's close — PASS, REVIEW_SKIPPED, or REVIEW_WAIVED — if it created a new module/package or moved a module boundary, the Leader also appends a `## Constitution Impact: <Task ID>` block to `execution.md` (child guide needed, parent `## Module Guides` index entry, pending CodeGraph re-index). `/akili-archive` consumes these notes during Constitution & Graph Sync.
 
 ### Reviewer output contract
 
@@ -68,19 +71,21 @@ On `FAIL`, every finding lists three fields so the Implementer has actionable in
 
 ## Outputs
 
-- Focused code or documentation changes (only after Reviewer PASS, or after a `REVIEW_WAIVED` record when the Reviewer ladder is exhausted).
+- Focused code or documentation changes (only after Reviewer PASS, a `REVIEW_SKIPPED` closure, or a `REVIEW_WAIVED` record when the Reviewer ladder is exhausted).
 - Updated `tasks.md` with `[x]`, `[~]`, or `[ ]` status.
-- Updated `execution.md` with files changed, requirements covered, decisions, every Implementer attempt, every Reviewer verdict, verification evidence, and final status (`PASS` / `WAIVED (flag)` / `HALT` / `pivot`).
-- When a task closes without an independent Reviewer PASS, a `## REVIEW_WAIVED` record (flag, cause, who approved, the verification that stood in, models involved).
+- Updated `execution.md` with files changed, requirements covered, decisions, every Implementer attempt, every Reviewer verdict (or the reason none ran), verification evidence, and final status (`PASS` / `WAIVED (flag)` / `SKIPPED` / `HALT` / `pivot`).
+- When a task closes because Review intensity (Step 2.3) was met and no override applied, a `## REVIEW_SKIPPED` record naming the predicate evidence — a sibling of `REVIEW_WAIVED`, never merged with it: a skip is a gate proved never owed, a waiver is a gate that was owed and lost.
+- When a task closes without an independent Reviewer PASS or an earned skip, a `## REVIEW_WAIVED` record (flag, cause, who approved, the verification that stood in, models involved).
 - Commit prefixed with `[SPEC:<spec-path>]`.
 
 ## Guardrails
 
 - **Maximum retries.** Hard ceiling of 3 rework attempts per task. An attempt is consumed only by a Reviewer `FAIL` or an Implementer-reported verification failure — a runtime event (spawn failure, provider-limit death, pane/terminal timeout) recovers per the Leader's per-role ladder and never touches the ceiling. After 3 consecutive FAILs the loop HALTS and presents the audit trail.
+- **Evidence re-run, always.** Every task's verification is re-executed by a context other than its author — Leader-inline or a spawned Verifier — whatever Review intensity decides for the Reviewer; a mismatch is an implicit FAIL and consumes a rework attempt like any other. This duty is never waived.
 - **Structured feedback.** The Reviewer's FAIL report is passed back unchanged to the next Implementer — no paraphrasing.
 - **No scope creep.** The Implementer keeps changes minimal and within task scope; broad refactors require user approval.
 - **Brief contract.** The Leader's Implementer brief is bound by five clauses: narrow-never-widen (no fallback or option the task text lacks), convention files named by a bounded lookup, every third-party fact sourced or marked `UNVERIFIED`, any Leader-added item tagged `[advisory-grade]` (audited only, never gating), and the task's verification fields copied alongside the command.
-- **No completion without PASS or `REVIEW_WAIVED`.** A task is never marked `[x]` until the Reviewer PASSes, or — when the Reviewer ladder is exhausted — a `## REVIEW_WAIVED` record is written with the user's approval.
+- **No completion without PASS, `REVIEW_SKIPPED`, or `REVIEW_WAIVED`.** A task is never marked `[x]` until the Reviewer PASSes, Review intensity (Step 2.3) is met with no override and a `## REVIEW_SKIPPED` record is written, or — when the Reviewer ladder is exhausted — a `## REVIEW_WAIVED` record is written with the user's approval.
 - **Rollback by tree state.** On HALT, a clean tree gets a full restore; a tree holding other PASSed work restores only the halted task's own file paths (never a directory glob); unattributed changes are never restored and are escalated to the user.
 - **Pivot Protocol takes precedence.** If discovery proves the spec itself is wrong, the loop stops immediately and a `## Pivot Record` is opened in `execution.md` for user sign-off — rework retries are not consumed on a broken spec, and any Implementer brief already dispatched for the affected task is re-issued with the amended text before resuming.
 

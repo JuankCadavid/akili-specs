@@ -278,7 +278,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full` — the routing registry defines guidance others follow (override a); the CHANGELOG is a summary surface inheriting the artifacts' evidence bar (KZ-002) |
 | Depends on | T2, T3, T4, T5, T6, T7 |

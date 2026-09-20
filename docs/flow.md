@@ -64,7 +64,7 @@ AI:  Creates or updates:
 You: /akili-execute changes/add-remember-me
 AI:  Runs the Leader → Implementer → Reviewer harness on the next approved task
      ✓ Implementer writes code and runs verification
-     ✓ Reviewer audits the diff and emits STATUS: PASS or STATUS: FAIL
+     ✓ Reviewer audits the diff and emits STATUS: PASS or STATUS: FAIL — skipped when Review intensity (Step 2.3) is met and no override applies, closing the task REVIEW_SKIPPED instead
      ✓ Up to 3 rework attempts on FAIL, then HALT for human guidance
      ✓ updates tasks.md
      ✓ appends execution.md with full PASS/FAIL audit trail
@@ -321,10 +321,10 @@ Rather than manually compiling assertion results during `/akili-test`:
 ```text
 Leader picks the next task → spawns Implementer with task + persona
 Implementer writes code, runs verification → reports back
-Leader extracts git diff → spawns Reviewer with diff + persona
+Leader extracts git diff → spawns Reviewer with diff + persona, unless Review intensity (Step 2.3) is met and no override applies
 Reviewer returns STATUS: PASS, STATUS: FAIL, or STATUS: FATAL_FAIL
 
-if PASS → append execution.md, then update tasks.md, commit, advance
+if PASS, or Review intensity is met with no override → append execution.md, then update tasks.md, commit, advance (closes as REVIEW_SKIPPED when no Reviewer ran)
 if FAIL and attempts < 3 → respawn Implementer with the Reviewer's structured findings
 if FATAL_FAIL → abort loop immediately, mark task [~], trigger Pivot Protocol
 if 3 consecutive FAILs → HALT, mark task [~], present audit trail

@@ -81,7 +81,8 @@ model than the Implementer (author ≠ tester).
 | `/akili-specify` → UX/UI design | T6 | Only when visual design is in scope. |
 | `/akili-execute` → **Leader** | T1 | Orchestration judgment — decomposition in flight, **runtime skill selection for each Implementer**, FAIL adjudication, synthesis, pivot. Writes no code, but this is reasoning, not dispatch. |
 | `/akili-execute` → **Implementer** | T2 | Maximum coding. Shares the workhorse family with propose (ARCHITECT = BUILDER). |
-| `/akili-execute` → **Reviewer** | T3 | Independent audit. **MUST resolve to a different model than the Implementer.** |
+| `/akili-execute` → **Reviewer** | T3 | Independent audit. **MUST resolve to a different model than the Implementer.** Conditional per-task on Review intensity (Step 2.3) — see below. |
+| `/akili-execute` → **Verifier** (evidence re-run) | T5 | Mechanical re-execution of the task's verification commands, comparing outputs to what the Implementer reported — no judgment, so it routes to the cheapest tier even though, unlike the Reviewer, it runs on **every** task. |
 | `/akili-test` → **Leader** | T1 | Orchestration judgment — partitions suites, **selects each Tester's skills**, adjudicates results; writes no tests. |
 | `/akili-test` → **Tester(s)** | T2 | Test authoring + verification per suite. Prefer a different model than the Implementer (author ≠ tester). |
 | `/akili-validate` | T3 | Deep conformance audit. |
@@ -403,6 +404,26 @@ re-does less. Two consequences for the AKILI loop: (1) the **rework bump** (abov
 place to spend effort, since it only fires after a failure; and (2) `max` is for the
 correctness-critical and latency-insensitive case only — it can overthink a routine task and is
 where diminishing returns bite hardest.
+
+## Review intensity (third dimension)
+
+`/akili-execute` Step 2.3 adds a **third routing dimension** beside tier (which model) and effort
+(how hard it thinks): whether a conformance Reviewer is owed for a given task at all. The
+predicate and its overrides are defined once, in that step — this document only routes what runs
+when it does, and describes the outcome without restating the predicate.
+
+- **The Implementer still defaults to T2**, whether or not its task turns out to earn a skip;
+  review intensity changes whether a Reviewer follows, never which tier writes the code. Any
+  escalation above T2 is recorded in `execution.md` with a one-line reason, the same shape skill
+  deviations already use (`leader.md` → *Delegation Discipline*).
+- **A conformance Reviewer, when one runs, still resolves to `≠ T2`** — review intensity decides
+  *whether* the Reviewer is owed, never which model audits when it is. Where none runs, the
+  existing `REVIEW_WAIVED` bookkeeping does not apply either: the task closes under a
+  `REVIEW_SKIPPED` record instead, a gate the predicate proved was never owed rather than one that
+  was owed and lost.
+- **The evidence re-run maps to T5 Fast-Cheap** (row above) precisely because it is mechanical
+  re-execution and comparison, never a judgment call — whether performed inline by the Leader or
+  by a spawned Verifier, and whatever review intensity decides for the Reviewer.
 
 ## Enforced routing (tool-native agent bindings)
 

@@ -625,3 +625,77 @@ Its suggested remedy — a one-line authoring check in Step 3.2, *"a task may be
 #### Final verification result
 
 All four checks green, re-run independently by the Leader (`VERIFIED`). Falsifier executed with red observed on both paths — the baseline readings and the `numstat` mutation. Disqualifier read rather than counted, by the Implementer and again by the Reviewer. Reviewer `PASS` on the first attempt. **The predicate's verdict for this task was `review required`, and it is recorded as evidence for T9's inert and refutation tests: the predicate declined to qualify a task its own author had predicted would qualify.**
+
+---
+
+### T8 — Mirrors, `docs/model-routing.md`, CHANGELOG, and the `/akili-archive` signal list
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 |
+| Review rounds | 1 (`PASS` first time) — running total for the spec: 12 |
+| Shipped lines | 56 insertions / 20 deletions across 10 files (estimate was ~30, before the scope grew) |
+| Requirements covered | FR-11 (all three bullets), FR-7 (registry half), FR-9 (the `/akili-archive` signal list — surface 15b), NFR-2, NFR-3, NFR-5 |
+| Scope | **Five bullets, not four** — the fifth was added during execution with the user's approval after T7 refuted P-7 |
+
+**Files changed:** `docs/model-routing.md`; the five mirrors; `.claude/commands/akili-archive.md`; `CHANGELOG.md`; and `README.md` + `docs/flow.md` under FR-11's conditional clause.
+
+#### Attempt 1 — Reviewer `PASS`
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `review intensity` in `docs/model-routing.md` **5** · `REVIEW_SKIPPED` per mirror **6 / 1 / 1 / 1 / 1** · `No unreleased changes yet` **0** and the spec named once in `CHANGELOG.md` · `akili-archive.md` `REVIEW_SKIPPED` **1**, `escaped defect` **1** · `deterministic` **0** in all five mirrors (NFR-2).
+
+*Constraint checks run by the Leader:* NFR-1's frozen paths **untouched**; the only `.claude/commands/` file modified is `akili-archive.md`, which the amended scope allows.
+
+*Falsifier — baselines executed at `c87187f`, not quoted:* all five mirrors **0**, `model-routing` **0**, archive **0 / 0**, the CHANGELOG's stale note present. Each check genuinely fails on the pre-spec text.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**.
+
+*KZ-002 compliance on the README/flow bullet:* the falsifying grep was run **before** any edit and returned 56 hits across the two files. The Implementer read every hit in context, ruled the large majority false positives (`preview`, `reviewable`, human-review references) or role-description prose unaffected by per-task conditionality, and edited only the passages a hit showed to be false — two loop blocks and a lifecycle checklist line. "No change" is recorded **with its evidence**, which is what KZ-002 demands.
+
+*Reviewer verdict:* **`PASS`**, no issues.
+
+> SUMMARY: T8's five mirrors, `docs/model-routing.md`, the CHANGELOG entry, the two README/flow loop blocks and `akili-archive.md:151` all describe what actually shipped. The parity read was performed on each mirror against its source command; no surface anywhere in the five still asserts, in its own words, that a Reviewer audits every task.
+
+**The parity read — the task's real gate — recorded per mirror**, each read beside its source and each citing source line numbers:
+
+| Mirror | Finding |
+|---|---|
+| `docs/commands/akili-execute.md` | matches src:192/203 (claim-not-instruction), src:198 (applicability), src:126–136 (loop order: diff → re-run → `MISMATCH`=FAIL → conditional Reviewer), src:265 (three closing records), src:369–378 (the record and its never-merged sibling clause), src:253 (never-waived re-run). Remaining Reviewer mentions are harness-naming or role description, **not frequency claims** |
+| `docs/commands/akili-specify.md` | matches src:392, src:434 (the Step 3.3 named skip list), src:480 (checklist item), and the file-level FR-10 rule |
+| `docs/commands/akili-constitution.md` | matches src:309. Its *"Reviewer runs on a different model"* lines are a **model constraint, not a frequency claim** — correctly left alone |
+| `docs/commands/akili-resume.md` | matches src:48–49 including both example strings, and adds the NFR-3 separation clause |
+| `docs/skills/kaizen.md` | matches SKILL.md rows 71–72 and the clean-run predicate at src:76, conditioning on *an escaped defect against a skipped task* rather than on skip count |
+
+**On the one widening — ruled correct parity work, not scope creep.** The Implementer extended `docs/commands/akili-execute.md`'s Constitution Impact bullet beyond the four flagged sites, from *"On PASS"* to *"On a task's close — PASS, REVIEW_SKIPPED, or REVIEW_WAIVED"*. The Reviewer's reasoning: source Step 3 holds the Constitution Impact Check and is entered *"only after one of the three closing records"*, so the mirror's *"On PASS"* **became false when T3 landed**, and leaving it would violate FR-11's *"contradict no command sentence"*. Settled on the record.
+
+**On the registry (FR-7), walked bullet by bullet:** review intensity present as a named third dimension; the T2-default bullet with recorded escalations, whose pointer into `leader.md` → *Delegation Discipline* the Reviewer **followed and verified**; the Reviewer row retains *"MUST resolve to a different model than the Implementer"* and gains the conditional note; a new bullet forecloses the cheap same-model substitute (*"decides whether, never which model audits"*); the Verifier row maps the re-run to **T5**, the registry's cheapest tier. NFR-2 honored — the section explicitly refuses to restate the predicate.
+
+**On the CHANGELOG, held to KZ-002's bar** (*summary surfaces inherit the artifacts' evidence bar*): every claim spot-checked true against the committed sources — the four conditions verbatim against src:194–199, the seven overrides, the report-not-plan rule, the re-run's mechanical nature and non-waivability, the third closure state, the `Review` field's values and its Step 3.3 / checklist surfacing, the T2/T5 routing, FR-10. **The trial terms it states match FR-9's user-fixed table exactly** — 3 complete specs, one escaped defect reverts. Classification **minor** justified on the stated no-migration, no-rename grounds.
+
+#### `ADVISORY` findings — recorded, and going no further
+
+Per *Advisory Never Gates* and *Advisory Never Becomes A Task*.
+
+| Lens | Finding |
+|---|---|
+| Readability | `docs/flow.md:337` (*"Hard PASS/FAIL gate … requirements conformance … enforced before `[x]`"*) is **weakened rather than falsified** by a skip: enforcement moves to the executed falsifier plus the non-author re-run. Leaving it is defensible under FR-11's *only where false* |
+| Risk | The CHANGELOG entry restates the four conditions and the override count. Released entries are frozen by convention, so a later predicate edit leaves a stale restatement behind. **This is the one place the predicate now exists twice** — accepted, because citing by name would make a release note useless |
+| Readability | `docs/commands/akili-execute.md`'s Constitution Impact sentence still omits the source's third trigger, *"changed a module's public surface"*. **Pre-existing**, not introduced here |
+
+**The Leader offered to carry the first item to the user as a candidate proposal outside this spec. The Reviewer declined, and was right to:**
+
+> **no, `docs/flow.md:337` does not need acting on** … The sentence is not false — under an earned skip, requirements conformance is still enforced before `[x]`, by the executed falsifier and the never-waived non-author re-run rather than by a Reviewer read. FR-11 says change README and flow *only* where a sentence turns false, so **editing it would itself be the violation**. I raised it only because it now reads as unconditional-Reviewer shorthand to someone who does not yet know Step 2.3; that is a wording preference, not a defect. Record it and let it sit.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| The Reviewer brief **told it not to re-run the greps** and to spend its budget on the parity read | The task's own disqualifier says checks 1–4 see literal strings only and the parity read is the gate. The Leader had already run and confirmed every count; repeating them would have spent an auditor on work already done, at the cost of the judgment only it can supply |
+| **Leader error — a third mis-specified brief check.** The brief's DD-11 check flagged 5 held-out-spec hits in `CHANGELOG.md` | Baseline at `c87187f` is also **5**, and `git diff \| grep "^+"` adds **0** — they are released-history entries predating this spec. The Implementer's DD-11 claim was accurate. **This is the third Leader-added check in this run to assert an absolute value that pre-existing text already violates** (after the held-out grep in T2 and the `deterministic` grep in T7), and all three were untagged as advisory-grade against the brief contract's clause (d). That is a pattern, not three slips, and it belongs in the retrospective |
+| Implementer ran at **T2 `sonnet`, effort `high`** | Ten files and a read-based gate. No tier escalation, so nothing to record under the rule T3 shipped |
+
+#### Final verification result
+
+All six checks green, re-run independently by the Leader (`VERIFIED`), plus the NFR-1 and command-scope constraint checks. Baselines executed at `c87187f`. KZ-002's falsifying grep run before the README/flow edits, with "no change" recorded against its output rather than asserted. **The parity read is recorded per mirror with source line citations — a PASS without it would not have been a PASS.**

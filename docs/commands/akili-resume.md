@@ -27,6 +27,10 @@ The command performs a four-step scan, preceded by a manifest read:
 3. **Present Dashboard** — shows a visual dashboard with progress bars and status for each active spec; if `docs/specs/kaizen-log.md` exists, appends a Kaizen footer line with the active-lesson count and the latest lesson (read from the `## Active Lessons` digest only), and if `docs/specs/kaizen/` holds entry files, a second footer line counting every item whose `Status` is `pending` or `deferred` — and only those two, explicitly excluding `applied`, `rejected`, `superseded`, and `upstreamed` — naming the highest severity among them, and recommending the exact Apply Mode invocation — *"apply pending kaizen standardizations"* — naming the apply-capable branch by its pinned name (the `Integration Branch:` pin when it exists, else the `Default Branch:` pin; generically as "the default branch" only when neither pin exists). That backlog line is a read-only count, not a lesson read: lesson content still comes only from the digest
 4. **Recommend Next Command** — suggests the next command based on current phase
 
+### Closed-task last action
+
+A task closed by `execution.md`'s `## REVIEW_WAIVED` or `## REVIEW_SKIPPED` block reports as that task's last action — e.g. "T-4 closed — REVIEW_WAIVED (inline)" or "T-6 closed — REVIEW_SKIPPED (predicate held, no override applied)" — never as a *Blocked* item. The two records are never read as one state: a waiver is a gate that ran and was excused; a skip is a gate the predicate proved was never owed.
+
 ## Output
 
 No files are created or modified. The command outputs a screen summary only — it reports the pending kaizen backlog and names the invocation that clears it, but never applies an item and never writes to an entry file.

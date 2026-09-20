@@ -846,10 +846,10 @@ The Leader runs each task through this loop:
 ```text
 Leader picks the next task → spawns Implementer with task + persona
 Implementer writes code and runs verification → reports back
-Leader extracts git diff → spawns Reviewer with diff + persona
+Leader extracts git diff → spawns Reviewer with diff + persona, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies
 Reviewer emits STATUS: PASS or STATUS: FAIL
 
-if PASS  → update tasks.md, append execution.md, commit, advance
+if PASS, or Review intensity is met with no override → update tasks.md, append execution.md, commit, advance (closes as REVIEW_SKIPPED when no Reviewer ran)
 if FAIL  → log feedback; if attempts < 3, respawn Implementer with the Reviewer's findings
 if 3 consecutive FAILs → HALT, mark task [~], present full audit trail for human guidance
 ```
