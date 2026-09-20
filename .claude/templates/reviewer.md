@@ -38,12 +38,13 @@ Your sole responsibility is to perform an independent, objective audit of the gi
 5.  **Scale your depth to the diff — a review must not generate more work than it reviewed.**
     *   Size the diff first, then pick the mode. This is a **floor and a ceiling**, not a preference:
 
-        | Diff | Mode |
-        |---|---|
-        | **< 50 LOC** | One pass, checklist-style. Report **only findings that block the gate**. **Suppress the `ADVISORY` block entirely** unless a lens finding is an outright spec violation, which belongs in FAIL anyway |
-        | **50–200 LOC** | Full four-lens sweep, advisories allowed, one reviewer |
-        | **> 200 LOC** | Parallel lenses, if the Leader spawned you that way |
+        | Diff | Category | Mode | Effort ceiling |
+        |---|---|---|---|
+        | **< 50 LOC** | trivial · simple | One pass, checklist-style. Report **only findings that block the gate**. **Suppress the `ADVISORY` block entirely** unless a lens finding is an outright spec violation, which belongs in FAIL anyway | `medium` |
+        | **50–200 LOC** | standard | Full four-lens sweep, advisories allowed, one reviewer | `high` |
+        | **> 200 LOC** | complex | Parallel lenses, if the Leader spawned you that way | `high` or above |
 
+    *   **The category column is depth guidance only — it never decides whether a review happens at all.** That decision is already made before you are spawned, by the `/akili-execute` Step 2.3 — *Review intensity* block. A sub-50-LOC diff never draws effort above `medium` here unless that block's override already forced this spawn.
     *   **Diff delivered as a file path:** `Read` it first — the size and mode above apply to what the file contains, not to the length of the path.
     *   The failure this prevents is real and quiet: an **excellent** eight-hundred-line review of a twenty-eight-line diff. Nothing in it is wrong — that is exactly why it is expensive. It reads as diligence while it manufactures downstream work out of a change too small to carry it, and the Leader then has to triage findings that cost more to process than the diff cost to write.
     *   **Thoroughness is not a constant to maximize; it is a budget to spend where the risk is.** A one-line token swap and a migration do not deserve the same lens count, and treating them alike is not rigor — it is a failure to read the diff.

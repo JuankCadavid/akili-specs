@@ -192,3 +192,82 @@ The Reviewer also noted a boundary the spec does not legislate and which is ther
 #### Final verification result
 
 All five task checks green, re-run independently by the Leader after each attempt (`VERIFIED` both times). Falsifier readings confirmed against the pre-spec baseline `c87187f`. Disqualifier read rather than counted: `REVIEW_SKIPPED` ships as a sibling record with its own heading and field table, never a flag on the waiver (DD-5); the `/goal` condition names a third state rather than accepting "any closed task". Reviewer `PASS` on attempt 2, with the attempt-1 `Not Done` settled on the record.
+
+#### Addendum to T2's forward pointer — the held-out question, largely settled
+
+Recorded after the T2 `PASS`, on the Reviewer's ruling plus the Leader's own re-verification of both quoted texts. **This narrows the pointer above rather than cancelling it.**
+
+The Reviewer ran three checks and reported: the eleven-corpus-name grep over `.claude/commands/akili-execute.md` returns **one** hit, line 177; that line is byte-identical at `c87187f`; and `git diff | grep -E "^[-+].*(gate-falsifiability|leader-brief-contract|premise-ledger)"` returns **0** — this spec's diff neither adds nor removes any line naming a corpus spec. Its ruling: naming a spec as a **field-contract dependency** is not a held-out violation, because the discipline reserves those specs' *task records* as evidence, and `requirements.md` §1 independently lists `changes/gate-falsifiability` under *Depends on*.
+
+**The Leader re-read both governing sentences rather than accepting the characterisation, and found the two approved documents do not say the same thing:**
+
+| Document | Held-out wording, as quoted |
+|---|---|
+| `requirements.md` §1 | *"the shipped text may cite `premise-ledger` tasks only; every other spec's **tasks** are reserved for the closure walkthrough and must never be named in shipped text"* |
+| `tasks.md` §2 | *"**No shipped file may name either spec** or any of its tasks."* |
+
+`tasks.md` is **stricter than the requirement it implements**: it extends the prohibition from task records to the spec names themselves. Under `requirements.md`'s wording line 177 is clean; under `tasks.md`'s wording it reads as a hit. That discrepancy — not line 177 — is the real finding.
+
+This is **not a Pivot**: nothing in the approved spec is wrong or unviable, and no requirement's meaning changes. It is a tasks-document overreach, and the authority order resolves it — `requirements.md` governs, `tasks.md` implements. **T9 carries this**: when it runs gate (d), it applies the requirement's wording, records that `tasks.md` §2 states a stricter rule than FR-level text supports, and notes that the single hit predates the spec. No task in this spec may edit line 177 on the strength of the stricter phrasing.
+
+---
+
+### T4 — `reviewer.md`: depth bands with effort ceilings
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 |
+| Review rounds | 1 (`PASS` first time) — running total for the spec: 5 of the 10 budgeted |
+| Shipped lines | 6 insertions / 5 deletions (estimate was ~6) |
+| Requirements covered | FR-6 (category column, effort ceiling per band, categories as depth guidance only, the sub-50-LOC `medium` rule) |
+| Concurrency | Ran in a wave of two beside T5, on a disjoint file. Prose only — no shared build output, ports, or dependency tree |
+
+**Files changed:** `.claude/templates/reviewer.md`, and only that file.
+
+#### Attempt 1 — Reviewer `PASS`
+
+*What landed:* the depth-mode table gained a `Category` column and an `Effort ceiling` column, with the three existing LOC bands and their `Mode` text left byte-identical — extended, not replaced. A new bullet beneath states the category column is depth guidance only, never decides whether a review happens, and routes that decision to `/akili-execute` Step 2.3 — *Review intensity*, carrying FR-6's override escape in behavioural form.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `effort ceiling` 1 · `< 50 LOC` 1 · `50–200 LOC` 1 · `> 200 LOC` 1 · `never decide` 1 · `deterministic` **0** (NFR-2 — the predicate is not restated here) · held-out names **0** (DD-11) · `git diff --numstat 665cd8a -- .claude/templates/reviewer.md` → `6 5`, depth section only.
+
+*Falsifier — executed against the pre-spec baseline `c87187f`, not merely quoted:* `effort ceiling` **0** and the three bands **1 / 1 / 1**, matching the task's predicted readings. So check 1 genuinely fails on the old text, and check 2 would catch a band replaced rather than extended.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`** — all values re-executed independently of the author; all matched.
+
+*`Not Done / Assumptions` returned by the Implementer — carried verbatim:*
+
+> One judgment call, named rather than omitted — FR-6's category table is keyed by task category (trivial/simple/standard/complex) while reviewer.md's existing table is keyed by diff LOC size; the two axes aren't declared 1:1 in the spec text I read. I mapped `< 50 LOC → trivial · simple` (ceiling `medium`, matching FR-6's hard rule verbatim), `50–200 LOC → standard` (ceiling `high`), `> 200 LOC → complex` (ceiling `high or above`) — the most natural alignment given each band's existing Mode description (checklist / full-sweep / parallel-lenses) already mirrors FR-6's Depth column for those same categories. No other gaps.
+
+**The Leader found and named a consequence the Implementer had not:** collapsing `trivial` and `simple` into one band means FR-6's **`trivial → low`** ceiling appears nowhere in the shipped table (`grep -n "low\`"` → no ceiling hit). That is the dropped-obligation shape KZ-changes--gate-falsifiability-2 names, so it was put to the Reviewer as a **named first-class check** with three outcomes left open — conformant, dropped obligation, or the two axes genuinely unmappable as approved (a spec gap for the Pivot Protocol).
+
+*Reviewer verdict:* **`PASS`** — the collapse is conformant, and the `Not Done` is settled rather than deferred.
+
+> SUMMARY: The `trivial → low` collapse is **conformant, not a dropped obligation, and not a spec gap.** The shipped table implements the structure `design.md` §5.5 and T4 mandate, and the ceiling value FR-6's own binding bullet dictates.
+
+Its three grounds, in the order it gave them:
+
+1. **The target artifact is keyed by LOC band by mandate, not by the Implementer's choice.** `design.md` §5.5 reads *"`reviewer.md`'s existing **LOC bands** gain a category column and an **effort ceiling per band**"*, §7.1 row 9 repeats it, and T4's own verification check 2 **requires the three LOC bands to survive** (`1 / 1 / 1`). Under that mandated shape `trivial` and `simple` necessarily share the `< 50 LOC` row and can carry only one ceiling.
+2. **FR-6's second bullet is the correspondence the Implementer thought was missing, and it fixes the value.** *"A diff under the existing `< 50 LOC` band SHALL NOT draw an effort above `medium` unless an FR-2 override applies."* FR-6 binds that rule to the **LOC axis separately from** the category table, precisely because the axes are independent — a trivial task need not be sub-50-LOC. `medium` is the verbatim value FR-6 binds to that band, and the only one that also satisfies `simple → medium` in the same row.
+3. **FR-6's own scenario ratifies `medium` on the most trivial possible diff.** *"THEN the brief sets `checklist` depth at `low` **or `medium`** effort · BUT NOT … `high` effort."* A one-line diff is the canonical trivial case and the acceptance criterion admits `medium`. **The column is a ceiling: `medium` still permits `low`**, and forbids exactly what the `BUT NOT` clause forbids. Nothing FR-6 can falsify is lost.
+
+*Disqualifier, read rather than counted:* no category is given power to decide whether a review runs. The new bullet asserts the negative explicitly and routes the decision to its named owner. DD-2 holds.
+
+*Surviving neighbours (KZ-changes--leader-brief-contract-1), checked line by line:* the *"excellent eight-hundred-line review of a twenty-eight-line diff"* warning and *"Thoroughness is not a constant to maximize; it is a budget to spend where the risk is"* now read as the **rationale for** the ceiling column rather than against it. The Reviewer also checked the persona's line 7 — *"default effort `high` — do not skim"* — and ruled it a **default** cleanly subordinated by a band **ceiling** the new bullet makes overridable, noting that its own spawn (effort `high` on an 11-line diff under override (a)) is that reading in action.
+
+*`ADVISORY`:* suppressed per the `< 50 LOC` band rule; no lens finding rose to a spec violation.
+
+*Runtime events:* none.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| The `trivial → low` consequence was **named by the Leader and routed to the Reviewer**, not raised with the Implementer or resolved inline | The Implementer named the axis-mapping judgment but not its sharpest consequence. Whether a requirement's content ships is a conformance question for the auditor; resolving it inline would have been the Leader ruling on work it supervised |
+| A **spec gap / Pivot was explicitly offered and declined** on the Reviewer's ruling | The brief left "the two axes are genuinely unmappable as approved" open as an outcome. The Reviewer found the correspondence stated in FR-6's second bullet and design §5.5, so no rule needed inventing and the loop continued |
+| Implementer ran at **T2 `sonnet`, effort `medium`** — a step below the `high` used on T1/T2 | Size S, a single table edit against a complete requirement. The effort dial is meant to track task difficulty rather than default upward; this is the spec's own FR-6 discipline applied to its own execution |
+
+#### Final verification result
+
+All four task checks green, re-run independently by the Leader (`VERIFIED`). Falsifier executed against `c87187f` with the predicted baseline readings observed. Disqualifier read rather than counted. Reviewer `PASS` on the first attempt, with the `Not Done` question settled on the record.
