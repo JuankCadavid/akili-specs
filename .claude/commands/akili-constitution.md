@@ -38,8 +38,8 @@ For all three modes:
 4. Ensure `docs/specs/kaizen/` exists, scaffolded with a one-line `README.md` stating its role: *one kaizen entry file per spec, written by the `kaizen` skill's Record phase.*
 5. Ensure `docs/specs/audits/` exists, scaffolded with a one-line `README.md` stating its role: *one drift report per `/akili-audit` run.*
 6. **Both READMEs are scaffolding, never content.** A README never counts as a kaizen entry file or as an audit report for any reader: a "most recent report" read that finds only the README must conclude the directory holds none, and a pending-item count over `docs/specs/kaizen/` must skip it.
-7. Ensure root `CLAUDE.md` exists or is enhanced.
-8. Ensure root `AGENTS.md` exists or is enhanced.
+7. Ensure root `AGENTS.md` exists or is enhanced — the project's single canonical agent guide.
+8. `CLAUDE.md` is optional: only ensure it when the project already has one, or when it needs one for a host or toolchain that cannot read `AGENTS.md` directly. When you do ensure it, it must be an `@AGENTS.md` import (see the rule immediately below this list), never a second copy of the guide.
 9. Ensure project-level `.agents/` exists with `leader.md`, `implementer.md`, `reviewer.md`, and `tester.md` (see Step 8B).
 10. Default behavior is to enhance existing project docs in place instead of creating parallel copies.
 
@@ -53,8 +53,8 @@ The constitutional baseline must cover these files:
 - `docs/specs/general-setup/design.md`
 - `docs/specs/general-setup/task.md`
 - `docs/specs/general-setup/family.md`
-- `CLAUDE.md`
 - `AGENTS.md`
+- `CLAUDE.md` (optional — only when the project keeps or needs one, as an `@AGENTS.md` import)
 - `.agents/leader.md`
 - `.agents/implementer.md`
 - `.agents/reviewer.md`
@@ -72,7 +72,16 @@ Older AKILI-SPECS baselines used `docs/system-design/design.md` for the UX/UI bl
 
 1. Treat them as the existing UX/UI Design document and TRD — never draft duplicates alongside them.
 2. In Active AKILI-SPECS mode, propose migrating them with `git mv` to `docs/ux-ui/design.md` and `docs/trd/trd.md`, then update every reference in `CLAUDE.md`, `AGENTS.md`, `.agents/*.md`, and `docs/specs/` to the new paths.
-3. If the user declines migration, keep the legacy paths and note the mapping in `CLAUDE.md` so later AKILI-SPECS commands resolve them correctly.
+3. If the user declines migration, keep the legacy paths and note the mapping in `AGENTS.md` so later AKILI-SPECS commands resolve them correctly.
+
+**`AGENTS.md` is canonical; `CLAUDE.md` is never a prose pointer to it:**
+
+`AGENTS.md` is the project's single agent guide — `## Model Routing`, `## Skill Map`, and every other constitutional section are scaffolded there and nowhere else (Step 8, Step 8C, Step 8D). A root `CLAUDE.md` is optional and, when present, exists only as a compatibility shim for a host or toolchain that cannot read `AGENTS.md` directly.
+
+1. **The shim is an `@AGENTS.md` import, never a summary.** When a `CLAUDE.md` is kept or created, its first line must be exactly `@AGENTS.md`, with any Claude-specific content below the import. Never write a second copy of `## Model Routing` or `## Skill Map` into it.
+2. **A prose pointer (`"see AGENTS.md for project conventions"`) is a defect, not a lighter-weight compatibility shim.** When `CLAUDE.md` exists alongside `AGENTS.md`, Claude Code reads `CLAUDE.md` only and does not consult `AGENTS.md` at all — so a sentence that merely names the other file does not point a reader at the guide, it *replaces* the guide with a sentence about the guide, and the project's actual policy silently stops loading. State the mechanism when you write or migrate a `CLAUDE.md`, not just the prohibition: an agent that knows only "don't write prose" will still "simplify" a stray import back into a tidy sentence the next time it touches the file; an agent that knows *why* — the two guides coexist, `CLAUDE.md` wins, prose carries no `@import` — will not.
+3. **Do not offer a symlink as an alternative to the import.** The Edit and Write tools refuse to write through a symlink, and a symlink committed to git checks out as a plain text file on Windows unless the checkout has `core.symlinks` enabled — a silent failure mode this methodology's cross-host support cannot assume away.
+4. **Version floor and unavailability.** `AGENTS.md` support requires Claude Code **v2.1.277 or later**. It is also unavailable on Amazon Bedrock or other third-party providers, with telemetry disabled, with `disableAllHooks` set, and in the first session immediately after an install or upgrade. In any of these cases, the `@AGENTS.md` import in `CLAUDE.md` is the route that keeps the project readable — never delete an existing `CLAUDE.md` to force the migration.
 
 ---
 
@@ -334,13 +343,15 @@ They must reflect:
 
 ### Step 8: Update Root Agent Guides
 
-Update root `CLAUDE.md` and `AGENTS.md` so they reference:
+Update root `AGENTS.md` **only** — the project's single canonical agent guide — so it references:
 
 - `docs/prd.md`
 - `docs/ux-ui/design.md`
 - `docs/trd/trd.md`
 - `docs/infrastructure.md`
 - `docs/specs/general-setup/` (including the `family.md` template for spec families)
+
+Never write this content into `CLAUDE.md`: a project that keeps one carries it only as an `@AGENTS.md` import (see the rule after Step 0's file list), which already includes these references by inheritance.
 
 The update should explain briefly:
 
@@ -452,10 +463,13 @@ The `.agents/` directory must be tool-agnostic:
 
 ### Step 8C: Scaffold Model Routing
 
-Add or upgrade a `## Model Routing` section in the project's root `AGENTS.md` **and** `CLAUDE.md`
-so each project carries its own editable, per-tool model-selection registry. This is **guidance
-only** — it tells humans and agents which model to switch to per phase. Do not add `model:`
-frontmatter to any command and do not change the installer.
+Add or upgrade a `## Model Routing` section in the project's root `AGENTS.md` **only** — the
+project's single canonical agent guide — so each project carries its own editable, per-tool
+model-selection registry. This is **guidance only** — it tells humans and agents which model to
+switch to per phase. Do not add `model:` frontmatter to any command and do not change the installer.
+Never write this section into `CLAUDE.md`: a project that keeps one carries it only as an
+`@AGENTS.md` import (see the rule after Step 0's file list), which already includes this section by
+reference.
 
 The canonical reference is the packaged `docs/model-routing.md` (criteria-first philosophy, the six
 capability tiers, the phase→tier mapping, and the model registry). Mirror its content into the
@@ -576,8 +590,10 @@ pin was bought to close, so try the alias at `xhigh`/`max` before renewing the p
 
 ### Step 8D: Scaffold the Skill Map
 
-Add or upgrade a `## Skill Map` section in the project's root `AGENTS.md` **and** `CLAUDE.md` so the
-project declares which stack-dependent skills apply to it. AKILI binds skills at three levels
+Add or upgrade a `## Skill Map` section in the project's root `AGENTS.md` **only** so the project
+declares which stack-dependent skills apply to it. As with `## Model Routing` (Step 8C), never
+duplicate this section into `CLAUDE.md` — a kept `CLAUDE.md` carries it only through the
+`@AGENTS.md` import. AKILI binds skills at three levels
 (see the packaged `docs/skills/governance.md`): `core` and `conditional` skills are already wired
 into the command prompts; **`stack` skills are never hard-referenced by commands** — this Skill Map
 is how they reach the agents.
@@ -1109,7 +1125,7 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The main technical decisions captured in the TRD
 - The core infrastructure decisions captured in the Infrastructure document
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
-- The `## Model Routing` registry (Step 8C): that it was written to **both** root guides, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
+- The `## Model Routing` registry (Step 8C): that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
 - The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. Also name the `.agents/` three-tenant table (personas / Antigravity wrappers / Codex skills, defined in Step 8E) so the user knows the layout is collision-free.
 - The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code and Codex, **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert.
@@ -1143,10 +1159,10 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] If Step 8E wrappers were generated, the **Reviewer** wrapper's state is named in the summary: either it carries the host's read-only restriction, or it was deliberately omitted (syntax unconfirmable, or a wrong tool name would hang the agent). Verify no *other* wrapper carries one — a restricted Leader, Implementer, or Tester is a broken role, not a stricter one. Both `author ≠ auditor` axes should hold: a Reviewer model different from the Implementer's (rule 1) **and** no write tools (rule 2).
 - [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written. On a Codex project, the same holds for `.codex/hooks.json`: entry merged without clobbering, script located at `.codex/hooks/akili-tasks-gate.sh` or pointed at an existing `.claude/hooks/` copy, and the step stopped rather than wrote if the file was invalid JSON.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
-- [ ] **A `## Model Routing` section exists in `AGENTS.md` AND in `CLAUDE.md`** — both files, not one. The registry is mirrored into the project guides on purpose; `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project.
+- [ ] **A `## Model Routing` section exists in `AGENTS.md`, and is not duplicated into a `CLAUDE.md` body** — `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project. If the project keeps a `CLAUDE.md`, it carries the registry only through its `@AGENTS.md` import, never as a second copy.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, Antigravity, and Codex — all four are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
 - [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.
-- [ ] A `## Skill Map` section exists in both root guides.
+- [ ] **A `## Skill Map` section exists in `AGENTS.md`, and is not duplicated into a `CLAUDE.md` body** — same rule as `## Model Routing` above.
 - [ ] In Safe Update mode, no pre-existing user customization was overwritten in the baseline docs, `.agents/`, the registry, or the Skill Map.
 - [ ] Every legacy path migration proposed in Step 1 was either applied with references updated, or explicitly declined by the user.
 
@@ -1154,7 +1170,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 
 ## Outcome
 
-At the end of `/akili-constitution`, the repository should have a project-level baseline that future `/akili-specify`, `/akili-execute`, `/akili-validate`, and `/akili-test` work can rely on without guessing the structure or conventions. The `.agents/` personas must be in place so that `/akili-execute` can run the Leader → Implementer → Reviewer rework loop and `/akili-test` can run the Leader → Tester(s) harness without falling back to inline personas. The root guides must also carry a `## Model Routing` registry (Step 8C) so each phase runs on a model matched to its demand, with the Reviewer on a different model than the Implementer, and a `## Skill Map` (Step 8D) so stack-dependent skills reach the agents without being hardcoded into commands.
+At the end of `/akili-constitution`, the repository should have a project-level baseline that future `/akili-specify`, `/akili-execute`, `/akili-validate`, and `/akili-test` work can rely on without guessing the structure or conventions. The `.agents/` personas must be in place so that `/akili-execute` can run the Leader → Implementer → Reviewer rework loop and `/akili-test` can run the Leader → Tester(s) harness without falling back to inline personas. The root `AGENTS.md` must also carry a `## Model Routing` registry (Step 8C) so each phase runs on a model matched to its demand, with the Reviewer on a different model than the Implementer, and a `## Skill Map` (Step 8D) so stack-dependent skills reach the agents without being hardcoded into commands.
 
 ---
 

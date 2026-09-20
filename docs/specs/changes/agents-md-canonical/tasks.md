@@ -30,7 +30,7 @@ Sequential: T2 applies in this repo the rule T1 ships, so T1 defines the shape T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full` — edits an obligation every future project scaffold executes, and **reverts delivered behavior** (overrides a and d) |
 | Depends on | none |
