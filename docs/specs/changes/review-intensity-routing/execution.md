@@ -366,11 +366,11 @@ All six checks green on attempt 2, re-run independently by the Leader (`VERIFIED
 
 | Field | Value |
 |---|---|
-| Status | **`[~]` — parked mid-loop at the budget tripwire, not halted** |
+| Status | **PASS** — parked at the tripwire, released by the user, reworked and closed |
 | Date | 2026-09-19 |
-| Implementer attempts | 1 of 3 (attempt 2 **not dispatched** — see below) |
-| Review rounds | 1 (`FAIL`) — running total for the spec: 8 of the 10 budgeted |
-| Working tree | attempt 1's edit to `.claude/templates/leader.md` is **left in place, uncommitted**. This is a pause, not a HALT, so the Step 4 rollback does **not** apply and nothing was restored |
+| Implementer attempts | 2 of 3 |
+| Review rounds | 2 (one `FAIL`, one `PASS`) — running total for the spec: **10 of the 10 budgeted** |
+| Working tree | attempt 1's edit was **left in place** through the pause — this was never a HALT, so the Step 4 rollback did not apply and nothing was restored. Attempt 2 built on it |
 
 **Why parked:** the spec crossed its `design.md` §13 budget tripwire on review rounds while this task was in its loop. The tripwire requires stopping and escalating to the user rather than continuing on the assumption that finishing is what was wanted. The rework is one line and the Reviewer has already supplied the wording, so this is cheap to resume — it is held for the user's ruling, not because it is hard.
 
@@ -418,6 +418,34 @@ All six checks green on attempt 2, re-run independently by the Leader (`VERIFIED
 #### Outstanding on resume
 
 One line: bind the recording clause to the single trigger the spec states (escalation above T2), naming the effort chosen rather than treating effort as a second independent trigger. The Reviewer's suggested wording is in Issue 1 above. Attempts remaining: 2 of 3.
+
+#### Attempt 2 — Reviewer `PASS` (dispatched after the user released the run)
+
+*What landed:* one bullet rewritten. The invented second trigger is removed and effort moves **inside** the record rather than acting as its own firing condition:
+
+> **The Implementer defaults to the registry's T2.** Any escalation above it — to a heavier tier — is recorded in `execution.md` with a one-line reason naming the model and the effort chosen, in the same shape skill deviations are recorded in the bullet above.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `never collapse it` **1** · `I already verified this` **1** · `Review intensity` **1** · `deterministic` **0** · **`task's default` 0** — the unevaluable term is gone · `git diff --stat` → 2 insertions, 1 deletion · the only removed line is still the collapse paragraph amended in place, no *Delegation Thresholds* row touched.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**. The Reviewer additionally re-ran every check itself rather than accepting either report.
+
+*Reviewer verdict:* **`PASS`**.
+
+> SUMMARY: Attempt 2 fixes Issue 1 exactly and touches nothing else. The recording obligation now fires on an event a literal reader can check, sits coherently beside line 26, and carries FR-7 bullet 1 in full without under-delivering.
+
+Its three rulings:
+
+1. **The trigger is evaluable.** *"Any escalation above it — to a heavier tier —"* names one concrete, observable event, with its referent external to this file (`docs/model-routing.md` defines the tiers by role) and the appositive pinning the direction so *"above"* cannot be misread as a higher numeral. Unlike attempt 1, the test is a fact known at spawn time rather than a comparison against a quantity the adjacent bullet is simultaneously setting.
+2. **It now interlocks with line 26 rather than merely coexisting** — and this is where attempt 2 is genuinely better, not just inert-free. Line 26 keeps full latitude over effort (*"orthogonal to the tier"*); line 25 makes no claim about *when* effort must be justified, only that the chosen effort is named inside the record once a tier escalation has fired it. The Reviewer found the interlock the Leader had not: line 26's closing rule — *"Don't `max` a cheaper tier — if a task wants `max`, escalate the tier instead"* — **prescribes exactly the escalation line 25 requires to be recorded**, so a `max`-worthy task produces a tier bump *and* its record, with the motivating effort named in the same line.
+3. **Nothing was lost narrowing to one trigger.** FR-7 bullet 1's three parts all ship: the T2 default is stated; *"any escalation above it"* is carried (T2 **is** a tier, and line 26 declares effort *"orthogonal to the tier"*, so effort was never inside FR-7's *"above it"* to begin with); and *"in the same way skill deviations are recorded today"* is carried both by reference and by mechanism. The effort naming is the task Scope's own addition, sitting where Scope puts it — in the record, behind the single trigger.
+
+*`ADVISORY`:* none — suppressed under the `< 50 LOC` band.
+
+*Runtime events:* none.
+
+#### Final verification result
+
+All six checks green on attempt 2 — the task's five plus the check the FAIL itself added (`task's default` → 0) — re-run independently by both the Leader and the Reviewer. Baseline falsifier readings executed against `c87187f` on both attempts. Disqualifier read rather than counted: the prohibition still precedes the permission, both surviving halves remain at exactly 1, and the amended paragraph was confirmed byte-unchanged from the attempt that passed it.
 
 ---
 
