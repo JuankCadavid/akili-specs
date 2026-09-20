@@ -106,3 +106,89 @@ Attempt 2's Reviewer independently reached the same tiering on the one advisory 
 #### Final verification result
 
 All six task checks green, re-run independently by the Leader after each attempt (`VERIFIED` both times). Falsifier executed and its red observed. Disqualifiers read rather than counted, by both the Implementer and the Reviewer. Reviewer `PASS` on attempt 2 from a fresh full audit.
+
+---
+
+### T2 — `/akili-execute`: closure states, the `REVIEW_SKIPPED` record, `/goal`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 2 |
+| Review rounds | 2 (one `FAIL`, one `PASS`) — running total for the spec: 4 of the 10 budgeted |
+| Shipped lines | 22 insertions / 8 deletions in one file (estimate was ~22) |
+| Requirements covered | FR-4 (four record fields, three closure states, separate countability, `/goal`), FR-10 (all three bullets), NFR-3, NFR-5 |
+| Forward pointers received from T1 | both closed — see below |
+
+**Files changed:** `.claude/commands/akili-execute.md`, and only that file.
+
+#### Attempt 1 — Reviewer `FAIL`
+
+*Files changed:* `.claude/commands/akili-execute.md` (21 insertions / 8 deletions at the point of review).
+
+*What landed:* the `## REVIEW_SKIPPED: <Task ID>` record with its four fields as a **sibling** beside `REVIEW_WAIVED` (DD-5, never a flag on it); the distinctness sentence; the three-state closure rule; `SKIPPED` in the final-status vocabulary; the `/goal` condition widened to the third state; the Approval Mode paragraph carrying both DD-6 (a skip auto-passes as routine) and DD-12 (a mismatch is reported even under `pre-approved`). **Both T1 forward pointers closed:** the `## Output` bullet at line 38 now names three closing records, and the pseudocode's skip path writes `verdict = SKIPPED` rather than conflating a never-owed gate with a Reviewer `PASS`.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `REVIEW_SKIPPED` 8 (≥ 4 required) · `REVIEW_WAIVED` 9 (≥ 6 required; baseline 6, so the waiver's text was not reduced) · the closure sentence names all three states on one line · `git diff -U0 c87187f | grep "^-"` inspected line by line, **no removed line is a row of the `REVIEW_WAIVED` field table** (the five rows confirmed byte-identical to baseline) · `grep -n "pre-approved"` returns both required hits.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`** — all values re-executed independently of the author; all matched.
+
+*`Not Done / Assumptions` returned by the Implementer — carried verbatim, as the rule requires:*
+
+> FR-10 ("a spec with no `Review` field behaves exactly as today") required no new text — the Step 2.3 predicate (T1's) evaluates the Implementer's report directly and never reads the `Review` field to decide the predicate's four conditions, so absence of the field doesn't change closure-state behavior in this file; the field's own absent-value default is `/akili-specify`'s (T5's) concern. Confirmed by inspection, no code path in this file branches on the field's presence.
+
+The Leader did not adjudicate this claim alone. It was put to the Reviewer as a **named first-class check**, with the three outcomes left open — guarantee delivered, guarantee missing, or the approved requirements genuinely under-specify the link (a spec gap for the Pivot Protocol).
+
+*Reviewer verdict:* **`FAIL`**, one issue — and the `Not Done` argument refuted by counterexample.
+
+> 1. **Ruling on the named check — the `Not Done` does not resolve; FR-10 bullet 1 is undelivered.** No sentence in this file or in T1's shipped text delivers *"a `tasks.md` without a `Review` field SHALL execute exactly as today: a Reviewer for every task."* The Implementer's premise is correct and is exactly what breaks the guarantee: because nothing branches on the field's presence, a task from a pre-field spec is evaluated by the predicate on equal terms and **can clear it**. This is not hypothetical — an archived `tasks.md` in this repo carries **0** `Review` fields and **9** tasks whose `Consumers` reads `none`, with executed falsifiers recorded in its `execution.md`. Under the shipped four conditions such a task closes `REVIEW_SKIPPED` with no Reviewer. That is the case FR-10 forbids.
+>    - FR-5's absent-value rule cannot cover it, and not only because it lives in a later task's file: `checklist` is defined in `requirements.md` §3 as a **depth band** — "how deep a review goes **when one runs**" — and FR-6 states *"Categories SHALL be depth guidance only; they SHALL NOT decide whether a review happens — FR-1 does."* A depth default cannot deliver an existence guarantee.
+>    - **Violated Rule:** `requirements.md` FR-10 bullet 1 and NFR-5; `tasks.md` T2 scope bullet 4; `design.md` §7.2 `Review`-field reader table, row *"Tasks written before this change | no field → `checklist` → today's behavior (FR-10)"*.
+>    - **Remediation Suggestion:** add one applicability sentence in `.claude/commands/akili-execute.md` — in the Step 2.3 **Review intensity** block (preferred; that is where the predicate's scope is set) or beside the closure rule. Word it as an **applicability rule**, not a fifth predicate condition: T1's shipped *"never against the task's `Review` field or the plan"* governs **how** the predicate is evaluated for tasks in scope, and must stay intact. Corpus applications under DD-11/NFR-6 are analytic and unaffected.
+>
+> **Not a spec gap.** The obligation is stated (FR-10 bullet 1), its intent is restated in FR-5's *"no spec written before this change loses its review"*, and it is satisfiable here by quoting it — no rule needs inventing. The FR-1/FR-10 tension is real but resolvable by the applicability framing above; escalation under the Pivot Protocol is not warranted.
+
+The Reviewer also recorded seven "what passed" findings checked at the source, including that design §7.2's rung-4 row genuinely still *holds* (a skip is not a runtime-failure ladder rung), and that the `/goal` condition was narrowed to a **named third state** rather than widened to "any closed task" — the disqualifier's stated failure mode.
+
+*`ADVISORY`:* none — correctly suppressed under the Reviewer persona's `< 50 LOC` band rule, which directs reporting only gate-blocking findings on a small diff.
+
+*Runtime events:* the verdict was truncated in delivery twice; the Leader requested the remainder verbatim each time and the Reviewer supplied it. No re-audit, no attempt consumed.
+
+#### Attempt 2 — Reviewer `PASS`
+
+*Files changed:* one added bullet at line 201, in the Step 2.3 *Review intensity* block, immediately under the predicate table:
+
+> - **Applicability.** This section governs only a task whose `tasks.md` carries a `Review` field; a `tasks.md` with no `Review` field predates this change and is out of scope for it entirely — every one of its tasks gets a conformance Reviewer, exactly as today, regardless of what the conditions above would find. That is a gate on the field's presence, not a use of its value — the introductory sentence's **never against the task's `Review` field or the plan** still governs how the predicate is evaluated once a task is in scope.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`** — `REVIEW_SKIPPED` 8 · `REVIEW_WAIVED` 9 · one file · 22 insertions / 8 deletions, of which this attempt contributed exactly one line.
+
+*Reviewer verdict:* **`PASS`**, with the attempt-1 question explicitly settled rather than deferred.
+
+> SUMMARY: The Applicability bullet at line 201 delivers FR-10 bullet 1 for the exact counterexample that failed attempt 1, reads as a scoping rule rather than a fifth condition, and does not conflict with line 192 under a literal reading. FR-10 bullets 2 and 3 confirmed at the source. **The attempt-1 `Not Done` question is settled, not deferred:** scope bullet 4 did owe text, that text now ships, and no scope remains outstanding on T2.
+
+Its four rulings, in brief: **(1)** the counterexample document now reaches a Reviewer, because `regardless of what the conditions above would find` means the predicate is never reached at all; **(2)** it is applicability, not a fifth condition — the structural test being that every predicate condition is evaluated against the Implementer's *report* while this one is evaluated against the *`tasks.md`*: different object, different moment; **(3)** no contradiction with T1's line 192, which is grammatically bound to the four conditions it introduces — and the presence gate is **monotone in the safe direction**, able only to force a review and never to grant one, so it cannot produce DD-7's failure mode; **(4)** FR-10 bullets 2 and 3 confirmed at the source rather than assumed.
+
+The Reviewer also noted a boundary the spec does not legislate and which is therefore not a finding: a `tasks.md` where only *some* tasks carry the field falls outside both FR-10 bullet 1 and FR-5 (which mandates the field on every task).
+
+*Runtime events:* none beyond the delivery truncation noted above.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| The attempt-1 `Not Done` claim was **routed to the Reviewer as a named check** rather than adjudicated by the Leader | The claim was "no scope is owed here", which is a conformance question about whether a requirement ships. Adjudicating it inline would have been the Leader ruling on work it supervised, and the three outcomes — delivered, missing, or a genuine spec gap — were left open in the brief so the auditor could reach any of them |
+| A **spec gap / Pivot was explicitly considered and rejected**, on the Reviewer's ruling | The FR-1 / FR-10 tension is real: FR-1's predicate reads the report and not the field, while FR-10 bullet 1 guarantees a Reviewer for every task of a pre-field spec. The Reviewer ruled the obligation stated and satisfiable by quoting it, with no rule needing invention. The loop therefore continued rather than stopping for the user |
+| **Leader error — a mis-specified verification check.** The brief added a check requiring `grep -c "leader-brief-contract\|gate-falsifiability"` to be **0** file-wide; it returns **1** | The hit is line 177, `(hand-off from \`changes/gate-falsifiability\`)`, verified **byte-identical at the pre-spec baseline `c87187f`** and sitting inside a parenthetical — NFR-4's own carve-out. The check was a Leader-added item carrying a threshold pre-existing text cannot meet, and it was **not tagged `[advisory-grade]`** as the brief contract's clause (d) requires. The Implementer flagged it rather than silently editing out-of-scope text or silently passing, which is the correct behavior on both counts. No scope owed; the error is the Leader's and is recorded here rather than charged to the task |
+| Implementer stayed on **T2 `sonnet`**, no tier escalation, for both attempts | Registry default and FR-7's own rule. Effort was the dial: `high` on attempt 1, `xhigh` on attempt 2 |
+
+#### Forward pointer — T9 must carry this
+
+**T9's closure gate (d) — *"Held-out discipline: neither held-out spec is named in any shipped file"* — will read red on `.claude/commands/akili-execute.md:177`**, which names `changes/gate-falsifiability` in a parenthetical. That line predates this spec (byte-identical at `c87187f`) and no task in this spec introduced or touched it. T9 must decide, with the user, between scoping gate (d) to text **this spec shipped**, removing the parenthetical as a separate authorized change, or recording the hit as a known pre-existing exception. It must not be silently passed over, and it must not be "fixed" by widening a task's scope.
+
+#### Issues encountered
+
+- The Reviewer's verdict exceeded the delivery limit on both rounds and arrived truncated. Recovered each time by requesting the remainder verbatim, with no re-audit. Worth noting for the retrospective: the `~600 word` report ceiling in the command exists precisely to prevent this, and a verdict carrying a first-class named ruling plus a seven-bullet "what passed" list does not fit inside it.
+
+#### Final verification result
+
+All five task checks green, re-run independently by the Leader after each attempt (`VERIFIED` both times). Falsifier readings confirmed against the pre-spec baseline `c87187f`. Disqualifier read rather than counted: `REVIEW_SKIPPED` ships as a sibling record with its own heading and field table, never a flag on the waiver (DD-5); the `/goal` condition names a third state rather than accepting "any closed task". Reviewer `PASS` on attempt 2, with the attempt-1 `Not Done` settled on the record.

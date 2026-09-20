@@ -35,7 +35,7 @@ Each successful task execution should produce:
 - updated task status in `tasks.md`
 - an appended audit entry in `execution.md` covering every Implementer attempt and every Reviewer verdict
 - verification evidence from the command or check listed in the task
-- a Reviewer PASS verdict before the task is marked complete
+- a closing record — a Reviewer `PASS`, a `REVIEW_WAIVED` record, or a `REVIEW_SKIPPED` record — before the task is marked complete
 
 Use `[~]` for a started but incomplete or blocked task, `[x]` for a completed task, and `[ ]` for pending work.
 
@@ -131,12 +131,12 @@ loop:
   if MISMATCH:
     verdict = FAIL
   elif Review intensity met (Step 2.3) and no override applies:
-    verdict = PASS
+    verdict = SKIPPED   # gate never owed — write REVIEW_SKIPPED, not a Reviewer PASS
   else:
     spawn Reviewer with diff + spec context
     verdict = Reviewer verdict (PASS | FAIL)
   on runtime event: recover per the runtime table; attempt unchanged
-  if verdict == PASS:
+  if verdict in (PASS, SKIPPED):
     finalize task (Step 3)
     exit loop
   else (FAIL):
@@ -198,6 +198,7 @@ The Implementer must keep changes minimal and within task scope, follow the desi
 | 3 | The task's `Consumers` field reads `none` |
 | 4 | No override below applies |
 
+- **Applicability.** This section governs only a task whose `tasks.md` carries a `Review` field; a `tasks.md` with no `Review` field predates this change and is out of scope for it entirely — every one of its tasks gets a conformance Reviewer, exactly as today, regardless of what the conditions above would find. That is a gate on the field's presence, not a use of its value — the introductory sentence's **never against the task's `Review` field or the plan** still governs how the predicate is evaluated once a task is in scope.
 - The predicate is defined **here, and only here** — every other surface cites it by name.
 - A task whose `Review` field says `skip-eligible` but whose report fails any condition receives a normal conformance review; the field is a **claim to be proved**, never a guarantee.
 - The Leader does not substitute its own judgment that a task "looks simple" for any condition — a diff's size decides nothing here.
@@ -261,7 +262,7 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 
 ### Step 3: Finalize on PASS
 
-Only after a Reviewer `PASS` — or, when the Reviewer ladder was exhausted, after the `REVIEW_WAIVED` record is written —:
+Only after one of the three closing records — a Reviewer `PASS`; the `REVIEW_WAIVED` record, once the Reviewer ladder is exhausted; or the `REVIEW_SKIPPED` record, once **Review intensity** (Step 2.3) is met and no override applies —:
 
 1. Append a structured entry to `execution.md` (see log format below) covering every attempt in this task's loop.
 2. Update `tasks.md` from `[ ]` (or `[~]`) to `[x]`.
@@ -312,11 +313,11 @@ If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 
 After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
 
-**Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance. A `REVIEW_WAIVED` decision and the Leader-inline ask (Implementer ladder rung 5) are stops for the user too, never auto-passed — both remove or replace the correctness gate, the same class of exception the list above already covers.
+**Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** or a `REVIEW_SKIPPED` closure — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. A skip is **routine**, not an exception: the predicate is objective and the skip list was already approved at the tasks gate, so it auto-passes like any other routine progress (DD-6). The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance. A `REVIEW_WAIVED` decision and the Leader-inline ask (Implementer ladder rung 5) are stops for the user too, never auto-passed — both remove or replace the correctness gate, the same class of exception the list above already covers. A `skip-eligible` claim that turns out **not earned** is a different case again: per Step 2.3, that mismatch is reported at this continue gate even under `pre-approved` — it is not the routine skip this paragraph auto-passes.
 
 **Unattended Mode (Claude Code + `pre-approved` only):** when the user asks for a run that finishes without them watching, recommend launching it with `/goal` in Claude Code — after each turn a small fast model checks the condition and starts another turn until it holds ([docs](https://code.claude.com/docs/en/goal.md)). Use this canonical condition, with `<spec-path>` and `<N>` resolved:
 
-> Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS or `REVIEW_WAIVED` evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
+> Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS, `REVIEW_WAIVED`, or `REVIEW_SKIPPED` evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
 
 The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
 
@@ -340,7 +341,7 @@ Minimum sections:
 
 Each task entry must record:
 
-- final status (`PASS` / `WAIVED (flag)` / `HALT` / `pivot`)
+- final status (`PASS` / `WAIVED (flag)` / `SKIPPED` / `HALT` / `pivot`)
 - date
 - task ID and title
 - number of Implementer attempts run
@@ -363,7 +364,20 @@ A minimal PASS-on-first-attempt entry can be compact; a HALT or rework entry mus
 | verification that stood in | command, exit status, who ran it |
 | models | Implementer / auditor (if any) |
 
-The flags name which property of the gate was lost: **`inline`** — no independent context (the Leader audited work it supervised); **`same-model`** — an independent context, but on the Implementer's model; **`degraded-pair`** — an independent context on a different model, below the registry's tier or outside it (a `PASS` was issued and stands — the record accompanies it so the metric stays honest). The task entry's Reviewer field reads `WAIVED (inline)` or `WAIVED (same-model)` for the first two, and `PASS (degraded-pair: <impl>/<rev>)` for the third. **A task with neither a `PASS` nor a `REVIEW_WAIVED` record in `execution.md` is not closable.** Step 2.3 item 0 (a `Not Done / Assumptions` gap blocks `[x]` even on PASS) applies to a waiver identically. An `execution.md` written before this record existed carries no `## REVIEW_WAIVED` blocks — its absence reads as "no waiver recorded", never as an inferred PASS.
+The flags name which property of the gate was lost: **`inline`** — no independent context (the Leader audited work it supervised); **`same-model`** — an independent context, but on the Implementer's model; **`degraded-pair`** — an independent context on a different model, below the registry's tier or outside it (a `PASS` was issued and stands — the record accompanies it so the metric stays honest). The task entry's Reviewer field reads `WAIVED (inline)` or `WAIVED (same-model)` for the first two, and `PASS (degraded-pair: <impl>/<rev>)` for the third.
+
+**`## REVIEW_SKIPPED: <Task ID>`** — written by the Leader, before `[x]`, whenever a task closes because **Review intensity** (Step 2.3) was met and no override applied — a sibling record beside `REVIEW_WAIVED`, never a flag on it:
+
+| Field | Content |
+|---|---|
+| predicate evidence | the executed falsifier's command and red output; the deterministic-verification basis; the `Consumers` value |
+| overrides checked | that each override (a)–(g) was evaluated and none applied |
+| evidence re-run | mode (inline or Verifier), result, and who performed it |
+| models | the Implementer's model |
+
+A `REVIEW_SKIPPED` record and a `REVIEW_WAIVED` record are never the same event, and no report, document, or metric presents them as one state: a skip is a gate the predicate proved was **never owed**; a waiver is a gate that **was owed and lost**. The two stay separately greppable and separately counted — counting "tasks without a Reviewer `PASS`" conflates them and answers no real question.
+
+**A task with none of a Reviewer `PASS`, a `REVIEW_WAIVED` record, or a `REVIEW_SKIPPED` record in `execution.md` is not closable.** Step 2.3 item 0 (a `Not Done / Assumptions` gap blocks `[x]` even on PASS) applies to a skip and a waiver identically. An `execution.md` written before these records existed carries neither block — their absence reads as "no skip or waiver recorded", never as an inferred PASS.
 
 ---
 
