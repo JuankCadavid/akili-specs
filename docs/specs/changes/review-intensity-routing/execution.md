@@ -359,3 +359,62 @@ On Issue 2 it walked each scenario clause to its delivering text, and credited a
 #### Final verification result
 
 All six checks green on attempt 2, re-run independently by the Leader (`VERIFIED` both attempts). NFR-1's Falsifiability-block identity verified by content extraction and demonstrated non-inert by mutation, twice independently. Ordering proof re-run by the Leader. Disqualifier read rather than counted: `skip-eligible` is phrased as a claim, never a decision (DD-7 holds), and the Step 3.3 bullet names the tasks with their reasons rather than merely mentioning review intensities. Reviewer `PASS` on attempt 2.
+
+---
+
+### T3 — `leader.md`: the amended collapse paragraph, thresholds, model and effort recording
+
+| Field | Value |
+|---|---|
+| Status | **`[~]` — parked mid-loop at the budget tripwire, not halted** |
+| Date | 2026-09-19 |
+| Implementer attempts | 1 of 3 (attempt 2 **not dispatched** — see below) |
+| Review rounds | 1 (`FAIL`) — running total for the spec: 8 of the 10 budgeted |
+| Working tree | attempt 1's edit to `.claude/templates/leader.md` is **left in place, uncommitted**. This is a pause, not a HALT, so the Step 4 rollback does **not** apply and nothing was restored |
+
+**Why parked:** the spec crossed its `design.md` §13 budget tripwire on review rounds while this task was in its loop. The tripwire requires stopping and escalating to the user rather than continuing on the assumption that finishing is what was wanted. The rework is one line and the Reviewer has already supplied the wording, so this is cheap to resume — it is held for the user's ruling, not because it is hard.
+
+#### Attempt 1 — Reviewer `FAIL`
+
+*What landed:* the *Reviewer is not self-verification* paragraph amended in place, and one new bullet in *Delegation Discipline*. 2 insertions, 1 deletion.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `never collapse it` **1** · `I already verified this` **1** · `Review intensity` **1** · `deterministic` **0** (NFR-2) · held-out names **0** (DD-11) · `git diff --stat` → 2 insertions, 1 deletion.
+
+*Check 4, run by the Leader:* `git diff -U0 c87187f -- .claude/templates/leader.md | grep "^-"` returns exactly **one** removed line — the original paragraph being amended in place. **No `-` line touches a *Delegation Thresholds* table row.**
+
+*Falsifier — executed against the pre-spec baseline `c87187f` by both the Implementer and the Leader:* `never collapse it` **1**, `I already verified this` **1**, `Review intensity` **0** — matching the task's predicted readings, so checks 1–2 would detect a deletion and check 3 genuinely fails on the old text.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**.
+
+*Reviewer verdict:* **`FAIL`**, one issue. **The paragraph — the hard part, and the only part that removes shipped behavior — passed in full.** The failure is in the smaller second bullet.
+
+> 1. **Discovered Issue:** `.claude/templates/leader.md:25` — "or to a higher effort than the task's default". No `Effort` field exists on a task: `grep -n "Effort" .claude/commands/akili-specify.md` returns **zero** hits, so Step 3.2 defines no per-task effort default. The only default in the methodology is the *next bullet's* (`leader.md:26`) "Default `medium` for a T2 Implementer, then flex by the task's difficulty: `low`… `xhigh`… `max`". Under that neighbour the effort the Leader assigns *is* the task's effort, so nothing can exceed "the task's default" and the clause can never fire; under the other reading (`medium`) the term is simply undefined. Either way a normative recording obligation ("is recorded in `execution.md`") has a trigger that cannot be evaluated. This is the surviving-neighbour class KZ-changes--leader-brief-contract-1 names — the contradicting neighbour is one line below and every grep is green. It also diverges from the task's own Scope, which binds recording to a **single** trigger ("records its Implementer model and effort choice with a one-line reason **when it escalates above T2**"), not to two independent ones.
+>     *   **Violated Rule:** `tasks.md` §T3 Scope bullet 2; `requirements.md` FR-7 bullet 1 ("any escalation above it SHALL be recorded"); `design.md` §7.1 row 8.
+>     *   **Remediation Suggestion:** Bind the clause to the one trigger the spec states, e.g. "Any escalation above it — a heavier tier — is recorded in `execution.md` with a one-line reason naming the tier **and the effort** chosen, in the same shape…". If the effort trigger is kept deliberately, name the referent explicitly (`above the `medium` default in the bullet below`) so it is evaluable.
+
+**The Leader verified the finding's factual core independently before accepting it:** `grep -c -i "effort" .claude/commands/akili-specify.md` → **0**, and the contradicting bullet is one line below the clause. Confirmed.
+
+*The Reviewer's rulings on the four questions that passed:*
+
+1. **Order holds.** The prohibition runs unbroken to *"Spawn it."*, every baseline word survives byte-identical and in position, the lead-in is additive, and **the paragraph ends on prohibition again** (*"You may never lower it below what that block requires, whatever the time or context pressure"*) — so the permission is bracketed by prohibition on both sides. No retroactive reframing.
+2. **Both halves still do their original jobs, not vestigial.** *"never collapse it"* remains the topic sentence governing the paragraph; *"I already verified this"* is still followed by *"Spawn it."* and is then **re-armed** by the new text (*"it is not the rationalization above wearing a new name"*), which strengthens rather than dilutes it.
+3. **Genuinely a third act, not an exception.** Both grounds stated and distinct — not efficiency (*"earned its closure by proving itself, not by your say-so"*), and not the rationalization renamed (*"never the Leader's own judgment… the block's own conditions do, evaluated against the report, not the plan"*). Matches DD-8 and §12.
+4. **FR-8 — three of three bullets ship**, and the scenario's `BUT NOT` is unambiguous: the permission is conditioned on the block's conditions *and* no override, so a predicate-failing task falls under the surviving prohibition.
+
+*Pre-review sweep — confirmed by the Reviewer:* the amendment does not contradict *"Never delegate your own verification"* (own-reasoning re-check versus whether an audit of someone else's diff is owed), and the *Delegation Thresholds* row *"Review of a diff / PR → Fresh-context Reviewer"* survives intact — it governs **how** a review is delegated, not **whether** one is owed, and remains true wherever a review runs.
+
+*`ADVISORY`:* none — deliberately suppressed under the `< 50 LOC` band rule, not lost. Two items the Reviewer would otherwise have logged were folded into the verdict body as **rulings** rather than findings: the loose antecedent of *"these two"* (ruled not a violation) and the *Delegation Thresholds* row 5 reading (ruled intact).
+
+*Runtime events:* the verdict was truncated in delivery; the remainder was requested and supplied verbatim, with no re-audit.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| **Attempt 2 was not dispatched** | The budget tripwire fired while this task was mid-loop. The rule is to stop and escalate with the delta and the cause, not to continue on the assumption that finishing is what was wanted |
+| The task is marked **`[~]`, and attempt 1's edit is left in the working tree** | This is a pause for a user decision, not a HALT after three failures. Step 4's rollback is scoped to a HALT; reverting good work — the amended paragraph passed in full — would destroy the expensive part of this task to save nothing |
+| The Reviewer's factual claim was **re-verified by the Leader** before being accepted into the record | A FAIL that rests on a negative-existence claim ("no such field exists") is exactly the kind that is cheap to check and costly to take on trust |
+
+#### Outstanding on resume
+
+One line: bind the recording clause to the single trigger the spec states (escalation above T2), naming the effort chosen rather than treating effort as a second independent trigger. The Reviewer's suggested wording is in Issue 1 above. Attempts remaining: 2 of 3.
