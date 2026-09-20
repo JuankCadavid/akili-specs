@@ -271,3 +271,91 @@ Its three grounds, in the order it gave them:
 #### Final verification result
 
 All four task checks green, re-run independently by the Leader (`VERIFIED`). Falsifier executed against `c87187f` with the predicted baseline readings observed. Disqualifier read rather than counted. Reviewer `PASS` on the first attempt, with the `Not Done` question settled on the record.
+
+---
+
+### T5 — `/akili-specify`: the `Review` field and the Verification Checklist
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Date | 2026-09-19 |
+| Implementer attempts | 2 |
+| Review rounds | 2 (one `FAIL`, one `PASS`) — running total for the spec: 7 of the 10 budgeted |
+| Shipped lines | 3 insertions (estimate was ~10) |
+| Requirements covered | FR-5 **as amended during execution** (four values, one-line reason, `skip-eligible` as a claim, absent-value, the skip list visible at the Step 3.3 gate via **both** sites), FR-10 |
+| Scope | **Extended during execution from two bullets to three, with the user's explicit approval** — see *Decisions made* |
+| Concurrency | Attempt 1 ran in a wave of two beside T4; attempt 2 beside T3. Disjoint files, prose only |
+
+**Files changed:** `.claude/commands/akili-specify.md`, and only that file. The spec documents were amended separately by the Leader.
+
+#### Attempt 1 — Reviewer `FAIL`
+
+*What landed:* the `Review` field entry in the Step 3.2 task-field list and one Verification Checklist item. Two insertions.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `skip-eligible` 2 · `Review intensity` 1 · `deterministic` **0** (NFR-2) · the four values on one line · pre-review sweep `grep -n "verification fields"` returning two hits, both still reading "verification fields" / "four verification fields" — **`Review` was not folded into that four-item set**, which was this task's main trap.
+
+*Falsifiability-block identity (NFR-1) — the Leader verified this independently rather than accepting the report*, extracting the block **by content rather than by fixed line numbers** (the Implementer's edits shift line numbers, which a fixed-range check would silently mis-compare): 8 lines at `c87187f` and 8 in the working tree, **byte-identical**. The Leader also confirmed the check is **not inert** by mutating one character on a scratch copy and observing the diff turn red; the Implementer independently demonstrated the same red.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**.
+
+*Reviewer verdict:* **`FAIL`**, two issues.
+
+> 1. **Discovered Issue:** The absent-value clause — *"A task with no `Review` field is treated as `checklist` — today's behavior, unchanged"* — states a **per-task** rule and attaches an **existence** guarantee to a **depth** default. `requirements.md` §3 defines a depth band as *"How deep a review goes when one runs"*, and FR-6 states *"Categories SHALL be depth guidance only; they SHALL NOT decide whether a review happens — FR-1 does."* Under the T1 block, the predicate is evaluated *"against the Implementer's actual report — never against the task's `Review` field or the plan"*. So inside a `tasks.md` that carries the field, a fieldless task defaulting to `checklist` is still subject to the predicate and can be skipped. "Today's behavior, unchanged" — today every task gets a Reviewer — is therefore false at task granularity. FR-5's own wording is safe only because it is scoped to whole specs: *"no spec written before this change loses its review"*; the implementer dropped that scoping clause and kept the behavioral claim. **This is the same depth-vs-existence conflation that already produced one FAIL on this spec.**
+>     *   **Violated Rule:** `requirements.md` FR-6 bullet 1 and §3 *Depth band*; FR-10 bullet 1; FR-5 absent-value bullet read whole.
+>     *   **Remediation Suggestion:** Split the two claims and match T1's granularity. Do not let `checklist` imply a review is guaranteed.
+>
+> 2. **Discovered Issue:** The new Verification Checklist item is the only mechanism delivering the skip list, but the checklist runs **after** the gate it names: Step 3.3 option 1 reads *"Continue (Proceed to the final Verification Checklist)"*, and the checklist opens *"After all three documents are approved, verify:"*. Step 3.3's *"Present a clear summary … including:"* list was not amended, so nothing makes Step 3.3 name the `skip-eligible` tasks. A post-gate checklist item can only detect afterwards that the user was not shown the list — it cannot satisfy FR-5's scenario clauses `THEN both tasks are named with their reasons`, `AND the user can reject the classification at that gate`, `BUT it must NOT be presented only inside the document`. **The presence of the item is not proof of the effect.**
+>     *   **Violated Rule:** `requirements.md` FR-5, scenario *The user sees the skip list before execution*, all three clauses; `design.md` §5.6.
+>     *   **Remediation Suggestion:** Keep the checklist item, and add the skip list to Step 3.3's presentation bullets — the same mechanism this file already uses at Step 2.5 for the Premise Ledger (*"a row that stays inside the document is a row the user cannot correct"*). **Step 3.3 is outside T5's two stated scope bullets, so the Leader should confirm the scope extension rather than the Implementer widening it unilaterally.**
+
+*Runtime events:* none.
+
+#### The execute-time spec amendment (between attempts)
+
+The Leader verified Issue 2's ordering claim at the source before acting: `akili-specify.md` Step 3.3's Continue option (line 437) reads *"Proceed to the final Verification Checklist"*, and the checklist opens at line 457 with *"After all three documents are approved, verify:"*. **The checklist provably runs after the gate it was supposed to guard**, so the mechanism named by FR-5 and design §5.6 could not deliver the scenario those same documents require.
+
+This was **put to the user as a scope decision**, with three options: correct the mechanism, run a formal Pivot, or ship only Issue 1 and record FR-5's scenario as undelivered. **The user chose to correct the mechanism.** The Leader then amended, with the two-direction *Correction Closure* sweep run before and after:
+
+| Document | Amendment |
+|---|---|
+| `requirements.md` FR-5 | the bullet now requires **two sites, both required** — Step 3.3's presentation list **and** a matching checklist item — with the reason recorded inline and dated |
+| `requirements.md` §4 scope table, §9 index | now name the Step 3.3 presentation list |
+| `design.md` §5.6, §3, §4, §7.1 row 11, §7.2 | the same correction at all five citing sites |
+| `tasks.md` T5 | scope gains the Step 3.3 bullet; verification check 1 raised from ≥ 2 to ≥ 3 |
+
+The **backward sweep** (references *to* FR-5 and §5.6) and the **forward sweep** (the superseded "the checklist surfaces the skip list" framing) were both run; the forward sweep after amending returns no surviving instance of the superseded framing. `proposal.md` was deliberately left unamended — it records what was proposed at the time, and rewriting an approved proposal after the fact would falsify the history the spec folder exists to preserve.
+
+#### Attempt 2 — Reviewer `PASS`
+
+*What landed:* three passages — the field entry rewritten to separate the depth default from the existence guarantee; a **new Step 3.3 presentation bullet**; and the checklist item's tense shifted to past so it confirms delivery rather than substituting for it.
+
+*Implementer verification, as reported and as independently re-run by the Leader:* `skip-eligible` **3** · `Review intensity` 1 · `deterministic` **0** · `git diff --stat` → 3 insertions, one file · Falsifiability block **byte-identical**, verified by the Leader by content extraction, with the Implementer's executed scratch-copy mutation observed red.
+
+*Ordering proof, re-run by the Leader:* `#### Step 3.3` at 428 · the new bullet at **434** · `Then explicitly ask the user how to proceed` at **436**. The bullet sits inside the presentation list, above the gate question — it executes before the user is asked.
+
+*Evidence re-run (FR-3, Leader-inline):* **`VERIFIED`**.
+
+*Reviewer verdict:* **`PASS`** — both issues closed, and the amendment ruled an edit-carry rather than a Pivot.
+
+> **Ruling on the amendment — edit-carry, not a Pivot.** The obligation is unchanged. … the same sentence, with the binding to a single delivery site lifted and replaced by two named sites. What changed is which surface carries it; what is owed to the user is identical. The scenario — the only statement of the required user-observable outcome — is **byte-for-byte unchanged**, including all three clauses. §5.6 and §7.1 row 11 track the same correction and cite the same reason. … Nothing in the amendment relaxes, narrows, or adds an obligation, so the loop does not need to stop.
+
+On Issue 2 it walked each scenario clause to its delivering text, and credited a clause the brief had not asked for: *"State plainly when no task is `skip-eligible`"* **closes the silent-omission reading**, where an empty list and an omitted list would otherwise look identical to the user.
+
+*`ADVISORY`:* none.
+
+*Runtime events:* none.
+
+#### Decisions made
+
+| Decision | Reason |
+|---|---|
+| **Scope extended from two bullets to three — escalated to the user, not decided by the Leader** | `AGENTS.md`'s *Scope only grows through approval* binds the Leader exactly as it binds an Implementer. The Reviewer explicitly routed the question rather than letting the Implementer widen unilaterally, which was correct; the Leader verified the factual claim at the source, then put the decision to the user with three options and a recommendation |
+| **Treated as an edit-carry, not a Pivot** — confirmed by the Reviewer, not assumed by the Leader | The boundary is whether an approved requirement's **meaning** changes. FR-5's obligation and its scenario are unchanged; only the named delivery mechanism was corrected, because the original mechanism provably could not execute before the gate it named. The Reviewer was asked to overturn this reading if it disagreed, and independently confirmed it |
+| The Falsifiability-block identity check was re-run by the Leader **by content extraction rather than the task's fixed `sed` range** | The task's stated check uses a `sed` range, but this task's own edits shift line numbers — a fixed range would compare misaligned text and could pass while the block had changed, or fail while it had not. Extracting by content is the same check made robust, not a different check |
+| `proposal.md` left unamended during the correction sweep | It records what was proposed at the time. Amending it after approval would rewrite history rather than correct a forward-looking document |
+| Implementer stayed on **T2 `sonnet`** for both attempts; effort `high` → `xhigh` | Registry default, no tier escalation. The effort dial carried the retry |
+
+#### Final verification result
+
+All six checks green on attempt 2, re-run independently by the Leader (`VERIFIED` both attempts). NFR-1's Falsifiability-block identity verified by content extraction and demonstrated non-inert by mutation, twice independently. Ordering proof re-run by the Leader. Disqualifier read rather than counted: `skip-eligible` is phrased as a claim, never a decision (DD-7 holds), and the Step 3.3 bullet names the tasks with their reasons rather than merely mentioning review intensities. Reviewer `PASS` on attempt 2.

@@ -31,7 +31,7 @@ The closure rule moves from two accepted states to three. That single change is 
 | Record | `/akili-execute` Execution Log Format | `REVIEW_SKIPPED` and the three closure states (§5.4) |
 | Authority | `.claude/templates/leader.md` | The amended collapse paragraph (§5.7, DD-8) |
 | Depth | `.claude/templates/reviewer.md` | Bands with bound effort (§5.5) |
-| Plan | `/akili-specify` Step 3.2 + Verification Checklist | The `Review` field and gate visibility (§5.6) |
+| Plan | `/akili-specify` Step 3.2 + Step 3.3 + Verification Checklist | The `Review` field and gate visibility (§5.6) |
 | Template | `/akili-constitution` Step 7 item 3 | Names the field, cites Step 3.2 |
 | Routing | `docs/model-routing.md` | Review intensity as a third dimension; Verifier at T5 (§5.8) |
 | Resume | `/akili-resume` | Reports a skip as a closed task, never as blocked |
@@ -48,7 +48,7 @@ No new packaged file. Edited files only:
 | Path | Kind |
 |---|---|
 | `.claude/commands/akili-execute.md` | command — the definition, the record, the closure states, the `/goal` condition |
-| `.claude/commands/akili-specify.md` | command — `Review` field, Verification Checklist |
+| `.claude/commands/akili-specify.md` | command — `Review` field, Step 3.3 presentation list, Verification Checklist |
 | `.claude/commands/akili-constitution.md` | command — Step 7 item 3 description |
 | `.claude/commands/akili-resume.md` | command — one reporting line |
 | `.claude/templates/leader.md` | persona — the amended collapse paragraph, thresholds, recording |
@@ -82,7 +82,7 @@ A duty, not a role. Two execution modes — Leader-inline, or a spawned Verifier
 
 ### 5.6 The `Review` field (FR-5)
 
-Four values, one-line reason, absent-value `checklist`. `skip-eligible` is documented as a **claim to be proved**, and the Verification Checklist surfaces the skip list at the Step 3.3 gate so the user sees it before execution.
+Four values, one-line reason, absent-value `checklist`. `skip-eligible` is documented as a **claim to be proved**. The skip list reaches the user at the Step 3.3 gate through **two sites, both required**: Step 3.3's presentation list names each `skip-eligible` task with its reason, and the Verification Checklist carries a matching item. *(Amended during execution, 2026-09-19: the checklist runs after the gate, so it cannot by itself satisfy FR-5's scenario clause that the list must not be presented only inside the document. Same mechanism Step 2.5 already uses for the Premise Ledger.)*
 
 ### 5.7 Leader authority (FR-8)
 
@@ -116,7 +116,7 @@ Not applicable — no programmatic interface. The "API" is the block's name, use
 | 8 | `leader.md` · Delegation Discipline | Model/effort selection recorded like skill deviations | FR-7 |
 | 9 | `reviewer.md` · depth table | Category column + effort ceilings | FR-6 |
 | 10 | `akili-specify.md` · Step 3.2 | The `Review` field and its absent-value | FR-5 |
-| 11 | `akili-specify.md` · Verification Checklist | The skip list is visible at the gate | FR-5 |
+| 11 | `akili-specify.md` · Step 3.3 presentation list **and** Verification Checklist | The skip list is visible at the gate — both sites required, the checklist runs after the gate | FR-5 |
 | 12 | `akili-constitution.md` · Step 7 item 3 | Template description names the field, cites Step 3.2 | FR-5 |
 | 13 | `akili-resume.md` · closed-task reporting | A skip reported as closed, with its basis | FR-4 |
 | 14 | `kaizen/SKILL.md` · Measure table + clean-run predicate + report template | Skip row, escaped-defect row, clean-run clause | FR-9 |
@@ -148,7 +148,7 @@ Not applicable — no programmatic interface. The "API" is the block's name, use
 | Reader | Behavior |
 |---|---|
 | `/akili-specify` Step 3.2 | writes it — surface 10 |
-| `/akili-specify` Verification Checklist + Step 3.3 gate | surfaces the skip list — surface 11 |
+| `/akili-specify` Step 3.3 presentation list + Verification Checklist | surfaces the skip list at the gate — surface 11, both sites |
 | `/akili-execute` Step 2.3 | reads it as a claim, then proves it — surface 1 |
 | `/akili-constitution` Step 7 item 3 | describes it in the template — surface 12 |
 | Tasks written before this change | no field → `checklist` → today's behavior (FR-10) |

@@ -67,7 +67,7 @@ One duty is added and never waived: the task's evidence is re-run by a context o
 | `.claude/commands/akili-execute.md` | Step 2.2 (evidence re-run), Step 2.3 (conditional spawn), Step 2.4 (guardrails), Step 3 (closure), Step 5 (`/goal` condition), Execution Log Format | FR-1..FR-4, FR-8 |
 | `.claude/templates/leader.md` | The *never collapse it* paragraph; Delegation Thresholds; model/effort recording | FR-1, FR-6..FR-8 |
 | `.claude/templates/reviewer.md` | Depth bands and their effort binding | FR-6 |
-| `.claude/commands/akili-specify.md` | Step 3.2 task fields; Verification Checklist | FR-5 |
+| `.claude/commands/akili-specify.md` | Step 3.2 task fields; Step 3.3 presentation list; Verification Checklist | FR-5 |
 | `.claude/commands/akili-constitution.md` | Step 7 item 3 template description | FR-5 |
 | `docs/model-routing.md` | Review intensity as a third dimension; the Verifier at T5 | FR-7 |
 | `.claude/commands/akili-resume.md` | The closed-task reporting line that names `REVIEW_WAIVED` blocks | FR-4 |
@@ -219,7 +219,7 @@ A task closing without a conformance Reviewer SHALL carry a `REVIEW_SKIPPED` rec
 
 - `skip-eligible` SHALL be documented as a **claim the task must prove at execute time** through FR-1, never as an instruction to skip.
 - The absent-value rule: a task without the field SHALL be treated as `checklist`, which is today's behavior — no spec written before this change loses its review.
-- The Verification Checklist SHALL gain an item making the set of `skip-eligible` tasks **visible at the Step 3.3 approval gate**, so the user sees the intended skip list before execution starts.
+- The set of `skip-eligible` tasks SHALL be made **visible at the Step 3.3 approval gate**, so the user sees the intended skip list before execution starts. Two sites carry this, and both are required: **Step 3.3's presentation list SHALL name each `skip-eligible` task with its reason**, and the Verification Checklist SHALL gain a matching item. *(Amended during execution, 2026-09-19: the checklist alone cannot deliver the scenario below, because the Verification Checklist runs **after** the Step 3.3 gate — `akili-specify.md` Step 3.3 option 1 reads "Proceed to the final Verification Checklist". A post-gate item can only detect afterwards that the user was never shown the list. The obligation is unchanged; only the mechanism is corrected, following the precedent Step 2.5 already sets for the Premise Ledger.)*
 
 #### Scenario: The user sees the skip list before execution
 
@@ -345,7 +345,7 @@ The `kaizen` Measure table SHALL gain a row for tasks closed under `REVIEW_SKIPP
 | FR-2 | Overrides | read + corpus application (the FAIL-task test) |
 | FR-3 | Evidence re-run, always | grep + literal read of every closure path |
 | FR-4 | `REVIEW_SKIPPED` record and the three closure states | grep + read of the closure rule and `/goal` condition |
-| FR-5 | `Review` field and gate visibility | read of Step 3.2 and the Verification Checklist |
+| FR-5 | `Review` field and gate visibility | read of Step 3.2, the Step 3.3 presentation list, and the Verification Checklist |
 | FR-6 | Depth and effort banding | read of `reviewer.md` bands |
 | FR-7 | Model routing | read of the registry + restatement grep |
 | FR-8 | Leader authority | read of the amended `leader.md` paragraph |

@@ -389,6 +389,7 @@ Each task should include:
 - scope
 - tests
 - verification fields — Falsifier, Red run, Disqualifier, Consumers (see the Falsifiability block below; absent values are written as n/a or none, never left blank)
+- `Review` — one of `skip-eligible`, `checklist`, `full`, `lenses`, plus a one-line reason; `skip-eligible` names a claim the task must prove at execute time (the *Review intensity* block, `/akili-execute` Step 2.3), never an instruction to skip. A task with no `Review` field defaults to the `checklist` depth band — a depth default, not a guarantee that a review runs. A `tasks.md` that carries no `Review` field at all predates this change: every one of its tasks gets a conformance Reviewer, exactly as today (FR-10)
 - done criteria
 - relevant skills
 
@@ -430,6 +431,7 @@ Present a clear summary of the generated tasks on the screen, including:
 - A high-level list of the tasks to be implemented so the user understands the plan without reading the full document.
 - An **Estimated Lines of Code (LOC)** output for the entire spec.
 - A **PR Strategy Recommendation**: If the estimate exceeds ~400 LOC or the task graph is highly complex, recommend splitting the implementation into multiple Pull Requests and suggest logical boundaries (e.g., "PR 1: Backend/API, PR 2: Frontend UI"). When PRs are chained, note that their descriptions should follow `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, link previous/next PR).
+- The **`skip-eligible` task list**: name every task carrying that `Review` value together with its one-line reason, so the user sees the intended skip list here — not only inside the document — and can reject the classification at this gate before execution starts. State plainly when no task is `skip-eligible`.
 
 Then explicitly ask the user how to proceed, providing these options:
 
@@ -475,6 +477,7 @@ After all three documents are approved, verify:
 - [ ] The spec path matches the repo's chosen taxonomy under `docs/specs/`
 - [ ] Only real, available skills are referenced in tasks
 - [ ] Every task carries the four verification fields — Falsifier, Red run, Disqualifier, Consumers — with n/a or none written for the ones that do not apply, never blank
+- [ ] Every `skip-eligible` task was named with its reason in the Step 3.3 presentation list — not only inside the document — so the user saw the skip list and could reject the classification before execution started
 - [ ] Every gate that asserts size, overflow, visibility, position, or containment satisfies the rendered-measurement checklist in Step 3.2
 
 ---

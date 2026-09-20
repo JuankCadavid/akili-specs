@@ -179,24 +179,25 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full` — defines a task field every future spec author executes; override (a) |
 | Depends on | T1 |
-| Requirements | FR-5 (four values, one-line reason, `skip-eligible` as a claim to be proved, absent-value `checklist`, checklist item making the skip list visible at the Step 3.3 gate); FR-10 |
+| Requirements | FR-5 (four values, one-line reason, `skip-eligible` as a claim to be proved, absent-value `checklist`, the skip list visible at the Step 3.3 gate via **both** the presentation list and a checklist item); FR-10 |
 | Design refs | §5.6, §7.1 rows 10–11, DD-7 |
 
 **Scope.** Edit `.claude/commands/akili-specify.md`:
 
 - **Step 3.2 task-field list:** the `Review` field with its four values and its absent-value rule, stated so `skip-eligible` reads as a **claim the task must prove at execute time**, never as an instruction to skip. Cites the Step 2.3 block; restates no predicate condition.
-- **Verification Checklist:** one item requiring every `skip-eligible` task to be named with its reason at the Step 3.3 gate.
+- **Step 3.3 presentation list:** a bullet naming every `skip-eligible` task with its reason, so the user sees the list **at** the gate and can reject the classification there. *(Added during execution, 2026-09-19 — Leader scope extension approved by the user; the checklist below runs after the gate and cannot deliver FR-5's scenario alone.)*
+- **Verification Checklist:** one matching item requiring every `skip-eligible` task to be named with its reason at the Step 3.3 gate.
 - **Zero hunks** in the Falsifiability block (NFR-1).
 
 **Verification.**
 
 | Field | Value |
 |---|---|
-| Command | **1.** `grep -c "skip-eligible"` ≥ 2 (field definition, checklist item). **2.** `grep -c "Review intensity"` ≥ 1 — the block cited by name. **3.** Falsifiability-block identity: the `sed` range from the `**Falsifiability**` line through rule 6 from `git show c87187f:<file>` and from the working file, `diff` empty. **4.** `grep -c "deterministic"` = 0 in this file — the predicate is not restated (NFR-2). **5.** The four values appear together on one line |
+| Command | **1.** `grep -c "skip-eligible"` ≥ 3 (field definition, Step 3.3 presentation bullet, checklist item). **2.** `grep -c "Review intensity"` ≥ 1 — the block cited by name. **3.** Falsifiability-block identity: the `sed` range from the `**Falsifiability**` line through rule 6 from `git show c87187f:<file>` and from the working file, `diff` empty. **4.** `grep -c "deterministic"` = 0 in this file — the predicate is not restated (NFR-2). **5.** The four values appear together on one line |
 | Falsifier | At `c87187f`: check 1 reads **0** (run), so it fails today; check 3's ranges are identical today by construction. For 4: copy the predicate into Step 3.2 → count moves off 0. For 3: change one character in Falsifiability rule 3 → `diff` non-empty |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | **Read the field's definition:** if `skip-eligible` is phrased as a decision rather than a claim, DD-7 is violated and a spec author can grant skips in advance — the exact failure the design exists to prevent. Stop |
