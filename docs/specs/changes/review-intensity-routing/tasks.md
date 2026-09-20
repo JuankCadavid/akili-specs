@@ -264,7 +264,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 | Falsifier | At `c87187f`: checks 1–3 read **0 / 0 / 0** (all run), so each fails today. For 4: leave the clean-run predicate keyed only to waiver flags → a run with a skipped task and an escaped defect still reads clean; walk that case and observe it. For 5: replace the waiver row instead of adding beside it → count drops |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | **Read the clean-run predicate whole.** If it now reads as clean for any run containing an escaped defect, FR-9 is violated with every grep green — this is the finding the design's own consumer walk exists to prevent, and it is the reason this task is not skippable |
-| Consumers | `/akili-archive` Step 3 cites the skill's Measure table rather than restating it — **holds**, walked in design §7.2; `docs/skills/kaizen.md` mirrors in T8 |
+| Consumers | `/akili-archive` Step 3 — the design walk recorded this as **holds**; **T7's execution refuted it** (the line enumerates the table inline), so it is now surface 15b and **T8 owns the fix**; `docs/skills/kaizen.md` mirrors in T8 |
 
 **Pre-review sweep.** Read the Measure table and the clean-run paragraph whole: the new rows must not contradict the surviving "a clean spec teaches nothing new" sentence.
 
@@ -282,7 +282,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 | Size | M |
 | Review | `full` — the routing registry defines guidance others follow (override a); the CHANGELOG is a summary surface inheriting the artifacts' evidence bar (KZ-002) |
 | Depends on | T2, T3, T4, T5, T6, T7 |
-| Requirements | FR-7 (review intensity as a third dimension; the Verifier at T5); FR-11 (mirrors in their own register, README and flow only where a sentence turns false, CHANGELOG entry and classification); NFR-5 |
+| Requirements | FR-7 (review intensity as a third dimension; the Verifier at T5); FR-11 (mirrors in their own register, README and flow only where a sentence turns false, CHANGELOG entry and classification); **FR-9 (the `/akili-archive` signal list — surface 15b, added during execution)**; NFR-5 |
 | Design refs | §5.8, §7.1 rows 15–17, §7.2 |
 
 **Scope.**
@@ -290,13 +290,14 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 - `docs/model-routing.md`: **review intensity** as a third dimension beside tier and effort; the evidence re-run mapped to **T5 Fast-Cheap** because it exercises no judgment; the Implementer's T2 default and the recording rule for escalations.
 - Mirrors — `docs/commands/akili-execute.md`, `akili-specify.md`, `akili-constitution.md`, `akili-resume.md`, `docs/skills/kaizen.md` — describe the new behavior in their own register. **`docs/commands/akili-execute.md` restates closure-state prose at four sites** (judgment finding I-2); all four are brought to parity.
 - `README.md` and `docs/flow.md`: **run the falsifying grep first** (KZ-002) — `grep -n -i "reviewer\|review" README.md docs/flow.md` scoped to sentences asserting a Reviewer always runs. Edit only a sentence a hit shows to be false; otherwise record "no change" with the command and its output.
+- `.claude/commands/akili-archive.md` **Step 3 signal list** — *added during execution 2026-09-19, user-approved scope extension*: the inline enumeration gains the two new Measure signals (`REVIEW_SKIPPED` by task, escaped defects). This line **enumerates** the kaizen Measure table rather than deferring to it, so a row added to that table does not reach it. Add the two signals in the register the list already uses; change nothing else on the line.
 - `CHANGELOG.md` `Unreleased`: replace the "No unreleased changes yet." note with the entry and the proposed classification **minor**.
 
 **Verification.**
 
 | Field | Value |
 |---|---|
-| Command | **1.** `grep -c -i "review intensity" docs/model-routing.md` ≥ 1. **2.** `grep -c "REVIEW_SKIPPED"` ≥ 1 in each of the five mirrors. **3.** `grep -c "No unreleased changes yet" CHANGELOG.md` = 0 and `grep -n "review-intensity-routing" CHANGELOG.md` ≥ 1 under `Unreleased`. **4.** The four closure-state sites in `docs/commands/akili-execute.md` each name three states. **5.** Parity read: each mirror beside its command for the closure states, the predicate, and the `Review` field |
+| Command | **1.** `grep -c -i "review intensity" docs/model-routing.md` ≥ 1. **2.** `grep -c "REVIEW_SKIPPED"` ≥ 1 in each of the five mirrors. **3.** `grep -c "No unreleased changes yet" CHANGELOG.md` = 0 and `grep -n "review-intensity-routing" CHANGELOG.md` ≥ 1 under `Unreleased`. **4.** The four closure-state sites in `docs/commands/akili-execute.md` each name three states. **5.** Parity read: each mirror beside its command for the closure states, the predicate, and the `Review` field. **6.** `grep -c "REVIEW_SKIPPED" .claude/commands/akili-archive.md` ≥ 1 and `grep -c -i "escaped defect" .claude/commands/akili-archive.md` ≥ 1 — baseline for both is **0** |
 | Falsifier | At `c87187f`: check 1 reads **0**, check 2 reads **0** in all five mirrors, check 3 reads **1** and **0** (all run). A mirror left describing the Reviewer as unconditional keeps check 5 red on the read |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | Checks 1–4 see literal strings only. A mirror that paraphrases the old behavior ("a Reviewer audits every task") survives them — **the parity read is the gate for that, and a PASS without it recorded is not a PASS** |

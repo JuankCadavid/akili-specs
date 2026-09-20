@@ -54,6 +54,7 @@ No new packaged file. Edited files only:
 | `.claude/templates/leader.md` | persona — the amended collapse paragraph, thresholds, recording |
 | `.claude/templates/reviewer.md` | persona — depth bands with bound effort |
 | `.claude/skills/kaizen/SKILL.md` | skill — Measure rows, clean-run predicate, report template |
+| `.claude/commands/akili-archive.md` | command — Step 3's inline signal list (added during execution; P-7 refuted) |
 | `docs/model-routing.md` | registry — review intensity as a third dimension; the Verifier at T5 (finding S-5: this row was missing) |
 | `docs/commands/*.md`, `docs/skills/kaizen.md` | mirrors |
 | `CHANGELOG.md` | `Unreleased` |
@@ -121,6 +122,7 @@ Not applicable — no programmatic interface. The "API" is the block's name, use
 | 13 | `akili-resume.md` · closed-task reporting | A skip reported as closed, with its basis | FR-4 |
 | 14 | `kaizen/SKILL.md` · Measure table + clean-run predicate + report template | Skip row, escaped-defect row, clean-run clause | FR-9 |
 | 15 | `docs/model-routing.md` | Third dimension; Verifier at T5 | FR-7 |
+| 15b | `akili-archive.md` · Step 3 signal list | The two new Measure signals named inline, since this line enumerates rather than defers — **added during execution, P-7 refuted** | FR-9 |
 | 16 | Mirrors: `docs/commands/akili-execute.md`, `akili-specify.md`, `akili-constitution.md`, `akili-resume.md`; `docs/skills/kaizen.md` | Own-register description | FR-11 |
 | 17 | `CHANGELOG.md` · `Unreleased` | Entry + classification | FR-11 |
 
@@ -140,7 +142,7 @@ Not applicable — no programmatic interface. The "API" is the block's name, use
 | `kaizen/SKILL.md:70` Measure row | counts tasks closed under `REVIEW_WAIVED` by flag | **changes** — surface 14 |
 | `kaizen/SKILL.md:74` clean-run predicate | clean if "no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`" | **changes** — surface 14. Without this, a skipped task with an escaped defect reads as **clean** and its retrospective is skipped |
 | `kaizen/SKILL.md:159` report template | a `REVIEW_WAIVED` row | **changes** — surface 14 |
-| `akili-archive.md:151` | "Extract the improvement signals listed in **the skill's** Measure table" | **holds** — cites the table rather than restating it |
+| `akili-archive.md:151` | "Extract the improvement signals listed in **the skill's** Measure table **from the spec's own evidence:** …" followed by the full inline list | **changes** — surface 15b. *Recorded as `holds` at design time and **refuted during execution**: the line cites the table and then enumerates it, so it does not track rows added to the table and now omits the skip and escaped-defect signals* |
 | `akili-validate.md`, `akili-test.md`, `akili-quick.md` | read `execution.md`, but not the closure-state set | **holds** |
 
 **New enumerated field `Review` (`skip-eligible` / `checklist` / `full` / `lenses`) — every reader:**
@@ -206,7 +208,7 @@ DD-6 makes a skip routine, which under `pre-approved` would auto-pass. But a tas
 
 ## 11. Premise Ledger
 
-`Premise Ledger: 14 verified · 1 UNVERIFIED (1 High, 0 Low)` — verified at `a909216`, all commands run from the repository root.
+`Premise Ledger: 13 verified · 1 REFUTED · 1 UNVERIFIED (1 High, 0 Low)` — verified at `a909216`, all commands run from the repository root. **P-7 was refuted during execution (2026-09-19)** — it had been verified by reading its source only as far as the colon, the failure mode KZ-001 names. Both judgment-day judges reproduced the same shallow read, which is recorded in `judgment.md` as it stood and is not rewritten.
 `Blast-radius triggers:` **consumer** fires (the closure-state set and the new `Review` field are read by other commands — P-2, P-3, P-4, P-5, P-6); **shared-state** fires (the closure-state condition is read by more than one command — same rows); **live-path** fires (the design names the Leader's runtime decision chain from report to spawn-or-skip — P-1).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -217,7 +219,7 @@ DD-6 makes a skip routine, which under `pre-approved` would auto-pass. But a tas
 | P-4 | `/akili-resume` interprets `REVIEW_WAIVED` blocks explicitly | `consumer` | `akili-resume.md:48` | `a909216` | Surface 13 is unnecessary — Low | — |
 | P-5 | The `kaizen` clean-run predicate keys on waiver flags | `consumer` | `kaizen/SKILL.md:74` — clean if "no `REVIEW_WAIVED` waiver flagged `inline` or `same-model`" | `a909216` | A skipped task with an escaped defect reads as a clean run — **High** | — |
 | P-6 | The `kaizen` Measure table and report template each carry a waiver row | `consumer` | `kaizen/SKILL.md:70` and `:159` | `a909216` | Surface 14 shrinks — Low | — |
-| P-7 | `/akili-archive` cites the skill's Measure table rather than restating it | `existence` | `akili-archive.md:151` — "Extract the improvement signals listed in the skill's Measure table" | `a909216` | A sixteenth surface is needed — Low | — |
+| ~~P-7~~ | ~~`/akili-archive` cites the skill's Measure table rather than restating it~~ — **REFUTED during execution, 2026-09-19** | `existence` | The citation stopped at the colon. Read whole, the line continues *"…from the spec's own evidence: Reviewer FAIL rework attempts, HALTs …, tasks closed under `REVIEW_WAIVED` (by flag), and drift"* — it **enumerates** the table it cites | refuted while executing T7 | **Realised:** a sixteenth surface is needed. Added to scope with the user's approval; T8 owns it | T8 |
 | P-8 | `reviewer.md` bands depth by LOC and binds no effort | `location` | `reviewer.md:43–45` | `a909216` | FR-6 has nothing to amend — Low | — |
 | P-9 | The registry sets T2 `sonnet` and T3 `opus` *(≠ T2)* | `data-env` | `docs/model-routing.md` model registry table | `a909216` | FR-7's "default to T2" names the wrong tier — Low | — |
 | P-10 | No existing rule permits closing without a Reviewer | `existence` | `/usr/bin/grep -rn -i "skip the reviewer\|without a reviewer\|no reviewer\|reviewer optional\|omit the reviewer" .claude/commands .claude/templates` → 1 hit, `akili-execute.md:320`, the waiver record | `a909216` | The change is partly redundant — **High** | — |
