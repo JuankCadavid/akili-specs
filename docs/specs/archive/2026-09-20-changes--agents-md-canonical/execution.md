@@ -207,6 +207,8 @@ Six checks green, re-run independently by the Leader after both attempts (`VERIF
 
 ## 3. Summary — all tasks complete
 
+> **Post-archive confirmation, 2026-09-21.** The one accepted gap this spec carried — that no command here can assert Claude Code *actually loads* `AGENTS.md` — was closed by the human check it named. A fresh session's `/context` lists under **Memory files**: `CLAUDE.md: 14 tokens` (the import line) and **`AGENTS.md: 5.5k tokens`**. The guide loads through the `@AGENTS.md` import, which is the documented behaviour and the outcome FR-3's scenario required.
+
 | Measure | Budgeted (`design.md` §6) | Actual | Delta |
 |---|---|---|---|
 | Tasks | 2 | **2** | — |

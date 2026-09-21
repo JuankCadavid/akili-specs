@@ -57,4 +57,4 @@ Each was found only by changing **what the search was keyed on**. The `tdd` case
 | 2 | `akili-constitution.md:476` — *"Mirror its content into the project guides"*, the last collective-plural residue. Bounded by the prohibition three lines above | **Open — one word if #1 is picked up** |
 | 3 | T2's check 4 is **mis-specified in `tasks.md`** — heading-set comparison cannot see a bullet lost under a surviving heading | **Open — recorded** |
 | 4 | The `/akili-execute` text governing the run was the session-start copy, not the version the preceding spec shipped to disk | **Open — verify on a fresh session** |
-| 5 | `/context` human check that `AGENTS.md` loads | **Outstanding** |
+| 5 | `/context` human check that `AGENTS.md` loads | **✅ Confirmed 2026-09-21.** A fresh session's `/context` reports under **Memory files**: `CLAUDE.md: 14 tokens` (the `@AGENTS.md` import line, 11 bytes) and **`AGENTS.md: 5.5k tokens`** — the guide loads through the import. Before this spec, `AGENTS.md` was not loaded at all. The accepted risk is closed by observation, not by assertion |
