@@ -1,0 +1,56 @@
+# Baseline, run 2026-09-29 at c94e6b6. Source: ~/.claude/projects/*/subagents/*.jsonl (local session logs, Aug-Sep 2026)
+## python3 usage.py orca-workspaces-alliance-research-indicators-main
+role                       n turns med first ctx med  peak med  peak max   cache_read cache_write     input    output  models
+akili-implementer         58        55        56,291   187,879   930,4951,018,400,950  26,723,372    13,852 2,391,693  {'claude-sonnet-5': 4279, '<synthetic>': 9}
+MAIN session               6       292        78,380   646,828   890,869  693,248,840  22,285,351    64,201 1,691,146  {'claude-fable-5': 1377, 'claude-opus-5': 273}
+akili-reviewer            51        17        28,452   110,577   474,122   94,312,640  11,550,835     7,864   982,790  {'claude-opus-5': 984, '<synthetic>': 1}
+other:Explore              1        28        22,357    89,966    89,966    1,592,009      89,964        56    16,726  {'claude-opus-5': 28}
+## python3 usage.py onecgiar
+role                       n turns med first ctx med  peak med  peak max   cache_read cache_write     input    output  models
+MAIN session             125        35        39,033   198,197   997,1523,478,681,762  83,472,129   264,65111,875,537  {'claude-opus-5': 3527, 'claude-fable-5-1': 3127}
+other:akili-implemen     145        47        46,071   187,942   797,1011,842,683,145  41,813,484    19,414 6,876,738  {'claude-sonnet-5': 6904, 'claude-opus-5': 1640}
+akili-implementer         94        48        50,560   207,259   476,168  931,480,790  24,529,269     9,860 3,577,341  {'claude-sonnet-5': 4242, 'claude-opus-5': 688}
+other:akili-reviewer     144        11        11,344   107,638   249,365  135,171,453  19,689,059     5,796 2,076,008  {'claude-opus-5': 1520, 'claude-sonnet-5': 177}
+akili-reviewer            89        12        18,866   119,685   264,529   99,304,271  13,217,123     3,130 1,111,435  {'claude-opus-5': 886, 'claude-sonnet-5': 206}
+other:akili-tester         2       163        47,158   334,400   400,218   73,682,478   1,061,954       652   114,599  {'claude-sonnet-5': 326}
+other:fork                 5         5       331,357   339,832   436,621   23,741,535     461,875       280    95,485  {'claude-sonnet-5': 140}
+## python3 dist.py akili-implementer orca-workspaces-alliance-research-indicators-main onecgiar
+akili-implementer n=297 total cache_read=3,793M
+ turns p50/p75/p90/max: 49 74 113 969
+ cache_read per spawn p50/p90 (M): 7.0 25.5
+ top 10% of spawns (29) hold 46% of cache_read; top 25% hold 69%
+ spawns over 40 turns: 180 (61%) hold 92% of cache_read
+ spawns over 60 turns: 104 (35%) hold 77% of cache_read
+ spawns over 100 turns: 41 (14%) hold 53% of cache_read
+ spawns peaking over 150k ctx: 215 (72%) hold 95%
+ spawns peaking over 200k ctx: 137 (46%) hold 84%
+ test-runner invocations per spawn p50/p90/max: 4 14 138
+ repeat Reads of an already-read file per spawn p50/p90: 1 11
+ spec-doc Reads (whole/total): {'design.md': '37/106', 'tasks.md': '34/49', 'execution.md': '8/19', 'requirements.md': '28/64', 'trd.md': '0/2'}
+## python3 growth.py akili-implementer orca-workspaces-alliance-research-indicators-main onecgiar (tool table only)
+akili-implementer: 297 spawns; brief median 4,991 chars; tool-result total 50.3M chars = 42,332 tok/spawn
+  Bash                   11927 calls  52.1%  avg    2,197 chars  >20k: 83
+  Read                    3028 calls  45.4%  avg    7,542 chars  >20k: 294
+  Edit                    3615 calls   2.0%  avg      282 chars  >20k: 0
+  Write                    462 calls   0.2%  avg      258 chars  >20k: 0
+  SendMessage              189 calls   0.1%  avg      315 chars  >20k: 0
+## python3 dist.py akili-reviewer orca-workspaces-alliance-research-indicators-main onecgiar
+akili-reviewer n=284 total cache_read=329M
+ turns p50/p75/p90/max: 12 18 23 129
+ cache_read per spawn p50/p90 (M): 0.8 2.3
+ top 10% of spawns (28) hold 34% of cache_read; top 25% hold 58%
+ spawns over 40 turns: 1 (0%) hold 9% of cache_read
+ spawns over 60 turns: 1 (0%) hold 9% of cache_read
+ spawns over 100 turns: 1 (0%) hold 9% of cache_read
+ spawns peaking over 150k ctx: 70 (25%) hold 52%
+ spawns peaking over 200k ctx: 26 (9%) hold 28%
+ test-runner invocations per spawn p50/p90/max: 0 0 5
+ repeat Reads of an already-read file per spawn p50/p90: 1 5
+ spec-doc Reads (whole/total): {'tasks.md': '65/176', 'requirements.md': '81/210', 'design.md': '58/279', 'execution.md': '9/43', 'trd.md': '0/1'}
+## python3 growth.py akili-reviewer orca-workspaces-alliance-research-indicators-main onecgiar (tool table only)
+akili-reviewer: 284 spawns; brief median 4,002 chars; tool-result total 36.2M chars = 31,835 tok/spawn
+  Read                    3088 calls  78.7%  avg    9,220 chars  >20k: 391
+  Grep                    2462 calls  19.3%  avg    2,829 chars  >20k: 0
+  Glob                     317 calls   1.4%  avg    1,551 chars  >20k: 0
+  Bash                     111 calls   0.5%  avg    1,787 chars  >20k: 0
+  SendMessage              132 calls   0.1%  avg      294 chars  >20k: 0
