@@ -220,7 +220,14 @@ The Implementer must keep changes minimal and within task scope, follow the desi
 
 When the Implementer reports completion, the Leader:
 
-0. **Checks the report for a `Not Done / Assumptions` field first.** If present, the task is not complete regardless of what else the report says: carry that text into `execution.md` verbatim and treat it as scope still owed — re-spawn for the remainder, or mark `[~]` and escalate. A task with an outstanding gap never reaches `[x]`, **even on a Reviewer `PASS`** — the Reviewer audits what was written, not what was omitted.
+0. **Checks the report for a `Not Done / Assumptions` field first.** If present, the task is not complete regardless of what else the report says: carry that text into `execution.md` verbatim, then act on it by content:
+   - **Names a blocker** → `[~]` and escalate, as today.
+   - **Names no blocker, under `pre-approved`** → re-spawn naming the owed items; at most 2 continuations per task; a third such report → `[~]` and escalate.
+   - **Names no blocker, under `gated`** → unchanged — re-spawn for the remainder, or mark `[~]` and escalate.
+   - **Precedence for mixed content:** any named blocker → `[~]` and escalate, whatever else the field holds; otherwise, any owed item without a blocker is continuation-eligible, and the continuation names only the owed items — assumptions or judgment calls in the same field are carried into `execution.md` verbatim, not re-sent as work; otherwise — no owed item at all, whether assumptions-only or an inconclusive verification — never a continuation.
+   - **Accounting:** a continuation consumes no rework attempt, is not a runtime event, and adds no round to the Budget Tripwire; record it on its own line in the entry: `continuations: <n> (<items named>)`, written only when a continuation fires.
+
+   A task with an outstanding gap never reaches `[x]`, **even on a Reviewer `PASS`** — the Reviewer audits what was written, not what was omitted.
 1. Extracts the **git diff** of changes since the start of the attempt. To save tokens, the Reviewer MUST ONLY be given the diff, not the entire source files, unless absolutely necessary for context.
 2. Spawns a conformance Reviewer with the following — unless **Review intensity** (above) is met and no override applies, in which case this step is skipped and the task proceeds directly to Step 3:
    - the persona: **nothing** when spawning the Step 8E wrapper (its body loads `.agents/reviewer.md`); persona content only in the fallback sub-prompt path
@@ -319,7 +326,7 @@ After a task PASSes or HALTs, generate a short, easy-to-understand summary (summ
 
 > Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS, `REVIEW_WAIVED`, or `REVIEW_SKIPPED` evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
 
-The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
+The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + 2 continuations per task + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
 
 Optional by construction: `/goal` requires a workspace you have trusted and is unavailable under `disableAllHooks`, and it does not change tool permissions (pair it with auto mode so each turn runs without per-tool prompts). Never make a run depend on it — every spec stays completable without it. Do not use it under `gated` mode: there the interactive gates are the point.
 

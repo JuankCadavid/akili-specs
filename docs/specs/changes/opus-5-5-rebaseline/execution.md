@@ -48,3 +48,29 @@
 **Issues encountered:** a neighbour contradiction (KZ-changes--leader-brief-contract-1 recurred at attempt 1) and an exhaustive list that dropped the happy path. Both were caught by the Reviewer walk, which the task's Disqualifier had already named as the only gate.
 
 **Final verification:** checks 1–4 are green on the final tree, the falsifier red was observed, and line 14 is unchanged in both files.
+
+### T3: The Leader's `Not Done` handling is split, ordered and bounded — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** |
+| Date | 2026-09-29 |
+| Attempts | 1 |
+| Requirements covered | FR-5 (the three rows; precedence for mixed content; the cap of 2; no attempt consumed; no budget round; recorded in `execution.md`; the `/goal` provision; all three scenarios) |
+| Skills | `cognitive-doc-design` (per the task; no deviation) |
+| Effort | `high` (the loop's completion gate; ambiguity is the main risk) |
+| Review rounds used | 1 |
+
+**Attempt 1**
+- Files changed: `.claude/commands/akili-execute.md` (+9 −2): Step 2.3 item 0 (three rows, a precedence bullet, an accounting bullet; the first sentence and the `[x]`-blocking sentence kept) and Step 5's `<N>` formula (`+ 2 continuations per task`).
+- Implementer verification: check 1 `grep -c continuation` → 4 (B5 = 0). Check 2 `grep -n "2 continuations"` → item 0 (`:225`) and the `<N>` formula (`:329`). Check 3: the Accounting rule and the `**Budget Tripwire:**` bullet are byte-identical to `31b6d31`. Check 4: the stat lists only `akili-execute.md`. Walk falsifier over four cases (mixed report; stopped short twice; gated; held-out inconclusive-only under `pre-approved` → "no owed item at all, whether assumptions-only or an inconclusive verification — never a continuation"). All four routed correctly, with the deciding sentence quoted in each.
+- Evidence re-run (Leader inline): **VERIFIED**. The re-run gave the same counts. The Accounting and Budget Tripwire lines diffed against baseline with no output, and the stat shows +9 −2 in one file.
+- Reviewer (`opus`): **PASS**. It walked every FR-5 term. The `gated` options are identical to the baseline ("re-spawn for the remainder, or mark `[~]` and escalate"). The Accounting rule, the runtime-event enumeration and the Budget Tripwire are unchanged and consistent. The *Execution Log Format* restatement stays true. There are no line-number pointers. The Reviewer judged "as today" / "unchanged —" to be existing house style and not a conformance issue.
+- ADVISORY: suppressed (diff < 50 LOC).
+- runtime events: none.
+
+**Reviewer note (spec-level; recorded here, not a task):** when a `Not Done` field holds **no** owed item (assumptions-only or inconclusive verification), DD-4 and the shipped text route it to "never a continuation" and keep it from `[x]`, but they name no next action. Under `pre-approved` / `/goal`, such a task could sit with no continuation, no escalation and no `[x]` until the turn bound runs out. The diff implements DD-4 faithfully ("handled as today"). Blocking `[x]` on any non-empty field is pre-existing behavior at `31b6d31`. **Leader disposition:** not a T3 defect and not a new task (*Advisory Never Becomes A Task*). It is surfaced to the user at the continue gate so they can decide whether it earns a follow-up proposal or a Pivot.
+
+**Decisions made:** none beyond the brief.
+
+**Final verification:** checks 1–4 are green on the final tree, and the four-case walk is recorded.

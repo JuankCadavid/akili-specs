@@ -104,7 +104,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe** (a width of 2â
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full`: edits the loop's completion gate and the unattended turn bound |
 | Depends on | none |
