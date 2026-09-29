@@ -57,7 +57,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 2.2 *Guidelines*, after the *A rule keyed to a field's states* bullet |
 | Edit | **A named mechanism is checked against the moment it must act.** When a requirement names the step, list, or check that delivers an obligation at a gate, open the command text and confirm that step runs before the gate it guards; a mechanism that runs after can only report that the obligation was missed. |
 | Severity | Medium |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
 
 ### P2
 
@@ -67,7 +67,7 @@
 | Target | `KZ-001` |
 | Edit | Add `changes/review-intensity-routing` as a source spec and append: *"recurred: two Premise Ledger rows (P-7, P-15) were verified by reading the source only as far as the clause that agreed; both judgment-day judges repeated the P-7 read; one refutation parked a task and added a sixteenth surface."* Severity stays **High**. The row returns to the digest |
 | Severity | High |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
 
 ### P3
 
@@ -77,7 +77,7 @@
 | Target | `KZ-changes--leader-brief-contract-2` |
 | Edit | Add `changes/review-intensity-routing` as a source spec and append: *"recurred: three Leader-added brief checks (T2, T7, T8) asserted thresholds never run at baseline, which existing text already violated; the Implementer flagged each, so none cost an attempt."* Severity stays **Medium**. The row returns to the digest, from which it was retired on 2026-09-29 |
 | Severity | Medium |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
 
 ### P4
 
@@ -87,4 +87,14 @@
 | Target | `AGENTS.md` — Development Rules, *Multi-Agent Harness* bullet |
 | Edit | Replace "`/akili-execute` runs each task through a Leader → Implementer → Reviewer loop with a hard 3-attempt rework ceiling." with "`/akili-execute` runs each task through a Leader → Implementer → Reviewer loop with a hard 3-attempt rework ceiling; the Reviewer is owed unless the task clears the *Review intensity* predicate (`/akili-execute` Step 2.3), and the non-author evidence re-run is never waived." |
 | Severity | Low |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
+
+## Apply Pass (2026-09-29)
+
+The user chose **Apply all** on `master` (Branch Context `default`, apply-capable). All four probes held: the P1 anchor bullet exists and no such rule was present; `KZ-001` and `KZ-changes--leader-brief-contract-2` exist as lessons in entry files and in the log's history; the P4 sentence exists in `AGENTS.md`.
+
+- P1 and P4 were written. P1 has a `CHANGELOG.md` `Unreleased` note; P4 edits the repo's own guide, which is not packaged.
+- P2 and P3 were merged into the digest. Both rows had been retired and return with their recurrence notes.
+- A new digest row was added for lesson 1.
+
+To stay at 10 rows, the digest retired `KZ-changes--opus-5-5-rebaseline-1`, `KZ-changes--opus-5-5-rebaseline-2` and `KZ-changes--premise-ledger-2`. **This departs from the skill's "institutionalized longest first" rule, and is recorded as a judgment call.** The three oldest `Applied` rows (`KZ-changes--kaizen-loop-closure-2`, `KZ-changes--gate-falsifiability-2`, `KZ-changes--leader-brief-contract-1`) have each recurred in a later spec, two of them at High. The three retired rows are single-occurrence rules already standardized in command text, and one is a one-time pin that cannot recur. Today two rows retired under the age rule came back within hours as recurrences, which is the evidence for retiring by recurrence instead. No upstream items, so no upstream report was written.
