@@ -61,7 +61,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 2.2 *Guidelines*, after the *New enumerated values walk their consumers* bullet |
 | Edit | **A rule keyed to a field's states lists every state the field can hold.** When a requirement or design gives a reader one action per state of a cell, status, or field, enumerate the states first — the ones another rule forbids included, because an auditor reads non-conforming input — and give each an action or a stated fall-through. |
 | Severity | High |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
 
 ### P2
 
@@ -71,7 +71,7 @@
 | Target | `.claude/commands/akili-execute.md` — *Error Handling & Pivot Protocol*, step 3 (after the two-direction sweep) |
 | Edit | Then read the `git diff` of each amended document: every removed line is a removal the amendment intended. The sweep finds stale values; only the diff shows a heading or clause the edit destroyed. |
 | Severity | Low |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
 
 ### P3
 
@@ -81,4 +81,14 @@
 | Target | `KZ-changes--gate-falsifiability-2` |
 | Edit | Add `changes/premise-ledger` as a source spec and append: *"recurred (T10): a scope bullet naming three rows and a headline to update was never delivered and passed three Reviewer verdicts; found at validation. The dropped obligation sat in a task's Scope, not in an FR."* Severity stays **High** |
 | Severity | High |
-| Status | `pending` |
+| Status | `applied (2026-09-29)` |
+
+## Apply Pass (2026-09-29)
+
+The user chose **Apply all** on `master` (Branch Context `default`, apply-capable). All three probes held: the P1 anchor bullet exists and no such rule was present, the P2 sweep sentence exists in Pivot Protocol step 3, and the P3 digest row exists.
+
+- P1 and P2 were written, with a `CHANGELOG.md` `Unreleased` note for each.
+- P3 was merged into the digest.
+- New digest rows were added for lessons 1 and 2.
+
+To stay at 10 rows, the digest retired `KZ-changes--leader-brief-contract-2` (2026-09-19) and `KZ-changes--agents-md-canonical-1` (2026-09-20). Both are single-occurrence rules already standardized in `/akili-specify` Step 3.2, and the second survives inside `KZ-changes--kaizen-loop-closure-2`'s row. `KZ-changes--leader-brief-contract-1` is as old as the first but recurred on 2026-09-29, so recurrence broke the tie, as in the previous pass. No upstream items, so no upstream report was written.
