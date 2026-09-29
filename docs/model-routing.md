@@ -186,8 +186,8 @@ Users on plans that expose a frontier model above Opus (Fable 5 / Mythos 5) can 
 see **Frontier escalation tier** below.
 
 **Rate limits are per-generation, not per-family.** A new Opus generation draws on its **own**
-quota rather than inheriting the previous generation's pool — Opus 5, for instance, does not share
-the combined Opus 4.x bucket. So moving T1/T3 onto a newer Opus neither frees headroom on the old
+quota rather than inheriting the previous generation's pool — Opus 5, for instance, did not share
+the combined Opus 4.x bucket when it shipped. So moving T1/T3 onto a newer Opus neither frees headroom on the old
 pool nor inherits it: check the new generation's limits before shifting volume onto it. The
 "reserve the top tier for T1/T3" rule holds regardless — it is about *where the budget earns its
 cost*, not about which pool the budget comes from.
@@ -365,11 +365,11 @@ effort defaults do not.** The table above is calibrated for AKILI's shape: tasks
 decomposed and spec-bounded* from `/akili-specify`, which is exactly the case where a mid-range
 effort holds up. Vendor guidance for a frontier model is written for the opposite case — one
 open-ended agentic request with no spec. For Claude Opus 5.5, the published starting point for that
-case is now **`medium`** (see *Opus specifics* below); the previous generation, Opus 5, published
-**`xhigh` for coding and agentic work, `high` elsewhere**, and that pairing is now history, not
-current guidance. The vendor's own starting point no longer exceeds AKILI's mid-range for the
-current generation, so the premise that used to motivate sweeping T1/T3 upward no longer holds as
-stated.
+case is now **`medium`** ([Prompting Claude Opus
+5.5](https://platform.claude.com/docs/es/build-with-claude/prompt-engineering/prompting-claude-opus-5-5),
+fetched 2026-09-29); the previous generation's published starting points were higher, and they are
+now history, not current guidance. The old reconciliation held AKILI's defaults *below* the vendor's
+on purpose; with the vendor now at `medium` too, that gap no longer exists to be justified.
 What it leaves open is whether AKILI's own T1/T3 `high` default, set under the previous generation,
 still earns its cost — that question **awaits the sweep** below rather than a same-generation
 assumption. The reconciliation:
