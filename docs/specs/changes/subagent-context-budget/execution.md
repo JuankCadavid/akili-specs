@@ -92,7 +92,33 @@ Reviewer FAIL findings, attempt 1:
 | Implementer, attempt 1 | `sonnet` | 59 | 136,401 | complete |
 | Reviewer, attempt 1 | `opus` | 7 | 73,780 | fail |
 | Implementer, attempt 2 | `sonnet` | 13 | 96,092 | complete |
-| Reviewer, attempt 2 | `opus` | not yet reported when this entry was written | — | pass |
+| Reviewer, attempt 2 | `opus` | 10 | 83,719 | pass |
 
 **Final verification.** Checks 1 to 9 green at 12,270 bytes; both falsifiers red on scratch copies.
+
+## Pivot Record: T2 (2026-09-29)
+
+**Raised by the Leader before any T2 spawn.** No work was done on T2 and no rework attempt was consumed.
+
+| Field | Value |
+|---|---|
+| Blocker | NFR-1's byte caps cannot hold the rules FR-5 and FR-6 require. The requirement is infeasible as measured |
+| Evidence | `implementer.md` stands at 12,270 bytes after T1; its cap is 13,154, so 884 bytes remain. A plain draft of T2's two blocks for that persona, every FR-5 and FR-6 row present and none compressed, measures **1,491 bytes** (`wc -c` on two scratch files: 723 for *Bounded reads*, 768 for *Output discipline*). The amended *CodeGraph first* sentence adds to that |
+| Why it is not a rework problem | T1's attempt 1 met a byte share by compressing, and three of its four FAIL issues were obligations lost to that compression. Asking T2 to fit 1,491 bytes into 884 repeats the cause |
+| Origin | The caps were the architect's estimate at the requirements gate, set before the blocks were designed. Judgment day then added rows to both blocks (the quoting exception, the *ended* values, the section-lookup definition) and the caps were not re-sized |
+| Affected | `requirements.md` NFR-1; `tasks.md` B5, T2 check 6, T5 check 4; `design.md` §9 and §11 |
+| Tester and Reviewer | `tester.md`: cap 1,200, estimated need about 1,300. `reviewer.md`: cap 900, estimated need about 800; it holds |
+
+**Alternatives.**
+
+| | Option | Trade-off |
+|---|---|---|
+| A | Raise the caps: `implementer.md` to +3,400 bytes, `tester.md` to +1,600, `reviewer.md` unchanged at +900 | About 1,300 bytes more than approved, near 330 tokens per worker spawn. The rules those bytes carry bound runs that cost hundreds of thousands of tokens |
+| B | Keep the caps and compress | The cause of T1's first FAIL. Obligations are lost |
+| C | Keep the caps and move both blocks into the Leader's brief | The brief is Leader output, paid on every spawn at the highest rate, and a deployed persona would carry no rule at all |
+| D | Keep the caps and drop FR-5 or FR-6 from the Implementer persona | Removes half of what the proposal approved |
+
+**Recommended:** A.
+
+**Status:** T2 marked `[~]`. Waiting for the user.
 
