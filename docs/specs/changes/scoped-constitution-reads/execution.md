@@ -369,7 +369,7 @@ Both Reviewers suggested that T4's walk look at these points. T4's scope is the 
 |---|---|
 | Measure | Review rounds. Budget 8, as extended by the user on 2026-09-29 |
 | State when raised | 8 used (T1: 3 · T2: 2 · T3: 2 · T4: 1). The T4 rework needs a ninth |
-| Cause | Every task needed one rework round or more. Six FAIL verdicts, each a single defect in prose that the task's greps could not see |
+| Cause | Every task needed one rework round or more. Five Reviewer FAIL verdicts, each a single defect in prose that the task's greps could not see |
 | Action | The Leader recorded the FAIL, marked T4 `[~]`, spawned no rework, and stopped for the user |
 | Tree state at the stop | T1, T2 and T3 committed (`917880c`, `70d5330`, `29d1171`). Uncommitted: `CHANGELOG.md` and `closure.md` as attempt 1 left them, this log, and the T4 status in `tasks.md` |
 | T4 attempts | 1 of 3 used |
@@ -451,7 +451,7 @@ All four tasks are `[x]`, each closed by a Reviewer `PASS`. No task was skipped 
 | Measure | Budget | Actual |
 |---|---|---|
 | Tasks | 4 | 4 |
-| Shipped lines | about 55 | 36 insertions and 12 deletions across the five shipped files |
+| Shipped lines | about 55 | 35 insertions and 12 deletions across the five shipped files |
 | Persona growth | Implementer +1.7k of 2,000 bytes · Tester +1.1k of 1,500 | Implementer +1,826 · Tester +1,416 |
 | Review rounds | 6 | 9. Extended by the user to 8, then to 9 |
 
@@ -469,7 +469,7 @@ All four tasks are `[x]`, each closed by a Reviewer `PASS`. No task was skipped 
 
 **For the Kaizen retrospective at archive:**
 
-- Six Reviewer FAILs and one evidence MISMATCH across four tasks. Each FAIL was one defect in prose that the task's greps could not see. Four were requirement content held in a sentence or a table row and not in a scenario.
+- Five Reviewer FAILs and one evidence MISMATCH across four tasks. Each FAIL was one defect in prose that the task's greps could not see. Three were requirement content held in a sentence or a table row and not in a scenario: the entry's path in the Tester's S5 rule, "verbatim at the source" in the Tester persona, and the path in the slice entry.
 - The design's wording for order-of-evaluation rule 2, "S1–S4 by what the entry says", cannot ship as written without defeating the task's own falsifier.
 - Success Criterion 4 kept the proposal's ceiling after the requirements had replaced it.
 - The review-round budget was set at 6 and the run needed 9.
@@ -477,3 +477,15 @@ All four tasks are `[x]`, each closed by a Reviewer `PASS`. No task was skipped 
 **Not covered by any gate in this spec (`requirements.md` §8, accepted risks):** whether a real worker given the new text reads by section, and whether Reviewer FAILs for token or convention violations rise afterwards.
 
 **Open after this run:** this repository's deployed `.agents/implementer.md` and `.agents/tester.md` still carry the old sentence; `.agents/` is ignored by git and outside this spec. `/akili-test` is queued at the user's instruction.
+
+## 4. Corrections After Validation (2026-09-29)
+
+Three figures in this log were wrong as first written. All three were the Leader's, not a worker's. Found by the independent audit run for `/akili-validate`, and confirmed against `git diff --numstat 3b66e40 HEAD` and the task entries above.
+
+| Where | Was | Is | Basis |
+|---|---|---|---|
+| §3 Summary, *Shipped lines* | 36 insertions | 35 insertions | `git diff --stat`: 5 files changed, 35 insertions, 12 deletions |
+| T4 *Budget Tripwire*, *Cause*; §3 Kaizen list | Six Reviewer FAILs | Five | T1 two, T2 one, T3 one, T4 one. The sixth event was the T4 evidence MISMATCH, which is not a Reviewer verdict |
+| §3 Kaizen list | Four were content held in a sentence or row | Three, now named | T2's FAIL was an added reason clause, and T4's was an added sentence; neither was dropped content |
+
+Correction closure: the superseded values were searched across the spec folder. `36 insertions` and `Six` had no other site. `test-report.md` and `closure.md` do not cite them.
