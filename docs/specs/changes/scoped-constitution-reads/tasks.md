@@ -113,7 +113,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe**. T4 depends on
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full`: edits what every Leader puts in a Tester's slice, and what the test report records (override a) |
 | Depends on | none |

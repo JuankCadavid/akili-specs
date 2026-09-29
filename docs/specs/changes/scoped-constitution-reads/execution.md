@@ -8,7 +8,7 @@
 | Approval Mode | `gated` |
 | Started | 2026-09-29, at `e011068` on `master` |
 | Budget (design §9) | 4 tasks · ~55 shipped lines · 6 review rounds. **Review rounds extended to 8 by the user, 2026-09-29** (see *Budget Tripwire*, under T2) |
-| Review rounds used | 5 of 8 (T1: 3 · T2: 2) |
+| Review rounds used | 7 of 8 (T1: 3 · T2: 2 · T3: 2) |
 | Workers | No Step 8E wrappers and no `## Model Routing` registry in this repository. Fallback spawns seeded from `.agents/`: Implementer on `sonnet`, Reviewer on `opus` (author ≠ auditor) |
 | Sequencing | T1, T2 and T3 are parallel-safe by file, and are run **serially**: each task's verification holds a `git diff --stat` check that lists its own files only, which a sibling editing the same tree would falsify |
 
@@ -221,3 +221,85 @@ Both Reviewers suggested that T4's walk look at these points. T4's scope is the 
 | Issues encountered | **1.** Attempt 1 added a reason for the omitted-entry rule that the spec does not state, and the reason was false against `design.md` §7 and the persona's S3 row. The attempt 2 brief forbade any explanation the spec does not give. **2.** No lookup note was reported by any worker: neither reference document exists in this repository (S5) |
 | Shipped lines | 3 insertions, 3 deletions. The design estimated about 8 for T2; the three edits are long single-line bullets |
 | Budget | Review rounds: 5 of 8 used. T3 and T4 remain |
+
+### T3: The Tester's context slice settles the entry — PASS on attempt 2
+
+| Field | Value |
+|---|---|
+| Date | 2026-09-29 |
+| Continue gate | User: "continue with T3" (after the T2 summary). While T3 ran, the user added: "continue with T4 once T3 passes" |
+| Skills | `cognitive-doc-design` (the task's list, unchanged) |
+| Requirements covered | FR-5, NFR-2, NFR-3 |
+| Baselines | B9 re-confirmed by the Leader at `70d5330` before the spawn: 0, 0, 0 |
+
+#### Attempt 1 — Reviewer `FAIL`
+
+| Field | Value |
+|---|---|
+| Effort | `high` |
+| Files changed | `.claude/commands/akili-test.md` (2 insertions, 1 deletion): a new bullet under Phase 1 item 2, and the Phase 4 Summary sentence |
+| runtime events | none |
+| Implementer verification | Checks 1–5 reported passing: **1** 1 · **2** 1 · **3** 1 · **4** two hunks, Phase 1 item 2 and Phase 4; none under *UX Testing Guidance* or in the *Token discipline* block · **5** `akili-test.md` only |
+| Executed falsifier | The UI-suite sentence deleted on a scratch copy; scenario *A UI suite whose scenarios cite no design section* walked against it. The remaining text no longer forbids `none` for a UI suite |
+| `Not Done / Assumptions` | Field absent from the report |
+| Evidence re-run | **VERIFIED**. Leader-inline, checks 1–5 re-executed; every output identical to the report. `git diff --check` clean |
+| Reviewer verdict | `STATUS: FAIL`, one issue (below, verbatim) |
+
+**Reviewer report, verbatim:**
+
+> STATUS: FAIL
+>
+> SUMMARY: One pass over a 3-line diff, since it is under 50 LOC. The shipped text meets most of the task:
+> - **Phase 4:** the Summary clause matches DD-4 *In the record*, and it sits where the Leader reads when it writes the report.
+> - **Phase 1:** three of DD-6's rules are present. An omitted entry is invalid. `none` is scoped to "a suite with no UI behavior". A UI suite must name design sections and cannot write `none`.
+> - **Wording:** "meaningful UI/UX behavior" matches *UX Testing Guidance* byte for byte.
+> - **Scope:** no hunk touches *Token discipline* or *UX Testing Guidance*. Only `akili-test.md` changed, and `git diff --check` is clean.
+> - **Disqualifier:** a Leader cannot read "`none` is the expected value" as covering a UI suite, so it is not triggered.
+> - **NFR-2 and NFR-3:** met. There is no host tool name and no line-number pointer.
+> - **Implementer's per-document scoping:** writing "no scenario in the slice that cites **that** document" instead of DD-6's "a reference document" is an acceptable narrowing. §7 sets granularity at one entry per document, and it matches FR-3's S6 Tester column.
+>
+> One obligation is missing: what the entry actually contains.
+>
+> ISSUES:
+> 1. **Discovered Issue:** The new bullet says the entry is "named sections, or the word `none`". It never requires each named section to come with the document's path, and never says the Leader resolves that path, legacy paths included. The two default paths appear only as labels for which document is meant.
+>    - The sibling bullet that already shipped, `/akili-execute` Step 2.2 *constitution by reference*, says "the path and the sections this task touches, or the word `none`". So the two commands now describe one contract differently.
+>    - The shipped Tester persona (`tester.md` item 1) checks "the entry's path" first when it decides S5. This slice never has to carry one.
+>    - The FR-5 scenario *An E2E suite that asserts visual behavior* ("BUT it must NOT hand the Tester the document path alone") assumes an entry made of path plus sections. The shipped text says nothing about path at all.
+>    - **Violated Rule:**
+>      - `requirements.md` → *FR-5*: "carry the same per-document entry as FR-4".
+>      - `requirements.md` → *FR-4*: "either the sections the task touches (path + section name) or the word `none`".
+>      - `design.md` → *§7 Shared Contracts*, *Valid values* row: "One or more section names, each with the document's path; or the word `none`".
+>      - `design.md` → *§7 Shared Contracts*, *Path* row: "The path the project actually uses. The Leader resolves it, legacy paths included."
+>    - **Remediation Suggestion:** Edit only the one inserted bullet in Phase 1 item 2. Replace "named sections, or the word `none`" with wording equivalent to "the path the project uses (the Leader resolves it, legacy paths included) and the named sections, or the word `none`", matching the `/akili-execute` sibling. Leave the three DD-6 rules and the "meaningful UI/UX behavior" phrase as they are. Then re-run checks 1–5 and the Disqualifier read of Phase 1 and *UX Testing Guidance* in full.
+>
+> ADVISORY: none. It is suppressed because the diff is under 50 LOC.
+
+#### Attempt 2 — Reviewer `PASS`
+
+| Field | Value |
+|---|---|
+| Effort | `xhigh` (bumped one level after the attempt 1 FAIL) |
+| Files changed | `.claude/commands/akili-test.md`. One phrase changed against attempt 1: the entry is now "the path the project uses (the Leader resolves it, legacy paths included) and the named sections, or the word `none`" |
+| runtime events | none |
+| Implementer verification | Checks 1–5 reported passing: **1** 1 · **2** 1 · **3** 1 · **4** two hunks, Phase 1 item 2 and Phase 4; none under *UX Testing Guidance* or in the *Token discipline* block · **5** `akili-test.md`, plus the Leader's `execution.md` |
+| Executed falsifier | Re-executed on a scratch copy of the attempt 2 text, then discarded: UI-suite sentence deleted; scenario *A UI suite whose scenarios cite no design section* walked; the remaining text no longer forbids `none` for a UI suite |
+| `Not Done / Assumptions` | Field absent from the report |
+| Evidence re-run | **VERIFIED**. Leader-inline, checks 1–5 re-executed; every output identical to the report. `git diff --check` clean. The delta against the attempt 1 diff is the one phrase and nothing else |
+| Reviewer verdict | `STATUS: PASS`. No issues. No ADVISORY block (diff under 50 lines) |
+
+**Reviewer summary (from the report):** the whole diff was audited again from fresh context against FR-5, FR-4, DD-6, §7 and DD-4, both FR-5 scenarios, and the shipped Tester persona. The entry now carries path and sections, which meets FR-4, FR-5 and the §7 *Valid values* and *Path* rows. §7 rows *Section name* and *Extent of a section* are not carried, as in the `/akili-execute` bullet that passed review. The non-host case stays with the untouched pointer rule under *Token discipline*, as DD-6 says. Both conditions of the task's Disqualifier are not met.
+
+#### T3 closing record
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 2) |
+| Attempts | 2 Implementer attempts, 2 Reviewer verdicts (FAIL, PASS) |
+| Models | Implementer `sonnet` · Reviewer `opus` |
+| Final verification | Checks 1–5 green on the final tree, re-run by the Leader |
+| Requirements covered | FR-5, NFR-2, NFR-3 |
+| Decisions made | Skill list unchanged from the task. No execute-time spec edit. The rework fitted the extended budget, so no stop was owed before attempt 2 |
+| Issues encountered | **1.** Attempt 1 dropped the path from the entry. It is contract content held in two rows of the `design.md` §7 table and in FR-4's parenthesis, not in a scenario. **2.** One Leader command hit a transient permission-check failure during the attempt 1 re-run and passed on a single retry. It was the Leader's own command, not a worker, so it is not a runtime event of the task. **3.** No lookup note was reported by any worker: neither reference document exists in this repository (S5) |
+| Shipped lines | 2 insertions, 1 deletion. The design estimated about 6 for T3 |
+| Continue gate | Passed without a pause, on the user's instruction "continue with T4 once T3 passes" |
+| Budget | Review rounds: 7 of 8 used. T4 remains, with one round |

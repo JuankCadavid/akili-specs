@@ -107,6 +107,7 @@ The Leader decides the count from the spec's depth and the independence of the s
 2. For each suite, assemble a **context slice**: the target requirements + scenarios, the negative/strict rules to assert, the repo test command, and the relevant skills.
    - **No test infrastructure is a STOP, not an improvisation.** If the project has no test command for a suite — no runner chosen, no config, no `test` script (the normal state of a greenfield project's first spec) — do **not** let a Tester pick a framework inside its inner loop: choosing the runner is a **stack decision** that belongs to the TRD, and scaffolding it (config, first smoke test, script wiring) is a **spec task** that deserves its own Implementer → Reviewer pass. Stop, tell the user which suites are blocked on missing infrastructure, and recommend the route: add the scaffolding task to this spec (or a quick prior spec) and re-run `/akili-test` after it lands. Proceed normally with any suite whose infrastructure does exist.
    - **Integration/E2E suites additionally get the `## Local Environment` contract** from `docs/infrastructure.md` (start, seed/reset, health-check commands and URLs) so Testers never guess how to bring the stack up. Run the contract's **pre-check at planning time** — if the primary route is unavailable (e.g. Docker daemon off), resolve it with the user (start it, or use the fallback route) before spawning suites, not mid-suite. If no contract exists, note the gap in the test report and recommend `/akili-constitution` (Step 6B).
+   - **The slice carries a reference-section entry for each reference document** — `docs/trd/trd.md` and `docs/ux-ui/design.md`: the path the project uses (the Leader resolves it, legacy paths included) and the named sections, or the word `none`. An omitted entry is not a valid empty state. `none` is the expected value for a suite with no UI behavior and no scenario in the slice that cites that document. A suite that covers meaningful UI/UX behavior names the design sections it checks visual consistency against instead — `none` is not valid for that suite.
 3. Apply the **Deployment Rule** to decide inline vs delegated, and parallel vs sequential.
 4. **Select each suite's skills and effort as Leader — you own both decisions.** The ownership rules are canonical in `.agents/leader.md` → *Delegation Discipline* (task/Skill-Map lists are overridable defaults; deviations recorded — here, in the test report's Summary). Suite-specific flavor: `systematic-debugging` for failure-heavy suites, `ui-ux-pro-max` for UI-heavy E2E; effort `low` for a trivial single-assertion suite, `xhigh` for complex integration/concurrency suites. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the suite's context slice.
 
@@ -154,7 +155,7 @@ The report must include:
 8. Remediation
 9. Accepted Gaps, if any
 
-When Testers were delegated, record in the Summary how many suites ran, how many Testers were spawned (and whether in parallel), and any suite run inline.
+When Testers were delegated, record in the Summary how many suites ran, how many Testers were spawned (and whether in parallel), any suite run inline, and any lookup note a Tester's report held.
 
 ### Phase 5: Report to User (Leader)
 
