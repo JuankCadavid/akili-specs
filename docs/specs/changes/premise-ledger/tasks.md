@@ -464,6 +464,6 @@ No requirement is cleared by citing a different one. Every `BUT` and `AND IT MUS
 | T8 | ~4 |
 | T9 | ~1 |
 | T10 | ~5 shipped · walkthrough update |
-| **Total** | **~160 shipped** (126 through T6, ~10 in the amendment) |
+| **Total** | **~160 shipped** (126 through T6, ~10 in the amendment) *(Validation note, 2026-09-29: the stated parts sum to ~136, not ~160. ~160 stays as the approved figure that `walkthrough.md` §6 reads against; against ~136 the 132 actual is ~3% under — `validation-report.md` W2.)* |
 
 **PR strategy: single.** Well under ~400 lines, prose only, one definition with citing surfaces that must land together — a split would ship surfaces that cite a block that does not exist yet. This repo's flow commits to `master` per task with the `[SPEC:changes/premise-ledger]` prefix; one commit per task keeps each Reviewer diff under the 300-line inline threshold.

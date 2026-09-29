@@ -671,7 +671,9 @@ Neither bullet backticks a class token — that is what keeps gate (b) at two fi
 
 ## 3. Literal-reader walkthrough
 
-**Result: 11 of 14 on the primary key bullet; 12 of 14 counting either bullet. The task's disqualifier fires on four counts.** Three cases miss their primary key bullet: both judge-rule cases return `INCONCLUSIVE` on every key premise, and held-out `bugfix--toc-unmapped-orange-notes` returns `INCONCLUSIVE` on its primary bullet while reaching its supporting one. One held-out Blast Radius supporting bullet returns `NOT DEMANDED`. Both negative controls behave as designed: zero blast-radius rows, no over-triggering.
+> **Superseded at the amendment pass — see §8.** The reading below is the first gate's (T7) and is kept as the record of what failed. After T8 and T9, Cases 2, 11 and 12 were re-walked and all three reach their key premise: **14 of 14**. Rows 2, 11 and 12 in the table below show their first-gate verdicts.
+
+**First-gate result: 11 of 14 on the primary key bullet; 12 of 14 counting either bullet. The task's disqualifier fires on four counts.** Three cases miss their primary key bullet: both judge-rule cases return `INCONCLUSIVE` on every key premise, and held-out `bugfix--toc-unmapped-orange-notes` returns `INCONCLUSIVE` on its primary bullet while reaching its supporting one. One held-out Blast Radius supporting bullet returns `NOT DEMANDED`. Both negative controls behave as designed: zero blast-radius rows, no over-triggering.
 
 ### Reader inputs and what was withheld
 
@@ -865,14 +867,14 @@ Two further readings support the pass:
 
 | # | Criterion (abbreviated) | Result | Evidence |
 |---|---|---|---|
-| 1 | A literal reader of the block is told by a quoted general sentence to write the row that would have exposed each false premise, for the five cited entries **and at least two held-out ones** | **Met** | §3: all five cited block cases (1, 3, 6, 8, 10) `DEMANDED` on the key premise, and four held-out block cases (4, 5, 7, 9) likewise — well past "at least two". Held-out Case 2 reaches only its supporting bullet |
+| 1 | A literal reader of the block is told by a quoted general sentence to write the row that would have exposed each false premise, for the five cited entries **and at least two held-out ones** | **Met** | §3: all five cited block cases (1, 3, 6, 8, 10) `DEMANDED` on the key premise, and four held-out block cases (4, 5, 7, 9) likewise — well past "at least two". Held-out Case 2 reached only its supporting bullet at the first gate and reaches its primary bullet after the amendment (§8) |
 | 2 | A literal reader of the `judgment-day` rule re-runs `bilateral-review-ux-polish`'s three premises at the source instead of reading for plausibility | **Met after the amendment** (was *Not met* at the first gate) | §8 Case 11: all three uncited premises now `DEMANDED`. The reader quoted the reach clause by name — "a citation cell holding neither a citation as run nor the `UNVERIFIED` marker … attacked under action 2, as though the row carried the marker: the judge searches for the primary source itself" — which is what F1 said the rule lacked |
 | 3 | A literal reader of the Bug Diagnosis runs the already-fixed check before proposing a fix for `innovation-dev-p25-save-500` | **Met** | §3 Case 13: primary key bullet `DEMANDED`, quoting the history query, with the reader recording that it "runs **first**, before any root-cause work" and is never `n/a` |
 | 4 | A backend-only or prose-only design triggers no blast-radius row — the cost bound holds | **Met** | §5: Control A 0 rows and the stated-empty line; Control B 2 dependence rows and 0 blast-radius rows. The reader demanded no sibling and no consumer check on either |
 | 5 | Every cross-reference is by section name; `judgment-day`'s Integration row names Step 2.5; the mirrors agree; `verify:cli`, `pack:dry-run` and `git diff --check` pass | **Met** | §2 gate (b) — two files per token, citing surfaces restate no class — and gate (g) — three commands, three zero exits |
 | 6 | No hunk in `/akili-execute`, the personas, `tdd`, or Step 3.2's Falsifiability block | **Met** | §2 gate (a) — 0 bytes of diffstat over the seven frozen paths, and the Falsifiability block byte-identical over its 8 lines |
 
-**Five of six met; criterion 2 is not.** That is the same gap §3's findings F1 and F2 name and the same one the Pivot Record must carry: the judge rule, as shipped, does not reach the case it was written for.
+**Six of six met — criterion 2 after the amendment (§8).** At the first gate the reading was five of six, criterion 2 not met: that was the same gap §3's findings F1 and F2 name and the same one the Pivot Record carries: the judge rule, as first shipped, did not reach the case it was written for. T8's reach clause closed it.
 
 ---
 

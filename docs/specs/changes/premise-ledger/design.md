@@ -271,7 +271,7 @@ The two pointer fixes (FR-8) correct a reference and remove no behavior. No othe
 | Measure | Estimate |
 |---|---|
 | Tasks | **10** — block · remaining `/akili-specify` sites · `judgment-day` · `/akili-propose` · constitution clause · mirrors and changelog · closing walkthrough · **judge-rule reach amendment · trigger amendment and its mirrors · closure re-gate** |
-| Shipped lines (added or changed, packaged files and mirrors) | **~160** — 126 shipped through T6, plus ~10 for the two amendments and their mirrors; the spec-local walkthrough document is outside this count |
+| Shipped lines (added or changed, packaged files and mirrors) | **~160** — 126 shipped through T6, plus ~10 for the two amendments and their mirrors; the spec-local walkthrough document is outside this count. *(Validation note, 2026-09-29: the stated parts sum to ~136, not ~160. ~160 stays as the approved figure that `walkthrough.md` §6 reads against; against ~136 the 132 actual is ~3% under — `validation-report.md` W2.)* |
 | Review rounds | **12** — one per task, two rework rounds, and the closure re-gate's own round |
 
 **Re-sized at the pivot (2026-09-19).** The original budget read 7 tasks · ~150 lines · 9 rounds; T7's closure gate fired and the user approved Option B, which reopens two rules at their source and re-walks three cases. The overrun is two tasks' worth of rework and three review rounds, spent on the finding the closure gate exists to produce. Ten small prose tasks across four packaged files still match **Standard**. Nothing pushes to Full: no data, API, auth, or installer surface. Nothing allows Lite: one definition with six citing surfaces is where restatement drift happens.
