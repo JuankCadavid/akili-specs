@@ -124,3 +124,40 @@ Reviewer FAIL findings, attempt 1:
 
 **Resolution (2026-09-29).** The user chose **A**. NFR-1 amended: `implementer.md` +3,400 bytes (cap 14,054), `tester.md` +1,600 (cap 10,467), `reviewer.md` unchanged (cap 11,752). Sweeps run: forward, `grep -n "2,500\|1,200\|13,154\|10,067\|4,600"` over the spec folder, every hit updated or kept as a dated history note; backward, the referrers of NFR-1 (`tasks.md` B5, T2 check 6, T5 check 4; `design.md` §9, §11; requirements OQ-4). No brief had been dispatched for T2, so none is re-issued. T2 returned to `[ ]`.
 
+### T2: Workers bound what they load — PASS (2026-09-29)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-5, FR-6; DD-7, DD-8; P-19 |
+| Files changed | `.claude/templates/implementer.md` (+24/−1), `.claude/templates/reviewer.md` (+12), `.claude/templates/tester.md` (+21) |
+| Implementer verification | Checks 1 to 8: `Bounded reads` 1/1/1 · `Output discipline` 1/1, Reviewer 0 · old "Open a full file…" sentence 0 · `section lookup` in `reviewer.md` 2 · `100 lines` 1/1 · `400 lines` 2/1/1 · `wc -c` 13,969 / 11,733 / 10,427 against caps 14,054 / 11,752 / 10,467 · T1's guards unchanged (0, 1, 1, 1, 1) · three files |
+| Executed falsifier | Walks on scratch copies: (a) quoting exception deleted from the no-second-read row → the row forbids the re-open that the byte-identity sentence requires; (b) "failing part" row deleted → the text permits a bare "1 failed" |
+| Evidence re-run | Leader-inline: **VERIFIED**. `git diff --check` clean |
+| Reviewer verdict | **PASS**, `opus`. FR-5 and FR-6 walked for each role; tables compared cell by cell with DD-7 and DD-8; both declared merges examined and found to lose no obligation; growth +3,315 / +881 / +1,560 bytes against caps 3,400 / 900 / 1,600 |
+| runtime events | none |
+| Review rounds used | 3 of 10 |
+| Skills | `cognitive-doc-design`, as the task lists |
+| Gate | Continue gate `auto-approved (pre-approved mode)` |
+
+**`Not Done / Assumptions`, verbatim.** "For the Implementer and Tester's "requirements.md/design.md" Bounded-reads row, I referenced each persona's existing section-lookup definition ("via the section lookup above") rather than redefining it inline, since FR-6 requires one definition per persona and both already had one (Row H of DD-8: "Has one"). Judgment call, not a gap. — In `tester.md` I merged the `tasks.md` and `execution.md` rows into one table line ("Only at a block, or entries, the slice names — never unconditionally") to fit the byte cap after the first draft came in 26 bytes over; both files' individual conditional obligations are preserved, just co-located. — No hunks were made outside the three files; nothing was committed, per the hard constraint." Assumptions only: no continuation. The Reviewer examined both calls.
+
+**Decisions made.** The execute-time edits carried in the Reviewer brief: NFR-1 as amended by the Pivot, and T1 check 7 for the second and last time.
+
+**Issues encountered.** The Tester's first draft came in 26 bytes over its raised cap, and the author merged two rows to fit. The caps remain tight: 85, 19 and 40 bytes of margin.
+
+**ADVISORY (4R). Recorded; none becomes work.**
+
+- RISK: the root-guides sentence ("Read the project's root guides … whole") has no 400-line bound, so a root guide over 400 lines meets two rules. FR-6 names no exception. A spec gap for a later proposal; harmless here.
+- RELIABILITY: the Reviewer's CodeGraph bullet keeps "The full-file escape hatch remains"; a literal reader could take it as a licence. FR-6 freezes the diff-first rule.
+- READABILITY: the merged Tester row is parsed only by matching items in order.
+- READABILITY: the Implementer's `tasks.md` row drops DD-8's "when the brief carries the task" condition. It is stricter than the spec and states no fallback for a brief without the task.
+
+**Spawns** (host-reported at completion).
+
+| Spawn | Model | Tool calls | Tokens | Ended |
+|---|---|---|---|---|
+| Implementer, attempt 1 | `sonnet` | 31 | 150,397 | partial (assumptions only) |
+| Reviewer, attempt 1 | `opus` | reported after this entry | — | pass |
+

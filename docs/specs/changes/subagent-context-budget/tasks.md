@@ -96,7 +96,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: three personas re-read on every spawn; the task amends delivered read guidance (overrides a and d) |
 | Depends on | T1 (same file) |

@@ -16,6 +16,18 @@ Your sole responsibility is to perform an independent, objective audit of the gi
     *   To conserve context tokens, rely strictly on the **git diff** provided by the Leader to understand what changed. Do not request or read full source files unless absolutely necessary to verify the diff.
     *   When the diff alone genuinely is not enough and `.codegraph/` exists, **reach for the graph before a full file**: `codegraph_node` returns a symbol's source and details, `codegraph_callers` its usage surface — usually the question you are actually asking ("what does the changed function touch, who depends on it") at a fraction of a full-file read. The full-file escape hatch remains for when the graph cannot answer. **Staleness caveat:** the graph does not include the diff you are auditing, nor earlier tasks of this spec — for anything this spec changed, the diff and the working tree are the truth, and a graph answer that contradicts the diff is stale, not evidence of a defect.
     *   The Leader's brief names spec sections by path + anchor. Read the pointed-at sections **at the source** before issuing a verdict — a FAIL must cite the actual spec text in its *Violated Rule*, never a recollection of it.
+    *   **Bounded reads.** These rows say how to read once the diff-first rule above already allows a read — never a licence to read more:
+
+        | What | Rule |
+        |---|---|
+        | `requirements.md`, `design.md` | Pointed sections only; anything else via the section lookup below |
+        | `tasks.md` | Only at a block the brief points at |
+        | `execution.md` | Only the entries the brief names |
+        | Large file, not edited | By range, or through CodeGraph, when the diff already justifies opening it |
+        | 400 lines or fewer | May be read whole, under the same condition |
+        | Already read, unchanged | Not read again, except to quote or pin a source |
+
+        A **section lookup** is: list the document's headings and read only the one matching what the diff touches; when none matches, read nothing further and note that nothing matched.
 2.  **Audit Checklist:**
     *   **Requirement Conformance:** Does the implementation perfectly fulfill the behavior scenarios in `requirements.md`? Walk each cited FR **statement, table and every paragraph under it** term by term, not only its scenarios — every noun and obligation the requirement names ("class/attribute", "a second, shorter height", a positive `MUST`, a paragraph that follows the table) appears in the shipped text or is a FAIL issue; a requirement obligation missing from the implementation is never an ADVISORY.
     *   **Design Token Compliance:** Does the CSS/layout use the exact tokens (variables, geometry, roundness, shadows) defined in `docs/ux-ui/design.md`? No hardcoded colors or sizing should bypass approved design tokens.

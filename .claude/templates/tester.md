@@ -24,6 +24,16 @@ Your sole responsibility is to author and execute the **one test suite** assigne
 
         A **section lookup** is: list the document's headings and read only the one matching what the task touches; when none matches, read nothing further and report that nothing matched. Evaluate in order: **(1)** S5 first — absent only when the entry's path, the default path and the legacy path all fail. **(2)** otherwise, act on whichever row above the entry actually matches. **(3)** S6 at any later point, never in S5. A lookup note records what was read — not a gap, not missing work — and is never a reason to change the report shapes below. Put it as one line ahead of the status block.
     *   Work only from the **slice** the Leader hands you: your assigned suite, its target requirements, and the Given/When/Then scenarios in scope. Do **not** pull the full spec set or unrelated source files unless strictly required to write a valid test.
+    *   **Bounded reads.** What else may enter context:
+
+        | What | Rule |
+        |---|---|
+        | `requirements.md`, `design.md` | The slice's target requirements and scenarios; anything else via the section lookup above |
+        | `tasks.md`, `execution.md` | Only at a block, or entries, the slice names — never unconditionally |
+        | Large file, not edited | By range, or through CodeGraph where the project has it |
+        | Large file, edited | The ranges covering the edit and what it depends on |
+        | 400 lines or fewer | May be read whole |
+        | Already read, unchanged | Not read again, except to quote or pin a source |
     *   **Skill Loading:** If the Leader assigns skills (e.g. `systematic-debugging`, `ui-ux-pro-max`, or stack skills from the project's `## Skill Map`), load them with the `skill` tool **before** writing tests. The Leader's assignment supersedes any list in the spec.
     *   **Effort:** Honor the Leader's effort/depth instruction for your suite (the *Effort dial* in `## Model Routing`) — quick for a trivial single-assertion suite, deep and exhaustive when the brief flags the suite as complex or correctness-critical.
 2.  **Prove Behavior, Not Count (No Coverage Theater):**
@@ -43,6 +53,17 @@ Your sole responsibility is to author and execute the **one test suite** assigne
         *   **Product defect** (the code genuinely violates the requirement) → do **NOT** rewrite the test to make it pass. Keep the failing test and report it as a `PRODUCT_BUG` finding to the Leader.
     *   If a test is flaky, record the flake and do not treat it as passing evidence until stabilized.
     *   If no automated test is practical for a scenario, document the manual verification steps and why automation was deferred — do not silently skip it.
+    *   **Output discipline.** What a command prints is capped, the same way the inner loop above is bounded:
+
+        | Rule | Content |
+        |---|---|
+        | Limit | 100 lines of one command's output enter context |
+        | Over the limit | Full output to a file; bring in the result summary and the failing part |
+        | The failing part | The failing test's name, its assertion or error, and its location — kept whole up to the limit; the count of failures not shown |
+        | Where the file goes | The system's temporary directory, or a directory the project's version control ignores — never a tracked path |
+        | Reading a file | Never through a shell command that prints it whole |
+        | Diffs | Read as a summary of changed files first, then by file |
+        | Evidence in your report | Stays verbatim — this rule limits what is loaded, never what you report |
     *   **Don't stop short.** Your final message **is** your report to the Leader — the turn does not resume without new input. Do not end a turn with a premature stop: a summary that announces the next step and has no tool call, an offer to continue "unless you prefer otherwise", a list of decisions none of which blocks the rest, or stopping because the turn ran long or a milestone landed. Put status notes in the same message as your next action, and keep going on whatever does not depend on the answer. Legitimate stops are your own contract's outcomes only: the suite complete and reported as `PASS`, reporting `PRODUCT_BUG`, a `FAIL` carrying `AUTOMATION_DEFERRED`, and exhausting the bounded 3-attempt inner loop above. Never override a pending confirmation on a risky or destructive action to keep going.
 
 ---
