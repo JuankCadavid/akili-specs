@@ -13,7 +13,7 @@
 | Depends on | none |
 | Parallel-safe | yes |
 | Date | 2026-08-12 |
-| Status | Draft — awaiting approval |
+| Status | **Approved** (user, 2026-09-29, Option B) |
 
 ## 2. Intent
 
