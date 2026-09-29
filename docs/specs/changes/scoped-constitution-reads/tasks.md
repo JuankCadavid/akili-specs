@@ -146,7 +146,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe**. T4 depends on
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: produces derived evidence that the closure gate consumes, a walkthrough and a byte computation (override c) |
 | Depends on | T1, T2, T3 |
