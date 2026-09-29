@@ -74,3 +74,80 @@
 **Decisions made:** none beyond the brief.
 
 **Final verification:** checks 1–4 are green on the final tree, and the four-case walk is recorded.
+
+### Budget Tripwire — 2026-09-29 (raised after T1's Implementer report, before T1 review)
+
+| Measure | Budget (design §9) | Actual so far | Delta |
+|---|---|---|---|
+| Shipped lines | ~75 total (T1 ≈ 38, T2 ≈ 16, T3 ≈ 14, T4 ≈ 7) | T1 +70 −18, T2 +2 (two long bullets), T3 +9 −2 → **81 inserted** with T4 still to come | T1 is ~1.8× its estimate; the spec is already over its total |
+| Review rounds | 6 | 3 used (T2 ×2, T3 ×1); T1 and T4 still owed | on track if no further rework |
+| Tasks | 4 | 4 | — |
+
+**Cause:** T1's scope carries seven edit sites plus a new subsection (DD-1's 7-point rewrite, DD-2's site table, DD-5). In a hard-wrapped (~100-column) doc, that content alone runs well past 38 lines. The T1 Implementer also reported two self-caught rewordings forced by check 1. T1's evidence re-run was **VERIFIED** (checks 1, 3–8 match; check 2 hits at 103, 104, 189, 273, 368, 414, classification pending review). T1 is **not** yet reviewed and stays `[ ]`.
+
+**Status:** stopped for the user per *Budget Tripwire*; T1 review awaits the go-ahead.
+
+**User decision (2026-09-29):** "continue". The overrun is accepted, and T1 review and T4 proceed on the current budget.
+
+### T1: `docs/model-routing.md` speaks for Opus 5.5 — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** |
+| Date | 2026-09-29 |
+| Attempts | 1 |
+| Requirements covered | FR-1, FR-2, FR-3, FR-6, NFR-2, NFR-4, NFR-5 |
+| Skills | `cognitive-doc-design` (per the task; no deviation) |
+| Effort | `high` (rewrites load-bearing routing guidance) |
+| Review rounds used | 1 |
+
+**Attempt 1**
+- Files changed: `docs/model-routing.md` (+70 −18). The seven sites changed as follows:
+  - the worked example gains its Opus 5.5 clause;
+  - the *Frontier escalation* trial is named as the measured-gain case;
+  - the role table gets a pointer to the family notes, with its values untouched;
+  - the re-baseline/reconciliation paragraph is rewritten, and the under-specified rule is re-anchored off the Opus 5 numbers;
+  - *Tier ↔ effort* now reads "resolves to Opus 5.5";
+  - *Opus specifics* is rewritten in DD-1's 7-point order, with the kept points (a) and (b);
+  - a new *Time signals (harness capability, optional)* section sits before `## Review intensity`.
+- Implementer verification:
+  - check 1, the start-high obligation grep: 0 (B1 = 2);
+  - check 2: six `Opus 5` hits (103, 104, 189, 273, 368, 414), all classed as history;
+  - check 3: `Opus 5\.5` = 5;
+  - check 4: `AKILI-measured` = 1;
+  - check 5: `prompting-claude-opus-5-5` = 2;
+  - check 6: time signal/elapsed = 7;
+  - check 7: role-table rows byte-identical;
+  - check 8: `elapsed` in templates/commands = 0.
+- Falsifier executed, both reds observed. Re-inserting "start high and iterate down" moved check 1 from 0 to 1. Changing the T2 table value produced a hunk.
+- The Implementer self-caught and reworded two drafts that tripped check 1: a "starts higher" sentence, and a verbatim "start high" quote in *Opus specifics*.
+- The consumers were read and no edit is owed.
+- Evidence re-run (Leader inline): **VERIFIED**. The re-run gave the same counts. The role-table rows (T1/T2/T3/T5) diffed against baseline with no output, and the stat shows +70 −18 in one file.
+- Reviewer (`opus`): **PASS**.
+  - It walked every FR term.
+  - It read the reconciliation paragraph whole. Nothing says the vendor starts above AKILI's T2 `medium`, and the T1/T3 `high` defaults are stated to await the sweep.
+  - It judged `:189` ("does not share") a still-true fact, not a current-generation claim.
+  - Paraphrase probes found no surviving "start high" obligation.
+- runtime events: none.
+
+**ADVISORY (recorded, not tasks):**
+1. *Risk / possible spec gap.* *Opus specifics* now says to reserve `xhigh`/`max` for measured gains. The same *Effort dial* still prescribes unmeasured `xhigh` in four places:
+   - the effort-policy table (Complex → `xhigh`, Correctness-critical → `max`);
+   - the role table ("`xhigh` if architecturally significant");
+   - the under-specified rule (`high`/`xhigh`);
+   - rework attempt 3 at `xhigh`.
+
+   DD-1's reversion challenge reconciled only the frontier-escalation and under-specified sites. The Reviewer recommends kaizen, not rework.
+2. *Readability.* DD-2 calls `:188–189` "past tense", but the line reads present tense ("does not share"). It is accurate as written.
+3. *Provenance.* The Opus 5.5 `medium` figure in the reconciliation paragraph points to *Opus specifics* for its URL rather than carrying the URL itself. The historical Opus 5 `xhigh`/`high` pairing carries no source.
+4. *Scope beyond DD-1/DD-2/DD-5, all small:*
+   - "a second confirmation of the rule";
+   - "the premise that used to motivate sweeping T1/T3 upward no longer holds". The Reviewer notes this slightly misdescribes the old text, which argued *against* pushing the defaults up;
+   - a reverse cross-reference from *Opus specifics* to *Frontier escalation*;
+   - meta-commentary that the kept points "carry over unchanged";
+   - the "No AKILI persona or command emits or consumes this line" paragraph;
+   - "never asked of the model to compute or restate".
+
+**Leader disposition:** under *Advisory Never Becomes A Task*, none of these is reopened in this spec. Advisory 1 is a candidate for the kaizen retrospective at archive. Advisory 4's misdescription is surfaced to the user at the gate as a candidate for a quick follow-up.
+
+**Final verification:** checks 1–8 are green on the final tree.

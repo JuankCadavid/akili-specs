@@ -102,10 +102,11 @@ models. When models change, edit only this table. *Registry updated: 2026-09.*
 
 > **Worked example — the Opus 5 release required zero edits to this table.** When Anthropic shipped
 > Claude Opus 5, the `opus` alias moved to it on its own; T1/T3 followed automatically. That is the
-> alias-first rule paying off (first row of the *Replacing a model* runbook: **do nothing**). What
-> a new generation *does* require is re-reading the **Effort dial** and the behavioural notes below
-> — the tier mapping survives model churn, but the per-task effort defaults and the prompt-level
-> guardrails do not.
+> alias-first rule paying off (first row of the *Replacing a model* runbook: **do nothing**). The
+> same held when Opus 5.5 shipped: the alias moved again, and this table again needed zero edits —
+> a second confirmation of the rule, not a one-off. What a new generation *does* require is
+> re-reading the **Effort dial** and the behavioural notes below — the tier mapping survives model
+> churn, but the per-task effort defaults and the prompt-level guardrails do not.
 
 **Alias-first rule: never pin a dated model name where a floating alias exists.** Claude Code's
 `opus` / `sonnet` / `haiku` aliases always resolve to the latest version of each family — when
@@ -272,9 +273,10 @@ the execute/test Leader) and T3 (Auditor).
 **Each Opus generation raises the bar for escalating.** Opus 5 closed much of the gap on exactly the
 work this tier existed for — deep reasoning, long-horizon agentic runs, and bug-finding — at half
 Fable's price. Treat escalation as a decision to **re-justify on every generation**, not a standing
-configuration: try the current `opus` at `xhigh` or `max` first, and pin the frontier model only if
-a concrete spec demonstrably fails there. A pin inherited from a previous generation is a pin worth
-re-testing.
+configuration: try the current `opus` at `xhigh` or `max` first — this trial **is** the measured-gain
+case *Opus specifics* asks for before reaching for `xhigh`/`max`, not an exception to it — and pin
+the frontier model only if a concrete spec demonstrably fails there. A pin inherited from a previous
+generation is a pin worth re-testing.
 
 | Slot | Default (alias) | Frontier escalation pin | Fallback |
 |---|---|---|---|
@@ -356,13 +358,21 @@ representative model (GPT-5.6 Sol, Artificial Analysis Intelligence Index):
 | T3 **Reviewer** / `/akili-validate` | `high` (auditor thoroughness) |
 | T5 `/akili-archive` / setup steps | `low` |
 
+Where a model family deviates from these defaults, see *Sonnet specifics* / *Opus specifics* below.
+
 **Re-baseline these defaults on every model generation — the tier mapping survives model churn, the
 effort defaults do not.** The table above is calibrated for AKILI's shape: tasks arrive *already
 decomposed and spec-bounded* from `/akili-specify`, which is exactly the case where a mid-range
 effort holds up. Vendor guidance for a frontier model is written for the opposite case — one
-open-ended agentic request with no spec — and therefore starts higher (for Claude Opus 5, the
-published starting points are **`xhigh` for coding and agentic work, `high` elsewhere, then sweep
-down**). Both are right for their context. The reconciliation:
+open-ended agentic request with no spec. For Claude Opus 5.5, the published starting point for that
+case is now **`medium`** (see *Opus specifics* below); the previous generation, Opus 5, published
+**`xhigh` for coding and agentic work, `high` elsewhere**, and that pairing is now history, not
+current guidance. The vendor's own starting point no longer exceeds AKILI's mid-range for the
+current generation, so the premise that used to motivate sweeping T1/T3 upward no longer holds as
+stated.
+What it leaves open is whether AKILI's own T1/T3 `high` default, set under the previous generation,
+still earns its cost — that question **awaits the sweep** below rather than a same-generation
+assumption. The reconciliation:
 
 - **Sweep, don't assume.** On a new generation, run the same spec at `medium`, `high`, and `xhigh`
   and keep the cheapest level whose Reviewer outcome holds. Effort defaults inherited from a
@@ -372,7 +382,8 @@ down**). Both are right for their context. The reconciliation:
   `medium` default rather than pushing it up. Raise the Implementer to `xhigh` for the task
   signals in the policy table above, not by default.
 - **Where a task arrives under-specified** — a `[~]` resume with thin `execution.md` context, or a
-  Pivot Protocol retry — it is closer to the vendor's open-ended case. Start it at `high`/`xhigh`.
+  Pivot Protocol retry — thin context is itself the condition that costs the most from
+  under-thinking, on any generation. Start it at `high`/`xhigh`.
 
 **Effort is not a verbosity dial.** On current-generation models, lowering effort does **not**
 reliably shorten user-facing output — it changes how much the model *thinks*, not how much it
@@ -389,7 +400,7 @@ when it already failed) and it targets the usual cause (under-thinking, not miss
 advantage. Historical illustration from the **previous (4.8) generation** — kept because the numbers
 were measured, not because that ladder is current: Sonnet 5 at `max` (53 intel / $1.53) approached
 Opus 4.8 at `max` (56 intel / $1.80) — near-Opus price for below-Opus intelligence. The rule the
-figures demonstrate is stable across generations (the current `opus` alias resolves to Opus 5): if
+figures demonstrate is stable across generations (the current `opus` alias resolves to Opus 5.5): if
 you find yourself wanting a cheaper tier at `max`, escalate the **tier** (to `opus` at
 `high`/`medium`) instead of the effort.
 
@@ -398,12 +409,53 @@ it scopes work to exactly what was asked. If you see shallow reasoning on a hard
 the effort, don't prompt around it**. `high` is the default sweet spot; give `max_tokens` headroom
 at `xhigh`/`max` (thinking consumes the budget — too tight truncates with `stop_reason: max_tokens`).
 
-**Opus specifics.** On Opus the nuance inverts: start high and iterate **down** — more effort up
-front often *reduces* total turns and total cost on agentic work, because the model plans better and
-re-does less. Two consequences for the AKILI loop: (1) the **rework bump** (above) is the cheapest
-place to spend effort, since it only fires after a failure; and (2) `max` is for the
-correctness-critical and latency-insensitive case only — it can overthink a routine task and is
-where diminishing returns bite hardest.
+**Opus specifics.** Opus 5.5's published starting point is **`medium`**, and the vendor states that
+`medium` already matches the previous generation's `high` on out-of-the-box performance — Opus 5.5
+thinks more per turn than Opus 5 did at the same effort name. Reserve `xhigh`/`max` for a task where
+the higher level's quality gain has actually been **measured**, not assumed from the generation
+change — the *Frontier escalation tier* trial above is exactly that measurement. To get the model to
+think less, **lower the effort level first**, before trying to prompt it into less thinking. Effort
+level names are **not portable across generations**: a level carried over from a previous generation
+is a guess, not a calibration. Give `max_tokens` headroom at `xhigh`/`max` — thinking counts against
+that budget, and too tight a ceiling truncates with `stop_reason: max_tokens`. Source: [Prompting
+Claude Opus
+5.5](https://platform.claude.com/docs/es/build-with-claude/prompt-engineering/prompting-claude-opus-5-5),
+fetched 2026-09-29.
+
+**AKILI-measured: none yet (2026-09-29)** — update this line once the first AKILI sweep (*Sweep,
+don't assume*, above) confirms or revises the `medium` starting point on a real spec.
+
+Two consequences carry over unchanged from the previous generation, and neither depends on the old
+higher starting point: (1) the **rework bump** (above) is the cheapest place to spend effort, since
+it only fires after a failure; and (2) `max` is for the correctness-critical and latency-insensitive
+case only — it can overthink a routine task and is where diminishing returns bite hardest.
+
+## Time signals (harness capability, optional)
+
+Some harnesses can append a line such as `elapsed 340s / 1200s` to every message returned to the
+model, so the model can see how much of its time budget remains without asking. This is a
+**harness capability, not a prompt instruction** — nothing in a system prompt or persona can produce
+this line; only the harness that owns the turn loop can inject it, because only the harness knows
+elapsed wall-clock time and any external budget.
+
+- **Format.** `elapsed <n>s / <budget>s` (or an equivalent the harness already emits), appended to
+  the content the model sees on its next turn — never asked of the model to compute or restate.
+- **Advisory, not a hard stop.** The signal tells the model a budget exists; it does not enforce
+  one. A harness that needs a hard stop still needs its own timeout — the signal alone cannot cut a
+  turn off.
+- **Exclude the Reviewer.** Do not attach a time signal to a Reviewer's turn: under time pressure a
+  model searches and verifies less, which is exactly the failure mode the Reviewer exists to catch.
+  A time-pressured auditor is a weaker auditor.
+- **Fallback for a harness that can show elapsed time but not a budget.** If the harness can report
+  elapsed time but has no budget to predict, it should say so plainly (e.g. `elapsed 340s, no budget
+  set`) rather than fabricate a total — a fabricated budget is worse than none.
+
+**No AKILI persona or command emits or consumes this line.** It is documented here for a maintainer
+wiring a custom harness, not for the packaged personas, which name nothing about it.
+
+Source: [Prompting Claude Opus
+5.5](https://platform.claude.com/docs/es/build-with-claude/prompt-engineering/prompting-claude-opus-5-5),
+fetched 2026-09-29.
 
 ## Review intensity (third dimension)
 

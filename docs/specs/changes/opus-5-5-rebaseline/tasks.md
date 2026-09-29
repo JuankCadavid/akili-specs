@@ -30,7 +30,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe** (a width of 2â
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: rewrites load-bearing routing guidance, and **replaces delivered guidance** (DD-1, the reversion challenge was run) |
 | Depends on | none |
