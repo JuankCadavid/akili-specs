@@ -12,6 +12,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - `scripts/` contains helper scripts, including `scripts/release.js`, which prepares controlled npm package releases.
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
 - `README.md` documents installation and methodology usage.
+- Default Branch: master
 
 ## Development Rules
 
