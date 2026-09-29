@@ -53,7 +53,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: persona text is re-read on every spawn in every downstream project; the task **removes delivered behavior** (DD-1, reversion challenge run) and defines a report status the Leader acts on (overrides a, b and d) |
 | Depends on | none |
@@ -78,7 +78,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Command | **1.** `grep -c "until it passes" T/implementer.md` → **0** (B1 = 1). **2.** `grep -c "multiple inner-loop attempts" T/implementer.md` → **0** (B2 = 1). **3.** `grep -c "STATUS: CHECKPOINT" T/implementer.md` → **≥ 1** (B3 = 0). **4.** Each of the seven field names appears: `for f in "Bound reached" "Done" "Remaining" "Tree state" "Tried and failed" "Next step" "Notes"; do grep -c "$f" T/implementer.md; done` → each **≥ 1**. **5.** `grep -c "the turn ran long" T/implementer.md` → **1** (B14 = 1, a guard). **6.** `grep -c "ABSOLUTELY PROHIBITED" T/implementer.md` → **1** (a guard: the prohibition stays). **7.** `wc -c T/implementer.md` reported against T1's share, **≤ 12,154** (B5 + 1,500). **8.** `git diff --stat` → one file |
+| Command | **1.** `grep -c "until it passes" T/implementer.md` → **0** (B1 = 1). **2.** `grep -c "multiple inner-loop attempts" T/implementer.md` → **0** (B2 = 1). **3.** `grep -c "STATUS: CHECKPOINT" T/implementer.md` → **≥ 1** (B3 = 0). **4.** Each of the seven field names appears: `for f in "Bound reached" "Done" "Remaining" "Tree state" "Tried and failed" "Next step" "Notes"; do grep -c "$f" T/implementer.md; done` → each **≥ 1**. **5.** `grep -c "the turn ran long" T/implementer.md` → **1** (B14 = 1, a guard). **6.** `grep -c "ABSOLUTELY PROHIBITED" T/implementer.md` → **1** (a guard: the prohibition stays). **7.** `wc -c T/implementer.md` reported against T1's share, **≤ 12,400** (raised from 12,154 during execution, 2026-09-29: the attempt 1 review required four restorations that do not fit in one byte; the requirement's cap, 13,154 for the file, is unchanged). **8.** `git diff --stat` → one file |
 | Falsifier | Checks 1 to 4 fail on `c94e6b6` (B1 to B3 run). Checks 5 and 6 pass on `c94e6b6`, so they are guards and prove nothing alone. **Executed falsifier required**, on a scratch copy outside the working tree: **(a)** delete the *Notes* row → check 4 must read 0 for `Notes`; **(b)** re-insert the old sentence "until it passes" → check 1 must read 1 |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | Greps count strings, not meaning. **Read item 2 and item 4 whole** after the edit (KZ-changes--leader-brief-contract-1). The evidence is void if any surviving sentence still tells the worker to keep re-running without limit, if the list of legitimate stops and the list of premature stops contradict each other, or if `FATAL_FAIL`'s terms changed. The P-13 reading is void if the 80 calls were uniform, or if the worker kept a written tally |
