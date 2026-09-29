@@ -138,7 +138,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe** (a width of 2â
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS |
 | Review | `checklist`: one CHANGELOG paragraph plus mechanical re-runs |
 | Depends on | T1, T2, T3 |
