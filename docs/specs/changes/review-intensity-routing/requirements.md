@@ -8,12 +8,13 @@
 | Depth | **Standard** |
 | Type | Change |
 | Approval Mode | `gated` — inherited from `proposal.md` |
-| Status | Draft — awaiting the Step 1.3 gate |
+| Status | Approved — the Step 1.3 gate was passed on 2026-09-19 (`design.md` and `tasks.md` were written against these requirements and nine tasks executed; §4 records the scope "approved at the Step 1.3 gate"). The header was left at "Draft" and the option chosen was not recorded at the time; corrected at validation 2026-09-29 on the user's instruction (`validation-report.md` W1) |
 | Date | 2026-09-19 |
 | Source | `proposal.md` revision 2 (commit `a909216`), Option B: skip gated on proven verification, plus an always-on evidence re-run |
 | Why not Full depth | The depth table routes "risky" work to Full. The risk here is real but **concentrated in one decision** — the skip predicate — rather than spread across data, API, auth, or migration surfaces. Full's three distinguishing contents are pulled into Standard instead of adding document weight: rollout as FR-9's trial, observability as FR-9's escaped-defect metric, rollback as FR-9's abort criterion. Re-checked at Step 2.4 |
 | Format precedent | `docs/specs/archive/2026-09-19-changes--leader-brief-contract/requirements.md`. This repo has **no** `docs/specs/general-setup/` (`ls docs/specs/general-setup/` → `No such file or directory`, run at `a909216`); `docs/prd.md`, `docs/ux-ui/design.md` and `docs/trd/trd.md` do not exist here either |
 | Adjacent specs | `changes/scoped-constitution-reads` (proposal only) owns `.claude/templates/implementer.md` and `tester.md` — disjoint from this spec's files (NFR-7). Both add a `CHANGELOG.md` `Unreleased` entry: **merge serially** |
+| Validation correction (2026-09-29) | Every "14 held-out records" in this document reads **12**: `gate-falsifiability` 6 + `leader-brief-contract` 6. The "(8)" in the *Validation corpus* row counts `execution.md` headers, not task records. No requirement's meaning changes |
 | Depends on | `changes/gate-falsifiability` (shipped, v2.25.0) — FR-1's predicate leans on its Falsifiability block |
 | Validation corpus | Ten archived specs under `docs/specs/archive/` carry an `execution.md` with per-task records — **54** task records across `ai-agent-development-skill` (6), `goal-driven-execution` (1), `spec-family-ordering` (6), `audit-phase-tier-drift` (5), `branch-safe-kaizen` (6), `codex-install-target` (7), `model-routing-cost-rebaseline` (2), `gate-falsifiability` (6), `kaizen-loop-closure` (7), `leader-brief-contract` (8), plus `changes/premise-ledger` (10, unarchived). Re-counted at judgment round 1, finding S-2: the earlier figure said ~59 and overcounted the two newest specs. **Usable corpus is much smaller (finding S-4):** FR-1 reads the `Falsifier` / `Consumers` / `Disqualifier` fields, which `changes/gate-falsifiability` introduced on 2026-09-18, so eight of the ten archived specs carry **zero** `Consumers` fields. Only `gate-falsifiability` (6) and `leader-brief-contract` (8) can be run through the predicate as written — **14 held-out records**, plus `premise-ledger`'s 10, which are cited and therefore not held out. **Held-out discipline:** the shipped text may cite `premise-ledger` tasks only; every other spec's tasks are reserved for the closure walkthrough and must never be named in shipped text |
 
@@ -297,7 +298,7 @@ The spec SHALL state:
 - that every trial spec reports its **escaped defects** (§3) alongside its `REVIEW_SKIPPED` count;
 - that the trial reports the **falsifier execution rate** before and after;
 - an **abort criterion**: what escaped-defect result reverts the change, decided at approval rather than after the data arrives;
-- that the closure gate evaluates the predicate against the **14 held-out task records** that carry the fields FR-1 reads, and states that limit rather than implying the full corpus (DD-11).
+- that the closure gate evaluates the predicate against the **14 held-out task records** that carry the fields FR-1 reads, and states that limit rather than implying the full corpus (DD-11). *(Corrected at validation 2026-09-29: the held-out base is **12**, not 14 — `leader-brief-contract` has 6 task records, and its two extra `execution.md` headers are a re-opened task and a second attempt. Established in `closure.md` §1; `validation-report.md` W2.)*
 
 The `kaizen` Measure table SHALL gain a row for tasks closed under `REVIEW_SKIPPED` and a row for escaped defects, and its **clean-run predicate SHALL NOT classify a run as clean** when it contains a skipped task with an escaped defect — such a run is precisely the one whose retrospective must not be skipped.
 

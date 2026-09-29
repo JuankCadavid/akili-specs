@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/review-intensity-routing` |
 | Depth | Standard |
-| Status | Draft — awaiting the Step 3.3 gate |
+| Status | Approved — the Step 3.3 gate was passed on 2026-09-19 (`execution.md` started the same day against this task list, and T9 cites the trial's terms "as approved by the user at the Step 3.3 gate"). The header was left at "Draft" and the option chosen was not recorded at the time; corrected at validation 2026-09-29 on the user's instruction (`validation-report.md` W1) |
 | Date | 2026-09-19 |
 | Source | `requirements.md` (FR-1..FR-11, NFR-1..8), `design.md` (budget §13: 9 tasks · ~120 shipped lines · 10 review rounds), `judgment.md` (round 1, **approved**) |
 | Baselines | Every count in a `Command` or `Falsifier` cell was **run at `c87187f` before it was written** (KZ-changes--leader-brief-contract-2). Readings: `REVIEW_SKIPPED` = 0 in every target file · `never collapse it` = 1 in `leader.md` · `effort ceiling` = 0 in `reviewer.md` · `skip-eligible` = 0 in `akili-specify.md` and `akili-constitution.md` · `review intensity` = 0 in `docs/model-routing.md` · `REVIEW_WAIVED` = 6 in `akili-execute.md` · `No unreleased changes yet` = 1 in `CHANGELOG.md` |
@@ -31,7 +31,7 @@ T1 → T2 are **sequential** — same file. T3, T4, T5, T6, T7 run after T1, eac
 
 **Grep hazard (all tasks).** Run from the repo root. Exclude `.claude/worktrees/`, `docs/specs/archive/`, and this spec's own folder, which quotes superseded phrasing verbatim. Every recursive grep carries `--exclude-dir=worktrees`.
 
-**Held-out discipline (all tasks — DD-11).** The closure gate in T9 evaluates the predicate against the **14 held-out task records** that carry the fields FR-1 reads: `docs/specs/archive/2026-09-18-changes--gate-falsifiability/` (6) and `docs/specs/archive/2026-09-19-changes--leader-brief-contract/` (8). **No shipped file may name either spec or any of its tasks.** Shipped text may cite `changes/premise-ledger` only, because this spec's documents already cite it.
+**Held-out discipline (all tasks — DD-11).** The closure gate in T9 evaluates the predicate against the **14 held-out task records** that carry the fields FR-1 reads: `docs/specs/archive/2026-09-18-changes--gate-falsifiability/` (6) and `docs/specs/archive/2026-09-19-changes--leader-brief-contract/` (8). **No shipped file may name either spec or any of its tasks.** *(Corrected at validation 2026-09-29: the held-out base is **12**, not 14 — `leader-brief-contract` has 6 task records, and its two extra `execution.md` headers are a re-opened task and a second attempt. Established in `closure.md` §1; `validation-report.md` W2.)* *(Same correction: this sentence is stricter than `requirements.md` §1, which reserves the held-out specs' **task records** only. The requirement governs; two lines that name the specs predate this spec and are not violations — `closure.md` §2, gate (d).)* Shipped text may cite `changes/premise-ledger` only, because this spec's documents already cite it.
 
 **Pre-review restatement sweep (T1–T8).** Before a Reviewer is spawned, the Leader greps the edited file for the superseded phrasing named per task and reads whole every paragraph that received an insertion (KZ-changes--leader-brief-contract-1).
 

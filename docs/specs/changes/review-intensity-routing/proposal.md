@@ -19,7 +19,7 @@
 | Type | **Change** |
 | Approval Mode | `gated` (no up-front end-to-end mandate given) |
 | Date | 2026-09-19 |
-| Status | Draft — **revision 2**, awaiting approval |
+| Status | Approved — the proposal gate was passed on 2026-09-19 (revision 2 was taken into `/akili-specify` the same day, commit `3103229`). The header was left at "Draft" and the option chosen was not recorded at the time; corrected at validation 2026-09-29 on the user's instruction (`validation-report.md` W1) |
 | Revision note | Revision 1 gated the skip on a four-category ladder. Rejected during review with the user: it moved two variables toward less quality at once (cheaper Implementer **and** no Reviewer) on a class of tasks defined by size rather than by evidence. Revision 2 gates the skip on proven verification instead, and adds the always-on evidence re-run |
 | Depends on | `changes/gate-falsifiability` (**shipped**, v2.25.0) — this proposal leans directly on its Falsifiability block, which is what makes "executed falsifier" a thing a task can be required to have |
 | Parallel-safe | **yes** with `changes/scoped-constitution-reads`: that spec owns `.claude/templates/implementer.md` and `tester.md` and states "No change to the Reviewer" and no change to the Leader's load order. This proposal owns `leader.md` and `reviewer.md` and **deliberately does not touch `implementer.md`** (§6). Both add a `CHANGELOG.md` `Unreleased` entry — merge serially |

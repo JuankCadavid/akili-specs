@@ -799,6 +799,8 @@ Gates (a)–(g) pass, with (d)'s discrepancy stated rather than resolved silentl
 
 **Final status: 9 of 9 `[x]`.** Every task closed on a Reviewer `PASS` from an independent context on a different model — `author ≠ auditor` held on all nine, Implementer at T2 `sonnet` throughout with **no tier escalation on any task**, Reviewer at T3 `opus`. **No `REVIEW_WAIVED` and no `REVIEW_SKIPPED` record was written**: the gate was never lost, and never earned away.
 
+*(Corrected at validation 2026-09-29: the log records **four** Reviewer `FAIL` verdicts — T1, T2, T5 and T3, attempt 1 each — which is what 13 rounds over nine tasks implies. The "Five" below does not reconcile with it; the four reworked tasks are T1, T2, T3, T5.)*
+
 **Why the overrun.** Five Reviewer FAILs, and four shared one shape: a rule inserted beside a surviving neighbour that contradicts it, or an obligation whose named mechanism cannot deliver it. **Three of those were defects in the approved documents, not in the implementation** — FR-10 undelivered by any shipped sentence; FR-5 naming a Verification Checklist that provably runs *after* the gate it was meant to guard; and two Premise Ledger entries (P-7, P-15) verified by reading a source only as far as the clause that agreed with them. The budget assumed two rework rounds for a prose spec with one definition and eight citing surfaces; it needed three, because the spec itself carried defects that only surface when someone executes it literally.
 
 **Two scope additions**, both escalated and both user-approved: the Step 3.3 presentation site (T5) and surface 15b, `/akili-archive`'s signal list (T8). Neither was absorbed by widening a task.

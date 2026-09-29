@@ -119,6 +119,25 @@ Per `tasks.md` T9's Falsifier cell: on a scratch copy of the shipped Step 2.3 bl
 
 **This is reported as a genuine finding, not a skipped step.** `tasks.md` T9's Falsifier cell asserts the flip as the expected outcome; the actual held-out corpus does not produce it, because conditions 2 and (c) are not independent on this task class — they are two mechanisms pointed at the same failure mode (a walkthrough is neither deterministic nor consumer-free) and either alone is sufficient to exclude it. The predicate is, if anything, **more robust** than a single-override read would suggest for this task class, but the specific mutation `tasks.md` prescribes does not isolate override (c)'s marginal contribution on the evidence available. No held-out record in the corpus has override (c) as its *sole* disqualifying factor — every candidate also independently fails condition 2. This is recorded for the retrospective as a limitation of the mutation-falsifier's design against the actual corpus, not as a defect in the predicate itself: the predicate still correctly excludes both records before and after the mutation.
 
+### Validation addendum (2026-09-29) — the condition-2 mutation
+
+`execution.md` open item 4 named the mutation that would isolate text-sensitivity. It was executed at validation, on a scratch copy of `.claude/commands/akili-execute.md` that was discarded after use.
+
+**Mutation.** One clause deleted from condition 2:
+
+```
+< | 2 | … a command with a pass/fail result; the task's `Disqualifier` names no read or judgment |
+> | 2 | … a command with a pass/fail result |
+```
+
+| Record | Cond. 1 | Cond. 2 under mutation | Cond. 3 | Overrides | Verdict before → after |
+|---|---|---|---|---|---|
+| This spec's **T6** | passes — falsifier executed, red recorded (`execution.md` T6 walk) | **passes** — three greps and a `numstat`; the `Disqualifier`'s "read it" is no longer excluded | passes — `none (no shared symbol changed)` | none: the task cites an obligation defined elsewhere and creates none | *review required* → **qualifies** |
+| Held-out `leader-brief-contract` T5 | **fails** — its `execution.md` record names no executed falsifier | — | passes | (c) plausible | *review required* → *review required* |
+| Held-out `gate-falsifiability` T4 | **fails** — no executed falsifier recorded | — | ambiguous | — | *review required* → *review required* |
+
+**Result: one flip.** T6's verdict moves with the text, which is what the original mutation could not show. T6 is a cited record, not a held-out one, so this demonstrates that the walk reads the text; it adds nothing to the held-out evidence base. The two held-out records with `Consumers: none` and no certain override stay excluded on condition 1, which the first walk did not need to evaluate because condition 2 failed first.
+
 ---
 
 ## 6. The trial's terms — recorded verbatim (FR-9, DD-10)
@@ -137,6 +156,9 @@ Per `tasks.md` T9's Falsifier cell: on a scratch copy of the shipped Step 2.3 bl
 | Tasks | 9 | 9 | 0 |
 | Shipped lines | ~120 | `git diff --stat c87187f..HEAD -- . ':!docs/specs'` → **136 insertions / 40 deletions, 17 files** (re-verified) | +16 / +40 |
 | Review rounds | 10 | **12** | +2 |
+
+*Corrected at validation 2026-09-29: 12 was the count when this document was written, before T9's own review round. The final total is **13** (`execution.md` §3) — nine tasks plus four rework rounds.*
+
 
 **Cause, on record.** Three of the first five reviewed tasks needed rework (T1, T2, T3), and two of those `FAIL`s were defects in the **approved documents**, not the implementation: FR-10 bullet 1 was undelivered by the shipped text alone (T2 attempt 1), and FR-5's own wording had named a mechanism (the Verification Checklist) that runs *after* the gate it was meant to guard (T5 attempt 1). The tripwire fired mid-run (during T3); the user was presented the delta and chose to continue and accept the overrun.
 
