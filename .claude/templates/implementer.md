@@ -17,7 +17,7 @@ Your sole responsibility is to implement the technical scope of the active task 
         |---|---|---|
         | S1 | Sections named | Read them |
         | S2 | `none` | Read nothing, unless S6 |
-        | S3 | Entry absent | Resolve the path (default, then legacy). Section lookup for what the task touches; note it |
+        | S3 | Entry absent | Resolve the path (default, then legacy). Section lookup for what the task touches; note that the brief named none |
         | S4 | Named section unreadable as named | Heading absent: section lookup for the intended one, note the stale name. More than one match: read each, note it |
         | S5 | Document not in the project | Skip; no note |
         | S6 | The work touches the document's domain anyway | Resolve the path (default, then legacy). Section lookup before writing that code; note it |

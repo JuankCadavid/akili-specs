@@ -8,7 +8,7 @@
 | Approval Mode | `gated` |
 | Started | 2026-09-29, at `e011068` on `master` |
 | Budget (design §9) | 4 tasks · ~55 shipped lines · 6 review rounds. **Review rounds extended to 8 by the user, 2026-09-29** (see *Budget Tripwire*, under T2) |
-| Review rounds used | 9 of 9 (T1: 3 · T2: 2 · T3: 2 · T4: 2). Budget extended to 8, then to 9 |
+| Review rounds used | 11 of 11 (T1: 3 · T2: 2 · T3: 2 · T4: 2 · T1 reopened: 2). Budget extended to 8, 9, 10 and 11 |
 | Workers | No Step 8E wrappers and no `## Model Routing` registry in this repository. Fallback spawns seeded from `.agents/`: Implementer on `sonnet`, Reviewer on `opus` (author ≠ auditor) |
 | Sequencing | T1, T2 and T3 are parallel-safe by file, and are run **serially**: each task's verification holds a `git diff --stat` check that lists its own files only, which a sibling editing the same tree would falsify |
 
@@ -489,3 +489,126 @@ Three figures in this log were wrong as first written. All three were the Leader
 | §3 Kaizen list | Four were content held in a sentence or row | Three, now named | T2's FAIL was an added reason clause, and T4's was an added sentence; neither was dropped content |
 
 Correction closure: the superseded values were searched across the spec folder. `36 insertions` and `Six` had no other site. `test-report.md` and `closure.md` do not cite them.
+
+## 5. Reopened After Validation
+
+### T1 (reopened): the Implementer's S3 row — PASS on attempt 2
+
+| Field | Value |
+|---|---|
+| Date | 2026-09-29 |
+| Cause | `validation-report.md` F-1 and F-2: the Implementer persona's S3 row says "note it". FR-3 requires the report to state that the brief named no section. The earlier T1 PASS stands as recorded; the defect was found after it |
+| Decision | **User, 2026-09-29: "lo que bloquea y adelante con el commit"**, choosing option 1 of the validation summary: fix only what blocks archive (R-1 and R-2) |
+| Scope | R-1: the S3 cell of `.claude/templates/implementer.md`. R-2: `closure.md` evidence, namely the H2 re-walk, the two quotes that are not shipped text, and one figure. Not in scope: W-1 to W-10, the CHANGELOG range |
+| Budget | Review rounds extended from 9 to 10. The validation summary stated the fix would be round 10, and the user chose it |
+| Status in `tasks.md` | T1 set to `[~]` until the reopened work closes |
+| Execute-time spec edit | `design.md`, DD-3 table, S3 Implementer cell: "note it" became "note that the brief named none", recorded in `design.md` §12. It does not change what FR-3 means; it restores a clause the cell had dropped. Carried to the Reviewer as a named conformance check |
+| Skills | `cognitive-doc-design` |
+
+#### Attempt 1 — Reviewer `FAIL`
+
+| Field | Value |
+|---|---|
+| Effort | `high` |
+| Files changed | `.claude/templates/implementer.md`: the S3 cell, one line · `closure.md`: 8 lines, the four named corrections and one found by the Implementer's own sweep (a quoted "skip; no note" corrected to the shipped "Skip; no note") |
+| runtime events | none |
+| Implementer verification | T1 checks 1–11 reported passing, each number labeled by file: **1** 0/0 · **2** 0/0 · **3** 1/1 · **4** 0 and 0 · **5** 1 · **6** 4 and 3 · **7** S1 1/1, S2 1/1, S3 1/1, S4 1/1, S5 2/2, S6 3/4 · **8** 10,654 and 8,867 bytes · **9** 0/0 · **10** no hit · **11** B10 hashes match. `grep -c "named none"` in `implementer.md` → 1. `verify:cli`, `pack:dry-run` and `git diff --check` at exit 0 |
+| Executed falsifier | (a) S4 row deleted → `grep -c S4` read 0 · (b) old sentence re-inserted → check 1 read 1 · (c) not applicable, `tester.md` not edited. Walk: legacy path removed → H2 moved to S5, "Skip; no note" |
+| `Not Done / Assumptions` | Field absent from the report |
+| Evidence re-run | **VERIFIED**. Leader-inline; every output identical to the report |
+| Reviewer verdict | `STATUS: FAIL`, one issue (below, verbatim). R-1 found conforming |
+
+**Reviewer report, verbatim:**
+
+> STATUS: FAIL
+>
+> SUMMARY: The R-1 cell conforms. The S3 Implementer cell now reads "…Section lookup for what the task touches; note that the brief named none". That matches FR-3's S3 cell ("report that the brief named none") and the scenario's "IT MUST state in its report that the brief named no section". The lookup clause covers the scenario's "finds the design-token section by bounded lookup and reads it". The *Aesthetics* bullet ("read at the sections item 1 sends you to; that obligation to comply stays") covers "must NOT ship styling without having read the project's tokens".
+>
+> I read item 1 whole. The cell agrees with the note sentence ("records what was read … never a reason to write `Not Done / Assumptions` … trailing clause in your **Task Completed** field") and with *Reporting Completion* item 1. Nothing in item 1 can be read as sending the note to `Not Done / Assumptions`, so T1's Disqualifier is not triggered.
+>
+> - **DD-3 amendment:** the DD-3 amendment matches FR-3 and does not change its meaning.
+> - **Size and scope:** `implementer.md` is 10,654 bytes (HEAD 10,631, cap 10,805). The only change in `.claude/` is this one line, with no hunk in `tester.md`, the command files or `CHANGELOG.md`.
+> - **Quotes:** every quoted passage in `closure.md` §3b and §4 appears byte-identical in the named file (18 greps, each ≥1). The `akili-execute` ellipsis quote only leaves words out; it joins no two sentences.
+> - **Figures:** the §8 arithmetic is correct (9,000 − 8,338 = 662; 13,668 − 13,000 = 668).
+> - **Walks:** I re-walked H1 and H2 against the corrected row. Both reach the T4 Expected outcome, and H2's note is now literally in the shipped text.
+> - **Expected column:** it was not changed to fit the outcomes.
+>
+> The one gap is correction closure: `closure.md` still records the old S3 wording in two places.
+>
+> ISSUES:
+> 1. **Discovered Issue:** `closure.md` still describes the Implementer's shipped S3 row with its pre-correction action, in two places:
+>    - §3a line 68: "…section lookup for what task touches; note it | Yes". Line 73 and §10 then say "No divergence found from `design.md` DD-3 in any of the 12 cells".
+>    - §4 line 98: "S3: resolve path, lookup for what the task touches, note it".
+>
+>    So the generic walk records the dropped clause, the exact defect F-1 names, as shipped and conforming to a DD-3 cell that now says otherwise. Criterion 3 in §8 relies on this walk ("all 12 generic states … no divergence"). Because of these rows, `design.md` §12 is also inaccurate where it says "the old cell wording was searched across the spec folder … Its other live site is the S3 row of `.claude/templates/implementer.md`". `grep` finds both closure rows.
+>    * **Violated Rule:** `tasks.md` → `### T4`, step 3: "walk S1–S6 and the cases below against the **shipped text** … and record each outcome in `closure.md`". `design.md` → `## 12. Correction After Validation`: "Correction closure: the old cell wording was searched across the spec folder and the shipped files."
+>    * **Remediation Suggestion:** change the Implementer S3 cell in §3a line 68 and in §4 line 98 to "…; note that the brief named none". That is an evidence-only edit, and it is part of R-2's "re-walked against the corrected text". Then either amend `design.md` §12's closure sentence to name these `closure.md` sites, or keep it as written, since it becomes true once the rows are fixed. Correcting these rows is closure of the defect already approved for repair; it adds no scope.
+>
+> ADVISORY:
+> - READABILITY: the note sentence says "A lookup note records what was read", but the S3 note now also records the brief's silence. FR-3 requires both statements, so this is not a violation. A later edit could say "records what was read and why".
+> - READABILITY (pre-existing, outside this diff): `closure.md` §9 says the Expected entries are "copied verbatim from `tasks.md`". The H1 and H2 cells are abbreviated ("No `Not Done/Assumptions`"; "S3: lookup"), and their meaning is unchanged. "Faithfully abridged" would be accurate.
+
+**Leader's part in this FAIL.** The closure sentence in `design.md` §12 was written by the Leader, and the sweep behind it was too narrow. It searched for the exact cell wording, "Section lookup for what the task touches". `closure.md` holds the same action in lower case and abridged, so the search did not match it. The sweep was keyed on the string, not on the obligation (KZ-changes--kaizen-loop-closure-2). The brief then listed four corrections for `closure.md` and did not name these two rows.
+
+#### Budget Tripwire — review rounds (raised after the reopened T1, attempt 1)
+
+| Field | Value |
+|---|---|
+| Measure | Review rounds. Budget 10 |
+| State when raised | 10 used. The rework needs an eleventh |
+| Tree state at the stop | Uncommitted: `implementer.md` (S3 cell), `closure.md`, `design.md` (DD-3 cell and §12), `tasks.md` (T1 at `[~]`), this log |
+| Reopened T1 attempts | 1 of 3 used |
+| Decision | **User, 2026-09-29: "vamos con tu recomendacion"**, choosing option 1: review-round budget 11, and the rework runs. A FAIL on the eleventh round stops the run again |
+
+#### Attempt 2 — Reviewer `PASS`
+
+| Field | Value |
+|---|---|
+| Effort | `xhigh` (bumped one level after the attempt 1 FAIL) |
+| Before the spawn | The Leader re-ran correction closure, keyed on the obligation, and rewrote the closure paragraphs of `design.md` §12 to say that the first sweep was too narrow. Sites owed: `closure.md` §3a S3 row and §4 silence row, and two summary sentences that rest on them |
+| Files changed | `closure.md` only: the two cells now read "…; note that the brief named none"; the sentence after the §3a table and §10 rewritten to say what the original walk found and what validation found later. `implementer.md` is byte-identical to attempt 1 (Leader, by diff) |
+| runtime events | none |
+| Implementer verification | T1 checks 1–11 reported passing, labeled by file: **1** 0/0 · **2** 0/0 · **3** 1/1 · **4** 0 and 0 · **5** 1 · **6** 4 and 3 · **7** Implementer S1=1 S2=1 S3=1 S4=1 S5=2 S6=3; Tester S1=1 S2=1 S3=1 S4=1 S5=2 S6=4 · **8** 10,654 and 8,867 bytes · **9** 0/0 · **10** no hit · **11** B10 hashes match. `named none` → 1. `verify:cli`, `pack:dry-run` and `git diff --check` at exit 0 |
+| Executed falsifier | T1's (a) and (b) executed on scratch copies: S4 row deleted → 0; old sentence re-inserted → 1. **The walk falsifier was not re-run in this attempt.** The Implementer said so: "re-verified this attempt by inspection, not re-run". It was executed in attempt 1 against the same persona text. The statement was passed to the Reviewer verbatim, who found the `closure.md` §3c record still accurate because the text it depends on was not edited |
+| `Not Done / Assumptions` | Field absent from the report |
+| Evidence re-run | **VERIFIED**. Leader-inline; every output identical to the report |
+| Reviewer verdict | `STATUS: PASS`. No issues |
+
+**Reviewer summary (from the report):** R-1 and R-2 are both met. The S3 cell matches FR-3's cell and the scenario's `AND IT MUST` clause. All twelve cells of `closure.md` §3a were compared with the shipped rows; the abridged cells drop no obligation. Every quotation presented as shipped text is byte-identical in its named file. The Reviewer re-walked H1 and H2 and got the Expected outcomes; the Expected column is unchanged. Its own sweep, keyed on the obligation, found no site beyond the three `design.md` §12 names. NFR-1 holds at +1,849 bytes.
+
+**ADVISORY (final verdict):**
+
+- READABILITY, `closure.md`, the sentence after the §3a table: "which the Leader corrected in both the shipped row and DD-3's S3 Implementer cell" credits the wrong author for the shipped row. The reopened T1's Implementer edited `implementer.md`; the Leader edited only DD-3. **Recorded, not acted on.** It changes no outcome.
+- READABILITY, `design.md` §12, second closure paragraph: the statement that `tasks.md`'s Expected column does not restate the action was not literally true. **Corrected by the Leader**, who wrote the sentence: it is a factual error in the Leader's own record, not new work. The paragraph now says the column restates the action only as "note".
+
+#### T1 (reopened) closing record
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 2) |
+| Attempts | 2 Implementer attempts, 2 Reviewer verdicts (FAIL, PASS) |
+| Models | Implementer `sonnet` · Reviewer `opus` |
+| Final verification | T1 checks 1–11 green on the final tree, re-run by the Leader. `implementer.md` 10,654 bytes, +1,849 against B7, cap 2,000 |
+| Delivery suite | Re-run by the Leader on the corrected tree, install forced into the same scratch targets: 217 assertions passed, 0 failed. All 4 installed copies of `implementer.md` carry "note that the brief named none" |
+| Requirements covered | FR-3: state table S3, Implementer; scenario *A silent brief and a UI task (S3)* |
+| Decisions made | Review-round budget extended to 10 and to 11 by the user. Scope held to R-1 and R-2. Two execute-time spec edits, both in `design.md`: the DD-3 S3 cell, and §12 |
+| Issues encountered | **1.** The Leader's first correction-closure sweep searched an exact string and missed two abridged sites in `closure.md`; it cost one review round. **2.** The walk falsifier was inspected, not re-run, in attempt 2 (above) |
+| Shipped change against `6dacabb` | One line in `.claude/templates/implementer.md`. Spec total is now 35 insertions and 12 deletions across five files, unchanged in count: the line was already in the diff |
+
+## 6. Summary After the Reopened Work
+
+All four tasks are `[x]`. The spec closed with 11 review rounds against a first budget of 6.
+
+| Event | Count |
+|---|---|
+| Reviewer FAIL verdicts | 6: T1 two, T2 one, T3 one, T4 one, T1 reopened one |
+| Evidence MISMATCH | 1: T4 attempt 2 |
+| Defects found by validation after a Reviewer PASS | 1: the S3 cell |
+| Budget extensions approved by the user | 4 |
+
+**Added for the Kaizen retrospective at archive:**
+
+- The S3 defect passed three Reviewers and a literal walk. The design's cell had dropped a clause the requirement holds, and each check compared the shipped text with the design.
+- Two Reviewers had recorded that gap as an ADVISORY. A missing obligation is never an ADVISORY (KZ-changes--gate-falsifiability-2).
+- The delivery suite asserts that a row is present, not what it says.
+- A correction-closure sweep keyed on a string missed two sites (KZ-changes--kaizen-loop-closure-2, this time in the Leader's own sweep).

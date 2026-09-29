@@ -163,3 +163,15 @@ No failure to remediate. No product bug was found.
 Both gaps were accepted at the requirements gate (`requirements.md` §8, *No automated check exists for two classes*). This run adds no new gap.
 
 **Also noted:** `docs/infrastructure.md` does not exist, so there is no `## Local Environment` contract. This suite needs no running stack, so nothing was blocked.
+
+## 10. Re-run After the Reopened T1 (2026-09-29)
+
+Validation found a defect this suite could not see: the Implementer's S3 row was present, and its action was incomplete. The row was corrected. The suite was then re-run on the corrected tree, with the install forced into the same scratch targets.
+
+| Measure | Result |
+|---|---|
+| Install | exit 0. 271 files overwritten |
+| Assertions | 217 passed, 0 failed |
+| Installed copies of `implementer.md` that carry "note that the brief named none" | 4 of 4 |
+
+The limit stated in §7 stands: the suite checks that text is present, not what a row says.

@@ -122,7 +122,7 @@ A table is used because the rule is keyed to a field's states, and a table makes
 |---|---|---|---|
 | S1 | Sections named | Read them | Read them |
 | S2 | `none` | Read nothing, unless S6 | Read nothing, unless S6 |
-| S3 | Entry absent | Resolve the path (§7). Section lookup for what the task touches; note it | Read nothing, unless S6 |
+| S3 | Entry absent | Resolve the path (§7). Section lookup for what the task touches; note that the brief named none | Read nothing, unless S6 |
 | S4 | Named section cannot be read as named | Heading absent: section lookup for the intended one; note the stale name. More than one match: read each; note it | Heading absent: section lookup for the intended one; note the stale name. More than one match: read each; note it |
 | S5 | Document not in the project | Skip; no note | Skip; no note |
 | S6 | The work touches the document's domain anyway | Resolve the path (§7). Section lookup before writing that code; note it | Section lookup only when a scenario in the slice cites the document; note it |
@@ -310,3 +310,13 @@ Four tasks at about 55 lines matches **Standard**. It is not Lite: the state tab
 | J-15 "Same" with no referent | One judge | DD-3 table written out |
 | J-16 Inline-drafted persona | One judge | P-1 |
 | Counts | Both judges | "Five packaged files"; "five lines below"; the 17× wording; the `/akili-test` hit list in `requirements.md` §4 |
+
+## 12. Correction After Validation (2026-09-29)
+
+| Site | Was | Is | Reason |
+|---|---|---|---|
+| DD-3 table, S3, Implementer | "…; note it" | "…; note that the brief named none" | FR-3's state table and its scenario *A silent brief and a UI task (S3)* both require the report to say the brief named no section. The cell had dropped that clause. `validation-report.md` F-1, F-2 |
+
+The requirement is unchanged. The user chose "fix what blocks" at the validation gate. Correction closure, as first run: the old cell wording was searched as an exact string, which found one other live site, the S3 row of `.claude/templates/implementer.md`. That sweep was too narrow. `closure.md` describes the same action in lower case and abridged, in its generic walk (§3a, S3 row) and its cross-read (§4, the row for silence), and the string did not match them. The Reviewer of the reopened T1 found both.
+
+Correction closure, as re-run by the obligation: every passage in the spec folder, the shipped files and `docs/commands/` that describes what the Implementer does or notes on an absent entry. Sites owing the corrected wording: the persona's S3 row, `closure.md` §3a S3 row, and `closure.md` §4 silence row. Two summary sentences in `closure.md` rest on those rows and are re-read with them: the sentence after the §3a table, and §10. No other site owes it. `tasks.md`'s Expected column, and `closure.md` where it copies that column, restate the action only as "note", with no quoted wording; that is compatible with the corrected cell, and the T4 Disqualifier forbids adjusting it. `test-report.md` names the state and not the action. `validation-report.md` and `execution.md` quote the superseded text as history.

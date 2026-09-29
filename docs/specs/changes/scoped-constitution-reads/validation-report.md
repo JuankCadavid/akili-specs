@@ -15,7 +15,9 @@
 
 ## 2. Summary
 
-**Verdict: not archive-ready. One defect remains, and it is small.**
+**Verdict, updated 2026-09-29 after remediation: archive-ready, with accepted WARNs.** F-1 and F-2 are resolved (§13). The verdict as first issued was:
+
+**Not archive-ready. One defect remains, and it is small.**
 
 The Implementer persona's S3 row does not tell the worker to report that the brief named no section. FR-3 requires it twice: in the state table, and in a scenario's `AND IT MUST` clause. The fix is one table cell.
 
@@ -228,6 +230,38 @@ Reused from `test-report.md`; not re-derived.
 | User has reviewed this summary | Pending |
 
 After R-1 and R-2 land and pass review, the spec is archive-ready with accepted WARNs:
+
+```text
+/akili-archive changes/scoped-constitution-reads
+```
+
+## 13. After Remediation (2026-09-29)
+
+The user chose to fix what blocks archive: R-1 and R-2. The work ran as a reopened T1 and closed with a Reviewer `PASS` on its second attempt. The sections above are kept as first issued.
+
+| Item | State | Evidence |
+|---|---|---|
+| F-1, F-2 | **Resolved** | The Implementer's S3 row reads "…; note that the brief named none". `grep -c "named none"` in `implementer.md` reads 1 |
+| R-1 | Done | `execution.md` §5, attempt 1; Reviewer found the cell conforming on both attempts |
+| R-2 | Done | `closure.md`: H1 and H2 re-walked; two quotes replaced with shipped text; "about 700" corrected to 662; the §3a and §4 S3 cells corrected; two summary sentences rewritten |
+| `design.md` DD-3, S3 cell | Corrected, recorded in `design.md` §12 | — |
+| NFR-1 | Still holds | `implementer.md` 10,654 bytes, +1,849 of 2,000 |
+| Build | Still green | `verify:cli`, `pack:dry-run`, `git diff --check` at exit 0 |
+| Delivery suite | Re-run on the corrected tree | 217 passed, 0 failed |
+| R-3, R-4, R-5 (W-1, W-2, W-5 to W-9, the CHANGELOG range top) | **Open, accepted by the user's choice of scope** | For the Kaizen retrospective, or a follow-up proposal |
+| R-6 (W-3, W-4, W-10) | Accepted | — |
+| R-7, Success Criterion 4 | Open | Annotate `proposal.md` §13 at archive |
+| Figure mismatches in `closure.md` | Resolved, except one | The range top in `CHANGELOG.md` and `closure.md` still assumes four sections of the largest size |
+
+**Archive readiness, updated:**
+
+| Criterion | State |
+|---|---|
+| All required tasks `[x]` | Yes |
+| No FAIL unresolved | Yes |
+| WARN findings accepted or followed up | Accepted by the user's choice to fix only what blocks |
+| Tests cover key requirements | Delivery, yes. Behavior, no: accepted gaps G-1 and G-2 |
+| Drift reflected in the spec documents | Yes |
 
 ```text
 /akili-archive changes/scoped-constitution-reads
