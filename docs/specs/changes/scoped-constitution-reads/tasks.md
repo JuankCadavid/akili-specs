@@ -32,7 +32,7 @@ T1, T2 and T3 touch disjoint files, so they are **parallel-safe**. T4 depends on
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: persona text is re-read on every spawn in every downstream project; the task **removes delivered behavior** (DD-1, reversion challenge run) and defines an obligation others execute (overrides a and d) |
 | Depends on | none |
