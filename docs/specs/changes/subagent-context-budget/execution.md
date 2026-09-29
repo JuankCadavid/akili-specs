@@ -9,7 +9,7 @@
 | Started | 2026-09-29, at `81d0d68` on `master` |
 | Leader | This session. Command text: the installed `/akili-execute` |
 | Workers | No Step 8E wrappers in this repository (`ls .claude/agents` → no such directory). Fallback path: a general-purpose worker told to load `.agents/<role>.md`. Implementer on `sonnet`, Reviewer on `opus` |
-| Budget | 5 tasks · ~130 lines · 10 review rounds (`design.md` §9) |
+| Budget | 5 tasks · ~140 lines · 10 review rounds (`design.md` §9, lines raised from ~130 at the T2 Pivot) |
 | Gates | Specify gates 1 to 3: `auto-approved (pre-approved mode)` from the design gate on. Judgment day closed `ESCALATED`; fixes applied, not re-judged, by the user's instruction |
 | Measurement rule | No verification or measurement is run while a worker is active |
 
@@ -121,4 +121,6 @@ Reviewer FAIL findings, attempt 1:
 **Recommended:** A.
 
 **Status:** T2 marked `[~]`. Waiting for the user.
+
+**Resolution (2026-09-29).** The user chose **A**. NFR-1 amended: `implementer.md` +3,400 bytes (cap 14,054), `tester.md` +1,600 (cap 10,467), `reviewer.md` unchanged (cap 11,752). Sweeps run: forward, `grep -n "2,500\|1,200\|13,154\|10,067\|4,600"` over the spec folder, every hit updated or kept as a dated history note; backward, the referrers of NFR-1 (`tasks.md` B5, T2 check 6, T5 check 4; `design.md` §9, §11; requirements OQ-4). No brief had been dispatched for T2, so none is re-issued. T2 returned to `[ ]`.
 

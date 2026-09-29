@@ -9,7 +9,7 @@
 | Approval Mode | `pre-approved (user, 2026-09-29)` |
 | Status | **Approved** — Step 3.3 gate `auto-approved (pre-approved mode)`, 2026-09-29 |
 | Date | 2026-09-29 |
-| Source | `requirements.md` (FR-1..FR-10, NFR-1..5, amended: its §10), `design.md` (budget §9: 5 tasks · ~130 lines · 10 review rounds), `judgment.md` (22 rows, corrected, not re-judged) |
+| Source | `requirements.md` (FR-1..FR-10, NFR-1..5, amended: its §10), `design.md` (budget §9: 5 tasks · ~140 lines · 10 review rounds), `judgment.md` (22 rows, corrected, not re-judged) |
 | Commit prefix | `[SPEC:changes/subagent-context-budget]` |
 
 **Baselines.** Every count below was run at `c94e6b6` before it was written. T stands for `.claude/templates/`, C for `.claude/commands/`.
@@ -20,7 +20,7 @@
 | B2 | `grep -c "multiple inner-loop attempts" T/implementer.md` | 1 |
 | B3 | `grep -c "STATUS: CHECKPOINT"` in `T/implementer.md`, `C/akili-execute.md`, `T/leader.md` | 0 / 0 / 0 |
 | B4 | `grep -c -i "checkpoint"` in `T/implementer.md`, `T/tester.md`, `T/reviewer.md`, `T/leader.md`, `C/akili-execute.md` | 0 / 0 / 0 / 0 / 2 (both are Step 5's *Context checkpoint*) |
-| B5 | `wc -c` of `T/implementer.md`, `T/reviewer.md`, `T/tester.md` | 10,654 / 10,852 / 8,867. Caps: 13,154 / 11,752 / 10,067 |
+| B5 | `wc -c` of `T/implementer.md`, `T/reviewer.md`, `T/tester.md` | 10,654 / 10,852 / 8,867. Caps: 14,054 / 11,752 / 10,467, as raised at the T2 Pivot (first written as 13,154 / 11,752 / 10,067) |
 | B6 | `grep -c -F "Open a full file when you are about to edit it" T/implementer.md`; `grep -c -F "full files are for what it is about to edit" C/akili-execute.md` | 1; 1 |
 | B7 | `grep -c -i "six delegated round trips"` in `C/akili-execute.md`, `T/leader.md`; `grep -c "up to 6 delegated round trips\|up to 12" T/leader.md`; `grep -c "HALTED after 3 attempts" T/leader.md` | 1 / 1; 1; 1 |
 | B8 | `grep -c "3 consecutive FAILs"` in `README.md`, `docs/commands/akili-execute.md`, `docs/flow.md` | 1 / 2 / 1 |
@@ -78,7 +78,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Command | **1.** `grep -c "until it passes" T/implementer.md` → **0** (B1 = 1). **2.** `grep -c "multiple inner-loop attempts" T/implementer.md` → **0** (B2 = 1). **3.** `grep -c "STATUS: CHECKPOINT" T/implementer.md` → **≥ 1** (B3 = 0). **4.** Each of the seven field names appears: `for f in "Bound reached" "Done" "Remaining" "Tree state" "Tried and failed" "Next step" "Notes"; do grep -c "$f" T/implementer.md; done` → each **≥ 1**. **5.** `grep -c "the turn ran long" T/implementer.md` → **1** (B14 = 1, a guard). **6.** `grep -c "ABSOLUTELY PROHIBITED" T/implementer.md` → **1** (a guard: the prohibition stays). **7.** `wc -c T/implementer.md` reported against T1's share, **≤ 12,400** (raised from 12,154 during execution, 2026-09-29: the attempt 1 review required four restorations that do not fit in one byte; the requirement's cap, 13,154 for the file, is unchanged). **8.** `git diff --stat` → one file |
+| Command | **1.** `grep -c "until it passes" T/implementer.md` → **0** (B1 = 1). **2.** `grep -c "multiple inner-loop attempts" T/implementer.md` → **0** (B2 = 1). **3.** `grep -c "STATUS: CHECKPOINT" T/implementer.md` → **≥ 1** (B3 = 0). **4.** Each of the seven field names appears: `for f in "Bound reached" "Done" "Remaining" "Tree state" "Tried and failed" "Next step" "Notes"; do grep -c "$f" T/implementer.md; done` → each **≥ 1**. **5.** `grep -c "the turn ran long" T/implementer.md` → **1** (B14 = 1, a guard). **6.** `grep -c "ABSOLUTELY PROHIBITED" T/implementer.md` → **1** (a guard: the prohibition stays). **7.** `wc -c T/implementer.md` reported against T1's share, **≤ 12,400** (raised from 12,154 during execution, 2026-09-29: the attempt 1 review required four restorations that do not fit in one byte; the requirement's cap for the file was 13,154 then, and 14,054 after the T2 Pivot). **8.** `git diff --stat` → one file |
 | Falsifier | Checks 1 to 4 fail on `c94e6b6` (B1 to B3 run). Checks 5 and 6 pass on `c94e6b6`, so they are guards and prove nothing alone. **Executed falsifier required**, on a scratch copy outside the working tree: **(a)** delete the *Notes* row → check 4 must read 0 for `Notes`; **(b)** re-insert the old sentence "until it passes" → check 1 must read 1 |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | Greps count strings, not meaning. **Read item 2 and item 4 whole** after the edit (KZ-changes--leader-brief-contract-1). The evidence is void if any surviving sentence still tells the worker to keep re-running without limit, if the list of legitimate stops and the list of premature stops contradict each other, or if `FATAL_FAIL`'s terms changed. The P-13 reading is void if the 80 calls were uniform, or if the worker kept a written tally |
@@ -96,7 +96,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[~]` blocked: Pivot Record in `execution.md`, NFR-1 caps |
+| Status | `[ ]` |
 | Size | M |
 | Review | `full`: three personas re-read on every spawn; the task amends delivered read guidance (overrides a and d) |
 | Depends on | T1 (same file) |
@@ -113,7 +113,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Command | **1.** `grep -c "Bounded reads" T/implementer.md T/tester.md T/reviewer.md` → **≥ 1 each** (B12 = 0). **2.** `grep -c "Output discipline" T/implementer.md T/tester.md` → **≥ 1 each**; `T/reviewer.md` → **0**. **3.** `grep -c -F "Open a full file when you are about to edit it" T/implementer.md` → **0** (B6 = 1). **4.** `grep -c -i "section lookup" T/reviewer.md` → **≥ 1** (B11 = 0). **5.** `grep -c "100 lines" T/implementer.md T/tester.md` → **≥ 1 each**; `grep -c "400 lines" T/implementer.md T/tester.md T/reviewer.md` → **≥ 1 each**. **6.** `wc -c` of the three personas → **≤ 13,154 / 11,752 / 10,067** (B5 + caps). **7.** T1's checks 1 to 6 re-run on `implementer.md` → unchanged. **8.** `git diff --stat` → three files |
+| Command | **1.** `grep -c "Bounded reads" T/implementer.md T/tester.md T/reviewer.md` → **≥ 1 each** (B12 = 0). **2.** `grep -c "Output discipline" T/implementer.md T/tester.md` → **≥ 1 each**; `T/reviewer.md` → **0**. **3.** `grep -c -F "Open a full file when you are about to edit it" T/implementer.md` → **0** (B6 = 1). **4.** `grep -c -i "section lookup" T/reviewer.md` → **≥ 1** (B11 = 0). **5.** `grep -c "100 lines" T/implementer.md T/tester.md` → **≥ 1 each**; `grep -c "400 lines" T/implementer.md T/tester.md T/reviewer.md` → **≥ 1 each**. **6.** `wc -c` of the three personas → **≤ 14,054 / 11,752 / 10,467** (B5 + caps, as raised at the T2 Pivot). **7.** T1's checks 1 to 6 re-run on `implementer.md` → unchanged. **8.** `git diff --stat` → three files |
 | Falsifier | Checks 1 to 5 fail on `c94e6b6` (B6, B11, B12 run). **Executed falsifier required**, on scratch copies: **(a)** delete the quoting exception from the no-second-read row → walk the byte-identity rule of item 4 against it: the two must now contradict; **(b)** delete the "failing part" row of *Output discipline* → walk FR-5's first scenario: the worker may now return "failed" with no assertion |
 | Red run | `n/a (no test gate)` |
 | Disqualifier | **Read item 1 whole in all three personas, and item 4 in two.** The evidence is void if a surviving sentence still sends a worker to a whole file over 400 lines, if the Reviewer's rows read as a licence to open files its diff-first rule forbids, if the Tester's `tasks.md` row is unconditional, or if any row of DD-8 or DD-7 for that role is missing (KZ-changes--scoped-constitution-reads-1: compare cell by cell with FR-5 and FR-6, not with the design alone) |
@@ -271,7 +271,7 @@ Every scenario and every `BUT` / `AND IT MUST` clause, with its owner.
 | | Value |
 |---|---|
 | Tasks | 5 |
-| Estimated lines | ~130 |
+| Estimated lines | ~140 |
 | Review rounds budgeted | 10 |
 | PR strategy | Single change set, direct to `master` as this repository's specs have gone. Under 400 lines |
 | First task | T1, starting with the P-13 run |

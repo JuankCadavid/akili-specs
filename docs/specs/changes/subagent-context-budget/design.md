@@ -280,10 +280,10 @@ The worker counts the tool calls it makes and checks the count against 60. The b
 | Number | Value | Basis |
 |---|---|---|
 | Expected tasks | **5** | Implementer loop and checkpoint · load rules in three personas · `/akili-execute` and `leader.md` · mirrors · CHANGELOG and closure walks |
-| Expected lines | **~130** | Personas ~45 (capped by NFR-1 at 4,600 bytes in total), command ~40, `leader.md` ~8, mirrors and `README.md` ~20, CHANGELOG ~15. Raised from ~105 after judgment day added surfaces 20 to 24 |
+| Expected lines | **~140** | Personas ~55 (capped by NFR-1 at 5,900 bytes in total, as raised at the T2 Pivot), command ~40, `leader.md` ~8, mirrors and `README.md` ~20, CHANGELOG ~15. Raised from ~105 after judgment day added surfaces 20 to 24 |
 | Expected review rounds | **10** | Two per task, since every task edits text other agents execute (KZ-changes--scoped-constitution-reads-2) |
 
-**Depth check:** Standard holds. Five tasks and about 130 lines sit inside it.
+**Depth check:** Standard holds. Five tasks and about 140 lines sit inside it.
 
 ## 10. Premise Ledger
 
@@ -319,7 +319,7 @@ The worker counts the tool calls it makes and checks the count against 60. The b
 
 | Risk | Handling |
 |---|---|
-| The persona caps of NFR-1 are tight for three blocks in `implementer.md` | The blocks are tables. T1 and T2 measure bytes before review; an overrun is reported, never trimmed by dropping a row |
+| The persona caps of NFR-1 are tight for three blocks in `implementer.md` | **Realized.** The caps could not hold the blocks; the user raised them at the T2 Pivot (`execution.md`). An overrun is still reported, never trimmed by dropping a row |
 | A respawn repeats the dead end | *Tried and failed* is copied verbatim |
 | Two parallel Implementers share the tree, and contention errors repeat the same way until the cap is spent | The respawn reads only its own listed files. The contention itself is `leader.md`'s concurrency rule, unchanged. A cap spent this way ends in a HALT the user sees |
 | A worker checkpoints to avoid a FAIL | A checkpoint is allowed at a bound only, and the cap of 2 limits the gain to two extra spawns before a HALT |

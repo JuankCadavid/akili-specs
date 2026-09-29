@@ -327,7 +327,7 @@ Applies to the Implementer, the Reviewer and the Tester.
 
 | ID | Requirement | Measure |
 |---|---|---|
-| NFR-1 | **Persona growth is bounded.** A persona is re-read on every spawn | Against `c94e6b6`: `implementer.md` grows by no more than **2,500** bytes, `reviewer.md` by no more than **900**, `tester.md` by no more than **1,200** |
+| NFR-1 | **Persona growth is bounded.** A persona is re-read on every spawn | Against `c94e6b6`: `implementer.md` grows by no more than **3,400** bytes, `reviewer.md` by no more than **900**, `tester.md` by no more than **1,600**. Raised by the user on 2026-09-29 from 2,500 and 1,200, through the Pivot recorded in `execution.md`: a plain draft of the FR-5 and FR-6 blocks measured 1,491 bytes against 884 remaining |
 | NFR-2 | **One home per reader.** A persona carries the rules its worker executes. The Leader's action and the checkpoint cap live in `/akili-execute` Step 2.3. Commands and mirrors cite a worker's rule by name and restate none of its four numbers, except the non-host brief. The cap is restated only by the sentences that size a loop | `grep -rn -i "60 tool calls\|100 lines\|400 lines\|consecutive verification" .claude/commands docs/commands docs/flow.md docs/model-routing.md README.md` → the non-host clause only (0 hits at `c94e6b6`). `CHANGELOG.md` is exempt |
 | NFR-3 | **Tool-agnostic wording.** No added sentence names a host-specific tool or flag | No host tool name in the added text |
 | NFR-4 | **No rule is pointed at by line number** in shipped prose (KZ-005) | `grep` for `:<digits>` references in the added text → 0 |
@@ -361,7 +361,7 @@ Applies to the Implementer, the Reviewer and the Tester.
 | OQ-1 | Is the checkpoint cap separate from the continuation cap? Under `pre-approved`, separate caps allow up to 4 extra spawns on one task | **Separate.** They answer different events: a continuation follows a worker that believed it was done; a checkpoint follows one that knew it was not |
 | OQ-2 | Does a respawn pause for the user under `gated`? | **No.** It is reported at the task's continue gate. A pause on every checkpoint would make the bound cost more attention than it saves |
 | OQ-3 | If design finds a worker cannot count its tool calls (§4 claim 21), what carries the call bound? | **Ask at the design gate.** The loop bound stands either way, since the worker runs those cycles itself |
-| OQ-4 | Accept the persona growth caps of NFR-1? | **Yes.** They are about a quarter of the Implementer's current size, and the rule they buy bounds the whole run |
+| OQ-4 | Accept the persona growth caps of NFR-1? (Superseded 2026-09-29 by the T2 Pivot: the caps were raised) | **Yes.** They are about a quarter of the Implementer's current size, and the rule they buy bounds the whole run |
 | OQ-5 | Release classification | **Minor.** A new report status and a new Leader action are behavior. No migration is forced |
 
 ## 10. Amendments After the Reversion Challenge (2026-09-29)
@@ -400,6 +400,12 @@ Two blind judges on `opus`. Ledger and receipt: `judgment.md`. The user chose to
 | B11 | NFR-2's measure is a grep that can be run | L-6 | NFR-2 |
 | B12 | The baseline medians are stated as ranges | L-10 | §4, FR-8 |
 | B13 | The continuation cap is stated with its mode | L-14 | §2, §4, §9 |
+
+### After the T2 Pivot (2026-09-29)
+
+| # | Amendment | Where |
+|---|---|---|
+| C1 | NFR-1's caps for `implementer.md` and `tester.md` are raised to 3,400 and 1,600 bytes. The user chose this at the Pivot; compressing to the old caps had already cost T1 a review round | NFR-1 |
 
 **Accepted and not fixed:** a task that closes after one or two checkpoints still reads as a clean run in the Kaizen retrospective, because `kaizen` gains no Measure row in this spec (NFR-5). It is a follow-up.
 
