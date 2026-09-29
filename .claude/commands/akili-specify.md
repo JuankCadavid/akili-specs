@@ -262,6 +262,7 @@ Guidelines:
 - **New enumerated values walk their consumers.** When the design adds a value to an existing enumerated type (a status, a kind, a mode, a branch context), the surface table lists every existing step that consumes that type and states what the new value does there — a step written for the old value set is read literally against the new one, and naming only the steps you *add* is the KZ-004 fall-through class applied to a design instead of a scan (three of four Reviewer FAILs in `changes/kaizen-loop-closure`).
 - **A rule keyed to a field's states lists every state the field can hold.** When a requirement or design gives a reader one action per state of a cell, status, or field, enumerate the states first — the ones another rule forbids included, because an auditor reads non-conforming input — and give each an action or a stated fall-through.
 - **A named mechanism is checked against the moment it must act.** When a requirement names the step, list, or check that delivers an obligation at a gate, open the command text and confirm that step runs before the gate it guards; a mechanism that runs after can only report that the obligation was missed.
+- **A design table that restates a requirement's table keeps every cell's obligations.** When the design re-draws a table the requirement holds (states and actions, fields, outcomes), compare each cell with the requirement's cell before approval; a shortened cell still names every obligation of the cell it shortens. Reviewers audit shipped text against the design, so a clause dropped here ships and passes.
 - **Premise Ledger.** A **premise** is a statement the design makes about the **existing** system — code, data, environment, contract, or standing rule — that the design takes as given rather than creates. `design.md` carries a **Premise Ledger** section holding one row per premise the design depends on. This block is the single definition of its row shape, classes, triggers, and citation rules; every other surface cites it by name and restates none of it.
 
   - **Admission — the dependence test.** A claim earns a row only when *if this claim were false, a design decision, a task, or the scope would change*. Yes → row; no → no row. A true statement about the repository whose falsity changes no decision, task, or scope item is trivia and stays out.
@@ -336,6 +337,8 @@ Skip only in **Lite** depth *and* when the reverted behavior has no test coverin
 **The depth chosen in Phase 0 was a guess made before the design existed. Now it can be checked.** This is the only point in the flow where the estimate is knowable and still free to act on.
 
 State three numbers from the design just written: **expected tasks, expected LOC, expected review rounds.** Then compare them to the declared depth:
+
+**Review rounds for rules documents.** When the tasks edit text that other agents execute (personas, commands, templates), estimate two review rounds per task. One round per task plus a shared margin has under-run on such specs, and each overrun stops the run for the user.
 
 | Signal | Action |
 |---|---|
