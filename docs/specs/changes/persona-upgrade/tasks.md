@@ -53,7 +53,7 @@ T1a–T1d touch disjoint files and are **parallel-safe** (at most two at a time)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full`: persona text re-read on every spawn; defines a file format other tools parse (overrides a, b) |
 | Depends on | none |
