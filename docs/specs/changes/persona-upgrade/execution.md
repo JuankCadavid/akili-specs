@@ -9,7 +9,7 @@
 | Started | 2026-09-30, at `350c7eb` on `master` |
 | Leader | This session. Command text: the installed `/akili-execute` |
 | Workers | No Step 8E wrappers in this repository (`ls .claude/agents` → no such directory). Fallback path: a general-purpose worker told to load `.agents/<role>.md`. Implementer on `sonnet`, Reviewer on `opus` |
-| Budget | 13 tasks · ~750 lines · 21 review rounds (`design.md` §9). **Amended 2026-09-30 at the T2 gate:** 14 tasks (T2b added) · ~1,700 lines excluding fixtures, fixture lines reported separately · 21 review rounds unchanged. Approved by the user, who delegated both open decisions to the Leader's stated recommendation ("lo que pienses que es mejor !") |
+| Budget | 13 tasks · ~750 lines · 21 review rounds (`design.md` §9). **Amended 2026-09-30 at the T2 gate:** 14 tasks (T2b added) · ~1,700 lines excluding fixtures, fixture lines reported separately · 21 review rounds unchanged. Approved by the user, who delegated both open decisions to the Leader's stated recommendation ("lo que pienses que es mejor !"). **Amended again at the T3 gate (tripwire: 1,781 lines of ~1,700):** no line cap — lines reported only; **26 review rounds** (11 used at that point). The user: "continue !" |
 | Measurement rule | No verification or measurement is run while a worker is active |
 | Order | T1a runs alone, so its marker placement is reviewed before T1b–T1d copy it; the task graph allows T1a ∥ T1b |
 
@@ -603,3 +603,22 @@ ADVISORY:
 | T5 | `runAgentsDoctor` passes a constant empty table (`AGENTS_DIGESTS`); `sectionStates`/`applyFix` take a role-scoped slice. The `outdated` path is exercised only by pure tests with a synthetic table until the file lands |
 | T6 | The write order (backup with `wx`, then `atomicWriteFileSync`) is proven by inspection and by the content comparison; T6's read-only-target test proves it by behavior. The CLI-spawn helper and temp-repo helpers live in `test/agents-doctor.test.js` |
 | T9 | Report rows as shipped: `FIXED`, `INSERTED`, `INSTALLED`, `SKIPPED (custom-edited; use --section)`, `BACKUP <path>`, `REFUSED (branch: …)`, `REFUSED (dirty tree: …)`, `(dry-run — no file written)`, the DD-5 closing line; backup name `<role>.md.<YYYYMMDD-HHMMSS>` in local time |
+
+## Budget tripwire: lines, second firing (T3 gate, 2026-09-30)
+
+| Number | Budget | Actual after T3 | Decision |
+|---|---|---|---|
+| Lines (no fixtures) | ~1,700 | 1,781 (`git diff --stat 350c7eb HEAD` over `bin`, `package.json`, the test file, templates, `.gitattributes`) | Cap removed; reported at each closing record |
+| Review rounds | 21 | 11 used; 10 left against 11 budgeted for T4–T10 | Raised to **26** |
+| Fixtures | — | 1,781 lines, 17 files | Reported separately |
+
+**Cause.** T2 and T3 needed far more test code than the design's ~230 lines for the whole spec (T3 alone added ~470, most of it demanded by review), and the CLI grew past ~400 with the guard and write paths. Presented to the user with the delta; the user answered "continue !" to the Leader's proposal.
+
+## Execute-time design clarifications (before T4, 2026-09-30)
+
+| # | Edit | Why | Carried as a named conformance check in |
+|---|---|---|---|
+| 1 | `design.md` §5.2, level paragraph: `leader.md`'s `primary-instructions` runs from item 1 to the next `##` (the row governs its extent) | The generic item rule would end it at item 2; T1d fenced items 1–4 as one, as the row says. Presented to the user at the T3 gate; accepted with "continue !" | T4 and T5 Reviewer briefs |
+| 2 | `design.md` §5.3: each digest entry is `{ "body", "head", "open" }` (three sha256 values); a bare string reads as `body` | DD-6's heading match compares a persona line with each release's first line and opening sentence, and FR-3 forbids shipping old texts; the two extra hashes make the match possible. No requirement changes meaning | T4 and T5 Reviewer briefs |
+
+**Spec tensions carried, not absorbed** (from T3's reviews; to close at T10 unless the user reopens the spec sooner): (1) design §5.1 majority-EOL writer vs. FR-4 "any byte" of project space in a mixed-EOL persona; (2) an untracked `.agents/` refused by the dirty guard vs. FR-4 "git-tracked".

@@ -462,3 +462,4 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 | Date | Amendment | Approved by | Where |
 |---|---|---|---|
 | 2026-09-30 | Task **T2b** added (14 tasks). Line budget raised from ~750 to **~1,700 excluding fixtures**; fixture lines are reported separately. Review rounds stay at 21 | The user at the T2 gate, delegating both open decisions to the Leader's stated recommendation | §2 (T2b); `execution.md` Document Control and *Spec gap record* |
+| 2026-09-30 | **Budget tripwire at the T3 gate (lines 1,781 of ~1,700):** the line cap is removed — lines are reported, not capped; review rounds raised from 21 to **26** (11 used; T4 2, T5 1, T6 1, T7 3, T8 2, T9 3, T10 3). Two design clarifications for T4/T5 recorded in `design.md` §5.2 (extent of `primary-instructions`) and §5.3 (digest entry shape `{body, head, open}`) | The user ("continue !"), to the Leader's stated proposal | `design.md` §5.2, §5.3; `execution.md` Document Control |
