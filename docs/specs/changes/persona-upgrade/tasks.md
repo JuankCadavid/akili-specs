@@ -318,7 +318,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: **removes delivered behavior** (DD-7, reversion challenge run) and edits a step every scaffold executes (overrides a, d) |
 | Depends on | T3 (names the CLI's flags) |

@@ -622,3 +622,93 @@ ADVISORY:
 | 2 | `design.md` §5.3: each digest entry is `{ "body", "head", "open" }` (three sha256 values); a bare string reads as `body` | DD-6's heading match compares a persona line with each release's first line and opening sentence, and FR-3 forbids shipping old texts; the two extra hashes make the match possible. No requirement changes meaning | T4 and T5 Reviewer briefs |
 
 **Spec tensions carried, not absorbed** (from T3's reviews; to close at T10 unless the user reopens the spec sooner): (1) design §5.1 majority-EOL writer vs. FR-4 "any byte" of project space in a mixed-EOL persona; (2) an untracked `.agents/` refused by the dirty guard vs. FR-4 "git-tracked".
+
+### T7: `/akili-constitution` replaces instead of appending
+
+Status while in rework: `[~]`. Ran in parallel with T4 (disjoint files). Approval mode `pre-approved`.
+
+**Attempt 1 — FAIL** (2026-09-30). Effort `high`. Skill `cognitive-doc-design`, as the task lists.
+
+| Item | Value |
+|---|---|
+| Files changed | `.claude/commands/akili-constitution.md` (5 insertions, 5 deletions: the five named sites) |
+| Implementer verification | Check 1: `grep -c -i 'append a minimal upgrade block'` → 0. Check 2: `grep -c 'doctor --agents'` → 3. Check 3: `grep -c 'until re-scaffolded'` → 0. Check 4: `grep -c 'akili:project'` → 2. Check 5: one file |
+| Falsifier | Executed walk on a scratch copy: with the "only when the persona does not already carry it anywhere…" clause deleted from the *Injection scope* lead, the table still sends the test command into the project block unconditionally, so a persona whose `custom-edited` item 4 holds it ends with two copies — the clause is load-bearing |
+| Red run | `n/a (no test gate)` |
+| Pre-review sweep | 20 hits read; five sites changed; the rest kept as other obligations (registry, Skill Map, child guides, hooks, wrappers) or as "compatible" (lines 31, 67, 1127) — **line 67 was wrong to keep (Reviewer issue 1)** |
+| Evidence re-run | Leader-inline: greps 0 / 3 / 0 / 2; one file in the stat; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **FAIL**, one issue (report below). FR-6 term by term, FR-2, FR-8's inline draft, the Disqualifier inside Step 8B, the Step 8C sentence and the checklist item all pass; lines 31 and 1127 ruled conformant |
+| runtime events | none |
+
+`spawns (attempt 1): implementer 27 calls, 129,574 tokens, ended complete; reviewer 7 calls, 72,171 tokens, ended complete`
+
+**Reviewer report, attempt 1 (verbatim).**
+
+```text
+STATUS: FAIL
+
+ISSUES:
+1. **Discovered Issue:** Line 67 (Step 0, *Mode-specific drafting policy*, Active AKILI-SPECS bullet) still says: "read existing files and any custom subagent rules. **Do not overwrite them.** Upgrade only weak sections, fill in missing files, and extend `.agents/` … while preserving custom instructions." "Them" means the existing files, so an agent following this literally is told not to overwrite existing persona files. That is the obligation this task removes. The new Safe Update bullet (line 424) replaces `outdated` sections in those same files, so the two lines contradict each other in a document that agents execute literally. "Extend `.agents/`" also still points toward adding text beside the old rules, which is the "append" reading.
+   - **Violated Rule:** design.md §7 surface 10 lists "the mode-table row" as part of this surface, and the diff does not touch any mode-table row. requirements.md FR-8: "the sentences that say Safe Update appends or never overwrites SHALL be updated." Active Lesson KZ-changes--kaizen-loop-closure-2: a surviving restatement of the superseded obligation is non-conformance. The Implementer's reason for keeping it ("compatible with the new mechanism") does not hold: "Do not overwrite them" is exactly a "never overwrites" sentence.
+   - **Remediation Suggestion:** Rewrite the line 67 bullet to match DD-7. Suggested text: read existing files and custom subagent rules; never change project space (the project block and any text outside owned sections) or `custom-edited` sections; upgrade `.agents/` by replacing owned sections per Step 8B's Safe Update bullet (cite it, do not restate it); fill in missing files. Remove "extend". Then run the pre-review sweep again (`grep -n -i "append\|overwrite\|upgrade block\|preserv"`).
+
+**Named checks:**
+- **Check 1 (FR-6 against the Safe Update bullet at line 424):** passes. The bullet covers every term:
+  - migrate when unmarked
+  - replace `outdated`
+  - insert `missing`
+  - report `custom-edited` and leave it
+  - no appended block
+  - never rewrite the project block
+  - `akili update` first, then `akili doctor --agents --fix`
+  - by-hand fallback from the installed templates and their digests
+  The rules on injecting only into the project block, not duplicating, and reporting a copy found in a `custom-edited` section as a move are in the lead sentence of *Injection scope*. The bullet points to that table, so it binds.
+- **Check 2 (FR-2):** passes. The lead sentence names the `akili:project` block and says injections never go into an owned section. No row cell names an item or a section number.
+- **Check 3 (FR-8, inline draft):** passes. The inline-draft sentence adds markers and one empty project block after the primary instructions.
+- **Check 4 (Disqualifier):** passes within Step 8B, the section it scopes. No surviving "append" there (the only remaining hits are the hook and `execution.md` lines, which are other obligations). The by-hand fallback cites `docs/cli.md` rather than restating state definitions. No row reads as writing into an item. The line 67 survivor sits outside Step 8B and fails on FR-8 and surface 10 instead.
+- **Falsifier:** confirmed, the clause is load-bearing.
+- **Step 8C sentence and checklist item:** both correct. The checklist wording matches surface 10.
+
+**Rulings on the three survivors:**
+- **Line 67:** non-conformant, issue 1 above.
+- **Line 31** ("upgrade weak sections without overwriting customizations"): conforms. Customizations here means `custom-edited` sections and project space, which the new mechanism also leaves untouched.
+- **Line 1127** ("preserved with upgrades"): conforms. It only describes the outcome and does not state or imply appending.
+
+**Not T7's defect:** `docs/cli.md` does not yet define the states (0 hits for `outdated` or `custom-edited`). The citation at line 424 only holds once surface 14 lands, so whoever owns surface 14 must deliver that.
+```
+
+**Leader adjudication, attempt 1.** In scope: FR-8's sweep bullet and design surface 10's "mode-table row" both name this sentence class. A recurrence of Active Lesson KZ-changes--kaizen-loop-closure-2 — the sweep found the hit and misjudged it. Attempt 2 at effort `xhigh`, report relayed unchanged. Forward pointer for T9: the `docs/cli.md` citation in the Safe Update bullet holds only once surface 14 lands.
+
+**Attempt 2 — PASS** (2026-09-30). Effort `xhigh`. Skill `cognitive-doc-design`. Feedback: the attempt-1 report verbatim, the adjudication, an Attempt History.
+
+| Item | Value |
+|---|---|
+| Files changed | `.claude/commands/akili-constitution.md`: the Step 0 "Active AKILI-SPECS" drafting-policy bullet rewritten — old: "read existing files and any custom subagent rules. **Do not overwrite them.** Upgrade only weak sections, fill in missing files, and extend `.agents/` to support the multi-agent loop while preserving custom instructions." — new: "read existing files and any custom subagent rules; never change project space (the project block and any text outside owned sections) or a `custom-edited` section. Upgrade `.agents/` by replacing owned sections per Step 8B's Safe Update bullet, and fill in missing files." |
+| Implementer verification | Greps 0 / 3 / 0 / 2; `do not overwrite them` → 0; one file. Full sweep with `extend` added: every hit dispositioned, none restating the persona rule |
+| Evidence re-run | Leader-inline: greps 0 / 3 / 0 / 2 / 0; `git diff --stat` one file, 6 insertions, 6 deletions; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **PASS** (the attempt-1 Reviewer, resumed). Summary: the bullet forbids changing only project space and `custom-edited` sections, sends replacement to Step 8B by name, restates no state definition, fits its neighbours; the sweep dispositions hold on spot-check (L379 is about the root guides; L388 child guides; L570/631/842 registry, Skill Map, wrappers; L970 and the hook lines other artifacts) |
+| runtime events | none |
+
+`spawns (attempt 2): implementer 11 calls, 78,495 tokens, ended complete; reviewer (resumed) 2 calls, 75,791 tokens, ended complete`
+
+**T7 closing record — PASS (2026-09-30).**
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 2 of 3 |
+| Implementer attempts | 2 |
+| Requirements covered | FR-6 (four bullets and the scenario), FR-2 (the *Injection scope* lead names the project block), FR-8 (inline draft with markers; the sentences that turned false), FR-10 ("run `akili update` first"); design DD-2, DD-7, §7 surfaces 10–11 |
+| Files changed | `.claude/commands/akili-constitution.md` (six sentences: the five named sites plus the Step 0 policy bullet) |
+| Evidence re-run | Leader-inline on both attempts: **VERIFIED** ×2 |
+| Review rounds used | 2 for this task; **13 of 26** in total |
+| Skills | `cognitive-doc-design`, as the task lists |
+| Advisories | none |
+| Gate | `auto-approved (pre-approved mode)` |
+| Lines | 6 changed; spec total (no fixtures) 1,787 |
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T8 | Step 8B's *Injection scope* lead now reads: "every injection below is written into the persona's `<!-- akili:project -->` … `<!-- /akili:project -->` block, never into an owned section, and only when the persona does not already carry it anywhere — one already living inside a `custom-edited` section is reported as a move to make by hand, never duplicated." The audit's injection-bleed check keeps a manual trim; drift names the CLI (DD-8) |
+| T9 | Mirror sentences in `docs/commands/akili-constitution.md`: line 27 ("Never overwrite existing personas — only append minimal upgrade blocks") and line 62 ("until re-scaffolded"). The Safe Update bullet cites `docs/cli.md` for the state names; that page must define `current`, `outdated`, `custom-edited`, `missing`, `unlocated`, `extra`, `unreadable`, `unmarked`, `absent` byte for byte |
