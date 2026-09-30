@@ -101,7 +101,7 @@ Each section's **level** is the level of its first line: an item (`N. **…**` a
   "legacy":   { "implementer": { "verification": { "v2.27.0": "<sha>", "v2.29.0": "<sha>" }, … }, … } }
 ```
 
-- `releases` is **dense**: every section of every role at every release since the markers, whether or not it changed. Twenty-two hashes per release.
+- `releases` is **dense**: every section of every role at every release since the markers, whether or not it changed — twenty-two hashes per release, appended by the release step. It is consulted only to recognize an *earlier* text: `current` is decided by comparing with the packaged template itself, so the table never needs an entry for the release being developed.
 - `legacy` holds the pre-marker texts: for every git tag whose tree holds `.claude/templates/<role>.md` (the first is `v0.5.0`; 79 tags exist up to `v2.29.0`), each section's body as cut from that tag's template by the level rules of §5.2, hashed. Seeded once by T1 with `git show <tag>:.claude/templates/<role>.md`; a tag whose template lacks a section simply has no entry.
 - `version` is the release that wrote the file. `since=` attributes in the templates are rewritten by the release step for sections whose hash changed against the previous release.
 
@@ -109,8 +109,8 @@ Each section's **level** is the level of its first line: an item (`N. **…**` a
 
 | Input | State | `--fix` |
 |---|---|---|
-| Persona hash = `releases[version][role][id]` | `current` | nothing |
-| Persona hash = some earlier `releases[r]` or a `legacy` entry | `outdated` (report the release matched) | replace body; rewrite `since=` |
+| Persona hash = the packaged template section's hash, computed at run time | `current` | nothing |
+| Persona hash ≠ the packaged one and = some `releases[r]` or `legacy` entry | `outdated` (report the release matched) | replace body; rewrite `since=` |
 | Persona has the id, hash matches nothing | `custom-edited` | skip, unless `--section id` |
 | Persona has ≥ 1 marker, lacks the id, and the id is not in the migration record | `missing` | insert (DD-4) |
 | Persona lacks the id and the migration record lists it | `unlocated` | skip, unless `--section id` — then insert and remove the id from the record |
@@ -149,6 +149,8 @@ Report rows follow the existing doctor style: per persona a header, then `STATE 
 | `migratePersona(text, template, digests)` | DD-6 (pure) |
 | `resolveBranchContext(cwd)` | DD-12: the kaizen resolution, in code |
 | `runAgentsDoctor(args)` | I/O: read, guards, backup, atomic write (temp + rename, the file's helper), print, exit code |
+
+The pure functions live in one module, `bin/persona.js`, required by `bin/akili.js` and by `scripts/release.js` (which cannot require `bin/akili.js`: that file runs `main()` on load). `bin/` is in `package.json` `files`, so the module ships.
 
 Argument plumbing: `agents` (boolean), `section` (string, `multiple: true`), `allow-branch` (boolean) join the `parseArgs` options literal and the `args` mapping; `doctor` dispatches to `runAgentsDoctor` when `args.agents` is set.
 
@@ -230,9 +232,9 @@ The record line sits immediately before the project block (§5.1), so `--fix` ma
 
 | Number | Value | Basis |
 |---|---|---|
-| Expected tasks | **10** | T1a–T1d markers, one per template · T2 digest seed + release step + CI list · T3 parser, states, report · T4 fix, guards, backup · T5 migration · T6 tests (I/O) + CI · T7 Step 8B/8C + audit + mirrors · T8 CHANGELOG + `docs/cli.md` + closure walks. (T3–T5 carry their own red-first tests.) |
+| Expected tasks | **13** | T1a–T1d markers, one per template · T2 parser, states, report · T3 fix, guards, backup · T4 migration · T5 digest seed, release step, resource install, CI list · T6 I/O test + CI workflow · T7 `/akili-constitution` · T8 `/akili-audit` · T9 mirrors + `docs/cli.md` · T10 CHANGELOG + closure walks. One rules document per task (KZ-changes--subagent-context-budget-1); T2–T4 carry their own red-first tests |
 | Expected lines | **~750** | CLI ~400, tests ~230, templates ~70, release/CI ~20, prose ~50 |
-| Expected review rounds | **16** | Two per task for the six prose/template tasks (12), one per code task with tests as the gate (4) |
+| Expected review rounds | **21** | Two per task for the eight prose/template tasks (16), one per code task with tests as the gate (5) |
 
 **Measured before the gate:** 1,925 bytes of markers (1,977 with blank lines) → cap 2,200. **Depth check:** Full holds.
 
@@ -256,8 +258,8 @@ The record line sits immediately before the project block (§5.1), so `--fix` ma
 | P-10 | Injection points sit inside items 1, 3, 4 of the worker templates | `consumer` | Step 8B *Injection scope* rows; `implementer.md:49–52` | `2ab6bbc` | DD-2 unnecessary: Low | — |
 | P-11 | STAR's persona has **seven** numbered items written with one space after the number, retitled items 1–2, front matter, and no `## Authorship`; 153 diff lines against the template | `data-env` | `grep -c "^[0-9]\. \*\*"` → 7 (lines 20, 25, 29, 41 …); `grep -c Authorship` → 0; `git diff --no-index --stat` → 153 | 2026-09-30 | DD-6's one-space normalization unnecessary: Low. *(The first row claimed no items, from a two-space grep; refuted at judgment day)* | — |
 | P-12 | `node:test` is available on the installed Node and the engine floor; `node --test` without a path discovers `*.test.js`; a directory argument fails on Node 21+ | `data-env` | `node --version` v22.12.0; `node --test .` → "Could not find '.'"; `node --test` → passes on a temp fixture. `node:test` stable since Node 20, experimental in 18 | `2ab6bbc` | DD-9's script string changes: Low | — |
-| P-13 | Downstream `implementer.md` files take two shapes: two-space items (9 of 13 read) or one-space items (4 of 13); most predate v2.29.0; some leaders and testers add custom `##` sections | `data-env` | `UNVERIFIED — confirm at source before relying on it` (a judge's survey of 13 files, not re-run by the architect) | — | DD-6 needs a third strategy: Low | T5, first step: re-run the survey on the same folders |
-| P-14 | No persona records its scaffold release | `data-env` | `UNVERIFIED — confirm at source before relying on it` (13 of 13 in the judge's survey) | — | The migration could use it: Low | T5, same read |
+| P-13 | Downstream `implementer.md` files take two shapes: two-space items (9 of 13 read) or one-space items (4 of 13); most predate v2.29.0; some leaders and testers add custom `##` sections | `data-env` | `UNVERIFIED — confirm at source before relying on it` (a judge's survey of 13 files, not re-run by the architect) | — | DD-6 needs a third strategy: Low | T4, first step: re-run the survey on the same folders |
+| P-14 | No persona records its scaffold release | `data-env` | `UNVERIFIED — confirm at source before relying on it` (13 of 13 in the judge's survey) | — | The migration could use it: Low | T4, same read |
 | P-15 | The four-name list is hard-coded at three sites: the copy loop, `doctorTool`, and the CI layout check | `consumer` | `bin/akili.js:74`, `:695–699`, `:1137`; `scripts/ci/install-layout-regression.js:199`, `:293` | `2ab6bbc` | DD-11 needs fewer edits: Low | — |
 | P-16 | The kaizen Branch Context resolves pins, then `origin/HEAD`, then the unique `main`/`master`, and treats unresolved as a spec branch | `other` | `.claude/skills/kaizen/SKILL.md:303–306` | `2ab6bbc` | DD-12's guard is wrong: High | — |
 | P-17 | This repository's own `.agents/implementer.md` predates v2.29.0 | `data-env` | `grep -c "Prompt Caching" .agents/implementer.md` → 1 (the pre-v2.29.0 item-1 title); `git diff --no-index --stat` → 7 insertions, 72 deletions | `2ab6bbc` | The FR-5 scenario needs no legacy seed: Low | — |
@@ -295,7 +297,7 @@ Two blind judges on `opus`; ledger in `judgment.md`. The user chose *Fix only*.
 | S6 | Migration record is owned metadata before the project block; `--section` removes the id | §5.1, §5.4, DD-13 |
 | S7, S9, W8 | P-11 rewritten from the source; fixtures and scenarios remodelled; figures 153 / 79 / 4 | P-11, P-17, §2, requirements §4, FR-5, FR-9 |
 | S8, W14 | `unlocated` and `extra` exit 0; `absent` gets an install action; `self-correction` → `verification` | §5.4, requirements FR-3, FR-4 |
-| W1 | 10 tasks, 16 rounds, ~750 lines, consistent | §9 |
+| W1 | 13 tasks, 21 rounds, ~750 lines, consistent (re-split per rules document when `tasks.md` was written) | §9 |
 | W2 | `--allow-branch` in the surface and plumbing | §6, §7 |
 | W3 | Dirty guard ignores the fix's own artifacts | DD-5, DD-12 |
 | W4 | Stale "installed template" / `unmarked` sentences | requirements Glossary, FR-5; proposal |
@@ -310,4 +312,4 @@ Two blind judges on `opus`; ledger in `judgment.md`. The user chose *Fix only*.
 | G1 | `--dry-run` semantics stated | §6, DD-12 |
 | G2 | Legacy seed from every tag | DD-3 |
 | G3 | `npm test` in CI | surface 9 |
-| — | **Accepted, not fixed:** a judge's survey of 13 downstream personas is recorded as `UNVERIFIED` until T5 re-runs it (P-13, P-14) | §10 |
+| — | **Accepted, not fixed:** a judge's survey of 13 downstream personas is recorded as `UNVERIFIED` until T4 re-runs it (P-13, P-14) | §10 |

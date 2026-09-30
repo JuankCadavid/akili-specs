@@ -73,7 +73,7 @@
 
 ## 5. Corrections
 
-User decision, 2026-09-30: **Fix only**. Every row of §4 was corrected; the map from ledger id to the place it landed is `design.md` §13 and `requirements.md` §10. Two rows are recorded rather than fixed: P-13 and P-14 stay `UNVERIFIED`, owned by T5's first step (a judge's survey of 13 downstream personas is not a citation the architect ran).
+User decision, 2026-09-30: **Fix only**. Every row of §4 was corrected; the map from ledger id to the place it landed is `design.md` §13 and `requirements.md` §10. Two rows are recorded rather than fixed: P-13 and P-14 stay `UNVERIFIED`, owned by T4's first step (a judge's survey of 13 downstream personas is not a citation the architect ran).
 
 Correction closure: forward sweep for the superseded values (`1,200`, `2,000`, `installed template`, `92`, `28`, `no numbered items`, `"pre"`, `self-correction`, `§7.2`, `9 tasks`, `14 rounds`) over the spec folder; backward sweep of the referrers of FR-1, FR-3, FR-4, FR-5, FR-9 and the Premise Ledger rows P-3, P-11, P-12.
 
