@@ -67,7 +67,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 3.2, *Task quality rules*, after "one task should be small enough to complete and verify in one focused session" |
 | Edit | **A task that edits rules text is bounded by what one review can read.** When a task's scope lists more than about eight edit sites, or sites in more than one rules document (a command, a persona, a template), split it per file: each Reviewer reads the changed text whole and stops at the first contradiction, so sites past that point are unread, and a five-round task costs more than two three-round tasks (`changes/subagent-context-budget`, T3: 17 sites, two files, five rounds, three defects present from attempt 1). |
 | Severity | Medium |
-| Status | `pending` |
+| Status | `applied (2026-09-30)` |
 
 ### P2
 
@@ -77,7 +77,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 2.4, after the review-rounds sentence for rules documents |
 | Edit | **A cap set before its content is re-measured here.** When a requirement fixes a numeric cap on an artifact the design has now drafted (bytes of a persona, lines of a file, count of rows), draft the content plainly and measure it before the design gate; a cap that does not hold is raised or the content is cut here, never met later by compressing obligations away (`changes/subagent-context-budget`: one review round and one Pivot). |
 | Severity | Low |
-| Status | `pending` |
+| Status | `applied (2026-09-30)` |
 
 ### P3
 
@@ -87,7 +87,7 @@
 | Target | `KZ-002` |
 | Edit | Add `changes/subagent-context-budget` as a source spec and append: seven of eight FAIL findings on the CHANGELOG task were clauses that overstated or misquoted the shipped text (an exit condition, a file location, "kept whole", a rounded percentage, "per attempt" for a per-spawn line); each was caught by quote-checking the clause at HEAD, and none by a grep. Severity stays Medium; recurrence count 4. |
 | Severity | Medium |
-| Status | `pending` |
+| Status | `applied (2026-09-30)` |
 
 ## Constitution Sync (Step 3 of `/akili-archive`)
 
@@ -98,3 +98,13 @@
 | TRD and ADR sync | Not applicable. No TRD exists |
 | Spec family | Not a manifest-listed child |
 | CodeGraph | `.codegraph/` exists; a re-index is recommended after the archive move |
+
+## Apply Pass (2026-09-30)
+
+| Item | Re-verified against | Result |
+|---|---|---|
+| P1 | `docs/specs/archive/2026-09-30-changes--subagent-context-budget/execution.md` T3: five Reviewer FAILs, each one sentence, three present since attempt 1; `design.md` §7.1: 17 sites in two files | Holds. Applied to `.claude/commands/akili-specify.md` Step 3.2 |
+| P2 | Same archive: `## Pivot Record: T2` (1,491 bytes drafted vs 884 remaining); T1 attempt 1 (four obligations lost to compression) | Holds. Applied to `.claude/commands/akili-specify.md` Step 2.4 |
+| P3 | Same archive: `execution.md` T5 attempts 1–2 (eight findings, seven on CHANGELOG clauses) | Holds. `KZ-002` row in `docs/specs/kaizen-log.md` `## Active Lessons` gained the recurrence |
+
+Backlog after this pass: 0 pending across `docs/specs/kaizen/`. `CHANGELOG.md` `Unreleased` carries both standardizations.

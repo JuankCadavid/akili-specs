@@ -340,6 +340,8 @@ State three numbers from the design just written: **expected tasks, expected LOC
 
 **Review rounds for rules documents.** When the tasks edit text that other agents execute (personas, commands, templates), estimate two review rounds per task. One round per task plus a shared margin has under-run on such specs, and each overrun stops the run for the user.
 
+**A cap set before its content is re-measured here.** When a requirement fixes a numeric cap on an artifact the design has now drafted — bytes of a persona, lines of a file, rows of a table — draft the content plainly and measure it before the design gate; a cap that does not hold is raised or the content is cut here, never met later by compressing obligations away (`changes/subagent-context-budget`: one review round lost to compression, then a Pivot).
+
 | Signal | Action |
 |---|---|
 | Estimate lands far **below** the depth (e.g. `Standard` chosen, design resolves to one task under ~50 LOC) | Say so plainly and offer to drop a level — or, for a genuinely cosmetic one-liner, to abandon the spec for `/akili-quick`. `/akili-propose` routes by size *before* the design exists; this is the re-check *after* |
@@ -403,6 +405,7 @@ Skill inventory should use real, available skills only. Derive each task's requi
 Task quality rules:
 
 - one task should be small enough to complete and verify in one focused session
+- **a task that edits rules text is bounded by what one review can read.** When a task's scope lists more than about eight edit sites, or sites in more than one rules document (a command, a persona, a template), split it per file: each Reviewer reads the changed text whole and stops at the first contradiction it meets, so sites past that point stay unread, and a five-round task costs more than two three-round tasks (`changes/subagent-context-budget` T3: 17 sites in two files, five rounds, three defects present from attempt 1)
 - every task must reference the requirements it satisfies
 - **coverage closes at scenario and clause granularity, not requirement ID.** A requirement "appearing in a task" is the weakest possible claim: every scenario and every `BUT` / `AND IT MUST` clause of every requirement must be owned by a named task, and the decomposition is not complete until that mapping closes. The failure an ID-keyed table invites is specific: a spec shipped three scenario-level orphans that its requirement-ID traceability table read as covered — and twice, an apparent gap was "cleared" by citing a *different* requirement that was satisfied. **A gap may never be discharged by citing a different requirement**; a clearance must quote the exact clause it claims to cover
 - every task must include a concrete verification command or manual check
