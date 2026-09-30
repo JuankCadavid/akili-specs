@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
-const { parsePersona, sectionStates, resultExitCode, applyFix } = require("./persona.js");
+const { parsePersona, sectionStates, resultExitCode, applyFix, migratePersona } = require("./persona.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
 // .cmd shims, and patched Node (CVE-2024-27980) throws EINVAL when spawning
@@ -1228,15 +1228,19 @@ function checkEnvironment(tools) {
 // (SOURCE_TEMPLATES; the same bytes regardless of which tool is installed or
 // which --tool is passed — FR-3's "same states whichever --tool is passed"
 // scenario), states one row per owned section via bin/persona.js's
-// sectionStates, and sets the exit code per §5.4. `--fix` (FR-4/FR-10, this
-// task) adds guards, a backup, one atomic write per rewritten persona, and a
-// re-report; the migration of an `unmarked` persona (FR-5) is T4 and is
-// never invented here.
+// sectionStates, and sets the exit code per §5.4. `--fix` (FR-4/FR-10/FR-5)
+// adds guards, a backup, one atomic write per rewritten persona, and a
+// re-report; an `unmarked` persona is migrated (fenced) via
+// bin/persona.js's migratePersona rather than run through applyFix's normal
+// outdated/missing branches.
 //
 // digests: no `.claude/templates/digests.json` exists until T5 (DD-11), so
 // every run compares against an empty table; per FR-3, "when no digest
 // matches, the state is custom-edited" — there is nothing yet for an edited
-// section to match, by design at this task.
+// section to match, by design at this task. For migratePersona, the empty
+// table still lets exact/heading matching succeed against the CLI's own
+// packaged template text (no digest entry required for that) — a legacy
+// digest is only needed to recognize an *older* release's text.
 const AGENTS_DIGESTS = Object.freeze({ releases: {}, legacy: {} });
 
 const SECTION_STATE_COLOR = {
@@ -1254,6 +1258,8 @@ const FIX_ROW_COLOR = {
   inserted: "green",
   installed: "green",
   skipped: "yellow",
+  fenced: "green",
+  "not located": "yellow",
 };
 
 // Runs a git subcommand quietly; returns trimmed stdout, or null on any
@@ -1527,7 +1533,13 @@ function runAgentsDoctor(args) {
 
     if (!args.fix) continue;
 
-    const fix = applyFix(persona, template, AGENTS_DIGESTS, { sections: args.section || [] });
+    // FR-5: an `unmarked` persona is migrated (fenced), never treated as a
+    // normal outdated/missing fix — applyFix's own `unmarked` branch exists
+    // only to explain why it skips (design §7's migratePersona).
+    const fix =
+      persona && persona.unmarked
+        ? migratePersona(personaText, template, AGENTS_DIGESTS, currentVersion)
+        : applyFix(persona, template, AGENTS_DIGESTS, { sections: args.section || [] });
     for (const row of fix.rows) printFixRow(row);
 
     let postExit = exitCode;
@@ -1558,10 +1570,11 @@ function runAgentsDoctor(args) {
         const rewritten = parsePersona(fs.readFileSync(personaPath, "utf8"));
         postExit = resultExitCode(sectionStates(rewritten, template, AGENTS_DIGESTS));
       }
-    } else if (persona && (persona.unreadable || persona.unmarked)) {
-      // Not written by this task (unreadable: skip the file; unmarked:
-      // migratePersona is T4's job) — still fails until one of those is
-      // actually fixed.
+    } else if (persona && persona.unreadable) {
+      // applyFix skips an unreadable file rather than guessing at its
+      // markers — still fails until the maintainer fixes it by hand.
+      // (An `unmarked` persona never reaches here: migratePersona above
+      // always changes the text, so this `else if` is unreadable-only.)
       postExit = 1;
     }
     postFixExits.push(postExit);

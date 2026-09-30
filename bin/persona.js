@@ -34,6 +34,33 @@ function hashBody(body) {
   return crypto.createHash("sha256").update(normalizeBody(body), "utf8").digest("hex");
 }
 
+// DD-6's heading-match normalization: "stripping list numbers (one or two
+// spaces), emoji, punctuation and case". Used for both the heading line
+// itself and the opening-sentence line — a single normalizer so the two
+// checks stay consistent with each other.
+function normalizeForMatch(line) {
+  return line
+    .toLowerCase()
+    .replace(/^\d+\.\s*/, "") // list number (any run of spaces after it)
+    .replace(/^#+\s*/, "") // heading hashes
+    .replace(/\*\*/g, "") // markdown bold markers
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}️]/gu, "") // emoji/symbol ranges
+    .replace(/[^a-z0-9\s]/g, " ") // remaining punctuation -> space
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// DD-6 step 2's "section's first line" signature.
+function hashHead(line) {
+  return crypto.createHash("sha256").update(normalizeForMatch(line), "utf8").digest("hex");
+}
+
+// DD-6 step 2's "first 40 normalized characters of the opening sentence"
+// signature.
+function hashOpen(line) {
+  return crypto.createHash("sha256").update(normalizeForMatch(line).slice(0, 40), "utf8").digest("hex");
+}
+
 // Parse a persona (or template) file's text into its marker structure.
 // Returns:
 //   {
@@ -523,13 +550,254 @@ function resultExitCode(result) {
   return result.sections.some((s) => !EXIT_ZERO_STATES.has(s.state)) ? 1 : 0;
 }
 
+// FR-5 / DD-6: the one-time migration of an `unmarked` persona. Locates each
+// template section's start line by exact body-hash match first, then by a
+// paired heading+opening-sentence match (never heading alone — a matched
+// head with no matching nearby opening sentence is left `not located`, so a
+// retitled/rewritten item is never mistaken for the section it replaced).
+// Every located section is cut by level (§5.2: an item ends at the next item
+// or `##` line; a `##` section ends only at the next `##`; `###` never ends
+// anything, by construction — it is simply never a candidate below). Front
+// matter and every line outside a located span are copied through
+// untouched; nothing is deleted, moved or reordered (FR-5).
+//
+// `release` is the record's `<release>` (design §5.1); digests.version is
+// used when `release` is omitted (T5 will populate it) — this function has
+// no I/O, so it cannot read package.json itself, and the caller
+// (runAgentsDoctor) passes the CLI's own version explicitly.
+function migratePersona(text, template, digests, release) {
+  const table = digests || {};
+  const eol = detectEol(text);
+  const rawLines = text.split(/\r\n|\n/);
+
+  // Front matter: same rule as parsePersona (§5.1) — a leading `---` … `---`
+  // block is one text segment, scanned for nothing.
+  let frontEnd = -1;
+  if (rawLines[0] === "---") {
+    for (let i = 1; i < rawLines.length; i++) {
+      if (rawLines[i] === "---") {
+        frontEnd = i;
+        break;
+      }
+    }
+  }
+  const scanStart = frontEnd === -1 ? 0 : frontEnd + 1;
+
+  const ITEM_RE = /^\d+\.\s{1,2}\*\*/;
+  const HEADING_RE = /^## /; // exactly two `#`; `### ` never matches this
+
+  // Every structural candidate start-line in file order: an item (column 0)
+  // or a `##` heading. `###` lines are never candidates, so they can never
+  // start, end, or interrupt a section — the extent rule below falls out of
+  // this list alone, with no separate "skip ###" step required.
+  const candidates = [];
+  for (let i = scanStart; i < rawLines.length; i++) {
+    if (ITEM_RE.test(rawLines[i])) candidates.push({ line: i, kind: "item" });
+    else if (HEADING_RE.test(rawLines[i])) candidates.push({ line: i, kind: "heading" });
+  }
+
+  // §5.2: an item-level section ends at the next candidate of either kind
+  // (a `##` is a higher level and also ends it); a `##` section ends only at
+  // the next `##` candidate — a nested item list (e.g. Reporting's own
+  // numbered fields) never closes it.
+  // FR-1's unfenced list names "horizontal rules and blank lines" as text
+  // outside any owned section — a marked template never lets them trail
+  // into the section before them (its close marker sits right after the
+  // section's real last line; the blank line(s) and the next `---` come
+  // after the marker). An unmarked file has no marker to draw that line, so
+  // the raw "next candidate's line" boundary would swallow that gap into
+  // the section it follows; trim it back off so the located span matches
+  // what the template itself would fence.
+  const trimTrailingGap = (startLine, endExclusive) => {
+    let e = endExclusive;
+    while (e > startLine + 1) {
+      const line = rawLines[e - 1].trim();
+      if (line === "" || line === "---") {
+        e -= 1;
+      } else {
+        break;
+      }
+    }
+    return e;
+  };
+
+  const extentEnd = (idx, extentLevel) => {
+    const cand = candidates[idx];
+    const level = extentLevel || cand.kind;
+    for (let j = idx + 1; j < candidates.length; j++) {
+      if (level === "item" || candidates[j].kind === "heading") {
+        return trimTrailingGap(cand.line, candidates[j].line);
+      }
+    }
+    return trimTrailingGap(cand.line, rawLines.length);
+  };
+
+  const levelOf = (body) => (ITEM_RE.test(body.split("\n")[0]) ? "item" : "heading");
+
+  // §5.2 clarification (2026-09-30, before T4): leader.md's `primary-instructions`
+  // is an item-level section for MATCHING (its candidates are item-1 start
+  // lines, like any other item section), but its EXTENT is governed by the
+  // table row, not derived from the first line — the row cuts it from item 1
+  // to the next `##`, as items 1-4 in one block. Every other item section
+  // keeps the generic item-level extent (ends at the next item or the next
+  // `##`). This is the one named override; nothing else in §5.2 needs one.
+  const extentLevelFor = (id, matchLevel) => (id === "primary-instructions" ? "heading" : matchLevel);
+
+  // Every known signature for one template section id: the packaged
+  // template's own body/head/open (always available, no digest needed), plus
+  // whatever `releases`/`legacy` carries for this id — a bare string entry
+  // (§5.3: "read as body alone") contributes to the exact set only.
+  const signaturesFor = (tSec) => {
+    const bodyHashes = new Set([hashBody(tSec.body)]);
+    const paired = [];
+    const bodyLines = tSec.body.split("\n");
+    const firstLine = bodyLines[0];
+    const openLine = bodyLines.slice(1).find((l) => l.trim() !== "");
+    paired.push({ head: hashHead(firstLine), open: openLine ? hashOpen(openLine) : null });
+
+    const releases = table.releases || {};
+    for (const ids of Object.values(releases)) {
+      const entry = ids && ids[tSec.id];
+      if (!entry) continue;
+      if (typeof entry === "string") {
+        bodyHashes.add(entry);
+        continue;
+      }
+      if (entry.body) bodyHashes.add(entry.body);
+      if (entry.head && entry.open) paired.push({ head: entry.head, open: entry.open });
+    }
+    const legacyForId = (table.legacy && table.legacy[tSec.id]) || {};
+    for (const entry of Object.values(legacyForId)) {
+      if (typeof entry === "string") {
+        bodyHashes.add(entry);
+        continue;
+      }
+      if (entry.body) bodyHashes.add(entry.body);
+      if (entry.head && entry.open) paired.push({ head: entry.head, open: entry.open });
+    }
+    return { bodyHashes, paired };
+  };
+
+  let cursor = scanStart;
+  const fenced = []; // { id, since, startLine, endLine }
+  const rows = [];
+
+  for (const tSec of template.sections) {
+    const level = levelOf(tSec.body);
+    const extentLevel = extentLevelFor(tSec.id, level);
+    const { bodyHashes, paired } = signaturesFor(tSec);
+    let found = null;
+
+    for (let idx = 0; idx < candidates.length; idx++) {
+      const cand = candidates[idx];
+      if (cand.kind !== level || cand.line < cursor) continue;
+      const end = extentEnd(idx, extentLevel);
+      const bodyText = rawLines.slice(cand.line, end).join("\n");
+
+      if (bodyHashes.has(hashBody(bodyText))) {
+        found = { startLine: cand.line, endLine: end - 1, matchType: "exact" };
+        break;
+      }
+
+      // Heading + opening sentence, paired (FR-5: "heading alone" never
+      // fences) — the candidate's head must equal a known entry's head, AND
+      // one of the next (up to three) non-blank lines must equal THAT SAME
+      // entry's opening-sentence signature.
+      const candHead = hashHead(rawLines[cand.line]);
+      const relevantPairs = paired.filter((p) => p.head === candHead && p.open);
+      if (relevantPairs.length) {
+        let nonBlankSeen = 0;
+        for (let j = cand.line + 1; j < end && nonBlankSeen < 3; j++) {
+          if (rawLines[j].trim() === "") continue;
+          nonBlankSeen += 1;
+          const oh = hashOpen(rawLines[j]);
+          if (relevantPairs.some((p) => p.open === oh)) {
+            found = { startLine: cand.line, endLine: end - 1, matchType: "heading" };
+            break;
+          }
+        }
+      }
+      if (found) break;
+    }
+
+    if (found) {
+      fenced.push({ id: tSec.id, since: tSec.since, startLine: found.startLine, endLine: found.endLine });
+      cursor = found.endLine + 1;
+      rows.push({ id: tSec.id, action: "fenced", detail: found.matchType });
+    } else {
+      rows.push({ id: tSec.id, action: "not located", detail: null });
+    }
+  }
+
+  fenced.sort((a, b) => a.startLine - b.startLine);
+  const notLocated = rows.filter((r) => r.action === "not located").map((r) => r.id);
+  const migrationRelease = release || table.version || "unreleased";
+
+  // DD-6 step 5 / DD-13: after the last fenced section; when nothing was
+  // fenced, at end of file, or before `## Authorship` when the file has one.
+  const outSegments = [];
+  let cursor2 = 0;
+  for (const span of fenced) {
+    if (span.startLine > cursor2) {
+      outSegments.push({ kind: "text", lines: rawLines.slice(cursor2, span.startLine) });
+    }
+    outSegments.push({
+      kind: "owned",
+      id: span.id,
+      since: span.since,
+      bodyLines: rawLines.slice(span.startLine, span.endLine + 1),
+    });
+    cursor2 = span.endLine + 1;
+  }
+
+  if (fenced.length > 0) {
+    outSegments.push({ kind: "migration", release: migrationRelease, notLocated });
+    outSegments.push({ kind: "project", bodyLines: [] });
+    if (cursor2 < rawLines.length) {
+      outSegments.push({ kind: "text", lines: rawLines.slice(cursor2) });
+    }
+  } else {
+    let authorshipLine = -1;
+    for (let i = scanStart; i < rawLines.length; i++) {
+      if (/^## Authorship/.test(rawLines[i])) {
+        authorshipLine = i;
+        break;
+      }
+    }
+    if (authorshipLine !== -1) {
+      outSegments.push({ kind: "text", lines: rawLines.slice(cursor2, authorshipLine) });
+      outSegments.push({ kind: "migration", release: migrationRelease, notLocated });
+      outSegments.push({ kind: "project", bodyLines: [] });
+      outSegments.push({ kind: "text", lines: rawLines.slice(authorshipLine) });
+    } else {
+      // rawLines' own trailing "" (the split artifact for a file ending in
+      // a newline, not a blank line anyone wrote) must not float in front of
+      // the migration record as a manufactured blank line — drop exactly
+      // one, leaving any genuinely-authored trailing blank lines in place.
+      let tail = rawLines.slice(cursor2);
+      if (tail.length && tail[tail.length - 1] === "") tail = tail.slice(0, -1);
+      outSegments.push({ kind: "text", lines: tail });
+      outSegments.push({ kind: "migration", release: migrationRelease, notLocated });
+      outSegments.push({ kind: "project", bodyLines: [] });
+    }
+  }
+
+  // Always `changed`: a migration inserts at least an empty project block
+  // and a migration record even when nothing was located, so the caller's
+  // applyFix-shaped `if (fix.changed)` branch always takes the write path.
+  return { changed: true, text: renderSegments(outSegments, eol), rows };
+}
+
 module.exports = {
   parsePersona,
   normalizeBody,
   hashBody,
+  hashHead,
+  hashOpen,
   sectionStates,
   resultExitCode,
   EXIT_ZERO_STATES,
   renderSegments,
   applyFix,
+  migratePersona,
 };

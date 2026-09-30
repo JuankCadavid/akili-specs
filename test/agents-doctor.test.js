@@ -11,7 +11,7 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 
-const { parsePersona, normalizeBody, hashBody, sectionStates, resultExitCode } = require("../bin/persona.js");
+const { parsePersona, normalizeBody, hashBody, hashHead, hashOpen, sectionStates, resultExitCode, migratePersona } = require("../bin/persona.js");
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "personas");
 const TEMPLATE_PATH = path.join(__dirname, "..", ".claude", "templates", "implementer.md");
@@ -796,4 +796,231 @@ test("applyFix: project space stays byte-identical on the --section replace and 
     insertSpaceBefore,
     "unlocated.md --section craft (--section insert path): project space must stay byte-identical"
   );
+});
+
+// ---------------------------------------------------------------------------
+// FR-5 / DD-6: migratePersona. Pure-function tests over the two new fixtures
+// (an older tagged template copied verbatim; a rewritten persona modelled on
+// STAR's), plus synthetic inline fixtures for the extent rule and the
+// heading-alone negative case.
+// ---------------------------------------------------------------------------
+
+const REVIEWER_TEMPLATE_PATH = path.join(__dirname, "..", ".claude", "templates", "reviewer.md");
+const reviewerTemplateText = fs.readFileSync(REVIEWER_TEMPLATE_PATH, "utf8");
+const reviewerTemplate = parsePersona(reviewerTemplateText);
+
+// Every line of the raw text with a marker line (section open/close, project
+// block open/close, migration record) dropped — used to build "what this
+// file looked like before any marker existed" without hand-retyping it.
+function stripMarkerLines(text) {
+  return text
+    .split("\n")
+    .filter((line) => !/^<!-- \/?akili:/.test(line))
+    .join("\n");
+}
+
+// KZ-changes--gate-falsifiability-2 / no-reorder (FR-5): every original line
+// survives, in order, once every inserted marker line is removed from the
+// output — the multiset-and-order check the task's check 4 also runs at the
+// CLI level.
+function withoutMarkerLines(text) {
+  return text.split("\n").filter((line) => !/^<!-- \/?akili:/.test(line));
+}
+
+test("migratePersona: v2.29.0-template-verbatim.md — 5 sections exact, 1 (context-alignment) by heading, 0 not located", () => {
+  const original = loadFixture("v2.29.0-template-verbatim.md");
+  const result = migratePersona(original, template, {}, "v2.30.0");
+
+  assert.equal(result.rows.length, 6, "expected one row per implementer.md template section");
+  const byId = Object.fromEntries(result.rows.map((r) => [r.id, r]));
+  assert.equal(byId["context-alignment"].action, "fenced");
+  assert.equal(byId["context-alignment"].detail, "heading", "context-alignment gained a bullet since v2.29.0, so only heading+opening-sentence locates it");
+  for (const id of ["scope-discipline", "craft", "verification", "reporting", "shared-file-discipline"]) {
+    assert.equal(byId[id].action, "fenced", `${id}: expected fenced`);
+    assert.equal(byId[id].detail, "exact", `${id}: expected exact match (unchanged since v2.29.0)`);
+  }
+  assert.equal(result.rows.filter((r) => r.action === "not located").length, 0);
+
+  // No reorder: the original lines survive, in order, once every inserted
+  // marker line is stripped back out.
+  assert.deepEqual(withoutMarkerLines(result.text), original.split("\n"));
+
+  // The record sits immediately before the (empty) project block, which
+  // lands right after the last fenced section (shared-file-discipline) and
+  // before the trailing "## Authorship".
+  const lines = result.text.split("\n");
+  const migIdx = lines.findIndex((l) => /^<!-- akili:migrated /.test(l));
+  assert.ok(migIdx !== -1, "expected a migration record line");
+  assert.equal(lines[migIdx], "<!-- akili:migrated v2.30.0 not-located=none -->");
+  assert.equal(lines[migIdx + 1], "<!-- akili:project -->");
+  assert.equal(lines[migIdx + 2], "<!-- /akili:project -->");
+  assert.equal(lines[migIdx - 1], "<!-- /akili:section -->", "expected the record right after the last fenced section's close marker");
+  const authorshipIdx = lines.findIndex((l) => /^## Authorship/.test(l));
+  assert.ok(authorshipIdx > migIdx + 2, "expected Authorship to remain after the project block, untouched");
+});
+
+test("migratePersona: star-modeled-rewrite.md — craft/verification fenced by heading; the two retitled items and the headed sections are not located", () => {
+  const original = loadFixture("star-modeled-rewrite.md");
+  const result = migratePersona(original, template, {}, "v2.30.0");
+
+  const byId = Object.fromEntries(result.rows.map((r) => [r.id, r]));
+  assert.equal(byId["craft"].action, "fenced");
+  assert.equal(byId["craft"].detail, "heading", "one-space numbering breaks the exact body hash; only heading+opening-sentence locates it");
+  assert.equal(byId["verification"].action, "fenced");
+  assert.equal(byId["verification"].detail, "heading");
+
+  const notLocated = result.rows.filter((r) => r.action === "not located").map((r) => r.id).sort();
+  assert.deepEqual(
+    notLocated,
+    ["context-alignment", "reporting", "scope-discipline", "shared-file-discipline"].sort(),
+    "the two retitled items, and the two sections this fixture never wrote, are not located"
+  );
+
+  assert.deepEqual(withoutMarkerLines(result.text), original.split("\n"), "no line deleted, moved or reordered");
+
+  const afterParsed = parsePersona(result.text);
+  assert.ok(afterParsed.frontMatter, "expected front matter to survive");
+  assert.equal(afterParsed.frontMatter.startLine, 0, "front matter must stay the first bytes of the file (FR-5 scenario)");
+
+  // Nothing trails item 4 (verification) in this fixture, so "after the last
+  // fenced section" and "at the end of the file" are the same position.
+  const lines = result.text.split("\n");
+  const projCloseIdx = lines.findIndex((l) => l === "<!-- /akili:project -->");
+  assert.ok(projCloseIdx !== -1);
+  assert.equal(
+    lines.slice(projCloseIdx + 1).join("\n").trim(),
+    "",
+    "expected the project block to be the last thing in the file"
+  );
+
+  // The migration record names exactly the not-located ids.
+  const migLine = lines.find((l) => /^<!-- akili:migrated /.test(l));
+  const recorded = migLine.match(/not-located=(\S+) -->/)[1].split(",").sort();
+  assert.deepEqual(recorded, notLocated);
+});
+
+test("migratePersona: a heading match without a matching opening sentence is not fenced (FR-5: heading alone never fences)", () => {
+  const miniTemplateText = [
+    "# Role: Mini",
+    "",
+    "## 🎯 Primary Instructions",
+    "",
+    "<!-- akili:section id=foo since=v1.0.0 -->",
+    "1.  **Foo Bar:**",
+    "    Do the real thing properly.",
+    "<!-- /akili:section -->",
+    "<!-- akili:project -->",
+    "<!-- /akili:project -->",
+  ].join("\n");
+  const miniTemplate = parsePersona(miniTemplateText);
+
+  const unmarkedText = [
+    "# Role: Mini Rewritten",
+    "",
+    "## 🎯 Primary Instructions",
+    "",
+    "1. **Foo Bar:**",
+    "    This is unrelated content entirely.",
+  ].join("\n");
+
+  const result = migratePersona(unmarkedText, miniTemplate, {}, "v1.1.0");
+  assert.equal(result.rows.length, 1);
+  assert.equal(result.rows[0].id, "foo");
+  assert.equal(result.rows[0].action, "not located", "the heading line matches but the opening sentence does not — heading alone must not fence");
+});
+
+test("migratePersona: the extent rule cuts a `##` section at the next `##`, never at a `###` inside it (reviewer.md review-output)", () => {
+  const unmarkedReviewer = stripMarkerLines(reviewerTemplateText);
+  const result = migratePersona(unmarkedReviewer, reviewerTemplate, {}, "v2.30.0");
+
+  const row = result.rows.find((r) => r.id === "review-output");
+  assert.equal(row.action, "fenced");
+  assert.equal(row.detail, "exact");
+
+  const fencedBody = parsePersona(result.text).sections.find((s) => s.id === "review-output").body;
+  assert.match(fencedBody, /### Option C: FATAL_FAIL/, "the fenced body must include the ### Option C block, not stop at the first ###");
+  assert.match(fencedBody, /### Option A: PASS/);
+  assert.match(fencedBody, /### Option B: FAIL/);
+
+  assert.deepEqual(withoutMarkerLines(result.text), unmarkedReviewer.split("\n"));
+});
+
+// §5.3 (entry shape) / DD-3: a role-scoped `legacy` table entry for a section
+// id is either the object shape `{ body, head, open }` or a bare string read
+// as `body` alone. Both hashes below are taken from `v2.27.0`'s
+// `.claude/templates/implementer.md` (`git show v2.27.0:.claude/templates/implementer.md`),
+// the tag whose item 1 and item 4 bodies hash-identical to this repo's own
+// `.agents/implementer.md` — confirmed by extracting both tags' item bodies
+// with the same level-cut rule migratePersona uses and comparing hashBody
+// output (see the task report for the exact command). Neither id's own
+// current-template signature reaches an `exact` match on its own: item 1's
+// wording was rewritten for v2.30.0 (baseline: `not located`), and item 4's
+// body grew a bounded self-correction loop after v2.27.0 (baseline:
+// `heading`, via the packaged template's own first-line/opening-sentence
+// pair, which v2.27.0 happens to still share). This fixture proves the
+// `legacy` table's own body hash is what promotes both to `exact`.
+const FIXTURE_LEGACY_DIGESTS = {
+  legacy: {
+    "context-alignment": {
+      "v2.27.0": {
+        body: "e847d78b01a336e00511e8a22a8dcca896553c40ebee890b81c2ff99a9146032",
+        head: "88aef2a8da08d4ff90861a6580d1e8885baef8db344124c8be53bcf5eff6127c",
+        open: "8ae56d99ad2f06423e312c1c0873820a012fe8eda49cd5b639788377f5bc2c60",
+      },
+    },
+    verification: {
+      "v2.27.0": "60b48612eaee7f07d1f556cfa1694c5f864f48278d09b311cd7b831da5a964e1",
+    },
+  },
+};
+
+test("migratePersona: a fixture legacy digest table ({body,head,open} object + bare-string entry, both from v2.27.0's implementer.md) locates two sections by exact match that the packaged template alone cannot locate at all or can only locate by heading", () => {
+  // This repo's own .agents/implementer.md is the "older scaffold" (FR-5's
+  // first scenario): item 1 and item 4 are byte-identical to v2.27.0's, not
+  // to the current v2.30.0 template.
+  const olderScaffold = loadFixture("older-scaffold-v2.27.0.md");
+
+  // Baseline: without the table, context-alignment is `not located` (its
+  // heading was rewritten for v2.30.0 too, so neither an exact nor a
+  // heading match is available) and verification is `heading` only (the
+  // packaged template's own first-line/opening-sentence pair still agrees
+  // with v2.27.0's, even though the bodies differ).
+  const baseline = migratePersona(olderScaffold, template, {}, "v2.30.0");
+  const baselineById = Object.fromEntries(baseline.rows.map((r) => [r.id, r]));
+  assert.equal(baselineById["context-alignment"].action, "not located", "the packaged template alone cannot locate this section at all");
+  assert.equal(baselineById["verification"].action, "fenced");
+  assert.equal(baselineById["verification"].detail, "heading", "the packaged template's own head/open pair locates it, but not by exact body match");
+
+  // With the object entry + the bare-string entry, both promote to `exact`.
+  const withTable = migratePersona(olderScaffold, template, FIXTURE_LEGACY_DIGESTS, "v2.30.0");
+  const withTableById = Object.fromEntries(withTable.rows.map((r) => [r.id, r]));
+
+  assert.equal(withTableById["context-alignment"].action, "fenced");
+  assert.equal(withTableById["context-alignment"].detail, "exact", "the legacy object entry's body hash must locate this section by exact match; the packaged template alone cannot locate it at all");
+  assert.equal(withTableById["verification"].action, "fenced");
+  assert.equal(withTableById["verification"].detail, "exact", "the legacy bare-string entry's body hash must promote this section from heading to exact");
+});
+
+const LEADER_TEMPLATE_PATH = path.join(__dirname, "..", ".claude", "templates", "leader.md");
+const leaderTemplateText = fs.readFileSync(LEADER_TEMPLATE_PATH, "utf8");
+const leaderTemplate = parsePersona(leaderTemplateText);
+
+test("migratePersona: leader.md's primary-instructions is cut by the §5.2 row's extent (next `##`), not the generic item rule — items 1-4 fenced as one block", () => {
+  const unmarkedLeader = stripMarkerLines(leaderTemplateText);
+  const result = migratePersona(unmarkedLeader, leaderTemplate, {}, "v2.30.0");
+
+  const row = result.rows.find((r) => r.id === "primary-instructions");
+  assert.equal(row.action, "fenced");
+  assert.equal(row.detail, "exact", "a verbatim current template, markers stripped, must hash-match its own current body as one block");
+
+  const fencedBody = parsePersona(result.text).sections.find((s) => s.id === "primary-instructions").body;
+  assert.match(fencedBody, /4\. \*\*Rework Loop, Traceability & Escalation/, "item 4 must be inside the fenced span, not cut off at item 2");
+  assert.match(fencedBody, /The project block below overrides any marked section\./, "the trailing bullet of item 4 must be inside the fenced span");
+
+  assert.deepEqual(withoutMarkerLines(result.text), unmarkedLeader.split("\n"), "no line deleted, moved or reordered");
+});
+
+test("hashHead/hashOpen: list-number spacing, emoji and punctuation differences normalize to the same signature", () => {
+  assert.equal(hashHead("1.  **Strict Context Alignment (Context & Skills):**"), hashHead("1. **strict context alignment context skills**"));
+  assert.equal(hashOpen("## 📝 Reporting Completion"), hashOpen("## Reporting Completion"));
 });

@@ -748,3 +748,121 @@ ISSUES:
 **Decisions made.** The Implementer's sixth edit (the checklist line's `:59(c)` echo) is accepted: check 3 is file-wide and NFR-7 forbids the pointer; declared in its report as a judgment call.
 
 **Forward pointers.** T9: `docs/commands/akili-audit.md` carries no sentence to mirror for this task (0 hits for "never an overwrite" / "drifted structurally"); `docs/cli.md` must define the states both commands now cite.
+
+### T4: Migration of unmarked personas
+
+Status while in rework: `[~]`. Ran in parallel with T7 and T8 (disjoint files). Approval mode `pre-approved`.
+
+**P-13 / P-14 settled (first step, 2026-09-30).** Survey re-run over the 13 `.agents/implementer.md` files reachable at `~/Development` (depth 3): **10** with two-space items, **3** with one-space items, **no third shape** (one file mixes only because a custom `##` section carries its own one-space list), **no scaffold-release record** in any (`grep -c -i 'release\|scaffolded'` → 0 ×13). The judge's survey had 9/4; the shapes are the two DD-6 already handles. STAR = `alliance-research-indicators-main/.agents/implementer.md` (front matter, role renamed, seven one-space items, no `## Authorship`). No Pivot. The design's P-13/P-14 rows are settled by this reading (ledger update at the task's closing record).
+
+**Attempt 1 — FAIL** (2026-09-30). Effort `xhigh`. Skills `tdd`, `error-handling-patterns`, as the task lists.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/persona.js` (+257: `hashHead`, `hashOpen`, `migratePersona`, `signaturesFor`, `extentEnd`, `trimTrailingGap`), `bin/akili.js` (+35 −12: the `unmarked` branch of `--fix` calls `migratePersona`; `fenced` / `not located` rows), `test/agents-doctor.test.js` (+154; five new tests, 58 total), fixtures `v2.29.0-template-verbatim.md` (byte-for-byte `git show v2.29.0:…`, confirmed by the Reviewer with `cmp`) and `star-modeled-rewrite.md` (new) |
+| Implementer verification | Check 1: 58 pass. Check 2 (copy of this repo's persona, empty table): 3 `FENCED (heading)`, 0 exact, 3 `NOT LOCATED`. Check 3 (copy of STAR's): 6 `NOT LOCATED`. Check 4: marker-stripped diff vs original empty on both copies (after fixing a stray blank line in the nothing-fenced branch). Check 5: `bin/`, `test/` |
+| Falsifier | Executed: `HEADING_RE` widened to `###` → the extent test red (`'heading' !== 'exact'`, cut at `### Option A`); reverted, hash-checked |
+| Red run, as reported | Every new test "failed (`TypeError: migratePersona is not a function`)" before the export existed; two later failed on real assertions. **Ruled insufficient by the Reviewer (issue 2)** |
+| Evidence re-run | Leader-inline, no worker active. 58/58; own copies → 3 `FENCED` + 3 `NOT LOCATED` (repo), 6 `NOT LOCATED` (STAR); real `--fix` on both, marker-stripped diff empty, front matter first, record immediately before the project block at the end of STAR's copy; the real `.agents/` untouched; falsifier on a scratch copy → `not ok 57 - migratePersona: the extent rule cuts a \`##\` section at the next \`##\`, never at a \`###\` inside it`. **VERIFIED** |
+| Reviewer verdict | **FAIL**, three issues (report below). Rulings on the Leader's questions: the record's `2.29.0` form is not a spec defect (§5.1 says `<release>`; only `since=` mandates `v`); the current packaged template counts as "any release … text"; heading match requires both hashes; project-block position holds in both shapes; the no-reorder test compares the full line array |
+| runtime events | none |
+
+`spawns (attempt 1): implementer 90 calls, 273,641 tokens, ended complete; reviewer 14 calls, 101,632 tokens, ended complete`
+
+**Reviewer report, attempt 1 (verbatim).**
+
+```text
+STATUS: FAIL
+
+ISSUES:
+1. **Discovered Issue:** Named check (i) fails. `levelOf(tSec.body)` classes `leader.md`'s `primary-instructions` as `item`, because its body starts `1. **Source-of-truth…`. `extentEnd` then cuts an item at the next candidate, which is item 2. On an unmarked `leader.md`, the exact hash therefore never matches: the candidate span is item 1 only, and the template body is items 1–4. The heading match then fences item 1 alone and leaves items 2–4 unfenced. Even a verbatim current Leader template with its markers stripped would come out wrong, and it would then read `custom-edited`. No test covers `leader.md`.
+   * **Violated Rule:** design.md §5.2, execute-time clarification: *"for `leader.md`'s `primary-instructions` the row governs the extent — the section runs from item 1 to the next `##`, as T1d fenced it — so the migration (DD-6) and the legacy seed (DD-3) cut it as one block"*. The §5.2 table gives `leader.md` level `##`. FR-5: *"A located section SHALL extend to the next section start of the same or higher level"*.
+   * **Remediation Suggestion:** Take the extent from the §5.2 row, not from the first line. For example, a template item section whose body holds more than one column-0 item runs to the next `##`; or `primary-instructions` gets an explicit `##` extent. Add a test on `stripMarkerLines(leader.md)`: `primary-instructions` is `fenced (exact)`, its body contains item 4, and lines are not reordered.
+
+2. **Discovered Issue:** Red run. The diff adds 5 tests (53 → 58), not the 6 reported. A `TypeError` from the missing export pre-empts every assertion. The only reds on an assertion were `'heading' !== 'exact'`, which occurs only in the v2.29.0-fixture test and the `review-output` extent test. Three tests were never observed red on their assertion:
+   * the STAR-fixture test
+   * the heading-alone negative
+   * `hashHead/hashOpen`
+   * **Violated Rule:** FR-9: *"Each test SHALL be observed red on its assertion before the code that makes it green exists."* T4's Red run field: *"Each new test observed failing on its assertion before the implementation"*.
+   * **Remediation Suggestion:** Record a red on the assertion for each of the three, by test name, using a mutation or stub, as T3 did. Suggested mutations:
+     * Heading-alone test: drop the `open` requirement from the heading match.
+     * `hashHead/hashOpen`: remove the list-number or emoji strip.
+     * STAR test: stop skipping the front matter, or accept retitled heads.
+
+3. **Discovered Issue:** Check 2 ran with an empty digest table. The command requires *"with the T5 legacy table, or a fixture table until T5"*. As a result, FR-5's first scenario (an older scaffold) is never exercised: 0 `FENCED (exact)` on this repo's scaffold. Every unit test passes `{}`, so no test reaches the `releases`/`legacy` branches of `signaturesFor`: the object `{body, head, open}` entry and the bare-string-as-`body` case from named check (ii). By reading, `head`/`open` follow §5.3 (DD-6 normalization; first 40 normalized characters), and a bare string feeds the exact set only. That is correct, but it is untested.
+   * **Violated Rule:** T4 Verification, Command 2 (above). FR-5 Scenario *"An older scaffold … THEN each item whose text is some tagged release's is fenced by exact match"*.
+   * **Remediation Suggestion:** Build a fixture table with one legacy object entry and one bare string, taken from an older tag's text. Add a unit test that locates a section by `exact` only through that table. Re-run check 2 with the table and quote the counts.
+
+**Rulings on the Leader's questions:**
+- **Q2, the record reads `2.29.0`:** not a spec defect. §5.1's grammar says `<release>`, not `<vX.Y.Z>` (only `since=` mandates the `v`), and §5.3's `version` is `"2.30.0"`. See the advisory below.
+- **Q3, matching sources:** the current packaged template is the text of a release, so it falls within DD-6's *"in any release or legacy text"*. The heading match requires both hashes to agree: `relevantPairs` filters on `head` and the `open` hash must come from the same pair, scanning at most 3 non-blank lines. Heading alone never fences.
+- **Q4, project-block position:**
+  * v2.29.0 fixture: the record comes right after the last close marker, then the project block, then `## Authorship`, as asserted.
+  * STAR fixture: the block is last in the file.
+  * The Leader's STAR CLI run confirms the nothing-fenced, end-of-file branch.
+  * DD-6 steps 5–6 and DD-13 hold.
+- **Q5, no-reorder:** yes. `assert.deepEqual(withoutMarkerLines(out), original.split("\n"))` compares the full line array, so it checks both the multiset and the order.
+- **Fixture bytes:** `git show v2.29.0:.claude/templates/implementer.md | cmp` → identical.
+- **Scope:** `git status` shows only `bin/` and `test/`.
+
+**ADVISORY:**
+- **READABILITY:** The record's release form is inconsistent. The CLI emits `2.29.0`; the tests and the existing `unlocated.md`/`all-unlocated.md` fixtures use `v2.30.0`. Pick one form, preferably `v`-prefixed to match `since=`, and assert it in the CLI path.
+- **RELIABILITY:** The nothing-fenced branches have no unit test: end of file (including the trailing-`""` drop) and before `## Authorship`. Only the Leader's CLI check covers the end-of-file branch.
+- **RISK:** P-13/P-14 still read `UNVERIFIED` in design.md §10. The re-run survey found 10/3, not the ledger's 9/4, with no scaffold record. Record the settled rows (Done: *"P-13/P-14 settled and recorded"*).
+- **RELIABILITY:** Matching is cursor-ordered. A persona whose sections were reordered gets the later sections `not located`. That is safe, since nothing is moved, but it is worth a line in `docs/cli.md`.
+- **READABILITY:** The "opening sentence" definition (first non-blank line after the head, sliced to 40 characters) is now a contract T5's generator must reuse. Export or document it as one function, so the generator cannot diverge.
+```
+
+**Leader adjudication, attempt 1.** All three issues in scope: (1) the §5.2 clarification, carried as a named check; (2) FR-9 and the task's Red run field — the same class T2 round 1 and T3's continuation already established in this spec; (3) the task's own check 2 text and FR-5's first scenario. Attempt 2 carries the report unchanged. The advisories are recorded: the P-13/P-14 ledger rows are the Leader's to settle (spec document edit at the closing record); the `v`-prefix advisory and the `docs/cli.md` line go to T9 as forward pointers. Fifth spawn of this spec over the 60-call bound (90 counted by the host, "~85" self-reported).
+
+**Attempt 2 — implicit FAIL (Leader's evidence re-run)** (2026-09-30). Effort: maximum care on three named fixes. Skills `tdd`, `error-handling-patterns`. Feedback: the attempt-1 report verbatim, the adjudication, an Attempt History.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/persona.js` (`extentLevelFor`; `extentEnd(idx, extentLevel)`), `test/agents-doctor.test.js` (60 tests: a `leader.md` extent test; a fixture-table test with `FIXTURE_LEGACY_DIGESTS` from tag v2.27.0 — an object entry and a bare string). `bin/akili.js` unchanged. A stray `bin/persona.js.orig`, identical to the final file, was left in the tree and removed by the Leader |
+| Implementer verification | Check 1: 60 pass. Check 2: CLI reading 0 / 3 / 3; fixture-table reading through `migratePersona` **2 exact / 2 heading / 2 not located** (tag v2.27.0 matched items 1 and 4 of this repo's persona). Check 3: 0 / 0 / 6. Check 4: empty on both copies. Check 5: `bin/`, `test/` |
+| Red runs | `leader.md` test red on `'heading' !== 'exact'`; STAR test red under an `ITEM_RE` mutation (`expected: 'fenced', actual: 'not located'`); heading-alone negative red with the opening-sentence loop dropped; `hashHead`/`hashOpen` red with the emoji strip removed (a weaker first mutation stayed green, declared and superseded); fixture-table test red with the legacy lookup zeroed. All reverted by inverse edit, hash-checked |
+| Falsifier | Re-executed on the final code → red on the `review-output` extent test; reverted, hash-checked |
+| Evidence re-run | Leader-inline, no worker active. 60/60 in the repo; copies of this repo's persona → 3 `FENCED (heading)` + 3 `NOT LOCATED`; STAR's → 6 `NOT LOCATED`; `leader.md` with its markers stripped → all five sections `FENCED (exact)`; real `--fix` on all three, marker-stripped diff empty on all three; second `doctor --agents` exit 0 (16 `CURRENT` + 3 `CUSTOM-EDITED` + 3 `UNLOCATED`; 16 + 6 `UNLOCATED`; 22 `CURRENT`); the real `.agents/` untouched. Falsifier on a scratch copy → `not ok 57`, `not ok 58`. **Then, prompted by the Reviewer's first advisory: `node --test` on a copy of `bin/`, `test/`, the templates and `package.json` with no `.agents/` folder → 59 pass, 1 fail: `not ok 58 - migratePersona: a fixture legacy digest table …` with `ENOENT: no such file or directory, open '…/.agents/implementer.md'`.** The test reads the live `.agents/implementer.md`, which `.gitignore` line 8 ignores in this repository: check 1 holds only where that untracked file exists, and fails in every clean checkout, including CI. **MISMATCH on check 1 as a claim about the suite — implicit FAIL** |
+| Reviewer verdict | **PASS** (the attempt-1 Reviewer, resumed), with the fragility above as an ADVISORY: "The new fixture-table test reads the live `.agents/implementer.md` instead of a file under `test/fixtures/`… DD-9 says *fixtures as files*. Copy the current bytes into `test/fixtures/personas/` … and point the test there." Second advisory: export `extentLevelFor` (or a table) so T5's legacy generator shares the override. The PASS is recorded; the Leader's re-run overrides it on evidence, not on judgment |
+| runtime events | none |
+
+`spawns (attempt 2): implementer 120 calls, 214,032 tokens, ended complete; reviewer (resumed) 2 calls, 108,836 tokens, ended complete`
+
+**Leader adjudication, attempt 2.** The evidence re-run is never waived and a mismatch is an implicit FAIL: a suite that passes only beside a gitignored file does not satisfy FR-9 ("The project's CI SHALL run the test script") or DD-9 ("fixtures as files"). Attempt 3 — the last — copies the persona's bytes into a fixture file and points the test there; nothing else. The second advisory (sharing `extentLevelFor` with T5's generator) is a forward pointer for T5, not work here.
+
+**Attempt 3 — PASS** (2026-09-30). One change: the fixture-table test reads a checked-in file.
+
+| Item | Value |
+|---|---|
+| Files changed | `test/fixtures/personas/older-scaffold-v2.27.0.md` (new; a byte-for-byte copy of this repo's `.agents/implementer.md`, 6,918 bytes, `cmp` identical), `test/agents-doctor.test.js` line 981: `fs.readFileSync(path.join(__dirname, "..", ".agents", "implementer.md"), "utf8")` → `loadFixture("older-scaffold-v2.27.0.md")`. `bin/` unchanged (hashes `2db9e516908f`, `faadadf8b99a`) |
+| Implementer verification | Clean copy (no `.agents/`) before the edit → 59 pass, 1 fail (`ENOENT`); after → 60 pass. Repo `npm test` 60 pass. 14 tool calls (host count) |
+| Evidence re-run | Leader-inline: `cmp` identical; no `"..", ".agents"` read left in the test file; repo 60/60; a copy of `bin/`, `test/`, the templates and `package.json` with no `.agents/` → 60/60; `bin/` hashes unchanged; the round-2→round-3 diff is that one line. **VERIFIED** |
+| Reviewer verdict | **PASS** (the same Reviewer, resumed): the test proves the same thing from a checked-in, not-gitignored file; FR-9 and DD-9 satisfied; no other line changed; no new violation |
+| runtime events | none |
+
+`spawns (attempt 3): implementer 14 calls, 71,029 tokens, ended complete; reviewer (resumed) 2 calls, 110,907 tokens, ended complete`
+
+**T4 closing record — PASS (2026-09-30).**
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 3 of 3 |
+| Implementer attempts | 3 |
+| Requirements covered | FR-5 (seven bullets, both scenarios), FR-9 (fixtures as files; reds on the assertion); design §5.1, §5.2 (as clarified), §5.3 (as clarified), §5.4 `unmarked` → migrate, DD-6, DD-13; P-11, P-13, P-14, P-17 |
+| Files changed | `bin/persona.js` (`hashHead`, `hashOpen`, `migratePersona`, `signaturesFor`, `extentEnd`, `extentLevelFor`, `trimTrailingGap`), `bin/akili.js` (the `unmarked` branch of `--fix`; `fenced`/`not located` rows), `test/agents-doctor.test.js` (60 tests), fixtures `v2.29.0-template-verbatim.md`, `star-modeled-rewrite.md`, `older-scaffold-v2.27.0.md` |
+| Evidence re-run | Leader-inline on every attempt: **VERIFIED** ×2, **MISMATCH** ×1 (attempt 2: the suite needed a gitignored file) |
+| Review rounds used | 3 for this task; **17 of 26** in total |
+| Skills | `tdd`, `error-handling-patterns`, as the task lists |
+| P-13 / P-14 | Settled (above); `design.md` §10 rows updated by the Leader at this record (an execute-time ledger edit, no requirement changed) |
+| Advisories | Seven across the three rounds, recorded above; none became work. Forward: the migration record's release form (`2.29.0`, no `v`) and cursor-ordered matching → T9's `docs/cli.md`; `extentLevelFor` shared with the legacy generator → T5 |
+| Committer checks | `git diff --check` clean; `pack:dry-run` after commit |
+| Gate | `auto-approved (pre-approved mode)` |
+| Lines | spec total (no fixtures) after T4: see the commit stat |
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T5 | The legacy generator must cut every tag's template by the same rules `migratePersona` uses — `extentLevelFor` (the `primary-instructions` override) and `hashHead`/`hashOpen` (the `head`/`open` definitions: first line normalized; first non-blank line after it, normalized, first 40 characters, scanned up to three non-blank lines in) — reuse the exported functions, never a second implementation. Entry shape per §5.3 as clarified. The fixture table in the test file (`FIXTURE_LEGACY_DIGESTS`, tag v2.27.0) shows the shape. T5's check 6 re-runs T4's check 2 with the real table: expect this repo's persona to gain exact matches for items 1 and 4 at least |
+| T9 | `docs/cli.md`: the three migration outcomes (`FENCED (exact)`, `FENCED (heading)`, `NOT LOCATED`), the record grammar with its bare release form, cursor-ordered matching (a reordered persona gets later sections `not located`; nothing is moved) |

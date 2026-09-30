@@ -233,7 +233,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Review | `full` (overrides b, f) |
 | Depends on | T3 |
