@@ -34,8 +34,8 @@ All citations run at `71c73fd` on 2026-09-30.
 | 6 | `/akili-audit` reports persona injection bleed and wrapper gaps, not persona drift against the packaged template | `.claude/commands/akili-audit.md:55` (bleed), `:57` (Antigravity wrapper gaps), `:116` (a structural check). `grep -n -i "packaged template" .claude/commands/akili-audit.md` → 1 hit, `:60`, inside *Model Generation Drift*, about calibration text and not persona drift |
 | 7 | The packaged templates are installed at a known path per tool | `.claude/commands/akili-constitution.md` Step 8B: `~/.claude/akili/templates/`, `~/.config/opencode/akili/templates/`, `~/.gemini/config/akili/templates/`, `~/.codex/akili/templates/` (or `./.codex/…`) |
 | 8 | Personas change often | `git log --oneline --since=2026-08-01 -- .claude/templates` → 18 commits; `implementer.md` alone in 8 |
-| 9 | Deployed personas are customized by design, so a wholesale overwrite is not an option | Step 8B *Injection scope* table (project facts written into each persona by role). STAR's `.agents/implementer.md` differs from the template it was copied from by 92 diff lines: a renamed role, a YAML front matter with a coverage floor, a server-specific scope. This repository's own `.agents/implementer.md` differs by 28 |
-| 10 | Deployed personas are git-tracked in at least one downstream project and gitignored in this one | STAR: `git ls-files .agents` → 3 files. This repo: `.gitignore:8` `.agents/` |
+| 9 | Deployed personas are customized by design, so a wholesale overwrite is not an option | Step 8B *Injection scope* table (project facts written into each persona by role). STAR's `.agents/implementer.md` differs from the current template by 153 diff lines: a renamed role, a YAML front matter with a coverage floor, a server-specific scope. This repository's own `.agents/implementer.md` is an older scaffold (7 insertions, 72 deletions against the template). *(Figures corrected 2026-09-30 after judgment day.)* |
+| 10 | Deployed personas are git-tracked in at least one downstream project and gitignored in this one | STAR: `git ls-files .agents` → 4 files. This repo: `.gitignore:8` `.agents/` |
 | 11 | No template carries a marker that says which of its parts AKILI owns | `grep -rn -i "<!-- akili\|akili:" .claude/templates/*.md` → 0 hits |
 | 12 | A persona carries no record of the release it was scaffolded from | `UNVERIFIED — confirm at source before relying on it`. No front-matter field or comment was found in the templates or in STAR's copies; a downstream project may have added one by hand. Settled at `/akili-specify` design by reading two more downstream `.agents/` folders |
 
@@ -47,7 +47,7 @@ All citations run at `71c73fd` on 2026-09-30.
 |---|---|
 | An upgrade is a replacement, not an addition | Safe Update replaces the AKILI-owned sections of a persona with the packaged ones and leaves everything else in place |
 | What AKILI owns is visible in the file | Each owned section is fenced by a marker carrying its id and the release it was last changed in |
-| Drift is detected, not remembered | `akili doctor` run in a project reports each persona whose owned sections differ from the installed templates, and `--fix` replaces them |
+| Drift is detected, not remembered | `akili doctor` run in a project reports each persona whose owned sections differ from the CLI's packaged templates, and `--fix` replaces them |
 | Old personas can adopt the markers once | A migration step recognizes pre-marker personas, locates each owned section by its heading and first sentence, and fences it — with a report of what it could not locate |
 | The CHANGELOG stops carrying migration recipes | A release note says "run `akili doctor --agents --fix`" |
 
@@ -58,7 +58,7 @@ All citations run at `71c73fd` on 2026-09-30.
 | `.claude/templates/{leader,implementer,reviewer,tester}.md` | Section markers around AKILI-owned blocks; a `since` release per marker |
 | `.claude/commands/akili-constitution.md` Step 8B | Safe Update replaces marked sections; the *Injection scope* table says where project injections live (outside owned sections, or in a named project block) |
 | `bin/akili.js` | `akili doctor --agents [--fix]` (project mode, reads `./.agents/`), the section diff, the backup rule, the pre-marker migration |
-| `.claude/commands/akili-audit.md` | One drift row: personas whose owned sections differ from the installed templates |
+| `.claude/commands/akili-audit.md` | Its existing persona structural check reports section states against the packaged templates |
 | `docs/commands/`, `docs/cli.md`, `README.md` | Mirrors and CLI docs |
 | `CHANGELOG.md` | `Unreleased` entry; the last hand-migration note is replaced by the command |
 | Tests | `scripts/` or the CLI's existing test path — a fixture persona with custom text, an upgrade, and a byte comparison of the custom text |
@@ -135,9 +135,9 @@ All citations run at `71c73fd` on 2026-09-30.
 | Risk | Mitigation |
 |---|---|
 | **A maintainer's edit inside an owned section is replaced** | `custom-edited` state, reported before any fix; backup; explicit `--section` to override |
-| **The migration mislocates a section in a heavily rewritten persona** (STAR: 92 diff lines, renamed role) | It fences only what it matched on heading *and* opening sentence; everything else is reported as `unmarked` and left alone. Named in the report, never silently skipped (KZ-004: every state has an action) |
-| **Markers cost tokens on every spawn** | Six one-line comments per file, about 60 tokens; measured against NFR-1's growth caps |
-| **Two sources of truth for what an owned section says** (template vs the CLI's copy) | The CLI reads the installed templates (claim 7); it ships no second copy |
+| **The migration mislocates a section in a heavily rewritten persona** (STAR: 153 diff lines, renamed role, retitled items) | It fences only what it matched on heading *and* opening sentence; everything else is reported as `unmarked` and left alone. Named in the report, never silently skipped (KZ-004: every state has an action) |
+| **Markers cost tokens on every spawn** | Measured at the design gate: about 1,950 bytes across the four templates, some 160 tokens per worker spawn; capped at 2,200 bytes |
+| **Two sources of truth for what an owned section says** (template vs the CLI's copy) | The CLI reads its own packaged templates (amended at the design gate, 2026-09-30: the installed copies could lag the CLI); it ships no second copy |
 | **KZ-changes--subagent-context-budget-1**: the template edits span four rules documents | One task per template file, never one task for all four |
 | **KZ-changes--subagent-context-budget-2**: a numeric cap set before the content exists | The marker overhead is measured on a draft at the design gate |
 | **KZ-changes--kaizen-loop-closure-2**: Safe Update's append rule is restated elsewhere | The obligation-keyed sweep covers `docs/commands/akili-constitution.md:27`, `README.md:550` and the audit's checklist item `:1166` |
