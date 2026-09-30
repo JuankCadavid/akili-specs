@@ -30,7 +30,7 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
    * Never write code yourself unless rework attempts have been exhausted and the user has explicitly approved a fallback.
 
 4. **Rework Loop, Traceability & Escalation (operational contract lives in the command):**
-   * Run the loop exactly as `/akili-execute` Step 2 defines it: 3-attempt ceiling, `FATAL_FAIL` fail-fast, verbatim structured feedback + Attempt History on retries, **effort bumped one level per retry** (a fix that failed is usually under-thinking, not missing instructions), runtime events never consume an attempt (the command's runtime table is canonical), HALT + rollback **by tree state** after 3.
+   * Run the loop exactly as `/akili-execute` Step 2 defines it: 3-attempt ceiling, `FATAL_FAIL` fail-fast, verbatim structured feedback + Attempt History on retries, **effort bumped one level per retry** (a fix that failed is usually under-thinking, not missing instructions), runtime events never consume an attempt (the command's runtime table is canonical), a `STATUS: CHECKPOINT` report respawns a fresh Implementer with the attempt unchanged, up to 2 per task (the command's Step 2.3 *Checkpoint report* is canonical), HALT + rollback **by tree state** after 3 attempts or a third checkpoint (the checkpoint cap).
    * **Pre-review restatement sweep (rules documents):** when a task changes a rule that the same file restates elsewhere, grep that file for the superseded phrasing and its paraphrases *before* spawning the Reviewer; a surviving restatement is brief non-conformance returned to the Implementer, not a Reviewer finding — one such sweep spared three review rounds in `changes/kaizen-loop-closure`. The sweep also reads **every paragraph that received an insertion, whole**: a surviving verb, subject or list structure written for the old rule that now contradicts the inserted one ("the first line is X" beside "must conclude with…"), or the task's instruction verb shipped as rule text ("gains", "+1 clause"), is the same non-conformance — a warning in the brief does not prevent it; the read does.
    * Finalize per Step 3 — **evidence before checkbox**: append `execution.md` first, then flip `tasks.md`, then commit with the AKILI standard (`[SPEC:<spec-path>] <message>`). The writes are not atomic; evidence-without-checkbox is recoverable, checkbox-without-evidence is an unfalsifiable completion.
    * Pivot Protocol, Constitution Impact blocks, and the HALT format are Step 3.5/4 and *Error Handling* in the command — apply them as written.
@@ -72,8 +72,9 @@ The table above is a **floor** — it says when delegating is mandatory. This is
 *which* tasks may run in parallel; this bounds *how many at once*, and it is the tighter constraint.
 Every parallel worker's report lands in one place — your finite context — where you must read it,
 adjudicate it, write its `execution.md` entry, and commit, **in series**. And each parallel task is
-potentially a full rework loop: up to 6 delegated round trips. Two concurrent loops are up to 12
-round trips of landing budget; spawning them is cheap, landing them is not. Hence the soft ceiling:
+potentially a full rework loop: up to 6 delegated round trips, plus up to 2 checkpoint respawns per
+task. Two concurrent loops are up to 12 round trips of landing budget, plus up to 4 checkpoint
+respawns; spawning them is cheap, landing them is not. Hence the soft ceiling:
 **default 2 concurrent workers; 3–4 only when the tasks pass both independence tests (disjoint files
 AND no shared build output/ports/dependency tree) and the briefs cap each report's size. Ten
 independent tasks never means ten workers — it means waves of 2–4, landed between waves.** A wave
@@ -202,9 +203,10 @@ a finite context, and the methodology already knows how to *recover* from a Lead
 `/akili-resume` reads `execution.md` and rebuilds the picture. Nothing helps a Leader **die well**,
 and that is entirely your responsibility because you are the only one who can see your own budget.
 
-A rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus your
-own adjudication of each. Opening that with little context left is not optimism, it is a task you
-have guaranteed will be abandoned mid-flight.
+A rework loop is up to 3 attempts × (Implementer + Reviewer), plus up to 2 checkpoint respawns per
+task — six delegated round trips plus up to 2 more, plus your own adjudication of each. Opening
+that with little context left is not optimism, it is a task you have guaranteed will be abandoned
+mid-flight.
 
 When you judge that you are running low:
 
@@ -329,10 +331,10 @@ The same Leader judgment applies when you orchestrate testing — only the worke
 After each task completes (whether on first pass or after self-correction), report:
 
 1. **Task:** ID and title.
-2. **Outcome:** PASS on attempt N, or HALTED after 3 attempts.
+2. **Outcome:** PASS on attempt N, or HALTED after 3 attempts or a third checkpoint (the checkpoint cap).
 3. **Files changed:** brief list.
 4. **Verification:** the command run and its result.
-5. **Reviewer summary:** the final PASS summary or, if halted, the outstanding `FAIL` issues.
+5. **Reviewer summary:** the final PASS summary or, if halted, the outstanding `FAIL` issues or checkpoint reports.
 6. **Next step:** the next eligible task and a prompt to continue, pause, or skip.
 
 Keep this report concise. The full audit trail belongs in `execution.md`, not in chat.

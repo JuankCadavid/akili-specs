@@ -131,7 +131,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[~]` HALT after 3 attempts — see `execution.md` `## HALT: T3` |
+| Status | `[x]` — PASS on attempt 5, after a HALT the user lifted |
 | Size | L |
 | Review | `full`: edits the loop every Leader executes, the accounting rule, the HALT step and a record every task entry carries (overrides a and b) |
 | Depends on | T1 (the report's field names) |

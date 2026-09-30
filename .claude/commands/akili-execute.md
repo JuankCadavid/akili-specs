@@ -61,7 +61,7 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 **Runtime-failure fallback (per role):** a **runtime event** is neither a work FAIL nor a spec problem — **spawn failure** (the harness could not start the worker), **provider-limit death** (the worker was killed mid-task by a quota, rate, or session limit), **pane / terminal timeout** (a transient host failure), or **idle-without-report** (the worker's turn ended without its contracted report — handled entirely by `leader.md`'s idle-without-report protocol, cited by name, nothing restated here). Closing the enumeration, these are **not** runtime events and consume an attempt or stop the loop by the existing rules: an Implementer-reported verification failure (implicit FAIL), a Reviewer `FAIL`, a `FATAL_FAIL`, a Pivot-Detection stop, and a project-stack outage (Step 2.1's environment pre-check and `leader.md` → *Deferring a check*).
 
-**Accounting rule:** an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else. No runtime event touches the attempt counter. Each role climbs its own fixed ladder, rung by rung, never improvising:
+**Accounting rule:** an attempt is consumed by a Reviewer `FAIL` or an Implementer-reported verification failure, and by nothing else — a checkpoint is not a reported verification failure. No runtime event touches the attempt counter. Each role climbs its own fixed ladder, rung by rung, never improvising:
 
 | Role | Ladder (climbed in order; each rung recorded per attempt) |
 |---|---|
@@ -118,14 +118,28 @@ The Leader does not write production code itself unless the rework loop is exhau
 
 ### Step 2: Execute Task via Rework Loop
 
-The Leader executes each task through a bounded loop. The loop terminates on a passing verdict — a Reviewer `PASS`, or a task that meets **Review intensity** (Step 2.3) with no Reviewer owed — on HALT after 3 failed attempts, or on a Pivot.
+The Leader executes each task through a bounded loop. The loop terminates on a passing verdict — a Reviewer `PASS`, or a task that meets **Review intensity** (Step 2.3) with no Reviewer owed — on HALT after 3 failed attempts or a third checkpoint (the checkpoint cap), or on a Pivot.
 
 ```text
 attempt = 1
+checkpoints = 0
 feedback = none
 loop:
   spawn Implementer with task scope + design context + feedback (if any)
   receive Implementer report (changes + verification evidence)
+  if report is STATUS: CHECKPOINT:          # Step 2.3, Checkpoint report
+    if report names a blocker:              # Precedence: item 0's *Names a blocker* wins over any status line
+      mark task [~], escalate to user
+      exit loop
+    if Notes carries a Pivot-Detection flag:  # Pivot flag: before any respawn
+      trigger Pivot Protocol (Step 2.4)
+      exit loop
+    checkpoints += 1
+    if checkpoints > 2:                     # checkpoint cap
+      HALT, mark task [~], present audit trail (Step 4)
+      exit loop
+    feedback = feedback (if any) + checkpoint report (verbatim) + which checkpoint; attempt unchanged
+    continue loop
   extract git diff
   evidence re-run (non-author) -> VERIFIED | MISMATCH   # Review intensity, Step 2.3 — always, never waived
   if MISMATCH:
@@ -163,10 +177,11 @@ loop:
 Delegate to the Implementer with a **pointer brief, not an anthology**. A host worker (see *Cross-host dispatch*) can read any project file itself, and what it reads lands in its context as cacheable input — while content you inline lands as your **output**, the most expensive tokens in the loop. Name paths and sections; copy only what the list below says to copy. A **non-host** worker is the standing exception: it cannot resolve project paths, so it keeps the self-contained brief.
 
 - the persona: **nothing** when spawning the Step 8E wrapper — its body already loads `.agents/implementer.md`. Only the fallback sub-prompt path (no wrapper) seeds the persona content
+- **Spawn budget:** for a **host** worker, name the budget as the one its own persona states, tell it the task text is already in this brief so it does not open `tasks.md`, and, on a respawn, which checkpoint this is, first or second. For a **non-host** worker (the standing exception), the same, with the two bounds copied — **3** consecutive same-failure cycles, or **60 tool calls** — and the seven checkpoint fields copied in order: *Bound reached*, *Done*, *Remaining*, *Tree state*, *Tried and failed*, *Next step*, *Notes*
 - the active task ID, title, and scope from `tasks.md` (copied — it is the work order)
 - **pointers** to the relevant sections of `requirements.md` and `design.md` — path + section anchor, with the instruction to read the named scenarios **verbatim at the source**. The verbatim rule protects against paraphrase drift, and a pointer satisfies it exactly as a quote does: the worker still reads the untouched text, it just reads it as input instead of receiving it as your output
 - **the constitution by reference** — root guides by path (`CLAUDE.md`, `AGENTS.md`); for each of `docs/trd/trd.md` and `docs/ux-ui/design.md`, the path and the sections this task touches, or the word `none` — an omitted entry is not a valid empty state. For a **non-host** worker (the standing exception, above), the brief substitutes for what a persona otherwise does: the root-guide rules that bind this task, copied, stand in for the worker's own full read; the named sections, copied, stand in for reading them at the source; and, since no persona gives that worker an action for any other state, you settle the entry to named sections or `none` yourself before writing the brief. For the one case that can still arise mid-task — the work touching a reference document the brief gave it nothing from — the brief adds a single instruction: stop and report. That is a stop, not a fallback; it adds no option the task lacks
-- **CodeGraph, when `.codegraph/` exists:** instruct the Implementer to resolve unfamiliar code through graph lookups — `codegraph_context` for the task area, `codegraph_impact` before touching a shared symbol — instead of exploratory full-file reads. A lookup answers "what is this / who uses it" for a fraction of the tokens of the file that contains it; full files are for what it is about to edit. **Staleness rule — include it in the brief:** the graph reflects the last index, not this run's changes, and it cannot flag its own staleness. For files this spec has already touched (earlier task entries, the current diff), **the working tree wins** — read the file, don't trust the graph. Graph answers are reliable for the code this spec has not modified, which is exactly the exploration the lookups are for. If `.codegraph/` is absent, say nothing — the worker explores by file as before, and the graph's absence is already controlled where it belongs (`/akili-constitution` offers init; `/akili-audit` records the state; `/akili-archive` recommends the re-index)
+- **CodeGraph, when `.codegraph/` exists:** instruct the Implementer to resolve unfamiliar code through graph lookups — `codegraph_context` for the task area, `codegraph_impact` before touching a shared symbol — instead of exploratory full-file reads. A lookup answers "what is this / who uses it" for a fraction of the tokens of the file that contains it; a file it is about to edit follows the persona's *Bounded reads* rule instead of a full read for discovery. **Staleness rule — include it in the brief:** the graph reflects the last index, not this run's changes, and it cannot flag its own staleness. For files this spec has already touched (earlier task entries, the current diff), **the working tree wins** — read the file, don't trust the graph. Graph answers are reliable for the code this spec has not modified, which is exactly the exploration the lookups are for. If `.codegraph/` is absent, say nothing — the worker explores by file as before, and the graph's absence is already controlled where it belongs (`/akili-constitution` offers init; `/akili-audit` records the state; `/akili-archive` recommends the re-index)
 - **an exemplar file, when one exists** — the path of the existing file most similar to what this task produces, as a pattern anchor: *"mimic `src/modules/orders/orders.service.ts` — structure, naming, error handling, test layout"*. You choose it as Leader (CodeGraph or the module tree makes this a cheap lookup). A worked example steers a model more reliably than any list of conventions, and the pointer costs one line while replacing paragraphs of style prose; on conflict, the constitution and design spec still win over the exemplar. Skip it when nothing comparable exists — a forced, dissimilar exemplar teaches the wrong pattern
 - the skill set **you select for this task as Leader** — the selection judgment (task list and `## Skill Map` as overridable defaults, deviations recorded in `execution.md`) is canonical in `.agents/leader.md` → *Delegation Discipline*, which is already in your context. In the brief, instruct explicitly: *"You MUST use the `skill` tool to load these skills: [names] BEFORE you begin writing code"*
 - the **effort you select for this task** — the dial and its defaults are canonical in `.agents/leader.md` → *Delegation Discipline* and the registry's *Effort dial*. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the brief
@@ -218,6 +233,21 @@ The Implementer must keep changes minimal and within task scope, follow the desi
 
 **The evidence re-run — always, by a non-author.** For **every** task, whether or not a conformance Reviewer runs, the task's verification is re-executed by a context other than the one that authored the change, and the outputs compared against what the author reported. The re-run is **mechanical**: re-execute the commands and compare — it is not an audit of the diff against the spec, and it carries no authority to judge conformance. Two execution modes, both acceptable: **Leader-inline** (already classed as inline work under *Delegation Thresholds*), or a spawned **Verifier** when the command set crosses the inline threshold. The result is recorded per task as `VERIFIED` or `MISMATCH`, naming the command and both outputs on a mismatch. A `MISMATCH` is an **implicit FAIL**, consuming a rework attempt exactly as an Implementer-reported verification failure does today. **The re-run is never waived — by any category, predicate, mode, or approval setting.**
 
+**Checkpoint report.** The report's first line is `STATUS: CHECKPOINT`. The Leader reads three of its fields — *Tree state*, *Remaining*, and *Notes* — and defines none of them again here; the persona owns every field's definition. The status line is what decides which counter a report belongs to: a report with owed items and no status line is a continuation (item 0, below), never a checkpoint.
+
+- **Precedence.** A report that names a blocker is handled as a blocker (item 0's *Names a blocker*) whatever its status line says. A checkpoint whose *Tree state* reports the verification failing is still a checkpoint, never an implicit FAIL.
+- **Action.** Start a fresh Implementer — never resume the old one. Give it the original brief, the attempt's feedback if any, and the checkpoint report copied verbatim, never as a pointer and never paraphrased; tell it the working tree already holds the files *Tree state* lists and that it reads those and no other uncommitted change; and tell it which checkpoint this is, first or second.
+- **Files.** Record the files changed as *Tree state* lists them, and confirm each exists as a change in the working tree. With parallel Implementers the tree alone cannot say whose change is whose, so the respawned worker is told to read only the files its own checkpoint lists.
+- **Pivot flag.** A checkpoint whose *Notes* carries a Pivot-Detection flag goes to Pivot Detection (Step 2.4) before any respawn.
+- **Implementer `FATAL_FAIL`.** Stated here: it ends the task by Step 4, exactly as the persona has always reported it.
+- **Failing verification, no blocker, no status line.** An implicit FAIL, never a continuation.
+- **What does not run.** No evidence re-run and no Reviewer on the checkpoint — both run only on the completion report of the attempt's last spawn, over the whole diff.
+- **Effort.** Unchanged. The effort bump belongs to a FAIL, not a checkpoint.
+- **Accounting.** A checkpoint consumes no rework attempt, is not a runtime event, and adds no round to the Budget Tripwire; record it on its own line in the entry, written only when one fires.
+- **Cap.** At most **2** checkpoints per task, counted across all attempts, separate from the continuation cap. A third checkpoint ends the task as a HALT by Step 4, with the cause recorded as the checkpoint cap; its record holds every checkpoint report and whatever FAIL reports exist.
+- **Mode.** A respawn happens without a pause in both `gated` and `pre-approved` modes. Every checkpoint is reported at the task's continue gate (Step 5).
+- **Fall-through.** A report that is neither a completion report (item 0 and the items after it, below) nor any status above is handled as idle-without-report — a completion report carries no status line.
+
 When the Implementer reports completion, the Leader:
 
 0. **Checks the report for a `Not Done / Assumptions` field first.** If present, the task is not complete regardless of what else the report says: carry that text into `execution.md` verbatim, then act on it by content:
@@ -260,11 +290,11 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 - **Evidence Re-Run Never Waived:** the non-author re-run defined in *Review intensity* (Step 2.3) runs on every task, whatever the mode, category, or approval setting — a `MISMATCH` is an **implicit FAIL**, consuming a rework attempt exactly as an Implementer-reported verification failure does.
 - **Advisory Never Gates:** `ADVISORY` (4R lens) findings are recorded in `execution.md` but never count as FAIL issues, never trigger rework, and never consume attempts. If an advisory finding is serious enough to block, the Reviewer must restate it as a spec-violation FAIL issue (or the Leader escalates it to the user as a potential spec gap via the Pivot Protocol).
 - **Advisory Never Becomes A Task:** an advisory is **recorded and dies there**. You may not mint a new task in this spec from one, and you may not widen an existing task to absorb it. The rule above stops advisories from *gating*; this one stops them from *growing the spec* — the other direction, and the one that does the real damage. **A task not in the approved `tasks.md` is scope the user never approved**, and it arrives with none of the review the approved tasks got: no requirement backing it, no design decision, no budget line. Advisories are also the *least*-vetted findings in the run, so this path grows scope fastest from the weakest evidence. The only route from advisory to new work is out of this spec: record it, finish what was approved, and let the user decide whether it earns a proposal. When an advisory genuinely cannot wait, that is a **spec gap** — escalate via the Pivot Protocol and let the user reopen the spec, which re-runs the budget and the approval gate rather than bypassing both.
-- **Wind Down Before You Run Out:** a rework loop is up to 3 attempts × (Implementer + Reviewer) — six delegated round trips plus adjudication. **Do not open one you cannot see through.** When context runs low, follow *Winding down* in `.agents/leader.md` (already in your context — that section is canonical): finish or park the task in flight (`[~]` + full attempt history, never silently), spend what remains on `execution.md`, and transfer ownership rather than leaving a supervised delegation outstanding — with the user's explicit ask able to lift that default.
+- **Wind Down Before You Run Out:** a rework loop is up to 3 attempts × (Implementer + Reviewer), plus up to 2 checkpoint respawns per task — six delegated round trips plus up to 2 more, plus adjudication. **Do not open one you cannot see through.** When context runs low, follow *Winding down* in `.agents/leader.md` (already in your context — that section is canonical): finish or park the task in flight (`[~]` + full attempt history, never silently), spend what remains on `execution.md`, and transfer ownership rather than leaving a supervised delegation outstanding — with the user's explicit ask able to lift that default.
 - **Budget Tripwire:** `design.md` carries a budget from `/akili-specify` Step 2.4 (expected tasks, LOC, review rounds). When actual execution exceeds it, **stop and escalate to the user** with the delta and the cause — do not continue on the assumption that finishing is what was wanted. Exceeding a budget is information, not failure; the cost of a mis-sized spec is only recoverable while it is still running. A spec with no recorded budget (written before this existed, or `Lite` depth) simply skips this check. Review rounds count Reviewer verdicts only — a runtime event and the rung that recovered it never add a round.
 - **Fail-Fast (FATAL_FAIL):** If the Reviewer issues a `STATUS: FATAL_FAIL`, immediately HALT the loop, mark the task `[~]`, and trigger the Pivot Protocol. Do not consume remaining rework attempts.
 - **Structured Feedback:** On `FAIL`, pass the full Reviewer report unchanged to the next Implementer spawn. Do not paraphrase.
-- **Escalation on HALT:** After 3 failed attempts (or a FATAL_FAIL), mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
+- **Escalation on HALT:** After 3 failed attempts, a third checkpoint (the checkpoint cap), or a FATAL_FAIL, mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
 - **Pivot Detection:** If either the Implementer or the Reviewer surfaces evidence that the spec itself is wrong or unviable (not merely the implementation), stop looping immediately and trigger the Pivot Protocol below — do not consume rework attempts on a broken spec.
 
 ### Step 3: Finalize on PASS
@@ -295,7 +325,7 @@ This also makes the ordering machine-checkable — a gate on `tasks.md` writes c
 
 ### Step 4: HALT on Rework Limit
 
-If 3 attempts fail in a row (or a FATAL_FAIL occurs):
+If 3 attempts fail in a row, a third checkpoint arrives (the checkpoint cap), or a FATAL_FAIL occurs:
 
 1. **Rollback, by tree state.** Determine the state of the working tree before restoring anything:
 
@@ -310,6 +340,7 @@ If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 3. Append a final `## HALT: <Task ID>` block to `execution.md` containing:
    - all three Reviewer `FAIL` reports
    - all three Implementer summaries
+   - for a checkpoint-cap HALT: every checkpoint report and whatever FAIL reports exist, in place of the two bullets above
    - the verification output of the final attempt
    - the Leader's hypothesis on the root cause (spec ambiguity, missing context, environmental issue, etc.)
    - the tree-state branch taken, the pathspec used (if any), and any paths listed "unattributed — not restored"
@@ -318,7 +349,7 @@ If 3 attempts fail in a row (or a FATAL_FAIL occurs):
 
 ### Step 5: Continue or Pause
 
-After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
+After a task PASSes or HALTs, generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the task result, verification outcome, every checkpoint the task fired, the Reviewer summary, and the next eligible task. Ask whether to continue, pause, or skip the next task.
 
 **Approval Mode (inherited from the proposal's Document Control):** under `pre-approved`, this continue/pause gate auto-passes after a **PASS** or a `REVIEW_SKIPPED` closure — log `auto-approved (pre-approved mode)` with the task's `execution.md` entry and proceed to the next eligible task. A skip is **routine**, not an exception: the predicate is objective and the skip list was already approved at the tasks gate, so it auto-passes like any other routine progress (DD-6). The mode never carries past an exception: a **HALT**, a Pivot, a budget tripwire, or a `FATAL_FAIL` always stops for the user — pre-approval covers routine progress, not the cases whose content nobody could know in advance. A `REVIEW_WAIVED` decision and the Leader-inline ask (Implementer ladder rung 5) are stops for the user too, never auto-passed — both remove or replace the correctness gate, the same class of exception the list above already covers. A `skip-eligible` claim that turns out **not earned** is a different case again: per Step 2.3, that mismatch is reported at this continue gate even under `pre-approved` — it is not the routine skip this paragraph auto-passes.
 
@@ -326,7 +357,7 @@ After a task PASSes or HALTs, generate a short, easy-to-understand summary (summ
 
 > Every task in `docs/specs/<spec-path>/tasks.md` is `[x]` with matching PASS, `REVIEW_WAIVED`, or `REVIEW_SKIPPED` evidence in `execution.md`, OR `execution.md` contains a `## HALT:`/`## Pivot Record:`/budget-tripwire block, OR a question is pending for the user. Stop after `<N>` turns.
 
-The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + 2 continuations per task + margin, so the turn bound and the 3-attempt rework ceiling never fight — the ceiling HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
+The three-way disjunction is part of the condition, never an add-on: it is what stops the loop from pushing past a human gate. Set `<N>` to tasks remaining × up to 6 triad round-trips + 2 checkpoint respawns per task + 2 continuations per task + margin, so the turn bound, the 3-attempt rework ceiling and the checkpoint cap never fight — either cap HALTs first, the HALT satisfies the disjunction, the loop ends. The evaluator judges only what the session has surfaced in the conversation; it runs no commands and reads no files, so the task state this step already reports at each gate is what it reads.
 
 Optional by construction: `/goal` requires a workspace you have trusted and is unavailable under `disableAllHooks`, and it does not change tool permissions (pair it with auto mode so each turn runs without per-tool prompts). Never make a run depend on it — every spec stays completable without it. Do not use it under `gated` mode: there the interactive gates are the point.
 
@@ -352,7 +383,9 @@ Each task entry must record:
 - date
 - task ID and title
 - number of Implementer attempts run
-- for each attempt: files changed, Implementer verification command + result, Reviewer verdict + summary or full FAIL findings, and a `runtime events: <kind> ×n → <rung>` line naming any runtime events recovered on that attempt and the rung that recovered them
+- for each attempt: files changed, Implementer verification command + result, Reviewer verdict + summary or full FAIL findings, and a `runtime events: <kind> ×n → <rung>` line naming any runtime events recovered on that attempt and the rung that recovered them. A checkpointed spawn's files enter this `files changed` line exactly as any other spawn's do
+- `checkpoints: <n> (<bound>, …)`, beside `continuations:` — written only when a checkpoint fires this task, naming the bound each one reached
+- `spawns: <role> <calls> calls, <tokens> tokens, ended <complete | checkpoint | partial | fail | fatal | died>; …` — one item per spawn, written always. The values are the ones the host reports to the Leader when the worker finishes; when the host reports none, the item reads `not reported by host`, carrying the worker's own counts where its report gives them — the Leader never estimates. The line is information only: it gates nothing, fails nothing, and adds no round to the Budget Tripwire. An entry written before this line existed reads as "not recorded". `ended: partial` is a report carrying `Not Done / Assumptions`; `ended: died` is a runtime event
 - any `ADVISORY` (4R lens) findings from the final Reviewer verdict, labeled as advisory
 - requirements covered
 - decisions made — including any execute-time spec edits (file + section + reason), recorded at the moment each edit is made
@@ -393,7 +426,7 @@ A `REVIEW_SKIPPED` record and a `REVIEW_WAIVED` record are never the same event,
 - If required AKILI-SPECS files are missing, stop and report what is missing.
 - If `.agents/` is missing, stop and direct the user to run `/akili-constitution`.
 - If the design is ambiguous, the Leader asks the user before spawning the Implementer — do not pass an ambiguous task into the loop.
-- If verification fails inside the Implementer, the Implementer must fix it before reporting completion; if it cannot, it reports back the failure and the Leader treats that as an implicit FAIL.
+- If verification fails inside the Implementer, the Implementer fixes and re-runs within its persona's bounded self-correction loop; if the bound is reached with the task unfinished, it reports a checkpoint (Step 2.3) instead of looping further, or `STATUS: FATAL_FAIL` if hopelessly stuck. A completion-time report of a verification it could not fix, carrying no `STATUS: CHECKPOINT` line, is an implicit FAIL, and the Leader treats it as such.
 - If a task is blocked, report the blocker and move to the next eligible task only if appropriate.
 - **Pivot Protocol:** If Implementer or Reviewer discoveries reveal that the approved requirements or design are wrong or technically unviable:
   1. Stop the rework loop. Mark the current task as `[~]` (blocked) — even if rework attempts remain.

@@ -212,3 +212,19 @@ Reviewer FAIL findings, attempt 1:
 | Tree-state branch | Pathspec restore, two files; no unattributed paths |
 | Budget | 7 of 10 review rounds used; ~110 of ~140 lines were in the tree before the restore |
 
+**HALT lifted (2026-09-30).** The user chose a fourth attempt on the preserved diff, lifting the 3-attempt ceiling for this task by explicit decision. `git apply halt/t3-attempt3.diff` re-applied the attempt 3 state to the two packaged files (53+/18−, 18+/6−). Attempt 4 is scoped to the one open issue.
+
+**Attempt 4** (2026-09-30) — effort `max`, fresh worker, one sentence. The *Fall-through* bullet rewritten: "A report that is neither a completion report (item 0 and the items after it, below) nor any status above is handled as idle-without-report." Nine reports walked by the author, one action each; falsifier executed (sentence deleted → `STATUS: DONE` has no action). Evidence re-run: VERIFIED (13 checks). Reviewer **FAIL**, `opus`, one issue, present since attempt 1 and raised now for the first time: Step 4's opening "If 3 attempts fail in a row, the checkpoint cap is reached, or a FATAL_FAIL occurs" — a cap of 2 is *reached* at the second checkpoint, so a literal reading HALTs there while the *Cap* bullet and the sketch respawn it; Step 2.4 *Escalation on HALT* and `leader.md`'s loop summary carry a milder form. Remediation: "a third checkpoint arrives (the checkpoint cap)" in all three. Advisories: the command never says a completion report carries no status line; the sketch has no branch for R5/R6 (predates the task, prose governs); on a second checkpoint the *Action* bullet says "the checkpoint report" while `feedback` holds two. Review rounds used: 8 of 10. Spawns: Implementer 13 calls / 83,552 tokens, complete; Reviewer reported after this note. The tree keeps the attempt 4 state (uncommitted) while the user decides.
+
+**Attempt 5** (2026-09-30) — effort `max`, fresh worker, authorized by the user with the review-budget overrun accepted (8 rounds used before this attempt; a fifth review makes 9, and T4 and T5 still owe at least one each). Six sentences changed so that every HALT-describing sentence names "a third checkpoint (the checkpoint cap)": Step 2 opening, Step 2.4 *Escalation on HALT*, Step 4 opening, `leader.md` item 4 and *Outcome*; advisory-grade: the *Fall-through* bullet gained "— a completion report carries no status line". Evidence re-run: VERIFIED (15 checks). Falsifier: the author omitted it; the Leader executed it inline on a scratch copy — Step 4's sentence reverted to "the checkpoint cap is reached" → a literal Leader HALTs at the second checkpoint (red). Reviewer **PASS**, `opus`: the walk of the first, second and third checkpoint across all thirteen cap sentences shows no sentence HALTs at the second; R1–R8, `STATUS: DONE` and a held-out checkpoint with owed items each have one action; FR-3, FR-4, FR-7, FR-9, DD-5 (13 elements in order) and DD-9 complete. Advisories: the paragraph does not order a third checkpoint carrying a Pivot flag (only the sketch does: Pivot first); the Step 4 heading does not name the cap. runtime events: none.
+
+**T3 closes PASS on attempt 5.** Review rounds used: 9 of 10. Final verification: 15 checks green; `git diff --stat -- .claude` two files, 53+/18− and 18+/6−; `git diff --check` clean.
+
+| Spawn (attempts 4–5) | Model | Tool calls | Tokens | Ended |
+|---|---|---|---|---|
+| Implementer, attempt 4 | `sonnet` | 13 | 83,552 | complete |
+| Reviewer, attempt 4 | `opus` | 14 | 115,698 | fail |
+| Implementer, attempt 5 | `sonnet` | 18 | 91,858 | complete |
+| Reviewer, attempt 3 | `opus` | 18 | 107,875 | fail |
+| Reviewer, attempt 5 | `opus` | reported after this entry | — | pass |
+
