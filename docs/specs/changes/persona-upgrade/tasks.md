@@ -84,7 +84,7 @@ As T1a, for `.claude/templates/reviewer.md`. Sections: `read-only-role`, `audit-
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full` (overrides a, b) |
 | Depends on | none |

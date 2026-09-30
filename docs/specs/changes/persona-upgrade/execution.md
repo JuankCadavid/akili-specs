@@ -49,7 +49,7 @@
 
 | # | Decision | Reason |
 |---|---|---|
-| 1 | The precedence bullet reads `The project block below overrides any marked section.` (53 characters) in place of the task scope's phrase, "the project block below overrides any sentence in a marked section" (67 characters). The same sentence goes into T1b–T1d | The markers and project blocks of the four templates cost exactly 1,925 bytes (computed from the ids of design §5.2), which leaves 275 of T1d's 2,200-byte cap for four bullets. At the scope's wording the four bullets cost 301 bytes and the total is 2,226, 26 over. At the shortened wording they cost 245 and the total is 2,170. The brief may narrow; the requirement (FR-2: "the owned section SHALL say so in one sentence") is unchanged, and the Reviewer judged the shipped sentence against FR-2's text. No spec document was edited. **Reported to the user at the continue gate**, who may prefer to raise the cap instead |
+| 1 | The precedence bullet reads `The project block below overrides any marked section.` (53 characters) in place of the task scope's phrase, "the project block below overrides any sentence in a marked section" (67 characters). The same sentence goes into T1b–T1d | The markers and project blocks of the four templates cost exactly 1,925 bytes (computed from the ids of design §5.2), which leaves 275 of T1d's 2,200-byte cap for four bullets. At the scope's wording the four bullets cost 301 bytes and the total is 2,226, 26 over. At the shortened wording they cost 245 and the total is 2,170. The brief may narrow; the requirement (FR-2: "the owned section SHALL say so in one sentence") is unchanged, and the Reviewer judged the shipped sentence against FR-2's text. No spec document was edited. **Reported to the user at the continue gate; confirmed by the user, 2026-09-30: "keep the shortened sentence"** |
 | 2 | Placement conventions, tagged `[advisory-grade]` in the brief and audited as such: an open marker sits directly above the section's first line; a close marker directly after its last non-blank line; the project block's two lines directly after item 4's close marker, before the blank line and `---`; no blank line is added | Check 2 forbids any non-marker line change other than the bullet, and design §5.2 lists blank lines and `---` rules as unfenced. One convention across the four files keeps section bodies comparable for T2's parser and T5's digests |
 | 3 | T1a ran alone rather than beside T1b | A placement defect found by the first review would otherwise cost one round per parallel file |
 
@@ -61,5 +61,42 @@
 |---|---|
 | T1b, T1c, T1d | Use the exact bullet of decision 1 and the conventions of decision 2; exemplar: `.claude/templates/implementer.md` as landed by this task |
 | T1d | Running total after T1a: 72,221 + 580 = 72,801 bytes; cap 74,421 |
+
+**Final verification.** Checks 1–5 green on the working tree, re-run by a non-author; Reviewer `PASS`.
+
+### T1b: Markers in `reviewer.md` — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-1, FR-2; design §5.1, §5.2, DD-1, DD-2 |
+| Files changed | `.claude/templates/reviewer.md` (15 insertions, 0 deletions) |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | 2 of 21 |
+| Skills | None assigned; same deviation and reason as T1a |
+| Effort | Low to medium, steered in the brief |
+| Parallel | Ran beside T1c (disjoint files, no build). Both re-runs were taken after both workers had reported |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Files changed | `.claude/templates/reviewer.md` |
+| Implementer verification | Check 1: counts **6 / 6 / 1**. Check 2: marker-stripped diff against `HEAD` → `31d30` / `<     *   The project block below overrides any marked section.` and nothing else. Check 3: `wc -c` → 12,314 (growth 581, cap 650 over 11,733). Check 4: ids in order `read-only-role`, `audit-checklist`, `structured-evaluation`, `lenses`, `depth-scaling`, `review-output`. Check 5: `git diff --stat` → `reviewer.md` 15 insertions, plus the Leader's uncommitted `execution.md` line (the user's confirmation), which is not this task's |
+| Falsifier | Executed on a scratch copy outside the tree: the open marker of `review-output` deleted → check 1 reads **5 / 6** (red) |
+| Red run | `n/a (no test gate)` |
+| Whole-file read (Disqualifier) | `review-output` opens directly above `## 📝 Structured Review Output` and closes after Option C's closing code fence; the three `### Option` subsections are inside it; only a blank line and `---` stand between it and `## Authorship`. Confirmed by the Reviewer's own whole-file read |
+| Evidence re-run | Leader-inline, no worker active. Outputs identical to the report. **VERIFIED** |
+| Reviewer verdict | **PASS.** Summary: six sections fenced in file order with correct ids and `since=v2.30.0`; one empty project block directly after item 5's close marker; the precedence bullet is the last bullet of `read-only-role` and no sentence of item 1 contradicts it; zero removed lines; no marker inside a code fence (checked with a fence-tracking scan) |
+| runtime events | none |
+
+`spawns: implementer 21 calls, 106,460 tokens, ended complete; reviewer 7 calls, 69,493 tokens, ended complete`
+
+**ADVISORY:** none (diff under 50 lines).
+
+**Decisions made.** None new. The bullet wording and placement conventions are T1a's decisions 1 and 2; the user confirmed the shortened sentence before this task was dispatched.
+
+**Issues encountered.** None.
 
 **Final verification.** Checks 1–5 green on the working tree, re-run by a non-author; Reviewer `PASS`.
