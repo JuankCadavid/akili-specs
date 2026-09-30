@@ -205,7 +205,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: produces derived evidence the closure gate consumes, and a release note readers act on (override c) |
 | Depends on | T1, T2, T3, T4 |

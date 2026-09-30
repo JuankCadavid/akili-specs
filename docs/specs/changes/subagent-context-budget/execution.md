@@ -256,3 +256,52 @@ Reviewer FAIL findings, attempt 1:
 | Implementer, attempt 2 | `sonnet` | 16 | 91,604 | partial (assumptions only) |
 | Reviewer, attempt 2 | `opus` | reported after this entry | — | pass |
 
+### T5: CHANGELOG and closure walks — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 3 |
+| Implementer attempts | 3 |
+| Requirements covered | FR-10 (entry, migration note), FR-8 (scripts kept; measurement recorded as owed), FR-9 (walked), NFR-1 to NFR-5 (checked), requirements §8 gates |
+| Files changed | `CHANGELOG.md` (one `Unreleased` bullet), `docs/specs/changes/subagent-context-budget/closure.md` (new) |
+| Evidence re-run | Leader-inline, all three attempts: **VERIFIED**. `npm run verify:cli` 11 commands / 24 skills / 7 resources; `npm run pack:dry-run` 275 files / 2.1 MB; `git diff --check` clean |
+| Review rounds used | 14 of 10 — overrun accepted by the user at T3's fifth attempt |
+| Skills | `cognitive-doc-design` |
+| Gate | Continue gate `auto-approved (pre-approved mode)`; no task remains |
+
+**Attempt 1** — effort `high`. Entry and the five walks written; walk tallies 10/10, 3/3, 3/3, 3/3; term walk complete with three rows marked "not delivered as a sentence" (two FR-9 guarantees, FR-8's measurement). Six checks green. Reviewer **FAIL**, `opus`, four issues: the migration note named only the item-4 sentences; five clauses overstated or misquoted the shipped text (the two exits, the output file's location, "kept whole", section lookup, "45%"); the Output walk's scenario 2 inverted the count-of-failures rule; the falsifier's stated reason ("no action") was false — the shapeless report gets two conflicting actions. Ruling: FR-9's first two bullets are behavioral guarantees the structure delivers; no sentence was owed. runtime events: none.
+
+**Attempt 2** — effort `xhigh`, report copied verbatim. All four fixed, FR-9 rows relabelled "Delivered (structurally)", three advisories applied. Reviewer **FAIL**, `opus`, three issues: "recorded per attempt" where the shipped `spawns:` line is per spawn in each task entry; the migration note still omitted the premature-stop sentence, the *Checkpoint report* block, the term table and the *Reporting Completion* sentence; the follow-up pointed at "the same three baseline figures" when 53% is not an FR-8 measure. runtime events: none.
+
+**Attempt 3** — effort `max`, report copied verbatim. All three fixed; two advisories applied (Implementer-scoped basis figures; item 0 quoted verbatim in the falsifier). Reviewer **PASS**, `opus`: it diffed all four personas between `c94e6b6` and HEAD and found every hunk named in the migration note; every CHANGELOG clause confirmed against the shipped text; walks complete and judged on the general sentence; checks match. Advisories: the reviewer note should say "block (table and section-lookup sentence)"; the old item-4 opening sentence is not named for replacement (redundant if kept, not contradictory); closure.md cites one line number, allowed by NFR-4 but stale-prone. runtime events: none.
+
+**Decisions made.** None beyond the brief. **Issues encountered.** Seven of the eight FAIL findings across the three attempts were precision defects in a summary surface — the KZ-002 class — each caught by quote-checking a clause against HEAD.
+
+**Spawns** (host-reported).
+
+| Spawn | Model | Tool calls | Tokens | Ended |
+|---|---|---|---|---|
+| Implementer, attempt 1 | `sonnet` | 36 | 198,833 | partial (assumptions only) |
+| Reviewer, attempt 1 | `opus` | 18 | 115,534 | fail |
+| Implementer, attempt 2 | `sonnet` | 39 | 133,038 | complete |
+| Reviewer, attempt 2 | `opus` | 17 | 120,332 | fail |
+| Implementer, attempt 3 | `sonnet` | 18 | 107,269 | complete |
+| Reviewer, attempt 3 | `opus` | reported after this entry | — | pass |
+
+## 3. Summary
+
+| Item | Value |
+|---|---|
+| Tasks | 5 of 5 closed, all on a Reviewer `PASS` |
+| Attempts | T1 2 · T2 1 · T3 5 (one HALT, lifted by the user) · T4 2 · T5 3 |
+| Review rounds | 14 against a budget of 10; the overrun was accepted by the user at T3's fifth attempt |
+| Lines | ~175 against a budget of ~140 |
+| Pivots | 1, T2: NFR-1's byte caps raised by the user |
+| Continuations | 1 (T3 attempt 3, the owed falsifier walks) |
+| `REVIEW_WAIVED` / `REVIEW_SKIPPED` | none / none |
+| Spawns | 29 workers: 15 Implementers (incl. 1 continuation), 14 Reviewers. Implementer tool calls 12–59, tokens 84k–199k; Reviewer 7–20 calls, 74k–120k |
+| Commits | `81d0d68` spec · `410b9aa` T1 · `843b12d`, `3cf0979` Pivot · `e40b268` T2 · `ac0657b` HALT · `471d2ed` T3 · `e6567ea` T4 · T5 with this entry |
+| Owed | FR-8's measurement after the first 30 Implementer spawns under the new personas (`closure.md` §10); the release (`CHANGELOG.md` `Unreleased` holds four entries) |
+| Follow-ups recorded, none made work | root guides read whole with no 400-line bound (T2 advisory); the Reviewer's "full-file escape hatch" sentence (T2, T5); R4's `pre-approved` gap (requirements §10); a third checkpoint carrying a Pivot flag — ordered by the sketch only (T3); `kaizen` reads a task with 1–2 checkpoints as clean (judgment L-13); the deployed `.agents/` personas of this repository still carry the old sentences (migration note) |
+
+**Lessons for the retrospective.** (1) Three of the five tasks edit text other agents execute, and every one of those needed two or more rounds; T3 needed five because each Reviewer read a different sentence and each finding was real — a 17-site task in two files is too large for one review to cover. (2) Seven of T5's eight findings were KZ-002 precision defects in the CHANGELOG. (3) Two byte caps set at the requirements gate were infeasible once the blocks were designed; the design's §11 risk row predicted it and the cap was still not re-sized.
