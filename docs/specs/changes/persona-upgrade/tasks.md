@@ -148,7 +148,7 @@ As T1a, for `.claude/templates/leader.md`. Sections: `primary-instructions` (ite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Review | `full`: adds a CLI contract and the code every later task builds on (override b) |
 | Depends on | T1a–T1d |

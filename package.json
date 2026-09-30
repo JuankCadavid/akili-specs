@@ -35,6 +35,7 @@
     "release:minor": "node scripts/release.js minor",
     "release:patch": "node scripts/release.js patch",
     "release:status": "node scripts/release-status.js",
+    "test": "node --test",
     "verify:cli": "node bin/akili.js list"
   },
   "keywords": [

@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
+const { parsePersona, sectionStates, resultExitCode } = require("./persona.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
 // .cmd shims, and patched Node (CVE-2024-27980) throws EINVAL when spawning
@@ -264,6 +265,12 @@ function getArgs() {
     local: { type: "boolean", short: "l", default: false },
     quiet: { type: "boolean", default: false },
     help: { type: "boolean", short: "h", default: false },
+    // doctor --agents (persona-upgrade FR-3/FR-4): report/fix persona drift
+    // against the CLI's packaged templates. `section` is repeatable so
+    // --fix can name several custom-edited/unlocated ids in one run.
+    agents: { type: "boolean", default: false },
+    section: { type: "string", multiple: true, default: [] },
+    "allow-branch": { type: "boolean", default: false },
   };
 
   try {
@@ -314,6 +321,9 @@ function getArgs() {
       skillsOnly: values["skills-only"],
       fix: values.fix,
       local: values.local,
+      agents: values.agents,
+      section: values.section,
+      allowBranch: values["allow-branch"],
       claudeTarget: resolveUserPath(resolveToolTarget("claude", values, "claude-target", defaultPaths.claude, baseClaude)),
       opencodeTarget: resolveUserPath(resolveToolTarget("opencode", values, "opencode-target", defaultPaths.opencode, baseOpencode)),
       antigravityTarget: resolveUserPath(resolveToolTarget("antigravity", values, "antigravity-target", defaultPaths.antigravity, baseAntigravity)),
@@ -1213,6 +1223,87 @@ function checkEnvironment(tools) {
   });
 }
 
+// FR-3: `akili doctor --agents` — report-only. Compares `./.agents/<role>.md`
+// against the CLI's own PACKAGED templates (SOURCE_TEMPLATES; the same bytes
+// regardless of which tool is installed or which --tool is passed — FR-3's
+// "same states whichever --tool is passed" scenario), states one row per
+// owned section via bin/persona.js's sectionStates, and sets the exit code
+// per §5.4. `--fix`, backups, guards and the migration are T3/T4/T5 — this
+// mode never writes.
+//
+// digests: no `.claude/templates/digests.json` exists until T5 (DD-11), so
+// every run compares against an empty table; per FR-3, "when no digest
+// matches, the state is custom-edited" — there is nothing yet for an edited
+// section to match, by design at this task.
+const AGENTS_DIGESTS = Object.freeze({ releases: {}, legacy: {} });
+
+const SECTION_STATE_COLOR = {
+  current: "green",
+  outdated: "red",
+  "custom-edited": "yellow",
+  missing: "red",
+  unlocated: "yellow",
+  extra: "yellow",
+  unmarked: "red",
+};
+
+function runAgentsDoctor(args) {
+  const agentsDir = path.join(process.cwd(), ".agents");
+  let overallExit = 0;
+
+  console.log(`\n${colors.cyan}Persona drift (doctor --agents)${colors.reset} — akili-specs v${currentVersion}`);
+
+  const tools = resolveTools(args);
+  for (const tool of tools) {
+    const { rootPath } = getToolRegistryInfo(tool, args);
+    console.log(`  ${colors.yellow}Tool root (info only):${colors.reset} ${tool} → ${rootPath}`);
+  }
+
+  if (!fs.existsSync(agentsDir)) {
+    console.log(`\n  ${colors.red}ABSENT${colors.reset} ${formatPath(agentsDir)} does not exist`);
+    process.exitCode = 1;
+    return;
+  }
+
+  for (const roleFile of AGENT_TEMPLATES) {
+    const role = roleFile.replace(/\.md$/, "");
+    const personaPath = path.join(agentsDir, roleFile);
+    const templatePath = path.join(SOURCE_TEMPLATES, roleFile);
+    const template = parsePersona(fs.readFileSync(templatePath, "utf8"));
+    const personaExists = fs.existsSync(personaPath);
+    const persona = personaExists ? parsePersona(fs.readFileSync(personaPath, "utf8")) : null;
+    const result = sectionStates(persona, template, AGENTS_DIGESTS);
+    const exitCode = resultExitCode(result);
+    if (exitCode !== 0) overallExit = 1;
+
+    console.log(`\n${colors.cyan}${role}${colors.reset} (${formatPath(path.relative(process.cwd(), personaPath))})`);
+    if (result.status === "absent") {
+      console.log(`  ${colors.red}ABSENT${colors.reset} persona file does not exist`);
+    } else if (result.status === "unreadable") {
+      console.log(`  ${colors.red}UNREADABLE${colors.reset} ${result.reason}`);
+    } else if (result.status === "unmarked") {
+      console.log(`  ${colors.yellow}UNMARKED${colors.reset} no marker of any kind found`);
+      for (const row of result.sections) {
+        console.log(`    ${colors.yellow}UNMARKED${colors.reset}  ${row.id}`);
+      }
+    } else {
+      for (const row of result.sections) {
+        const color = colors[SECTION_STATE_COLOR[row.state]] || colors.reset;
+        const matched = row.matched ? ` (matched ${row.matched})` : "";
+        console.log(`    ${color}${row.state.toUpperCase()}${colors.reset}  ${row.id}${matched}`);
+      }
+    }
+  }
+
+  console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
+  if (overallExit !== 0) {
+    console.log(`${colors.red}Persona drift found.${colors.reset} Sections reported outdated, missing, unmarked or unreadable, or a persona is absent.`);
+    process.exitCode = 1;
+  } else {
+    console.log(`${colors.green}No persona drift blocking CI.${colors.reset} custom-edited, extra and unlocated sections remain the maintainer's call.`);
+  }
+}
+
 function runDoctor(args) {
   const results = [];
 
@@ -1570,7 +1661,11 @@ async function main() {
       runUpdate(args);
       break;
     case "doctor":
-      runDoctor(args);
+      if (args.agents) {
+        runAgentsDoctor(args);
+      } else {
+        runDoctor(args);
+      }
       break;
     case "list":
       runList();
