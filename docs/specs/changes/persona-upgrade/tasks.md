@@ -173,6 +173,33 @@ As T1a, for `.claude/templates/leader.md`. Sections: `primary-instructions` (ite
 
 ---
 
+### T2b: Fixture line endings are pinned
+
+Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.md` → *Spec gap record: fixture line endings*). Approved by the user at the T2 gate.
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Review | `checklist`: one configuration file, no contract changes |
+| Depends on | T2 |
+| Requirements | FR-9 (fixtures SHALL include a persona with CRLF line endings; tests SHALL assert that a CRLF persona stays CRLF; the project's CI SHALL run the test script) — the fixtures must reach every checkout byte for byte |
+| Design refs | §4 (`test/fixtures/personas/*.md`), DD-9 |
+
+**Scope.** New file `test/fixtures/personas/.gitattributes` holding one line, `*.md -text -whitespace`. No fixture, test or code file changes.
+
+| Field | Value |
+|---|---|
+| Command | **1.** `git check-attr text whitespace -- test/fixtures/personas/crlf.md` → `text: unset`, `whitespace: unset` (baseline at `ec78ee4`: both `unspecified`). **2.** With the file staged: `git diff --cached --check`; then `git diff --check acd119c -- test/fixtures` → exit **0** (baseline at `ec78ee4`: `git diff --check acd119c HEAD -- test/fixtures` → exit 2). **3.** `git ls-files --eol test/fixtures/personas/crlf.md test/fixtures/personas/verbatim-marked.md` → `i/crlf w/crlf attr/-text` and `i/lf w/lf attr/-text`. **4.** `npm test` → 22 pass. **5.** `git status --short` → the one new file |
+| Falsifier | Checks 1–3 fail at `ec78ee4` (readings above, run before this task was written). **Executed:** in a scratch clone holding the file, delete it → check 2 reads exit 2 again |
+| Red run | `n/a (no test gate)` |
+| Disqualifier | The readings prove what git does on this machine. Whether the Windows CI runner converts line endings without the file stays `UNVERIFIED`; the file makes the question moot, it does not answer it |
+| Consumers | `none (no shared symbol changed)` — `test/` is not in `package.json` `files` |
+
+**Done.** Checks 1–5 quoted; the falsifier red recorded. **Skills:** none.
+
+---
+
 ### T3: Fix, guards, backup
 
 | Field | Value |
@@ -429,3 +456,9 @@ As T1a, for `.claude/templates/leader.md`. Sections: `primary-instructions` (ite
 | Review rounds budgeted | 21 |
 | PR strategy | Over 400 lines: **two change sets** if a PR flow is used — (1) T1a–T6: format, CLI, tests; (2) T7–T10: commands, docs, CHANGELOG. This repository has committed specs straight to `master`; either way the boundary holds as a review order: read (1) first, since (2) only describes it |
 | First task | T1a (or T1a ∥ T1b) |
+
+## 5. Amendments at Execute Time
+
+| Date | Amendment | Approved by | Where |
+|---|---|---|---|
+| 2026-09-30 | Task **T2b** added (14 tasks). Line budget raised from ~750 to **~1,700 excluding fixtures**; fixture lines are reported separately. Review rounds stay at 21 | The user at the T2 gate, delegating both open decisions to the Leader's stated recommendation | §2 (T2b); `execution.md` Document Control and *Spec gap record* |

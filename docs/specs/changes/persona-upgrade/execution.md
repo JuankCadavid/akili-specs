@@ -9,7 +9,7 @@
 | Started | 2026-09-30, at `350c7eb` on `master` |
 | Leader | This session. Command text: the installed `/akili-execute` |
 | Workers | No Step 8E wrappers in this repository (`ls .claude/agents` → no such directory). Fallback path: a general-purpose worker told to load `.agents/<role>.md`. Implementer on `sonnet`, Reviewer on `opus` |
-| Budget | 13 tasks · ~750 lines · 21 review rounds (`design.md` §9) |
+| Budget | 13 tasks · ~750 lines · 21 review rounds (`design.md` §9). **Amended 2026-09-30 at the T2 gate:** 14 tasks (T2b added) · ~1,700 lines excluding fixtures, fixture lines reported separately · 21 review rounds unchanged. Approved by the user, who delegated both open decisions to the Leader's stated recommendation ("lo que pienses que es mejor !") |
 | Measurement rule | No verification or measurement is run while a worker is active |
 | Order | T1a runs alone, so its marker placement is reviewed before T1b–T1d copy it; the task graph allows T1a ∥ T1b |
 
@@ -396,3 +396,15 @@ ADVISORY
 | Lines | ~750 | **694** of code, tests and template lines; **2,094** with the fixtures | Templates 56 · `bin/` + `package.json` + test file 638 · fixtures 1,400 in 12 files |
 
 **Cause.** The budget's basis ("CLI ~400, tests ~230, templates ~70, release/CI ~20, prose ~50") has no line for fixtures, and each fixture is a whole persona (about 130 lines). Counting them, the budget is exceeded now; without them, 56 lines remain for T3–T10, which include the fix, the guards and the migration. **Stopped for the user at the T2 gate** with this delta.
+
+## Spec gap record: fixture line endings (T2 gate, 2026-09-30)
+
+| Item | Value |
+|---|---|
+| Found by | The Leader's committer checks on T2 attempt 2; ruled "not a T2 violation" and raised as a possible spec gap by the round-2 Reviewer |
+| Gap | The fixtures must stay byte-exact (one is CRLF by design), and no approved task pinned their line endings: no `.gitattributes` exists, `git diff --check` flags the fixtures, and CI runs on three operating systems |
+| Options put to the user | Add a `.gitattributes` now as its own approved change (recommended) · fold it into T6 · leave it out |
+| Decision | **Add it now**, as task **T2b** in `tasks.md`. The user delegated the choice to the Leader's recommendation |
+| Readings run before the task was written | At `ec78ee4`: `git diff --check acd119c HEAD -- test/fixtures` → exit 2; attributes `unspecified`. In a scratch clone with `*.md -text -whitespace` committed: exit 0; `text: unset`, `whitespace: unset`; `i/crlf w/crlf attr/-text` for `crlf.md` |
+| Line budget | Decided at the same gate: continue, cap raised to ~1,700 lines excluding fixtures (Document Control) |
+| Spec documents amended | `tasks.md` only: T2b added, §5 *Amendments at Execute Time*. `requirements.md` and `design.md` unchanged: no requirement changes meaning |
