@@ -228,3 +228,31 @@ Reviewer FAIL findings, attempt 1:
 | Reviewer, attempt 3 | `opus` | 18 | 107,875 | fail |
 | Reviewer, attempt 5 | `opus` | reported after this entry | — | pass |
 
+### T4: Mirrors and the README — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 2 |
+| Implementer attempts | 2 |
+| Requirements covered | FR-10 (mirrors; `docs/model-routing.md` unchanged after the falsifying grep), NFR-2 |
+| Files changed | `docs/commands/akili-execute.md` (+15/−7 with the renumbered loop list), `docs/flow.md` (+2/−1), `README.md` (+2/−1) |
+| Evidence re-run | Leader-inline, both attempts: **VERIFIED** |
+| Review rounds used | 11 of 10 — the overrun the user accepted at T3's fifth attempt |
+| Skills | `cognitive-doc-design` |
+| Gate | Continue gate `auto-approved (pre-approved mode)` |
+
+**Attempt 1** — effort `medium`. One checkpoint line added to each loop sketch, the Implementer rows and lines gained "within a bounded self-correction loop", the `execution.md` record line names `checkpoints:` and `spawns:`. `docs/model-routing.md`: the falsifying grep found one hit (the effort-escalation-on-rework sentence), judged still true, no edit. Falsifier: a mirror sentence containing "60 tool calls" makes the persona-number grep read 1 (red) on a scratch copy. The author found the brief's baseline for `grep -c -i checkpoint` (2 / 5 / 1) did not match HEAD (1 / 4 / 0) and flagged it per KZ-002: the Leader's brief had quoted B15, whose pattern is `checkpoint\|respawn`. Reviewer **FAIL**, `opus`: in all three sketches the new line sat among the Reviewer-verdict branches, after the re-run and review, so it read as a Reviewer status that passes through review — a contradiction of the command on who acts and in what order (FR-10; Step 2.3 *What does not run*). runtime events: none.
+
+**Attempt 2** — effort `high`, fresh worker, the report copied verbatim. Each line moved to directly after the Implementer's report-back line and reworded: "if the Implementer reports STATUS: CHECKPOINT: no Reviewer; Leader respawns a fresh Implementer with the report, at most twice per task; a third checkpoint → HALT" (the command mirror also says "no re-run"). `docs/commands/akili-execute.md` step 3 gained "then reports back"; steps 4–7 renumbered 5–8, and the Reviewer confirmed no cross-reference to those numbers exists outside `docs/specs/`. Falsifier (a walk: the line moved back below the Reviewer line sends a checkpoint through review) executed by the Leader; the author omitted it. Reviewer **PASS**, `opus`: actor and order match the Step 2 sketch; "no Reviewer" alone in the two prose mirrors is an acceptable summary since neither sketch mentions the re-run anywhere; the cap wording matches; no persona number; no unedited sentence turned false. runtime events: none.
+
+**Decisions made.** None beyond the brief. **Issues encountered.** The brief's baseline quoted the wrong pattern; the author caught it.
+
+**Spawns** (host-reported).
+
+| Spawn | Model | Tool calls | Tokens | Ended |
+|---|---|---|---|---|
+| Implementer, attempt 1 | `sonnet` | 26 | 115,828 | complete |
+| Reviewer, attempt 1 | `opus` | 13 | 79,765 | fail |
+| Implementer, attempt 2 | `sonnet` | 16 | 91,604 | partial (assumptions only) |
+| Reviewer, attempt 2 | `opus` | reported after this entry | — | pass |
+

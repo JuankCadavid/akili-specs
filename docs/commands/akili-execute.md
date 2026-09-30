@@ -37,7 +37,7 @@ Each task may carry a `Review` field (`skip-eligible` / `checklist` / `full` / `
 | Role | File | Responsibilities |
 |---|---|---|
 | Leader | `.agents/leader.md` | Picks the next task, delegates, enforces the loop, updates `tasks.md` and `execution.md`, commits |
-| Implementer | `.agents/implementer.md` | Writes code strictly within task scope, applies design tokens, runs verification before reporting |
+| Implementer | `.agents/implementer.md` | Writes code strictly within task scope, applies design tokens, runs verification before reporting, within a bounded self-correction loop |
 | Reviewer | `.agents/reviewer.md` | Read-only diff audit; emits `STATUS: PASS` or `STATUS: FAIL` with structured findings |
 
 ### Per-task loop
@@ -45,11 +45,12 @@ Each task may carry a `Review` field (`skip-eligible` / `checklist` / `full` / `
 ```text
 1. Leader selects the next [ ] or [~] task whose dependencies are complete
 2. Spawn Implementer with task scope, design context, and prior FAIL feedback (if rework)
-3. Implementer writes code and runs the verification command
-4. Leader extracts git diff and re-runs the verification itself (or via a Verifier) — always, on every task, never waived
-5. If the re-run mismatches the Implementer's report, the task FAILs outright
-6. Otherwise: spawn a Reviewer, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies — in which case the Reviewer is skipped and the task closes REVIEW_SKIPPED
-7. Reviewer returns STATUS: PASS or STATUS: FAIL
+3. Implementer writes code and runs the verification command, within a bounded self-correction loop, then reports back
+4. If the Implementer reports STATUS: CHECKPOINT instead of completing: no re-run, no Reviewer; Leader respawns a fresh Implementer with the report, at most twice per task; a third checkpoint → HALT
+5. Leader extracts git diff and re-runs the verification itself (or via a Verifier) — always, on every task, never waived
+6. If the re-run mismatches the Implementer's report, the task FAILs outright
+7. Otherwise: spawn a Reviewer, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies — in which case the Reviewer is skipped and the task closes REVIEW_SKIPPED
+8. Reviewer returns STATUS: PASS or STATUS: FAIL
    (a runtime event — spawn failure, provider-limit death, pane/terminal timeout — recovers per the Leader's per-role ladder; the attempt count is unchanged)
 
 if PASS, REVIEW_SKIPPED, or the Reviewer ladder is exhausted and a REVIEW_WAIVED record is written → append execution.md, then update tasks.md to [x], commit, advance to next task
@@ -73,7 +74,7 @@ On `FAIL`, every finding lists three fields so the Implementer has actionable in
 
 - Focused code or documentation changes (only after Reviewer PASS, a `REVIEW_SKIPPED` closure, or a `REVIEW_WAIVED` record when the Reviewer ladder is exhausted).
 - Updated `tasks.md` with `[x]`, `[~]`, or `[ ]` status.
-- Updated `execution.md` with files changed, requirements covered, decisions, every Implementer attempt, every Reviewer verdict (or the reason none ran), verification evidence, and final status (`PASS` / `WAIVED (flag)` / `SKIPPED` / `HALT` / `pivot`).
+- Updated `execution.md` with files changed, requirements covered, decisions, every Implementer attempt, every Reviewer verdict (or the reason none ran), verification evidence, the `checkpoints:` and `spawns:` lines, and final status (`PASS` / `WAIVED (flag)` / `SKIPPED` / `HALT` / `pivot`).
 - When a task closes because Review intensity (Step 2.3) was met and no override applied, a `## REVIEW_SKIPPED` record naming the predicate evidence — a sibling of `REVIEW_WAIVED`, never merged with it: a skip is a gate proved never owed, a waiver is a gate that was owed and lost.
 - When a task closes without an independent Reviewer PASS or an earned skip, a `## REVIEW_WAIVED` record (flag, cause, who approved, the verification that stood in, models involved).
 - Commit prefixed with `[SPEC:<spec-path>]`.

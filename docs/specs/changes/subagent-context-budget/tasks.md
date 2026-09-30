@@ -176,7 +176,7 @@ T1 and T2 share `implementer.md` and run in that order. T3 touches other files. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full`: summary surfaces inherit the evidence bar of what they summarize (KZ-002), and downstream readers act on them (override a) |
 | Depends on | T3 |

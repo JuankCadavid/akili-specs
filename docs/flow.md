@@ -63,7 +63,7 @@ AI:  Creates or updates:
 
 You: /akili-execute changes/add-remember-me
 AI:  Runs the Leader → Implementer → Reviewer harness on the next approved task
-     ✓ Implementer writes code and runs verification
+     ✓ Implementer writes code and runs verification, within a bounded self-correction loop
      ✓ Reviewer audits the diff and emits STATUS: PASS or STATUS: FAIL — skipped when Review intensity (Step 2.3) is met and no override applies, closing the task REVIEW_SKIPPED instead
      ✓ Up to 3 rework attempts on FAIL, then HALT for human guidance
      ✓ updates tasks.md
@@ -321,6 +321,7 @@ Rather than manually compiling assertion results during `/akili-test`:
 ```text
 Leader picks the next task → spawns Implementer with task + persona
 Implementer writes code, runs verification → reports back
+if the Implementer reports STATUS: CHECKPOINT: no Reviewer; Leader respawns a fresh Implementer with the report, at most twice per task; a third checkpoint → HALT
 Leader extracts git diff → spawns Reviewer with diff + persona, unless Review intensity (Step 2.3) is met and no override applies
 Reviewer returns STATUS: PASS, STATUS: FAIL, or STATUS: FATAL_FAIL
 

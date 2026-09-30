@@ -837,7 +837,7 @@ Roles live in the project's `.agents/` directory (scaffolded by `/akili-constitu
 | Role | File | Responsibilities |
 |---|---|---|
 | Leader | `.agents/leader.md` | Orchestration. Picks the next eligible task, delegates, enforces the rework loop, updates `tasks.md` and `execution.md`, commits with `[SPEC:<spec-path>]`. |
-| Implementer | `.agents/implementer.md` | Writes and tests the code. Strictly task-scoped, must follow design tokens from `docs/ux-ui/design.md`, must run the verification command before reporting. |
+| Implementer | `.agents/implementer.md` | Writes and tests the code. Strictly task-scoped, must follow design tokens from `docs/ux-ui/design.md`, must run the verification command before reporting, within a bounded self-correction loop. |
 | Reviewer | `.agents/reviewer.md` | Read-only spec audit. Compares the diff against requirements, design tokens, the TRD, and stability. Outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* for each finding. |
 | Tester | `.agents/tester.md` | Authors and runs **one** test suite (backend unit, frontend unit, integration, or E2E) from a thin per-suite context. Explicitly covers negative constraints and strict validations, runs a bounded 3-attempt self-correction inner loop, and emits `PASS`/`FAIL`/`PRODUCT_BUG` — keeping a correct test red on a real product defect instead of rewriting it. |
 
@@ -846,6 +846,7 @@ The Leader runs each task through this loop:
 ```text
 Leader picks the next task → spawns Implementer with task + persona
 Implementer writes code and runs verification → reports back
+if the Implementer reports STATUS: CHECKPOINT: no Reviewer; Leader respawns a fresh Implementer with the report, at most twice per task; a third checkpoint → HALT
 Leader extracts git diff → spawns Reviewer with diff + persona, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies
 Reviewer emits STATUS: PASS or STATUS: FAIL
 
