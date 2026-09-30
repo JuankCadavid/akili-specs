@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/persona-upgrade` |
 | Depth | **Full** |
-| Approval Mode | `gated` |
+| Approval Mode | `gated`. **Changed to `pre-approved` by the user on 2026-09-30, at the T2b gate, from T3 on** (`execution.md` Document Control) |
 | Status | **Approved** — user chose **Continue** at the Step 3.3 gate, 2026-09-30 |
 | Date | 2026-09-30 |
 | Source | `requirements.md` (FR-1..FR-10, NFR-1..7, amended: its §10), `design.md` (budget §9: 13 tasks · ~750 lines · 21 review rounds), `judgment.md` (corrected, not re-judged) |

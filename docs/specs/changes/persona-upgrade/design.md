@@ -7,7 +7,7 @@
 | Spec Path | `changes/persona-upgrade` |
 | Depth | **Full**, confirmed at Step 2.4 (§9) |
 | Type | Change |
-| Approval Mode | `gated` |
+| Approval Mode | `gated`. **Changed to `pre-approved` by the user on 2026-09-30, at the T2b gate, from T3 on** (`execution.md` Document Control) |
 | Status | **Approved** — at the Step 2.5 gate the user chose *Review Design*, then *Fix only*. Corrected 2026-09-30 (§13); the corrections were not re-judged |
 | Date | 2026-09-30 |
 | Source | `requirements.md` (approved 2026-09-30; amended at the design gate and after judgment day — its §11) |

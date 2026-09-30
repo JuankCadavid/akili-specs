@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/persona-upgrade` |
-| Approval Mode | `gated` |
+| Approval Mode | `gated` through T2b (each continue gate answered by the user). **`pre-approved` from T3 on**: the user answered "pr-approved" at the T2b gate on 2026-09-30, to the question whether to continue, pause, or switch the spec to `pre-approved`. Exceptions still stop for the user: HALT, Pivot, budget tripwire, `FATAL_FAIL`, a `REVIEW_WAIVED` decision, the Leader-inline ask |
 | Started | 2026-09-30, at `350c7eb` on `master` |
 | Leader | This session. Command text: the installed `/akili-execute` |
 | Workers | No Step 8E wrappers in this repository (`ls .claude/agents` → no such directory). Fallback path: a general-purpose worker told to load `.agents/<role>.md`. Implementer on `sonnet`, Reviewer on `opus` |

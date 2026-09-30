@@ -9,7 +9,7 @@
 | Spec Path | `changes/persona-upgrade` |
 | Slug | `persona-upgrade` — given as a path by the user; the free text after it is proposal context |
 | Type | **Change** |
-| Approval Mode | `gated` (no up-front end-to-end mandate given for this spec) |
+| Approval Mode | `gated` (no up-front end-to-end mandate given for this spec). **Changed to `pre-approved` by the user on 2026-09-30, at the T2b gate, from T3 on** (`execution.md` Document Control) |
 | Depends on | none. Follows `changes/subagent-context-budget` (archived 2026-09-30, shipped in v2.29.0), whose CHANGELOG migration note is the symptom |
 | Parallel-safe | **yes** with `changes/review-intensity-trial-terms` (disjoint files). **no** with a future `changes/cursor-install-target` or `changes/model-routing-configurator`: all three edit `/akili-constitution` Step 8 and `bin/akili.js` |
 | Date | 2026-09-30 |

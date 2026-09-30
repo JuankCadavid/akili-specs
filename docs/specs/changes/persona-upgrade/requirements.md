@@ -7,7 +7,7 @@
 | Spec Path | `changes/persona-upgrade` |
 | Depth | **Full**. The change rewrites files a project owns and git-tracks, adds a CLI mode, and ships a migration; it needs rollout, rollback and risk sections. To be re-checked at Step 2.4 |
 | Type | Change |
-| Approval Mode | `gated`, inherited from `proposal.md` |
+| Approval Mode | `gated`, inherited from `proposal.md`. **Changed to `pre-approved` by the user on 2026-09-30, at the T2b gate, from T3 on** (`execution.md` Document Control) |
 | Status | **Approved** (user, 2026-09-30) — OQ-1 to OQ-5 accepted as recommended. **Amended** at the design gate, after the reversion challenge and after judgment day: see §10 |
 | Date | 2026-09-30 |
 | Source | `proposal.md` (approved 2026-09-30, Option B, §11 defaults) |
