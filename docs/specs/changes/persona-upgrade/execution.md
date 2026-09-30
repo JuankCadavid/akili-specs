@@ -712,3 +712,39 @@ ISSUES:
 |---|---|
 | T8 | Step 8B's *Injection scope* lead now reads: "every injection below is written into the persona's `<!-- akili:project -->` … `<!-- /akili:project -->` block, never into an owned section, and only when the persona does not already carry it anywhere — one already living inside a `custom-edited` section is reported as a move to make by hand, never duplicated." The audit's injection-bleed check keeps a manual trim; drift names the CLI (DD-8) |
 | T9 | Mirror sentences in `docs/commands/akili-constitution.md`: line 27 ("Never overwrite existing personas — only append minimal upgrade blocks") and line 62 ("until re-scaffolded"). The Safe Update bullet cites `docs/cli.md` for the state names; that page must define `current`, `outdated`, `custom-edited`, `missing`, `unlocated`, `extra`, `unreadable`, `unmarked`, `absent` byte for byte |
+
+### T8: `/akili-audit` reports section states — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-7; design DD-8, P-18, §12 point (4) |
+| Files changed | `.claude/commands/akili-audit.md` (4 insertions, 4 deletions): item (c) of *Model Generation Drift* now names `akili doctor --agents`, the three states and `--fix`; the injection-bleed causal clause and remediation; item (c)'s remediation; the summary-table row and the checklist echo lose the `:59(c)` pointer |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | **14 of 26** |
+| Skills | `cognitive-doc-design`, as the task lists |
+| Effort | High, steered in the brief |
+| Parallel | Ran beside T4 (disjoint files) |
+| Gate | `auto-approved (pre-approved mode)` |
+| Lines | 4 changed; spec total (no fixtures) 1,791 |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Implementer verification | Check 1: `grep -c 'never an overwrite'` → 0 (baseline 2). Check 2: `grep -c 'doctor --agents'` → 2. Check 3: `grep -c ':59(c)'` → 0. Check 4: one file of its own (T4's `bin/` changes present in the tree, untouched) |
+| Falsifier | The sentence that now covers drift: "Remediation is `akili doctor --agents --fix`." — no remediation sentence forbids an overwrite |
+| Red run | `n/a (no test gate)` |
+| Sweep | `grep -n -i "overwrite\|append\|re-scaffold\|never"`: 15 lines read; L55 and L60 restated the superseded obligation and were rewritten; the rest are unrelated "never"s (CodeGraph, registry, wrappers, report filenames, the legacy drift-report file, checklist) |
+| Evidence re-run | Leader-inline: greps 0 / 2 / 0; one file, 4/4; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **PASS.** Summary: FR-7 term by term met; the injection-bleed causal clause ("Because Safe Update never rewrites the project block…") is true under T7's Step 8B and "`--fix` does not touch the project block" agrees with FR-4; no state redefined, `docs/cli.md` cited (forward reference expected); file-wide `:<digits>` → 0 (NFR-7); the checklist edit beyond the four sites accepted under Scope discipline (same file, same purpose, declared); no second table row (W11) |
+| runtime events | none |
+
+`spawns: implementer 16 calls, 148,747 tokens, ended complete; reviewer 5 calls, 69,183 tokens, ended complete`
+
+**ADVISORY:** none.
+
+**Decisions made.** The Implementer's sixth edit (the checklist line's `:59(c)` echo) is accepted: check 3 is file-wide and NFR-7 forbids the pointer; declared in its report as a judgment call.
+
+**Forward pointers.** T9: `docs/commands/akili-audit.md` carries no sentence to mirror for this task (0 hits for "never an overwrite" / "drifted structurally"); `docs/cli.md` must define the states both commands now cite.
