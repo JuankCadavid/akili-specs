@@ -179,7 +179,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `checklist`: one configuration file, no contract changes |
 | Depends on | T2 |

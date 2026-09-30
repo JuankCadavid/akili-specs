@@ -408,3 +408,37 @@ ADVISORY
 | Readings run before the task was written | At `ec78ee4`: `git diff --check acd119c HEAD -- test/fixtures` → exit 2; attributes `unspecified`. In a scratch clone with `*.md -text -whitespace` committed: exit 0; `text: unset`, `whitespace: unset`; `i/crlf w/crlf attr/-text` for `crlf.md` |
 | Line budget | Decided at the same gate: continue, cap raised to ~1,700 lines excluding fixtures (Document Control) |
 | Spec documents amended | `tasks.md` only: T2b added, §5 *Amendments at Execute Time*. `requirements.md` and `design.md` unchanged: no requirement changes meaning |
+
+### T2b: Fixture line endings are pinned — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-9 (the CRLF fixture and every other fixture reach a checkout byte for byte) |
+| Files changed | `test/fixtures/personas/.gitattributes` (new, one line: `*.md -text -whitespace`) |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | **8 of 21** |
+| Skills | None, as the task lists |
+| Effort | Low, steered in the brief |
+| Gate | The task exists by the user's decision at the T2 gate (*Spec gap record*, above) |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Files changed | `test/fixtures/personas/.gitattributes` |
+| Implementer verification | Check 1: `git check-attr text whitespace -- test/fixtures/personas/crlf.md` → `text: unset`, `whitespace: unset`. Check 2, file staged: `git diff --cached --check` → exit 0; `git diff --check acd119c -- test/fixtures` → exit 0 (baseline exit 2). Check 3: `git ls-files --eol` → `i/crlf w/crlf attr/-text` for `crlf.md`, `i/lf w/lf attr/-text` for `verbatim-marked.md`. Check 4: `npm test` → 22 pass, 0 fail. Check 5: `git status --short` → `A  test/fixtures/personas/.gitattributes` only |
+| Falsifier | Executed in a scratch clone: with the file, `git diff --check acd119c -- test/fixtures` → exit 0; file deleted → exit 2 with `trailing whitespace.` lines |
+| Red run | `n/a (no test gate)` |
+| Evidence re-run | Leader-inline, no worker active. All five outputs identical; the file is 23 bytes (`*.md -text -whitespace` and a newline). **VERIFIED** |
+| Reviewer verdict | **PASS.** Summary: `-text` turns off end-of-line conversion for the fixtures on every checkout whatever the local setting; `-whitespace` takes them out of `git diff --check`; a nested `.gitattributes` covers only its own directory, so `bin/akili.js` and `README.md` stay `unspecified`; the new file is the only non-`.md` file under `test/fixtures`; `test/` is not in `package.json` `files`, so the package is unchanged |
+| runtime events | none |
+
+`spawns: implementer 8 calls, 72,834 tokens, ended complete; reviewer 3 calls, 58,091 tokens, ended complete`
+
+**ADVISORY:** none.
+
+**Issues encountered.** The Implementer's report says the file is "28 bytes"; its own `od` dump and the Leader's `wc -c` show 23. Report wording only. The Disqualifier stands: whether the Windows runner converts line endings without the file remains `UNVERIFIED`; the file makes the question moot.
+
+**Final verification.** Checks 1–5 green, re-run by a non-author; Reviewer `PASS`. `git diff --check` is now clean across the spec's whole range (`acd119c` to the working tree).
