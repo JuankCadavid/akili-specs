@@ -143,3 +143,53 @@
 | T1d | Running total after T1a–T1c: 14,549 + 12,314 + 10,932 + 36,092 (`leader.md`, unmarked) = 73,887 bytes. Cap 74,421, so `leader.md` may grow by at most 534; its own task cap is 550. Five sections, one project block and the bullet at the Leader's bullet prefix are computed at 504 |
 
 **Final verification.** Checks 1–5 green on the working tree, re-run by a non-author; Reviewer `PASS`.
+
+### T1d: Markers in `leader.md` — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-1, FR-2, NFR-3; design §5.1, §5.2, DD-1, DD-2 |
+| Files changed | `.claude/templates/leader.md` (13 insertions, 0 deletions) |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | 4 of 21 |
+| Skills | None assigned; same deviation and reason as T1a |
+| Effort | Medium, steered in the brief (a 36 KB file) |
+| Gate | User: "continue" (2026-09-30), after the T1b/T1c gate |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Files changed | `.claude/templates/leader.md` |
+| Implementer verification | Check 1: counts **5 / 5 / 1**. Check 2: marker-stripped diff against `HEAD` → `37d36` / `<    * The project block below overrides any marked section.` and nothing else. Check 3: `wc -c` → 36,596 (growth 504, cap 550 over 36,092). Check 4: ids in order `primary-instructions`, `delegation`, `test-harness`, `reporting`, `shared-file-discipline`. Check 5: `git diff --stat` → one file, 13 insertions. Check 6: `wc -c` of the four templates → 14,549 + 12,314 + 10,932 + 36,596 = **74,391** (cap 74,421) |
+| Falsifier | Executed on a scratch copy outside the tree: `delegation`'s close marker moved below `test-harness`'s open marker → the read shows `test-harness` opening at line 324 with `delegation`'s close at line 325, a section opening inside another. The counts on that copy still read 5 / 5 / 1, which is why the task's falsifier is a read and not a count |
+| Red run | `n/a (no test gate)` |
+| Whole-file read (Disqualifier) | `delegation` runs from `## 📏 Delegation Thresholds` to the last line of *Deferring a check* and closes before the `---` that precedes `## 🧪`. `grep -c '^### '` → **6**, all six inside the fence; none added or split. No removed line, so every hard wrap is unchanged |
+| Evidence re-run | Leader-inline, no worker active. All six outputs identical to the report. **VERIFIED** |
+| Reviewer verdict | **PASS.** Summary: five sections fenced in file order, none nested, each `since=v2.30.0`; `primary-instructions` holds items 1–4 and nothing else; one empty project block directly after it; the precedence bullet is the last bullet of item 4 and no sentence of items 1–4 contradicts it; unfenced text matches §5.2's allowed list; the file has no code fence; four-file growth against `1cc75a0` is 580 + 581 + 505 + 504 = 2,170 of 2,200 |
+| runtime events | none |
+
+`spawns: implementer 27 calls, 107,996 tokens, ended complete; reviewer 8 calls, 66,294 tokens, ended complete`
+
+**ADVISORY:** none (diff under 50 lines).
+
+**Decisions made.** None new.
+
+**Issues encountered.**
+
+| # | Issue | Handling |
+|---|---|---|
+| 1 | The task's Disqualifier says `delegation` "must hold all seven `###` subsections". The template has six, on the working tree and at the baseline `1cc75a0` (`grep -c '^### '` → 6 on both). The count in the task text was never run | The brief carried the Disqualifier verbatim plus the measured count and its command, and asked for the obligation (every `###` of the section inside the fence) to be checked. Implementer and Reviewer both re-counted six. `tasks.md` was not edited. A recurrence of Active Lesson KZ-changes--leader-brief-contract-2, for the retrospective |
+
+**NFR-3 closed for the template tasks.** Four-file total 74,391 bytes; growth 2,170 of 2,200; 30 bytes of margin. Any later edit to a template in this spec must re-measure.
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T2 | Shapes the parser and its fixtures meet in the marked templates: `leader.md` holds column-0 numbered items inside `##` sections (the steps of *Deferring a check*, the `test-harness` list, the `reporting` list), and `primary-instructions` is one fence around four column-0 items; `reviewer.md` and `tester.md` each hold a column-0 `1.  **` line inside a code fence in their output section; `leader.md` has no code fence. A marked persona is parsed by its markers, so these matter to the grammar check only |
+| T4, T5 | Design §5.2 defines `primary-instructions` as "items 1–4 as one", while its level rule says an item section "runs to the next item at column 0". Cutting an **unmarked** `leader.md` (the migration, and the legacy digest seed) by the level rule alone would end that section at item 2. If the two readings cannot both be implemented, that is a design question for the user before code, not a choice for the brief |
+
+**Final verification.** Checks 1–6 green on the working tree, re-run by a non-author; Reviewer `PASS`.

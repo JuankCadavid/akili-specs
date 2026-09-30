@@ -128,7 +128,7 @@ As T1a, for `.claude/templates/leader.md`. Sections: `primary-instructions` (ite
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full` (overrides a, b) |
 | Depends on | none |
