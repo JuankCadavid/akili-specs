@@ -198,7 +198,7 @@ The eight statuses of FR-3 are not restated as a table in the command. Five have
 | Worker | The bullet says |
 |---|---|
 | Host | The budget is the one the persona states. The task text is already in this brief, so `tasks.md` is not opened. On a respawn, which checkpoint this is |
-| Non-host | The same, with the two numbers and the six checkpoint fields copied, as the non-host exception already does for other persona content |
+| Non-host | The same, with the two numbers and the seven checkpoint fields copied, as the non-host exception already does for other persona content |
 
 ### DD-7: Output discipline is one block, carried by two personas
 

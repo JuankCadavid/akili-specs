@@ -161,3 +161,54 @@ Reviewer FAIL findings, attempt 1:
 | Implementer, attempt 1 | `sonnet` | 31 | 150,397 | partial (assumptions only) |
 | Reviewer, attempt 1 | `opus` | reported after this entry | — | pass |
 
+### T3: The Leader handles a checkpoint — HALT (2026-09-29)
+
+| Field | Value |
+|---|---|
+| Final status | **HALT** after 3 failed attempts |
+| Implementer attempts | 3, plus 1 continuation on attempt 3 (the owed falsifier walks) |
+| Requirements covered | FR-3, FR-4, FR-7, FR-9, the FR-6 "full file" sentence; DD-5, DD-6, DD-9 |
+| Files changed (all attempts, restored at HALT) | `.claude/commands/akili-execute.md` (+53/−18 at attempt 3), `.claude/templates/leader.md` (+18/−6) |
+| Evidence re-run | Leader-inline, all three attempts: **VERIFIED** |
+| Review rounds used | 7 of 10 (T1 2, T2 1, T3 3) |
+| Skills | `cognitive-doc-design`, as the task lists |
+| Gate | HALT: stops for the user in every mode |
+
+**Attempt 1** — effort `xhigh`, fresh worker. All 17 sites landed. Reviewer **FAIL**, `opus`, three issues: (1) the loop sketch's checkpoint branch spawned a worker itself and then `continue loop`, so a checkpoint caused two spawns and the second never received the report, and the branch ran ahead of the blocker precedence and the Pivot-flag check; (2) Step 5's turn-bound sentence still described the loop-ending HALT as the 3-attempt ceiling's alone; (3) the *Spawn budget* bullet stated "the task text is already in this brief" as an aside to the Leader, not as an instruction to the worker (FR-4). Advisory applied by the Leader's instruction: "R2" in the *Precedence* bullet is a label the command does not define. Falsifier walks (a) and (b) red. Sweep found three HALT-like sentences outside the 17 sites, all about the rework ceiling alone. `Not Done / Assumptions`, verbatim: "DD-6's table literally says "the two numbers and the six checkpoint fields," but the persona … defines seven fields … I copied all seven … Step 4's `## HALT` list has a pre-existing duplicate "3." numbering … left as-is". runtime events: none.
+
+**Attempt 2** — effort `xhigh`, fresh worker, report copied verbatim. The three issues and the advisory fixed. Reviewer **FAIL**, `opus`, one new issue caused by the fix: the sketch's respawn line set `feedback = checkpoint report…`, replacing the attempt's FAIL feedback on attempts 2 and 3. Advisories: the sketch's copy of the precedence and accounting rules is acceptable under NFR-2 (a loop-sizing line) but is a drift risk; falsifiers (a) and (b) did not flip because the rule has two homes — a recorded gap; the DD-6 edit was uncommitted. runtime events: none.
+
+**Attempt 3** — effort `max`, fresh worker, report copied verbatim. One-line fix (`feedback = feedback (if any) + checkpoint report…`) and the *Action* bullet aligned. Four `feedback` cases walked. Continuation 1: the report omitted the falsifier walks; on re-request both flipped red with the rule deleted in every home. Reviewer **FAIL**, `opus`, one issue present since attempt 1 and not raised by the two earlier reviews: the *Fall-through* bullet "A report that fits none of the statuses above is handled as idle-without-report" sits before "When the Implementer reports completion", so a normal completion report (R1) and an assumptions-only report (R4), which carry no status line, fall through to idle-without-report and gain a second action. Remediation: widen the bullet's reference to the statuses handled below it, and re-walk R1 and R4. Advisories: a third checkpoint carrying a Pivot flag — order unstated in the paragraph; the Step 4 heading names only the rework limit; two "which checkpoint" labels accumulate in case (iv). runtime events: none. `continuations: 1 (falsifier walks)`.
+
+**Decisions made.**
+
+- Execute-time spec edit, 2026-09-29: `design.md` DD-6, non-host row, "six checkpoint fields" → "seven". A stale count from a judgment-day correction; no meaning change. Committed with this HALT record.
+- The attempt 3 diff is preserved at `halt/t3-attempt3.diff` in this folder. It is 6 sites short of nothing: the one remaining defect is one sentence.
+
+**Rollback.** Tree state: the halted task's two packaged files, plus the Leader's own `design.md` edit and this log. Restore scoped to the task's pathspec: `git restore -- .claude/commands/akili-execute.md .claude/templates/leader.md`. `git status --porcelain` after the restore: only `docs/specs/` paths remain. Nothing unattributed.
+
+**Leader's hypothesis on the root cause.** Two of the three FAILs were on defects introduced while fixing the previous round's, and the third was a defect present from attempt 1 that two Reviewers passed over: a paragraph with a closed list of statuses whose fall-through names "above" while the rest of the list lives below it. The task is large (17 sites, two files) and each attempt re-read the whole loop. A smaller task per file, or the fall-through as its own named check, would have caught it at specify.
+
+**Spawns** (host-reported).
+
+| Spawn | Model | Tool calls | Tokens | Ended |
+|---|---|---|---|---|
+| Implementer, attempt 1 | `sonnet` | 52 | 164,445 | partial (assumptions only) |
+| Reviewer, attempt 1 | `opus` | 17 | 115,323 | fail |
+| Implementer, attempt 2 | `sonnet` | 33 | 122,716 | partial (assumptions only) |
+| Reviewer, attempt 2 | `opus` | 13 | 103,583 | fail |
+| Implementer, attempt 3 | `sonnet` | 12 | 84,306 | complete |
+| Implementer, attempt 3, continuation | `sonnet` | 19 | 91,615 | complete |
+| Reviewer, attempt 3 | `opus` | reported after this entry | — | fail |
+
+## HALT: T3
+
+| Field | Value |
+|---|---|
+| Reviewer FAIL reports | Three, summarized above; each verbatim report is in the Leader's session and its findings are restated in full in the attempt entries |
+| Implementer summaries | Three, above |
+| Verification of the final attempt | Checks 1 to 12 green; `git diff --check` clean; both falsifiers red with the rule deleted in every home |
+| Hypothesis | Above |
+| Tree-state branch | Pathspec restore, two files; no unattributed paths |
+| Budget | 7 of 10 review rounds used; ~110 of ~140 lines were in the tree before the restore |
+
