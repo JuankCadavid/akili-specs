@@ -100,3 +100,46 @@
 **Issues encountered.** None.
 
 **Final verification.** Checks 1–5 green on the working tree, re-run by a non-author; Reviewer `PASS`.
+
+### T1c: Markers in `tester.md` — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-1, FR-2; design §5.1, §5.2, DD-1, DD-2 |
+| Files changed | `.claude/templates/tester.md` (13 insertions, 0 deletions) |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | 3 of 21 |
+| Skills | None assigned; same deviation and reason as T1a |
+| Effort | Low to medium, steered in the brief |
+| Parallel | Ran beside T1b |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Files changed | `.claude/templates/tester.md` |
+| Implementer verification | Check 1: counts **5 / 5 / 1**. Check 2: marker-stripped diff against `HEAD` → `39d38` / `<     *   The project block below overrides any marked section.` and nothing else. Check 3: `wc -c` → 10,932 (growth 505, cap 550 over 10,427). Check 4: ids in order `context-alignment`, `prove-behavior`, `incremental-focus`, `bounded-loop`, `test-report`. Check 5: `git diff --stat` → `tester.md` 13 insertions, plus T1b's `reviewer.md` and the Leader's `execution.md`, neither this task's |
+| Falsifier | Executed on a scratch copy outside the tree: one open marker duplicated → open **6**, close **5** (red) |
+| Red run | `n/a (no test gate)` |
+| Whole-file read (Disqualifier) | `test-report` runs from `## 📝 Structured Test Report Output` through Option C's closing code fence, its three `### Option` subsections inside. No section holds a project's test command: `bounded-loop` says only "Run your suite with the project's real test command", and the `COMMAND:` lines of the report shapes are placeholders. Confirmed by the Reviewer |
+| Evidence re-run | Leader-inline, no worker active. Outputs identical to the report. **VERIFIED** |
+| Reviewer verdict | **PASS.** Summary: five sections fenced in file order with `since=v2.30.0`, each exactly one item or one `##` section; one empty project block after item 4; the precedence bullet ends `context-alignment` and matches the sentence in the other two landed templates; no other character changed; no marker inside a code fence |
+| runtime events | none |
+
+`spawns: implementer 16 calls, 114,000 tokens, ended complete; reviewer 9 calls, 70,027 tokens, ended complete`
+
+**ADVISORY:** none (diff under 50 lines).
+
+**Decisions made.** None new.
+
+**Issues encountered.** None. The Reviewer noted one concrete string inside `test-report`, the illustrative `npx vitest run src/loan` in Option A's example block, and judged it a format example in a stack-agnostic template, not a project's test command; this task may not change that text.
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T1d | Running total after T1a–T1c: 14,549 + 12,314 + 10,932 + 36,092 (`leader.md`, unmarked) = 73,887 bytes. Cap 74,421, so `leader.md` may grow by at most 534; its own task cap is 550. Five sections, one project block and the bullet at the Leader's bullet prefix are computed at 504 |
+
+**Final verification.** Checks 1–5 green on the working tree, re-run by a non-author; Reviewer `PASS`.

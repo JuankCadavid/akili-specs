@@ -106,7 +106,7 @@ As T1a, for `.claude/templates/tester.md`. Sections: `context-alignment`, `prove
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Review | `full` (overrides a, b) |
 | Depends on | none |
