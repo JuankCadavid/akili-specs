@@ -85,6 +85,13 @@ function parsePersona(text) {
   // allowed). Both are order/position facts the running counts discard.
   let projectIsOpen = false;
   const migrationRecords = [];
+  // Line indices of the project block's own markers and the (at most one)
+  // migration record, captured only so a well-formed persona can later be
+  // rebuilt line-for-line by buildSegments — never consulted by the grammar
+  // checks above, which already have their own well-formedness logic.
+  let projectOpenLine = -1;
+  let projectCloseLine = -1;
+  let migrationLine = -1;
 
   for (let i = scanStart; i < rawLines.length; i++) {
     const line = rawLines[i];
@@ -114,6 +121,8 @@ function parsePersona(text) {
           id: open.id,
           since: open.since,
           body: rawLines.slice(open.line + 1, i).join("\n"),
+          openLine: open.line,
+          closeLine: i,
         });
       }
     } else if (PROJECT_OPEN_RE.test(line)) {
@@ -123,6 +132,7 @@ function parsePersona(text) {
         flagUnreadable(`project block opens inside section id=${openStack[openStack.length - 1].id}`);
       }
       projectIsOpen = true;
+      projectOpenLine = i;
     } else if (PROJECT_CLOSE_RE.test(line)) {
       anyMarker = true;
       projectCloseCount += 1;
@@ -130,10 +140,12 @@ function parsePersona(text) {
         flagUnreadable(`project block close with no open at line ${i}`);
       }
       projectIsOpen = false;
+      projectCloseLine = i;
     } else if ((m = line.match(MIGRATION_RECORD_RE))) {
       anyMarker = true;
       const notLocated = m[2] === "none" ? [] : m[2].split(",").filter(Boolean);
-      migrationRecords.push({ release: m[1], notLocated });
+      migrationRecords.push({ release: m[1], notLocated, line: i });
+      migrationLine = i;
     }
   }
 
@@ -158,16 +170,253 @@ function parsePersona(text) {
     }
   }
 
+  // Segments: an ordered, whole-file reconstruction list — design's
+  // parsePersona(text) -> {..., segments[]}. Built only for a well-formed,
+  // marked persona/template (never for `unmarked` — nothing to fence yet,
+  // that is migratePersona's job (T4) — and never for `unreadable`, whose
+  // marker positions are not trustworthy). Every line of the file lands in
+  // exactly one segment: 'text' for everything outside a marker (front
+  // matter, the title, blank lines, unfenced prose — i.e. project space
+  // that is not the project block itself), 'owned' for a fenced section,
+  // 'project' for the project block's body, 'migration' for the migration
+  // record. applyFix (below) only ever replaces or inserts 'owned' segments
+  // and edits a 'migration' segment's notLocated list — it never touches a
+  // 'text' or 'project' segment, which is exactly what keeps project space
+  // byte-identical (FR-4, NFR-4) as a structural guarantee rather than a
+  // rule the fix has to remember to obey.
+  let segments = null;
+  if (!unmarked && !unreadable) {
+    const regions = [];
+    for (const s of sections) {
+      regions.push({ kind: "owned", start: s.openLine, end: s.closeLine, id: s.id, since: s.since });
+    }
+    if (projectOpenLine !== -1) {
+      regions.push({ kind: "project", start: projectOpenLine, end: projectCloseLine });
+    }
+    if (migrationRecords.length) {
+      const rec = migrationRecords[0];
+      regions.push({ kind: "migration", start: rec.line, end: rec.line, release: rec.release, notLocated: rec.notLocated.slice() });
+    }
+    regions.sort((a, b) => a.start - b.start);
+
+    segments = [];
+    let cursor = 0;
+    for (const r of regions) {
+      if (r.start > cursor) {
+        segments.push({ kind: "text", lines: rawLines.slice(cursor, r.start) });
+      }
+      if (r.kind === "owned") {
+        segments.push({ kind: "owned", id: r.id, since: r.since, bodyLines: rawLines.slice(r.start + 1, r.end) });
+      } else if (r.kind === "project") {
+        segments.push({ kind: "project", bodyLines: rawLines.slice(r.start + 1, r.end) });
+      } else if (r.kind === "migration") {
+        segments.push({ kind: "migration", release: r.release, notLocated: r.notLocated });
+      }
+      cursor = r.end + 1;
+    }
+    if (cursor < rawLines.length) {
+      segments.push({ kind: "text", lines: rawLines.slice(cursor) });
+    }
+  }
+
   return {
     eol,
+    text,
     frontMatter,
     unmarked,
     unreadable,
     unreadableReason: unreadable ? unreadableReason : null,
     sections,
+    segments,
     projectBlockCount: projectOpenCount,
     migrationRecord: migrationRecords[0] || null,
   };
+}
+
+// Renders an ordered segment list (parsePersona's `segments`) back into
+// file text, joining every line with `eol` — design §5.1: "the writer emits
+// the file's majority line ending". A marker line is always regenerated
+// from its structured fields (id/since, release/notLocated), never stored
+// as raw text: SECTION_OPEN_RE / MIGRATION_RECORD_RE etc. are anchored,
+// fixed-spacing patterns, so a line that matched one had exactly this text
+// already — regenerating it loses no information for an unchanged segment,
+// and is what lets a changed one (a new `since`, a trimmed notLocated list)
+// come out correctly formatted too.
+function renderSegments(segments, eol) {
+  const lines = [];
+  for (const seg of segments) {
+    if (seg.kind === "text") {
+      lines.push(...seg.lines);
+    } else if (seg.kind === "owned") {
+      lines.push(`<!-- akili:section id=${seg.id} since=${seg.since} -->`);
+      lines.push(...seg.bodyLines);
+      lines.push(`<!-- /akili:section -->`);
+    } else if (seg.kind === "project") {
+      lines.push(`<!-- akili:project -->`);
+      lines.push(...seg.bodyLines);
+      lines.push(`<!-- /akili:project -->`);
+    } else if (seg.kind === "migration") {
+      const notLocated = seg.notLocated.length ? seg.notLocated.join(",") : "none";
+      lines.push(`<!-- akili:migrated ${seg.release} not-located=${notLocated} -->`);
+    }
+  }
+  return lines.join(eol);
+}
+
+// FR-4 / FR-5 boundary, design §5.4 + DD-4: for a well-formed, marked
+// persona, replaces every `outdated` section, inserts every `missing` one,
+// and (with `opts.sections`) lets `--section <id>` force a `custom-edited`
+// replace or an `unlocated` insert. Pure: returns the new text and a change
+// list; the caller (runAgentsDoctor) owns the backup and the write. Every
+// §5.4 row is handled by exactly one branch of the switch below (KZ-004) —
+// `current` and `extra` are explicit no-ops, not a silent fall-through.
+//
+//   absent (persona === null)  -> install the packaged template verbatim
+//   unreadable                 -> skip the file, report why
+//   unmarked                   -> skip the file; migratePersona is T4's job
+//   current                    -> no-op
+//   outdated                   -> replace body + since
+//   custom-edited              -> skip, unless --section <id>: replace
+//   missing                    -> insert at the DD-4 position
+//   unlocated                  -> skip, unless --section <id>: insert + drop from the migration record
+//   extra                      -> no-op (FR-4: never changed)
+function applyFix(persona, template, digests, opts) {
+  const options = opts || {};
+  const sectionOverrides = new Set(options.sections || []);
+
+  if (persona === null || persona === undefined) {
+    return {
+      changed: true,
+      text: template.text,
+      rows: [{ id: null, action: "installed", detail: null }],
+    };
+  }
+
+  if (persona.unreadable) {
+    return {
+      changed: false,
+      text: null,
+      rows: [{ id: null, action: "skipped", detail: `unreadable: ${persona.unreadableReason}` }],
+    };
+  }
+
+  if (persona.unmarked) {
+    return {
+      changed: false,
+      text: null,
+      rows: [{ id: null, action: "skipped", detail: "unmarked; migration runs via migratePersona, not this fix" }],
+    };
+  }
+
+  const result = sectionStates(persona, template, digests);
+  const segments = persona.segments.slice();
+  const rows = [];
+  let changed = false;
+  const removedFromRecord = [];
+
+  const findOwnedIndex = (id) => segments.findIndex((seg) => seg.kind === "owned" && seg.id === id);
+  const findProjectIndex = () => segments.findIndex((seg) => seg.kind === "project");
+  const findMigrationIndex = () => segments.findIndex((seg) => seg.kind === "migration");
+
+  // DD-4: "after the persona's segment for the template's preceding
+  // section; when that is absent, before the next present one; when
+  // neither exists, before the project block."
+  const insertionIndex = (id) => {
+    const tIdx = template.sections.findIndex((s) => s.id === id);
+    for (let j = tIdx - 1; j >= 0; j--) {
+      const segIdx = findOwnedIndex(template.sections[j].id);
+      if (segIdx !== -1) return segIdx + 1;
+    }
+    for (let j = tIdx + 1; j < template.sections.length; j++) {
+      const segIdx = findOwnedIndex(template.sections[j].id);
+      if (segIdx !== -1) return segIdx;
+    }
+    const projIdx = findProjectIndex();
+    if (projIdx === -1) return segments.length;
+    // §5.1 / DD-13: the migration record sits immediately before the project
+    // block. When this fallback's neighbourless insertion would otherwise
+    // land between them (the segment right before the project block is the
+    // migration record), insert before the record instead, so the record
+    // stays adjacent to the project block after the splice.
+    if (projIdx > 0 && segments[projIdx - 1].kind === "migration") return projIdx - 1;
+    return projIdx;
+  };
+
+  for (const row of result.sections) {
+    const tSec = template.sections.find((s) => s.id === row.id);
+    switch (row.state) {
+      case "current":
+        // Already matches the packaged template; --section on a `current`
+        // id is a no-op too (FR-4 only gives --section an effect on
+        // custom-edited/unlocated).
+        break;
+      case "outdated": {
+        const idx = findOwnedIndex(row.id);
+        segments[idx] = { kind: "owned", id: row.id, since: tSec.since, bodyLines: tSec.body.split("\n") };
+        rows.push({ id: row.id, action: "fixed", detail: `matched ${row.matched}` });
+        changed = true;
+        break;
+      }
+      case "custom-edited": {
+        if (sectionOverrides.has(row.id)) {
+          const idx = findOwnedIndex(row.id);
+          segments[idx] = { kind: "owned", id: row.id, since: tSec.since, bodyLines: tSec.body.split("\n") };
+          rows.push({ id: row.id, action: "fixed", detail: "--section override" });
+          changed = true;
+        } else {
+          rows.push({ id: row.id, action: "skipped", detail: "custom-edited; use --section" });
+        }
+        break;
+      }
+      case "missing": {
+        const idx = insertionIndex(row.id);
+        segments.splice(idx, 0, { kind: "owned", id: row.id, since: tSec.since, bodyLines: tSec.body.split("\n") });
+        rows.push({ id: row.id, action: "inserted", detail: null });
+        changed = true;
+        break;
+      }
+      case "unlocated": {
+        if (sectionOverrides.has(row.id)) {
+          const idx = insertionIndex(row.id);
+          segments.splice(idx, 0, { kind: "owned", id: row.id, since: tSec.since, bodyLines: tSec.body.split("\n") });
+          rows.push({ id: row.id, action: "inserted", detail: "--section (removed from migration record)" });
+          changed = true;
+          removedFromRecord.push(row.id);
+        } else {
+          rows.push({ id: row.id, action: "skipped", detail: "unlocated; use --section" });
+        }
+        break;
+      }
+      case "extra":
+        // FR-4: "it SHALL NOT change an extra section." Explicit branch,
+        // not a default fall-through (KZ-004): the persona's segment for
+        // this id is left exactly as it is.
+        break;
+      default:
+        // Every §5.4 row for a well-formed marked persona is one of the
+        // cases above; a new state reaching here is a real bug, not a case
+        // to swallow silently.
+        throw new Error(`applyFix: unhandled section state "${row.state}" for id ${row.id}`);
+    }
+  }
+
+  if (removedFromRecord.length) {
+    const migIdx = findMigrationIndex();
+    if (migIdx !== -1) {
+      const seg = segments[migIdx];
+      segments[migIdx] = {
+        kind: "migration",
+        release: seg.release,
+        notLocated: seg.notLocated.filter((id) => !removedFromRecord.includes(id)),
+      };
+    }
+  }
+
+  if (!changed) {
+    return { changed: false, text: null, rows };
+  }
+
+  return { changed: true, text: renderSegments(segments, persona.eol), rows };
 }
 
 // FR-3 / design §5.4: one state per template section, computed from a parsed
@@ -281,4 +530,6 @@ module.exports = {
   sectionStates,
   resultExitCode,
   EXIT_ZERO_STATES,
+  renderSegments,
+  applyFix,
 };

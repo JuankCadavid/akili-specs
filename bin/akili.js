@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
-const { parsePersona, sectionStates, resultExitCode } = require("./persona.js");
+const { parsePersona, sectionStates, resultExitCode, applyFix } = require("./persona.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
 // .cmd shims, and patched Node (CVE-2024-27980) throws EINVAL when spawning
@@ -1223,13 +1223,15 @@ function checkEnvironment(tools) {
   });
 }
 
-// FR-3: `akili doctor --agents` — report-only. Compares `./.agents/<role>.md`
-// against the CLI's own PACKAGED templates (SOURCE_TEMPLATES; the same bytes
-// regardless of which tool is installed or which --tool is passed — FR-3's
-// "same states whichever --tool is passed" scenario), states one row per
-// owned section via bin/persona.js's sectionStates, and sets the exit code
-// per §5.4. `--fix`, backups, guards and the migration are T3/T4/T5 — this
-// mode never writes.
+// FR-3: `akili doctor --agents` — report-only by default. Compares
+// `./.agents/<role>.md` against the CLI's own PACKAGED templates
+// (SOURCE_TEMPLATES; the same bytes regardless of which tool is installed or
+// which --tool is passed — FR-3's "same states whichever --tool is passed"
+// scenario), states one row per owned section via bin/persona.js's
+// sectionStates, and sets the exit code per §5.4. `--fix` (FR-4/FR-10, this
+// task) adds guards, a backup, one atomic write per rewritten persona, and a
+// re-report; the migration of an `unmarked` persona (FR-5) is T4 and is
+// never invented here.
 //
 // digests: no `.claude/templates/digests.json` exists until T5 (DD-11), so
 // every run compares against an empty table; per FR-3, "when no digest
@@ -1247,9 +1249,213 @@ const SECTION_STATE_COLOR = {
   unmarked: "red",
 };
 
+const FIX_ROW_COLOR = {
+  fixed: "green",
+  inserted: "green",
+  installed: "green",
+  skipped: "yellow",
+};
+
+// Runs a git subcommand quietly; returns trimmed stdout, or null on any
+// failure (not a repo, git missing, no such ref). Every caller below treats
+// null as "this signal is unavailable", never as an error to surface —
+// DD-12's resolution is built entirely out of "try the next signal" steps.
+function tryGit(cwd, gitArgs) {
+  try {
+    return execFileSync("git", gitArgs, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return null;
+  }
+}
+
+// Reads the `Default Branch:` / `Integration Branch:` pins that
+// /akili-constitution writes into the root guide's constitution summary
+// (AGENTS.md preferred, CLAUDE.md as the other root guide) — the same pins
+// the kaizen skill's "### Branch Context" resolves against. Bullet-list
+// prefixes ("- Default Branch: master") are tolerated; only the value after
+// the colon is captured.
+function readConstitutionPins(cwd) {
+  for (const name of ["AGENTS.md", "CLAUDE.md"]) {
+    const p = path.join(cwd, name);
+    if (!fs.existsSync(p)) continue;
+    let text;
+    try {
+      text = fs.readFileSync(p, "utf8");
+    } catch {
+      continue;
+    }
+    const defaultMatch = text.match(/Default Branch:\s*(\S+)/);
+    const integrationMatch = text.match(/Integration Branch:\s*(\S+)/);
+    if (defaultMatch || integrationMatch) {
+      return {
+        defaultBranch: defaultMatch ? defaultMatch[1].replace(/[.,;]+$/, "") : null,
+        integrationBranch: integrationMatch ? integrationMatch[1].replace(/[.,;]+$/, "") : null,
+      };
+    }
+  }
+  return { defaultBranch: null, integrationBranch: null };
+}
+
+// DD-12: "--fix resolves the branch the way the kaizen skill does, and
+// refuses when it cannot" — mirroring the kaizen SKILL.md "### Branch
+// Context" resolution order: an Integration Branch: pin, else a Default
+// Branch: pin, else the remote's origin/HEAD, else the unique main/master
+// among local and origin branches; unresolved when none of those settle it.
+// Not a git checkout: no branch guard applies at all (DD-12: "no branch
+// exists → proceed, say so").
+function resolveBranchContext(cwd) {
+  const isGitRepo = tryGit(cwd, ["rev-parse", "--is-inside-work-tree"]) === "true";
+  if (!isGitRepo) {
+    return { isGitRepo: false, currentBranch: null, applyCapableBranch: null, resolved: false, source: "not-a-git-repo" };
+  }
+
+  const currentBranch = tryGit(cwd, ["rev-parse", "--abbrev-ref", "HEAD"]);
+  const pins = readConstitutionPins(cwd);
+
+  if (pins.integrationBranch) {
+    return { isGitRepo: true, currentBranch, applyCapableBranch: pins.integrationBranch, resolved: true, source: "integration-pin" };
+  }
+  if (pins.defaultBranch) {
+    return { isGitRepo: true, currentBranch, applyCapableBranch: pins.defaultBranch, resolved: true, source: "default-pin" };
+  }
+
+  const symbolic = tryGit(cwd, ["symbolic-ref", "refs/remotes/origin/HEAD"]);
+  if (symbolic) {
+    return {
+      isGitRepo: true,
+      currentBranch,
+      applyCapableBranch: symbolic.replace(/^refs\/remotes\/origin\//, ""),
+      resolved: true,
+      source: "origin-head",
+    };
+  }
+
+  const refsRaw = tryGit(cwd, ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes/origin"]) || "";
+  const names = refsRaw
+    .split("\n")
+    .filter(Boolean)
+    .map((n) => n.replace(/^origin\//, ""));
+  const hasMain = names.includes("main");
+  const hasMaster = names.includes("master");
+  if (hasMain && !hasMaster) {
+    return { isGitRepo: true, currentBranch, applyCapableBranch: "main", resolved: true, source: "unique-main-master" };
+  }
+  if (hasMaster && !hasMain) {
+    return { isGitRepo: true, currentBranch, applyCapableBranch: "master", resolved: true, source: "unique-main-master" };
+  }
+
+  // Neither settled, or both main and master exist — never guess (DD-12).
+  return { isGitRepo: true, currentBranch, applyCapableBranch: null, resolved: false, source: "unresolved" };
+}
+
+// DD-12 dirty-tree guard: `git status --porcelain -- .agents`, with the
+// fix's own artifacts (DD-5: its backup folder and the .gitignore line it
+// writes) excluded, so a --fix run is never blocked by evidence of its own
+// prior run.
+function agentsDirtyStatus(cwd) {
+  const out = tryGit(cwd, ["status", "--porcelain", "--", ".agents"]);
+  if (out === null) return { dirty: false, lines: [] };
+  const lines = out
+    .split("\n")
+    .filter(Boolean)
+    .filter((line) => {
+      const filePath = line.slice(3);
+      return filePath !== ".agents/.gitignore" && !filePath.startsWith(".agents/.backup/");
+    });
+  return { dirty: lines.length > 0, lines };
+}
+
+// Both --fix guards (DD-12), evaluated in this order: branch, then dirty
+// tree. Prints an override notice when a passed flag defused a guard that
+// would otherwise have refused; returns an array of refusal reason strings
+// (empty when the run may proceed). Both guards are always evaluated (and
+// any override printed) — DD-4's disqualifier note ("a guard test that stubs
+// git must stub it for the refusing case too") is about test coverage, not
+// about short-circuiting real runs — and every refusing guard contributes
+// its own reason (RISK issue 1: a lone `if (!reason)` on the second guard
+// used to drop it whenever the first guard had already refused).
+function evaluateFixGuards(branchCtx, cwd, args) {
+  const reasons = [];
+
+  if (!branchCtx.isGitRepo) {
+    console.log(`  ${colors.yellow}Not a git checkout — branch guard skipped, proceeding.${colors.reset}`);
+  } else {
+    const onApplyCapable = branchCtx.resolved && branchCtx.currentBranch === branchCtx.applyCapableBranch;
+    if (!onApplyCapable) {
+      const detail = branchCtx.resolved
+        ? `on "${branchCtx.currentBranch}", the apply-capable branch is "${branchCtx.applyCapableBranch}"`
+        : `the apply-capable branch could not be resolved (kaizen skill's Branch Context)`;
+      if (args.allowBranch) {
+        console.log(`  ${colors.yellow}--allow-branch: branch guard overridden (${detail}).${colors.reset}`);
+      } else {
+        reasons.push(`branch: ${detail} — pass --allow-branch to proceed anyway`);
+      }
+    }
+  }
+
+  if (branchCtx.isGitRepo) {
+    const dirty = agentsDirtyStatus(cwd);
+    if (dirty.dirty) {
+      if (args.force) {
+        console.log(`  ${colors.yellow}--force: dirty-tree guard overridden (${dirty.lines.length} changed path(s) under .agents/).${colors.reset}`);
+      } else {
+        reasons.push(`dirty tree: .agents/ has uncommitted changes outside the fix's own backup/ignore artifacts — pass --force to proceed, or commit first`);
+      }
+    }
+  }
+
+  return reasons;
+}
+
+// DD-5: ".agents/.gitignore gains .backup/ (created when missing)." Called
+// lazily, the first time a backup is actually about to be written this run
+// — a run that changes nothing never touches this file.
+function ensureBackupGitignore(agentsDir) {
+  const gitignorePath = path.join(agentsDir, ".gitignore");
+  let contents = "";
+  let exists = false;
+  if (fs.existsSync(gitignorePath)) {
+    exists = true;
+    contents = fs.readFileSync(gitignorePath, "utf8");
+  }
+  if (contents.split(/\r?\n/).some((line) => line.trim() === ".backup/")) return;
+  const next = exists ? (contents.length && !contents.endsWith("\n") ? contents + "\n" : contents) + ".backup/\n" : ".backup/\n";
+  atomicWriteFileSync(gitignorePath, next);
+}
+
+// FR-4: "Before writing a persona it SHALL copy the file to
+// .agents/.backup/<role>.md.<timestamp>" — and, per the scenario, the file
+// must NOT be written before its backup exists. `fs.writeFileSync` with
+// `flag: "wx"` fails loudly (rather than silently overwriting) if a backup
+// of the same name already exists.
+function backupPersona(agentsDir, roleFile, originalText) {
+  const backupDir = path.join(agentsDir, ".backup");
+  fs.mkdirSync(backupDir, { recursive: true });
+  // DD-5: "<role>.md.<YYYYMMDD-HHMMSS>". Neither DD-5 nor FR-4 names a
+  // timezone; local time is used so the name reads against the machine's
+  // own clock (matching the report's other timestamps), not against a
+  // pinned UTC offset a maintainer would have to convert.
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const timestamp =
+    `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
+    `-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const backupPath = path.join(backupDir, `${roleFile}.${timestamp}`);
+  fs.writeFileSync(backupPath, originalText, { flag: "wx" });
+  return backupPath;
+}
+
+function printFixRow(row) {
+  const color = colors[FIX_ROW_COLOR[row.action]] || colors.reset;
+  const label = row.action.toUpperCase();
+  const idPart = row.id ? `  ${row.id}` : "";
+  const detailPart = row.detail ? ` (${row.detail})` : "";
+  console.log(`    ${color}${label}${colors.reset}${idPart}${detailPart}`);
+}
+
 function runAgentsDoctor(args) {
-  const agentsDir = path.join(process.cwd(), ".agents");
-  let overallExit = 0;
+  const cwd = process.cwd();
+  const agentsDir = path.join(cwd, ".agents");
 
   console.log(`\n${colors.cyan}Persona drift (doctor --agents)${colors.reset} — akili-specs v${currentVersion}`);
 
@@ -1265,18 +1471,43 @@ function runAgentsDoctor(args) {
     return;
   }
 
+  // Guards only matter for --fix — report-only mode never writes, so it
+  // never needs to ask permission to. A real (non-dry) run keeps
+  // short-circuiting on the first refusal, exactly as before: no I/O has
+  // happened yet, so there is nothing to lose by stopping here. Under
+  // --dry-run there is nothing to lose by continuing either — it never
+  // writes — so every guard's plan AND every guard's refusal reason get
+  // printed (RISK issue 1): the reasons are held and reported after the
+  // per-persona plan loop below, instead of exiting before it ever runs.
+  let guardReasons = [];
+  if (args.fix) {
+    const branchCtx = resolveBranchContext(cwd);
+    guardReasons = evaluateFixGuards(branchCtx, cwd, args);
+    if (guardReasons.length && !args.dryRun) {
+      console.log(`\n  ${colors.red}REFUSED (${guardReasons[0]})${colors.reset}`);
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  let overallExit = 0;
+  let gitignoreEnsured = false;
+  let wroteAtLeastOne = false;
+  const postFixExits = [];
+
   for (const roleFile of AGENT_TEMPLATES) {
     const role = roleFile.replace(/\.md$/, "");
     const personaPath = path.join(agentsDir, roleFile);
     const templatePath = path.join(SOURCE_TEMPLATES, roleFile);
     const template = parsePersona(fs.readFileSync(templatePath, "utf8"));
     const personaExists = fs.existsSync(personaPath);
-    const persona = personaExists ? parsePersona(fs.readFileSync(personaPath, "utf8")) : null;
+    const personaText = personaExists ? fs.readFileSync(personaPath, "utf8") : null;
+    const persona = personaText !== null ? parsePersona(personaText) : null;
     const result = sectionStates(persona, template, AGENTS_DIGESTS);
     const exitCode = resultExitCode(result);
     if (exitCode !== 0) overallExit = 1;
 
-    console.log(`\n${colors.cyan}${role}${colors.reset} (${formatPath(path.relative(process.cwd(), personaPath))})`);
+    console.log(`\n${colors.cyan}${role}${colors.reset} (${formatPath(path.relative(cwd, personaPath))})`);
     if (result.status === "absent") {
       console.log(`  ${colors.red}ABSENT${colors.reset} persona file does not exist`);
     } else if (result.status === "unreadable") {
@@ -1293,14 +1524,76 @@ function runAgentsDoctor(args) {
         console.log(`    ${color}${row.state.toUpperCase()}${colors.reset}  ${row.id}${matched}`);
       }
     }
+
+    if (!args.fix) continue;
+
+    const fix = applyFix(persona, template, AGENTS_DIGESTS, { sections: args.section || [] });
+    for (const row of fix.rows) printFixRow(row);
+
+    let postExit = exitCode;
+    if (fix.changed) {
+      if (args.dryRun) {
+        console.log(`    ${colors.yellow}(dry-run — no file written)${colors.reset}`);
+        // The plan's own exit-code contribution: what the state WOULD be
+        // after this text, without ever touching disk.
+        postExit = resultExitCode(sectionStates(parsePersona(fix.text), template, AGENTS_DIGESTS));
+      } else {
+        if (personaExists) {
+          // Guard -> backup -> one atomic write -> re-report (design §7):
+          // the backup is written before this persona file is touched at
+          // all, never after (FR-4's "must NOT be written before its
+          // backup exists").
+          const backupPath = backupPersona(agentsDir, roleFile, personaText);
+          if (!gitignoreEnsured) {
+            ensureBackupGitignore(agentsDir);
+            gitignoreEnsured = true;
+          }
+          console.log(`    ${colors.cyan}BACKUP${colors.reset} ${formatPath(backupPath)}`);
+        }
+        atomicWriteFileSync(personaPath, fix.text);
+        wroteAtLeastOne = true;
+        // Re-report: recompute from the file just written, on disk — never
+        // reuse the pre-fix `result` for the exit code (FR-4 idempotence:
+        // a section this run just fixed must not still read as failing).
+        const rewritten = parsePersona(fs.readFileSync(personaPath, "utf8"));
+        postExit = resultExitCode(sectionStates(rewritten, template, AGENTS_DIGESTS));
+      }
+    } else if (persona && (persona.unreadable || persona.unmarked)) {
+      // Not written by this task (unreadable: skip the file; unmarked:
+      // migratePersona is T4's job) — still fails until one of those is
+      // actually fixed.
+      postExit = 1;
+    }
+    postFixExits.push(postExit);
   }
 
+  const finalExit = args.fix ? (postFixExits.some((e) => e !== 0) ? 1 : 0) : overallExit;
+
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
-  if (overallExit !== 0) {
+  if (finalExit !== 0) {
     console.log(`${colors.red}Persona drift found.${colors.reset} Sections reported outdated, missing, unmarked or unreadable, or a persona is absent.`);
     process.exitCode = 1;
   } else {
     console.log(`${colors.green}No persona drift blocking CI.${colors.reset} custom-edited, extra and unlocated sections remain the maintainer's call.`);
+  }
+
+  // RISK issue 1 (--dry-run only; a real run already returned above before
+  // any of this printed): the full plan above is followed by one REFUSED
+  // row per refusing guard, and the exit code reflects the refusal
+  // regardless of what the persona plan itself would have exited with.
+  if (args.fix && guardReasons.length) {
+    for (const reason of guardReasons) {
+      console.log(`  ${colors.red}REFUSED (${reason})${colors.reset}`);
+    }
+    process.exitCode = 1;
+  }
+
+  // DD-5: the rewritten personas make .agents/ dirty by design, so the
+  // report tells the maintainer what the next --fix will need — but only
+  // when a persona was actually written this run (never under --dry-run,
+  // never on a guard refusal, never when every persona was already current).
+  if (wroteAtLeastOne) {
+    console.log("commit `.agents/` before the next `--fix`, or pass `--force`");
   }
 }
 

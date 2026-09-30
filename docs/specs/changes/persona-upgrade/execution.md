@@ -442,3 +442,164 @@ ADVISORY
 **Issues encountered.** The Implementer's report says the file is "28 bytes"; its own `od` dump and the Leader's `wc -c` show 23. Report wording only. The Disqualifier stands: whether the Windows runner converts line endings without the file remains `UNVERIFIED`; the file makes the question moot.
 
 **Final verification.** Checks 1–5 green, re-run by a non-author; Reviewer `PASS`. `git diff --check` is now clean across the spec's whole range (`acd119c` to the working tree).
+
+### T3: Fix, guards, backup
+
+Status while in progress: `[~]`. The closing table is written when the loop ends. Approval mode from this task on: `pre-approved`.
+
+**Attempt 1, spawn 1 — report with owed items** (2026-09-30). Effort `xhigh`. Skills `tdd`, `error-handling-patterns`, as the task lists.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/persona.js` (`segments` added to `parsePersona`'s return, `renderSegments`, `applyFix`), `bin/akili.js` (`resolveBranchContext`, `readConstitutionPins`, `tryGit`, `agentsDirtyStatus`, `evaluateFixGuards`, `ensureBackupGitignore`, `backupPersona`, `printFixRow`, `runAgentsDoctor` rewritten for guard → backup → write → re-report), `test/agents-doctor.test.js` (+22 tests), `test/fixtures/personas/missing-section-first.md`, `all-missing.md`, `crlf-missing.md` (new) |
+| Implementer verification, as reported | Check 1: `npm test` → 44 pass. Check 2: temp git repo, `Default Branch: main` pin, on `other` → `REFUSED (branch: on "other", the apply-capable branch is "main" — pass --allow-branch to proceed anyway)`, exit 1, `git status --porcelain` empty; with `--allow-branch` exit 0. Check 3: `--fix --dry-run` → `INSERTED craft` and `(dry-run — no file written)`, exit 0, persona byte-identical, no `.agents/.backup/`. Check 4: one backup per rewritten persona, backup bytes equal the pre-fix bytes, second `doctor --agents` exit 0. Check 5: `git diff --stat` → `bin/akili.js`, `bin/persona.js`, `test/agents-doctor.test.js`; three new fixtures |
+| Falsifier, as reported | Executed: the `text` branch of `renderSegments` dropped → `applyFix: project space is byte-identical across every fixture, changed or not (FR-4, NFR-4)` red on `assert.equal(projectSpaceOf(after), beforeSpace, …)` with `actual: ''`; reverted by the inverse edit; `shasum bin/persona.js` identical before and after |
+| Evidence re-run, Reviewer | Not run on this report: both run on the completion report of the attempt's last spawn |
+| runtime events | none |
+
+`Not Done / Assumptions` (verbatim):
+
+> - Per T2's own tests unchanged, digests remain the empty table (`AGENTS_DIGESTS`) — T5's job; `outdated` is untestable against the real CLI until then, only via pure-function tests with a fixture digest table (matches T2's precedent and the task's own note).
+> - Exit-code semantics after `--fix`: I made an explicit judgment call, documented in code comments, that the reported exit code reflects the **post-fix** state (re-parsing the written file, or the hypothetical fixed text under `--dry-run`) rather than the pre-fix state — this is what makes idempotence and `--dry-run`'s "exit code" requirement coherent; design's function table says "re-report" but doesn't spell out the exact mechanics.
+> - Backup filename timestamp uses `new Date().toISOString().replace(/[:.]/g,"-")` (e.g. `implementer.md.2026-09-30T14-29-50-313Z`) rather than a stricter `YYYYMMDD-HHMMSS` — satisfies FR-4's literal `.<timestamp>` suffix and guarantees monotonic uniqueness; flagging as a judgment call.
+> - Per-test "observed red before green" evidence was not independently captured for every one of the 22 new tests (implementation and tests were written together, not strictly red-first per test) — the one falsifier-mandated red/revert cycle above **was** executed and is genuine; treat the other 21 as green-verified but not individually red-verified. This is an honest gap against FR-9/TDD discipline, named rather than glossed over.
+> - Did not touch `test/agents-doctor-io.test.js` (explicitly T6's file) or `digests.json`/its loading (T5) — out of scope as instructed.
+
+**Leader reading of the field.** No blocker. Two owed items, continuation-eligible under `pre-approved`: (1) the task's Red run field ("Each new test observed failing on its assertion before the implementation; recorded per test name") is unmet for 21 of 22 new tests; (2) the backup filename departs from design DD-5 (`.agents/.backup/<role>.md.<YYYYMMDD-HHMMSS>`), a knowing departure from a named design value, so it is undelivered scope and not a judgment call. The other three bullets are assumptions or judgment calls: recorded here, not re-sent as work; the exit-code reading goes to the Reviewer as evidence.
+
+`continuations: 1 (red run per new test name; DD-5 backup filename)`
+
+**Attempt 1, spawn 2 — continuation report** (2026-09-30). Effort `xhigh`. Skill `tdd`.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/akili.js` (`backupPersona` timestamp → `YYYYMMDD-HHMMSS`, local time), `test/agents-doctor.test.js` (a backup-name test; a `no pin + origin/HEAD` guard-matrix test). `bin/persona.js` unchanged (hash `f98c2c6cb7ff…` before and after) |
+| Owed item 1 | A red recorded for each of the other 21 new tests, all assertion failures, under one combined `applyFix` mutation (replace/insert made no-ops; skip branches made to act; `absent` → no change; `unreadable` → written): `deepEqual` missing ids, `true !== false` on `changed`, a hash mismatch, and `1 !== 0` exit codes for the nine CLI and guard-matrix tests, which went red through the mutated `applyFix` in the real pipeline (named by the worker) |
+| Owed item 2 | New test `/^implementer\.md\.\d{8}-\d{6}$/`: red against the old format (`Input: 'implementer.md.2026-09-30T17-40-10-292Z'`), green after. Same-second fact, verified with two concurrent runs: the second `--fix` throws `EEXIST` from `flag: "wx"` **uncaught**, crashing with a stack trace and a non-zero exit before any persona write |
+| Owed item 3 | Test `guard matrix: no pin, resolvable origin/HEAD` added: green against the real code; red when the `origin/HEAD` step is forced to `null`. No production change |
+| Implementer verification | Check 1: 46 pass. Check 2: `REFUSED (branch: on "feature", the apply-capable branch is "main"…)`, exit 1, porcelain empty; `--allow-branch` exit 0. Check 3: plan printed, `(dry-run — no file written)`, exit 0, `find -newer` empty. Check 4: `BACKUP …/implementer.md.20260930-124311`, one file listed, second `doctor --agents` exit 0. Check 5: `bin/akili.js`, `bin/persona.js`, `test/agents-doctor.test.js` |
+| Falsifier | Re-executed: `renderSegments` dropping `text` segments → the byte-identity test red (front matter and body missing from the rendered text); reverted, hash-checked |
+| Evidence re-run | Leader-inline, no worker active. `npm test` 46/46; own temp git repo on `other` with a `Default Branch: main` pin → `REFUSED (branch: on "other", the apply-capable branch is "main" — pass --allow-branch to proceed anyway)`, exit 1, persona untouched; `--allow-branch` → `INSERTED craft`, `BACKUP …/implementer.md.20260930-124512`, `.agents/.gitignore` = `.backup/`, exit 0; second `doctor --agents` exit 0. `--dry-run` → `INSTALLED`, `(dry-run — no file written)`, exit 0, nothing newer than the marker, no `.backup`. Real `--fix` → `INSTALLED`, exit 0; second `doctor --agents` exit 0. Falsifier on a scratch copy → `not ok 23 - applyFix: project space is byte-identical across every fixture, changed or not (FR-4, NFR-4)`, `actual: ''`. `doctor --tool claude` byte-identical to the T2 baseline; `git diff --check` clean; `pack:dry-run` lists `bin/persona.js` (20.4 kB), no `test/`. **VERIFIED** |
+| Review mode | **Parallel lens reviewers** (data-loss surface): RISK and RELIABILITY, each with baseline conformance. Both **FAIL** (reports below) |
+| runtime events | none |
+
+`Not Done / Assumptions` (verbatim, continuation; judgment calls only):
+
+> local-time timezone choice for the backup timestamp is a judgment call, stated in-code and above, since DD-5/FR-4 are silent on it. The `assert.ok` red for "--section on unlocated inserts" names a falsy expression rather than an expected/actual pair (it's still a real `AssertionError` from the test's own assertion, not a thrown/setup error).
+
+`spawns (attempt 1): implementer 59 calls, 285,153 tokens, ended partial; implementer (continuation) 56 calls, 179,390 tokens, ended complete; reviewer RISK 7 calls, 98,870 tokens, ended complete; reviewer RELIABILITY 13 calls, 120,523 tokens, ended complete`
+
+**Reviewer report, attempt 1, RISK lens (verbatim).**
+
+```text
+STATUS: FAIL
+
+SUMMARY: I audited T3 through the RISK lens plus baseline spec conformance. The write path is sound. Guards run before any I/O. The backup is written with `wx` before the one atomic write, and a throw at any step leaves that persona untouched, so no persona can be written without its backup existing first. `applyFix` only replaces or splices `owned` segments and skips `unreadable` and `unmarked` (NFR-4 holds). The branch resolution order matches DD-12 and kaizen Branch Context: an integration pin makes only that branch apply-capable, and an unresolved branch refuses. `--dry-run` writes no persona, no backup and no `.gitignore`. The diff touches only `bin/` and `test/` (scope clean). Two conformance defects remain, both small.
+
+ISSUES:
+1. **Discovered Issue:** Under `--dry-run`, a guard refusal returns before any plan is printed (`runAgentsDoctor`: `if (refusal) { … return; }` runs whatever `args.dryRun` is). A dry run on a spec branch shows only `REFUSED (branch…)` and never the plan. Also, when both guards would refuse, only the branch reason is named, because `evaluateFixGuards` sets the dirty reason only `if (!reason)`.
+   * **Violated Rule:** requirements.md FR-4: "`--dry-run` SHALL run every guard and print the full plan and exit code, and write nothing." design.md DD-12: "`--dry-run` runs both guards and reports what they would do." §6: "Runs the guards and prints the full plan and exit code."
+   * **Remediation Suggestion:** Under `--dry-run`, collect every refusal reason, still run the per-persona plan loop (it already writes nothing), then print one `REFUSED (<guard>)` row per refusing guard and exit 1. A real (non-dry) run can keep short-circuiting. Add one CLI test: dry-run on a non-apply-capable branch prints `INSERTED`, prints `REFUSED (branch`, exits 1, and leaves the tree unchanged.
+
+2. **Discovered Issue:** The `insertionIndex` fallback ("neither present → before the project block") returns `findProjectIndex()`. In a migrated persona the segments end `[…, migration, project]`, so an inserted section lands between the migration record and the project block. This happens for a `missing` id in a persona where no template section was located, and for `--section` on an `unlocated` id there. The record is then no longer adjacent to the project block. The parser does not flag this, so the broken layout persists silently.
+   * **Violated Rule:** design.md §5.1 Migration record: "Own line, at most one, placed **immediately before the project block's open marker**." DD-13: "The record line sits immediately before the project block (§5.1)."
+   * **Remediation Suggestion:** In the fallback, when the segment just before the project block is `migration`, return that segment's index instead. Add an insertion-position test on a fixture with a record and no owned sections.
+
+ADVISORY:
+- RISK (item 4, ruling: ADVISORY, not a spec violation or spec gap). Two runs within the same second that both still change the same persona hit `EEXIST` from `wx`. The run then crashes with a raw stack trace and a non-zero exit, before that persona is written. No spec text covers collisions, and the failure is safe: `wx` protects the only copy of the original, and NFR-4 holds. It is hard to hit, because in a git checkout the dirty guard blocks the second run unless `--force` is passed. Suggestion: catch `EEXIST` and print `SKIPPED (backup <path> exists; retry)` with exit 1. This stays within FR-4's "skipped and why" and needs no change to DD-5's name format.
+- RISK: `readConstitutionPins` matches `/Default Branch:\s*(\S+)/` anywhere in the file, and `\s*` can cross a newline. A prose mention or a backticked value would resolve a garbage branch. Anchor the match to a line (`/^[ \t]*(?:[-*][ \t]*)?Default Branch:[ \t]*`?([^\s`]+)/m`). The failure is safe (it refuses), but it is noisy.
+- RISK: The guards fail open when git errors. `tryGit` returns null, so a checkout where git refuses to run (e.g. `safe.directory` "dubious ownership", or git missing) is classified as "not a git checkout" and both guards are skipped. `agentsDirtyStatus` also treats a null `git status` as clean. The backup still protects each persona.
+- RISK: The dirty guard filters paths from `git status --porcelain`, which are relative to the repo root, while pins and `.agents` are read from `cwd`. Running from a subdirectory of the repo would count the fix's own `.gitignore` as dirty and refuse (safe direction). An untracked `.agents/` gives `?? .agents/` and refuses, although FR-4 scopes the guard to "git-tracked". DD-12's literal command does the same, so this is a spec tension, not a code defect.
+- RISK (spec tension for the user): §5.1 says "writer emits the file's majority line ending". In a mixed-EOL persona, that rewrites minority-EOL lines inside project space, which conflicts with FR-4 "SHALL NOT change any byte of project space". `projectSpaceOf` joins lines that the parser already split on `\r\n|\n`, so the byte-identity test cannot see EOL changes. The CRLF test covers only uniform CRLF.
+```
+
+**Reviewer report, attempt 1, RELIABILITY lens (verbatim).**
+
+```text
+STATUS: FAIL
+
+SUMMARY: I audited the RELIABILITY lens plus baseline spec conformance for T3, attempt 1. I read the diff, the working tree (`bin/persona.js`, `bin/akili.js` `runAgentsDoctor`, `atomicWriteFileSync`, arg plumbing) and the fixtures, and read at source FR-3, FR-4, FR-9, FR-10, NFR-4, §5.1, §5.4, §6, §7, DD-4, DD-5, DD-9, DD-12 and DD-13. Four things are sound:
+- Every §5.4 row maps to exactly one `applyFix` branch.
+- The backup is written before the atomic write.
+- The guards follow DD-12, and the guard matrix uses real git and tests both directions.
+- CRLF is kept for inserted sections and rewritten markers.
+
+Three obligations are missing.
+
+ISSUES:
+1. **Discovered Issue:** The DD-5 closing line is missing from the report. After a real `--fix`, the rewritten personas make `.agents/` dirty, so the next `--fix` is refused. The report never tells the user to commit or pass `--force`. The summary only prints "Persona drift found." or "No persona drift blocking CI.".
+   * **Violated Rule:** `design.md` DD-5: "the rewritten personas do, by design — the report ends with 'commit `.agents/` before the next `--fix`, or pass `--force`'". DD-5 is in T3's Design refs.
+   * **Remediation Suggestion:** When at least one persona was written (not under `--dry-run`), end the report with that line. Add a CLI test that asserts the line appears after ANSI is stripped.
+
+2. **Discovered Issue:** The DD-4 fallback "before the project block" breaks the migration-record placement rule. `insertionIndex` returns `findProjectIndex()`, so when a migration record sits just before the project block, the new owned section is spliced in between them. This is reachable on the DD-13 path: take a migrated persona with no fenced neighbour of the target id (for example one where nothing was located) and run `--section <unlocated-id>`. The same happens for a `missing` id with no neighbours in a migrated persona. The parser does not check the record's position, so the misplaced record goes unnoticed.
+   * **Violated Rule:** `design.md` §5.1, Migration record row: "Own line, at most one, placed **immediately before the project block's open marker**."
+   * **Remediation Suggestion:** In the fallback, insert before the migration segment when it directly precedes the project segment. Add a test with a fixture that has a record, a project block and no neighbouring section. It should assert that the record's line is still immediately before `<!-- akili:project -->` and that project space is byte-identical.
+
+3. **Discovered Issue:** No test covers the `outdated` row, which replaces the body and rewrites `since=`. Every `applyFix` call in the tests passes `digests = {}`, so no section is ever `outdated`. The FR-4 "A hand-edited section" scenario is also untested: it needs `custom-edited` left alone *and* the other outdated sections replaced in the same run. The byte-identity test runs with default options, so it covers only the insertion path. Of its 8 fixtures, 4 are no-ops. It never covers replacement, the `--section` replace, or the `--section` insert that rewrites the record.
+   * **Violated Rule:** `requirements.md` FR-4 scenario: "AND the other outdated sections are replaced". FR-9: "Tests SHALL assert … per FR-4, that project space is byte-identical before and after `--fix`". §5.4: `outdated` → "replace body; rewrite `since=`".
+   * **Remediation Suggestion:** Pass a synthetic digests table, e.g. `{releases:{"2.29.0":{<id>: hashBody(oldBody)}}}`, over a fixture with one outdated section and a custom-edited `verification`. Assert:
+     - a `FIXED` row
+     - the body hash equals the template's
+     - `since=` equals the template's
+     - `verification` is untouched
+     - project space is identical
+
+     Also run the byte-identity loop with `{sections:[...]}` on `custom-edited.md` and `unlocated.md`. Record each test's red run.
+
+ADVISORY:
+- RELIABILITY: `git status --porcelain` prints paths relative to the repo root. When `.agents/` is in a subdirectory (monorepo), the entries show up as `sub/.agents/.gitignore`, the exclusions miss, and the fix's own `.gitignore` trips the guard. That goes against DD-5's "never trip it". The pins are also read from cwd rather than the repo root. Fix: strip the `git rev-parse --show-prefix` prefix, or use `-z` plus path normalization.
+- RELIABILITY: `readConstitutionPins` uses a regex that is not anchored. A prose mention such as "the `Default Branch: <name>` pin" can come before the literal pin line and be captured. The failure is safe (it refuses), but the pin is wrong. Anchor it to the start of the line (with `m`) and allow an optional bullet.
+- RELIABILITY: Mixed-EOL files are rewritten to the majority EOL. §5.1 sanctions this, but it changes bytes of project space, which conflicts with FR-4's "any byte". `projectSpaceOf` joins lines with `\n`, so the byte-identity test cannot see EOL changes.
+- RELIABILITY: `--section` with an id the template lacks, or an id that is `current`, is silently ignored. FR-4 says to print what was skipped and why. Emit a `SKIPPED (<id>: not custom-edited/unlocated)` row.
+- Test validity:
+  - The test named "the backup is written before the persona file" only checks the backup's content, not the order of writes. The order is proven by code inspection and by T6's forced-failure I/O test (DD-9). Rename the test or note the gap.
+  - The CLI idempotence test filters for failing rows over output that could be empty. Assert that `CURRENT` rows appear, per the T2 lesson.
+  - `initGitRepo` never checks git's exit status. A global `commit.gpgsign` would make the guard tests fail noisily rather than falsely pass.
+- READABILITY: An inserted section is placed straight after the preceding close marker, with no blank line between them. This is cosmetic.
+- The same-second `EEXIST` crash belongs to the RISK lens. My lens adds only one point: when it happens mid-loop, earlier personas are already written, and their `BACKUP` rows are printed.
+```
+
+**Leader adjudication, attempt 1.** Four distinct issues, every one in scope for T3 and cited to FR-4, §5.1, DD-4, DD-5 or DD-12: (A) `--dry-run` must run every guard and still print the plan (RISK 1); (B) the "before the project block" insertion fallback must keep the migration record adjacent to the block (RISK 2 = RELIABILITY 2); (C) the DD-5 closing line after a writing run (RELIABILITY 1); (D) tests for the `outdated` replacement, the FR-4 hand-edited scenario, and byte identity on the replace and `--section` paths (RELIABILITY 3). One rework attempt is consumed for the pair of verdicts. The advisories are recorded and are not work; two of them the Reviewers themselves call spec tensions (majority-EOL rewriting versus "any byte" of project space; an untracked `.agents/` refused although FR-4 says "git-tracked") — **carried to the user in the task's closing summary as possible spec gaps**, not absorbed. Effort: the dial is already at `xhigh` for the tier; the next rung would move the Implementer to the T3 model and break the author ≠ auditor pairing at this tier, so attempt 2 stays on the T2 model with the brief steering maximum care on four named, small fixes.
+
+**Attempt 2 — PASS** (2026-09-30). Effort: maximum care on four named fixes (the tier's dial was already at `xhigh`). Skills `tdd`, `error-handling-patterns`. Feedback: both attempt-1 reports verbatim, the adjudication, an Attempt History.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/akili.js` (`evaluateFixGuards` returns every refusal; `runAgentsDoctor` runs the plan loop under `--dry-run` before printing one `REFUSED` row per guard and exiting 1; `wroteAtLeastOne` → the DD-5 closing line), `bin/persona.js` (`insertionIndex` inserts before a migration record that directly precedes the project block), `test/agents-doctor.test.js` (53 tests: +5 for A–C, +2 for D), fixtures `all-unlocated.md`, `outdated-and-custom-edited.md` (new) |
+| Red runs | (A) two CLI tests red on their plan/second-guard assertions before the fix; (B) red on `1 !== 2` (the insert landed between record and block); (C) red on the last line being `No persona drift blocking CI. …`; (D) red under a mutation disabling the `outdated` replace (`false !== true`) and under the falsifier (`actual ''`); every mutation reverted by inverse edit, hashes checked |
+| Implementer verification | Check 1: 53 pass. Check 2: `REFUSED (branch: on "feature", the apply-capable branch is "main" — …)`, exit 1, porcelain empty; `--allow-branch` exit 0. Check 3: clean dry-run → plan, nothing newer, exit 0; dry-run on the refused branch → full plan then `REFUSED`, exit 1, nothing written. Check 4: one backup `implementer.md.20260930-130517`; second `doctor --agents` exit 0; last line `commit \`.agents/\` before the next \`--fix\`, or pass \`--force\``. Check 5: `bin/`, `test/` |
+| Falsifier | Re-executed on the final code: tests 23, 52, 53 red; reverted, hash-checked |
+| Evidence re-run | Leader-inline, no worker active. 53/53; own temp repo on `other` with a `Default Branch: main` pin → `REFUSED (branch: …)`, exit 1, porcelain 0; `--dry-run` there → `INSERTED  craft`, `(dry-run — no file written)`, `REFUSED (branch: …)`, exit 1, nothing newer than a marker; tree also dirty → two rows, `REFUSED (branch: …)` and `REFUSED (dirty tree: …)`, exit 1; `--allow-branch` → `INSERTED  craft`, `BACKUP …/implementer.md.20260930-130756`, last line the DD-5 sentence, exit 0; second `doctor --agents` exit 0; clean dry-run → nothing newer, no DD-5 line. Falsifier on a scratch copy → `not ok 23`, `not ok 52`, `not ok 53`. `doctor --tool claude` byte-identical to the T2 baseline; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **PASS** (single Reviewer, both lenses in one pass — Leader's choice for a rework of four named fixes after the parallel round). Summary: (A) every refusal collected, plan printed under `--dry-run`, exit 1, a real run still stops before any I/O; (B) the fallback returns the index before the record, adjacency asserted before and after; (C) the DD-5 line printed word for word only after a real write; (D) the hand-edited scenario in one run, byte identity on both `--section` paths, `projectSpaceOf` concatenates segments. Baseline: every §5.4 row maps to one branch and an unknown state throws; backup with `wx` before the atomic write; `BACKUP` row names the path; guard matrix on real git in both directions; scope clean |
+| runtime events | none |
+
+**ADVISORY (attempt 2, recorded, not work):** RELIABILITY — on a real (non-dry) run with both guards refusing only the first reason is printed; `evaluateFixGuards` already holds both. READABILITY — under a refused `--dry-run` the `REFUSED` rows print after the green summary line.
+
+`spawns (attempt 2): implementer 65 calls, 223,869 tokens, ended complete; reviewer 11 calls, 109,759 tokens, ended complete`
+
+**Issues encountered, attempt 2.** The Implementer self-reported "~57" tool calls; the host counted 65 — the fourth spawn of this spec over the 60-call bound with no checkpoint, each with a self-count under the bound (74/·, 64/"~40", 59/·, 65/"~57"). For the retrospective: the bound stated in a brief is not being honored by workers whose deployed persona predates it.
+
+**T3 closing record — PASS (2026-09-30).**
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 2 of 3 |
+| Implementer attempts | 2 (attempt 1 had one continuation) |
+| Requirements covered | FR-4 (all eight bullets and both scenarios), FR-10, NFR-4; design §5.4 (`--fix` column), §6, DD-4, DD-5, DD-12, DD-13 |
+| Files changed | `bin/akili.js` (+~330), `bin/persona.js` (+~260), `test/agents-doctor.test.js` (+~470, 53 tests), five new fixtures |
+| Evidence re-run | Leader-inline on both completion reports: **VERIFIED** ×2 |
+| Review rounds used | 3 verdicts for this task (two parallel lenses, then one); **11 of 21** in total |
+| Skills | `tdd`, `error-handling-patterns`, as the task lists |
+| Continuations | `continuations: 1 (red run per new test name; DD-5 backup filename; the origin/HEAD guard-matrix row)` |
+| Advisories | Eleven across the three reports, recorded above; none became work. Two are **possible spec gaps carried to the user**: (1) design §5.1 "the writer emits the file's majority line ending" versus FR-4 "SHALL NOT change any byte of project space" in a mixed-EOL persona; (2) an untracked `.agents/` trips the dirty guard (`?? .agents/`) although FR-4 scopes it to "git-tracked with uncommitted changes" — DD-12's literal command behaves the same |
+| Committer checks | `npm run verify:cli` ok; `npm run pack:dry-run` lists `bin/persona.js`, no `test/`; `git diff --check` clean |
+| Gate | `auto-approved (pre-approved mode)` |
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T4 | `applyFix` already skips an `unmarked` persona with a row saying the migration is not this fix; T4 wires `migratePersona` into that branch. Insertion keeps a migration record adjacent to the project block; the record grammar is §5.1's. Fixture `all-unlocated.md` (a record naming every id, no owned sections) exists |
+| T5 | `runAgentsDoctor` passes a constant empty table (`AGENTS_DIGESTS`); `sectionStates`/`applyFix` take a role-scoped slice. The `outdated` path is exercised only by pure tests with a synthetic table until the file lands |
+| T6 | The write order (backup with `wx`, then `atomicWriteFileSync`) is proven by inspection and by the content comparison; T6's read-only-target test proves it by behavior. The CLI-spawn helper and temp-repo helpers live in `test/agents-doctor.test.js` |
+| T9 | Report rows as shipped: `FIXED`, `INSERTED`, `INSTALLED`, `SKIPPED (custom-edited; use --section)`, `BACKUP <path>`, `REFUSED (branch: …)`, `REFUSED (dirty tree: …)`, `(dry-run — no file written)`, the DD-5 closing line; backup name `<role>.md.<YYYYMMDD-HHMMSS>` in local time |
