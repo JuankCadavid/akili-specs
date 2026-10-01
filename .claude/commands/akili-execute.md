@@ -51,6 +51,8 @@ In this command you act as the **Leader** (Orchestrator). You delegate concrete 
 
 If `.agents/` is missing, run `/akili-constitution` first to scaffold it. Do not invent personas inline — the constitution is the source of truth.
 
+If `.agents/` exists, run `akili doctor --agents` before the first spawn (when the CLI is available; otherwise compare against the installed templates per `docs/cli.md` → *Persona Drift*). A persona reported `outdated`, `unmarked` or `missing` does not carry the current rules, and a rule stated only in the brief is not enforced: in `changes/persona-upgrade`, 7 of 26 Implementer spawns ran past the 60-call checkpoint bound — every self-count lower than the host's — because the deployed `implementer.md` predated the bound. Run `akili doctor --agents --fix` (or report the drift to the user) before spawning; do not paper over it in the brief.
+
 **Delegation mechanism by tool:**
 
 - **Claude Code / OpenCode:** if the project has tool-native AKILI agent wrappers (scaffolded by `/akili-constitution` Step 8E — e.g. `.claude/agents/akili-implementer.md` / `akili-reviewer.md` with `model:` bindings from the `## Model Routing` registry), **spawn those named agents** so each role runs on its tier's model and author ≠ auditor is enforced by configuration. Otherwise, spawn a focused subagent (or sub-prompt context) seeded with the persona file plus the task/diff context.
@@ -295,7 +297,7 @@ The Reviewer is read-only. Its returned message is a **report contract**: the fi
 - **Fail-Fast (FATAL_FAIL):** If the Reviewer issues a `STATUS: FATAL_FAIL`, immediately HALT the loop, mark the task `[~]`, and trigger the Pivot Protocol. Do not consume remaining rework attempts.
 - **Structured Feedback:** On `FAIL`, pass the full Reviewer report unchanged to the next Implementer spawn. Do not paraphrase.
 - **Escalation on HALT:** After 3 failed attempts, a third checkpoint (the checkpoint cap), or a FATAL_FAIL, mark the task `[~]`, log the full loop history in `execution.md`, and present the audit trail to the user for guidance.
-- **Pivot Detection:** If either the Implementer or the Reviewer surfaces evidence that the spec itself is wrong or unviable (not merely the implementation), stop looping immediately and trigger the Pivot Protocol below — do not consume rework attempts on a broken spec.
+- **Pivot Detection:** If either the Implementer or the Reviewer surfaces evidence that the spec itself is wrong or unviable (not merely the implementation), stop looping immediately and trigger the Pivot Protocol below — do not consume rework attempts on a broken spec. **A spec tension is the lightest Pivot evidence, not an advisory:** when a Reviewer shows two approved clauses the code cannot both satisfy (a requirement sentence against a design decision, or two requirement clauses), present it at the next gate as a one-line amendment proposal and record the user's answer in the spec document. Never "carry it to the user at closure" — in `changes/persona-upgrade` three carried tensions (FR-4 vs design §5.1, FR-4 vs FR-5, FR-10 vs DD-11) passed every Reviewer and surfaced as validation FAILs.
 
 ### Step 3: Finalize on PASS
 

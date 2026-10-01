@@ -7,8 +7,9 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - `.claude/` is the **canonical source for all four install targets** (Claude Code, OpenCode, Antigravity, Codex), not Claude-only config — the installer maps it into each tool's layout, and it lives at that literal path because this repo dogfoods its own methodology in Claude Code sessions. There is no per-tool copy: edits for any target happen here.
 - `.claude/commands/` contains installable AKILI-SPECS command prompts.
 - `.claude/skills/` contains installable methodology skills.
-- `.claude/templates/` contains the default Leader, Implementer, Reviewer, and Tester personas used by the AKILI multi-agent harness. `/akili-constitution` copies these into each project's `.agents/` directory.
-- `bin/akili.js` installs commands, skills, and helper resources (including the agent templates) into Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI config directories.
+- `.claude/templates/` contains the default Leader, Implementer, Reviewer, and Tester personas used by the AKILI multi-agent harness, each fenced into AKILI-owned sections (`<!-- akili:section id=… since=… -->`) with one project block, plus `digests.json` — the per-release section-hash table `scripts/release.js` writes and `akili doctor --agents` reads. `/akili-constitution` copies the personas into each project's `.agents/` directory; `akili doctor --agents --fix` upgrades deployed copies section by section (see `docs/cli.md` → *Persona Drift*).
+- `bin/akili.js` installs commands, skills, and helper resources (including the agent templates and `digests.json`) into Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI config directories, and runs `doctor --agents` against a project's `.agents/`.
+- `bin/persona.js` holds the pure persona functions behind `doctor --agents` (`parsePersona`, `sectionStates`, `applyFix`, `migratePersona`, the digest helpers); `bin/akili.js` and `scripts/release.js` require it. `test/` holds the `node:test` suite and its persona fixtures (`npm test`); it is not shipped in the package.
 - `scripts/` contains helper scripts, including `scripts/release.js`, which prepares controlled npm package releases.
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
 - `README.md` documents installation and methodology usage.
@@ -94,7 +95,7 @@ Use this flow:
    - `npm run pack:dry-run`
    - `npm run release:status`
    - `git diff --check`
-5. Commit the release version update.
+5. Commit the release version update — the script's `git add` hint now also names `.claude/templates/digests.json` (the new dense `releases` entry) and any template whose `since=` marker it rewrote.
 6. Confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`.
 7. Publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`.
 8. Smoke test the published version with `npx akili-specs@<version> list`.
@@ -106,6 +107,7 @@ Use patch for small docs/fixes, minor for new commands or install targets, and m
 Before committing package or installer changes, run:
 
 ```bash
+npm test
 npm run verify:cli
 npm run pack:dry-run
 git diff --check

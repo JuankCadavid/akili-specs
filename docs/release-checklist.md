@@ -37,9 +37,10 @@ npm run release:patch
 
 Use `release:minor` for new commands or workflow additions and `release:major` for breaking changes.
 
-Then verify:
+Then verify (the release script also wrote `.claude/templates/digests.json` and rewrote any template `since=` marker whose section changed — its `git add` hint lists every file to stage):
 
 ```bash
+npm test
 npm run verify:cli
 node bin/akili.js install --tool both --dry-run
 npm run pack:dry-run
