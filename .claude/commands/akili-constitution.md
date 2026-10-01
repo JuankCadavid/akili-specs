@@ -879,9 +879,11 @@ this step — the guidance-only flow keeps working.
 
   **`readonly` and verification commands.** The restriction covers "file edits" and
   "state-changing shell commands"; the Reviewer needs neither — the Leader passes the diff and the
-  evidence (`/akili-execute` Step 2.3), exactly as the Claude Code bullet already states. Whether a
-  `readonly` Reviewer may still *run* a read-only verification command is
-  `UNVERIFIED — confirm at source before relying on it`.
+  evidence (`/akili-execute` Step 2.3), exactly as the Claude Code bullet already states. Observed
+  live 2026-10-01 (Cursor CLI): a `readonly: true` subagent runs in Cursor's *ask mode* — it created
+  no file and could not run even `ls` ("cannot run non read-only tools"); read-only inspection
+  tools still work. The Reviewer needs no command (the Leader passes diff and evidence), so the
+  stricter restriction costs nothing.
 
   Pin: <https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01` (field table,
   `readonly` quote, precedence quote, depth-limit quote).
@@ -960,6 +962,15 @@ discipline?"* If declined, skip — the prose rules keep working as before.
    # (imported, or via a native entry) Cursor read the host-data table below for tool
    # names and payload paths.
    input=$(cat)
+   # A Cursor payload carries a top-level "cursor_version"
+   # key that Claude Code and Codex payloads never carry. allow() emits
+   # {"permission":"allow"} ONLY when that marker is present, so a native
+   # .cursor/hooks.json entry with failClosed: true (which reads empty
+   # stdout as a hook FAILURE, not an allow -- observed live 2026-10-01) sees
+   # a real allow response, while Claude Code and Codex keep getting empty
+   # stdout exactly as before.
+   is_cursor=$(printf '%s' "$input" | jq -r 'if has("cursor_version") then "1" else "" end')
+   allow() { [ -n "$is_cursor" ] && printf '%s' '{"permission":"allow"}'; exit 0; }
    tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
    cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
    fp=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')
@@ -1004,13 +1015,13 @@ HEADERS
      if [ -z "$fp" ]; then
        # No header in this patch names a tasks.md path at all: genuinely out
        # of scope, the same as any other non-tasks.md write.
-       exit 0
+       allow
      fi
    fi
    case "$fp" in
      */docs/specs/*/tasks.md) ;;
      docs/specs/*/tasks.md) ;;
-     *) exit 0 ;;
+     *) allow ;;
    esac
    case "$tool" in
      Edit)
@@ -1055,7 +1066,7 @@ HEADERS
        ;;
    esac
    count_x() { printf '%s' "$1" | grep -o '\[x\]' | wc -l | tr -d ' '; }
-   [ "$(count_x "$new")" -le "$(count_x "$old")" ] && exit 0
+   [ "$(count_x "$new")" -le "$(count_x "$old")" ] && allow
    exec_md="$(dirname "$fp")/execution.md"
    if [ ! -f "$exec_md" ]; then
      echo "BLOCKED (AKILI guardrail): flipping a task to [x] but $exec_md does not exist. Evidence first: append the execution.md entry with the Reviewer PASS before updating tasks.md (/akili-execute Step 3 order)." >&2
@@ -1065,6 +1076,7 @@ HEADERS
      echo "BLOCKED (AKILI guardrail): $exec_md contains no PASS evidence. A task reaches [x] only after a Reviewer PASS is recorded (evidence before checkbox)." >&2
      exit 2
    fi
+   [ -n "$is_cursor" ] && printf '%s' '{"permission":"allow"}'
    exit 0
    ```
 
@@ -1080,6 +1092,22 @@ HEADERS
    resolved a tasks.md path directly from `.tool_input.file_path` with an otherwise-empty
    `.tool_input.command`; a tool name the host-data table below does not recognize; a missing
    `execution.md`; or an `execution.md` with no `PASS`.
+
+   **Three of the four `exit 0` terminals route through `allow`; the final terminal inlines the same
+   guarded printf ahead of the literal `exit 0` the fixture extractor requires as the last line.**
+   (Vendor pin for the marker: hooks page, *Common schema* → *Input (all hooks)*: "All hooks receive
+   a base set of fields in addition to their hook-specific fields", with the row `cursor_version` —
+   "Cursor application version", <https://cursor.com/docs/agent/hooks>, `Last verified: 2026-10-01`
+   — the IDE payload is documented to carry it too, not observed in the IDE.) Each prints `{"permission":"allow"}`
+   on stdout when the payload carries a top-level `cursor_version` key, and prints nothing otherwise
+   — so a Claude Code or Codex payload (neither carries that key) sees the exact same empty stdout as
+   before this change. The reason: observed live 2026-10-01 (cursor-agent 2026.10.01-14929f9), a
+   native `.cursor/hooks.json` entry with `failClosed: true` treated the script's empty-stdout
+   `exit 0` as a hook **failure**, not an allow, and blocked the write — "Tool blocked because this
+   hook is configured to fail closed (block when it fails). Hook "bash
+   .claude/hooks/akili-tasks-gate.sh" returned no output." The deny path (`exit 2` + stderr) was
+   unaffected on that same entry. Emitting the JSON only for Cursor payloads closes that gap without
+   touching what Claude Code or Codex ever see on stdout.
 
    **`apply_patch` is multi-file, and its headers can be CRLF-terminated — the parser scans every
    header, not just the first, and strips `\r` before matching (the attempt-1 defect this closes).**
@@ -1098,7 +1126,7 @@ HEADERS
    |---|---|---|---|
    | Claude Code | `Edit`\|`Write` | `.tool_input.file_path` | Edit: `.tool_input.old_string` / `.tool_input.new_string`; Write: current file on disk / `.tool_input.content` |
    | Codex | `apply_patch` (confirmed live 2026-09-17, codex-cli 0.154.0 — the hooks page: "file edits performed through `apply_patch`") | No `.tool_input.file_path` field (confirmed live) — parsed from **every** `*** Update/Add/Delete File: <path>` header line inside `.tool_input.command`, which carries an **absolute** path (a single call can carry several; CRLF-terminated headers have their trailing `\r` stripped before matching) | `.tool_input.command` carries the entire patch as one string, not discrete old/new fields (confirmed live); added lines are `+`-prefixed hunk lines |
-   | Cursor | `Write` (Cursor maps `Edit`→`Write` on import; native edits also arrive as `Write`) | `.tool_input.file_path` | Old content = the current file on disk; new content = **an unverified field** — the hooks page documents no `preToolUse` Write payload, so the script tries `.tool_input.content` then `.tool_input.new_content`, and `UNVERIFIED — confirm at source before relying on it` which one, if either, arrives (<https://cursor.com/docs/agent/hooks>, `Last verified: 2026-10-01`) |
+   | Cursor | `Write` (Cursor maps `Edit`→`Write` on import; native edits also arrive as `Write`) | `.tool_input.file_path` | Old content = the current file on disk; new content = `.tool_input.content` — observed live 2026-10-01 (Cursor CLI): an Edit-mapped `Write` carries `file_path` + `content` = the whole post-edit file; `new_content` never appeared; the script's `content // new_content` chain takes the first branch |
 
    **Raw `PreToolUse` payload, confirmed live 2026-09-17 (codex-cli 0.154.0).** Codex's top-level
    fields are: `session_id, turn_id, transcript_path, cwd, hook_event_name, model, permission_mode,
@@ -1119,14 +1147,20 @@ HEADERS
    codex_core::tools::router: error=Command blocked by PreToolUse hook: …` and blocked the write; the
    `permissionDecision` JSON form was not needed.
 
-   **Cursor's denial and allow paths — one confirmed, one not.** The third-party hooks page states
-   plainly: "Exit code 2: Block the action" — so the denial side of this gate is confirmed to carry
-   over onto an imported hook on Cursor (`Last verified: 2026-10-01`). Whether Cursor reads this
-   script's empty-stdout `exit 0` as an *allow* is a separate question the pages do not answer the
-   same way twice: the hooks page lists "invalid JSON or a response that doesn't match the hook's
-   schema" as blocking the action, and names "no output" among hook *failures* (fail-open unless
-   `failClosed` is set) — so `UNVERIFIED — confirm at source before relying on it` which reading
-   applies to this script's silent `exit 0`.
+   **Cursor's denial and allow paths — both confirmed, allow path entry-dependent.** The
+   third-party hooks page states plainly: "Exit code 2: Block the action" — so the denial side of
+   this gate is confirmed on both the imported and the native entry (`Last verified: 2026-10-01`;
+   `exit 2` + stderr denied on both, cursor-agent 2026.09.26 and 2026.10.01-14929f9). The allow side
+   is **entry-dependent**: observed live 2026-10-01, on the **imported** `.claude/settings.json`
+   entry an empty-stdout `exit 0` passed (fail-open semantics) — the write landed, no JSON output
+   needed. On a **native `.cursor/hooks.json` entry with `failClosed: true`**, the same empty-stdout
+   `exit 0` is read as a hook **failure**, not an allow, and the write was blocked: "Tool blocked
+   because this hook is configured to fail closed (block when it fails). Hook "bash
+   .claude/hooks/akili-tasks-gate.sh" returned no output." So the script now emits
+   `{"permission":"allow"}` on every allow terminal when the payload carries a Cursor-only marker
+   (`cursor_version`) — re-observed **allowed** on the same native entry after the change (a
+   with-PASS write landed on disk), with the without-PASS write still denied on that entry
+   unaffected (deny never depended on stdout).
 
 2. Merge into the project's `.claude/settings.json` (**read it first; if it exists but is invalid
    JSON, stop and report — never overwrite a file you could not parse**):
@@ -1240,15 +1274,24 @@ wanting a sharper marker (per-task-ID matching) can harden the script; note the 
 Step 9 summary either way.
 
 **Honesty across hosts:** the gate is **enforced** on Claude Code and Codex — both wire the script
-into a real `PreToolUse` hook; **pending live validation** on Cursor — three contracts the docs do
-not state: the `Write` payload's new-content field name, whether its content is the whole file, and
-whether an empty-stdout `exit 0` is read as allow (each carrying the
-`UNVERIFIED — confirm at source before relying on it` marker above until observed live). Name the
+into a real `PreToolUse` hook; **enforced on the Cursor CLI** (observed live 2026-10-01,
+cursor-agent 2026.09.26→2026.10.01: the **imported** `.claude/settings.json` entry denied a `[x]`
+write without PASS and allowed it with PASS; payload `tool_input.content` = whole file; hook ran
+from the project root). On a **native `.cursor/hooks.json` entry with `failClosed: true`**, the
+allow path needed the `cursor_version`-gated allow output above: empty stdout is a hook *failure* under
+`failClosed`, not an allow, and the unmodified script's with-PASS write was blocked live
+2026-10-01 ("…returned no output"); re-observed **allowed** on the same native entry once the
+script started emitting `{"permission":"allow"}` on a Cursor payload, with the without-PASS write
+still denied unaffected — **the Cursor IDE is unverified** (`UNVERIFIED — confirm at source before relying on
+it`: the IDE half of the live validation was deferred). Name the
 imported path's fail-open default too: Cursor's own pages state that a non-2 exit code (a crash,
 timeout, or a missing `bash`) fails open on the imported entry, which is exactly why the native
 fallback entry sets `failClosed: true`; a missing `jq` does not raise that exit code at all —
-`tool`/`fp` come back empty, the path filter's `*) exit 0` allows the write silently as
-out-of-scope, and `failClosed` catches nothing. On OpenCode and Antigravity the same invariant remains
+`tool`/`fp`/`is_cursor` come back empty, the path filter's `*) allow` exits 0 with empty stdout. On
+the **imported** entry that is a silent allow (fail-open, unchanged); on the **native
+`failClosed: true`** entry, empty stdout is a hook failure, so the write is blocked — reasoned from
+the script plus the 2026-10-01 "returned no output" observation above, not separately observed. On
+OpenCode and Antigravity the same invariant remains
 **instructional** — prose only (the commands' own rules) — record in the summary which state
 applies, the same asymmetry Step 8E already documents for the Reviewer's write restriction. On
 Windows the hook additionally depends on git-bash (`bash .claude/hooks/akili-tasks-gate.sh`) —
@@ -1279,7 +1322,7 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The `## Model Routing` registry (Step 8C): that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
 - The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. On Cursor, name the four wrapper files (`.cursor/agents/akili-{leader,implementer,reviewer,tester}.md`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `readonly: true`**. Also name the `.agents/` three-tenant table (personas / Antigravity wrappers / Codex and Cursor skills, defined in Step 8E) so the user knows the layout is collision-free.
-- The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code and Codex, **pending live validation** on Cursor, **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert. On a Cursor-hosted project, name the import-toggle answer (the *Include Third-Party Plugins, Skills, and Other Configs* setting: on / off / unknown), which hook entry exists as a result (the imported `.claude/settings.json` entry alone, or that plus a native `.cursor/hooks.json` entry), and that enforcement there is **pending live validation** until confirmed on a real session.
+- The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code, Codex, and the Cursor CLI (observed 2026-10-01; the Cursor IDE is unverified), **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert. On a Cursor-hosted project, name the import-toggle answer (the *Include Third-Party Plugins, Skills, and Other Configs* setting: on / off / unknown), which hook entry exists as a result (the imported `.claude/settings.json` entry alone, or that plus a native `.cursor/hooks.json` entry), and that enforcement there is **enforced on the Cursor CLI** (observed 2026-10-01) — **the Cursor IDE is unverified**.
 - **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it.
 - Any assumptions and open questions that still need validation
 
@@ -1308,7 +1351,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] **CodeGraph was explicitly resolved, not silently skipped** — in Legacy/Discovery mode especially, where it is the difference between synthesizing the baseline from a graph and synthesizing it from `grep` output. Exactly one of: `.codegraph/` exists and was used; the user was offered `codegraph init -i` and **declined**; or the CLI is unavailable. **"Optional" means the user chooses, not that the step may disappear** — an unreported skip is indistinguishable from a considered decision, and Step 9 must name which of the four states applies.
 - [ ] If Step 8E wrappers were generated for **Antigravity**, they live under `.agents/agents/` (not at the root of `.agents/`, where Antigravity cannot see them) and every dispatched role carries `subagent: true`. A wrapper missing either is inert without erroring.
 - [ ] If Step 8E wrappers were generated, the **Reviewer** wrapper's state is named in the summary: either it carries the host's read-only restriction, or it was deliberately omitted (syntax unconfirmable, or a wrong tool name would hang the agent). Verify no *other* wrapper carries one — a restricted Leader, Implementer, or Tester is a broken role, not a stricter one. Both `author ≠ auditor` axes should hold: a Reviewer model different from the Implementer's (rule 1) **and** no write tools (rule 2).
-- [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written. On a Codex project, the same holds for `.codex/hooks.json`: entry merged without clobbering, script located at `.codex/hooks/akili-tasks-gate.sh` or pointed at an existing `.claude/hooks/` copy, and the step stopped rather than wrote if the file was invalid JSON. On a Cursor project, the step must have asked the import-toggle question, recorded the answer, and written at most one entry **active** on Cursor — the imported `.claude/settings.json` entry alone when the toggle is on (the sole active entry; no native entry is written), or the native `.cursor/hooks.json` entry (`failClosed: true`, pointed at a resolved existing script path) added when the toggle is off or unknown — never two entries active at once; the Step 9 summary names which entry exists and states the gate as **pending live validation** on this host.
+- [ ] The Step 8F guardrail was **explicitly resolved** — scaffolded (script exists at `.claude/hooks/akili-tasks-gate.sh`, settings entry merged without clobbering existing hooks, cross-host asymmetry named) or declined and said so. If scaffolded into a project whose `.claude/settings.json` was invalid JSON, the step must have stopped rather than written. On a Codex project, the same holds for `.codex/hooks.json`: entry merged without clobbering, script located at `.codex/hooks/akili-tasks-gate.sh` or pointed at an existing `.claude/hooks/` copy, and the step stopped rather than wrote if the file was invalid JSON. On a Cursor project, the step must have asked the import-toggle question, recorded the answer, and written at most one entry **active** on Cursor — the imported `.claude/settings.json` entry alone when the toggle is on (the sole active entry; no native entry is written), or the native `.cursor/hooks.json` entry (`failClosed: true`, pointed at a resolved existing script path) added when the toggle is off or unknown — never two entries active at once; the Step 9 summary names which entry exists and states the gate as **enforced on the Cursor CLI** (observed 2026-10-01), **the Cursor IDE unverified**.
 - [ ] Scan-derived context was injected **per the Step 8B injection-scope table**, not as one bundle copied into all four personas. Two spot-checks settle it: `tester.md` must **not** carry the design-token path (it does not audit tokens), and `leader.md` **must** carry the directory boundaries (it judges task independence against them).
 - [ ] **A `## Model Routing` section exists in `AGENTS.md`, and is not duplicated into a `CLAUDE.md` body** — `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project. If the project keeps a `CLAUDE.md`, it carries the registry only through its `@AGENTS.md` import, never as a second copy.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, Antigravity, Codex, and Cursor — all five are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.

@@ -335,4 +335,60 @@ if (process.platform === "win32") {
       assert.equal(run.exitCode, 0, `expected exit 0; stderr:\n${run.stderr}`);
     });
   });
+
+  // --- F11-F13: a Cursor payload (top-level
+  // cursor_version) gets '{"permission":"allow"}' on stdout on every allow
+  // terminal; Claude Code/Codex payloads (no cursor_version) keep today's
+  // empty stdout. Live finding 2026-10-01: a native .cursor/hooks.json entry
+  // with failClosed: true reads empty stdout as a hook FAILURE and blocks
+  // the allow, so the allow path must emit JSON when Cursor is the caller.
+
+  test('F11 Cursor Write (cursor_version) with content carrying no new [x] -> exit 0, stdout {"permission":"allow"}', () => {
+    withTempDir("akili-gate-f11-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath, content: TASKS_NO_NEW_X },
+        cursor_version: "2026.10.01-14929f9",
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 0, `expected exit 0; stderr:\n${run.stderr}`);
+      assert.equal(
+        run.stdout,
+        '{"permission":"allow"}',
+        `expected exact stdout '{"permission":"allow"}'; got: ${JSON.stringify(run.stdout)}`
+      );
+    });
+  });
+
+  test('F12 Cursor Write (cursor_version) with new [x] and PASS present -> exit 0, stdout {"permission":"allow"}', () => {
+    withTempDir("akili-gate-f12-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_WITH_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath, content: TASKS_WITH_SECOND_X },
+        cursor_version: "2026.10.01-14929f9",
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 0, `expected exit 0; stderr:\n${run.stderr}`);
+      assert.equal(
+        run.stdout,
+        '{"permission":"allow"}',
+        `expected exact stdout '{"permission":"allow"}'; got: ${JSON.stringify(run.stdout)}`
+      );
+    });
+  });
+
+  test("F13 Claude Code Write (no cursor_version) with content carrying no new [x] -> exit 0, stdout empty", () => {
+    withTempDir("akili-gate-f13-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath, content: TASKS_NO_NEW_X },
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 0, `expected exit 0; stderr:\n${run.stderr}`);
+      assert.equal(run.stdout, "", `expected empty stdout (no cursor_version); got: ${JSON.stringify(run.stdout)}`);
+    });
+  });
 }

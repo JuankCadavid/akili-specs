@@ -210,7 +210,9 @@ Cursor also reads `~/.claude/skills` and `~/.codex/skills` for compatibility ("F
 Cursor also loads skills from Claude and Codex directories", <https://cursor.com/docs/context/skills>,
 `Last verified: 2026-10-01`), so a Claude Code user who also uses Cursor may see an AKILI skill
 installed to both `~/.claude/skills` and `~/.agents/skills` show up twice in Cursor's `/` picker;
-which copy wins, if either does, is `UNVERIFIED — confirm at source before relying on it`.
+observed live 2026-10-01 (Cursor CLI, cursor-agent 2026.09.28–2026.10.01): a skill present in both roots is
+listed **once**, from `~/.claude/skills` (one observation, this host — read as: the compatibility
+root wins); the IDE picker was not observed.
 
 ## Safety Rules
 

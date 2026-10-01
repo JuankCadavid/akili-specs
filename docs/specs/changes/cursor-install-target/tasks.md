@@ -281,7 +281,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1–T7 |
 | Requirements | FR-10 (every item in the list; blocked scenario), FR-6 gate scenario (deny **and** allow; candidate mechanisms), FR-5 effort/alias observations, FR-8 walkthrough clauses queued by T3/T5, settles P-6, P-9b, P-12, P-16, P-17, P-18, P-19, P-20 |
