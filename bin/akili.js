@@ -141,9 +141,10 @@ const defaultPaths = {
 
 // Tool Registry defining target directories mapping per tool. Each entry is a
 // function of a `roots` object ({ root } for the three tools whose skills and
-// resources live under one directory; { root, skillsRoot } for Codex, whose
-// Agent Skills root is shared with other tools and lives outside its config
-// home) so no entry has to know how CLI flags map to paths.
+// resources live under one directory; { root, skillsRoot } for Codex and
+// Cursor, each of whose Agent Skills root is shared with other tools and
+// lives outside its config home) so no entry has to know how CLI flags map to
+// paths.
 const TOOL_REGISTRY = {
   claude: (roots) => ({
     commands: [path.join(roots.root, "commands")],
@@ -423,11 +424,13 @@ const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex", "cursor"];
 // non-empty. Checking commands / skills / resources covers --commands-only and
 // --skills-only installs too, not just full ones.
 //
-// Codex's skills root (`sharedSkillsRoot`) is the exception: it is shared with
-// other tools (e.g. a local Codex install populates `~/.agents/skills` with
-// foreign skills too), so a non-empty skills dir is not evidence Codex is
-// installed. Detection instead keys on the resources root (AKILI-owned) or on
-// the presence of a command skill file, never the raw skills directory.
+// Codex's and Cursor's skills root (`sharedSkillsRoot`) is the exception: it is
+// shared with other tools (e.g. a local Codex install populates
+// `~/.agents/skills` with foreign skills too), so a non-empty skills dir is not
+// evidence either one is installed. The split is asymmetric (DD-2): Cursor
+// detects by its own resources root only; Codex detects by its resources root,
+// or by the presence of a command skill file when no sibling tenant's
+// resources root is populated — never the raw skills directory alone.
 function isToolInstalled(tool, args) {
   const { paths } = getToolRegistryInfo(tool, args);
   if (paths.sharedSkillsRoot) {
@@ -508,7 +511,7 @@ function resolveTools(args) {
 }
 
 // Map a resolved tool list back to a --tool flag value for verify hints. Returns
-// null when the set is neither the full four-tool "all" set nor the Claude+
+// null when the set is neither the full five-tool "all" set nor the Claude+
 // OpenCode "both" pair — e.g. an auto-detected {claude, antigravity} pair must
 // not be told to check codex, so callers fall back to one hint per tool (W-13).
 function toolFlagFor(tools) {

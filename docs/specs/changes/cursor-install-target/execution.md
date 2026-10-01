@@ -270,3 +270,46 @@ Attempt 1 consumed (review round 11 of 16). Effort bumped `high → xhigh`. **At
 | Decisions | Effort `high` → `xhigh`. Implementer judgment: "gains a third tenant on this host" → "on Codex" (clarity after insertion). The T7 header-quote advisory stayed untouched (not approved). The Step 8E Cursor bullet sits before the Codex tenant table (Reviewer advisory: structural relocation not approved — recorded) |
 | Forward pointers | → T6: mirror `docs/commands/akili-constitution.md` to the eleven sites; `docs/cli.md:18` numbering; the two advisories above if the sweep reaches them. → T8: observe the fail-closed `Write` deny on a legitimate empty Write (known false-deny direction) |
 | Final verification | `node --test test/tasks-gate.test.js` 10/10/0/0; `npm test` 91/91/0/0 (T2 landed) |
+
+---
+
+### Wave 4 — T6 (started 2026-10-01)
+
+**Leader decisions (pre-spawn):** effort `high` (summary surfaces inherit the artifacts' evidence bar — KZ-002, five recurrences); skills `cognitive-doc-design`, `caveman` per task list. Mirrors under `docs/commands/` are summaries, not copies — Cursor is added wherever a mirror covers a changed step, in the mirror's register. Forward pointers carried: `docs/cli.md:18` init numbering; T1 advisory (stale `bin/akili.js` comments "four-tool" / "Codex is the exception") — in the sweep's obligation-keyed scope; T3 Reviewer advisories (`:530` alias over-read, `:1247` "non-2 exit code") only if the sweep's obligation pass reaches them. CHANGELOG must not state any outcome T8 has not produced ("pending live validation" on Cursor). Review intensity: override (c) derived evidence (sweep, CHANGELOG) → Reviewer owed. Budget: 13 rounds used; T6 + T8 = 15 minimum.
+
+---
+
+### T6 — Mirrors, root docs, CHANGELOG, closure sweep (in progress)
+
+**Attempt 1** (2026-10-01) — Implementer `sonnet`, effort `high`; runtime events: none; spawn: 119 calls (host count — far past the 60-call self-count bound; task completed verified; kaizen signal — the fourth worker this spec to overrun the bound), 248,254 tokens, ended complete. Files: 12 docs/root files + 2 comment-only hunks in `bin/akili.js` (+143/−65). Implementer verification: sweep BEFORE 44 → AFTER 29 lines, each dispositioned; obligation-keyed pass; `npm test` 91/91; `node --check`; `git diff --check`; NFR-3 grep empty; pins ≥1 in `docs/cli.md`/`README.md`; doctor 11/11 + 24/24 on a scratch Cursor install; a CHANGELOG clause → `file:line` table. **Evidence re-run (Leader-inline): VERIFIED** — sweep 29 lines / 14 files with the same keeps; `npm test` 91/91/0/0; `node --check` OK; `git diff --check` clean; `^model:` 0; doctor → 11 `akili-*` OK rows, `CURSOR HEALTHY ok 43 | missing 0`; `.claude/README.md:15` reads "The other four targets".
+
+**Reviewer verdict (attempt 1):** `opus` — **FAIL**, verbatim:
+
+> SUMMARY: The diff stays in scope. … NFR-6 holds … The FR-9 sweep reproduces, and every listed keep is sound. Most CHANGELOG clauses check out at HEAD … But KZ-002 quote-checks fail in three places, a docs sentence misstates DD-2, and two four-host lists survive.
+>
+> ISSUES:
+> 1. The `docs/cli.md` auto-detect paragraph (diff `+312-321`) misstates DD-2: it says detection for "Codex and Cursor" keys on resources "or an `akili-<cmd>/SKILL.md` command skill" … Read that way, a Codex skills-only machine would detect Cursor. Shipped `bin/akili.js:458` (`if (paths.detectByResourcesOnly) return false;`) means Cursor detects by its resources root only. The new "Shared and compatibility skill roots" section also does not name the DD-2 rule. — Violated: FR-1 Auto-detection; design §7 row 20; T6 Scope. — Remediation: split the rule (Cursor: own resources root only; Codex: resources root, or a command skill only while no sibling tenant's resources root is populated); say it in the new section or link to it.
+> 2. CHANGELOG: "Both commands gain a Cursor spawn-mechanics bullet (… the depth-2 subagent limit)" — `akili-test.md:57` has no depth limit; only `akili-execute.md:61` does. — Violated: KZ-002 quote-check. — Remediation: attribute the depth limit to `/akili-execute` only.
+> 3. CHANGELOG: "release classified minor: new install target and new command capability" — no new command ships. — Violated: KZ-002; AGENTS.md Release Rules. — Remediation: "minor: new install target".
+> 4. Two `README.md` host lists still name four hosts (`:472` `akili doctor --tool <claude|opencode|antigravity|codex|both|all>`; `:873` "runs under Claude Code, OpenCode, Google Antigravity (…), and Codex (…)"). — Violated: FR-9 ("keyed on the obligation"). — Remediation: add `cursor` at `:472`; add Cursor at `:873` in the mirror's register.
+> 5. Unpinned Cursor claims in the mirror: `docs/commands/akili-constitution.md` 8F "On Cursor" paragraph (import on by default; the gate reads `.tool_input.file_path`) and the 8C sentence (`agent` / `/akili-<name>`; no floating alias besides `auto`). — Violated: FR-9 (pins); NFR-5. — Remediation: carry the canonical pins (third-party-hooks, cli/overview, context/skills, models).
+>
+> ADVISORY: `bin/akili.js:426-431` header comment still says "either one" detects by resources or a command skill (wrong for Cursor); `:141-145` "{ root, skillsRoot } for Codex". `docs/cli.md:19` "in this release" will go stale — name the version. CHANGELOG "neither field" → "no readable content" (an empty `content` is denied too). CHANGELOG Notes claim FR-4 holds on NFR-6 evidence only — name the DD-2 sibling suppression. "this changelog now say five wherever they said four" overclaims (older entries frozen); bullets much longer than the `## [2.30.0]` entry's. README target-table cell "(IDE agent or `agent` CLI)" unpinned.
+
+Attempt 1 consumed (round 14 of 16). Effort bumped `high → xhigh`. **Budget watch:** T6 attempt 2 (round 15) + T8 (round 16) land exactly on the budget; any further FAIL exceeds it → stop and escalate.
+
+**T6 — Attempt 2** (2026-10-01) — Implementer `sonnet`, effort `xhigh`; runtime events: none; spawn: 69 calls (host count; over the 60-call bound again), 158,107 tokens, ended complete. Delta: `docs/cli.md` split DD-2 rule at `:45-47` and `:205-207`, `:19` names v2.31.0; CHANGELOG — "minor: new install target", depth limit attributed to `/akili-execute` alone, "no readable new content" clause, Notes separate NFR-6 from the by-design DD-2 change (four-state fixture as evidence), "and this changelog" dropped; `README.md:472`/`:873` name Cursor, target-table cell drops the unpinned "`agent` CLI"; mirror pins carried (third-party-hooks, hooks page, cli/overview, context/skills, models — `auto` wording matches canonical `:523`); `bin/akili.js` comments `:142-146`, `:426-431` corrected (comment-only). **Evidence re-run (Leader-inline): VERIFIED** — FR-9 sweep 29 lines with the same keeps; obligation pass 0; Unreleased "new command capability" 0; `README.md:472`/`:873` five hosts; mirror pins 6; `npm test` 91/91/0/0; `node --check`; `git diff --check` clean; `^model:` 0.
+
+**Reviewer verdict (attempt 2):** `opus` — **PASS**: "All five attempt-1 FAIL issues are fixed, and each one checks out against the shipped source. … The text at `:40-50` and `:205-207` now matches `bin/akili.js:441-470` exactly." CHANGELOG clauses each matched to a `file:line`. ADVISORY (recorded): mirror 8C sentence is a long run-on and its `/model`-in-CLI claim lacks the pin the canonical carries; "design DD-2" / spec IDs in `docs/cli.md` and CHANGELOG Notes are allowed by the T4 precedent but unresolvable without the spec; `docs/cli.md:19` "from v2.31.0" is a projected version — confirm at release.
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2) |
+| Attempts | 2 (attempt 1 FAIL — DD-2 misstated in `docs/cli.md`, two CHANGELOG quote-check failures, two surviving README four-host lists, unpinned mirror claims) |
+| Review rounds consumed | 2 (total **15 of 16**) |
+| Review intensity | Override (c); attempt 2 also (e) |
+| Requirements covered | FR-9 (statement + KZ-002 scenario, all clauses), FR-1 init-numbering note (CHANGELOG + `docs/cli.md`), FR-3 row text in docs, NFR-2, NFR-3, NFR-5 |
+| Files changed | `docs/commands/akili-constitution.md`, `docs/commands/akili-execute.md`, `docs/commands/akili-test.md`, `docs/commands/README.md`, `docs/cli.md`, `README.md`, `docs/README.md`, `.claude/README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `bin/akili.js` (comments only) |
+| Decisions | Effort `high` → `xhigh`. Advisories carried from T1 (stale `bin/akili.js` comments) applied inside FR-9's obligation scope. T3's two advisories (`:530` alias over-read, `:1247` "non-2 exit code") were not reached by the sweep — remain recorded only |
+| Forward pointers | → T8: nothing. → release: `docs/cli.md:19` assumes `release:minor` → v2.31.0 |
+| Final verification | sweep 29/14 with dispositions; `npm test` 91/91/0/0; doctor on a scratch Cursor install 11 commands / 24 skills OK |

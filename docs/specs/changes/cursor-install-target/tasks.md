@@ -251,7 +251,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1, T3, T4, T5 |
 | Requirements | FR-9 (scenario + every `AND IT MUST`), FR-1 init-renumbering note, FR-3 row text in docs, NFR-2 (CHANGELOG wording), NFR-5 |
