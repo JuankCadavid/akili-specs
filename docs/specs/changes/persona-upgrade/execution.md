@@ -994,3 +994,61 @@ ADVISORY:
 | T6 | `npm test` runs 66 tests in ~3 s; the CRLF fixture and `.gitattributes` are in place; the CI matrix is ubuntu/macos/windows × Node 18/22 — `node --test` with no path argument on Node 18 (P-12: experimental there) is T6's to confirm |
 | T9 | `docs/cli.md`: `digests.json` (what it holds, where it is installed, the `version` field, silent fallback to an empty table when missing); the release step's hint; `release:status` drift |
 | T10 | The CHANGELOG names the section ids (FR-8) — the 22 ids of §5.2 — and classifies `minor` (DD-10); the "seeded legacy table" line: 73 tags for leader/implementer/reviewer, 48 for tester |
+
+### T9: Mirrors and `docs/cli.md`
+
+Status while in progress: `[~]`. Ran in parallel with T6 (disjoint files). Approval mode `pre-approved`.
+
+**Attempt 1, spawn 1 — report with an owed item** (2026-09-30). Effort `high`. Skill `cognitive-doc-design`, as the task lists.
+
+| Item | Value |
+|---|---|
+| Files changed | `docs/cli.md` (new section *Persona Drift (doctor --agents)*: marker grammar, flags, states with exit codes, `--fix` rows, guards, backup, migration — each fact checked against `bin/persona.js` and `bin/akili.js` as shipped), `docs/commands/akili-constitution.md` (the two sentences), `docs/flow.md` (the Safe Update row), `README.md` (the Safe Update bullet; a `doctor --agents` row and example in the CLI section). `docs/commands/akili-audit.md` not edited (0 hits to mirror, re-grepped) |
+| Implementer verification, as reported | Check 1: B7 grep 0 / 0 / 0. Check 2: 0. Check 3: `akili:section` 2; `doctor --agents` 2 (`docs/cli.md`), 3 (`README.md`). Check 4: the nine state names present (1–5 hits each). Check 5: `doctor --help` lists only the pre-existing flags, all documented → the subset holds; `--agents`, `--section`, `--allow-branch` are documented but absent from `printHelp` (not in any task's scope) |
+| Falsifier | Executed: `unlocated` removed from a scratch copy → check 4 reads 0 for it |
+| Sweep | Obligation-keyed over the five files; every hit dispositioned. **`README.md` line 875 — "Preserves customized `.agents/` files in place and only upgrades or fills gaps non-destructively" — found and left**, on the ground that the scope names "one bullet and the CLI section" |
+| Evidence re-run, Reviewer | Not yet: both run on the continuation's completion report |
+| runtime events | none |
+
+`Not Done / Assumptions` (verbatim):
+
+> `bin/akili.js`'s `printHelp` does not list `--agents`, `--section`, or `--allow-branch` (check 5 still passes as a subset test, per the task's own note) — flagged, not fixed, since `printHelp` is explicitly out of T9's scope. `README.md:875` left as a residual, lower-priority restatement outside the task's named edit locations (see sweep).
+
+**Leader reading of the field.** One owed item: FR-8's sweep is keyed on the obligation ("the sentences that say Safe Update appends or never overwrites SHALL be updated"), and the task's own Scope line for `README.md` locates edits, it does not cap them; a mode-table row that says Safe Update "preserves … in place" and "fills gaps non-destructively" states the superseded rule — the same class T7 lost a round to. Continuation-eligible under `pre-approved`. The `printHelp` gap is real and owned by no task: **a spec gap for the user at the T10 gate** (one line in `bin/akili.js`), not absorbed here.
+
+`continuations: 1 (README.md line 875 and any sibling restatement the obligation-keyed sweep finds)`
+
+### T6: I/O test and CI — PASS (2026-09-30)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 1 |
+| Implementer attempts | 1 |
+| Requirements covered | FR-9 (backup exists before the write, an I/O test in a temp dir; CI runs the tests; a CRLF persona stays CRLF); FR-4's first scenario; design DD-9, DD-4, DD-5, §4, P-12, P-19 |
+| Files changed | `test/agents-doctor-io.test.js` (new, 3 tests; 69 in all), `.github/workflows/ci.yml` (+3 lines: `Unit tests (node:test)` → `npm test`, after `verify:cli`) |
+| Evidence re-run | Leader-inline: **VERIFIED** |
+| Review rounds used | **20 of 26** |
+| Skills | `tdd`, as the task lists |
+| Effort | High, steered in the brief |
+| Parallel | Ran beside T9 (disjoint files) |
+| Gate | `auto-approved (pre-approved mode)` |
+
+**Attempt 1.**
+
+| Item | Value |
+|---|---|
+| Forced write failure | `.agents/.backup/` pre-created and `.agents/.gitignore` pre-seeded (so the backup and the ignore write succeed), the three other personas copied current, then `chmod 0o555` on `.agents/` and `0o444` on `implementer.md`: POSIX refuses the temp-file creation (`EACCES … implementer.md.<hex>.tmp`); the error escapes `main()`, exit non-zero. The test asserts unchanged bytes, exactly one backup holding the original bytes, exit ≠ 0 and `EACCES|EPERM` on stderr (the Disqualifier's guard). Permissions restored in `finally` |
+| Red runs | Read-only test under the backup/write swap → `expected exactly one backup for implementer.md — 0 !== 1`; writable test under a no-op write → its exit-code assertion `1 !== 0`; CRLF test under `renderSegments(segments, "\n")` → `expected every line ending to be CRLF, none bare LF — true !== false` (only that test red). All on a scratch copy |
+| Falsifier | The swap above (the read-only test red); scratch copy discarded |
+| Implementer verification | `npm test` → 69 pass; `grep -c 'npm test' .github/workflows/ci.yml` → 1 (baseline 0); `node --check` ok; the file alone 3/3 |
+| Evidence re-run | Leader-inline: 69/69; grep → 1; `node --check` ok; the file alone 3/3; the workflow diff is the two quoted lines; falsifier on a scratch copy (write moved before backup) → the read-only test red on `expected exactly one backup for implementer.md`. **VERIFIED** |
+| Reviewer verdict | **PASS.** Ordering proven by the swap; writable and CRLF tests prove their claims end to end (the fixture is `i/crlf` with `-text`, the assertion covers every line); the Disqualifier satisfied (stderr code, unchanged bytes, backup bytes); no CI leg fails by construction (`HOME` and `USERPROFILE` set, `path.join`, `process.execPath`, temp dirs outside any checkout, CRLF-normalized templates still hash equal); ANSI stripped; the workflow step in the file's style |
+| runtime events | none |
+
+`spawns: implementer 57 calls, 139,525 tokens, ended complete; reviewer 8 calls, 80,662 tokens, ended complete`
+
+**ADVISORY (recorded, not work).** Two declared `UNVERIFIED` items: Windows' refusal to rename over a read-only file (expected `EPERM`; the `windows-latest` CI leg is the proof) and Node 18's `node --test` discovery (the `node: 18` legs). RESILIENCE: the read-only test pins the current failure mode (an unhandled `EACCES`) through its stderr regex — a later friendly error message must update the regex. READABILITY: `stripAnsi`/`runFix` duplicated from the other test file.
+
+**Issues encountered.** **Disqualifier breach, recovered.** The worker's first manual repro ran `--fix` without `cwd` against this repository's own `.agents/` (gitignored), rewrote the four personas, then restored them byte-for-byte from the backups the CLI had just written and removed the stray `.backup/` and `.gitignore`; it reported the incident itself. Leader's check: `.agents/implementer.md` identical to the fixture copy taken this morning (`cmp`), the other three at their session-start line counts (338/87/84), no markers, no `.backup/`, no `.gitignore`. For the retrospective: the task's "copies only" rule reached the worker through the brief and was still breached once; the backup-before-write rule the task tests is what made the recovery possible.
+
+**Forward pointers.** T10: FR-9's CI bullet is proven only when the first `windows-latest` and `node: 18` runs are green — state it in the CHANGELOG's rollout line as "CI runs the suite" without claiming those legs passed before they have.

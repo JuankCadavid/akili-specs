@@ -37,6 +37,9 @@ jobs:
       - name: verify:cli (list packaged commands, skills, resources)
         run: npm run verify:cli
 
+      - name: Unit tests (node:test)
+        run: npm test
+
       - name: Dry-run install (all tools)
         run: node bin/akili.js install --tool all --dry-run
 
