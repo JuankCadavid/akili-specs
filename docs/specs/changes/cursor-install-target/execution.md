@@ -159,3 +159,19 @@ User at the T7 gate: *"continue with all tasks"*. From this point routine contin
 | Files changed | `.claude/commands/akili-execute.md`, `.claude/commands/akili-test.md`, `docs/flow.md` |
 | Decisions | Effort `medium` → `high` on retry. Leader-caused issue 2 recorded above; FR-7 amended accordingly. Mirrors (`docs/commands/akili-execute.md`, `akili-test.md`) are T6's |
 | Final verification | greps as above; `git diff --check` clean |
+
+**T4 — Attempt 3** (2026-10-01) — Implementer `sonnet`, effort `xhigh`; runtime events: none (one Leader mid-turn correction message, delivered after the first report and acted on in a resumed turn); spawn: 30 calls, 86,470 tokens, ended complete. Delta: `:784` verbatim CLI sentence "You can select a model for the CLI using the /model slash command." (pin kept); `:787` "Use the CLI `/model` or the IDE picker…"; `:270-273` false `"Requires approval"`/"hidden by default" claim replaced by "Which models a given account can pick is not stated on the models page, so the project confirms its own slugs on its live `/model` picker…"; `:137` "multi-vendor and plan-gated" → "multi-vendor". The worker correctly left `:170`/`:253` ("plan-gated" — Codex claims on the Codex pin) untouched and reported the grep discrepancy instead of forcing it to zero. **Evidence re-run (Leader-inline): VERIFIED** — verbatim sentence 1 hit; "Models are set via" 0; "Requires approval|hidden by default" 0; pins 5; markers 2; NF=9 ×8; `git diff --check` clean. Raw-HTML quote check of every page-attributed quotation in the file (2026-10-01): all present verbatim.
+
+**Reviewer verdict (attempt 3):** `opus` — **PASS**: "Both false quotations are gone … attempt 3 added no unsourced claim and broke nothing that attempts 1 and 2 had accepted. … No unverified page quotation remains."
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 3) |
+| Attempts | 3 (1 FAIL — unpinned bullet/row; 2 PASS set aside by Leader override (g) — false quotations from the Leader's brief; 3 PASS) |
+| Review rounds consumed | 3 |
+| Review intensity | Override (a); attempts 2–3 also (e) |
+| Requirements covered | FR-7 (registry half, as amended), NFR-5 |
+| Files changed | `docs/model-routing.md` (+58 / −10) |
+| Decisions | Effort `high` → `xhigh`. Two Leader-caused defects (summarizer-derived quotations stated as settled facts) cost rounds 2 and 3; the Leader now raw-verifies every quoted vendor sentence before it enters a brief (kaizen signal, third occurrence this spec). DD-8 amended (per-account availability `UNVERIFIED`). Step 8C half → T3; mirrors/`docs/README.md` → T6 |
+| ADVISORY (recorded) | Attempt 1: spec-ID wording (applied); duplicated marker tail (applied); models-page pin on effort (applied). Attempt 2: quote not verbatim (escalated to FAIL by the Leader); "Use either" (applied). Attempt 3: two long lines (cosmetic) |
+| Final verification | greps as above; `git diff --check` clean |

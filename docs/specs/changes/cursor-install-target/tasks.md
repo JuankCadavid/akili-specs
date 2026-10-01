@@ -158,7 +158,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none |
 | Requirements | FR-7 (registry half; the Step 8C half is T3), NFR-5 |

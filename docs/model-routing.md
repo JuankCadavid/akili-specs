@@ -115,14 +115,14 @@ when you deliberately need to freeze a version, and record why next to the pin. 
 concrete (no alias mechanism), which is why they carry the Fallback column and the drift check
 below.
 
-| Tier | Claude Code | OpenCode Go (requests/month @ that model's own limit — plan page monthly column) | Antigravity (family · effort ID) | Codex | Fallback |
-|---|---|---|---|---|---|
-| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | `opencode-go/glm-5.3` / `sonnet` |
-| **T2 Coder** | `sonnet` | `opencode-go/deepseek-v4.1-flash` (32,500 @ $15; 4x promo → 130,000 @ $60 through 2026-09-20) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | `opencode-go/deepseek-v4-flash` (65,000 @ $30) / `opencode-go/glm-5.3-flash` (31,580 @ $60) / `haiku` |
-| **T3 Auditor** *(≠ T2)* | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) *(≠ T2)* | Gemini 3.1 Pro (High) — `gemini-3.1-pro-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | `claude-sonnet-4-6` on Antigravity where exposed / `sonnet` |
-| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window (32,500 @ $15) | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (150,400 @ $60) / `opus` |
-| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | `opencode-go/qwen3.8-flash` (27,000 @ $30) / `sonnet` |
-| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/deepseek-v4-flash-vision-exp` (32,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | `opus` |
+| Tier | Claude Code | OpenCode Go (requests/month @ that model's own limit — plan page monthly column) | Antigravity (family · effort ID) | Codex | Cursor (family · effort param) | Fallback |
+|---|---|---|---|---|---|---|
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | Claude Opus family `<CONFIRM SLUG>` | `opencode-go/glm-5.3` / `sonnet` |
+| **T2 Coder** | `sonnet` | `opencode-go/deepseek-v4.1-flash` (32,500 @ $15; 4x promo → 130,000 @ $60 through 2026-09-20) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | Composer family (Cursor-native) `<CONFIRM SLUG>` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) / `opencode-go/glm-5.3-flash` (31,580 @ $60) / `haiku` |
+| **T3 Auditor** *(≠ T2)* | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) *(≠ T2)* | Gemini 3.1 Pro (High) — `gemini-3.1-pro-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | GPT-5.6 Sol/Terra family *(≠ T2 — different vendor)* `<CONFIRM SLUG>` | `claude-sonnet-4-6` on Antigravity where exposed / `sonnet` |
+| **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window (32,500 @ $15) | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | Claude Sonnet family (1M context) `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (150,400 @ $60) / `opus` |
+| **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | Composer (Fast) family `<CONFIRM SLUG>` | `opencode-go/qwen3.8-flash` (27,000 @ $30) / `sonnet` |
+| **T6 Multimodal** | `sonnet` (vision) | `opencode-go/deepseek-v4-flash-vision-exp` (32,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | Gemini 3.8 Flash family (vision) `<CONFIRM SLUG>` | `opus` |
 
 **Each OpenCode cell carries its own per-model monthly dollar limit and its own requests-per-month
 figure** — the plan page sets the limit per model, not per plan, so there is no single cap to
@@ -131,7 +131,10 @@ its $30 limit against `deepseek-v4.1-flash`'s 32,500 at $15. **Pins:** OpenCode 
 <https://opencode.ai/docs/go>
 (**Last verified: 2026-09-17**); Antigravity IDs ← `agy models` (**Last verified: 2026-09-17**);
 Codex families ← <https://learn.chatgpt.com/docs/models> (existing pin, **Last verified:
-2026-09-16**) + the T7 plan-gating paragraph below (existing).
+2026-09-16**) + the T7 plan-gating paragraph below (existing); Cursor families ←
+<https://cursor.com/docs/models> (**Last verified: 2026-10-01**) — no floating alias besides `auto`
+(`~/.cursor/cli-config.json` shows `"aliases": []` on the selected model, observed 2026-10-01); the
+roster is multi-vendor.
 
 **The figures above are the plan page's *requests-per-month* column, re-read on 2026-09-17 — not
 the *requests-per-5-hour* column.** The two are easy to conflate (same table, adjacent columns) and
@@ -261,6 +264,17 @@ strongest. The page also lists a fifth model, `gpt-5.3-codex-spark` — a text-o
 research preview is not a routing default, though it is worth trying by hand for a fast Implementer
 loop once it stabilizes.
 
+**Cursor.** The roster spans vendors rather than staying inside one lab's family tree, so **author ≠
+auditor can be satisfied across vendors inside a single host** — pin the Reviewer to a GPT-5.6
+family slug against an Implementer on the Composer family, the same structural guarantee the Codex
+paragraph above gets from role alone, here from vendor difference as well. Which models a given
+account can pick is not stated on the models page, so the project confirms its own slugs on its live
+`/model` picker rather than trusting a name carried over from this table. **T6's vision
+path** routes either to the Gemini family already inside Cursor or to cross-host dispatch, same
+choice as the Antigravity/Codex columns above. Every Cursor cell in the tier table carries
+`<CONFIRM SLUG>` until confirmed and pinned this way — the proposed pairing (Opus / Composer /
+Sol-Terra / Sonnet / Composer Fast / Gemini 3.8 Flash) names families only, never a slug.
+
 ### Frontier escalation tier (opt-in — pin, not alias)
 
 A frontier model *above* Opus — Claude **Fable 5** (`claude-fable-5`), or **Mythos 5**
@@ -326,6 +340,19 @@ effort as distinct IDs (`-high` / `-medium` / `-low`) rather than a dial the way
 | `high`, `xhigh`, `max` | `-high` (the roster exposes three rungs; the top three collapse) |
 
 Referenced from `/akili-constitution` Step 8C when confirming the exact ID with `agy models`.
+
+**Cursor binds effort as a bracket parameter on the model ID**, written in the Step 8E wrapper
+(`[effort=<rung>]`) rather than as a separate field or call-time flag. The mapping:
+
+| AKILI dial | `model` parameter |
+|---|---|
+| `low` | `[effort=low]` |
+| `medium` | `[effort=medium]` |
+| `high` / `xhigh` / `max` | `[effort=high]` `<CONFIRM>` — the highest rung the chosen model exposes on the live picker |
+
+Models whose picker shows no effort parameter take no bracket. Pins:
+<https://cursor.com/docs/context/subagents>, <https://cursor.com/docs/models>
+(**Last verified: 2026-10-01**).
 
 **Why it matters — the intelligence↔cost curve is steeply diminishing at the top.** Measured on a
 representative model (GPT-5.6 Sol, Artificial Analysis Intelligence Index):
@@ -491,6 +518,7 @@ personas there:
 | OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/deepseek-v4.1-flash`) |
 | Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro` |
 | Codex | `.codex/agents/akili-{leader,implementer,reviewer,tester}.toml` (project-level) | `model =` from the registry's Codex column, plus `model_reasoning_effort =` — see below |
+| Cursor | `.cursor/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level; Cursor also reads `.claude/agents/` and `.codex/agents/`, and on a same-name clash `.cursor/` takes precedence) | `model:` a concrete ID from the registry's Cursor column, optionally with `[effort=…]`; the Reviewer wrapper alone adds `readonly: true` — see below |
 
 **Antigravity binds more than the model — and the nesting is not optional.** Two corrections to
 what this document previously stated. First, agents are discovered under **`.agents/agents/`**, so a
@@ -550,6 +578,16 @@ Antigravity's `tools` allow-list above. Pin: <https://learn.chatgpt.com/docs/age
 `sandbox_mode = "read-only"` and asked to create a file was denied — `patch rejected: writing is
 blocked by read-only sandbox; rejected by user approval settings`.
 
+**Cursor binds the Reviewer's structural guarantee through a `readonly` field, not a sandbox mode.**
+Set `readonly: true` on the Reviewer wrapper alone — the subagents page states this means
+"restricted write permissions (no file edits, no state-changing shell commands)", the same shape as
+Antigravity's `tools` allow-list and Codex's read-only sandbox above. **Depth limit:** "the main
+agent and its direct subagents can launch subagents, but a subagent launched by another subagent
+can't launch further ones" — the one-level ceiling the Leader's spawn step assumes. Pins:
+<https://cursor.com/docs/context/subagents> (**Last verified: 2026-10-01**).
+**`UNVERIFIED — confirm at source before relying on it`:** what Cursor does with a Claude Code alias
+(`model: opus`) in a `.claude/agents/` wrapper when no `.cursor/agents/` set exists for the project.
+
 ## Cross-host dispatch
 
 Everything above assumes **one active host per session**: you are in Claude Code, so you read the
@@ -590,6 +628,7 @@ product name is not reliably the command.
 | OpenCode | `opencode` |
 | Antigravity | **`agy`** — not `antigravity`, not `ag` |
 | Codex | `codex` — invocation is `$akili-<name>` (skills, not slash commands) |
+| Cursor | `agent` (<https://cursor.com/docs/cli/overview>, **Last verified: 2026-10-01**) — installed alongside `cursor-agent` (observed locally via `which cursor-agent agent`, 2026-10-01; the installer's doctor probes `cursor-agent`) — commands are skills invoked `/akili-<name>` ("Skills can also be manually invoked by typing `/` in Agent chat", <https://cursor.com/docs/context/skills>, **Last verified: 2026-10-01**), **not** `cursor` |
 
 Antigravity is the case that proves the rule: sessions have repeatedly concluded the CLI *does not
 exist* after searching for the product name, and then had to walk it back. The failure is
@@ -741,6 +780,13 @@ model column.
   itself from `.codex/agents/akili-*.toml` (Implementer on **Luna**, Reviewer on **Terra**, both
   with their own `model_reasoning_effort`) — the Leader session is the one seat you still set by
   hand.
+- **Cursor:** switch with `/model` in the `agent` CLI — "You can select a model for the CLI using the /model slash command." (**Last verified: 2026-10-01**,
+  <https://cursor.com/docs/cli/reference/configuration>); in the IDE, `/model`
+  `UNVERIFIED — confirm at source before relying on it` — the IDE's model picker is the known switch.
+  Use the CLI `/model` or the IDE picker before running a phase you drive by hand. With Step 8E wrappers under `.cursor/agents/`
+  in place, the execute/test triad routes itself (model + optional `[effort=…]` per role, Reviewer
+  `readonly: true`) — the Leader session is the one seat you still set by hand, same as the other
+  hosts above.
 
 ## Cross-tool safety
 
@@ -751,7 +797,7 @@ model column.
   user's approval in Step 8E.
 - **No installer changes.** Nothing here is force-injected. `/akili-constitution` scaffolds a project
   copy of this registry into `AGENTS.md` / `CLAUDE.md` as plain Markdown — identical handling across
-  Claude Code, OpenCode, Google Antigravity, and Codex.
+  Claude Code, OpenCode, Google Antigravity, Codex, and Cursor.
 - **Per-project override.** Edit the registry inside your project's `AGENTS.md` / `CLAUDE.md` to
   pin different models; this package's copy is only the default.
 - **The registry is host-complete, always.** It belongs to the **project**, not to the session that
