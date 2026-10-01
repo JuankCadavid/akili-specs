@@ -395,7 +395,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: derived evidence a closure gate consumes (override c) |
 | Depends on | all |
