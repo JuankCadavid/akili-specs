@@ -428,6 +428,7 @@ See the full [CLI Reference](docs/cli.md) for options, install paths, examples, 
 | `akili update` | Reinstall packaged commands, skills, and helper resources |
 | `akili list` | Show packaged commands, skills, and helper resources |
 | `akili doctor` | Check whether expected files are installed |
+| `akili doctor --agents` | Report drift between a project's `.agents/` personas and the CLI's packaged templates; `--fix` upgrades them (see the [CLI Reference](docs/cli.md)) |
 | `akili check-update` | Print one line if a newer version is on npm (`--quiet` for session hooks; 24h cache) |
 | `akili notifications enable\|disable\|status` | Opt-in Claude Code SessionStart hook that announces new versions at session start |
 
@@ -442,6 +443,7 @@ akili update --force
 akili update --tool both --force
 akili doctor --commands-only
 akili doctor --tool opencode --skills-only
+akili doctor --agents --fix
 ```
 
 Installer safety rules:
@@ -547,7 +549,7 @@ Run `/akili-constitution` first in a new repository, after a major product pivot
 
 - **Brand-new (Seed Setup):** little or no code or durable docs. Creates the baseline from user intent, chosen stack, assumptions, and open questions, and copies default `.agents/` personas verbatim.
 - **Legacy (Discovery Setup):** real code exists but the AKILI-SPECS baseline does not. Inspects code, docs, architecture, tests, package manifests, and routes before drafting baseline docs, and customizes `.agents/` personas to the detected stack and design tokens.
-- **Active AKILI-SPECS (Safe Update):** the AKILI-SPECS baseline and possibly customized `.agents/` already exist. Upgrades weak sections, fills missing files, and extends `.agents/` non-destructively — never overwrites custom persona rules.
+- **Active AKILI-SPECS (Safe Update):** the AKILI-SPECS baseline and possibly customized `.agents/` already exist. Upgrades weak sections and fills missing files, and replaces each `.agents/` persona's owned section per its drift state via `akili doctor --agents` (see the [CLI Reference](docs/cli.md)) — custom-edited sections and the project block are never touched.
 
 For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, Google Antigravity, and Codex receive the same project guidance.
 
@@ -870,7 +872,7 @@ if 3 consecutive FAILs → HALT, mark task [~], present full audit trail for hum
 |---|---|---|
 | Brand-new | No code, no docs | Copies the default Leader/Implementer/Reviewer/Tester templates verbatim |
 | Legacy | Real code, no AKILI-SPECS baseline | Copies defaults and customizes them with detected stack, design tokens, lint and test commands |
-| Active AKILI-SPECS | Baseline already exists | Preserves customized `.agents/` files in place and only upgrades or fills gaps non-destructively |
+| Active AKILI-SPECS | Baseline already exists | Replaces each owned section per its drift state via `akili doctor --agents --fix` (see [CLI Reference](docs/cli.md)); project space and `custom-edited` sections are never touched |
 
 ## Capability-Tier Model Routing
 

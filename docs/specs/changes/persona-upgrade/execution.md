@@ -1052,3 +1052,94 @@ Status while in progress: `[~]`. Ran in parallel with T6 (disjoint files). Appro
 **Issues encountered.** **Disqualifier breach, recovered.** The worker's first manual repro ran `--fix` without `cwd` against this repository's own `.agents/` (gitignored), rewrote the four personas, then restored them byte-for-byte from the backups the CLI had just written and removed the stray `.backup/` and `.gitignore`; it reported the incident itself. Leader's check: `.agents/implementer.md` identical to the fixture copy taken this morning (`cmp`), the other three at their session-start line counts (338/87/84), no markers, no `.backup/`, no `.gitignore`. For the retrospective: the task's "copies only" rule reached the worker through the brief and was still breached once; the backup-before-write rule the task tests is what made the recovery possible.
 
 **Forward pointers.** T10: FR-9's CI bullet is proven only when the first `windows-latest` and `node: 18` runs are green — state it in the CHANGELOG's rollout line as "CI runs the suite" without claiming those legs passed before they have.
+
+**Attempt 1, spawn 2 — continuation report** (2026-09-30). Effort `high`. Skill `cognitive-doc-design`.
+
+| Item | Value |
+|---|---|
+| Files changed | `README.md` mode-table cell: "Preserves customized `.agents/` files in place and only upgrades or fills gaps non-destructively" → "Replaces each owned section per its drift state via `akili doctor --agents --fix` (see [CLI Reference](docs/cli.md)); project space and `custom-edited` sections are never touched". Sweep over the five files: every hit dispositioned, no other restatement |
+| Evidence re-run | Leader-inline: B7 grep 0 / 0 / 0; `until re-scaffolded` 0; `akili:section` 2; `doctor --agents` 2 and 4; the nine state names present (1–5 hits each); `non-destructively` 0; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **FAIL**, two issues (report below). Checks 2–6 pass: NFR-6 (grammar and states once), NFR-7 (no line pointers), the sweep clean, the mirrors agree with Step 8B, `docs/commands/akili-audit.md` has nothing to mirror; every state name, exit code, marker regex, path, header and guard reason matches the code byte for byte |
+| runtime events | none |
+
+`spawns (attempt 1): implementer 36 calls, 177,071 tokens, ended partial; implementer (continuation) 10 calls, 80,609 tokens, ended complete; reviewer 18 calls, 112,646 tokens, ended complete`
+
+**Reviewer report, attempt 1 (verbatim).**
+
+```text
+STATUS: FAIL
+
+SUMMARY: Checks 2–6 pass. Check 1 fails on two prose-meaning mismatches in `docs/cli.md`. In detail:
+- **Check 2 (NFR-6):** the marker grammar and the state definitions appear only in `docs/cli.md`. `akili:section|project|migrated` shows 0 hits in README, flow and commands. The mirrors cite the page.
+- **Check 3 (NFR-7):** 0 `:[0-9]` hits in the added lines.
+- **Check 4 (sweep):** no surviving "append / never overwrite / in place / non-destructive / gaps" sentence about personas. The remaining hits are about baseline docs, registries or `execution.md`. The README mode-table cell is correctly rewritten.
+- **Check 5:** the two `docs/commands/akili-constitution.md` sentences and the `docs/flow.md` row agree with Step 8B's Safe Update bullet and with the Integration-Branch bullet ("until `akili doctor --agents --fix` runs").
+- **Check 6:** `docs/commands/akili-audit.md` has no persona content, so nothing in it contradicts item (c).
+
+Every state name, the `EXIT_ZERO_STATES` set, the exit codes, the marker regexes, the backup path and local time, the `.gitignore`, the closing line, the header, the tool-root line, the guard reasons and the branch-resolution order all match `bin/persona.js` / `bin/akili.js` byte for byte.
+
+ISSUES:
+1. **Discovered Issue:** In the Flags table, the `--agents` row says "Switches `doctor` into this mode; every flag below requires it". The `--dry-run` row says "Runs both guards, prints the full plan…".
+   - **Not true for four flags.** `--fix`, `--force`, `--dry-run` and `--tool` are pre-existing flags. They work without `--agents`: plain `doctor --fix` runs `runDoctor`'s repair path, and the same page's Options table lists `--fix | doctor`.
+   - **Guards need `--fix`.** `runAgentsDoctor` evaluates guards only `if (args.fix)`. So `doctor --agents --dry-run` without `--fix` runs no guard; it is plain report mode.
+   - **Violated Rule:**
+     - Task Disqualifier: "Every sentence in `docs/cli.md` … is checked against `bin/persona.js` as shipped".
+     - Named check 1: "in meaning where it is prose".
+     - design §6: "`--force` | Overrides the dirty-tree guard (existing flag, new meaning under `--agents`)" and "`--dry-run` … (existing flag; `doctor --fix` without `--agents` keeps ignoring it)".
+   - **Remediation Suggestion:** Rephrase the `--agents` row, e.g. "the meanings below apply only under `--agents`; `--force`, `--dry-run` and `--tool` keep their other meanings elsewhere". Make the `--dry-run` row conditional: "With `--fix`: runs both guards, prints the full plan, exits with the code the plan would produce; writes nothing (no backup)".
+
+2. **Discovered Issue:** The `--fix` rows list is incomplete and describes two labels too narrowly against `applyFix` / `printFixRow`.
+   - **`FIXED` / `INSERTED`:** `FIXED` is described only as "an `outdated` section replaced". The code also prints `FIXED  <id> (--section override)` for a forced `custom-edited` replace, and `INSERTED  <id> (--section (removed from migration record))` for an `unlocated` insert.
+   - **Missing `SKIPPED` variants:** `SKIPPED  <id> (unlocated; use --section)` prints for every `unlocated` id on every later `--fix`. `SKIPPED (unreadable: <reason>)` prints for an unreadable file.
+   - **Missing `<id>`:** the shipped row form is `LABEL  <id> (detail)`. The page's literal strings `FENCED (exact)` and `SKIPPED (custom-edited; use --section)` leave out the id.
+   - **Violated Rule:**
+     - Named check 1: "Every state, exit code, row label … matches the code".
+     - FR-4: "It SHALL print, per persona, what it replaced, inserted, migrated, skipped and why".
+   - **Remediation Suggestion:**
+     - State the row shape once: `LABEL  <id> (detail)`.
+     - Widen `FIXED` to "outdated replaced, or custom-edited replaced via `--section`".
+     - Widen `INSERTED` to "missing inserted, or unlocated inserted via `--section` (id dropped from the migration record)".
+     - Add the `unlocated` and `unreadable` `SKIPPED` variants.
+
+ADVISORY:
+- READABILITY: The Options table near the top of `docs/cli.md` is now stale for this mode.
+  - `--force` and `--dry-run` are scoped "install, update".
+  - `--fix` reads only "repair and copy missing files".
+  - `--agents`, `--section` and `--allow-branch` are absent.
+
+  A one-line pointer per row to *Persona Drift* would do.
+- READABILITY: The missing-`.agents/` case is undocumented on the page. The code prints one `ABSENT … does not exist` line and exits 1 (FR-3 bullet, §5.4 last row).
+- RELIABILITY: The silent fallback is undocumented. When `digests.json` is missing or unreadable, every non-current section reads `custom-edited` and the run exits 0. A maintainer could misread that as "clean".
+- READABILITY: The `unreadable` enumeration matches FR-3 but leaves out two parser reasons: a stray close marker, and more than one migration record.
+- READABILITY: The "prints … the exit code" phrasing is loose. The run prints a verdict line ("Persona drift found." / "No persona drift blocking CI.") and sets the exit code; it does not print the number.
+```
+
+**Leader adjudication, attempt 1.** Both issues in scope: the Disqualifier binds every `docs/cli.md` sentence to the shipped code, and FR-4's "what it … skipped and why" names the rows. Attempt 2 at effort `xhigh`, report relayed unchanged. Advisories recorded; the brief for attempt 2 tags the silent-fallback and missing-`.agents/` lines `[advisory-grade]` (both were facts the attempt-1 brief listed and the page does not carry; the Reviewer may never FAIL on them).
+
+**Attempt 2 — PASS** (2026-09-30). Effort `xhigh`. Skill `cognitive-doc-design`. Feedback: the attempt-1 report verbatim, the adjudication.
+
+| Item | Value |
+|---|---|
+| Files changed | `docs/cli.md` only (51-line delta): the `--agents` row no longer claims the other flags require it and names the four pre-existing flags; `--allow-branch`, `--force`, `--dry-run` scoped "With `--fix`"; the `--fix` rows table restated as `LABEL  <id> (detail)` with every label and detail string the code prints (`FIXED … (matched <release>)` / `(--section override)`, `INSERTED … (--section (removed from migration record))`, the three `SKIPPED` variants, `FENCED (exact|heading)`, `NOT LOCATED`, `BACKUP`, `REFUSED (…)`, the dry-run line), each cited to its source line in the report; two `[advisory-grade]` lines added (the empty-table fallback; the missing-`.agents/` line). `applyFix`'s `unmarked` skip row excluded on purpose: unreachable through the CLI |
+| Implementer verification | Checks 1–5 re-run: 0/0/0; 0; 2; 2 and 4; nine states present; help flags ⊆ documented. Mirror grep for the row labels and "every flag": no relevant hit. 20 tool calls (host) |
+| Evidence re-run | Leader-inline: each detail string found in `bin/persona.js`, `REFUSED (` / `(dry-run — no file written)` / `BACKUP` in `bin/akili.js`; greps 0/0/0, 0, 2, 2/4, nine states; "every flag below requires" → 0; `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **PASS** (the same Reviewer, resumed): both issues closed against the code; the row shape matches `printFixRow`; the `unmarked` exclusion is right; the two new paragraphs are accurate; mirrors unchanged. One new advisory: the two added paragraphs begin with the literal word "Advisory:" — review vocabulary leaking into a reference page |
+| runtime events | none |
+
+`spawns (attempt 2): implementer 20 calls, 99,649 tokens, ended complete; reviewer (resumed) 2 calls, 117,801 tokens, ended complete`
+
+**T9 closing record — PASS (2026-09-30).**
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 2 of 3 |
+| Implementer attempts | 2 (attempt 1 had one continuation) |
+| Requirements covered | FR-8 (`docs/cli.md`, the mirrors, `README.md`; the sweep), NFR-6 (grammar and states defined once), NFR-7 (no line pointers); design §5.1, §5.3, §5.4, §6, DD-5, DD-12, DD-13, surfaces 13–14 |
+| Files changed | `docs/cli.md` (new section *Persona Drift (doctor --agents)*), `docs/commands/akili-constitution.md` (two sentences), `docs/flow.md` (one row), `README.md` (the Safe Update bullet, the CLI table and example, the mode-table cell). `docs/commands/akili-audit.md` untouched (nothing to mirror) |
+| Evidence re-run | Leader-inline on both completion reports: **VERIFIED** ×2 |
+| Review rounds used | 2 for this task; **22 of 26** in total |
+| Skills | `cognitive-doc-design`, as the task lists |
+| Continuations | `continuations: 1 (README.md mode-table cell; the obligation-keyed sweep)` |
+| Advisories | Round 1: the page's top Options table stale for this mode; the `unreadable` enumeration omits two parser reasons; the "prints the exit code" phrasing. Round 2: the literal "Advisory:" lead-in on two paragraphs of `docs/cli.md` — **introduced by the Leader's `[advisory-grade]` tag leaking from the brief into shipped prose**; recorded, not absorbed; a one-word cosmetic edit for the user to take through `/akili-quick` or the archive |
+| Spec gap carried | `akili doctor --help` lists none of `--agents`, `--section`, `--allow-branch` (no task owns `printHelp`) |
+| Gate | `auto-approved (pre-approved mode)` |

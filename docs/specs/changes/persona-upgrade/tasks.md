@@ -370,7 +370,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: `docs/cli.md` is the one home of the marker grammar and the states (NFR-6); summary surfaces inherit the evidence bar (KZ-002) |
 | Depends on | T5, T7, T8 |
