@@ -712,6 +712,16 @@ function installTool(tool, args) {
       );
     }
 
+    // DD-11: digests.json ships beside the four templates, as one more
+    // resource file — AGENT_TEMPLATES itself stays the fixed four-name list.
+    add(
+      copySingleFile(
+        path.join(SOURCE_TEMPLATES, "digests.json"),
+        path.join(paths.resources, "templates", "digests.json"),
+        args
+      )
+    );
+
     add(copySingleFile(SOURCE_MCP_EXAMPLE, path.join(paths.resources, ".mcp.json.example"), args));
   }
 
@@ -992,9 +1002,10 @@ function runList() {
   console.log(`\n${colors.cyan}Resources:${colors.reset}`);
   RESOURCE_SCRIPTS.forEach((name) => console.log(`  ${formatPath(path.join("scripts", name))}`));
   AGENT_TEMPLATES.forEach((name) => console.log(`  ${formatPath(path.join("templates", name))}`));
+  console.log(`  ${formatPath(path.join("templates", "digests.json"))}`);
   console.log("  .mcp.json.example");
 
-  const resourceCount = RESOURCE_SCRIPTS.length + AGENT_TEMPLATES.length + 1;
+  const resourceCount = RESOURCE_SCRIPTS.length + AGENT_TEMPLATES.length + 1 /* digests.json */ + 1 /* .mcp.json.example */;
   console.log(`\n${colors.cyan}Summary:${colors.reset} ${commands.length} commands | ${skills.length} skills | ${resourceCount} resources (akili-specs v${currentVersion})`);
 }
 
@@ -1148,6 +1159,7 @@ function doctorTool(tool, args) {
         src: path.join(SOURCE_TEMPLATES, name),
         dest: path.join(paths.resources, "templates", name),
       })),
+      { src: path.join(SOURCE_TEMPLATES, "digests.json"), dest: path.join(paths.resources, "templates", "digests.json") },
     ];
 
     for (const check of resourceChecks) {
@@ -1234,14 +1246,36 @@ function checkEnvironment(tools) {
 // bin/persona.js's migratePersona rather than run through applyFix's normal
 // outdated/missing branches.
 //
-// digests: no `.claude/templates/digests.json` exists until T5 (DD-11), so
-// every run compares against an empty table; per FR-3, "when no digest
-// matches, the state is custom-edited" — there is nothing yet for an edited
-// section to match, by design at this task. For migratePersona, the empty
-// table still lets exact/heading matching succeed against the CLI's own
-// packaged template text (no digest entry required for that) — a legacy
-// digest is only needed to recognize an *older* release's text.
-const AGENTS_DIGESTS = Object.freeze({ releases: {}, legacy: {} });
+// T5/DD-11: `.claude/templates/digests.json` now ships as a packaged
+// resource, keyed by role FIRST (`releases[r][role][id]`,
+// `legacy[role][id][tag]`) — but sectionStates/applyFix/migratePersona all
+// take a ROLE-SCOPED table (`releases[r][id]`, `legacy[id][tag]`), per
+// design §7's forward pointer from T2. `loadTemplates()` reads the packaged
+// file once (missing or unparsable -> the empty table, same degraded
+// behavior as before T5: everything not matching the current template
+// reads `custom-edited`, never a crash); `digestsForRole` slices it per
+// role for each call site below.
+function loadTemplates() {
+  const digestsPath = path.join(SOURCE_TEMPLATES, "digests.json");
+  try {
+    const parsed = JSON.parse(fs.readFileSync(digestsPath, "utf8"));
+    return {
+      version: parsed.version || null,
+      releases: parsed.releases || {},
+      legacy: parsed.legacy || {},
+    };
+  } catch {
+    return { version: null, releases: {}, legacy: {} };
+  }
+}
+
+function digestsForRole(digests, role) {
+  const releases = {};
+  for (const [release, byRole] of Object.entries(digests.releases || {})) {
+    releases[release] = (byRole && byRole[role]) || {};
+  }
+  return { releases, legacy: (digests.legacy && digests.legacy[role]) || {} };
+}
 
 const SECTION_STATE_COLOR = {
   current: "green",
@@ -1500,6 +1534,7 @@ function runAgentsDoctor(args) {
   let gitignoreEnsured = false;
   let wroteAtLeastOne = false;
   const postFixExits = [];
+  const packagedDigests = loadTemplates();
 
   for (const roleFile of AGENT_TEMPLATES) {
     const role = roleFile.replace(/\.md$/, "");
@@ -1509,7 +1544,8 @@ function runAgentsDoctor(args) {
     const personaExists = fs.existsSync(personaPath);
     const personaText = personaExists ? fs.readFileSync(personaPath, "utf8") : null;
     const persona = personaText !== null ? parsePersona(personaText) : null;
-    const result = sectionStates(persona, template, AGENTS_DIGESTS);
+    const roleDigests = digestsForRole(packagedDigests, role);
+    const result = sectionStates(persona, template, roleDigests);
     const exitCode = resultExitCode(result);
     if (exitCode !== 0) overallExit = 1;
 
@@ -1538,8 +1574,8 @@ function runAgentsDoctor(args) {
     // only to explain why it skips (design §7's migratePersona).
     const fix =
       persona && persona.unmarked
-        ? migratePersona(personaText, template, AGENTS_DIGESTS, currentVersion)
-        : applyFix(persona, template, AGENTS_DIGESTS, { sections: args.section || [] });
+        ? migratePersona(personaText, template, roleDigests, currentVersion)
+        : applyFix(persona, template, roleDigests, { sections: args.section || [] });
     for (const row of fix.rows) printFixRow(row);
 
     let postExit = exitCode;
@@ -1548,7 +1584,7 @@ function runAgentsDoctor(args) {
         console.log(`    ${colors.yellow}(dry-run — no file written)${colors.reset}`);
         // The plan's own exit-code contribution: what the state WOULD be
         // after this text, without ever touching disk.
-        postExit = resultExitCode(sectionStates(parsePersona(fix.text), template, AGENTS_DIGESTS));
+        postExit = resultExitCode(sectionStates(parsePersona(fix.text), template, roleDigests));
       } else {
         if (personaExists) {
           // Guard -> backup -> one atomic write -> re-report (design §7):
@@ -1568,7 +1604,7 @@ function runAgentsDoctor(args) {
         // reuse the pre-fix `result` for the exit code (FR-4 idempotence:
         // a section this run just fixed must not still read as failing).
         const rewritten = parsePersona(fs.readFileSync(personaPath, "utf8"));
-        postExit = resultExitCode(sectionStates(rewritten, template, AGENTS_DIGESTS));
+        postExit = resultExitCode(sectionStates(rewritten, template, roleDigests));
       }
     } else if (persona && persona.unreadable) {
       // applyFix skips an unreadable file rather than guessing at its

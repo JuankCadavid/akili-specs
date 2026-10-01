@@ -197,6 +197,13 @@ const SOURCE_SCRIPTS = path.join(REPO_ROOT, "scripts");
 const SOURCE_MCP_EXAMPLE = path.join(REPO_ROOT, ".mcp.json.example");
 const RESOURCE_SCRIPT_NAMES = ["gsc_verify.py", "parse_tests.js"];
 const AGENT_TEMPLATE_NAMES = ["leader.md", "implementer.md", "reviewer.md", "tester.md"];
+// T5/DD-11: digests.json ships beside the four templates as a resource file
+// introduced AFTER PINNED_VERSION — side A (the pinned published package)
+// never has it, so it is a genuinely new path, not a stale-hash case
+// resolveSource's content-diff branch already handles. The expected list
+// (this constant) is what lets classifyToolDiff recognize it as an expected
+// addition instead of an installer regression — see its loop below.
+const TEMPLATE_RESOURCE_NAMES = [...AGENT_TEMPLATE_NAMES, "digests.json"];
 
 // bin/akili.js TOOL_REGISTRY, restricted to the three shipping targets this
 // gate covers (Codex is out of scope for FR-4). `roots.root` is the
@@ -290,7 +297,7 @@ function resolveSource(tool, tmpRootB, relPath) {
     if (parts[0] === "scripts" && parts.length === 2 && RESOURCE_SCRIPT_NAMES.includes(parts[1])) {
       return path.join(SOURCE_SCRIPTS, parts[1]);
     }
-    if (parts[0] === "templates" && parts.length === 2 && AGENT_TEMPLATE_NAMES.includes(parts[1])) {
+    if (parts[0] === "templates" && parts.length === 2 && TEMPLATE_RESOURCE_NAMES.includes(parts[1])) {
       return path.join(SOURCE_TEMPLATES, parts[1]);
     }
     if (relResources === ".mcp.json.example") return SOURCE_MCP_EXAMPLE;
@@ -321,6 +328,23 @@ function classifyToolDiff(tool, tmpRootB, snapA, snapB) {
   const expected = [];
   const unresolved = [];
 
+  // A path present only in side B (working tree) can be a genuinely new
+  // resource file the pinned published package cannot carry (digests.json,
+  // T5/DD-11) rather than an installer regression — resolveSource still has
+  // to recognize it, AND side B's own copy still has to match its source;
+  // only then is the presence difference "expected", never a bare
+  // pass-through. Anything resolveSource can't map, or whose bytes don't
+  // match their claimed source, stays a real presence-only failure.
+  const stillPresenceOnlyB = [];
+  for (const relPath of presenceOnlyB) {
+    const sourceAbs = resolveSource(tool, tmpRootB, relPath);
+    if (sourceAbs && fs.existsSync(sourceAbs) && snapB.get(relPath) === sha256(sourceAbs)) {
+      expected.push(relPath);
+    } else {
+      stillPresenceOnlyB.push(relPath);
+    }
+  }
+
   for (const relPath of contentDiffKeys) {
     const sourceAbs = resolveSource(tool, tmpRootB, relPath);
     if (!sourceAbs || !fs.existsSync(sourceAbs)) {
@@ -342,7 +366,7 @@ function classifyToolDiff(tool, tmpRootB, snapA, snapB) {
     }
   }
 
-  return { presenceOnlyA, presenceOnlyB, expected, unresolved };
+  return { presenceOnlyA, presenceOnlyB: stillPresenceOnlyB, expected, unresolved };
 }
 
 function autoDetectedList(output) {

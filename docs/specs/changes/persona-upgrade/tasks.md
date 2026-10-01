@@ -264,7 +264,7 @@ Added at execute time, 2026-09-30, to close a spec gap found in T2 (`execution.m
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Review | `full`: changes the release script and what the installer ships (override b) |
 | Depends on | T4 |

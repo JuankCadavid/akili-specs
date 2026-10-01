@@ -8,7 +8,29 @@ const ROOT = path.resolve(__dirname, "..");
 const PACKAGE_PATH = path.join(ROOT, "package.json");
 const CHANGELOG_PATH = path.join(ROOT, "CHANGELOG.md");
 const RELEASES_DIR = path.join(ROOT, "releases");
+const DIGESTS_PATH = path.join(ROOT, ".claude", "templates", "digests.json");
 const REGISTRY = "https://registry.npmjs.org/";
+
+// DD-3: "release:status reports a digests.json whose version differs from
+// package.json as drift" — but ONLY once `releases` is non-empty (a freshly
+// seeded digests.json, `releases: {}`, predates the first release that ever
+// ran the DD-3 write step, so it has no occasion yet to agree with
+// package.json). No network, no git — a local JSON read only.
+function checkDigestsDrift(pkgVersion) {
+  if (!fs.existsSync(DIGESTS_PATH)) return null; // nothing to check (no digests.json shipped yet)
+  let digests;
+  try {
+    digests = JSON.parse(fs.readFileSync(DIGESTS_PATH, "utf8"));
+  } catch (e) {
+    return `digests.json is not valid JSON: ${e.message}`;
+  }
+  const releases = digests.releases || {};
+  if (Object.keys(releases).length === 0) return null; // pre-first-release state: not drift
+  if (digests.version !== pkgVersion) {
+    return `digests.json version (${digests.version}) does not match package.json version (${pkgVersion})`;
+  }
+  return null;
+}
 
 function run(command, args) {
   return execFileSync(command, args, {
@@ -167,6 +189,10 @@ function main() {
   for (const version of publishedVersions) {
     failures.push(...checkVersion(version, true));
   }
+
+  const digestsDrift = checkDigestsDrift(pkg.version);
+  console.log(`\ndigests.json: ${digestsDrift ? "DRIFT" : "OK"}`);
+  if (digestsDrift) failures.push(digestsDrift);
 
   if (!currentPublished) {
     console.log(`\nPENDING: ${pkg.version} is not published to npm yet.`);

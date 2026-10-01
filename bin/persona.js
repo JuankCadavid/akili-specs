@@ -13,6 +13,79 @@ const PROJECT_OPEN_RE = /^<!-- akili:project -->$/;
 const PROJECT_CLOSE_RE = /^<!-- \/akili:project -->$/;
 const MIGRATION_RECORD_RE = /^<!-- akili:migrated (\S+) not-located=(\S+) -->$/;
 
+// §5.2's level-rule primitives, module-level (T5/DD-3): migratePersona (DD-6)
+// locates sections in an UNMARKED persona against KNOWN signatures;
+// seedLegacySections (T5) cuts sections out of a pre-marker git tag's
+// template with NO signatures available yet (it is generating them) — two
+// different location strategies that must still cut a found span by the
+// exact same §5.2 rule, so the cutting primitives live here once and both
+// callers use them, never a second implementation (the T4 Reviewer's
+// advisory).
+const ITEM_RE = /^\d+\.\s{1,2}\*\*/;
+const HEADING_RE = /^## /; // exactly two `#`; `### ` never matches this
+
+// A section's level is the level of its first line (§5.2).
+function levelOf(body) {
+  return ITEM_RE.test(body.split("\n")[0]) ? "item" : "heading";
+}
+
+// Every structural candidate start-line in file order: an item (column 0) or
+// a `##` heading, from `scanStart` on (past front matter). `###` lines are
+// never candidates, so they can never start, end, or interrupt a section.
+function buildCandidates(rawLines, scanStart) {
+  const candidates = [];
+  for (let i = scanStart; i < rawLines.length; i++) {
+    if (ITEM_RE.test(rawLines[i])) candidates.push({ line: i, kind: "item" });
+    else if (HEADING_RE.test(rawLines[i])) candidates.push({ line: i, kind: "heading" });
+  }
+  return candidates;
+}
+
+// FR-1's unfenced list names "horizontal rules and blank lines" as text
+// outside any owned section — trim them back off a located span's tail so it
+// matches what a marked template would itself fence (see migratePersona's
+// call site for the fuller rationale).
+function trimTrailingGap(rawLines, startLine, endExclusive) {
+  let e = endExclusive;
+  while (e > startLine + 1) {
+    const line = rawLines[e - 1].trim();
+    if (line === "" || line === "---") {
+      e -= 1;
+    } else {
+      break;
+    }
+  }
+  return e;
+}
+
+// §5.2: an item-level section ends at the next candidate of either kind (a
+// `##` is a higher level and also ends it); a `##` section ends only at the
+// next `##` candidate.
+function extentEnd(rawLines, candidates, idx, extentLevel) {
+  const cand = candidates[idx];
+  const level = extentLevel || cand.kind;
+  for (let j = idx + 1; j < candidates.length; j++) {
+    if (level === "item" || candidates[j].kind === "heading") {
+      return trimTrailingGap(rawLines, cand.line, candidates[j].line);
+    }
+  }
+  return trimTrailingGap(rawLines, cand.line, rawLines.length);
+}
+
+// §5.2 clarification (2026-09-30, before T4): leader.md's `primary-instructions`
+// is an item-level section for MATCHING (its candidates are item-1 start
+// lines, like any other item section), but its EXTENT is governed by the
+// table row, not derived from the first line — the row cuts it from item 1
+// to the next `##`, as items 1-4 in one block. Every other item section
+// keeps the generic item-level extent (ends at the next item or the next
+// `##`). This is the one named override; nothing else in §5.2 needs one.
+// Exported (T5, on the T4 Reviewer's advisory) so the legacy seed below and
+// migratePersona's own matching share this table instead of risking two
+// diverging cuts of the same section.
+function extentLevelFor(id, matchLevel) {
+  return id === "primary-instructions" ? "heading" : matchLevel;
+}
+
 // Majority line ending of the whole file (design §5.1: "the writer emits the
 // file's majority line ending, so a CRLF persona stays CRLF").
 function detectEol(text) {
@@ -59,6 +132,33 @@ function hashHead(line) {
 // signature.
 function hashOpen(line) {
   return crypto.createHash("sha256").update(normalizeForMatch(line).slice(0, 40), "utf8").digest("hex");
+}
+
+// §5.3 amendment (2026-09-30, before T4): a digest table entry is the object
+// `{ body, head, open }` — body per §5.1 normalization, head the section's
+// first line normalized (DD-6), open the first 40 normalized characters of
+// the first non-blank line after it. One builder, shared by every generator
+// that writes this shape (seedLegacySections below for `legacy`;
+// scripts/release.js's writeReleaseDigests for `releases`) and by
+// migratePersona's own known-signature set (signaturesFor) — never a second
+// implementation of the pair.
+function sectionDigestEntry(bodyText) {
+  const lines = bodyText.split("\n");
+  const firstLine = lines[0];
+  const openLine = lines.slice(1).find((l) => l.trim() !== "");
+  return {
+    body: hashBody(bodyText),
+    head: hashHead(firstLine),
+    open: openLine ? hashOpen(openLine) : null,
+  };
+}
+
+// A bare string entry is read as `body` alone (§5.3's amendment, T2's
+// tests). Shared by every reader that compares a persona's section hash
+// against a `releases`/`legacy` table entry of either shape.
+function entryBodyHash(entry) {
+  if (entry === null || entry === undefined) return undefined;
+  return typeof entry === "string" ? entry : entry.body;
 }
 
 // Parse a persona (or template) file's text into its marker structure.
@@ -508,15 +608,15 @@ function sectionStates(persona, template, digests) {
 
     let matchedRelease = null;
     for (const [release, ids] of Object.entries(releases)) {
-      if (ids && ids[tSec.id] === pHash) {
+      if (ids && entryBodyHash(ids[tSec.id]) === pHash) {
         matchedRelease = release;
         break;
       }
     }
     if (!matchedRelease) {
       const legacyForId = legacy[tSec.id] || {};
-      for (const [tag, hash] of Object.entries(legacyForId)) {
-        if (hash === pHash) {
+      for (const [tag, entry] of Object.entries(legacyForId)) {
+        if (entryBodyHash(entry) === pHash) {
           matchedRelease = tag;
           break;
         }
@@ -583,77 +683,24 @@ function migratePersona(text, template, digests, release) {
   }
   const scanStart = frontEnd === -1 ? 0 : frontEnd + 1;
 
-  const ITEM_RE = /^\d+\.\s{1,2}\*\*/;
-  const HEADING_RE = /^## /; // exactly two `#`; `### ` never matches this
-
-  // Every structural candidate start-line in file order: an item (column 0)
-  // or a `##` heading. `###` lines are never candidates, so they can never
-  // start, end, or interrupt a section — the extent rule below falls out of
-  // this list alone, with no separate "skip ###" step required.
-  const candidates = [];
-  for (let i = scanStart; i < rawLines.length; i++) {
-    if (ITEM_RE.test(rawLines[i])) candidates.push({ line: i, kind: "item" });
-    else if (HEADING_RE.test(rawLines[i])) candidates.push({ line: i, kind: "heading" });
-  }
-
-  // §5.2: an item-level section ends at the next candidate of either kind
-  // (a `##` is a higher level and also ends it); a `##` section ends only at
-  // the next `##` candidate — a nested item list (e.g. Reporting's own
-  // numbered fields) never closes it.
-  // FR-1's unfenced list names "horizontal rules and blank lines" as text
-  // outside any owned section — a marked template never lets them trail
-  // into the section before them (its close marker sits right after the
-  // section's real last line; the blank line(s) and the next `---` come
-  // after the marker). An unmarked file has no marker to draw that line, so
-  // the raw "next candidate's line" boundary would swallow that gap into
-  // the section it follows; trim it back off so the located span matches
-  // what the template itself would fence.
-  const trimTrailingGap = (startLine, endExclusive) => {
-    let e = endExclusive;
-    while (e > startLine + 1) {
-      const line = rawLines[e - 1].trim();
-      if (line === "" || line === "---") {
-        e -= 1;
-      } else {
-        break;
-      }
-    }
-    return e;
-  };
-
-  const extentEnd = (idx, extentLevel) => {
-    const cand = candidates[idx];
-    const level = extentLevel || cand.kind;
-    for (let j = idx + 1; j < candidates.length; j++) {
-      if (level === "item" || candidates[j].kind === "heading") {
-        return trimTrailingGap(cand.line, candidates[j].line);
-      }
-    }
-    return trimTrailingGap(cand.line, rawLines.length);
-  };
-
-  const levelOf = (body) => (ITEM_RE.test(body.split("\n")[0]) ? "item" : "heading");
-
-  // §5.2 clarification (2026-09-30, before T4): leader.md's `primary-instructions`
-  // is an item-level section for MATCHING (its candidates are item-1 start
-  // lines, like any other item section), but its EXTENT is governed by the
-  // table row, not derived from the first line — the row cuts it from item 1
-  // to the next `##`, as items 1-4 in one block. Every other item section
-  // keeps the generic item-level extent (ends at the next item or the next
-  // `##`). This is the one named override; nothing else in §5.2 needs one.
-  const extentLevelFor = (id, matchLevel) => (id === "primary-instructions" ? "heading" : matchLevel);
+  // Every structural candidate start-line in file order, and the shared
+  // level-rule cutting primitives (module-level above, T5) — a nested item
+  // list inside a `##` section (e.g. Reporting's own numbered fields) still
+  // shows up as an `item`-kind candidate here; it never closes an open `##`
+  // section (the level rule only stops a `##` span at the next `##`), and it
+  // is never reached as an item-level MATCH start because `cursor` has
+  // already advanced past it by the time this scan gets there.
+  const candidates = buildCandidates(rawLines, scanStart);
 
   // Every known signature for one template section id: the packaged
   // template's own body/head/open (always available, no digest needed), plus
   // whatever `releases`/`legacy` carries for this id — a bare string entry
   // (§5.3: "read as body alone") contributes to the exact set only.
   const signaturesFor = (tSec) => {
-    const bodyHashes = new Set([hashBody(tSec.body)]);
+    const ownSignature = sectionDigestEntry(tSec.body);
+    const bodyHashes = new Set([ownSignature.body]);
     const paired = [];
-    const bodyLines = tSec.body.split("\n");
-    const firstLine = bodyLines[0];
-    const openLine = bodyLines.slice(1).find((l) => l.trim() !== "");
-    paired.push({ head: hashHead(firstLine), open: openLine ? hashOpen(openLine) : null });
+    paired.push({ head: ownSignature.head, open: ownSignature.open });
 
     const releases = table.releases || {};
     for (const ids of Object.values(releases)) {
@@ -691,7 +738,7 @@ function migratePersona(text, template, digests, release) {
     for (let idx = 0; idx < candidates.length; idx++) {
       const cand = candidates[idx];
       if (cand.kind !== level || cand.line < cursor) continue;
-      const end = extentEnd(idx, extentLevel);
+      const end = extentEnd(rawLines, candidates, idx, extentLevel);
       const bodyText = rawLines.slice(cand.line, end).join("\n");
 
       if (bodyHashes.has(hashBody(bodyText))) {
@@ -788,6 +835,85 @@ function migratePersona(text, template, digests, release) {
   return { changed: true, text: renderSegments(outSegments, eol), rows };
 }
 
+// T5 / DD-3: seeds the `legacy` table's entries for ONE tag's ENTIRE
+// template text of one role, given that role's CURRENT template's sections
+// (in file order — `parsePersona(currentTemplateText).sections`, each
+// `{ id, since, body }`). A pre-marker tag's template carries no ids of its
+// own, so this settles the design gap the task names: which block of the
+// tag's text corresponds to which of today's ids.
+//
+// Mapping rule (declared once, applied to every tag and every role — never
+// re-derived per tag):
+//   - An item-level id (§5.2's `levelOf` says "item") is claimed by ORDINAL,
+//     restricted to the item-kind candidates that appear BEFORE the tag's
+//     first heading-kind candidate — i.e. within its own "## Primary
+//     Instructions" block, never a numbered list nested inside some other
+//     `##` section (Reporting's own "1. Task:", "2. Outcome:" etc. also
+//     match ITEM_RE, so an unrestricted ordinal would misassign against
+//     them). The k-th item-level id of today's template (in file order)
+//     claims the k-th such candidate. leader.md has exactly one item-level
+//     id (`primary-instructions`), so it claims the 1st (only) candidate;
+//     its extent is still governed by `extentLevelFor`'s override, so the
+//     seed and DD-6's migration cut it identically (items 1-4 as one block)
+//     — never a second rule for the same override.
+//   - A `##`-level id is claimed by HEADING EQUALITY: its current template's
+//     first line, hashed by `hashHead` (DD-6's own normalization — list
+//     numbers, emoji, punctuation, case stripped), must equal a heading-kind
+//     candidate's `hashHead` somewhere in the tag's text (its position
+//     relative to the item block is irrelevant; headings never collide with
+//     nested numbered lists, which never match HEADING_RE).
+//   - Either claim's extent is then cut by the one shared level rule
+//     (`extentLevelFor` + `extentEnd`) — never a second implementation of
+//     §5.2.
+//   - An id with no claimed candidate (an ordinal past the tag's own item
+//     count; a heading whose wording predates today's) gets NO entry (DD-3:
+//     "a tag whose template lacks a section simply has no entry").
+//
+// Returns `{ id: { body, head, open } }` — the §5.3 object shape, built by
+// `sectionDigestEntry` on the same cut text (never a second implementation
+// of head/open). `legacy` and `releases` both carry this shape; a bare
+// string entry is still read as `body` alone by every reader (§5.3's
+// amendment, T2's tests).
+function seedLegacySections(tagText, templateSections) {
+  const rawLines = tagText.split(/\r\n|\n|\r/);
+  const candidates = buildCandidates(rawLines, 0);
+  // The container heading itself ("## Primary Instructions") is a
+  // heading-kind candidate that precedes every item — restricting to
+  // "before the FIRST heading candidate" would exclude every item outright.
+  // The real boundary is the first heading candidate AFTER the first item
+  // candidate (the `##` that ends the Primary Instructions block).
+  const firstItemIdx = candidates.findIndex((c) => c.kind === "item");
+  const firstHeadingAfterItems =
+    firstItemIdx === -1 ? -1 : candidates.findIndex((c, idx) => c.kind === "heading" && idx > firstItemIdx);
+  const itemCandidateIdxs = candidates
+    .map((c, idx) => ({ ...c, idx }))
+    .filter((c) => c.kind === "item" && (firstHeadingAfterItems === -1 || c.idx < firstHeadingAfterItems));
+
+  const entries = {};
+  let itemOrdinal = 0;
+
+  for (const tSec of templateSections) {
+    const level = levelOf(tSec.body);
+
+    if (level === "item") {
+      itemOrdinal += 1;
+      const claimed = itemCandidateIdxs[itemOrdinal - 1];
+      if (!claimed) continue; // this tag's Primary Instructions had fewer items
+      const extentLevel = extentLevelFor(tSec.id, "item");
+      const end = extentEnd(rawLines, candidates, claimed.idx, extentLevel);
+      entries[tSec.id] = sectionDigestEntry(rawLines.slice(claimed.line, end).join("\n"));
+    } else {
+      const targetHead = hashHead(tSec.body.split("\n")[0]);
+      const idx = candidates.findIndex((c) => c.kind === "heading" && hashHead(rawLines[c.line]) === targetHead);
+      if (idx === -1) continue; // this tag's heading text does not match today's
+      const end = extentEnd(rawLines, candidates, idx, "heading");
+      entries[tSec.id] = sectionDigestEntry(rawLines.slice(candidates[idx].line, end).join("\n"));
+    }
+  }
+
+  return entries;
+}
+
 module.exports = {
   parsePersona,
   normalizeBody,
@@ -800,4 +926,11 @@ module.exports = {
   renderSegments,
   applyFix,
   migratePersona,
+  extentLevelFor,
+  levelOf,
+  buildCandidates,
+  extentEnd,
+  seedLegacySections,
+  sectionDigestEntry,
+  entryBodyHash,
 };

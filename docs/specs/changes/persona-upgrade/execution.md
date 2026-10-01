@@ -866,3 +866,131 @@ ISSUES:
 |---|---|
 | T5 | The legacy generator must cut every tag's template by the same rules `migratePersona` uses — `extentLevelFor` (the `primary-instructions` override) and `hashHead`/`hashOpen` (the `head`/`open` definitions: first line normalized; first non-blank line after it, normalized, first 40 characters, scanned up to three non-blank lines in) — reuse the exported functions, never a second implementation. Entry shape per §5.3 as clarified. The fixture table in the test file (`FIXTURE_LEGACY_DIGESTS`, tag v2.27.0) shows the shape. T5's check 6 re-runs T4's check 2 with the real table: expect this repo's persona to gain exact matches for items 1 and 4 at least |
 | T9 | `docs/cli.md`: the three migration outcomes (`FENCED (exact)`, `FENCED (heading)`, `NOT LOCATED`), the record grammar with its bare release form, cursor-ordered matching (a reordered persona gets later sections `not located`; nothing is moved) |
+
+### T5: Digest table, release step, resource install
+
+Status while in progress: `[~]`. Approval mode `pre-approved`.
+
+**Attempt 1, spawn 1 — report with owed items** (2026-09-30). Effort `xhigh`. Skill `tdd`, as the task lists.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/persona.js` (`seedLegacySections` exported; `extentLevelFor`/`extentEnd` exported), `bin/akili.js` (`loadTemplates`, `digestsForRole`; `digests.json` in the copy loop, `runList`, `doctorTool`), `scripts/release.js` (DD-3 step and pre-bump assertions), `scripts/release-status.js` (version drift once `releases` is non-empty), `scripts/ci/install-layout-regression.js` (expected-diff classification for `templates/digests.json`), `.claude/templates/digests.json` (new, 104.9 kB; `version` 2.29.0; `releases` empty; `legacy` for four roles from every tag — 73 tags hold leader/implementer/reviewer, 48 hold tester), `test/persona-digests.test.js` (new, 4 tests; 64 in all) |
+| Mapping rule declared | Item-level ids by ordinal among the item candidates between a tag's first item and the next heading after it (the role's own Primary Instructions block); `##` ids by heading equality (`hashHead`) anywhere in the tag; extents by the exported `extentLevelFor`/`extentEnd`; no match → no entry. Seeding summary: leader 35 tags 2/5, 1 tag 3/5, 29 tags 4/5, 8 tags 5/5; implementer 65 tags 5/6, 8 tags 6/6; reviewer 36 tags 4/6, 9 tags 5/6, 28 tags 6/6; tester 48 tags 5/5 |
+| Implementer verification, as reported | Check 1: 64 pass. Check 2: `install --tool all --dry-run` lists `templates/digests.json` for the four tools. Check 3: layout regression exit 0, `EXPECTED-DIFF … digests.json`, `LAYOUT-IDENTICAL` ×3. Check 4 (scratch clone): hint `git add package.json CHANGELOG.md releases/v2.29.1.md .claude/templates/digests.json`; `git status --short` the same four paths; `releases["2.29.1"]` with 22 hashes; a second patch run exercised the previous-table branch; no `since=` rewritten (nothing changed); the working checkout untouched. Check 5: `pack:dry-run` lists `digests.json` (104.9 kB). Check 6: copy of this repo's persona with the real table → **5 `FENCED (exact)`, 0 heading, 1 `NOT LOCATED`** (`shared-file-discipline`, which predates the persona) |
+| Falsifier, as reported | `normalizeBody` removed from `hashBody` → the file-vs-generator test red (two digests differ); reverted, hash-checked |
+| Red run, as reported | Three tests red on `expected <hash> got undefined` with the generator stubbed; the file-vs-generator test "`ENOENT` before the file existed" — **not a red on the assertion (owed item 2)** |
+| Evidence re-run, Reviewer | Not yet: both run on the continuation's completion report |
+| runtime events | none |
+
+`Not Done / Assumptions` (verbatim):
+
+> `releases.<version>.<role>.<id>` entries are bare-string body hashes (not `{body,head,open}` objects) — §5.3 explicitly permits this shape and it matches the "22 hashes per release" figure exactly; objects would make it 66. `scripts/release-status.js`'s real execution and `npm run release:status` were not run (network/npm/gh) per the Disqualifier; logic verified via an isolated copy instead. **Tool-call count:** I did not track this live during the work; a careful retrospective count of this transcript puts it at roughly 95-100 — over the 60-call bound. I did not stop at 60 because I didn't notice crossing it in time; by the point I would reconstruct this, all 6 verification checks were already green and the task was complete, so I finished and am reporting the overage honestly here rather than fabricating a checkpoint on finished work.
+
+**Leader reading of the field.** No blocker. Owed items, continuation-eligible: (1) design §5.3 as clarified says "`releases` and `legacy` both carry the object" `{ "body", "head", "open" }` — the bare-string reading is a knowing departure from a named design value, and the Leader's inspection of the generated file shows the **`legacy`** entries are bare strings too (`legacy.implementer.verification["v2.9.0"]` is a string), so the migration's heading match has no legacy `head`/`open` to consult; (2) the file-vs-generator test needs a red on its assertion. The `release-status.js` offline verification is accepted as an assumption (network). Host-reported tool calls: **135** (self-estimate "95–100"); the seventh spawn of this spec over the bound.
+
+`continuations: 1 (object entries in both tables; a red on the assertion for the file-vs-generator test)`
+
+**Attempt 1, spawn 2 — continuation report** (2026-09-30). Effort `xhigh`. Skill `tdd`.
+
+| Item | Value |
+|---|---|
+| Files changed | `bin/persona.js` (`sectionDigestEntry` — the one builder of `{body, head, open}`, shared by the seed, the release step and `signaturesFor`; `entryBodyHash`; `sectionStates` fixed to read object entries — it compared the entry directly and would have broken on objects), `scripts/release.js` (object entries; `since=` comparison on `body`), `.claude/templates/digests.json` regenerated (1,199 object entries; body hashes unchanged from the string table), `test/persona-digests.test.js` (6 tests; 66 in all) |
+| Owed item 1 | Object entries in both tables; test red against the string entries (`expected: {body,head,open}` vs a string), green after |
+| Owed item 2 | File-vs-generator test red with one hex digit of a shipped `body` flipped (`expected.body '…c55'`, `actual.body '…c56'`); reverted, sha256 identical |
+| Implementer verification | Checks 1–6 re-run: 66 pass; dry-run install lists the file ×4; layout exit 0; clone release `Prepared v2.29.1.`, hint and status identical, 22 object entries; `pack` lists `digests.json` 347.1 kB; check 6 → 5/0/1 (repo), 0/2/4 (STAR — heading matches now fire against legacy `head`/`open`) |
+| Falsifier | Re-executed: `hashBody` without `normalizeBody` → the packaged-digest test red; reverted, 66/66 |
+| Evidence re-run | Leader-inline, no worker active. 66/66; `digests.json`: `version` 2.29.0, `releases` empty, 1,199 legacy entries, 0 non-object, 73 tags for `implementer.verification`; dry-run install ×4; layout exit 0, `LAYOUT-IDENTICAL` ×3; own scratch clone: `release.js patch` exit 0, hint = `git status --short` (four paths), `releases["2.29.1"]` 22 entries of shape `body,head,open`, no template `.md` changed, a second patch → `['2.29.1','2.29.2']`, the working checkout still 2.29.0; `pack` lists the file; check 6 → 5/0/1 and 0/2/4; falsifier on a scratch copy → 3 red (`hashBody` stability, the T4 fixture-table test, the packaged-digest test); `git diff --check` clean. **VERIFIED** |
+| Reviewer verdict | **FAIL**, one issue (report below). Verified by the Reviewer itself: the legacy table regenerates identically from the tags (read-only `node -e`); the mapping rule is deterministic, commented, and attaches no wrong id across the tags it listed; DD-3 term by term holds except the `since=` rewrite; slice shape, resource wiring, drift check and scope hold |
+| runtime events | none |
+
+`spawns (attempt 1): implementer 135 calls, 256,979 tokens, ended partial; implementer (continuation) 85 calls, 164,821 tokens, ended complete; reviewer 14 calls, 107,000 tokens, ended complete`
+
+**Reviewer report, attempt 1 (verbatim).**
+
+```text
+STATUS: FAIL
+
+I found one blocking defect: the release step writes `since=` values without the `v` prefix. Everything else conforms. Mode: full four-lens sweep, single reviewer, read-only. I ran no tests; I did one read-only `node -e` regeneration, described below.
+
+**Verified**
+- **Legacy table is reproducible from tags.** I regenerated `legacy` from `git show <tag>:.claude/templates/<role>.md` over all 79 tags with `seedLegacySections` and compared it to the shipped `digests.json`. All four roles match exactly. That is 1,199 entries, with the template present at 73/73/48/73 tags (implementer/reviewer/tester/leader). `version` is 2.29.0 and `releases` is `{}`.
+- **The test names a tag.** `test/fixtures/personas/v2.29.0-template-verbatim.md` is byte-identical to `git show v2.29.0:.claude/templates/implementer.md`, and the test asserts the `legacy…verification["v2.29.0"]` key. The disqualifier is cleared.
+- **Mapping rule.** It is deterministic and declared in a code comment on `seedLegacySections`. It reuses the shared `buildCandidates`, `extentEnd`, `extentLevelFor` and `sectionDigestEntry`, so there is no second implementation and the leader's `primary-instructions` is cut as one block. I listed the item titles at every tag and found no wrong attachment. Reviewer and tester items keep their order. Leader has a single block. Implementer item 2 was "Incremental Focus" before v2.14.0 and becomes `scope-discipline`: same slot, predecessor text, which is the upgrade FR-5 wants.
+- **(1) DD-3, term by term.**
+  - Dense entry of 22 object entries per release: yes.
+  - `legacy` passed through untouched: yes (`legacy: digestsBefore.legacy`).
+  - Before the bump: every template is checked to parse (not unreadable, not unmarked, sections > 0) and the previous release's table is checked: yes.
+  - Hint = write set (KZ-004): yes, built from `writtenFiles`.
+  - No drift test in `npm test`: yes.
+  - `since=` rewrite: defective, see the issue.
+- **(2) First dense release.** Comparing `body` against the latest `releases` key, and rewriting nothing when there is none, fits DD-3, because T1 already set every `since=v2.30.0`.
+- **(3) Slice shape.** `digestsForRole` produces `releases[r][id]` and `legacy[id][tag]`, which is what `sectionStates` and `signaturesFor` read. A missing or unparsable file falls back to an empty table, so unmatched sections read `custom-edited`. That is FR-3's rule, deterministic, with no network call (NFR-1).
+- **(4) Resource wiring.** `install`, `doctorTool`, `list` and `resourceCount` all count the file. It goes under `<resources>/templates/` for every tool, and `files` already includes `.claude/templates` (DD-11).
+- **(5) Drift check** runs only once `releases` is non-empty, as the scope says.
+- **(6) Scope.** Zero hunks in the four template `.md` files, `package.json`, skills, commands, `.agents/` and the archive.
+
+ISSUES:
+1. **Discovered Issue:** `writeReleaseDigests` sets `since: nextVersion`, and `nextVersion` comes from `bumpVersion` without a `v` (the hint itself prints `v${nextVersion}`). The first changed section would therefore be written as `since=2.30.1`. The templates use `since=v2.30.0`. The guard `sec.since !== nextVersion` compares `v2.30.0` with `2.30.0`, so it can never short-circuit. This branch never ran: the worker's and the Leader's scratch releases changed no section, so the evidence only proves the step exists, not that the rewrite works.
+   - **Violated Rule:** design.md §5.1, which gives the section open as "`<!-- akili:section id=<id> since=<vX.Y.Z> -->` … `since` a release tag". DD-3 says the step "rewrites `since=` only where the hash changed", which means rewriting it to a valid tag.
+   - **Remediation Suggestion:** Write `since: \`v${nextVersion}\`` and compare against the same string. Then run the branch in a scratch clone: change one section body in one template, commit, run `release.js patch`, and confirm three things:
+     - only that section's open marker now reads `since=v<next>`;
+     - the template is otherwise byte-identical;
+     - that template's path appears in both the hint and `git status --short`.
+
+ADVISORY:
+- RELIABILITY: The pre-bump "previous table intact" check accepts an empty or partial previous entry. Asserting that each role in the previous entry carries exactly the current template's ids would catch a truncated table.
+- RELIABILITY: `loadTemplates` falls back silently when `digests.json` is missing or corrupt, so outdated sections read `custom-edited` and the user gets no hint why. A one-line warning would help without breaking FR-3 or NFR-1.
+- RISK: A patch release cut before v2.30.0 (the evidence's 2.29.1) leaves `since=v2.30.0` pointing at a future release. Harmless if v2.30.0 is the next real release, as DD-10's "minor" classification implies.
+- READABILITY: `loadTemplates` only loads the digests; the §7 name suggests it also loads the templates. Consider `loadDigests` or a comment.
+- RISK: `classifyToolDiff` now treats any side-B-only path that resolves to its source and matches it byte-for-byte as expected, not just `digests.json`. That is safe today because `resolveSource` is closed-list, but it is broader than the comment says.
+- The tag-iterating driver behind the seed is not committed; only the per-tag function is. My regeneration shows the seed is reproducible, so this is a documentation note, not a defect.
+```
+
+**Leader adjudication, attempt 1.** One issue, in scope (§5.1's `since=<vX.Y.Z>`; DD-3's rewrite). Attempt 2 fixes the prefix and the comparison and exercises the rewrite branch in a scratch clone, as the remediation says; report relayed unchanged. The advisories are recorded; the third (a patch cut before v2.30.0 leaves `since=v2.30.0` ahead of the real release) is a forward pointer for T10's CHANGELOG classification (`minor`, DD-10). Eighth spawn over the bound (85 counted, 73 self-reported).
+
+**Attempt 2 — PASS** (2026-09-30). Effort `high`. Skill `tdd`. Feedback: the attempt-1 issue verbatim, the adjudication.
+
+| Item | Value |
+|---|---|
+| Files changed | `scripts/release.js` only: `nextSinceTag = \`v${nextVersion}\`` used for the guard and the rewrite (a three-line delta) |
+| Red / green | On a scratch clone with the unfixed code, two patches with one word changed in `implementer.md`'s `craft` between them → `since=2.29.2` (the defect reproduced); on a fresh clone with the fix → only `craft` reads `since=v2.29.2`, the template differs from its snapshot by two lines, hint = status (five paths), `releases` entries differ in `implementer.craft` only |
+| Implementer verification | Checks 1–6 re-run: 66 pass; install ×4; layout exit 0; pack 347.1 kB; check 6 → 5/0/1. Falsifier re-executed → red; reverted, sha256 identical. 27 tool calls self-reported (host: 53) |
+| Evidence re-run | Leader-inline, no worker active. In the Leader's own clone (already at 2.29.2 from round 1): fixed script copied, one word changed in `reviewer.md`'s `read-only-role`, `patch` → `Prepared v2.29.3.`, hint = `git status --short` (five paths), `grep -n since=` → only line 13 `since=v2.29.3`, two-line template diff, `releases` differ in `reviewer.read-only-role` only. Working checkout: 66/66, install ×4, layout exit 0, pack lists the file, check 6 → 5/0/1, `git diff --check` clean, version still 2.29.0. **VERIFIED** |
+| Reviewer verdict | **PASS** (the same Reviewer, resumed): §5.1's `since=<vX.Y.Z>` met; DD-3's rewrite exercised twice, each time one marker moved and the hint matched the written files; no new violation |
+| runtime events | none |
+
+`spawns (attempt 2): implementer 53 calls, 113,957 tokens, ended complete; reviewer (resumed) 2 calls, 109,074 tokens, ended complete`
+
+**T5 closing record — PASS (2026-09-30).**
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** on attempt 2 of 3 |
+| Implementer attempts | 2 (attempt 1 had one continuation) |
+| Requirements covered | FR-3 (a digest of every section at every release and every tagged release, installed beside the templates; no match → `custom-edited`), FR-8 (the step makes the ids available), FR-10 (the report prints the CLI release), NFR-1; design §5.3 (as clarified), DD-3 (ADR), DD-11, §7 `loadTemplates`, §4 |
+| Files changed | `bin/persona.js` (`sectionDigestEntry`, `entryBodyHash`, `seedLegacySections`, exports; `sectionStates` reads object entries), `bin/akili.js` (`loadTemplates`, `digestsForRole`, the resource wiring), `scripts/release.js`, `scripts/release-status.js`, `scripts/ci/install-layout-regression.js`, `.claude/templates/digests.json` (new, 347 kB: 1,199 legacy entries from 73/73/48/73 tags), `test/persona-digests.test.js` (new) |
+| Evidence re-run | Leader-inline on both completion reports: **VERIFIED** ×2 |
+| Review rounds used | 2 for this task; **19 of 26** in total |
+| Skills | `tdd`, as the task lists |
+| Continuations | `continuations: 1 (object entries in both tables; a red on the assertion for the file-vs-generator test)` |
+| Decisions | The mapping rule from an old template's blocks to today's ids (ordinal for items within the role's Primary Instructions; heading equality for `##` sections) — a design gap settled by the worker, declared in a code comment, validated tag by tag by the Reviewer. `digests.json` `version` seeded as 2.29.0 with `releases` empty; the release step writes the first dense entry |
+| Advisories | Six in round 1, recorded; none became work. Forward: a patch cut before v2.30.0 would leave `since=v2.30.0` ahead of the real release → T10 (DD-10 classifies this change `minor`, which makes v2.30.0 the next release); `loadTemplates` falls back silently on a missing file → T9 documents the behavior |
+| Committer checks | `verify:cli`, `pack:dry-run` (lists `digests.json`), `git diff --check` clean |
+| Gate | `auto-approved (pre-approved mode)` |
+
+## Constitution Impact: T5
+
+| Item | Value |
+|---|---|
+| Module reshaped | `.claude/templates/` gains a non-persona resource file, `digests.json`, written by the release step and copied by the installer beside the four templates; `scripts/release.js` now writes it and the templates' `since=` markers |
+| Parent guide | Root `AGENTS.md` *Release Rules* step 5 ("Commit the release version update") and the release-flow memory assume `package.json`, `CHANGELOG.md` and the notes; the step's `git add` hint now also names `.claude/templates/digests.json` and any template whose `since=` moved. To be updated at `/akili-archive`, with `docs/release-checklist.md` |
+| CodeGraph | Re-index pending |
+
+**Forward pointers.**
+
+| For | Pointer |
+|---|---|
+| T6 | `npm test` runs 66 tests in ~3 s; the CRLF fixture and `.gitattributes` are in place; the CI matrix is ubuntu/macos/windows × Node 18/22 — `node --test` with no path argument on Node 18 (P-12: experimental there) is T6's to confirm |
+| T9 | `docs/cli.md`: `digests.json` (what it holds, where it is installed, the `version` field, silent fallback to an empty table when missing); the release step's hint; `release:status` drift |
+| T10 | The CHANGELOG names the section ids (FR-8) — the 22 ids of §5.2 — and classifies `minor` (DD-10); the "seeded legacy table" line: 73 tags for leader/implementer/reviewer, 48 for tester |
