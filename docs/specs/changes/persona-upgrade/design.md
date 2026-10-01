@@ -121,7 +121,7 @@ Each section's **level** is the level of its first line: an item (`N. **…**` a
 | Persona file absent | `absent` (file) | install the packaged template with an empty project block |
 | `.agents/` absent | one line; exit 1 | nothing |
 
-Exit code: 1 when any `outdated`, `missing`, `unmarked`, `unreadable`, or an `absent` persona; **0** otherwise — `custom-edited`, `extra` and `unlocated` are decisions a maintainer owns and do not fail CI. A second run after `--fix` therefore exits 0 (FR-4 idempotence as amended).
+Exit code: 1 when any `outdated`, `missing`, `unmarked`, `unreadable`, or an `absent` persona; **0** otherwise — `custom-edited`, `extra` and `unlocated` are decisions a maintainer owns and do not fail CI. A second run after `--fix` on a marked persona therefore exits 0 (FR-4 idempotence as amended). After a *migration* run the fenced sections matched to an older release are `outdated` (FR-5's scenario), so one more `--fix` is needed before the run is clean (requirements A11).
 
 ## 6. CLI Surface
 

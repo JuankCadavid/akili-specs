@@ -251,7 +251,8 @@ never wrote there.
 current working directory — not an install target — and compares each persona file
 (`leader.md`, `implementer.md`, `reviewer.md`, `tester.md`) against the CLI's own packaged
 templates, section by section. `--fix` turns the report into an upgrade: it never appends an
-"upgrade block," and it never changes a byte of project space.
+"upgrade block," and it never changes a byte of project space — the one exception is line endings,
+which are written as the file's majority line ending, so a mixed-EOL persona comes out uniform.
 
 ### Marker grammar
 
@@ -360,7 +361,10 @@ to the next section start at the same level or higher — a `###` heading never 
 Anything not located is reported `not located` and left exactly as it is; nothing is deleted,
 moved, or reordered. Migration always leaves the persona with exactly one empty project block and
 a migration record naming every id it could not find, so a later run reports those as `unlocated`
-rather than `missing`.
+rather than `missing`. A migration fences text, it does not upgrade it: a section fenced by exact
+match to an *older* release is reported `outdated` right after the migration, so a migrated
+persona needs one more `--fix` to be brought current — the first run migrates, the second replaces,
+the third has nothing to do.
 
 ## CI & Verification
 

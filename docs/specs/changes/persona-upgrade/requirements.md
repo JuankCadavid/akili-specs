@@ -100,7 +100,7 @@ A persona in a project's `.agents/` is copied from a packaged template and then 
 
 - Each template SHALL carry exactly one project block, empty by default, placed after the primary instructions.
 - The *Injection scope* table of Step 8B SHALL state that every injection is written into the project block, never into an owned section, and SHALL name the block.
-- A persona's project block and any text outside owned sections SHALL be preserved byte for byte by every upgrade.
+- A persona's project block and any text outside owned sections SHALL be preserved byte for byte by every upgrade, with one sanctioned exception: line endings are normalized to the file's majority line ending (design §5.1), so a mixed-EOL persona leaves `--fix` with one line ending throughout. *(Amended at validation, A10.)*
 - A rule that an owned section states and the project block contradicts SHALL be resolved in favor of the project block, and the owned section SHALL say so in one sentence. *(This keeps a project's customization authoritative without editing owned text.)*
 
 #### Scenario: An upgrade meets an injected test command
@@ -151,10 +151,10 @@ A persona in a project's `.agents/` is copied from a packaged template and then 
 
 - `akili doctor --agents --fix` SHALL replace every `outdated` section with the current template text, insert every `missing` section at the template's position relative to its neighbours, run the migration (FR-5) on every `unmarked` persona, and install the packaged template for every `absent` persona.
 - Before writing a persona it SHALL copy the file to `.agents/.backup/<role>.md.<timestamp>`; the backup folder SHALL be gitignored by the fix when `.agents/` is tracked and a `.gitignore` exists there or at the root (design settles the mechanism).
-- It SHALL NOT change a `custom-edited` section unless `--section <id>` names it; it SHALL NOT insert an `unlocated` section unless `--section <id>` names it; it SHALL NOT change an `extra` section; it SHALL NOT change any byte of project space.
+- It SHALL NOT change a `custom-edited` section unless `--section <id>` names it; it SHALL NOT insert an `unlocated` section unless `--section <id>` names it; it SHALL NOT change an `extra` section; it SHALL NOT change any byte of project space other than normalizing line endings to the file's majority line ending (FR-2, design §5.1). *(Amended at validation, A10.)*
 - It SHALL refuse to write when the checkout is not the apply-capable branch named by the root guide's `Default Branch:` / `Integration Branch:` pins, unless `--allow-branch` is passed; and when `.agents/` is git-tracked with uncommitted changes other than the fix's own backup and ignore file, unless `--force` is passed. The branch SHALL be resolved as the `kaizen` skill resolves it (pins, then the remote default, then the unique `main`/`master`); an unresolved branch SHALL refuse. Both refusals SHALL name their reason. *(Added after the reversion challenge and corrected after judgment day.)*
 - It SHALL print, per persona, what it replaced, inserted, migrated, skipped and why.
-- Running it twice SHALL leave the second run with nothing to do and exit code zero: every section `current`, `custom-edited`, `extra` or `unlocated`.
+- Running it twice on a marked persona SHALL leave the second run with nothing to do and exit code zero: every section `current`, `custom-edited`, `extra` or `unlocated`. A migration run (FR-5) is the exception by construction: it fences text matched to an *older* release, which FR-5's scenario requires to be reported `outdated`, so the run after a migration replaces those sections and the clause above applies from that run on. *(Amended at validation, A11 — the two clauses contradicted each other; the shipped behavior follows FR-5.)*
 - `--dry-run` SHALL run every guard and print the full plan and exit code, and write nothing.
 - A `--section` insertion of an `unlocated` section SHALL remove that id from the migration record.
 
@@ -245,7 +245,7 @@ A persona in a project's `.agents/` is copied from a packaged template and then 
 | NFR-1 | **Deterministic.** The CLI compares bytes and hashes; no model is consulted | No network call in the code path; the same input gives the same report |
 | NFR-2 | **No new dependency** | `package.json` `dependencies` unchanged |
 | NFR-3 | **Bounded token cost** of the markers | ≤ 2,200 bytes across the four templates (FR-1, as amended) |
-| NFR-4 | **Never destructive** | No code path deletes a line of project space; every write is preceded by a backup |
+| NFR-4 | **Never destructive** | No code path deletes a line of project space (line-ending normalization to the file's majority EOL is not a deletion — A10); every write is preceded by a backup |
 | NFR-5 | **Tool-agnostic** | The four template roots of Step 8B are all supported; no host-specific tool name in prose |
 | NFR-6 | **Defined once** | Section states and their actions live in `bin/akili.js` and are cited by name from the command prose; the marker syntax is defined in one place in `docs/cli.md` |
 | NFR-7 | **No line-number pointers** in shipped prose (KZ-005) | grep for `:<digits>` in added prose → 0 |
@@ -288,6 +288,8 @@ A persona in a project's `.agents/` is copied from a packaged template and then 
 | A7 | Migration cuts by level; project-block position without an authorship section | Judgment S3, S4 | FR-5 |
 | A8 | Downstream shapes re-measured; scenarios and fixtures remodelled; CRLF fixture | Judgment S7, S9, W8, W10 | §2, §4, FR-5, FR-9 |
 | A9 | Sweep list completed; inline-draft path; audit's existing check; CI runs the tests; `--dry-run` semantics | Judgment W5, W9, W11, G1, G3 | FR-4, FR-7, FR-8, FR-9 |
+| A10 | "Any byte of project space" admits line-ending normalization to the file's majority EOL (design §5.1); reproduced on a mixed-EOL persona at validation | `/akili-validate` 2026-10-01, R1; user chose the amendment over a code change | FR-2, FR-4, NFR-4; `docs/cli.md`, `CHANGELOG.md` |
+| A11 | Idempotence ("twice") applies to marked personas; a migration run leaves fenced older text `outdated` for the next `--fix`, as FR-5's scenario requires | `/akili-validate` 2026-10-01, R10; observed on this repository's own `.agents/` | FR-4; `docs/cli.md` |
 
 Judgment day closed `ESCALATED`: the user chose *Fix only*; the corrections were not re-judged. Ledger: `judgment.md`.
 
