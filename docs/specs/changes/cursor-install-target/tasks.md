@@ -189,7 +189,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | T4 (8E defaults cite the column), T7 (fixtures must be red before this edit) |
 | Requirements | FR-5 (scenario + every clause), FR-6 (a, b, c; empty-content scenario green; corrupt/foreign scenario as prose walkthrough), FR-7 (Step 8C half), FR-8 tenant-row cell (`:818`), FR-9 (Step 7 list `:411-416`), NFR-5, NFR-7 (green half) |

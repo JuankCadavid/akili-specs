@@ -254,3 +254,19 @@ Attempt 1 consumed (review round 11 of 16). Effort bumped `high → xhigh`. **At
 | Files changed | `test/install-cursor.test.js` (new, 937 lines, 12 tests), `test/fixtures/doctor-codex-baseline.txt` (new, normalized), `scripts/ci/install-layout-regression.js` (+72/−24) |
 | Decisions | Effort `high` → `xhigh`. Execute-time spec edits: FR-2/FR-4 counter wording (operations vs files); fixture driver `doctor` instead of `update --dry-run`. **Out-of-scope defect recorded, not actioned:** `akili update --dry-run` runs the real package-manager step before honoring `--dry-run` (observed: a real `npm install -g akili-specs@latest` on this machine) — candidate for a separate `/akili-propose` (Bug) |
 | Final verification | `node --test test/install-cursor.test.js` 12/12; `npm test` 91/91/0/0; regression script `LAYOUT-IDENTICAL` ×3 + `FIXTURE OK` (attempt-1 Leader run; script unchanged in attempt 2) |
+
+**T3 — Attempt 2** (2026-10-01) — Implementer `sonnet`, effort `xhigh`; runtime events: none; spawn: 39 calls, 130,780 tokens, ended complete. Delta: honesty note (`:1243-1252`) now states the missing-`jq` silent allow truthfully; checklist bullet (`:1311`) "at most one entry **active** on Cursor"; Step 8C column list (`:495`) → `Tier | Claude Code | OpenCode | Antigravity | Codex | Cursor | Fallback`; Step 8C Cursor claims pinned (`:518-533`: models page quote for multi-vendor; configuration page for `/model` in the `agent` CLI; IDE `/model` marked; `:545-559`: `agent` pinned to the CLI overview; `cursor-agent` symlink "observed locally, `UNVERIFIED` on other installs"); `:768` "the other hosts"; example `[effort=high] <CONFIRM>` (`:846`). **Evidence re-run (Leader-inline): VERIFIED** — column list 1; "the other two" 0; pins 13; markers 7; spec IDs 0; script hunk unchanged; gate tests 10/10; `git diff --check` clean.
+
+**Reviewer verdict (attempt 2):** `opus` — **PASS**: "All five attempt-1 issues are fixed. Every new pin sits on the claim it covers, and every quotation matches one of the raw-verified sentences. Nothing regressed … I traced [the missing-`jq` path] in the script myself … the note is correct." ADVISORY (recorded): `:530` "exposes no floating alias besides `auto` (sourced on the same page)" over-reads the page — it documents Auto, not the absence of other aliases (only the local `aliases: []` supports that half); `:1247` "a non-2 exit code" read literally includes 0 — "any other hook failure" would match the vendor wording. Both are candidates for T6's sweep judgment only if its obligation-keyed pass reaches them; otherwise recorded.
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2) |
+| Attempts | 2 (attempt 1 FAIL — five prose issues) |
+| Review rounds consumed | 2 (total 13 of 16) |
+| Review intensity | Override (a); attempt 2 also (e) |
+| Requirements covered | FR-5 (both scenarios, all clauses), FR-6 (a)(b)(c) + scenarios (offline halves; live halves → T8), FR-7 (Step 8C half), FR-8 (tenant cell `:818`→`:886`), FR-9 (Step 7 list), NFR-5, NFR-7 (green half: F1–F3 now plain passing tests) |
+| Files changed | `.claude/commands/akili-constitution.md` (+~190/−~17), `test/tasks-gate.test.js` (`todo` removed, comments reworded, re-indent) |
+| Decisions | Effort `high` → `xhigh`. Implementer judgment: "gains a third tenant on this host" → "on Codex" (clarity after insertion). The T7 header-quote advisory stayed untouched (not approved). The Step 8E Cursor bullet sits before the Codex tenant table (Reviewer advisory: structural relocation not approved — recorded) |
+| Forward pointers | → T6: mirror `docs/commands/akili-constitution.md` to the eleven sites; `docs/cli.md:18` numbering; the two advisories above if the sweep reaches them. → T8: observe the fail-closed `Write` deny on a legitimate empty Write (known false-deny direction) |
+| Final verification | `node --test test/tasks-gate.test.js` 10/10/0/0; `npm test` 91/91/0/0 (T2 landed) |

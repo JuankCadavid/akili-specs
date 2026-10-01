@@ -185,67 +185,52 @@ if (process.platform === "win32") {
     }
   });
 
-  // --- F1-F3: Cursor Write fixtures. Marked todo per the Leader's ordering
-  // decision: their bodies run and failures are reported as TODO so
-  // `npm test` stays green on master between T7 and T3 lands (T3 removes
-  // the todo flag). Expected exit codes below are the POST-T3 reading.
+  // --- F1-F3: Cursor Write fixtures. T3 landed the Write-arm change, so
+  // these now run as plain (non-todo) tests.
 
-  test(
-    "F1 Cursor Write with content field: new [x] and no PASS -> exit 2",
-    { todo: "red until T3 lands the Write-arm change (changes/cursor-install-target)" },
-    () => {
-      withTempDir("akili-gate-f1-", (tmpDir) => {
-        const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
-        const payload = {
-          tool_name: "Write",
-          tool_input: { file_path: tasksPath, content: TASKS_WITH_SECOND_X },
-        };
-        const run = runGate(gateScriptPath, payload, tmpDir);
-        assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
-      });
-    }
-  );
+  test("F1 Cursor Write with content field: new [x] and no PASS -> exit 2", () => {
+    withTempDir("akili-gate-f1-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath, content: TASKS_WITH_SECOND_X },
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
+    });
+  });
 
-  test(
-    "F2 Cursor Write with new_content field: new [x] and no PASS -> exit 2",
-    { todo: "red until T3 lands the Write-arm change (changes/cursor-install-target)" },
-    () => {
-      withTempDir("akili-gate-f2-", (tmpDir) => {
-        const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
-        const payload = {
-          tool_name: "Write",
-          tool_input: { file_path: tasksPath, new_content: TASKS_WITH_SECOND_X },
-        };
-        const run = runGate(gateScriptPath, payload, tmpDir);
-        assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
-        // Once green, F2 must deny for the evidence-first reason (no PASS),
-        // never the empty-content fail-closed reason -- content WAS present,
-        // just under the new_content field name. This only executes once
-        // the assertion above stops throwing (post-T3).
-        assert.equal(
-          run.stderr.includes("no readable new content"),
-          false,
-          `expected F2 to deny for missing PASS evidence, not the empty-content reason; stderr:\n${run.stderr}`
-        );
-      });
-    }
-  );
+  test("F2 Cursor Write with new_content field: new [x] and no PASS -> exit 2", () => {
+    withTempDir("akili-gate-f2-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath, new_content: TASKS_WITH_SECOND_X },
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
+      // F2 must deny for the evidence-first reason (no PASS), never the
+      // empty-content fail-closed reason -- content WAS present, just under
+      // the new_content field name.
+      assert.equal(
+        run.stderr.includes("no readable new content"),
+        false,
+        `expected F2 to deny for missing PASS evidence, not the empty-content reason; stderr:\n${run.stderr}`
+      );
+    });
+  });
 
-  test(
-    "F3 Cursor Write with neither content nor new_content: empty new content -> exit 2",
-    { todo: "red until T3 lands the Write-arm change (changes/cursor-install-target)" },
-    () => {
-      withTempDir("akili-gate-f3-", (tmpDir) => {
-        const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
-        const payload = {
-          tool_name: "Write",
-          tool_input: { file_path: tasksPath },
-        };
-        const run = runGate(gateScriptPath, payload, tmpDir);
-        assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
-      });
-    }
-  );
+  test("F3 Cursor Write with neither content nor new_content: empty new content -> exit 2", () => {
+    withTempDir("akili-gate-f3-", (tmpDir) => {
+      const { tasksPath } = makeSpecDir(tmpDir, { tasksContent: BASE_TASKS, executionContent: EXECUTION_NO_PASS });
+      const payload = {
+        tool_name: "Write",
+        tool_input: { file_path: tasksPath },
+      };
+      const run = runGate(gateScriptPath, payload, tmpDir);
+      assert.equal(run.exitCode, 2, `expected exit 2; stderr:\n${run.stderr}`);
+    });
+  });
 
   // --- F4-F10: existing-branch regression fixtures. Not todo -- these must
   // pass today and must keep passing after T3 (NFR-7, Empty-content
