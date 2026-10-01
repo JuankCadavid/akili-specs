@@ -118,7 +118,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none (must complete **before** T3 edits the script) |
 | Requirements | NFR-7 (every clause), FR-6(a) empty-content scenario (incl. the `BUT` on placement, proven by the `Edit`/`apply_patch` fixtures staying green) |
