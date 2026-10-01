@@ -125,6 +125,18 @@ const defaultPaths = {
       ? resolveUserPath(process.env.CODEX_HOME.trim())
       : path.join(os.homedir(), ".codex"),
   codexSkills: path.join(os.homedir(), ".agents", "skills"),
+  // @akili-spec changes/cursor-install-target — T1: Cursor's config home follows
+  // $CURSOR_CONFIG_DIR when set (glossary: "config home $CURSOR_CONFIG_DIR,
+  // default ~/.cursor"), same shape as CODEX_HOME above. Global default only —
+  // --local keeps ./.cursor, and --cursor-target/--target still override it.
+  // cursorSkills shares the same path as codexSkills (DD-3, DD-1): one shared
+  // Agent Skills root, named separately so each target stays independently
+  // overridable.
+  cursor:
+    process.env.CURSOR_CONFIG_DIR && process.env.CURSOR_CONFIG_DIR.trim() !== ""
+      ? resolveUserPath(process.env.CURSOR_CONFIG_DIR.trim())
+      : path.join(os.homedir(), ".cursor"),
+  cursorSkills: path.join(os.homedir(), ".agents", "skills"),
 };
 
 // Tool Registry defining target directories mapping per tool. Each entry is a
@@ -169,6 +181,18 @@ const TOOL_REGISTRY = {
     commandsAsSkills: true,
     sharedSkillsRoot: true,
   }),
+  // @akili-spec changes/cursor-install-target — Cursor: same shape as Codex,
+  // sharing the Agent Skills root. detectByResourcesOnly (DD-2) keys detection
+  // on the resources root only, never the shared command-skill probe.
+  cursor: (roots) => ({
+    commands: [],
+    skills: [roots.skillsRoot],
+    resources: path.join(roots.root, "akili"),
+    legacyResources: null,
+    commandsAsSkills: true,
+    sharedSkillsRoot: true,
+    detectByResourcesOnly: true,
+  }),
 };
 
 function printHelp() {
@@ -187,18 +211,20 @@ Commands:
   help      Show this help
 
 Options:
-  --tool <name>        Install target: claude, opencode, antigravity, codex, both, or all.
-                       "both" = Claude Code + OpenCode. "all" = all four targets.
+  --tool <name>        Install target: claude, opencode, antigravity, codex, cursor, both, or all.
+                       "both" = Claude Code + OpenCode. "all" = all five targets.
                        When omitted, install/update/doctor auto-detect already-installed
                        targets; if none are found they default to claude.
   --target <path>      Target config directory for selected single tool.
-                       For --tool codex this selects a single-root sandbox layout:
-                       <path>/akili (resources) and <path>/skills (skills).
+                       For --tool codex or --tool cursor this selects a single-root
+                       sandbox layout: <path>/akili (resources) and <path>/skills (skills).
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
   --antigravity-target Antigravity config directory. Default: ~/.gemini
   --codex-target       Codex config home (resources land at <path>/akili). Default: $CODEX_HOME if set, else ~/.codex
   --codex-skills-target Codex Agent Skills root (shared with other tools). Default: ~/.agents/skills
+  --cursor-target       Cursor config home (resources land at <path>/akili). Default: $CURSOR_CONFIG_DIR if set, else ~/.cursor
+  --cursor-skills-target Cursor Agent Skills root (shared with other tools). Default: ~/.agents/skills
   --force              Overwrite existing files
   --dry-run            Show what would happen without writing files
   --commands-only      Install or check only commands
@@ -215,9 +241,11 @@ Examples:
   akili install --tool both --dry-run
   akili install --tool claude --target ./.claude
   akili install --tool codex --codex-target ~/.codex --codex-skills-target ~/.agents/skills
+  akili install --tool cursor
   akili update --tool both --force
   akili doctor --tool all --fix
   akili doctor --tool codex
+  akili doctor --tool cursor
   akili list
   akili notifications enable
 `);
@@ -257,6 +285,8 @@ function getArgs() {
     "antigravity-target": { type: "string", default: defaultPaths.antigravity },
     "codex-target": { type: "string", default: defaultPaths.codex },
     "codex-skills-target": { type: "string", default: defaultPaths.codexSkills },
+    "cursor-target": { type: "string", default: defaultPaths.cursor },
+    "cursor-skills-target": { type: "string", default: defaultPaths.cursorSkills },
     force: { type: "boolean", default: false },
     "dry-run": { type: "boolean", default: false },
     "commands-only": { type: "boolean", default: false },
@@ -287,8 +317,8 @@ function getArgs() {
       fail("Use only one of --commands-only or --skills-only");
     }
 
-    if (!["claude", "opencode", "antigravity", "codex", "both", "all"].includes(values.tool)) {
-      fail("--tool must be one of: claude, opencode, antigravity, codex, both, all");
+    if (!["claude", "opencode", "antigravity", "codex", "cursor", "both", "all"].includes(values.tool)) {
+      fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, both, all");
     }
 
     if (values.target && (values.tool === "both" || values.tool === "all")) {
@@ -301,6 +331,8 @@ function getArgs() {
     const baseAntigravity = values.local ? path.join(process.cwd(), ".gemini") : defaultPaths.antigravity;
     const baseCodex = values.local ? path.join(process.cwd(), ".codex") : defaultPaths.codex;
     const baseCodexSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.codexSkills;
+    const baseCursor = values.local ? path.join(process.cwd(), ".cursor") : defaultPaths.cursor;
+    const baseCursorSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.cursorSkills;
 
     // Whether the user explicitly passed --tool. When they did not, install/
     // update/doctor auto-detect already-installed targets instead of assuming
@@ -335,6 +367,15 @@ function getArgs() {
         values.target && values.tool === "codex"
           ? path.join(values.target, "skills")
           : (values["codex-skills-target"] !== defaultPaths.codexSkills ? values["codex-skills-target"] : baseCodexSkills)
+      ),
+      cursorTarget: resolveUserPath(resolveToolTarget("cursor", values, "cursor-target", defaultPaths.cursor, baseCursor)),
+      // --target with --tool cursor selects a single-root sandbox layout: resources
+      // at <path>/akili (via cursorTarget above) and skills at <path>/skills here —
+      // the Codex rule (:331-337) as a second clause, not a refactor (NFR-6).
+      cursorSkillsTarget: resolveUserPath(
+        values.target && values.tool === "cursor"
+          ? path.join(values.target, "skills")
+          : (values["cursor-skills-target"] !== defaultPaths.cursorSkills ? values["cursor-skills-target"] : baseCursorSkills)
       ),
     };
 
@@ -372,11 +413,11 @@ function listSkills() {
 
 function selectedTools(args) {
   if (args.tool === "both") return ["claude", "opencode"];
-  if (args.tool === "all") return ["claude", "opencode", "antigravity", "codex"];
+  if (args.tool === "all") return ["claude", "opencode", "antigravity", "codex", "cursor"];
   return [args.tool];
 }
 
-const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex"];
+const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex", "cursor"];
 
 // A tool counts as installed when any of its target directories exists and is
 // non-empty. Checking commands / skills / resources covers --commands-only and
@@ -397,7 +438,33 @@ function isToolInstalled(tool, args) {
       resourcesNonEmpty = false;
     }
     if (resourcesNonEmpty) return true;
+    // @akili-spec changes/cursor-install-target — DD-2 (symmetric detection).
+    // A tool flagged detectByResourcesOnly (Cursor) is evidenced ONLY by its own
+    // resources root; it never falls through to the shared command-skill probe
+    // below, so a Codex-only machine's akili-* skill files never make Cursor
+    // auto-detect as installed.
+    if (paths.detectByResourcesOnly) return false;
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
+    const resolvedSkillDirs = skillDirs.map((dir) => path.resolve(dir));
+    // Symmetric half: a tool WITHOUT the flag (Codex) only counts the shared
+    // command-skill probe while no sibling tenant resolving to the same skills
+    // root has a populated resources dir of its own — otherwise a Cursor-only
+    // machine's command-skill files (written by the Cursor install itself)
+    // would make `akili update` auto-detect Codex too.
+    const siblingResourcesPopulated = ALL_TOOLS.some((otherTool) => {
+      if (otherTool === tool) return false;
+      const { paths: otherPaths } = getToolRegistryInfo(otherTool, args);
+      if (!otherPaths.sharedSkillsRoot) return false;
+      const otherSkillDirs = Array.isArray(otherPaths.skills) ? otherPaths.skills : [otherPaths.skills];
+      const sharesRoot = otherSkillDirs.some((dir) => resolvedSkillDirs.includes(path.resolve(dir)));
+      if (!sharesRoot) return false;
+      try {
+        return fs.existsSync(otherPaths.resources) && fs.readdirSync(otherPaths.resources).length > 0;
+      } catch {
+        return false;
+      }
+    });
+    if (siblingResourcesPopulated) return false;
     return listCommands().some((cmdFile) => {
       const cmdName = cmdFile.replace(/\.md$/, "");
       return skillDirs.some((dir) => fs.existsSync(path.join(dir, cmdName, "SKILL.md")));
@@ -569,6 +636,7 @@ const TOOL_ROOT_ARGS = {
   opencode: (args) => ({ root: args.opencodeTarget }),
   antigravity: (args) => ({ root: args.antigravityTarget }),
   codex: (args) => ({ root: args.codexTarget, skillsRoot: args.codexSkillsTarget }),
+  cursor: (args) => ({ root: args.cursorTarget, skillsRoot: args.cursorSkillsTarget }),
 };
 
 function getToolRegistryInfo(tool, args) {
@@ -974,6 +1042,9 @@ function runInstall(args) {
   if (tools.includes("codex") && !args.dryRun) {
     console.log(`  - Restart ${colors.cyan}Codex${colors.reset} or open a new chat for installed commands and skills to be loaded.`);
   }
+  if (tools.includes("cursor") && !args.dryRun) {
+    console.log(`  - Restart ${colors.cyan}Cursor${colors.reset} or open a new chat for installed commands and skills to be loaded.`);
+  }
   if (args.dryRun) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
@@ -1214,6 +1285,20 @@ const RECOMMENDED_ENV = [
     why: "the OpenAI Codex CLI itself — required to load and run the Codex-hosted skills this installer writes",
     withoutIt: "Codex-hosted commands/skills cannot be loaded; if the binary is present but still reports NOT FOUND, it may be a broken vendor install (spawn ENOENT) — reinstalling usually fixes it, and on Windows only a codex.cmd shim is probed, not a standalone codex.exe",
     installHint: "npm install -g @openai/codex",
+  },
+  // @akili-spec changes/cursor-install-target — DD-5: probe `cursor-agent` (the
+  // unambiguous binary name), not `agent` (too generic to probe reliably; any
+  // `agent` on PATH would answer). `agent` is the documented alias and is named
+  // in the row's text, as is the Windows install command.
+  {
+    name: "cursor-agent",
+    bin: "cursor-agent",
+    args: ["--version"],
+    appliesTo: ["cursor"],
+    why: "the Cursor CLI itself — required to load and run the Cursor-hosted skills this installer writes",
+    withoutIt: "Cursor-hosted commands/skills cannot be loaded; the CLI is also invoked as agent (documented alias of cursor-agent)",
+    installHint:
+      "curl https://cursor.com/install -fsS | bash (macOS/Linux/WSL) or, on Windows PowerShell, irm 'https://cursor.com/install?win32=true' | iex",
   },
 ];
 
@@ -1917,8 +2002,9 @@ async function runInteractiveInit() {
     `  2) OpenCode\n` +
     `  3) Google Antigravity\n` +
     `  4) OpenAI Codex\n` +
-    `  5) Both (Claude Code + OpenCode)\n` +
-    `  6) All four\n` +
+    `  5) Cursor\n` +
+    `  6) Both (Claude Code + OpenCode)\n` +
+    `  7) All five\n` +
     `${colors.cyan}>${colors.reset} `
   );
 
@@ -1926,8 +2012,9 @@ async function runInteractiveInit() {
   if (toolAnswer.trim() === "2") tool = "opencode";
   else if (toolAnswer.trim() === "3") tool = "antigravity";
   else if (toolAnswer.trim() === "4") tool = "codex";
-  else if (toolAnswer.trim() === "5") tool = "both";
-  else if (toolAnswer.trim() === "6") tool = "all";
+  else if (toolAnswer.trim() === "5") tool = "cursor";
+  else if (toolAnswer.trim() === "6") tool = "both";
+  else if (toolAnswer.trim() === "7") tool = "all";
 
   console.log("");
   const scopeAnswer = await rl.question(
@@ -1959,6 +2046,8 @@ async function runInteractiveInit() {
     args.antigravityTarget = path.join(cwd, ".gemini");
     args.codexTarget = path.join(cwd, ".codex");
     args.codexSkillsTarget = path.join(cwd, ".agents", "skills");
+    args.cursorTarget = path.join(cwd, ".cursor");
+    args.cursorSkillsTarget = path.join(cwd, ".agents", "skills");
     console.log(`\n${colors.yellow}Setting up local project installation...${colors.reset}`);
   } else {
     args.claudeTarget = defaultPaths.claude;
@@ -1966,6 +2055,8 @@ async function runInteractiveInit() {
     args.antigravityTarget = defaultPaths.antigravity;
     args.codexTarget = defaultPaths.codex;
     args.codexSkillsTarget = defaultPaths.codexSkills;
+    args.cursorTarget = defaultPaths.cursor;
+    args.cursorSkillsTarget = defaultPaths.cursorSkills;
     console.log(`\n${colors.yellow}Setting up global installation...${colors.reset}`);
   }
 
