@@ -175,3 +175,82 @@ User at the T7 gate: *"continue with all tasks"*. From this point routine contin
 | Decisions | Effort `high` → `xhigh`. Two Leader-caused defects (summarizer-derived quotations stated as settled facts) cost rounds 2 and 3; the Leader now raw-verifies every quoted vendor sentence before it enters a brief (kaizen signal, third occurrence this spec). DD-8 amended (per-account availability `UNVERIFIED`). Step 8C half → T3; mirrors/`docs/README.md` → T6 |
 | ADVISORY (recorded) | Attempt 1: spec-ID wording (applied); duplicated marker tail (applied); models-page pin on effort (applied). Attempt 2: quote not verbatim (escalated to FAIL by the Leader); "Use either" (applied). Attempt 3: two long lines (cosmetic) |
 | Final verification | greps as above; `git diff --check` clean |
+
+---
+
+### Wave 3 — T3 (started 2026-10-01, while T2's Reviewer runs)
+
+**Leader decisions (pre-spawn):** T3 effort `high` (rules document; the gate script edit is correctness-critical and T7's fixtures are the red/green gate); skills `cognitive-doc-design`, `systematic-debugging`, `caveman` per task list. T3 also removes the `todo` flags from `test/tasks-gate.test.js` F1–F3 (T7's forward pointer). The T7 header-comment advisory (stale pre-amendment NFR-7 quote) is NOT in T3's brief — not approved. Review intensity: override (a) → Reviewer owed; the Leader runs the restatement sweep before spawning it. All vendor sentences T3 may quote were raw-HTML verified by the Leader on 2026-10-01 (listed in the brief).
+
+---
+
+### T2 — Installer tests and CI fixtures (in progress)
+
+**Attempt 1** (2026-10-01) — Implementer `sonnet`, effort `high`; runtime events: none; spawn: 65 calls (host count; over the persona's 60-call self-count bound — the task completed verified, the call-bound row applies), 294,516 tokens, ended complete. Files: `test/install-cursor.test.js` (new, 751 lines, 11 tests), `test/fixtures/doctor-codex-baseline.txt` (new, from a detached `7cd681a` worktree, removed afterwards), `scripts/ci/install-layout-regression.js` (+72/−24: four-state fixture, `CURSOR_CONFIG_DIR` pinned, `SHIPPING_TARGETS` unchanged). Implementer verification: 11/11; `npm test` 90/87/0/3; regression script `LAYOUT-IDENTICAL` ×3 + `FIXTURE OK` four states; falsifiers (a) guard removed → `S3: expected codex NOT detected … expected: false / actual: true`, (b) flag removed → `S2: expected cursor NOT detected … expected: false / actual: true`, both restored. **Evidence re-run (Leader-inline): VERIFIED** — 11/11; `npm test` 90/87/0/3; regression script (background, full run) `LAYOUT-IDENTICAL claude (16 expected source diffs)`, `… opencode (16)`, `… antigravity (62)`, `FIXTURE OK: four-state detection holds …`, exit 0; `node --check` ×2; `git diff --check`; worktree list clean.
+
+**Discoveries (Implementer, accepted as execute-time spec edits):** (1) `akili update --dry-run` does **not** honor `--dry-run` before its package-manager step — it ran a real `npm install -g akili-specs@latest` on this machine and short-circuits before detection under `npx` → pre-existing CLI defect, **out of scope**, recorded here as a candidate follow-up (never minted into a task); the fixture drives `doctor` (same `resolveTools()` path). (2) The installer's summary counts operations (35 + 8 = 43), not files (210) → FR-2/FR-4 and `tasks.md` T2 counter wording amended (KZ-002 class: a spec aggregate never run at specify time).
+
+**Reviewer verdict (attempt 1):** `opus`, 9 calls, 102,248 tokens — **FAIL**, verbatim:
+
+> SUMMARY: T2 is close to done. Scope is clean … All 22 spawns pin HOME, USERPROFILE, CODEX_HOME and CURSOR_CONFIG_DIR. The four detection states create their files before each assertion. … Three things block it: the Codex-baseline test will go red on Windows and after the next version bump, one FR-4 clause has no test, and one FR-1 clause has no test while S1's "none detected" result can pass on a run that did nothing.
+>
+> ISSUES:
+> 1. **Discovered Issue:** The NFR-6 baseline comparison is not stable across platforms or versions. (a) The fixture uses POSIX separators (`<HOME>/.codex/akili/scripts/…`, `Checking CODEX: <HOME>/.codex (skills → <HOME>/.agents/skills)`); the CLI builds these with `path.join` (`toolTargetLabel`, `bin/akili.js:649-650`), so windows-latest prints backslashes and fails. (b) No `.gitattributes`, so a CRLF checkout breaks byte equality. (c) The fixture commits `Doctor Summary — akili-specs v2.30.0` (`bin/akili.js:1768`); the next version bump turns `npm test` red with no behavior change.
+>    * **Violated Rule:** FR-4 "AND IT MUST hold on Windows paths (CI matrix)"; NFR-4.
+>    * **Remediation Suggestion:** Normalize both sides the same way: `\` → `/` after the `<HOME>` substitution, `\r\n` → `\n`, and `v\d+\.\d+\.\d+` on the Doctor Summary line → `v<VERSION>`. Regenerate the fixture through the same normalizer from the 7cd681a worktree. Do not hand-edit it. Optionally add `test/fixtures/*.txt text eol=lf`.
+> 2. **Discovered Issue:** FR-4 clause (c) has no assertion: "each tool's resources root exists and the other's does not".
+>    * **Violated Rule:** FR-4 … clause (c).
+>    * **Remediation Suggestion:** Install codex, then cursor, into separate config homes sharing one `--*-skills-target`; assert the second run reports 0 installed / 35 skipped under the shared root; assert each `akili/` root exists only for the tool installed there.
+> 3. **Discovered Issue:** In the four-state test, `detect()` never checks the exit status, so a crashed `doctor` returns `[]` and S1 passes vacuously. The FR-1 clause "keep the first-run default (`claude`) when nothing is detected" is not asserted anywhere.
+>    * **Violated Rule:** FR-1 Auto-detection scenario, last `AND IT MUST`.
+>    * **Remediation Suggestion:** Assert `status === 0` inside `detect()`. In S1, also assert no banner was printed and the output contains `Checking CLAUDE:`.
+>
+> ADVISORY: Reliability — ~14 `mkdtempSync` homes never removed (add `t.after(() => fs.rmSync(...))`). Resilience — the binary-absent test sets `PATH` to `dirname(process.execPath)`; if `cursor-agent` sits beside node the test reds for the wrong reason; prefer the empty-PATH approach. Readability — the FR-2 "no second copy" `BUT` is covered only indirectly; add `!exists(cursor-home/skills)`.
+
+Attempt 1 consumed. Effort bumped `high → xhigh`. **Attempt 2 is held until T3's Implementer lands** — T2's tests copy and byte-compare `.claude/commands/*`, which T3 is editing (shared input; `leader.md` → *Disjoint source files are necessary but not sufficient*).
+
+---
+
+### T3 — Constitution: Step 7 list, 8C, 8E, 8F, 9 (in progress)
+
+**Attempt 1** (2026-10-01) — Implementer `sonnet`, effort `high`; runtime events: none; spawn: 101 calls (host count — well past the persona's 60-call self-count bound; task completed verified, so the call-bound row applies, but the overrun is recorded as a kaizen signal: the deployed persona carries the bound and the worker still ran 101 calls), 223,857 tokens, ended complete. Files: `.claude/commands/akili-constitution.md` (+~180/−~17 across eleven sites), `test/tasks-gate.test.js` (`todo` removed from F1–F3; two comments reworded; re-indent). Implementer verification: red before (F2/F3 `expected 2, actual 0`) → `node --test test/tasks-gate.test.js` 10/10/0/0 after; `npm test` 90/90/0/0; falsifiers via `AKILI_GATE_SCRIPT` — deny after `esac` → F5/F7 `not ok`; `new_content` candidate removed → F2 fails on its stderr assertion; script hunk confined to the `Write)` arm; pins 10; markers 5; 0 spec IDs in added lines; restatement sweep with dispositions. **Evidence re-run (Leader-inline): VERIFIED** — identical test counts; the only script hunk is `-935 +1012,5` inside `Write)`, 0 `-` lines in the Edit arm; fence 945–1059 intact; pins 10, markers 5, spec IDs 0; remaining "all four" hits are persona counts; `git diff --check` clean.
+
+**Reviewer verdict (attempt 1):** `opus` — **FAIL**, verbatim:
+
+> SUMMARY: … Most of the task is correct. Step 7, the Step 8E Cursor bullet (FR-5 checked term by term), the tenant cell (FR-8), the Step 8F sub-step 4 merge clauses (FR-6(b)), the host-data row and the denial note all conform. Every vendor quotation matches the raw-verified set. The `Write`-arm change is the only edit inside the script … I counted the `exit 2` lines in the script and there are now 8, matching the prose. `test/tasks-gate.test.js` passes: the only changes are the three removed `todo` options, the re-indent, and rewording of two comments that described the old todo state. The header, fixtures, assertions and extraction are untouched.
+>
+> ISSUES:
+> 1. **Discovered Issue:** The honesty note (:1236-1238) says a "crash, timeout, or missing `bash`/`jq`" fails open on the imported entry, "which is exactly why the native fallback entry sets `failClosed: true`". That is false for a missing `jq`. Without `jq`, `fp` comes back empty and the path filter `*) exit 0` (:1003) allows the write silently with exit 0. No hook failure happens, so `failClosed` catches nothing.
+>    * **Violated Rule:** design.md §5.4 (failClosed covers "a crash, timeout, or exit 127") and FR-6(c).
+>    * **Remediation Suggestion:** Drop `/jq` from the parenthetical, or state that a missing `jq` reaches the path filter's `exit 0` and is not covered by `failClosed`. Do not change the script.
+> 2. **Discovered Issue:** The checklist item at :1299 contradicts itself ("at most one hook entry" … "that plus a native entry" … "never both").
+>    * **Violated Rule:** FR-6(b).
+>    * **Remediation Suggestion:** Reword to "at most one entry *active* on Cursor".
+> 3. **Discovered Issue:** Step 8C item 4 (:495) still prescribes registry columns `Tier | Claude Code | OpenCode | Fallback`. Its being stale before this task does not exempt it: it is the exact sentence that defines the columns Step 8C scaffolds.
+>    * **Violated Rule:** FR-7: "`/akili-constitution` Step 8C SHALL scaffold five host columns".
+>    * **Remediation Suggestion:** List all five hosts plus Fallback, in the order of the docs/model-routing.md:118 header.
+> 4. **Discovered Issue:** Several new Step 8C Cursor claims carry no pin: `agent` is the CLI; the installer writes a `cursor-agent` symlink; the roster is multi-vendor with no floating alias besides `auto`; models are confirmed on the `/model` picker with no CLI/IDE qualifier.
+>    * **Violated Rule:** NFR-5; FR-7 (as amended).
+>    * **Remediation Suggestion:** Pin <https://cursor.com/docs/models> for multi-vendor and `auto`; pin <https://cursor.com/docs/cli/reference/configuration> for `/model` and say "in the `agent` CLI", mark the IDE half `UNVERIFIED`; mark the `cursor-agent` symlink as observed locally / `UNVERIFIED` elsewhere.
+> 5. **Discovered Issue:** At :756-758 "All five hosts restrict the Reviewer … than on the other two" — the count was bumped and the surviving "the other two" was not.
+>    * **Violated Rule:** T3 Scope restatement sweep.
+>    * **Remediation Suggestion:** Write "the other hosts", or name them.
+>
+> ADVISORY: READABILITY — the Step 8E example shows `[effort=high]` without `<CONFIRM>`; READABILITY — the Cursor bullet sits between the Codex bullet and the tenant table (moving it after the Codex tenant block would fix the structure); RISK — the precedence quote adds backticks (formatting only); RELIABILITY — the new `Write` deny also blocks a Claude Code `Write` that empties a tasks.md (fail-closed direction; note for T8).
+
+Attempt 1 consumed (review round 11 of 16). Effort bumped `high → xhigh`. **Attempt 2 held until T2 attempt 2 lands** (T2's tests byte-compare `.claude/commands/*`). Budget watch: rounds remaining 5; minimum needed T3-2 + T2-2 + T6 + T8 = 4.
+
+**T2 — Attempt 2** (2026-10-01) — Implementer `sonnet`, effort `xhigh`; runtime events: none; spawn: 84 calls (host count; over the 60-call self-count bound — kaizen signal repeated), 206,896 tokens, ended complete. Delta: both-sides normalizer (`\`→`/`, CRLF→LF, `v\d+\.\d+\.\d+`→`v<VERSION>`, `<HOME>` substitution) applied at compare time to the live output and the fixture read from disk; fixture regenerated from a detached `7cd681a` worktree (removed afterwards); new FR-4 (c) test (codex alone → `<cursor-home>/akili` absent; cursor alone onto the shared root → 0 installed / 35 skipped, both `akili/` roots exist); direct `!exists(cursor-home/skills)` for the FR-2 `BUT`; S1 gated by a real `--tool claude` pre-install + `status === 0` + no banner + `Checking CLAUDE:` (judgment call, root cause verified: `doctor` exits 1 in S2–S4 because codex/cursor are marker-only installs — `bin/akili.js:1764-1784` `missingTotal > 0` → `exitCode = 1`); advisories applied (`t.after` cleanup; empty-PATH for the binary-absent test). **Evidence re-run (Leader-inline): VERIFIED** — 12/12; `npm test` 91/91/0/0; fixture `v<VERSION>` ×1, 0 backslashes, 0 machine-specific strings; `node --check` ×2; `git diff --check`; no leftover worktree.
+
+**Reviewer verdict (attempt 2):** `opus` — **PASS**: "All three attempt-1 FAIL issues are closed, and nothing regressed … I simulated a Windows run … The two sides compared equal. … No state assertion can pass on a crashed CLI." ADVISORY (recorded): header comment says `detect()` asserts exit status (now S1 does); `module.exports` at the file's bottom runs the tests when required — move the normalizers to a helper if regeneration is needed again; S2–S4 could also assert `status ∈ {0,1}` (belt-and-braces).
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 2) |
+| Attempts | 2 (attempt 1 FAIL — baseline fixture not platform/version-stable; FR-4 (c) untested; `detect()` exit status / claude fallback untested) |
+| Review rounds consumed | 2 |
+| Review intensity | Override (c); attempt 2 also (e) |
+| Requirements covered | FR-1 Auto-detection (all clauses incl. symmetric + first-run default), FR-2 (all three scenarios), FR-3 (all three scenarios), FR-4 (every clause, as amended), NFR-1, NFR-2, NFR-4 (local legs; CI matrix on push), NFR-6 |
+| Files changed | `test/install-cursor.test.js` (new, 937 lines, 12 tests), `test/fixtures/doctor-codex-baseline.txt` (new, normalized), `scripts/ci/install-layout-regression.js` (+72/−24) |
+| Decisions | Effort `high` → `xhigh`. Execute-time spec edits: FR-2/FR-4 counter wording (operations vs files); fixture driver `doctor` instead of `update --dry-run`. **Out-of-scope defect recorded, not actioned:** `akili update --dry-run` runs the real package-manager step before honoring `--dry-run` (observed: a real `npm install -g akili-specs@latest` on this machine) — candidate for a separate `/akili-propose` (Bug) |
+| Final verification | `node --test test/install-cursor.test.js` 12/12; `npm test` 91/91/0/0; regression script `LAYOUT-IDENTICAL` ×3 + `FIXTURE OK` (attempt-1 Leader run; script unchanged in attempt 2) |

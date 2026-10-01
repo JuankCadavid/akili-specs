@@ -500,13 +500,17 @@ function runThreeTargetDiff() {
   }
 }
 
-// Part 2 — detection fixture (T1 check 5, W-3): a shared, foreign-populated
-// skills root must not cause a false-positive Codex auto-detection; a real
-// akili-* command skill must cause a true positive. Driven via a spawned
-// `node bin/akili.js doctor` (no --tool) with HOME, USERPROFILE (Windows),
-// and CODEX_HOME pinned to a scratch home, so neither the real ~/.agents nor
-// an inherited $CODEX_HOME (which now drives Codex detection — T1 delta) is
-// ever read.
+// Part 2 — detection fixture (T1 check 5, W-3; extended to four states by
+// changes/cursor-install-target T2, design DD-2): a shared, foreign-populated
+// skills root must not cause a false-positive Codex OR Cursor auto-detection;
+// a real akili-* command skill must cause a true Codex positive (unchanged);
+// a populated Cursor resources root must cause a true Cursor positive while
+// suppressing the Codex command-skill probe (the symmetric DD-2 guard); and a
+// populated Codex resources root on top of that must detect both. Driven via
+// a spawned `node bin/akili.js doctor` (no --tool) with HOME, USERPROFILE
+// (Windows), CODEX_HOME, and CURSOR_CONFIG_DIR pinned to a scratch home, so
+// neither the real ~/.agents nor an inherited $CODEX_HOME/$CURSOR_CONFIG_DIR
+// is ever read.
 function runDetectionFixture() {
   const tmpHome = mkTmp("akili-regress-fixture-");
   try {
@@ -519,37 +523,81 @@ function runDetectionFixture() {
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "SKILL.md"), `# ${name}\nForeign skill, unrelated to AKILI.\n`);
     }
-    // No akili-* skill dir and no <home>/.codex/akili — both left absent.
+    // No akili-* skill dir and no <home>/.codex/akili or <home>/.cursor/akili
+    // — all three left absent for S1.
 
-    const env = { ...process.env, HOME: tmpHome, USERPROFILE: tmpHome, CODEX_HOME: path.join(tmpHome, ".codex") };
+    const codexHome = path.join(tmpHome, ".codex");
+    const cursorHome = path.join(tmpHome, ".cursor");
+    const env = {
+      ...process.env,
+      HOME: tmpHome,
+      USERPROFILE: tmpHome,
+      CODEX_HOME: codexHome,
+      CURSOR_CONFIG_DIR: cursorHome,
+    };
 
-    const before = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
-    const beforeOut = `${before.stdout || ""}${before.stderr || ""}`;
-    const beforeDetected = autoDetectedList(beforeOut);
-    if (beforeDetected.includes("codex")) {
+    // S1 — foreign-only shared root: neither Codex nor Cursor detected.
+    const s1 = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
+    const s1Detected = autoDetectedList(`${s1.stdout || ""}${s1.stderr || ""}`);
+    if (s1Detected.includes("codex") || s1Detected.includes("cursor")) {
       fail(
-        `FIXTURE FAIL (false positive): codex auto-detected with only foreign, non-akili skills under ` +
-          `${skillsRoot}. Auto-detected line: ${beforeDetected.join(", ") || "<none>"}`
+        `FIXTURE FAIL (S1 false positive): codex and/or cursor auto-detected with only foreign, non-akili ` +
+          `skills under ${skillsRoot}. Auto-detected line: ${s1Detected.join(", ") || "<none>"}`
       );
       return;
     }
 
+    // S2 — + akili-execute/SKILL.md: Codex detected, Cursor not (the
+    // existing assertion, unchanged).
     fs.mkdirSync(path.join(skillsRoot, "akili-execute"), { recursive: true });
     fs.writeFileSync(path.join(skillsRoot, "akili-execute", "SKILL.md"), "# akili-execute\n");
 
-    const after = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
-    const afterOut = `${after.stdout || ""}${after.stderr || ""}`;
-    const afterDetected = autoDetectedList(afterOut);
-    if (!afterDetected.includes("codex")) {
+    const s2 = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
+    const s2Detected = autoDetectedList(`${s2.stdout || ""}${s2.stderr || ""}`);
+    if (!s2Detected.includes("codex") || s2Detected.includes("cursor")) {
       fail(
-        `FIXTURE FAIL (false negative): codex NOT auto-detected after adding ` +
-          `${path.join(skillsRoot, "akili-execute", "SKILL.md")}. Auto-detected line: ${afterDetected.join(", ") || "<none>"}`
+        `FIXTURE FAIL (S2): expected codex detected and cursor not, after adding ` +
+          `${path.join(skillsRoot, "akili-execute", "SKILL.md")}. Auto-detected line: ${s2Detected.join(", ") || "<none>"}`
+      );
+      return;
+    }
+
+    // S3 — + <cursor-home>/akili/templates/leader.md: Cursor detected, Codex
+    // NOT (DD-2's symmetric guard: Codex's shared command-skill probe stops
+    // counting once a sibling tenant's resources root is populated).
+    const cursorResourcesDir = path.join(cursorHome, "akili", "templates");
+    fs.mkdirSync(cursorResourcesDir, { recursive: true });
+    fs.writeFileSync(path.join(cursorResourcesDir, "leader.md"), "# leader\n");
+
+    const s3 = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
+    const s3Detected = autoDetectedList(`${s3.stdout || ""}${s3.stderr || ""}`);
+    if (!s3Detected.includes("cursor") || s3Detected.includes("codex")) {
+      fail(
+        `FIXTURE FAIL (S3): expected cursor detected and codex not (DD-2 guard), after adding ` +
+          `${path.join(cursorResourcesDir, "leader.md")}. Auto-detected line: ${s3Detected.join(", ") || "<none>"}`
+      );
+      return;
+    }
+
+    // S4 — + <codex-home>/akili/templates/leader.md: both detected.
+    const codexResourcesDir = path.join(codexHome, "akili", "templates");
+    fs.mkdirSync(codexResourcesDir, { recursive: true });
+    fs.writeFileSync(path.join(codexResourcesDir, "leader.md"), "# leader\n");
+
+    const s4 = spawnAkili(["doctor"], { cwd: REPO_ROOT, env });
+    const s4Detected = autoDetectedList(`${s4.stdout || ""}${s4.stderr || ""}`);
+    if (!s4Detected.includes("codex") || !s4Detected.includes("cursor")) {
+      fail(
+        `FIXTURE FAIL (S4): expected both codex and cursor detected, after adding ` +
+          `${path.join(codexResourcesDir, "leader.md")}. Auto-detected line: ${s4Detected.join(", ") || "<none>"}`
       );
       return;
     }
 
     console.log(
-      "FIXTURE OK: codex ignored on a foreign-only shared skills root, detected once an akili-* command skill is present"
+      "FIXTURE OK: four-state detection holds -- foreign-only shared root (neither), " +
+        "+akili-execute/SKILL.md (codex only), +cursor resources (cursor only, codex suppressed by DD-2), " +
+        "+codex resources (both)"
     );
   } finally {
     rmTmp(tmpHome);

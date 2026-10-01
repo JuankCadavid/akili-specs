@@ -1,0 +1,75 @@
+ █████╗ ██╗  ██╗██╗██╗     ██╗
+██╔══██╗██║ ██╔╝██║██║     ██║
+███████║█████╔╝ ██║██║     ██║
+██╔══██║██╔═██╗ ██║██║     ██║
+██║  ██║██║  ██╗██║███████╗██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝
+
+Checking CODEX: <HOME>/.codex (skills → <HOME>/.agents/skills)
+
+Commands:
+  OK akili-archive.md
+  OK akili-audit.md
+  OK akili-constitution.md
+  OK akili-execute.md
+  OK akili-propose.md
+  OK akili-quick.md
+  OK akili-resume.md
+  OK akili-seo.md
+  OK akili-specify.md
+  OK akili-test.md
+  OK akili-validate.md
+
+Skills:
+  OK ai-agent-development
+  OK angular-developer
+  OK api-design-principles
+  OK aws-serverless
+  OK brainstorming
+  OK caveman
+  OK cognitive-doc-design
+  OK error-handling-patterns
+  OK frontend-design
+  OK gsap-animation
+  OK judgment-day
+  OK kaizen
+  OK nestjs-expert
+  OK product-manager-toolkit
+  OK react-doctor
+  OK seo-audit
+  OK shadcn-ui
+  OK software-architect
+  OK stitch-design
+  OK systematic-debugging
+  OK tailwind-design-system
+  OK tdd
+  OK ui-ux-pro-max
+  OK vercel-react-best-practices
+
+Resources:
+  OK <HOME>/.codex/akili/scripts/gsc_verify.py
+  OK <HOME>/.codex/akili/scripts/parse_tests.js
+  OK <HOME>/.codex/akili/.mcp.json.example
+  OK <HOME>/.codex/akili/templates/leader.md
+  OK <HOME>/.codex/akili/templates/implementer.md
+  OK <HOME>/.codex/akili/templates/reviewer.md
+  OK <HOME>/.codex/akili/templates/tester.md
+  OK <HOME>/.codex/akili/templates/digests.json
+
+Environment (recommended, not required):
+  NOT FOUND codegraph — used for semantic code analysis in /akili-constitution, /akili-audit, and worker briefs.
+           Without it, commands fall back to Glob/Grep with a lower-confidence scan.
+           Install: npm install -g @colbymchenry/codegraph, then run codegraph init -i in your project.
+  NOT FOUND playwright-cli — used for token-lean browser automation for E2E Testers and browser verification (Skill Map row; alternative to loading the Playwright MCP).
+           Without it, E2E/browser work loads the Playwright MCP schemas into every session instead.
+           Install: npm install -g @playwright/cli, then run playwright-cli install --skills FROM YOUR HOME DIRECTORY (it writes to ./.claude/skills of the cwd).
+  NOT FOUND codex — used for the OpenAI Codex CLI itself — required to load and run the Codex-hosted skills this installer writes.
+           Without it, Codex-hosted commands/skills cannot be loaded; if the binary is present but still reports NOT FOUND, it may be a broken vendor install (spawn ENOENT) — reinstalling usually fixes it, and on Windows only a codex.cmd shim is probed, not a standalone codex.exe.
+           Install: npm install -g @openai/codex.
+
+────────────────────────────────────────────────────────
+Doctor Summary — akili-specs v<VERSION>
+  CODEX        HEALTHY  ok 43 | missing 0 | fixed 0
+               → <HOME>/.codex
+
+All checks passed. Your installation is complete and healthy.

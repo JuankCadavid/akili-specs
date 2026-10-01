@@ -86,7 +86,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-1 auto-detection scenario (all clauses incl. **symmetric**), FR-2 all three scenarios (shared root incl. `--force` and byte-identity with Codex; skip/foreign incl. the cleanup `BUT`; dry-run/partials incl. the `commands/` `BUT`), FR-3 all three scenarios (healthy; binary absent + `appliesTo`; Codex doctor unchanged), FR-4 (every clause), NFR-1, NFR-2, NFR-4, NFR-6 |
@@ -95,10 +95,10 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 **Scope.**
 - `test/install-cursor.test.js` (`node:test`, subprocess pattern of `test/agents-doctor-io.test.js:30-40`; every spawn pins `HOME`, `USERPROFILE`, `CODEX_HOME`, `CURSOR_CONFIG_DIR` to a `fs.mkdtempSync` dir):
-  - **Shared-root pair:** `install --tool all` into one scratch home ⇒ Codex block installs; Cursor block reports 0 `install`/`overwrite` lines under the skills root and every skill file `skip existing` (210 files); sorted relative file lists of `--tool codex` alone vs `--tool cursor` alone are identical; `--force` end state equals a single-target install, zero `*.tmp`.
+  - **Shared-root pair:** `install --tool all` into one scratch home ⇒ Codex block installs; Cursor block reports 0 `install`/`overwrite` lines under the skills root and every shared-root operation `skip existing` (35 operations — 11 command skills + 24 top-level skill dirs; the installer counts operations, not files — the 210-file reality is asserted at the filesystem level; *amended 2026-10-01*); sorted relative file lists of `--tool codex` alone vs `--tool cursor` alone are identical; `--force` end state equals a single-target install, zero `*.tmp`.
   - **Skip/foreign:** plant `tdd/SKILL.md` and `gsap-animation/SKILL.md` with foreign content before the run; second `install --tool cursor` without `--force` skips both and deletes neither; `doctor --tool cursor` exits 0.
   - **Dry-run/partials:** `--dry-run` writes 0 files and lists `akili-*/SKILL.md`; `--commands-only` ⇒ exactly 11 `SKILL.md`; `--skills-only` ⇒ exactly 24 dirs, no `akili-*`; no `commands/` dir in any mode.
-  - **Four-state detection** (`akili update` with no `--tool`, parse the auto-detected line): foreign-only root → neither; + `akili-execute/SKILL.md` → codex yes / cursor no; + `<cursor>/akili/templates/leader.md` → cursor yes / **codex no**; + `<codex>/akili/templates/leader.md` → both.
+  - **Four-state detection** (`akili doctor` with no `--tool` — not `update --dry-run`, which does not honor `--dry-run` before its package-manager step; same `resolveTools()` path — parse the auto-detected line; *amended 2026-10-01*): foreign-only root → neither; + `akili-execute/SKILL.md` → codex yes / cursor no; + `<cursor>/akili/templates/leader.md` → cursor yes / **codex no**; + `<codex>/akili/templates/leader.md` → both.
   - **Doctor:** healthy Cursor install ⇒ all `OK`, exit 0; `doctor --tool cursor` with `PATH` stripped ⇒ NOT FOUND row, exit 0; `doctor --tool claude` ⇒ no `cursor-agent` row; **Codex regression:** `doctor --tool codex` stdout on a Codex-only fixture captured at `7cd681a` (`git stash`/worktree of the pre-change `bin/akili.js`) equals the post-change stdout byte-for-byte after ANSI strip.
   - **Byte identity (NFR-2):** `diff -r` of the installed skills tree vs `.claude/skills` + command files is empty.
 - `scripts/ci/install-layout-regression.js`: extend the detection fixture (`:506-552`) to the four states, pin `CURSOR_CONFIG_DIR` beside `CODEX_HOME` (`:524`); `SHIPPING_TARGETS` unchanged.
