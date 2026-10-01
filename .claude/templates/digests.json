@@ -1,7 +1,127 @@
 {
-  "version": "2.30.0",
+  "version": "2.31.0",
   "releases": {
     "2.30.0": {
+      "leader": {
+        "primary-instructions": {
+          "body": "f80b6f4f8541ab2966010592f48e6f19d4b6e441d5e94db4bbb9d844cb8313f4",
+          "head": "cbb2f3d68e5c158b28669cec08ad3c7e5760936ec13e3a750825abbbb0bb43b4",
+          "open": "aef9231bf05f0f607fa538352bafcf1ab97438c3b292c0621c4d2a51d99d83d4"
+        },
+        "delegation": {
+          "body": "947180200eb6228833fb7d44aafa4d7bc456b9713c4b8219357ddc5b6365828a",
+          "head": "4872811a79c96a295c6bfc733071ca01a8d75082b14beec82b8109993bd43309",
+          "open": "22faa4a8b55283d7b9c4b0e66a27eaff922d2a58de6291c2a03311e0744caaf0"
+        },
+        "test-harness": {
+          "body": "c8c68dfac8d27383db52248d01ae0615f92127846bd5b6571e2a32dbff922487",
+          "head": "416cc5bd895684dfdb54c702521465bacacd6c5dc4f2d6f3f7ee10d29c3ac0bd",
+          "open": "af5019802ce8a4f335bcb592ac186f84c62b715798c15eb9c072542ef042a741"
+        },
+        "reporting": {
+          "body": "e02f6ec870dbcc6f5194c63c1cefbab731730a98d4c9b99939255098e50e7c5d",
+          "head": "1b5c643e6daa48a2319ae10cabc1269c2143d5df155fc3b8b6c654e4bf586559",
+          "open": "ae1115bfaac20dda50df6f23e0937ba04ebcd99b1d0cb0115da4a928a785a7b5"
+        },
+        "shared-file-discipline": {
+          "body": "da43b44218d837127ee7edb78188037d40facac5c90c0b4df496261b2835888a",
+          "head": "877a44982031955eef543d19cba2b51c847ac7a207cb1f0e4bd7ba1cede2205d",
+          "open": "ce1fe323380b0de5d593f0fa6de7ba98e353f1a552059ca3c326fef441f7c5a4"
+        }
+      },
+      "implementer": {
+        "context-alignment": {
+          "body": "c9d2bbf917bd63fc5a1287d1e35ff8f5ad6f8d52f54e75a3e86d07b826181320",
+          "head": "bb976c723f56a29e150f85c6a03824af02e055524a00f784bba1b52e53069aaf",
+          "open": "e2972963833242350bb2a93ec4a8cfd87429c3781a99d929295869fcd27c1f2f"
+        },
+        "scope-discipline": {
+          "body": "818ced1be3c9e672a19238717b13663482903a23c57fc20774b70b9bd4d07e81",
+          "head": "7a608b2965c7f13a163328003dab4c669c4dc81bab51c59bc722ca4d7712ef15",
+          "open": "9276d693edb9e32f598ce6cb63aeb49ea7da879c96f1d67d8785603866e413c6"
+        },
+        "craft": {
+          "body": "edd0a14007650b3b27f5480343066291d126c35a5b0533bd8170d29571223bed",
+          "head": "61e32e367c1cd6141bb252797bdfe1ee06d4b42819719b70bb6b12c7743d51ae",
+          "open": "07b97f7202d24aaf37d2a77b14d16b3bbf3760b33d25c599b2ac49699f7b2ad8"
+        },
+        "verification": {
+          "body": "24418d102ab4303bde2249fbe1567e30aae6b15dd5a0289e21586578c4596c55",
+          "head": "75922b7811e03f9fbb0f77a8909c093133084259b12da9a7a975065be45500d3",
+          "open": "e7155db961864e4a707ee3dfa63dc2aab839f85ce3b9a3502b20b20a5e843fb2"
+        },
+        "reporting": {
+          "body": "333861e1013cb3c0cce75a4655afd353d59d1665b5bb3d3dbfc6ab45725ba6e1",
+          "head": "384f1c0f944918653b4e44406cb159abf5c1e1b65653a3829a133a6d212e5375",
+          "open": "87ffd243f65d5a3d2e0d180e283d50a7d9bb1f1a84e2cd1629571daa16bd1f55"
+        },
+        "shared-file-discipline": {
+          "body": "0d90456ad8659881f289a0be51518bd6d267c94aea569e7fabef5075a4d1acb9",
+          "head": "877a44982031955eef543d19cba2b51c847ac7a207cb1f0e4bd7ba1cede2205d",
+          "open": "ce1fe323380b0de5d593f0fa6de7ba98e353f1a552059ca3c326fef441f7c5a4"
+        }
+      },
+      "reviewer": {
+        "read-only-role": {
+          "body": "64ff82e10e2bb2ef8b5ad299df187492cf04c5c4ab8d5fc10bba257a44f43102",
+          "head": "a8c994c3008f243fed4a632ccd1bd9437634b7633871908ec66a691eded23526",
+          "open": "1e5407348ea1bdd830e4f1f1ced89fac292d04c7ce0a51530cc217405cf9d42d"
+        },
+        "audit-checklist": {
+          "body": "eb9d80ad87a30b9068a1e17a9259eaa769991649c1e378100d939cbed544867e",
+          "head": "5f8f056c5224cafb7179ce2c147a51c5f9732b1a0bfa8b5da886b84530fbdf42",
+          "open": "b368be50cb4546adaab5119bf44f0c00c34bd852eeb6e18ee9a189e1604f7f5b"
+        },
+        "structured-evaluation": {
+          "body": "2f4f5c7df032e332d46a5962961cdfd9941762fc2bcbe2fb6badfc5bf82723de",
+          "head": "51087bcea21f39d6373f3fa8a05f7f6e25fd1a9e8432380682746ebb93b09a01",
+          "open": "47b7f687505a0d5745386447f6822984584a01ece295fafd98b53e5726dffd9b"
+        },
+        "lenses": {
+          "body": "d8cc7844460f0386ae2a5eebc5697a6a9ad3d0cbfbbfd33b1aacb8ddaeb65d9a",
+          "head": "d726b0293a85d92573344ac2104485ac8b3edba58e73c0d1146fe71078cc0eac",
+          "open": "bf61dc9abdf201b07c0559ac20c87ae4db18f1da9f3174d588e47af59bfa66a5"
+        },
+        "depth-scaling": {
+          "body": "5271606d3f3d808e442b9787654ad18efcddec482ccff224d23853a52661dcfe",
+          "head": "be486a1c04e9f4cf325281363e96be0340f64a391d78f71ce167cd35263fb8c4",
+          "open": "04d2ab37ec76eedbb8432e2e30c27e3668295fef86e029fcd0d9c9dfa0219162"
+        },
+        "review-output": {
+          "body": "80d7e8955e9fd3cf6466f323508b4002654a8cf535a487a4eaa595ed57c68546",
+          "head": "5a533295a080b875a93ec27236d1ae605062d005b1c76f8d01598b4cfd08491d",
+          "open": "9cc7bac0125a9f86525488921b1f688597e811d43ddc82697841c390ac552147"
+        }
+      },
+      "tester": {
+        "context-alignment": {
+          "body": "09aa5e16bc76e85491c1a764235f326b253e4b11b3de64f86c9c47e1dfe16cee",
+          "head": "bb976c723f56a29e150f85c6a03824af02e055524a00f784bba1b52e53069aaf",
+          "open": "e2972963833242350bb2a93ec4a8cfd87429c3781a99d929295869fcd27c1f2f"
+        },
+        "prove-behavior": {
+          "body": "6ce5dc3229e8a04901289b966d0dea53f52531509c6701ccdbb306bf0ff1edb1",
+          "head": "e7fdb44c1ff1253c8798bdbd796565b956986ceb6124e1c20fa9ad1a143249f1",
+          "open": "96e7d86cb495834a454685388445dde8e735fdba18736dd74f7721c1aa9f5b31"
+        },
+        "incremental-focus": {
+          "body": "789ceffdb75bd3b197d122cdc56167d610b88a2ecf08cbde7bf31ef274183706",
+          "head": "703ecf52d9fa21684eeeb66417739b328153acd9cf5a0af10f1a9b17f99479e0",
+          "open": "1852daf1fab3ab910d8aaa57c605b1bd468bc450c832c0d5f57a2b133cd19393"
+        },
+        "bounded-loop": {
+          "body": "9fe9f2acf0fe54904bd5e6b0d65c64d05d455ff41becb70f1db99279dd48e9be",
+          "head": "6b61f333f4e00624419cb48b31eeff08e83486524c40d7635558266c60f9236c",
+          "open": "3a49ad4d5ca2b964215aef40e3c474c9bc351191239a70b65f5351a962faa0a1"
+        },
+        "test-report": {
+          "body": "ef5395648963151c2ca8302f116d8be16fa060243d2208d9a5f56bd942071a2c",
+          "head": "5375b919899189299135c6de1bf31ced50b809369475333a57d9c293fe874023",
+          "open": "d0f877550f9b62ac73bc479ec77abc4442e9f611c6b739dc3451a66129703194"
+        }
+      }
+    },
+    "2.31.0": {
       "leader": {
         "primary-instructions": {
           "body": "f80b6f4f8541ab2966010592f48e6f19d4b6e441d5e94db4bbb9d844cb8313f4",

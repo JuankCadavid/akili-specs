@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.31.0] - 2026-10-01
+
 ### Added
 
 - **Cursor joins Claude Code, OpenCode, Google Antigravity, and OpenAI Codex CLI as a fifth install target (release classified minor: new install target, `changes/cursor-install-target`).** `akili install --tool cursor` writes the 11 commands and 24 packaged skills as Agent Skills under the same shared `~/.agents/skills` root Codex already uses (`--tool all` writes it once; a second install from either tool skips it), and resources (personas, scripts, `.mcp.json.example`) under `$CURSOR_CONFIG_DIR/akili` if set, else `~/.cursor/akili`; `--cursor-target` moves the resources root, `--cursor-skills-target` moves the skills root independently, and `--target` with `--tool cursor` selects the same single-root sandbox layout Codex gets. `--tool all` now means Claude Code, OpenCode, Antigravity, Codex, and Cursor in that order; `--tool both` is unchanged (Claude + OpenCode). `init`'s wizard gains `5) Cursor`, renumbering the combos to `6) Both` / `7) All five` — inputs `5` and `6` change meaning from the previous release, where `5` was Both and `6` was All four. Auto-detection keys on Cursor's own resources root, symmetrically with Codex: a shared, foreign-only `~/.agents/skills` evidences neither tool; an `akili-<cmd>/SKILL.md` command skill evidences Codex only while no sibling tenant's resources root is populated; Cursor's own resources root evidences Cursor only, suppressing the command-skill signal for Codex; and both resources roots present evidences both. `doctor --tool cursor` checks every command skill, packaged skill, and resource file on a fresh install and gains a `cursor-agent` Environment row (probes the `cursor-agent` binary, names the `agent` alias and both install commands, never failing the health check).
@@ -23,7 +29,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - `NFR-6` (no registry refactor) and `FR-4` (zero regression on the four shipping targets) hold: `git diff 7cd681a -- bin/akili.js` touches no line inside the `claude`, `opencode`, `antigravity`, or `codex` `TOOL_REGISTRY`/`TOOL_ROOT_ARGS` entries, and `doctor --tool codex` output on the pinned fixture is unchanged. Separately, Codex's **auto-detection** path does change by design under DD-2's sibling-suppression rule: a Codex `--skills-only` install sitting beside populated Cursor resources is no longer auto-detected by a bare `akili update` (`--tool codex` still works explicitly) — evidenced by the four-state detection fixture in `scripts/ci/install-layout-regression.js`, not by NFR-6.
 - Live validation (FR-10) ran on the Cursor CLI on 2026-10-01 (results above); the IDE half is deferred to a follow-up, so IDE-only markers (picker, Third-Party Imports toggle, `/model` in the IDE, the `.claude/agents/` alias case) stay `UNVERIFIED`.
 - A follow-up live finding reopened the constitution task (2026-10-01): a native `.cursor/hooks.json` entry with `failClosed: true` blocked the allow path on empty stdout; fixed by emitting `{"permission":"allow"}` on a Cursor-marked payload, and re-verified live — a with-PASS write now lands on that entry, a without-PASS write stays denied. Three new fixtures (`test/tasks-gate.test.js` F11-F13) assert the emitted stdout exactly, run red against the pre-fix script (F11/F12 fail) and green after; `exit 2` branches are byte-for-byte unchanged.
-
 ## [2.30.0] - 2026-10-01
 
 ### What to do in your project (upgrade guide)
