@@ -169,7 +169,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 - Tier table (`:118-125`): a **Cursor (family · effort param)** column between Codex and Fallback; cells per DD-8, every slug `<CONFIRM SLUG>`; `*(≠ T2 — different vendor)*` on T3.
 - *Enforced routing* table (`:488-493`): `.cursor/agents/akili-{leader,implementer,reviewer,tester}.md` row — `model:` concrete ID + optional `[effort=…]`; Reviewer `readonly: true`.
 - Effort subsection: the Cursor mapping table (§5.5) with the `<CONFIRM>` rung note.
-- *How to apply per tool*: Cursor bullet (`/model` in IDE and CLI).
+- *How to apply per tool*: Cursor bullet (`/model` in the `agent` CLI, pinned; the IDE half `UNVERIFIED` until sourced — *amended at execute time 2026-10-01, see `execution.md` T5*).
 - CLI-invocation table: `cursor` row — `agent` (also `cursor-agent`), commands invoked `/akili-<name>`.
 - *Why these models*: Cursor paragraph (multi-vendor roster; cross-vendor author ≠ auditor; plan gating; no floating alias besides `auto`).
 - Pins: every Cursor claim `Last verified: 2026-10-01` + URL (<https://cursor.com/docs/models>, <https://cursor.com/docs/context/subagents>, <https://cursor.com/docs/cli/overview>).
@@ -224,7 +224,7 @@ Waves: **T1 ∥ T4 ∥ T5 ∥ T7** (disjoint files) → **T2** (after T1) ∥ **
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | none |
 | Requirements | FR-8 (Leader-inside-Cursor scenario incl. the Unattended `BUT`; tenants scenario incl. the flow.md cell `:358`), NFR-3, NFR-5 |
