@@ -328,6 +328,24 @@ test("deriveTiers: empty T2 -> `<CONFIRM SLUG>`, so T3 cannot be checked ≠ T2 
   assert.match(r.mapping.T3.note, /^author ≠ auditor NOT satisfied/);
 });
 
+// T9 (T8 pivot, §5.3 step 6 as amended): the fixed per-tier note describes the
+// packaged default, so it is never appended to a `source: "user"` primary.
+test("deriveTiers: Cursor user ids on every tier -> no fixed `… family` note on any cell", () => {
+  const r = derive("cursor", [
+    U("claude-opus-4-6", ["T1", "T3"]),
+    U("composer-2", ["T2", "T5"]),
+    U("claude-sonnet-4-6", ["T4", "T6"]),
+  ]);
+  for (const t of TIERS) assert.doesNotMatch(r.mapping[t].note, /family/, `cursor ${t} note`);
+});
+
+test("deriveTiers: a dated user id on Claude T1 -> T1 note drops `alias — always latest`; packaged T3 keeps its note", () => {
+  const r = derive("claude", [U("claude-opus-4-20250514", ["T1"], "pinned for eval parity"), P("opus"), P("sonnet"), P("haiku")]);
+  assert.equal(r.mapping.T1.primary, "claude-opus-4-20250514");
+  assert.doesNotMatch(r.mapping.T1.note, /alias — always latest/);
+  assert.match(r.mapping.T3.note, /\*\(must differ from T2\)\*/);
+});
+
 // ---- canonicalAnswers (FR-6, DD-8) ----
 
 test("canonicalAnswers: stable key order, `updatedAt` excluded, array order kept", () => {

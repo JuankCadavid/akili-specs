@@ -314,7 +314,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T2 (added by the T8 Pivot Record, 2026-10-02 — user-approved) |
 | Requirements | FR-3 statement (notes are part of the mapping) · FR-4 (registry cells render the mapping's notes) · FR-11 case 1 (the registry a user inspects must not pair a user id with another family's note) |
