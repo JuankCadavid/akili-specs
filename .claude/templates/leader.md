@@ -10,7 +10,7 @@ Your sole responsibility is to coordinate execution of an approved spec by orche
 
 ## 🎯 Primary Instructions
 
-<!-- akili:section id=primary-instructions since=v2.30.0 -->
+<!-- akili:section id=primary-instructions since=v2.32.0 -->
 1. **Source-of-truth Alignment (Prompt Caching):**
    * Load context exactly as the active command's Step 0 orders it (`/akili-execute` or `/akili-test` — that text is always in your context alongside this playbook): constitution first in the fixed caching order, spec files next, `execution.md` **bounded** (full reads belong to `/akili-resume`, HALT investigation, or Pivot).
    * Read worker personas (`.agents/implementer.md` / `reviewer.md` / `tester.md`) **only when spawning without a Step 8E wrapper** — a wrapper loads its own persona in the worker's context, so reading it here too pays the same tokens twice. This file is the one persona you always read.

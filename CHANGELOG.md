@@ -6,10 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.32.0] - 2026-10-02
+
 ### Added
 
 - **`akili routing` configures a project's model routing from one set of answers (release classified minor: new command, `changes/model-routing-configurator`).** It writes the fenced `## Model Routing` section of the project's root `AGENTS.md`, the Step 8E agent wrappers for the hosts selected (when the user opts in with `--wrappers yes`), and `.agents/model-routing.json`, the answers file a later run re-reads; a re-run with unchanged answers prints `no changes`. It runs as an interactive wizard or non-interactively through twelve new flags (`--hosts`, `--models`, `--cli`, `--wrappers`, `--t3-cross-host`, `--antigravity-tools`, `--opencode-agent-dir`, `--pin-reason`, `--yes`, `--adopt`, `--json`, `--project`) plus the existing `--force` and `--dry-run`; without a TTY, answers still missing exit non-zero instead of prompting. Tiers are derived from a packaged roster, `.claude/templates/model-registry.json` — read from the package directory, never installed — which a new drift test holds equal to the registry table in `docs/model-routing.md`. A hand-edited fence is refused (exit 1, diff printed) unless `--force`, and a host whose Reviewer cannot differ from its Implementer gets no wrappers. `/akili-constitution` Step 8C now asks the questions in chat and runs `akili routing … --yes --json`, with a Fallback that writes the same fenced section by hand when the CLI is absent or predates `routing`. The root installer rule (`AGENTS.md`) and the *Cross-tool safety* "No installer changes" bullet in `docs/model-routing.md` gain the carve-out — `akili routing` writes models only at the user's request, into agent wrappers and the project registry, never into commands; `/akili-audit` *Model Registry Drift* adds the signal that the wrappers, `.agents/model-routing.json`, and the section disagree; `docs/cli.md` gains a *Routing* section, `docs/flow.md` a fourth `.agents/` tenant row, and `README.md`, `docs/model-routing.md` *How to apply per tool*, and `docs/release-checklist.md` name the command or its roster.
-
 ## [2.31.0] - 2026-10-01
 
 ### Added
