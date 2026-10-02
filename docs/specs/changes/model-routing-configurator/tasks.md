@@ -107,7 +107,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | T1, T2 |
 | Requirements | FR-4 (Six states — every state and token; Unselected host keeps its column; CLI row only confirmed; `CLAUDE.md` never written), FR-5 (table rows for all five hosts; Skip-by-default incl. `model drift`; Restriction omitted and reported; `wrappers=no`; unsatisfiable/cross-host), FR-6 (`Updated:` = month of `updatedAt`; no run results in the file), NFR-3, NFR-8 |

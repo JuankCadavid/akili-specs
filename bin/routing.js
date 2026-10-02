@@ -4,7 +4,8 @@
 // file runs main() on load, so nothing in it is unit-testable by require.
 "use strict";
 
-const path = require("path"); // eslint-disable-line no-unused-vars -- wrapper paths (T3)
+const path = require("path");
+const { SECTION_OPEN_RE, SECTION_CLOSE_RE } = require("./persona.js");
 
 // The five install targets, in the registry table's column order (§5.7
 // `--hosts`: "validated against the five keys").
@@ -265,6 +266,601 @@ function canonicalAnswers(answers) {
   return JSON.stringify(sortKeys(rest));
 }
 
+// ---- T3: the `## Model Routing` fence in AGENTS.md (design §5.6, DD-2, DD-11) ----
+
+const SECTION_ID = "model-routing";
+const HEADING_RE = /^## Model Routing\s*$/;
+const H2_RE = /^## /;
+const CODE_FENCE_RE = /^\s*(```|~~~)/;
+const TOKEN_REFUSED_EDIT = "refused (hand-edited fence; --force to regenerate)";
+
+// Majority line ending, exactly as bin/persona.js:92-95 (detectEol) counts it
+// (P-22). Not imported: persona.js exports only the two fence regexes (DD-2).
+function detectEol(text) {
+  const crlfCount = (text.match(/\r\n/g) || []).length;
+  const lfOnlyCount = (text.match(/\n/g) || []).length - crlfCount;
+  return crlfCount > lfOnlyCount ? "\r\n" : "\n";
+}
+
+// Lines split as persona.js:177 does (/\r\n|\n/), each with its character
+// offsets in the original text, so a splice keeps every outside byte.
+function splitLines(text) {
+  const out = [];
+  const re = /\r\n|\n/g;
+  let start = 0;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    out.push({ text: text.slice(start, m.index), start, end: m.index });
+    start = m.index + m[0].length;
+  }
+  out.push({ text: text.slice(start), start, end: text.length });
+  return out;
+}
+
+// Body as fence content: LF-normalized, no trailing line breaks.
+function normalizeSectionBody(body) {
+  return String(body).replace(/\r\n/g, "\n").replace(/\n+$/, "");
+}
+
+function fencedBlock(body, sinceTag, eol) {
+  const lines = [`<!-- akili:section id=${SECTION_ID} since=${sinceTag} -->`]
+    .concat(normalizeSectionBody(body).split("\n"), ["<!-- /akili:section -->"]);
+  return lines.join(eol);
+}
+
+// Minimal unified diff (one hunk, full context) between two LF texts.
+function unifiedDiff(oldText, newText, label) {
+  const a = oldText === "" ? [] : oldText.split("\n");
+  const b = newText === "" ? [] : newText.split("\n");
+  const lcs = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+    }
+  }
+  const out = [`--- ${label} (current)`, `+++ ${label} (akili routing)`, `@@ -1,${a.length} +1,${b.length} @@`];
+  let i = 0;
+  let j = 0;
+  while (i < a.length || j < b.length) {
+    if (i < a.length && j < b.length && a[i] === b[j]) {
+      out.push(` ${a[i]}`);
+      i++;
+      j++;
+    } else if (j < b.length && (i === a.length || lcs[i][j + 1] >= lcs[i + 1][j])) {
+      out.push(`+${b[j]}`);
+      j++;
+    } else {
+      out.push(`-${a[i]}`);
+      i++;
+    }
+  }
+  return out.join("\n") + "\n";
+}
+
+// Scan AGENTS.md: model-routing fences, malformed markers, unfenced
+// `## Model Routing` headings. Lines inside ``` / ~~~ code fences are text,
+// not markers or headings (§5.6 (b)).
+function scanAgents(lines) {
+  const blocks = [];
+  const headings = [];
+  let malformed = false;
+  let inCode = false;
+  let open = null; // { id, index }
+  lines.forEach((line, index) => {
+    const t = line.text;
+    if (CODE_FENCE_RE.test(t)) {
+      inCode = !inCode;
+      return;
+    }
+    if (inCode) return;
+    const mOpen = t.match(SECTION_OPEN_RE);
+    if (mOpen) {
+      if (open && (open.id === SECTION_ID || mOpen[1] === SECTION_ID)) malformed = true;
+      open = { id: mOpen[1], index };
+      return;
+    }
+    if (SECTION_CLOSE_RE.test(t)) {
+      if (!open) malformed = true;
+      else if (open.id === SECTION_ID) blocks.push({ open: open.index, close: index });
+      open = null;
+      return;
+    }
+    if (!open && HEADING_RE.test(t)) headings.push(index);
+  });
+  if (open && open.id === SECTION_ID) malformed = true;
+  if (blocks.length > 1) malformed = true;
+  return { blocks, headings, malformed };
+}
+
+// The extent of an unfenced section: its heading to the line before the next
+// `## ` heading outside a code fence (or EOF), trailing blank lines excluded.
+function unfencedExtent(lines, from) {
+  let inCode = false;
+  let last = lines.length - 1;
+  for (let k = from + 1; k < lines.length; k++) {
+    const t = lines[k].text;
+    if (CODE_FENCE_RE.test(t)) inCode = !inCode;
+    else if (!inCode && H2_RE.test(t)) {
+      last = k - 1;
+      break;
+    }
+  }
+  while (last > from && lines[last].text.trim() === "") last--;
+  return last;
+}
+
+// FR-4 / §5.6: write `body` into AGENTS.md's model-routing fence.
+// text: AGENTS.md content, or null when the file does not exist (state d).
+// expectedBody: render(previous answers), or null without an answers file.
+// opts: { force, adopt } — `adopt` is the (b) answer (the TTY prompt or
+// `--adopt`), decided by the caller. -> { text, state, token, diff?, notes[] }.
+function replaceFencedSection(text, body, sinceTag, expectedBody, opts = {}) {
+  const newBody = normalizeSectionBody(body);
+  if (text === null || text === undefined) {
+    return { text: "# Agent Guidance\n\n" + fencedBlock(newBody, sinceTag, "\n") + "\n", state: "d", token: "created", notes: [] };
+  }
+  const eol = detectEol(text);
+  const lines = splitLines(text);
+  const scan = scanAgents(lines);
+  if (scan.malformed) return { text, state: "e", token: "refused (malformed fence)", notes: [] };
+  const splice = (first, last, block) => text.slice(0, lines[first].start) + block + text.slice(lines[last].end);
+  if (scan.blocks.length === 1) {
+    const { open, close } = scan.blocks[0];
+    const oldBody = lines.slice(open + 1, close).map((l) => l.text).join("\n");
+    const notes = scan.headings.map((k) => `+ stray "## Model Routing" heading at line ${k + 1} — remove it`);
+    const state = notes.length > 0 ? "f" : "a";
+    if (oldBody === newBody) return { text, state, token: "unchanged", notes };
+    const replaced = splice(open, close, fencedBlock(newBody, sinceTag, eol));
+    if (expectedBody !== null && expectedBody !== undefined && oldBody === normalizeSectionBody(expectedBody)) {
+      return { text: replaced, state, token: "replaced", notes };
+    }
+    const diff = unifiedDiff(oldBody, newBody, "AGENTS.md");
+    if (opts.force) return { text: replaced, state, token: "overwritten", diff, notes };
+    return { text, state: state === "f" ? "f" : "a-prime", token: TOKEN_REFUSED_EDIT, diff, notes };
+  }
+  if (scan.headings.length > 0) {
+    const first = scan.headings[0];
+    const last = unfencedExtent(lines, first);
+    const oldText = lines.slice(first, last + 1).map((l) => l.text).join("\n");
+    const diff = unifiedDiff(oldText, fencedBlock(newBody, sinceTag, "\n"), "AGENTS.md");
+    if (opts.adopt) return { text: splice(first, last, fencedBlock(newBody, sinceTag, eol)), state: "b", token: "adopted", diff, notes: [] };
+    return { text, state: "b", token: "skipped (unfenced; --adopt to replace)", diff, notes: [] };
+  }
+  const sep = text === "" || text.endsWith("\n") ? "" : eol;
+  return { text: text + sep + eol + fencedBlock(newBody, sinceTag, eol) + eol, state: "c", token: "appended", notes: [] };
+}
+
+// ---- T3: registry table and section render (design §5.4, FR-4) ----
+
+const TIER_LABELS = {
+  T1: "**T1 Architect**",
+  T2: "**T2 Coder**",
+  T3: "**T3 Auditor** *(≠ T2)*",
+  T4: "**T4 Context-Ingest**",
+  T5: "**T5 Fast-Cheap**",
+  T6: "**T6 Multimodal**",
+};
+
+// An id is a concrete model: not a placeholder, not a cross-host arrow, not "—".
+function isId(x) {
+  return typeof x === "string" && x !== "" && x !== "—" && !isPlaceholder(x) && !x.startsWith("→");
+}
+
+// The packaged default column: tierPreference head / second, fixed notes —
+// the doc cell by construction (§5.1). Used for a host with no mapping.
+function packagedColumn(hostRegistry) {
+  const col = {};
+  for (const t of TIERS) {
+    const pref = hostRegistry.tierPreference[t];
+    col[t] = { primary: pref[0], fallback: pref[1] === undefined ? "—" : pref[1], note: (hostRegistry.notes || {})[t] || "" };
+  }
+  return col;
+}
+
+// Every host's column: its mapping when the answers hold one (selected, or
+// filled on an earlier run — C3), else the packaged default.
+function tableColumns(mappingByHost, registry) {
+  const cols = {};
+  for (const h of HOST_KEYS) cols[h] = (mappingByHost || {})[h] || packagedColumn(registry.hosts[h]);
+  return cols;
+}
+
+// Dated ids carry a recorded reason (roster[].reason, C9): numbered in
+// table order (host, tier, primary then fallback).
+function collectPins(cols, roster) {
+  const pins = [];
+  for (const h of HOST_KEYS) {
+    const entries = (roster || {})[h] || [];
+    for (const t of TIERS) {
+      for (const id of [cols[h][t].primary, cols[h][t].fallback]) {
+        const e = entries.find((x) => x.id === id);
+        if (e && e.reason && !pins.some((p) => p.host === h && p.id === id)) pins.push({ host: h, id, reason: e.reason, n: pins.length + 1 });
+      }
+    }
+  }
+  return pins;
+}
+
+function cellValue(x, host, pins) {
+  if (x.startsWith("→")) return x;
+  const pin = pins.find((p) => p.host === host && p.id === x);
+  return `\`${x}\`` + (pin ? ` [pin ${pin.n}]` : "");
+}
+
+function tableParts(mappingByHost, registry, roster) {
+  const cols = tableColumns(mappingByHost, registry);
+  const pins = collectPins(cols, roster);
+  const lines = [
+    "| Tier | Claude Code | OpenCode | Antigravity | Codex | Cursor | Fallback |",
+    "|---|---|---|---|---|---|---|",
+  ];
+  for (const t of TIERS) {
+    const hostCells = HOST_KEYS.map((h) => {
+      const c = cols[h][t];
+      return cellValue(c.primary, h, pins) + (c.note ? ` ${c.note}` : "");
+    });
+    const fallbacks = HOST_KEYS.filter((h) => cols[h][t].fallback !== "—")
+      .map((h) => `${cellValue(cols[h][t].fallback, h, pins)} (${registry.hosts[h].label})`);
+    lines.push(`| ${TIER_LABELS[t]} | ${hostCells.join(" | ")} | ${fallbacks.length ? fallbacks.join(" · ") : "—"} |`);
+  }
+  return { table: lines.join("\n"), pins, cols };
+}
+
+// §5.4 item 4: always 7 columns. roster supplies the dated-id pin markers.
+function renderRegistryTable(mappingByHost, registry, roster) {
+  return tableParts(mappingByHost, registry, roster).table;
+}
+
+// Placeholder cells per host column (primary, fallback or note) — `--json`.
+function placeholdersByColumn(cols) {
+  const out = {};
+  for (const h of HOST_KEYS) {
+    out[h] = TIERS.filter((t) => [cols[h][t].primary, cols[h][t].fallback, cols[h][t].note].some((x) => String(x).includes("<CONFIRM"))).length;
+  }
+  return out;
+}
+
+const label = (registry, h) => registry.hosts[h].label;
+
+// The eight template placeholders, from an answers object (§5.2). Defensive
+// over an older answers file: a missing field renders as absent.
+function sectionContext(answers, registry) {
+  const hosts = answers.hosts || [];
+  const mapping = answers.mapping || {};
+  const { table, pins, cols } = tableParts(mapping, registry, answers.roster || {});
+  const cli = answers.cli || {};
+  const aa = answers.authorAuditor || {};
+  const pinReasons = pins.length === 0
+    ? "No dated model ID is pinned."
+    : ["**Pinned model IDs** (the reason is recorded next to the pin):", ""]
+        .concat(pins.map((p) => `- [pin ${p.n}] \`${p.id}\` (${label(registry, p.host)}): ${p.reason}`)).join("\n");
+  const aaLines = HOST_KEYS.map((h) => {
+    const t2 = cols[h].T2.primary;
+    const t3 = cols[h].T3.primary;
+    const v = aa[h];
+    let text;
+    if (v === "unsatisfiable") text = `${NOTE_UNSATISFIABLE}; no wrappers are written for this host.`;
+    else if (typeof v === "string" && v.startsWith("cross-host: ")) text = `Reviewer (T3) dispatched cross-host to ${label(registry, v.slice(12))}.`;
+    else if (!isId(t2) || !isId(t3)) text = "placeholders — confirm the T2 and T3 ids before binding wrappers.";
+    else text = `${v === "ok" ? "" : "packaged defaults — "}Implementer (T2) \`${t2}\` ≠ Reviewer (T3) \`${t3}\`.`;
+    return `- **${label(registry, h)}:** ${text}`;
+  });
+  const sel = (h) => (hosts.includes(h) ? "" : " (not selected in this run)");
+  const owner = registry.crossHost.T6;
+  const cross = [`T6 Multimodal → ${label(registry, owner)} (packaged default)${sel(owner)}.`];
+  for (const h of HOST_KEYS) {
+    const other = cols[h].T3.crossHost;
+    if (other) cross.push(`${label(registry, h)} T3 Reviewer → ${label(registry, other)}${sel(other)}.`);
+  }
+  return {
+    registryTable: table,
+    updated: String(answers.updatedAt || "").slice(0, 7),
+    pinReasons,
+    antigravityDialMap: "| Dial | `low` | `medium` | `high` / `xhigh` / `max` |\n|---|---|---|---|\n| Antigravity effort ID | `-low` | `-medium` | `-high` |",
+    authorAuditorNotes: ["**Author ≠ auditor per host:**", ""].concat(aaLines).join("\n"),
+    // C8: only a confirmed invocation for a selected host; never the suggestion.
+    cliInvocationRow: [
+      `| ${HOST_KEYS.map((h) => label(registry, h)).join(" | ")} |`,
+      `|${HOST_KEYS.map(() => "---|").join("")}`,
+      `| ${HOST_KEYS.map((h) => (hosts.includes(h) && cli[h] ? `\`${cli[h]}\`` : "`<CONFIRM>`")).join(" | ")} |`,
+    ].join("\n"),
+    crossHostLine: cross.join(" "),
+    regenerateHint: "*Generated by `akili routing` from `.agents/model-routing.json`; a hand edit inside this fence is refused on the next run unless `--force`.*",
+  };
+}
+
+// `{{name}}` -> ctx[name]; a placeholder without a value throws (template drift).
+function renderSection(template, ctx) {
+  return String(template).replace(/\{\{(\w+)\}\}/g, (m, key) => {
+    if (typeof ctx[key] !== "string") throw new Error(`renderSection: no value for {{${key}}}`);
+    return ctx[key];
+  });
+}
+
+function renderBody(answers, registry, template) {
+  return renderSection(template, sectionContext(answers, registry));
+}
+
+// ---- T3: Step 8E wrappers (design §5.5, FR-5, DD-7) ----
+
+const ROLE_TIER = { leader: "T1", implementer: "T2", reviewer: "T3", tester: "T2" }; // Tester = T2 primary (W3)
+const ROLE_LABEL = { leader: "Leader", implementer: "Implementer", reviewer: "Reviewer", tester: "Tester" };
+const ROLE_EFFORT = { leader: "high", implementer: "medium", reviewer: "high", tester: "medium" };
+const ROLE_DESC = {
+  leader: "AKILI Leader — orchestrates the spec run, selects skills, adjudicates FAILs, and writes no code.",
+  implementer: "AKILI Implementer — executes one spec task with strict scope and verification.",
+  reviewer: "AKILI Reviewer — independent audit of the Implementer's diff against the spec.",
+  tester: "AKILI Tester — authors and runs one test suite and reports PASS, FAIL, or PRODUCT_BUG.",
+};
+const WRAPPER_ROLES = ["leader", "implementer", "reviewer", "tester"];
+
+// Step 8E rule 3: one sentence referencing the persona, never its content.
+function personaSentence(role) {
+  return `Read \`.agents/${role}.md\` in the project root and adopt it fully as your persona and\noperating contract before doing anything else.\n`;
+}
+
+function yamlScalar(v) {
+  return /^[A-Za-z0-9][A-Za-z0-9._/[\]=-]*$/.test(v) ? v : JSON.stringify(v);
+}
+
+function wrapperPath(host, role, hostRegistry, decisions) {
+  if (host === "opencode" && decisions.agentDir) return path.posix.join(decisions.agentDir, `akili-${role}.md`);
+  return hostRegistry.wrapper.location.replace("<role>", role);
+}
+
+// One wrapper, or why it is not written: { relPath, content, model } or
+// { relPath, skipKind: "cross-host", other } / { relPath, skipText }.
+// DD-7 / S1: nothing unconfirmed reaches a frontmatter value — a placeholder
+// tier or an Antigravity id without `wrapperModel` skips the role (reported).
+function planWrapper(host, role, tierMap, decisions, registry) {
+  const hr = registry.hosts[host];
+  const dec = decisions || {};
+  const relPath = wrapperPath(host, role, hr, dec);
+  const tier = ROLE_TIER[role];
+  const cell = (tierMap || {})[tier];
+  if (!cell) return { relPath, skipText: `no wrapper — no ${tier} mapping` };
+  if (cell.crossHost) return { relPath, skipKind: "cross-host", other: cell.crossHost };
+  if (!isId(cell.primary)) return { relPath, skipText: `no wrapper — ${tier} resolves to \`${cell.primary}\`; confirm an id` };
+  const entry = hr.models.find((m) => m.id === cell.primary);
+  const reviewer = role === "reviewer";
+  let model = cell.primary;
+  const fields = [];
+  switch (hr.wrapper.shape) {
+    case "agy-yaml": {
+      // Antigravity — akili-constitution.md:739-784 (no vendor URL, P-26):
+      // `model` is `flash` | `pro` from the roster entry, never the id (C4).
+      if (!entry || !entry.wrapperModel) return { relPath, skipText: `no wrapper — \`${cell.primary}\` has no Antigravity wrapper model (flash | pro)` };
+      model = entry.wrapperModel;
+      fields.push(`model: ${model}`, "subagent: true", `mainAgent: ${role === "leader"}`);
+      const tools = dec.antigravityTools || [];
+      if (reviewer && tools.length > 0) fields.push("tools:", ...tools.map((t) => `  - ${t}`));
+      break;
+    }
+    case "toml": {
+      // Codex — <https://learn.chatgpt.com/docs/agent-configuration/subagents>
+      // Last verified: 2026-09-16 (akili-constitution.md:785-837, pin :810).
+      const lines = [
+        `name = ${JSON.stringify(`akili-${role}`)}`,
+        `description = ${JSON.stringify(ROLE_DESC[role])}`,
+        'developer_instructions = """',
+        personaSentence(role) + '"""',
+        `model = ${JSON.stringify(model)}`,
+        `model_reasoning_effort = ${JSON.stringify(ROLE_EFFORT[role])}`,
+      ];
+      if (reviewer) lines.push('sandbox_mode = "read-only"');
+      return { relPath, model, content: lines.join("\n") + "\n" };
+    }
+    default: {
+      // Claude Code — akili-constitution.md:677-721 (no vendor URL, P-26);
+      // OpenCode — :722-738 (agent dir only in v1, DD-13; no restriction, W9);
+      // Cursor — <https://cursor.com/docs/context/subagents> Last verified:
+      // 2026-10-01 (:838-890, pin :888): bracket only for a confirmed rung (S1).
+      if (hr.wrapper.effortField === "bracket" && entry && Array.isArray(entry.effortRungs) && entry.effortRungs.includes(ROLE_EFFORT[role])) {
+        model = `${cell.primary}[effort=${ROLE_EFFORT[role]}]`;
+      }
+      fields.push(`model: ${yamlScalar(model)}`);
+      if (reviewer && hr.wrapper.restriction === "tools") fields.push("tools: Read, Grep, Glob");
+      if (reviewer && hr.wrapper.restriction === "readonly") fields.push("readonly: true");
+    }
+  }
+  const content = ["---", `name: akili-${role}`, `description: ${ROLE_DESC[role]}`, ...fields, "---", personaSentence(role)].join("\n");
+  return { relPath, model, content };
+}
+
+// FR-5 / §7: { relPath, content } or null for a role that is not written.
+function renderWrapper(host, role, mapping, decisions, registry) {
+  const w = planWrapper(host, role, mapping, decisions, registry);
+  return w.content === undefined ? null : { relPath: w.relPath, content: w.content };
+}
+
+// The `model` value a wrapper file declares (YAML `model:` or TOML `model =`).
+function declaredModel(content) {
+  const m = String(content).match(/^model\s*[:=]\s*(.*?)\s*$/m);
+  return m ? m[1].replace(/^"(.*)"$/, "$1") : "(none)";
+}
+
+// ---- T3: buildPlan (design §7, DD-1, DD-8, DD-11) ----
+
+const ANSWERS_PATH = ".agents/model-routing.json";
+const DD9_HINT = "commit .agents/model-routing.json and the wrappers — akili doctor --agents --fix refuses a dirty .agents/";
+const WRITING_TOKENS = ["created", "replaced", "appended", "adopted", "overwritten"];
+
+// Selected host: the answers decide. Unselected host: keep what the answers
+// (or the previous file) hold — `keep-previous-else-packaged` (C3).
+function perHost(field, answers, prev, hosts) {
+  const out = {};
+  for (const h of HOST_KEYS) {
+    const own = (answers[field] || {})[h];
+    const v = hosts.includes(h) ? own : own !== undefined ? own : ((prev || {})[field] || {})[h];
+    if (v !== undefined) out[h] = v;
+  }
+  return out;
+}
+
+// answers: the run's answers (§5.2 fields; `crossHost?` = `--t3-cross-host`).
+// snapshot: { agentsMd, claudeMd, existingFiles: Map<relPath, content>,
+// previousAnswers, sectionTemplate } — the packaged section template rides in
+// the snapshot because this module reads no file (NFR-5). now: a Date.
+// opts: { force, adopt }. Pure: returns the plan; applyPlan writes it.
+function buildPlan(answers, registry, pkgVersion, snapshot, now, opts = {}) {
+  const prev = snapshot.previousAnswers || null;
+  const hosts = (answers.hosts || []).slice();
+  const roster = perHost("roster", answers, prev, hosts);
+  const cli = perHost("cli", answers, prev, hosts);
+  const mapping = perHost("mapping", answers, prev, hosts);
+  const authorAuditor = perHost("authorAuditor", answers, prev, hosts);
+  const decisions = perHost("decisions", answers, prev, hosts);
+  for (const h of hosts) {
+    const recorded = (answers.authorAuditor || {})[h];
+    const crossHost = (answers.crossHost || {})[h] || (typeof recorded === "string" && recorded.startsWith("cross-host: ") ? recorded.slice(12) : undefined);
+    const d = deriveTiers(roster[h] || [], registry.hosts[h], { crossHost, selectedHosts: hosts, hostKey: h, crossHostT6Owner: registry.crossHost.T6 });
+    mapping[h] = d.mapping;
+    authorAuditor[h] = d.authorAuditor;
+    const given = (answers.decisions || {})[h] || {};
+    const restriction = registry.hosts[h].wrapper.restriction;
+    const dec = {};
+    if (h === "opencode") dec.agentDir = given.agentDir || path.posix.dirname(registry.hosts.opencode.wrapper.location);
+    if (restriction === "none") dec.restriction = "omitted: restriction shape unconfirmed";
+    else if (restriction === "tools-confirm") {
+      const tools = given.antigravityTools || [];
+      if (tools.length > 0) dec.antigravityTools = tools.slice();
+      dec.restriction = tools.length > 0 ? "applied" : "omitted: names unconfirmed";
+    } else dec.restriction = "applied";
+    if (registry.hosts[h].wrapper.effortField === "bracket") {
+      const bracket = WRAPPER_ROLES.some((r) => /\[effort=/.test(planWrapper(h, r, mapping[h], dec, registry).content || ""));
+      dec.effortBracket = bracket ? "applied" : "omitted: rung unconfirmed";
+    }
+    decisions[h] = dec;
+  }
+  const core = {
+    version: 1,
+    generatedBy: pkgVersion,
+    hosts,
+    roster,
+    cli,
+    mapping,
+    wrappers: answers.wrappers === "no" ? "no" : "yes",
+    decisions,
+    authorAuditor,
+    unselectedHosts: "keep-previous-else-packaged",
+  };
+  // DD-8: updatedAt moves only when another field's canonical form moved.
+  const changed = !prev || canonicalAnswers(core) !== canonicalAnswers(prev);
+  const finalAnswers = { ...core, updatedAt: changed ? now.toISOString().slice(0, 10) : prev.updatedAt };
+
+  const writes = [];
+  const reports = [];
+  const hints = [];
+
+  // AGENTS.md — the six states (§5.6).
+  const template = snapshot.sectionTemplate;
+  const body = renderBody(finalAnswers, registry, template);
+  const expectedBody = prev ? renderBody(prev, registry, template) : null;
+  const sinceTag = `v${pkgVersion}`;
+  const agentsMd = snapshot.agentsMd === undefined ? null : snapshot.agentsMd;
+  const fence = replaceFencedSection(agentsMd, body, sinceTag, expectedBody, { force: opts.force === true, adopt: opts.adopt === true });
+  const agentsWrite = { relPath: "AGENTS.md", token: fence.token, content: WRITING_TOKENS.includes(fence.token) ? fence.text : null };
+  if (fence.notes.length > 0) agentsWrite.note = fence.notes.join("; ");
+  if (fence.diff) agentsWrite.diff = fence.diff;
+  writes.push(agentsWrite);
+  if (fence.token === "created") hints.push("run /akili-constitution to complete AGENTS.md");
+  const claudeMd = snapshot.claudeMd == null ? "" : String(snapshot.claudeMd).replace(/\r\n/g, "\n");
+  if (/^## Model Routing\s*$/m.test(claudeMd)) reports.push("CLAUDE.md carries a Model Routing section — move it to AGENTS.md");
+
+  // Wrappers (§5.5) — selected hosts only.
+  const files = snapshot.existingFiles instanceof Map ? snapshot.existingFiles : new Map(Object.entries(snapshot.existingFiles || {}));
+  for (const h of hosts) {
+    const hl = label(registry, h);
+    const planned = {};
+    for (const role of WRAPPER_ROLES) {
+      const w = planWrapper(h, role, mapping[h], decisions[h], registry);
+      if (finalAnswers.wrappers === "no") {
+        writes.push({ relPath: w.relPath, token: "skipped (wrappers=no)", content: null });
+        continue;
+      }
+      if (authorAuditor[h] === "unsatisfiable") {
+        writes.push({ relPath: w.relPath, token: "skipped (author ≠ auditor unsatisfiable)", content: null });
+        continue;
+      }
+      if (w.skipKind === "cross-host") {
+        const ol = label(registry, w.other);
+        reports.push(`${hl} Reviewer: dispatched cross-host to ${ol} — no wrapper written${hosts.includes(w.other) ? "" : ` (${ol} is not selected in this run)`}`);
+        continue;
+      }
+      if (w.content === undefined) {
+        reports.push(`${hl} ${ROLE_LABEL[role]}: ${w.skipText}`);
+        continue;
+      }
+      planned[role] = w;
+      const existing = files.get(w.relPath);
+      if (existing === undefined) writes.push({ relPath: w.relPath, token: "created", content: w.content });
+      else if (existing === w.content) writes.push({ relPath: w.relPath, token: "unchanged", content: null });
+      else if (opts.force === true) writes.push({ relPath: w.relPath, token: "overwritten", content: w.content });
+      else {
+        const entry = { relPath: w.relPath, token: "skipped (exists; --force to replace)", content: null };
+        const was = declaredModel(existing);
+        const now2 = declaredModel(w.content);
+        if (was !== now2) entry.note = `— model drift: file says ${was}, mapping says ${now2}`;
+        writes.push(entry);
+      }
+    }
+    // DD-7: every omitted restriction / effort bracket is a summary line.
+    if (planned.reviewer && registry.hosts[h].wrapper.restriction === "none") {
+      reports.push(`${hl} Reviewer: read-only by instruction (restriction shape unconfirmed — Step 8E rule 2)`);
+    }
+    if (planned.reviewer && decisions[h].restriction === "omitted: names unconfirmed") {
+      reports.push(`${hl} Reviewer: read-only by instruction (tools omitted — names unconfirmed)`);
+    }
+    if (h === "antigravity" && Object.keys(planned).length > 0) {
+      reports.push("Antigravity: in-session `/agents` lists only `akili-leader` — that is the success condition");
+    }
+    if (Object.keys(planned).length > 0 && decisions[h].effortBracket === "omitted: rung unconfirmed") {
+      reports.push(`${hl}: effort bracket omitted — rung unconfirmed`);
+    }
+    if (planned.tester && planned.implementer) {
+      reports.push(`${hl} Tester: same model as the Implementer (\`${mapping[h].T2.primary}\`, T2 primary) — Step 8E default; Rule 1 allows it`);
+    }
+  }
+
+  // The answers file — never run results (FR-6).
+  const answersContent = JSON.stringify(sortKeys(finalAnswers), null, 2) + "\n";
+  const prevContent = prev ? JSON.stringify(sortKeys(prev), null, 2) + "\n" : null;
+  if (prevContent === null) writes.push({ relPath: ANSWERS_PATH, token: "created", content: answersContent });
+  else if (prevContent === answersContent) writes.push({ relPath: ANSWERS_PATH, token: "unchanged", content: null });
+  else writes.push({ relPath: ANSWERS_PATH, token: "replaced", content: answersContent });
+
+  // Stale ids (§5.4 mode policy): packaged-sourced ids the roster no longer ships.
+  const stale = [];
+  for (const h of HOST_KEYS) {
+    if (!mapping[h]) continue;
+    const packaged = registry.hosts[h].models.map((m) => m.id);
+    const userIds = (roster[h] || []).filter((e) => e.source === "user").map((e) => e.id);
+    for (const t of TIERS) {
+      for (const id of [mapping[h][t].primary, mapping[h][t].fallback]) {
+        const line = `stale? ${id} not in packaged roster (${registry.hosts[h].lastVerified})`;
+        if (isId(id) && !packaged.includes(id) && !userIds.includes(id) && !stale.includes(line)) stale.push(line);
+      }
+    }
+  }
+
+  if (writes.some((w) => w.relPath !== "AGENTS.md" && WRITING_TOKENS.includes(w.token))) hints.push(DD9_HINT);
+  if (writes.every((w) => w.token === "unchanged" || w.token.startsWith("skipped"))) reports.push("no changes");
+  const { table, cols } = tableParts(mapping, registry, roster);
+  const eol = agentsMd ? detectEol(agentsMd) : "\n";
+  return {
+    writes,
+    stale,
+    authorAuditor,
+    placeholdersByColumn: placeholdersByColumn(cols),
+    sectionBytes: Buffer.byteLength(fencedBlock(body, sinceTag, eol), "utf8"),
+    exitCode: writes.some((w) => w.token.startsWith("refused")) ? 1 : 0,
+    hints,
+    reports,
+    registryTable: table,
+    answers: finalAnswers,
+  };
+}
+
 module.exports = {
   HOST_KEYS,
   parseHosts,
@@ -274,4 +870,9 @@ module.exports = {
   parseCrossHost,
   deriveTiers,
   canonicalAnswers,
+  replaceFencedSection,
+  renderRegistryTable,
+  renderSection,
+  renderWrapper,
+  buildPlan,
 };

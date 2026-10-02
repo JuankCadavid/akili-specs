@@ -933,4 +933,6 @@ module.exports = {
   seedLegacySections,
   sectionDigestEntry,
   entryBodyHash,
+  SECTION_OPEN_RE,
+  SECTION_CLOSE_RE,
 };
