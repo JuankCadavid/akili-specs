@@ -79,6 +79,7 @@ akili install --tool both --local
 | `akili update` | Update the package to the latest version (via the package manager that owns the install — npm or pnpm), reinstall files, and print a changelog summary of what changed |
 | `akili list` | List packaged commands, skills, and helper resources |
 | `akili doctor` | Check whether expected files are installed |
+| `akili routing` | Configure a project's model routing: writes the fenced `## Model Routing` section of `AGENTS.md`, the Step 8E agent wrappers, and `.agents/model-routing.json` from one set of answers (interactive wizard, or flags for a non-interactive run). See [Routing](#routing-akili-routing) |
 | `akili check-update` | Print one line if a newer version is published to npm; silent + exit 0 when current with `--quiet` (built for session hooks). Registry checks are cached for 24h in `~/.akili-specs-update.json` |
 | `akili notifications enable\|disable\|status` | **Opt-in** update announcements where users actually work: `enable` registers a `SessionStart` hook (`akili check-update --quiet`) in Claude Code's `~/.claude/settings.json` (respects `--claude-target`), so new versions are surfaced at session start. `disable` removes exactly that hook and leaves every other setting untouched; `status` reports the hook state and the last registry check. If `settings.json` is not valid JSON the command aborts without writing. Claude Code only for now |
 | `akili help` | Show help |
@@ -116,6 +117,19 @@ Every command closes with a clear end-of-run summary:
 | `--commands-only` | install, update, doctor | Only install or check commands (on Codex and Cursor, the 11 command skills — no `commands/` directory is ever written for either, in any mode) |
 | `--skills-only` | install, update, doctor | Only install or check skills |
 | `--fix` | doctor | Automatically repair and copy missing files |
+| `--hosts <a,b>` | routing | Hosts to configure: `claude`, `opencode`, `antigravity`, `codex`, `cursor` |
+| `--models <host>=<id>[@T<n>[+T<m>]],...` | routing | Models for one host (repeatable; last per host wins) |
+| `--cli <host>=<binary>` | routing | Confirmed CLI invocation for a host (repeatable) |
+| `--wrappers yes\|no` | routing | Write native agent wrappers (Step 8E); `--yes` without it means `yes` |
+| `--t3-cross-host <host>=<other>` | routing | Dispatch a host's Reviewer (T3) to another host (repeatable) |
+| `--antigravity-tools <a,b>` | routing | Confirmed Antigravity tool names for the Reviewer restriction |
+| `--opencode-agent-dir <path>` | routing | OpenCode wrapper directory. Default: `.opencode/agent` |
+| `--pin-reason <host>=<id>=<text>` | routing | Recorded reason for a dated model id (repeatable) |
+| `--yes` | routing | Accept the derived mapping without the confirm prompt |
+| `--adopt` | routing | Adopt an unfenced `## Model Routing` section without asking |
+| `--json` | routing | Print the plan result as JSON on stdout (nothing else) |
+| `--project <path>` | routing | Project directory. Default: current directory |
+| `--force` / `--dry-run` | routing | Overwrite wrappers and a hand-edited fence / print the plan only |
 
 `--commands-only` and `--skills-only` are mutually exclusive.
 
@@ -297,6 +311,147 @@ too generic to probe reliably — and the row's install hint names both the macO
 Windows install commands. Cursor's CLI is also invoked as `agent`, a documented alias of
 `cursor-agent` (`Last verified: 2026-10-01` — <https://cursor.com/docs/cli/overview>). A missing or
 broken binary reports NOT FOUND and does not flip the exit code or count toward `missing`.
+
+## Routing (`akili routing`)
+
+`akili routing` configures one project's model routing. From a single set of answers it writes three
+things: the fenced `## Model Routing` section of the project's root `AGENTS.md`, the Step 8E agent
+wrappers for the hosts you select (when you opt in), and `.agents/model-routing.json` — the answers
+file a later run re-reads. It runs against the current directory (`--project <path>` to point
+elsewhere), never against an install target. Every answer is validated and the whole plan is built
+before the first write; a validation error exits 1 with no file touched.
+
+`/akili-constitution` [Step 8C](commands/akili-constitution.md) runs it for you: it asks
+the same questions in chat and runs one non-interactive `akili routing … --yes --json`, so you never
+need the wizard inside an agent session. Run it yourself to re-route a project after your plan or
+roster changes.
+
+```bash
+akili routing            # interactive wizard
+akili routing --dry-run  # print the plan and the registry table; write nothing
+akili routing --hosts claude --models claude=opus,sonnet,haiku --cli claude=claude --wrappers yes --yes --json
+```
+
+### Question order
+
+Each question is answered by its flag when given, else by the previous answers file, else asked.
+Previous answers are final under `--yes` or without a TTY; otherwise they pre-fill the prompt
+(Enter keeps them).
+
+| # | Question | Flag |
+|---|---|---|
+| 1 | Which hosts you use | `--hosts` |
+| 2 | Per host, the models it offers; a model outside the packaged roster also takes its tiers (1–6), a dated id its reason | `--models`, `--pin-reason` |
+| 3 | Per host, the CLI invocation (`-` leaves `<CONFIRM>`) | `--cli` |
+| 4 | Antigravity Reviewer tool names (only when Antigravity is selected) | `--antigravity-tools` |
+| 5 | OpenCode agent directory (only when OpenCode is selected) | `--opencode-agent-dir` |
+| 6 | Bind the personas with native wrappers (Step 8E)? | `--wrappers` |
+| 7 | The derived tier table: accept, adjust a tier, or quit | `--yes` skips 7 and 8 |
+| 8 | Per host whose Reviewer cannot differ from its Implementer: add a model, dispatch T3 to another host, or leave it | `--t3-cross-host` |
+
+**Without a TTY nothing is asked.** The run needs `--yes`, plus hosts and each host's models from
+`--hosts` / `--models` or from the previous answers file; anything still missing exits non-zero with
+the non-interactive form. A dated id needs its `--pin-reason`. The other answers default: no `--cli`
+leaves `<CONFIRM>` in the CLI-invocation row, no `--wrappers` under `--yes` means `yes`, and no
+`--antigravity-tools` omits the restriction and reports it.
+
+### Flags
+
+The routing options are listed under [Options](#options) (Applies To `routing`). Grammar the table
+cannot hold:
+
+- **`--models`** takes one host per flag; the last flag for a host wins. An id outside the packaged
+  roster needs its tiers (`@T1+T3`); `@` is reserved inside ids; the same id on T2 and T3 is an error,
+  because the Reviewer could never differ from the Implementer.
+- **`--pin-reason`** is required for a packaged id marked dated, or a user id carrying a date stamp
+  (`YYYYMMDD` or `YYYY-MM-DD`); it becomes a footnote under the registry table.
+- **`--force`** overwrites existing wrappers **and** regenerates a hand-edited fence. **`--dry-run`**
+  prefixes every file line (and the `would create N dirs` line) with `[dry-run]`, prints the registry
+  table, and writes nothing; report lines such as `no changes`, the diff, and the table print
+  unprefixed.
+- **`--json`** prints the plan result (files and tokens, placeholders per column, `authorAuditor`,
+  Reviewer restrictions, the section's byte length) and nothing else on stdout — what Step 8C reads.
+
+### `AGENTS.md` states
+
+The section lives inside an AKILI-owned fence, `<!-- akili:section id=model-routing since=… -->` …
+`<!-- /akili:section -->`, the same marker grammar the personas use. One state per run:
+
+| State | Detected when | Token |
+|---|---|---|
+| Fenced, clean | The fenced body is what the previous answers render | `replaced`, or `unchanged` when the new body is byte-equal |
+| Fenced, hand-edited | The fenced body differs from that render (or no answers file exists) **and** from this run's render | `refused (hand-edited fence; --force to regenerate)` (diff printed); `overwritten` with `--force` |
+| Unfenced | A `## Model Routing` heading outside any fence | TTY: diff, then adopt or skip. No TTY: `adopted` with `--adopt`, else `skipped (unfenced; --adopt to replace)` |
+| Absent | No such section | `appended` |
+| No `AGENTS.md` | The file is missing | `created`, with the hint `run /akili-constitution to complete AGENTS.md` |
+| Malformed | An open marker without a close, a close without an open, or two `model-routing` blocks | `refused (malformed fence)`; `AGENTS.md` is not written |
+
+A fenced section with a stray `## Model Routing` heading outside the fence is handled as fenced and
+reported (`+ stray "## Model Routing" heading at line N — remove it`). `CLAUDE.md` is read, never
+written: if it carries the section, the run prints
+`CLAUDE.md carries a Model Routing section — move it to AGENTS.md`.
+
+Every planned file prints one line, `<token>  <path>`. Wrapper tokens: `created`, `unchanged`,
+`overwritten`, `skipped (exists; --force to replace)` (with `— model drift: file says X, mapping says
+Y` when the existing wrapper names another model), `skipped (wrappers=no)`, and
+`skipped (author ≠ auditor unsatisfiable)`. The answers file is `created`, `unchanged`, or
+`replaced`. A run in which every file is `unchanged` or `skipped`
+prints `no changes`.
+
+**Exit code.** Any `refused (…)` line exits 1; every other outcome exits 0. A refusal on `AGENTS.md`
+does **not** roll back the other writes: the wrappers and `.agents/model-routing.json` are still
+written. Resolve the fence (`--force`, or fix the malformed markers) and re-run.
+
+### Provenance, `--force`, and `--adopt`
+
+A fenced body that is not what your previous answers render is treated as a hand edit and refused,
+so a customized registry is never silently overwritten. Two cases reach that refusal without anyone
+editing by hand:
+
+- **After an `akili-specs` upgrade** that changes the packaged template or roster, the next run
+  renders the old answers differently, so the fence reads as hand-edited. Read the printed diff, then
+  re-run with `--force`.
+- **After the Step 8C inline fallback**, which writes the fence but no answers file, the first
+  `akili routing` run reads the fence as unknown provenance and needs `--force` — unless the
+  hand-written body already equals the new render, which is `unchanged`.
+
+To own the table yourself instead, remove the fence markers: the section then reads as unfenced, and
+the run skips it unless you adopt it.
+
+### Wrappers per host
+
+Written only with `--wrappers yes`, and only for a host whose Reviewer differs from its Implementer.
+Roles map to tiers as Leader T1, Implementer T2, Reviewer T3, Tester T2. A host whose Reviewer is
+dispatched cross-host (`--t3-cross-host`) gets three wrappers and no Reviewer.
+
+| Host | Files | Reviewer restriction | Effort | Shape pin |
+|---|---|---|---|---|
+| Claude Code | `.claude/agents/akili-<role>.md` | `tools: Read, Grep, Glob` | none | Step 8E, Claude Code bullet (no vendor URL) |
+| OpenCode | `.opencode/agent/akili-<role>.md` (`--opencode-agent-dir` overrides) | none — reported `read-only by instruction` on every run that writes it | none | Step 8E, OpenCode bullet (no vendor URL) |
+| Antigravity | `.agents/agents/akili-<role>/agent.md` | `tools:` only from confirmed names (`--antigravity-tools`); else omitted and reported | none in the wrapper (`model: flash` or `pro`); the effort lives in the registry id | Step 8E, Antigravity bullet (no vendor URL) |
+| Codex | `.codex/agents/akili-<role>.toml` | `sandbox_mode = "read-only"` | `model_reasoning_effort` | <https://learn.chatgpt.com/docs/agent-configuration/subagents>, `Last verified: 2026-09-16` |
+| Cursor | `.cursor/agents/akili-<role>.md` | `readonly: true` | `[effort=<rung>]` bracket, only for a confirmed rung | <https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01` |
+
+- **OpenCode, v1 limit:** only the agent-directory form is written. The `opencode.json` `agent`
+  block stays manual (the Step 8E fallback), and no Reviewer restriction is written — its shape is
+  unconfirmed.
+- **Cursor effort bracket:** written only when the roster entry's confirmed effort rungs contain the
+  role's rung (Leader and Reviewer `high`, the others `medium`); otherwise the bracket is omitted and
+  the summary says `effort bracket omitted — rung unconfirmed`.
+
+### After a run
+
+- **Commit the answers file and the wrappers.** A writing run prints the hint
+  `commit .agents/model-routing.json and the wrappers — akili doctor --agents --fix refuses a dirty
+  .agents/`: the answers file lives under `.agents/`, and `doctor --agents --fix` refuses an
+  uncommitted `.agents/` (see [Guards](#guards)).
+- **A cross-host Reviewer sticks.** A recorded dispatch (`authorAuditor` `cross-host: <other>` in
+  `.agents/model-routing.json`) is carried into every later run. To change it, pass a different
+  `--t3-cross-host`; to drop it, delete that host's `authorAuditor` entry from the answers file.
+- **Packaged data, not installed resources.** The roster (`.claude/templates/model-registry.json`)
+  and the section template (`.claude/templates/model-routing.section.md`) ship in the package and are
+  read from the package directory at run time. `install`, `update`, `list`, and `doctor` neither
+  install nor list them.
 
 ## Persona Drift (`doctor --agents`)
 

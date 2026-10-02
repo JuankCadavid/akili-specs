@@ -349,13 +349,14 @@ if 3 consecutive FAILs → HALT, mark task [~], present audit trail
 
 The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the harness runs under Claude Code, OpenCode, Google Antigravity, Codex, and Cursor. Claude Code and OpenCode delegate through the Step 8E wrappers when present — each wrapper loads its own `.agents/<role>.md`, so the Leader neither re-reads nor re-sends persona content — and fall back to sub-prompt contexts seeded with the persona files when no wrappers exist. **Antigravity resolves agents one level deeper** — it discovers them under `.agents/agents/` and invokes them with `invoke_subagent`, which also requires `subagent: true` in the wrapper's frontmatter, so a persona left at the root of `.agents/` is invisible to it. [Step 8E](commands/akili-constitution.md) generates the nested wrappers, which stay thin and point back at the same persona files. **Codex resolves a third tenant** — its repo-scope Agent Skills root is `.agents/skills/`, holding the AKILI commands and packaged skills installed with `akili install --tool codex --local`; Codex scans `.agents/skills` in every directory from the current working directory up to the repository root, plus the user-scope `$HOME/.agents/skills` (`Last verified: 2026-09-16` — https://learn.chatgpt.com/docs/build-skills). **Confirmed live 2026-09-17 (codex-cli 0.154.0):** asked to enumerate every non-`akili-` skill it can see, Codex did not surface `.agents/<role>.md` (or an `akili-<role>` name) as a skill — the tenant is collision-free. **Cursor adds no tenant of its own:** it reads the existing `.agents/skills/` tenant (above) plus `.claude/skills`, `.claude/agents`, and `.codex/agents` through its documented compatibility roots, and its own Step 8E wrappers live under the separate `.cursor/agents/` path (<https://cursor.com/docs/context/skills>, `Last verified: 2026-10-01`: "For compatibility, Cursor also loads skills from Claude and Codex directories").
 
-One repo can hold all three tenants without collision — no file name is shared:
+One repo can hold all four tenants without collision — no file name is shared:
 
 | Path | Tenant | Written by |
 |---|---|---|
 | `.agents/<role>.md` | AKILI personas (all hosts) | `/akili-constitution` Step 7 |
 | `.agents/agents/akili-<role>/agent.md` | Antigravity wrappers | Step 8E (Antigravity) |
 | `.agents/skills/<name>/SKILL.md` | Codex and Cursor repo-scope skills | `akili install --tool codex --local` or `--tool cursor --local` |
+| `.agents/model-routing.json` | Model-routing answers (all hosts) — what a later `akili routing` run re-reads | `akili routing` (Step 8C); the inline fallback writes none |
 
 **`/akili-test` — Leader → Tester(s):**
 
@@ -390,8 +391,9 @@ T4 Context-Ingest, T5 Fast-Cheap, T6 Multimodal** — map to the phases:
 
 A single editable registry binds each tier to a model **per tool** (Claude Code, OpenCode, Antigravity, Codex, and Cursor),
 using **floating aliases** (`opus`/`sonnet`/`haiku`) wherever they exist so the registry survives
-model generations without edits. `/akili-constitution` (Step 8C) scaffolds a `## Model Routing`
-copy into the project's `AGENTS.md` / `CLAUDE.md`.
+model generations without edits. `/akili-constitution` (Step 8C) asks the routing questions in chat
+and runs `akili routing`, which writes a fenced `## Model Routing` copy into the project's root
+`AGENTS.md` (an inline fallback writes the same section by hand when the CLI is absent or older).
 
 Routing operates at two levels:
 
@@ -405,7 +407,8 @@ Routing operates at two levels:
 
 No `model:` frontmatter on commands and no installer changes. `/akili-audit` reports **Model
 Registry Drift** (stale model names, dated pins where an alias exists, wrappers contradicting the
-registry). See [model-routing.md](model-routing.md) for the tiers, principles, and the default
+registry, and wrappers, `.agents/model-routing.json`, and the `## Model Routing` section disagreeing
+after an `akili routing` run). See [model-routing.md](model-routing.md) for the tiers, principles, and the default
 registry.
 
 ### 8. The Kaizen Loop

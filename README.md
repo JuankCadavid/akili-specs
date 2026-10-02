@@ -50,7 +50,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 
 → **[Documentation Hub](docs/README.md)**: full AKILI documentation<br>
 → **[Flow](docs/flow.md)**: constitution-to-archive lifecycle<br>
-→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity + Codex + Cursor)<br>
+→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity + Codex + Cursor), configured per project with `akili routing`<br>
 → **[Commands](docs/commands/README.md)**: slash command reference<br>
 → **[Skills](docs/skills/README.md)**: packaged skill reference<br>
 → **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>
@@ -436,6 +436,7 @@ See the full [CLI Reference](docs/cli.md) for options, install paths, examples, 
 | `akili update` | Reinstall packaged commands, skills, and helper resources |
 | `akili list` | Show packaged commands, skills, and helper resources |
 | `akili doctor` | Check whether expected files are installed |
+| `akili routing` | Configure a project's model routing — the `## Model Routing` section of `AGENTS.md`, the Step 8E agent wrappers, and `.agents/model-routing.json` (see the [CLI Reference](docs/cli.md#routing-akili-routing)) |
 | `akili doctor --agents` | Report drift between a project's `.agents/` personas and the CLI's packaged templates; `--fix` upgrades them (see the [CLI Reference](docs/cli.md)) |
 | `akili check-update` | Print one line if a newer version is on npm (`--quiet` for session hooks; 24h cache) |
 | `akili notifications enable\|disable\|status` | Opt-in Claude Code SessionStart hook that announces new versions at session start |
@@ -892,8 +893,9 @@ Fast-Cheap, and Multimodal. A single editable **registry** binds each tier to a 
 This is **guidance-first and model-agnostic**: no `model:` frontmatter is added to commands and the
 installer injects nothing. You switch models yourself (Claude Code `/model`, OpenCode model
 selector, Codex `/model` — which also sets reasoning effort when available), and
-`/akili-constitution` scaffolds a `## Model Routing` registry into each project's
-`AGENTS.md` / `CLAUDE.md`.
+`akili routing` writes a project's `## Model Routing` registry into its root `AGENTS.md`, plus (when you
+opt in) the Step 8E agent wrappers that pin each persona to its tier's model — only when you run it (or
+`/akili-constitution` runs it for you in Step 8C), never from the installer and never into commands.
 
 Key principles: **ARCHITECT = BUILDER** (the model that designs also builds), **author ≠ auditor**
 (the Reviewer runs on a different model than the Implementer), reserve deep-reasoning models for

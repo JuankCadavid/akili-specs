@@ -98,7 +98,10 @@ tier (to the deeper reasoner) to preserve independence.
 ## Model registry
 
 This is the single editable source of truth. Phases reference **tiers**; only this table names
-models. When models change, edit only this table. *Registry updated: 2026-09.*
+models. When the packaged defaults change, edit this table together with
+`.claude/templates/model-registry.json` (the roster `akili routing` reads — a drift test fails when
+the two disagree); a project changes its own models by re-running `akili routing`, or by removing
+the fence and editing its table by hand. *Registry updated: 2026-09.*
 
 > **Worked example — the Opus 5 release required zero edits to this table.** When Anthropic shipped
 > Claude Opus 5, the `opus` alias moved to it on its own; T1/T3 followed automatically. That is the
@@ -734,31 +737,44 @@ model column.
 | Your registry entry | What to do when a newer model ships |
 |---|---|
 | **Floating alias** (`opus` / `sonnet` / `haiku`, Claude Code) | **Nothing.** The alias auto-resolves to the latest generation of that family — this is exactly what alias-first buys you. Zero edits. |
-| **Concrete slug** (OpenCode `opencode-go/...`, a dated Claude pin, or `claude-fable-5`) | **Edit it** — no alias mechanism absorbs the change. Follow the 3 steps below. |
-| **You want to re-map a tier** (promote a new model into T1/T2/T3, e.g. GLM-5.3-Flash → T2) | Edit the tier's row, then reconcile wrappers — same 3 steps. Treat it as a *promotion to evaluate*, not an auto-swap (does it fit the tier? does it keep author ≠ auditor?). |
+| **Concrete slug** (OpenCode `opencode-go/...`, a dated Claude pin, or `claude-fable-5`) | **Change it** — no alias mechanism absorbs the change. Follow the 3 steps below. |
+| **You want to re-map a tier** (promote a new model into T1/T2/T3, e.g. GLM-5.3-Flash → T2) | Re-place the model on the tier (`--models <host>=<id>@T<n>`) — same 3 steps. Treat it as a *promotion to evaluate*, not an auto-swap (does it fit the tier? does it keep author ≠ auditor?). |
 
 **The 3 steps (concrete-slug or re-map case):**
 
-1. **Edit ONE table** — the `## Model Routing` block in your **project's** root `AGENTS.md` /
-   `CLAUDE.md` (not this packaged default; see below). Change the slug(s), bump the
-   `Updated: <YYYY-MM>` stamp, and record a one-line reason next to any dated pin.
-2. **Reconcile the Step 8E wrappers** — `.claude/agents/akili-*.md` and `.opencode/agent/*.md`
-   hard-code `model:` per role, so their value must match the new registry. Alias-based Claude
-   wrappers (`model: opus`) usually need no change; concrete OpenCode slugs do.
-3. **Run `/akili-audit`** — its **Model Registry Drift** check confirms the registry and wrappers
-   agree and flags any slug the tool no longer offers.
+1. **Re-run `akili routing`** with the new model list — `--models <host>=<id>[@T<n>]`, plus
+   `--pin-reason <host>=<id>=<text>` for a dated pin. One run rewrites the fenced `## Model Routing`
+   section in your **project's** root `AGENTS.md` (not this packaged default; see below) — slugs,
+   `Updated: <YYYY-MM>` stamp, and pin-reason footnote — from the same answers it saves to
+   `.agents/model-routing.json`. Do not edit inside the fence: the next run refuses it as
+   `refused (hand-edited fence; --force to regenerate)`.
+2. **Wrappers follow from the same run** — with `--wrappers yes`, that run also regenerates the
+   Step 8E wrappers (`.claude/agents/akili-*.md`, `.opencode/agent/*.md`, …), so their `model:`
+   matches the new registry. An existing wrapper is replaced only with `--force`; otherwise it prints
+   `— model drift: file says X, mapping says Y`. **Hand path:** to own the table instead, remove the
+   fence markers, edit the table yourself, and reconcile each wrapper's `model:` by hand.
+3. **Run `/akili-audit`** — its **Model Registry Drift** check confirms the registry, the wrappers,
+   and the answers file (`.agents/model-routing.json`) agree, and flags any slug the tool no longer
+   offers.
 
 **Which file do I edit — the package default or the project copy?**
 
 - `docs/model-routing.md` (this file) is the **default new projects inherit**. Editing it does *not*
   change projects already scaffolded.
-- The `## Model Routing` block inside each project's root `AGENTS.md` / `CLAUDE.md` is **what
-  actually governs that project** — that is where a downstream developer edits. When you upgrade the
-  AKILI package and its default registry moves ahead of your project copy, `/akili-constitution` in
-  **Safe Update mode** flags the difference without overwriting your pins; you decide what to adopt.
+- The fenced `## Model Routing` section in each project's root `AGENTS.md` is **what actually governs
+  that project**, and `akili routing` is its writer. When you upgrade the AKILI package and its
+  template or roster changes, the next `akili routing` run renders your saved answers differently and
+  refuses the fence as hand-edited, printing the diff: read it, then re-run with `--force` to adopt
+  the new render, or leave the section as it is.
 
 ## How to apply per tool
 
+- **First, every host:** run `akili routing` once per project (re-run when your plan or roster
+  changes). It asks which hosts you use and which models each one offers, derives the six tiers, and
+  writes the fenced `## Model Routing` section into `AGENTS.md`, the Step 8E agent wrappers (when you
+  opt in), and `.agents/model-routing.json` — `/akili-constitution` Step 8C runs it for you
+  non-interactively. See [CLI Reference → Routing](cli.md#routing-akili-routing). The per-host
+  switches below are what you still do by hand in the main loop.
 - **Claude Code:** switch with `/model` before running a phase — e.g. `/model opus` for
   `/akili-propose`, `/akili-validate`, and the `/akili-execute` / `/akili-test` **Leader session**
   (you orchestrate on the deep reasoner; the triad's Implementer/Tester subagents route to `sonnet`
@@ -795,11 +811,15 @@ model column.
   OpenCode expects `provider/model`), so model choice stays out of the prompts. Model bindings live
   exclusively in **agent definitions**, which are per-tool, per-project files generated with the
   user's approval in Step 8E.
-- **No installer changes.** Nothing here is force-injected. `/akili-constitution` scaffolds a project
-  copy of this registry into `AGENTS.md` / `CLAUDE.md` as plain Markdown — identical handling across
-  Claude Code, OpenCode, Google Antigravity, Codex, and Cursor.
-- **Per-project override.** Edit the registry inside your project's `AGENTS.md` / `CLAUDE.md` to
-  pin different models; this package's copy is only the default.
+- **No installer changes.** Nothing here is force-injected. `akili routing` (run by
+  `/akili-constitution` Step 8C, or by you) writes a fenced project copy of this registry into the
+  root `AGENTS.md`, never into `CLAUDE.md` — identical handling across Claude Code, OpenCode, Google
+  Antigravity, Codex, and Cursor. The one writer of models is `akili routing`: it writes them only at
+  the user's request, into agent wrappers and the project registry, never into commands — `install`
+  and `update` still inject nothing.
+- **Per-project override.** To pin different models, re-run `akili routing`, or remove the fence and
+  edit the registry in your project's `AGENTS.md` by hand — a hand edit inside the fence is refused
+  on the next run. This package's copy is only the default.
 - **The registry is host-complete, always.** It belongs to the **project**, not to the session that
   scaffolded it. Keep a column for every supported host even when you only use one today: the repo
   outlives any single tool, gets opened in a different host later, and gets handed to teammates who

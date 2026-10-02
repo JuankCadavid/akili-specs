@@ -7,6 +7,7 @@ Use this checklist before publishing `akili-specs`.
 - [ ] Confirm this update should be published now, not only committed to the repository.
 - [ ] Confirm all intended repo changes are committed before running the release script.
 - [ ] Confirm `CHANGELOG.md` has meaningful notes under `Unreleased`.
+- [ ] If this release refreshes the default registry table in `docs/model-routing.md`, refresh `.claude/templates/model-registry.json` in the same commit — `test/registry-drift.test.js` (run by `npm test`) fails when the two disagree.
 - [ ] Confirm `package.json` version matches the release version.
 - [ ] Confirm `CHANGELOG.md` has a dated section for the release.
 - [ ] Confirm `releases/vX.Y.Z.md` exists.

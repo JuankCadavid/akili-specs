@@ -239,7 +239,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (rules/docs — two review rounds budgeted) |
 | Depends on | T5, T6 |
 | Requirements | FR-9 (every SHALL; Aggregate-claim falsification), FR-10 (`grep "^model:"` empty), NFR-7 (pins carried into `docs/cli.md` *Routing* section where host shapes are named) |
