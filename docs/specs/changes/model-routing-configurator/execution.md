@@ -538,3 +538,30 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 - *Spawns:* Implementer 15 calls (self-count 13), 70,810 tokens, ended complete; Reviewer 10 calls, 71,894 tokens, ended complete.
 
 **Decisions made:** `design.md:88` aligned to registry membership after the Reviewer's note. **Budget:** LOC ~4,010 after T11 — the ~4,000 tripwire is crossed by the fix the user approved at pivot 2b; recorded, not re-asked. **Final verification:** `npm test` 226/226; `git diff --check` clean.
+
+### T10 — Constitution Step 8C: branch detection before composing the command; preview `--yes --dry-run`; Step 9 pairing wording (pivot 2, docs-only)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 1) |
+| Date | 2026-10-02 |
+| Implementer attempts | 1 |
+| Skills (Leader selection) | `cognitive-doc-design`, `caveman` — as listed |
+| Effort | Implementer `high`; Reviewer `high` |
+| Models | Implementer `opus` · Reviewer `fable` — author ≠ auditor holds |
+| Requirements covered | FR-8 as amended (branch decided by `akili help` before composing the command), FR-8 *CLI present* (preview `--yes --dry-run`), FR-8 Step 9 report |
+| Continue gate | auto-approved (user instruction after T1) |
+
+**Attempt 1**
+
+- *Runtime events:* none. Ran in parallel with T11 (disjoint files).
+- *Files changed:* `.claude/commands/akili-constitution.md` (Step 8C: intro, step 2 "Probe, preview, then run", step 3 heading, four-column branch table with a *Probe (`akili help`)* column naming `ERROR: Unknown option '--project'` (composed command) and `ERROR: Unknown command: routing` (bare), the "fix the flags" paragraph narrowed to a binary whose help lists `routing`, Q7, the unfenced row's diff re-run `--yes --dry-run` (`[advisory-grade]`, same rule), Fallback "Reuse the answers already collected"; Step 9: fallback reason "its `akili help` listed no `routing`", `note` optional, Codex/Cursor pairing sentences → "the Reviewer's model differs from the Implementer's (T3 ≠ T2), while the Leader (T1) may share the Reviewer's model and the Tester (T2) the Implementer's") · `docs/commands/akili-constitution.md:92` (probe first; both forms attributed). +31/−21.
+- *Implementer verification:* baseline `grep -c "akili help"` → 0 at HEAD. Check 1: `akili help` 6 hits (`:470, 496, 497, 516, 522`; Step 9 `:1416`); `Unknown option '--project'` → 2; `yes --dry-run` `:500`, `:530`. Check 2 (two scratch shims, worktree `akili-old-t10` at `8eb0227`, removed after): new `akili help | grep -c routing` → 6; old → 0; old composed command → `ERROR: Unknown option '--project'. To specify a positional argument starting with a '-', place it at the end of the command after '--', as in '-- "--project"`, exit 1; old bare `akili routing` → `ERROR: Unknown command: routing`, exit 1; new non-TTY `--dry-run` without `--yes` → exit 1 `ERROR: stdin is not a TTY and answers are still missing: --yes …`; `--yes --dry-run` → exit 0, 0 files written; bare PATH → absent. Check 3: `Unknown command: routing` hits → `akili-constitution.md:519` (bare form, correct), `docs/commands/akili-constitution.md:92` (re-worded); `docs/cli.md:414`, `docs/flow.md:396` name the condition, not the detection — left. `npm test` 226/226; `git diff --check` clean. Obligation sweep: every `-U0` removed line is a replaced sentence; Step 8E not edited.
+- *Evidence re-run (Leader-inline):* **VERIFIED** — counts reproduced (6 / 2 / `:500` `:530`); `Leader/Implementer vs Reviewer` → 0, `may share the Reviewer's model` → 1; live `help | grep -c routing` → 6; the amended step 2, branch table and narrowed paragraph read whole — no surviving run-then-classify instruction.
+- *Reviewer verdict:* **PASS** — "the fallback branch is now decided by an `akili help` probe before any routing command is composed, both older-binary stderr forms are named and attributed correctly, every preview is `--yes --dry-run`, the Step 9 pairing sentence matches `ROLE_TIER`, and the T6 obligation sweep holds — no Step 8C/8E/9 clause dropped, the Fallback body untouched except the one approved phrase." Independent verification: probe-first coherent across intro / step 2 / step-3 heading / table / narrowed paragraph; live `8eb0227` shim reproduced both stderr forms; `-U0` hunks only at `:470-530`, `:541`, `:1416/:1418`; FR-8's "same questions in the same order" survives verbatim at `:482-483`; summary doc consistent; `docs/cli.md`/`docs/flow.md` need no edit. Red run: n/a (prose).
+- *Implementer `Not Done / Assumptions` (verbatim):* I also changed the `skipped (unfenced …)` row's diff re-run from `--dry-run` to `--yes --dry-run`, which goes slightly beyond the brief. It falls under the same non-TTY rule, and I checked it live. The probe text says "lists it" rather than "6 lines", so the rule does not break if the help layout changes.
+- *Spawns:* Implementer 19 calls (self-count 17), 96,888 tokens, ended complete; Reviewer __REVIEWER_SPAWN_10__.
+
+**ADVISORY (recorded, never gating):** Step 9 `:1418` — the Tester always binds the Implementer's model (`ROLE_TIER` T2 for both); "may share … the Tester (T2) the Implementer's" hedges a certainty — "shares" would be exact. Cosmetic; follow-up.
+
+**Decisions made:** none beyond the pivot-2 record. **Final verification:** `npm test` 226/226; `git diff --check` clean.

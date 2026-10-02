@@ -342,7 +342,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (rules document) |
 | Depends on | T6 (added by the T8 Pivot Record 2, 2026-10-02 — user-approved) |
 | Requirements | FR-8 **as amended** (older-binary branch detected via `akili help` before composing the command), FR-8 *CLI present* (zero TTY prompts — the preview must not fail without `--yes`), FR-8 Step 9 report |

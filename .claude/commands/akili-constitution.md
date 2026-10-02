@@ -467,8 +467,9 @@ The `.agents/` directory must be tool-agnostic:
 **Collect the answers in chat, then let `akili routing` write.** One non-interactive run of the
 packaged CLI renders the project's `## Model Routing` section, the Step 8E agent wrappers (when the
 user opts in), and `.agents/model-routing.json` (the answers file a later run re-reads) from the
-same answers. When the binary is absent or predates `routing`, the **Fallback** below writes the same
-section by hand.
+same answers. When the binary is absent or predates `routing` — step 2's `akili help` probe tells
+you which, before any routing command is composed — the **Fallback** below writes the same section
+by hand.
 
 | What | Rule |
 |---|---|
@@ -478,8 +479,8 @@ section by hand.
 | Terminal | Never send the user to a terminal to run the interactive wizard (`akili routing` with no flags) — you ask the questions, the CLI only writes |
 
 **1. Ask in chat, in this order.** Use your question tool. The order is the `QUESTION ORDER`
-contract of `collectAnswers` in the packaged `bin/routing.js`; the Fallback asks the same questions
-in the same order. Each answer becomes a flag:
+contract of `collectAnswers` in the packaged `bin/routing.js`; the Fallback reuses these answers, so
+it works from the same questions in the same order. Each answer becomes a flag:
 
 | # | Ask | Flag |
 |---|---|---|
@@ -489,12 +490,18 @@ in the same order. Each answer becomes a flag:
 | 4 | Antigravity only: the Reviewer's tool names, **confirmed against the installed binary** (Step 8E). Unconfirmed → no flag; the restriction is omitted and reported | `--antigravity-tools <a,b>` |
 | 5 | OpenCode only: the agent directory, when not `.opencode/agent` | `--opencode-agent-dir <path>` |
 | 6 | Step 8E's one question — bind the personas with native wrappers? | `--wrappers yes` or `--wrappers no` |
-| 7 | Show the derived tier table and ask the user to accept or adjust it (step 2 below). A tier adjustment is a placement: re-run with `<id>@T<n>` in `--models` | `--yes` once accepted |
+| 7 | Show the derived tier table and ask the user to accept or adjust it (step 2 below). A tier adjustment is a placement: re-run with `<id>@T<n>` in `--models` | `--yes` on the real run once accepted (the preview carries `--yes` too — without a TTY the CLI requires it) |
 | 8 | A host whose Reviewer (T3) cannot differ from the Implementer (T2) is `unsatisfiable`: ask whether to add a model, dispatch its T3 to another host, or leave it (registry written, that host's wrappers skipped) | `--t3-cross-host <host>=<other>` |
 
-**2. Preview, then run.** Show the derived table with the same command plus `--dry-run` (no
-`--json`): it prints the tier table and the planned writes and writes nothing. Once the user
-accepts, run the command for real:
+**2. Probe, preview, then run.** Before composing the command, run `akili help` once and look for
+`routing` in its output (`akili help | grep -c routing`): a binary that ships the command lists it,
+an older one does not. The probe decides the branch in step 3 — no `routing` in the help, or `akili`
+not resolving at all, means the **Fallback**, and you compose no routing command. When the help
+lists `routing`, show the derived table with the same command plus `--yes --dry-run` (no `--json`):
+without a TTY the CLI requires `--yes` even for a preview (it otherwise exits 1 with an
+`ERROR: stdin is not a TTY and answers are still missing: --yes …` line), and `--dry-run` still writes
+nothing — it prints the tier table and the planned writes. Once the user accepts, run the command
+for real:
 
 ```bash
 akili routing --project . --hosts <h1,h2> --models <host>=<id>[@T<n>[+T<m>]],… [--models …] --cli <host>=<binary> [--cli …] --wrappers yes|no [--t3-cross-host <host>=<other>] [--antigravity-tools <a,b>] [--opencode-agent-dir <path>] [--pin-reason <host>=<id>=<text>] --yes --json
@@ -503,21 +510,24 @@ akili routing --project . --hosts <h1,h2> --models <host>=<id>[@T<n>[+T<m>]],…
 Without a TTY the CLI asks nothing, so `--yes` is required. Never add `--force` or `--adopt` on
 your own — each overwrites something the user owns, and each needs the user's answer (step 3).
 
-**3. Read the result — three branches.**
+**3. Read the result — three branches.** The step 2 probe picks the branch; the command's output
+is read only on the first.
 
-| Branch | What you see | Do |
-|---|---|---|
-| **CLI present, knows `routing`** | One JSON object on stdout: `dryRun`, `exitCode`, `hosts`, `writes[]` (`relPath`, `token`, `note`), `restrictions`, `authorAuditor`, `placeholdersByColumn`, `sectionBytes`, `stale`, `reports`, `hints` | Keep it for Step 9. Act on the tokens in the next table |
-| **CLI present, predates `routing`** | `ERROR: Unknown command: routing` on stderr, exit 1 | Run the **Fallback**. Tell the user a newer `akili-specs` package provides the command |
-| **CLI absent** | The shell cannot resolve `akili` | Run the **Fallback** |
+| Branch | Probe (`akili help`) | What you see | Do |
+|---|---|---|---|
+| **CLI present, knows `routing`** | Lists `routing` | One JSON object on stdout: `dryRun`, `exitCode`, `hosts`, `writes[]` (`relPath`, `token`, and `note` only when there is something to report), `restrictions`, `authorAuditor`, `placeholdersByColumn`, `sectionBytes`, `stale`, `reports`, `hints` | Keep it for Step 9. Act on the tokens in the next table |
+| **CLI present, predates `routing`** | Runs, but lists no `routing` | Nothing to read — compose no command. If one ran anyway, this binary exits 1 with `ERROR: Unknown option '--project'` on stderr for the composed command (its strict parser rejects the first routing flag before reaching the command name), or `ERROR: Unknown command: routing` for a bare `akili routing` | Run the **Fallback**. Tell the user a newer `akili-specs` package provides the command |
+| **CLI absent** | The shell cannot resolve `akili` | Nothing to read | Run the **Fallback** |
 
-Any other `ERROR:` line (a usage error, a flag the CLI rejects) is not a fallback trigger: fix the
-flags from the message and re-run.
+On a binary whose `akili help` lists `routing`, any other `ERROR:` line (a usage error, a flag the
+CLI rejects) is not a fallback trigger: fix the flags from the message and re-run. On a binary whose
+help lacks `routing`, no flag fix helps — `Unknown option '--project'` is that binary's answer to
+every composed routing command; run the Fallback.
 
 | `AGENTS.md` token | Meaning | Do |
 |---|---|---|
 | `created` · `appended` · `replaced` · `unchanged` · `adopted` · `overwritten` | The section is in place | Nothing |
-| `skipped (unfenced; --adopt to replace)` | An unfenced `## Model Routing` section exists — the Safe Update case | Show the user its diff (re-run with `--dry-run`, no `--json`). Ask: adopt it (re-run with `--adopt`, passing the user's existing pins through `--models`), or keep it and fill gaps by hand per the Fallback's mode policy |
+| `skipped (unfenced; --adopt to replace)` | An unfenced `## Model Routing` section exists — the Safe Update case | Show the user its diff (re-run with `--yes --dry-run`, no `--json`). Ask: adopt it (re-run with `--adopt`, passing the user's existing pins through `--models`), or keep it and fill gaps by hand per the Fallback's mode policy |
 | `refused (hand-edited fence; --force to regenerate)` | The fenced body is not what the previous answers render — a hand edit, or a section the Fallback wrote | `exitCode` is 1; wrappers and the answers file **were** written. Show the diff; regenerate with `--force` only when the user says so |
 | `refused (malformed fence)` | Broken or duplicated `model-routing` markers | `exitCode` is 1; nothing was written to `AGENTS.md`, while the wrappers and the answers file were. Ask the user to repair the markers, then re-run |
 
@@ -528,7 +538,7 @@ next `akili routing` run refuses.
 
 #### Fallback (no `akili routing`)
 
-Run this only on the two fallback branches above. Ask the same questions in the same order, then
+Run this only on the two fallback branches above. Reuse the answers already collected, then
 write by hand:
 
 - the section, inside the same fence — `<!-- akili:section id=model-routing since=<version> -->`
@@ -1403,9 +1413,9 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The main technical decisions captured in the TRD
 - The core infrastructure decisions captured in the Infrastructure document
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
-- The `## Model Routing` registry (Step 8C): whether `akili routing` wrote it or **the Fallback was used** (and why — binary absent, or `Unknown command: routing`); that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill. When the `--json` result exists, read these from it, never from memory: the hosts configured (`hosts`), the placeholder count per column (`placeholdersByColumn`), every file written or skipped with its token (`writes`), each Reviewer's restriction state (`restrictions`), `authorAuditor` per host, and any `stale` ids. When `exitCode` is 1 with a `refused (…)` token on `AGENTS.md`, say plainly that the section was **not** written while the wrappers and the answers file were, and what the user decided (step 3 of Step 8C). After a Fallback run, repeat that a later `akili routing` needs `--force` on the hand-written fence
+- The `## Model Routing` registry (Step 8C): whether `akili routing` wrote it or **the Fallback was used** (and why — binary absent, or older than `routing`: its `akili help` listed no `routing`); that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill. When the `--json` result exists, read these from it, never from memory: the hosts configured (`hosts`), the placeholder count per column (`placeholdersByColumn`), every file written or skipped with its token (`writes`; a `note` appears only when there is something to report), each Reviewer's restriction state (`restrictions`), `authorAuditor` per host, and any `stale` ids. When `exitCode` is 1 with a `refused (…)` token on `AGENTS.md`, say plainly that the section was **not** written while the wrappers and the answers file were, and what the user decided (step 3 of Step 8C). After a Fallback run, repeat that a later `akili routing` needs `--force` on the hand-written fence
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
-- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. On Cursor, name the four wrapper files (`.cursor/agents/akili-{leader,implementer,reviewer,tester}.md`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `readonly: true`**. Also name the `.agents/` four-tenant table (personas / Antigravity wrappers / Codex and Cursor skills / the `akili routing` answers file, defined in Step 8E) so the user knows the layout is collision-free.
+- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the `model` value each wrapper binds as the mapping yields it — the Reviewer's model differs from the Implementer's (T3 ≠ T2), while the Leader (T1) may share the Reviewer's model and the Tester (T2) the Implementer's — and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. On Cursor, name the four wrapper files (`.cursor/agents/akili-{leader,implementer,reviewer,tester}.md`), the `model` value each wrapper binds as the mapping yields it — the Reviewer's model differs from the Implementer's (T3 ≠ T2), while the Leader (T1) may share the Reviewer's model and the Tester (T2) the Implementer's — and state plainly that **the Reviewer is read-only by `readonly: true`**. Also name the `.agents/` four-tenant table (personas / Antigravity wrappers / Codex and Cursor skills / the `akili routing` answers file, defined in Step 8E) so the user knows the layout is collision-free.
 - The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code, Codex, and the Cursor CLI (observed 2026-10-01; the Cursor IDE is unverified), **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert. On a Cursor-hosted project, name the import-toggle answer (the *Include Third-Party Plugins, Skills, and Other Configs* setting: on / off / unknown), which hook entry exists as a result (the imported `.claude/settings.json` entry alone, or that plus a native `.cursor/hooks.json` entry), and that enforcement there is **enforced on the Cursor CLI** (observed 2026-10-01) — **the Cursor IDE is unverified**.
 - **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it. When `akili routing` wrote the section, its `--json` result carries the section's byte length (`sectionBytes`) — use it for the `## Model Routing` share of the total.
 - Any assumptions and open questions that still need validation
