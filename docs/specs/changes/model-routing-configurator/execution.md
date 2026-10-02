@@ -446,6 +446,8 @@ T6's scope and check 3 assumed `docs/commands/akili-constitution.md` is a verbat
   3. Case 5's `skipped (unfenced…)` run still ends with `no changes`, exit 0. [Per the §5.6 rule — `no changes` when every write is `unchanged`/`skipped`; reads oddly beside a skip that needs `--adopt`; advisory.]
   4. The case-6b malformed run prints the `commit .agents/model-routing.json…` hint although `model-routing.json` is `unchanged`. [Wrappers were `created` in that run — a real write happened, so the hint is per design §7; advisory.]
 
+**Case 1 — registry-content re-check after T9 (Leader-inline, 2026-10-02, fresh scratch project, FR-2 non-interactive form equivalent to case 1's answers):** `grep -c "Sol/Terra family\|Gemini 3.8 Flash family" AGENTS.md` → `0`; `grep -c "alias — always latest" AGENTS.md` → `1`; T3 row `` `opus` *(must differ from T2)* `` · `` `gpt-5.6-terra` *(≠ Luna)* `` intact. The pivot's defect is closed in the rendered registry. **Still owed by the user (real TTY / Claude Code session):** case 1 (prompt order and count, interactive), case 2 (adjust round), case 10 (constitution delegation walk incl. the older-binary branch), case 11 (optional, Cursor `agent`).
+
 ## Pivot Record: T8 (2026-10-02)
 
 | Field | Content |
