@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Complete** — all 11 tasks `[x]` (2026-10-02); see `execution.md` §3 |
+| Status | **Reopened by validation** — T12 added for FR-3 (2026-10-02); 11 of 12 `[x]` |
 | Date | 2026-10-01 |
 | Budget (design §10) | 8 tasks · ~1,550 LOC (`routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210) · 18 review rounds (code 5 × 2; rules docs 2 × 2; validation 1; margin 3) |
 | Design review | Judgment Day round 1: 15 confirmed severe + 3 split + 17 warnings **fixed** (Fix only, no re-judgment) — `judgment.md` |
@@ -30,6 +30,7 @@ T1 (packaged data: registry JSON, section template, drift test)
                                   └─→ T8 (closing validation: scratch project + constitution delegation walk)
 T2 ─→ T9 (pivot, 2026-10-02: deriveTiers step 6 — fixed notes only for packaged primaries; T8 case 1's registry check re-runs after T9)
 T6 ─→ T10 (pivot 2: Step 8C branch detection via `akili help`; preview `--yes --dry-run`; Step 9 pairing wording)   T9 ─→ T11 (pivot 2: step 6 keyed on registry membership) — T10 ∥ T11 (disjoint files)
+T11 ─→ T12 (validation FAIL FR-3, 2026-10-02: author ≠ auditor compared on `wrapperModel`; buildPlan belt-and-braces)
 ```
 
 Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — sequence the commits, parallel work only in separate worktrees) → **T5** → **T6** → **T7** → **T8**. No circular dependencies. T6 waits for T5 so the flag names it documents are the ones `getArgs` accepts.
@@ -396,6 +397,36 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 **Done.** Rule in code; case (e) green with its red observed; T9 tests green; live counts quoted.
 **Skills.** `tdd`, `caveman`.
 
+---
+
+### T12 — author ≠ auditor compared on `wrapperModel`; `buildPlan` belt-and-braces (validation FAIL FR-3, tdd)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | T11 (added by `/akili-validate` Remediation #1 via the Pivot Protocol, 2026-10-02 — user-approved) |
+| Requirements | FR-3 *Single-model roster* "BUT it must NOT write a Reviewer wrapper whose model equals the Implementer's — on any host, in any mode"; FR-1 *Adjust a tier* (a pick making T3 = T2 is rejected); FR-5 (Reviewer restriction/model per host) |
+| Design refs | §5.3 step 4 **as amended** (wrapperModel equality), §5.5 **belt-and-braces paragraph**, §5.1 `models[].wrapperModel` |
+| Review | `full` — a hard MUST (Step 8E Rule 1) |
+
+**Scope.**
+- `bin/routing.js` `deriveTiers` step 4: on a host whose `models[]` entries carry `wrapperModel`, a T3 candidate is "equal to T2" when its `wrapperModel` equals T2's primary's `wrapperModel` (id equality stays the test elsewhere); none left → `unsatisfiable` with the existing note. The same predicate drives `promptTierAdjust`'s T3 = T2 rejection (one-line reason names the shared wrapper model).
+- `buildPlan`: before planning the Reviewer wrapper, compare its rendered `model` value with the Implementer wrapper's for the same host; equal → skip the Reviewer with `skipped (author ≠ auditor unsatisfiable)` plus a report line `<Host> Reviewer skipped: its wrapper model <m> equals the Implementer's` (never write it).
+- `test/routing.test.js`: (f) `deriveTiers` Antigravity roster `gemini-3.8-flash-medium` (packaged) + `gemini-3.8-flash-high@T3` → `authorAuditor: unsatisfiable`, T3 note contains `author ≠ auditor NOT satisfied`; (g) Antigravity `gemini-3.8-flash-medium` + `gemini-3.1-pro-high@T3` → `ok` (distinct `wrapperModel`); (h) `promptTierAdjust` rejects a T3 pick with T2's `wrapperModel`; (i) for **every** host's full packaged roster, `buildPlan`'s Reviewer wrapper content's `model` ≠ the Implementer wrapper's `model` (string compare on the rendered frontmatter/TOML line); (j) belt-and-braces: a hand-built mapping with T2 = T3 wrapper models → Reviewer `skipped (author ≠ auditor unsatisfiable)` + report line, Implementer still written.
+
+**Verification.**
+1. `node --test test/routing.test.js` ⇒ green (112 + 5). **Falsifier (executed):** revert step 4 to id-only equality → (f) and (h) red; disable the belt-and-braces → (j) red; quote expected/actual; revert.
+2. `npm test` ⇒ green; `git diff --check` clean; `node --test test/routing-io.test.js` unchanged green.
+3. Live (scratch project): the validator's probe `--hosts antigravity --models antigravity=gemini-3.8-flash-medium,gemini-3.8-flash-high@T3 --cli antigravity=agy --wrappers yes --yes --json` ⇒ `authorAuditor.antigravity = "unsatisfiable"`, no `akili-reviewer` write, exit 0; and the packaged default `--models antigravity=gemini-3.8-flash-high,gemini-3.8-flash-medium,gemini-3.8-flash-low,gemini-3.1-pro-high` ⇒ `ok`, Reviewer `model: pro`, Implementer `model: flash`.
+
+**Red run.** (f), (h), (j) observed red on their assertions before the change (`expected 'unsatisfiable', got 'ok'`; `expected a rejection, got acceptance`; `expected 'skipped (…)', got 'created'`).
+**Disqualifier.** Comparing registry ids instead of the bound wrapper value is the bug, not the fix. A test (i) that compares only Antigravity is void — every host, from the shipped registry.
+**Consumers.** `collectAnswers` (shows the derived table / the unsatisfiable branch — unchanged API); T4's adjust tests (must stay green); T8's case-8 evidence (Claude single-model → still `unsatisfiable`).
+
+**Done.** Predicate in step 4 and the adjust loop; belt-and-braces in `buildPlan`; tests (f)–(j) green with reds observed; live probe quoted.
+**Skills.** `tdd`, `caveman`.
+
 ## 3. Coverage Closure (scenario / clause → owner)
 
 | Requirement · scenario / clause | Owner |
@@ -409,7 +440,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 | FR-2 Validation errors (each listed) · AND IT MUST validate before first write | T2 (grammar), T5 (no partial write) |
 | FR-2 Mixed input · pre-fill · flags override | T4 |
 | FR-3 Full roster = packaged column, every host · AND IT MUST deterministic | T2 |
-| FR-3 Single-model · no wrappers · cross-host three wrappers · `--yes` exit 0 · BUT never Reviewer = Implementer | T2 (derive), T3 (plan tokens), T5 (exit), T8 case 8 |
+| FR-3 Single-model · no wrappers · cross-host three wrappers · `--yes` exit 0 · BUT never Reviewer = Implementer | T2 (derive), T3 (plan tokens), T5 (exit), T8 case 8, **T12 (wrapperModel equality + belt-and-braces — validation FAIL)** |
 | FR-3 Unknown id · placement prompt / `@T` required · dated id reason | T2 (grammar), T4 (prompts) |
 | FR-4 Six states (a, a′, b, c, d, e, f) · tokens · CRLF · BUT never `CLAUDE.md` | T3 (all), T5 (exit codes), T8 cases 4–6 |
 | FR-4 Unselected host keeps its column · mapping outside `hosts[]` · CLI row only confirmed | T3 |
