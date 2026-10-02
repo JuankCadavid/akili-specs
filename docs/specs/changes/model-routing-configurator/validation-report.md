@@ -5,14 +5,14 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/model-routing-configurator` |
-| Validated at | `3470c73` (`master`, 2026-10-02) — 11 / 11 tasks `[x]`; **re-validated after T12** (FR-3 remediation, same day) |
+| Validated at | `3470c73` (`master`, 2026-10-02) — 11 / 11 tasks `[x]`; **re-validated after T12** (FR-3) and **T13** (Windows CI), same day; final CI-green commit `aa4b080` |
 | Validator | `/akili-validate` — session model `claude-fable-5-1` (T3); clause-level walk by a fresh-context auditor on the same model; every Implementer ran on `opus` → author ≠ auditor holds |
 | Evidence reused | `execution.md` (14 Reviewer PASSes, two Pivot Records, §3 Summary), `t8-validation-evidence.md`, `t8-validation-evidence-tty-and-constitution.md`; **no `test-report.md`** (no `/akili-test` run) — coverage derived from the three suites and live probes |
 | Clause matrix | `validation-matrix.md` (same folder — one table per FR/NFR: clause · owner task · code evidence · test/live evidence · verdict) |
 
 ## 2. Summary
 
-**Verdict (re-validated after T12): archive-ready once CI is green — 0 FAIL, 7 WARN, 0 BLOCKED.** The first pass found one hard-negative FAIL, which a validation probe (not any Reviewer, not FR-11's eleven cases) exposed; the user chose *fix critical only*, T12 shipped the fix through the normal Implementer → Reviewer loop, and the probe now passes:
+**Verdict (re-validated after T12 and T13; CI green on `aa4b080`): ARCHIVE-READY — 0 FAIL, 6 WARN accepted with named follow-ups, 0 BLOCKED.** The first pass found one hard-negative FAIL, which a validation probe (not any Reviewer, not FR-11's eleven cases) exposed; the user chose *fix critical only*, T12 shipped the fix through the normal Implementer → Reviewer loop, and the probe now passes:
 
 > **FR-3 — was FAIL, now PASS (T12).** "BUT it must NOT write a Reviewer wrapper whose model equals the Implementer's — on any host, in any mode." Before T12, on Antigravity, `--models antigravity=gemini-3.8-flash-medium,gemini-3.8-flash-high@T3` yields `authorAuditor: ok` and **both** `akili-implementer/agent.md` and `akili-reviewer/agent.md` with `model: flash`. `deriveTiers` compares registry ids; `planWrapper` binds the entry's `wrapperModel`, and two flash effort-variants collapsed to one wrapper model. Reproduced by the validator. **After T12** (`boundModel` equality in step 4 and the adjust loop; `buildPlan` belt-and-braces): the same probe → `authorAuditor: {"antigravity":"unsatisfiable"}`, Reviewer `skipped (author ≠ auditor unsatisfiable)`, no reviewer file; packaged default → `flash`/`pro`; `npm test` 231/231; Reviewer PASS with each new test pinning exactly one guard.
 
@@ -21,7 +21,7 @@ Everything else holds: 226/226 tests; `install`/`doctor`/`list` byte-identical t
 | Level | Count | Items |
 |---|---|---|
 | FAIL | 0 | FR-3 Antigravity `wrapperModel` collapse — **fixed by T12**, re-probed PASS |
-| WARN | 7 | NFR-4 CI not run on this spec's 18 commits · FR-8 Branch B not re-walked after T10 · FR-11 / requirements §8 "Real-host acceptance" overclaim · NFR-6 report-line budget · F3 `placeholdersByColumn` misreports a filled Cursor column · proposal "≤ 6 prompts" vs FR-1 "≤ 8" with "Deviations: none" · Constitution Impact (`bin/routing.js` absent from `AGENTS.md`) |
+| WARN | 6 (was 7 — NFR-4 closed by T13 + CI run `37025903452`) | NFR-4 CI not run on this spec's 18 commits · FR-8 Branch B not re-walked after T10 · FR-11 / requirements §8 "Real-host acceptance" overclaim · NFR-6 report-line budget · F3 `placeholdersByColumn` misreports a filled Cursor column · proposal "≤ 6 prompts" vs FR-1 "≤ 8" with "Deviations: none" · Constitution Impact (`bin/routing.js` absent from `AGENTS.md`) |
 | Advisory | 24 | §7 below |
 
 ## 3. Task Completion
@@ -49,7 +49,7 @@ Design §4 tree — all present: `bin/akili.js` (+flags, `runRouting`…), `bin/
 | `git diff --check` | PASS |
 | FR-10 byte identity vs `8eb0227` (fixture `HOME`, `--tool all` explicit) | PASS — `install --dry-run` 458 lines identical; `doctor --tool all` 292 lines identical; `list` identical |
 | Lint / type-check | **WARN (gap)** — the repo defines no lint or type-check script. Smallest useful addition: `"lint": "node --check bin/*.js scripts/*.js"` (or eslint) |
-| CI matrix (NFR-4) | **WARN** — `master…origin/master [ahead 18]`: no commit of this spec has run the ubuntu/windows × Node 18/22 matrix; last green CI is `e270428` (v2.31.0). Windows-sensitive spots: `readline/promises`, `path.posix` for the OpenCode dir, CRLF handling |
+| CI matrix (NFR-4) | **PASS** — first run `37023589684` (`d2ee881`): macOS/Ubuntu green, **Windows × Node 18/22 red** (5 replacer tests — LF fixtures checked out CRLF under `autocrlf`, expectations LF-literal; the CLI's EOL preservation was correct) → Pivot 4 / **T13** (`.gitattributes` `test/fixtures/** -text` + EOL-aware expectations) → run `37025903452` (`aa4b080`): **all six jobs `success`** — `macos-latest/Node 18`, `macos-latest/Node 22`, `ubuntu-latest/Node 18`, `ubuntu-latest/Node 22`, `windows-latest/Node 18`, `windows-latest/Node 22`; `Release Status` success |
 | Environment boot smoke | n/a — CLI package, no `docs/infrastructure.md` contract needed |
 
 ## 6. Requirement Coverage
@@ -70,7 +70,7 @@ Clause-level matrix in `validation-matrix.md`. Worst clause per requirement:
 | FR-10 | PASS | §5 |
 | FR-11 | WARN | eleven cases with verbatim output; **requirements §8 row "Real-host acceptance" claims Claude Code coverage "by FR-11's scratch run"** — no case loads the generated `.claude/agents/akili-reviewer.md` in a Claude Code session |
 | NFR-1 · 2 · 3 · 5 · 7 · 8 | PASS | no `dependencies`; 95–210 ms exit 1 nothing written; writes confined to the fence / five wrapper dirs / answers file; pure module; pins in JSON + `docs/cli.md`; fence regexes accept the written markers |
-| NFR-4 | WARN | CI not run (§5) |
+| NFR-4 | PASS (after T13) | six-job matrix green on `aa4b080` — §5; the Windows `# tests 219` vs 231 delta is `tasks-gate.test.js`'s pre-existing `win32` skip of 12 fixtures |
 | NFR-6 | WARN (low) | report lines exceed "1 per host" (Cursor 2, Antigravity 3) — design §7 `reports[]` explains; the NFR text was never amended |
 
 Negative constraints explicitly verified: FR-1 no wrappers for unselected hosts · never blocks · never `CLAUDE.md`; FR-2 never a partial write; FR-5 no doc-copied `tools:`; FR-6 no run results; FR-8 never a terminal. **FR-3's "on any host, in any mode" failed on the first pass and passes after T12.**
@@ -124,7 +124,7 @@ No `test-report.md`; `/akili-test` was not run — the spec's gates were test-fi
 | # | Level | Finding | Remediation | Owner |
 |---|---|---|---|---|
 | 1 | ~~FAIL~~ → **PASS** | FR-3: Antigravity Reviewer wrapper = Implementer wrapper (`flash`/`flash`) when a flash effort-variant is placed on T3 — **resolved by T12** (Pivot Record 3; Reviewer PASS; probe re-run) | ~10 LOC + 1 test: in `deriveTiers` step 4 (or `buildPlan`), for hosts whose `models[]` carry `wrapperModel`, treat a T3 candidate whose `wrapperModel` equals T2's as equal (skip; none left → `unsatisfiable`); `promptTierAdjust` rejects it with the same one-line reason; a unit case `antigravity: flash-medium + flash-high@T3 → unsatisfiable` and a wrapper-level assertion `reviewer.model ≠ implementer.model` for every host snapshot. Route: **T12 via the Pivot Protocol** (amend design §5.3 step 4 + §5.5), or a user-accepted gap recorded in requirements §8 with this probe as its falsifier | `/akili-execute` (T12) |
-| 2 | WARN | NFR-4: CI matrix not run on this spec | `git push`, wait for the `CI` workflow (ubuntu/windows × Node 18/22) to go green before archive/release | user |
+| 2 | ~~WARN~~ → **PASS** | NFR-4: CI matrix not run on this spec | pushed; first run red on Windows → **T13** (Pivot Record 4) → run `37025903452` green on all six jobs | done |
 | 3 | WARN | FR-8 Branch B not re-walked after T10 | one live re-walk with the `8eb0227` shim (probe → fallback) — or accept component verification; record either way | archive follow-up |
 | 4 | WARN | requirements §8 "Real-host acceptance" overclaims Claude Code coverage | re-word the row at archive ("not exercised; relies on the Step 8E pin") | `/akili-archive` |
 | 5 | WARN | F3 `placeholdersByColumn` counts the host's Fallback-column placeholders | count host-column cells only (or split the key); Step 9 reads it as "per column" | follow-up proposal |
@@ -136,8 +136,6 @@ No `test-report.md`; `/akili-test` was not run — the spec's gates were test-fi
 
 ## 12. Archive Readiness Recommendation
 
-**Ready once CI is green.** FAIL #1 is resolved (T12). One condition still gates `/akili-archive changes/model-routing-configurator`:
-
-1. **Push and get a green CI matrix** (WARN #2) — the only evidence for NFR-4 lives in CI, and none of this spec's commits has run it (pushed at re-validation; see the run result recorded by the Leader in the chat / `execution.md`).
+**Ready.** FAIL #1 resolved (T12, Reviewer PASS, probe re-run); WARN #2 resolved (T13, CI run `37025903452` green on all six jobs). Run `/akili-archive changes/model-routing-configurator`. The archive owes: Constitution & Graph Sync (`bin/routing.js` into `AGENTS.md`; CodeGraph re-index), the requirements §8 "Real-host acceptance" and §1 "Deviations from proposal" re-wordings, NFR-6's wording, design §7 signatures, `tasks.md` §4 LOC, and the Kaizen Retrospective over the candidates in `execution.md` §3 (now nine — add: four task falsifiers in this spec were written without being run).
 
 WARNs #3–#9 are acceptable with the follow-ups named above and can be carried into the archive's Kaizen Retrospective and the `### T8` / §8 re-wordings.

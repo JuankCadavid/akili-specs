@@ -686,3 +686,17 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 - *Reviewer verdict:* **PASS** — reproduced every claim in its own autocrlf clone; `git ls-files --eol` → `i/crlf w/crlf attr/-text` for both CRLF fixtures, `i/lf w/lf attr/-text` for an LF one; `git diff --stat HEAD -- test/fixtures bin/` empty; `fixtureEol` byte-identical to `detectEol` (`bin/routing.js:296-300`); all five expectations derive EOL from the fixture they read; the W14 CRLF test untouched. **Falsifier ruling:** each half fixes the Windows failure independently — attribute removed + new tests → 117/117; attribute kept + HEAD's old tests → 117/117 — so the "five reds return" clause can fire only with both removed; the second run is behavioral proof of the attribute half. `219`/`231` confirmed.
 - *Spawns:* Implementer (`opus`) died — provider limit, no report, no edit; Implementer (`sonnet`, rung 4) 46 calls (self-count 29), 125,699 tokens, ended complete; Reviewer 9 calls, 69,070 tokens, ended complete.
 - *Runtime events:* `provider-limit death ×1 → rung 4` (recorded above).
+- *CI gate (the task's real verification):* push `d2ee881..aa4b080` → run `37025903452` on `aa4b080`: `CLI on macos-latest / Node 18: success` · `macos-latest / Node 22: success` · `ubuntu-latest / Node 18: success` · `ubuntu-latest / Node 22: success` · **`windows-latest / Node 18: success`** · **`windows-latest / Node 22: success`**; `Release Status: success`. NFR-4 closed. (The counts-only commit `55536ac` triggered run `37025966891`, in progress at the time of writing — docs-only diff.) Push note: the remote printed `Bypassed rule violations for refs/heads/master: Changes must be made through a pull request.` — a ruleset on `master` requires PRs; the push used bypass rights per this repo's direct-to-master flow; surfaced to the user.
+
+**Decisions made:** rung-4 model choice (`sonnet`, registry T2). **Final verification:** `npm test` 231/231 locally; CI six-job matrix green at `aa4b080`.
+
+### §3 Summary — addendum after validation (2026-10-02)
+
+| Measure | Final |
+|---|---|
+| Tasks | **13 `[x]`** (8 planned + T9/T10/T11 from FR-11's live validation + T12 from `/akili-validate` + T13 from CI) |
+| Review rounds | **16 of 18** (+ 2 Reviewer/Implementer runtime events recovered: T7 Reviewer rung 1; T13 Implementer rung 4) |
+| LOC (excl. `docs/specs`) | ~4,130 |
+| Validation | `validation-report.md`: 0 FAIL, 6 WARN accepted with follow-ups, archive-ready; CI green on all six jobs at `aa4b080` |
+| Kaizen candidate added | **#9 — Task falsifiers written without being run (Medium, 4 instances):** T2 (`opus,sonnet` "goes red"), T5 (F3 "times out"), T8 (prompt count "7 + 1"), T13 ("the five reds return" — masked by the task's own second half). Each cost nothing but a report line because the Implementer executed it and reported the discrepancy; the pattern belongs in `/akili-specify` Step 3.2's falsifiability rule as an executed-before-written requirement (KZ-changes--leader-brief-contract-2, now four recurrences in one spec) |
+| Kaizen candidate added | **#10 — FR-3's MUST held in code only for the registry id, not the bound value (High):** eleven Reviewers audited the rule as designed; only a validator probe that *placed* an id found the collapse. A hard negative constraint phrased "on any host, in any mode" needs a test that enumerates hosts × placement modes, not the packaged default — add to `/akili-specify`'s falsifiability guidance for negative constraints |
