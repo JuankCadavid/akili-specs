@@ -139,7 +139,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T2 |
 | Requirements | FR-1 (Two hosts happy path — prompt order and count; Adjust a tier incl. the T3 = T2 rejection; No TTY and incomplete answers — the refusal to call `io.ask`), FR-2 (Mixed input; pre-fill from previous answers, flags override), FR-3 (Unknown model id prompt; dated-id reason prompt; single-model three options), FR-6 (Pre-fill scenario) |

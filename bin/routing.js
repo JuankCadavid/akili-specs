@@ -861,6 +861,508 @@ function buildPlan(answers, registry, pkgVersion, snapshot, now, opts = {}) {
   };
 }
 
+// ---- T4: the wizard behind an injected io (design §7 "Prompt seam", DD-6, DD-14) ----
+//
+// io = { ask(question, default) -> Promise<string> } — the terminal reader in
+// production (T5), a scripted array in tests (W11). This module never touches
+// a terminal: every question goes through io.ask, every answer comes back as
+// data. An empty reply means Enter (the prompt's default).
+
+const USAGE_FORM = "akili routing --hosts <h1,h2> --models <host>=<id>[@T<n>[+T<m>]],… --cli <host>=<binary> --wrappers yes|no --yes";
+
+async function askLine(io, question, def) {
+  const raw = await io.ask(question, def);
+  return raw == null ? "" : String(raw).trim();
+}
+
+// Ask, parse; an invalid reply is re-asked once with its reason as the first
+// line, a second invalid reply is an error. parse(s) -> { value } | { error }.
+async function askValid(io, question, def, parse) {
+  let q = question;
+  for (let attempt = 0; ; attempt++) {
+    const r = parse(await askLine(io, q, def));
+    if (!r.error) return r;
+    if (attempt === 1) return { error: r.error };
+    q = `${r.error} — try again.\n${question}`;
+  }
+}
+
+// "3,1" -> [2, 0] (0-based, typed order, duplicates dropped) or { error }.
+function parseNumberList(s, max) {
+  const items = splitList(s).filter((x) => x !== "");
+  if (items.length === 0) return { error: "nothing selected" };
+  const list = [];
+  for (const x of items) {
+    const n = /^\d+$/.test(x) ? Number(x) : NaN;
+    if (!(n >= 1 && n <= max)) return { error: `\`${x}\` is not a number from 1 to ${max}` };
+    if (!list.includes(n - 1)) list.push(n - 1);
+  }
+  return { value: list };
+}
+
+function parseOneNumber(s, max) {
+  const r = parseNumberList(s, max);
+  if (r.error) return r;
+  if (r.value.length !== 1) return { error: `\`${s}\`: pick one number from 1 to ${max}` };
+  return { value: r.value[0] };
+}
+
+// Numbered multi-select, `akili init`'s numbered style extended to comma lists
+// (P-21): `[x]` marks the pre-checked options, Enter keeps them (in the order
+// given), an invalid number is re-asked once, then an error.
+// -> { picked: [0-based index] } | { error }.
+async function promptMultiSelect(io, title, options, preChecked) {
+  const checked = (preChecked || []).filter((i) => Number.isInteger(i) && i >= 0 && i < options.length);
+  const hint = checked.length > 0 ? "comma-separated numbers; Enter keeps [x]" : "comma-separated numbers";
+  const lines = options.map((o, i) => `  [${checked.includes(i) ? "x" : " "}] ${i + 1}) ${o}`);
+  const question = `${title} (${hint})\n${lines.join("\n")}\n> `;
+  const def = checked.map((i) => i + 1).join(",");
+  const r = await askValid(io, question, def, (s) => (s === "" && checked.length > 0 ? { value: checked.slice() } : parseNumberList(s, options.length)));
+  return r.error ? { error: `${title}: ${r.error}` } : { picked: r.value };
+}
+
+// Single choice over numbered options -> { value: 0-based } | { error }.
+async function promptOne(io, title, options) {
+  const question = `${title}\n${options.map((o, i) => `  ${i + 1}) ${o}`).join("\n")}\n> `;
+  const r = await askValid(io, question, "", (s) => parseOneNumber(s, options.length));
+  return r.error ? { error: `${title}: ${r.error}` } : r;
+}
+
+const REASON_T3_T2 = (id) => `T3 = T2 rejected: \`${id}\` is the Implementer's model (T2) — the Reviewer must run on a different model (author ≠ auditor)`;
+
+// One tier per round (FR-1 *Adjust a tier*): which tier, then which roster
+// model. The pick becomes a user placement on that tier (the head of its
+// preference list, DD-4) and the tier moves off any other user placement. A
+// pick that makes T3 = T2 is rejected with a one-line reason and re-asked.
+// opts.packagedIds: a packaged id left with no placement reverts to packaged.
+// -> { roster, tier, id } | { error }.
+async function promptTierAdjust(io, mapping, roster, opts = {}) {
+  const packagedIds = opts.packagedIds || [];
+  const t = await askValid(io, `Adjust which tier? (1–6)\n${TIERS.map((x) => `  ${x}  ${mapping[x].primary}`).join("\n")}\n> `, "", (s) => parseOneNumber(s, 6));
+  if (t.error) return { error: `Adjust which tier: ${t.error}` };
+  const tier = TIERS[t.value];
+  const ids = roster.map((e) => e.id);
+  const question = `${tier} — pick a model:\n${ids.map((id, i) => `  ${i + 1}) ${id}${id === mapping[tier].primary ? " (current)" : ""}`).join("\n")}\n> `;
+  let q = question;
+  for (;;) {
+    const r = await askValid(io, q, "", (s) => parseOneNumber(s, ids.length));
+    if (r.error) return { error: `${tier} — pick a model: ${r.error}` };
+    const id = ids[r.value];
+    const reason = adjustRejection(tier, id, mapping, roster, packagedIds);
+    if (!reason) return { roster: placeOnTier(roster, id, tier, packagedIds), tier, id };
+    q = `${reason}\n${question}`;
+  }
+}
+
+function adjustRejection(tier, id, mapping, roster, packagedIds) {
+  if (tier === "T3" && id === mapping.T2.primary) return REASON_T3_T2(id);
+  const own = roster.find((e) => e.id === id);
+  const ownTiers = own.source === "user" ? own.tiers : [];
+  if ((tier === "T2" && ownTiers.includes("T3")) || (tier === "T3" && ownTiers.includes("T2"))) {
+    return `\`${id}\` cannot serve both T2 and T3 — T3 must differ from T2 (author ≠ auditor)`;
+  }
+  const orphan = roster.find((e) => e.id !== id && e.source === "user" && e.tiers.length === 1 && e.tiers[0] === tier && !packagedIds.includes(e.id));
+  if (orphan) return `\`${orphan.id}\` serves only ${tier} — re-place it from the roster question first`;
+  return null;
+}
+
+function placeOnTier(roster, id, tier, packagedIds) {
+  return roster.map((e) => {
+    if (e.id === id) {
+      const tiers = (e.source === "user" ? e.tiers : []).filter((x) => x !== tier).concat(tier);
+      return withReason({ id, source: "user", tiers }, e);
+    }
+    if (e.source !== "user" || !e.tiers.includes(tier)) return cloneEntry(e);
+    const tiers = e.tiers.filter((x) => x !== tier);
+    if (tiers.length === 0 && packagedIds.includes(e.id)) return withReason({ id: e.id, source: "packaged" }, e);
+    return withReason({ id: e.id, source: "user", tiers }, e);
+  });
+}
+
+function withReason(entry, from) {
+  if (from && from.reason) entry.reason = from.reason;
+  return entry;
+}
+
+function cloneEntry(e) {
+  return withReason(e.source === "user" ? { id: e.id, source: "user", tiers: e.tiers.slice() } : { id: e.id, source: "packaged" }, e);
+}
+
+// "1,3" -> ["T1","T3"] (typed order) or { error }; T2 + T3 together is the
+// same validation error as `@T2+T3` (§5.3).
+function parsePlacement(s, id) {
+  const r = parseNumberList(s, 6);
+  if (r.error) return r;
+  const tiers = r.value.map((i) => TIERS[i]);
+  if (tiers.includes("T2") && tiers.includes("T3")) return { error: `\`${id}\` cannot serve both T2 and T3 — T3 must differ from T2 (author ≠ auditor)` };
+  return { value: tiers };
+}
+
+function parseIds(s, single) {
+  const ids = splitList(s).filter((x) => x !== "");
+  if (ids.length === 0) return { error: "no id typed" };
+  if (single && ids.length > 1) return { error: `\`${s}\`: type one id` };
+  const bad = ids.find((x) => x.includes("@"));
+  if (bad) return { error: `id \`${bad}\` contains \`@\`, which is reserved for the placement suffix` };
+  return { value: ids };
+}
+
+function modelOptionText(m, entry) {
+  let text = `${m.label} (${m.id})`;
+  if (m.planGated) text += " (plan-gated — confirm in `/model`)";
+  if (entry && entry.source === "user") text += ` — placed ${entry.tiers.join("+")}`;
+  return text;
+}
+
+// Ask the reason for a dated id that has none (alias-first "record why").
+async function fillReason(io, entry, packagedModel, reasons) {
+  if (entry.reason || !needsPinReason(entry.id, packagedModel)) return {};
+  if (reasons[entry.id]) {
+    entry.reason = reasons[entry.id];
+    return {};
+  }
+  const r = await askValid(io, `Why pin the dated id \`${entry.id}\`? (recorded as a registry footnote)\n> `, "", (s) => (s === "" ? { error: "a reason is required for a dated id" } : { value: s }));
+  if (r.error) return r;
+  entry.reason = r.value;
+  return {};
+}
+
+// The per-host roster question: packaged ids, previous user ids (pre-checked,
+// never re-typed — FR-6), Cursor-style families (type an id), *other*. A typed
+// id outside the packaged roster gets its placement question, then its reason
+// if dated. -> { entries } | { error }.
+async function promptRoster(io, host, registry, current, reasons) {
+  const hr = registry.hosts[host];
+  const packaged = hr.models.filter((m) => m.id !== null);
+  const options = [];
+  for (const m of packaged) {
+    const prior = current.find((e) => e.id === m.id);
+    options.push({ text: modelOptionText(m, prior), entry: prior || { id: m.id, source: "packaged" } });
+  }
+  for (const e of current) {
+    if (!packaged.some((m) => m.id === e.id)) options.push({ text: `${e.id} (your id${e.source === "user" ? `, placed ${e.tiers.join("+")}` : ""})`, entry: e });
+  }
+  for (const m of hr.models.filter((x) => x.id === null)) options.push({ text: `${m.label} — type its id`, family: m });
+  options.push({ text: "other (type id)", other: true });
+  const preChecked = current.map((e) => options.findIndex((o) => o.entry && o.entry.id === e.id)).filter((i) => i !== -1);
+  const sel = await promptMultiSelect(io, `${hr.label} — which models do you have?`, options.map((o) => o.text), preChecked);
+  if (sel.error) return sel;
+  const entries = [];
+  const add = (e) => {
+    const i = entries.findIndex((x) => x.id === e.id);
+    if (i === -1) entries.push(e);
+    else entries[i] = e;
+  };
+  for (const i of sel.picked) {
+    const o = options[i];
+    if (o.entry) {
+      const e = cloneEntry(o.entry);
+      const r = await fillReason(io, e, packaged.find((m) => m.id === e.id), reasons);
+      if (r.error) return r;
+      add(e);
+      continue;
+    }
+    const title = o.family ? `${hr.label} — model id for ${o.family.label}` : `${hr.label} — type the model id(s), comma-separated`;
+    const typed = await askValid(io, `${title}\n> `, "", (s) => parseIds(s, Boolean(o.family)));
+    if (typed.error) return { error: `${title}: ${typed.error}` };
+    for (const id of typed.value) {
+      const pm = packaged.find((m) => m.id === id);
+      let e;
+      if (pm) e = { id, source: "packaged" };
+      else {
+        const place = await askValid(io, `Which tier(s) does \`${id}\` serve? (1–6, comma-separated)\n> `, "", (s) => parsePlacement(s, id));
+        if (place.error) return { error: place.error };
+        e = { id, source: "user", tiers: place.value };
+      }
+      const r = await fillReason(io, e, pm, reasons);
+      if (r.error) return r;
+      add(e);
+    }
+  }
+  return { entries };
+}
+
+// A previous answers file may be hand-edited: check the entries it pre-fills
+// (they feed deriveTiers, which assumes `tiers` on every user entry).
+function checkPreviousRoster(host, entries) {
+  const where = (i, e) => `.agents/model-routing.json roster.${host}[${i}]${e && typeof e.id === "string" ? ` (\`${e.id}\`)` : ""}`;
+  if (!Array.isArray(entries) || entries.length === 0) return { error: `.agents/model-routing.json roster.${host}: expected a non-empty list — fix the file or pass --models ${host}=…` };
+  for (let i = 0; i < entries.length; i++) {
+    const e = entries[i];
+    if (!e || typeof e.id !== "string" || e.id === "") return { error: `${where(i, e)}: missing id — fix the file or pass --models ${host}=…` };
+    if (e.source !== "packaged" && e.source !== "user") return { error: `${where(i, e)}: source must be "packaged" or "user" — fix the file or pass --models ${host}=…` };
+    if (e.source === "user") {
+      const ok = Array.isArray(e.tiers) && e.tiers.length > 0 && e.tiers.every((t) => TIERS.includes(t));
+      if (!ok) return { error: `${where(i, e)}: source "user" needs tiers T1–T6 — fix the file or pass --models ${host}=…` };
+      if (e.tiers.includes("T2") && e.tiers.includes("T3")) return { error: `${where(i, e)}: placed on both T2 and T3 — fix the file or pass --models ${host}=…` };
+    }
+  }
+  return { entries: entries.map(cloneEntry) };
+}
+
+function deriveFor(host, entries, registry, hosts, crossHost) {
+  return deriveTiers(entries, registry.hosts[host], { crossHost: crossHost[host], selectedHosts: hosts, hostKey: host, crossHostT6Owner: registry.crossHost.T6 });
+}
+
+function tableText(hosts, roster, registry, crossHost) {
+  const out = ["Derived tier table:"];
+  for (const h of hosts) {
+    const d = deriveFor(h, roster[h], registry, hosts, crossHost);
+    out.push(`${label(registry, h)} (author ≠ auditor: ${d.authorAuditor})`);
+    for (const t of TIERS) {
+      const c = d.mapping[t];
+      out.push(`  ${t}  ${c.primary}  (fallback ${c.fallback})${c.note ? `  — ${c.note}` : ""}`);
+    }
+  }
+  return out.join("\n");
+}
+
+function hostFlagGiven(models, host) {
+  return (models || []).some((item) => String(item).split("=")[0].trim() === host);
+}
+
+// FR-1 / FR-2 / FR-6 — the answers buildPlan consumes: { hosts, roster, cli,
+// wrappers, decisions, crossHost } (buildPlan computes version, generatedBy,
+// mapping, authorAuditor, unselectedHosts, updatedAt itself).
+//
+// QUESTION ORDER — the contract /akili-constitution's fallback protocol copies
+// (DD-6). Each step resolves flags -> previous answers -> io.ask; a step
+// answered by a flag asks nothing. Previous answers (`.agents/model-routing.json`)
+// are final under `--yes` or without a TTY, and pre-fill the prompt otherwise
+// (FR-6 *Pre-fill*: `[x]` pre-checked, Enter keeps it).
+//   1. hosts — multi-select over the five hosts                     (--hosts)
+//   2. per selected host, in host order: roster — multi-select over the
+//      packaged ids (+ previous user ids, pre-checked), Cursor-style
+//      families and *other*; a typed id outside the packaged roster ->
+//      its tiers (1–6); a dated id -> its reason                     (--models, --pin-reason)
+//   3. per selected host, in host order: CLI invocation — default
+//      previous.cli[host] ?? the packaged suggestion's leading binary;
+//      Enter accepts, `-` leaves <CONFIRM>                           (--cli)
+//   4. Antigravity tool names — only when Antigravity is selected    (--antigravity-tools)
+//   5. OpenCode agent directory — only when OpenCode is selected     (--opencode-agent-dir)
+//   6. wrappers — "Bind the personas with native wrappers (Step 8E)? [Y/n]"
+//                                                                    (--wrappers; --yes -> yes)
+//   7. derived tier table + [A]ccept / [t] adjust a tier / [q] quit  (--yes skips 7 and 8)
+//      `t` -> host (when more than one) -> tier -> model; T3 = T2 rejected
+//   8. per host still `unsatisfiable` after accept: add a model / dispatch
+//      T3 cross-host / leave it; a change re-shows step 7          (--t3-cross-host)
+// Without a TTY nothing is asked: answers still missing after flags and the
+// previous file -> { error } naming the non-interactive form (W6).
+// -> { answers } | { error } | { quit: true }.
+async function collectAnswers(args, previous, registry, io, opts = {}) {
+  const a = args || {};
+  const prev = previous || null;
+  const isTTY = opts.isTTY === true;
+  const yes = a.yes === true;
+  const usePrev = Boolean(prev) && (yes || !isTTY);
+  const prevRoster = (h) => (prev && prev.roster && prev.roster[h] !== undefined ? prev.roster[h] : undefined);
+
+  if (a.wrappers !== undefined && a.wrappers !== "yes" && a.wrappers !== "no") return { error: `--wrappers \`${a.wrappers}\`: accepted: yes, no` };
+  if (prev && prev.wrappers !== undefined && prev.wrappers !== "yes" && prev.wrappers !== "no") return { error: `.agents/model-routing.json wrappers: \`${prev.wrappers}\` — accepted: yes, no` };
+
+  // Non-interactive guard: never call io.ask without a TTY.
+  if (!isTTY) {
+    const missing = [];
+    let knownHosts = null;
+    if (a.hosts !== undefined) {
+      const ph = parseHosts(a.hosts);
+      if (ph.error) return { error: ph.error };
+      knownHosts = ph.hosts;
+    } else if (prev && Array.isArray(prev.hosts) && prev.hosts.length > 0) knownHosts = prev.hosts;
+    if (!knownHosts) missing.push("--hosts", "--models");
+    else for (const h of knownHosts) if (!hostFlagGiven(a.models, h) && prevRoster(h) === undefined) missing.push(`--models ${h}=…`);
+    if (!yes) missing.push("--yes");
+    if (missing.length > 0) return { error: `stdin is not a TTY and answers are still missing: ${missing.join(", ")} — use the non-interactive form: ${USAGE_FORM}` };
+  }
+
+  // 1. hosts
+  let hosts;
+  if (a.hosts !== undefined) {
+    const ph = parseHosts(a.hosts);
+    if (ph.error) return { error: ph.error };
+    hosts = ph.hosts;
+  } else {
+    const prevHosts = prev && Array.isArray(prev.hosts) ? prev.hosts : [];
+    const badHost = prevHosts.find((h) => !HOST_KEYS.includes(h));
+    if (badHost !== undefined) return { error: `.agents/model-routing.json hosts: unknown host \`${badHost}\` — accepted: ${ACCEPTED_HOSTS}` };
+    if (usePrev && prevHosts.length > 0) hosts = prevHosts.slice();
+    else {
+      const sel = await promptMultiSelect(io, "Which hosts do you use?", HOST_KEYS.map((h) => label(registry, h)), prevHosts.map((h) => HOST_KEYS.indexOf(h)));
+      if (sel.error) return sel;
+      hosts = sel.picked.map((i) => HOST_KEYS[i]);
+    }
+  }
+
+  const pin = parsePinReasons(a.pinReason, hosts);
+  if (pin.error) return pin;
+  const cliFlags = parseCli(a.cli, hosts);
+  if (cliFlags.error) return cliFlags;
+  const cross = parseCrossHost(a.t3CrossHost, hosts);
+  if (cross.error) return cross;
+  const models = parseModels(a.models, hosts, registry, { reasons: pin.reasons, interactive: isTTY });
+  if (models.error) return models;
+  if (a.antigravityTools !== undefined && !hosts.includes("antigravity")) return { error: `--antigravity-tools: Antigravity is not selected — --hosts: ${hosts.join(", ")}` };
+  if (a.opencodeAgentDir !== undefined && !hosts.includes("opencode")) return { error: `--opencode-agent-dir: OpenCode is not selected — --hosts: ${hosts.join(", ")}` };
+
+  // Previous answers cover a host's optional answers (cli, decisions) when the
+  // file configured that host: an absent cli there is a deliberate <CONFIRM>.
+  const covered = (h) => usePrev && prevRoster(h) !== undefined;
+  const crossHost = {};
+  for (const h of hosts) {
+    const recorded = prev && prev.authorAuditor ? prev.authorAuditor[h] : undefined;
+    if (cross.crossHost[h]) crossHost[h] = cross.crossHost[h];
+    else if (typeof recorded === "string" && recorded.startsWith("cross-host: ")) crossHost[h] = recorded.slice(12);
+  }
+
+  // 2. rosters
+  const roster = {};
+  for (const h of hosts) {
+    const reasons = pin.reasons[h] || {};
+    if (models.roster[h]) {
+      const entries = models.roster[h];
+      for (const e of entries) {
+        const r = await fillReason(io, e, registry.hosts[h].models.find((m) => m.id !== null && m.id === e.id), reasons);
+        if (r.error) return r;
+      }
+      roster[h] = entries;
+      continue;
+    }
+    let prior = [];
+    if (prevRoster(h) !== undefined) {
+      const checked = checkPreviousRoster(h, prevRoster(h));
+      if (checked.error) return checked;
+      prior = checked.entries;
+    }
+    if (usePrev && prevRoster(h) !== undefined) {
+      roster[h] = prior;
+      continue;
+    }
+    const r = await promptRoster(io, h, registry, prior, reasons);
+    if (r.error) return r;
+    roster[h] = r.entries;
+  }
+
+  // 3. invocations
+  const cli = {};
+  for (const h of hosts) {
+    if (cliFlags.cli[h] !== undefined) cli[h] = cliFlags.cli[h];
+    else if (covered(h)) {
+      const v = prev.cli ? prev.cli[h] : undefined;
+      if (typeof v === "string" && v !== "") cli[h] = v;
+    } else if (isTTY) {
+      const parts = String(registry.hosts[h].cliSuggestion).split(" — ");
+      const prevCli = prev && prev.cli && typeof prev.cli[h] === "string" ? prev.cli[h] : undefined;
+      const def = prevCli !== undefined ? prevCli : parts[0];
+      const help = parts.length > 1 ? `\n  ${parts.slice(1).join(" — ")}` : "";
+      const s = await askLine(io, `${label(registry, h)} — CLI invocation [${def}] (Enter accepts, type another, \`-\` leaves <CONFIRM>)${help}\n> `, def);
+      if (s === "") cli[h] = def;
+      else if (s !== "-") cli[h] = s;
+    }
+  }
+
+  // 4. Antigravity tool names, 5. OpenCode agent directory
+  const decisions = {};
+  if (hosts.includes("antigravity")) {
+    const prevTools = prev && prev.decisions && prev.decisions.antigravity && Array.isArray(prev.decisions.antigravity.antigravityTools) ? prev.decisions.antigravity.antigravityTools : [];
+    let tools = [];
+    if (a.antigravityTools !== undefined) {
+      tools = splitList(a.antigravityTools).filter((x) => x !== "");
+      if (tools.length === 0) return { error: "--antigravity-tools is empty — expected <a,b>" };
+    } else if (covered("antigravity")) tools = prevTools.slice();
+    else if (isTTY) {
+      const def = prevTools.join(",");
+      const s = await askLine(io, `Antigravity — Reviewer tool names (comma-separated, as Antigravity lists them; \`-\` omits)${def ? ` [${def}]` : ""}\n  omitted -> the Reviewer is read-only by instruction, reported in the summary\n> `, def);
+      if (s === "") tools = prevTools.slice();
+      else if (s !== "-") tools = splitList(s).filter((x) => x !== "");
+    }
+    if (tools.length > 0) decisions.antigravity = { antigravityTools: tools };
+  }
+  if (hosts.includes("opencode")) {
+    const packagedDir = path.posix.dirname(registry.hosts.opencode.wrapper.location);
+    const prevDir = prev && prev.decisions && prev.decisions.opencode && typeof prev.decisions.opencode.agentDir === "string" ? prev.decisions.opencode.agentDir : undefined;
+    let dir = packagedDir;
+    if (a.opencodeAgentDir !== undefined) {
+      dir = String(a.opencodeAgentDir).trim();
+      if (dir === "") return { error: "--opencode-agent-dir is empty — expected <path>" };
+    } else if (covered("opencode")) dir = prevDir || packagedDir;
+    else if (isTTY) {
+      const def = prevDir || packagedDir;
+      const s = await askLine(io, `OpenCode — agent directory [${def}]\n> `, def);
+      dir = s === "" ? def : s;
+    }
+    decisions.opencode = { agentDir: dir };
+  }
+
+  // 6. wrappers
+  let wrappers;
+  if (a.wrappers !== undefined) wrappers = a.wrappers;
+  else if (usePrev && prev.wrappers !== undefined) wrappers = prev.wrappers;
+  else if (yes) wrappers = "yes";
+  else {
+    const def = prev && prev.wrappers === "no" ? "no" : "yes";
+    const r = await askValid(io, `Bind the personas with native wrappers (Step 8E)? ${def === "yes" ? "[Y/n]" : "[y/N]"}\n> `, def === "yes" ? "Y" : "N", (s) => {
+      const v = s.toLowerCase();
+      if (v === "") return { value: def };
+      if (v === "y" || v === "yes") return { value: "yes" };
+      if (v === "n" || v === "no") return { value: "no" };
+      return { error: `\`${s}\`: answer y or n` };
+    });
+    if (r.error) return { error: `wrappers: ${r.error}` };
+    wrappers = r.value;
+  }
+
+  // 7. confirm (+ adjust), 8. unsatisfiable hosts
+  if (!yes) {
+    const left = new Set();
+    for (;;) {
+      const r = await askValid(io, `${tableText(hosts, roster, registry, crossHost)}\n[A]ccept / [t] adjust a tier / [q] quit\n> `, "a", (s) => {
+        const v = s.toLowerCase();
+        if (v === "" || v === "a" || v === "accept") return { value: "a" };
+        if (v === "t" || v === "q") return { value: v };
+        return { error: `\`${s}\`: answer a, t or q` };
+      });
+      if (r.error) return { error: `confirm: ${r.error}` };
+      if (r.value === "q") return { quit: true };
+      if (r.value === "t") {
+        let h = hosts[0];
+        if (hosts.length > 1) {
+          const pick = await promptOne(io, "Adjust which host?", hosts.map((x) => label(registry, x)));
+          if (pick.error) return pick;
+          h = hosts[pick.value];
+        }
+        const d = deriveFor(h, roster[h], registry, hosts, crossHost);
+        const packagedIds = registry.hosts[h].models.filter((m) => m.id !== null).map((m) => m.id);
+        const adj = await promptTierAdjust(io, d.mapping, roster[h], { packagedIds });
+        if (adj.error) return adj;
+        roster[h] = adj.roster;
+        continue;
+      }
+      let changed = false;
+      for (const h of hosts) {
+        if (left.has(h) || deriveFor(h, roster[h], registry, hosts, crossHost).authorAuditor !== "unsatisfiable") continue;
+        const hl = label(registry, h);
+        const way = await promptOne(io, `${hl}: author ≠ auditor NOT satisfied — the Reviewer cannot differ from the Implementer`, ["add a model", "dispatch T3 cross-host", `leave it (no wrappers for ${hl})`]);
+        if (way.error) return way;
+        if (way.value === 0) {
+          const more = await promptRoster(io, h, registry, roster[h], pin.reasons[h] || {});
+          if (more.error) return more;
+          roster[h] = more.entries;
+          changed = true;
+        } else if (way.value === 1) {
+          const others = HOST_KEYS.filter((x) => x !== h);
+          const to = await promptOne(io, `${hl} — dispatch the Reviewer (T3) to which host?`, others.map((x) => label(registry, x)));
+          if (to.error) return to;
+          crossHost[h] = others[to.value];
+          changed = true;
+        } else left.add(h);
+      }
+      if (!changed) break;
+    }
+  }
+
+  return { answers: { hosts, roster, cli, wrappers, decisions, crossHost } };
+}
+
 module.exports = {
   HOST_KEYS,
   parseHosts,
@@ -875,4 +1377,7 @@ module.exports = {
   renderSection,
   renderWrapper,
   buildPlan,
+  collectAnswers,
+  promptMultiSelect,
+  promptTierAdjust,
 };

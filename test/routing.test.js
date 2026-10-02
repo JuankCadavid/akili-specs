@@ -842,3 +842,331 @@ test("buildPlan dated id: rendered with a pin marker and its recorded reason (C9
   assert.ok(cellsOf(rowOf(text, "T1 Architect"))[1].startsWith("`claude-opus-4-6-20260101` [pin 1]"));
   assert.ok(text.includes("[pin 1] `claude-opus-4-6-20260101` (Claude Code): freeze for the audit window"));
 });
+
+// ===========================================================================
+// T4 / FR-1, FR-2, FR-3, FR-6 / design §7 "Prompt seam", DD-6, DD-14: part 3 —
+// collectAnswers and the prompt helpers through a scripted `io` (W11). The
+// scripted io records every question and throws when asked past its script,
+// so an unexpected prompt is visible both as a recorded question and a throw.
+// ===========================================================================
+
+function scriptedIo(replies) {
+  const asked = [];
+  const defaults = [];
+  const queue = replies.slice();
+  const io = {
+    ask: async (question, def) => {
+      asked.push(question);
+      defaults.push(def);
+      if (queue.length === 0) throw new Error(`scripted io: no reply for \`${String(question).split("\n")[0]}\``);
+      return queue.shift();
+    },
+  };
+  return { io, asked, defaults, left: () => queue.length };
+}
+const firstLine = (q) => String(q).split("\n")[0];
+const collect = (args, previous, s, isTTY = true) =>
+  routing.collectAnswers(args, previous, REGISTRY, s.io, { isTTY }).catch((e) => ({ thrown: e.message }));
+// The equivalent non-interactive run: flags only, --yes, no TTY, an io that must never be asked.
+async function fromFlags(args) {
+  const s = scriptedIo([]);
+  const r = await collect({ ...args, yes: true }, null, s, false);
+  assert.deepEqual(s.asked, [], "the flag-built run asked a question");
+  return r;
+}
+
+const Q = {
+  hosts: "Which hosts do you use? (comma-separated numbers)",
+  hostsPre: "Which hosts do you use? (comma-separated numbers; Enter keeps [x])",
+  roster: (l) => `${l} — which models do you have? (comma-separated numbers)`,
+  rosterPre: (l) => `${l} — which models do you have? (comma-separated numbers; Enter keeps [x])`,
+  cli: (l, d) => `${l} — CLI invocation [${d}] (Enter accepts, type another, \`-\` leaves <CONFIRM>)`,
+  wrappers: "Bind the personas with native wrappers (Step 8E)? [Y/n]",
+  confirm: "Derived tier table:",
+  ids: (l) => `${l} — type the model id(s), comma-separated`,
+  place: (id) => `Which tier(s) does \`${id}\` serve? (1–6, comma-separated)`,
+  reason: (id) => `Why pin the dated id \`${id}\`? (recorded as a registry footnote)`,
+  agTools: "Antigravity — Reviewer tool names (comma-separated, as Antigravity lists them; `-` omits)",
+  ocDir: "OpenCode — agent directory",
+  tier: "Adjust which tier? (1–6)",
+  pick: (t) => `${t} — pick a model:`,
+  unsat: (l) => `${l}: author ≠ auditor NOT satisfied — the Reviewer cannot differ from the Implementer`,
+};
+const CODEX_IDS = ["gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"];
+
+// ---- promptMultiSelect ----
+
+test("promptMultiSelect: numbered [x]/[ ] options, comma list in typed order, Enter keeps pre-checked", async () => {
+  const s = scriptedIo(["3,1", ""]);
+  const a = await routing.promptMultiSelect(s.io, "Pick", ["A", "B", "C"], [1]);
+  assert.deepEqual(a, { picked: [2, 0] });
+  assert.equal(s.asked[0], "Pick (comma-separated numbers; Enter keeps [x])\n  [ ] 1) A\n  [x] 2) B\n  [ ] 3) C\n> ");
+  const b = await routing.promptMultiSelect(s.io, "Pick", ["A", "B", "C"], [2, 0]);
+  assert.deepEqual(b, { picked: [2, 0] });
+  assert.equal(s.defaults[1], "3,1");
+});
+
+test("promptMultiSelect: invalid number -> re-ask once with the reason, then error", async () => {
+  const ok = scriptedIo(["9", "2"]);
+  assert.deepEqual(await routing.promptMultiSelect(ok.io, "Pick", ["A", "B"], []), { picked: [1] });
+  assert.equal(firstLine(ok.asked[1]), "`9` is not a number from 1 to 2 — try again.");
+  const bad = scriptedIo(["9", "x"]);
+  const r = await routing.promptMultiSelect(bad.io, "Pick", ["A", "B"], []);
+  assert.equal(bad.asked.length, 2);
+  assert.match(r.error || "", /Pick: `x` is not a number from 1 to 2/);
+  const empty = scriptedIo(["", ""]);
+  assert.match((await routing.promptMultiSelect(empty.io, "Pick", ["A"], [])).error || "", /nothing selected/);
+});
+
+// ---- collectAnswers: FR-1 order and count ----
+
+test("collectAnswers: FR-1 two hosts, packaged ids only (Claude Code + Codex) -> exactly 7 questions, in the DD-6 order", async () => {
+  const s = scriptedIo(["1,4", "1,2,3", "1,2,3,4", "", "", "", ""]);
+  const r = await collect({}, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [
+    Q.hosts,
+    Q.roster("Claude Code"),
+    Q.roster("Codex"),
+    Q.cli("Claude Code", "claude"),
+    Q.cli("Codex", "codex"),
+    Q.wrappers,
+    Q.confirm,
+  ]);
+  assert.equal(s.left(), 0);
+  assert.deepEqual(r, {
+    answers: {
+      hosts: ["claude", "codex"],
+      roster: { claude: [P("opus"), P("sonnet"), P("haiku")], codex: CODEX_IDS.map(P) },
+      cli: { claude: "claude", codex: "codex" },
+      wrappers: "yes",
+      decisions: {},
+      crossHost: {},
+    },
+  });
+});
+
+test("collectAnswers: FR-2 the scripted happy path deep-equals the answers built from the equivalent flags", async () => {
+  const s = scriptedIo(["1,4", "1,2,3", "1,2,3,4", "", "", "", ""]);
+  const interactive = await collect({}, null, s);
+  const flags = await fromFlags({ hosts: "claude,codex", models: ["claude=opus,sonnet,haiku", `codex=${CODEX_IDS.join(",")}`], cli: ["claude=claude", "codex=codex"], wrappers: "yes" });
+  assert.deepEqual(flags.answers.hosts, ["claude", "codex"]);
+  assert.deepEqual(interactive, flags);
+});
+
+test("collectAnswers: invocation default is the suggestion's leading binary token, the rest is help text; `-` leaves <CONFIRM>", async () => {
+  const s = scriptedIo(["-", "cx", "", ""]);
+  const r = await collect({ hosts: "claude,codex", models: ["claude=opus,sonnet,haiku", `codex=${CODEX_IDS.join(",")}`] }, null, s);
+  assert.deepEqual(s.defaults.slice(0, 2), ["claude", "codex"]);
+  assert.match(s.asked[1], /\n {2}commands invoked as `\$akili-<name>`/);
+  assert.deepEqual(r.answers.cli, { codex: "cx" });
+});
+
+test("collectAnswers: FR-1 Claude Code + Cursor with three typed ids deep-equals FR-2's fully-specified flags", async () => {
+  const s = scriptedIo(["1,5", "1,2,3", "7", "c-one, c-two, c-three", "1,3", "2,5", "3", "", "", "", ""]);
+  const r = await collect({}, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [
+    Q.hosts,
+    Q.roster("Claude Code"),
+    Q.roster("Cursor"),
+    Q.ids("Cursor"),
+    Q.place("c-one"),
+    Q.place("c-two"),
+    Q.place("c-three"),
+    Q.cli("Claude Code", "claude"),
+    Q.cli("Cursor", "agent"),
+    Q.wrappers,
+    Q.confirm,
+  ]);
+  const flags = await fromFlags({ hosts: "claude,cursor", models: ["claude=opus,sonnet,haiku", "cursor=c-one@T1+T3,c-two@T2+T5,c-three@T3"], cli: ["claude=claude", "cursor=agent"], wrappers: "yes" });
+  assert.deepEqual(r, flags);
+  assert.deepEqual(r.answers.roster.cursor, [U("c-one", ["T1", "T3"]), U("c-two", ["T2", "T5"]), U("c-three", ["T3"])]);
+});
+
+test("collectAnswers: a Cursor family option leads to typing one id for that family", async () => {
+  const s = scriptedIo(["1,2", "cur-opus", "1,3", "cur-composer", "2,5", "", "", ""]);
+  const r = await collect({ hosts: "cursor" }, null, s);
+  assert.deepEqual(s.asked.slice(1, 5).map(firstLine), ["Cursor — model id for Claude Opus family", Q.place("cur-opus"), "Cursor — model id for Composer family", Q.place("cur-composer")]);
+  assert.match(s.asked[0], /\[ \] 1\) Claude Opus family — type its id/);
+  assert.deepEqual(r.answers.roster.cursor, [U("cur-opus", ["T1", "T3"]), U("cur-composer", ["T2", "T5"])]);
+});
+
+test("collectAnswers: Antigravity tool names, then the OpenCode directory, come after the invocations and before wrappers", async () => {
+  const ag = REGISTRY.hosts.antigravity.models.map((m) => m.id).join(",");
+  const oc = REGISTRY.hosts.opencode.models.map((m) => m.id).join(",");
+  const s = scriptedIo(["", "", "read_file, grep_search", "", "", ""]);
+  const r = await collect({ hosts: "opencode,antigravity", models: [`opencode=${oc}`, `antigravity=${ag}`] }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.cli("OpenCode", "opencode"), Q.cli("Antigravity", "agy"), Q.agTools, Q.ocDir + " [.opencode/agent]", Q.wrappers, Q.confirm]);
+  assert.deepEqual(r.answers.decisions, { antigravity: { antigravityTools: ["read_file", "grep_search"] }, opencode: { agentDir: ".opencode/agent" } });
+  const flags = await fromFlags({ hosts: "opencode,antigravity", models: [`opencode=${oc}`, `antigravity=${ag}`], cli: ["opencode=opencode", "antigravity=agy"], antigravityTools: "read_file,grep_search", wrappers: "yes" });
+  assert.deepEqual(r, flags);
+});
+
+// ---- FR-2 mixed input, FR-6 pre-fill ----
+
+test("collectAnswers: FR-2 mixed input — `--hosts claude` skips the host question; roster, invocation, wrappers, confirm asked", async () => {
+  const s = scriptedIo(["1,2,3", "", "", ""]);
+  const r = await collect({ hosts: "claude" }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.roster("Claude Code"), Q.cli("Claude Code", "claude"), Q.wrappers, Q.confirm]);
+  assert.deepEqual(r.answers.hosts, ["claude"]);
+});
+
+test("collectAnswers: FR-6 pre-fill — [x] 1) Claude Code, Enter keeps it; previous ids (user id included) pre-checked, never re-typed", async () => {
+  const previous = { version: 1, hosts: ["claude"], roster: { claude: [P("opus"), P("sonnet"), U("my-model", ["T1"])] }, cli: { claude: "cc" }, wrappers: "no", authorAuditor: { claude: "ok" } };
+  const s = scriptedIo(["", "", "", "", ""]);
+  const r = await collect({}, previous, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.hostsPre, Q.rosterPre("Claude Code"), Q.cli("Claude Code", "cc"), "Bind the personas with native wrappers (Step 8E)? [y/N]", Q.confirm]);
+  assert.match(s.asked[0], /\n {2}\[x\] 1\) Claude Code\n {2}\[ \] 2\) OpenCode\n/);
+  assert.match(s.asked[1], /\[x\] 1\) Opus \(opus\)\n {2}\[x\] 2\) Sonnet \(sonnet\)\n {2}\[ \] 3\) Haiku \(haiku\)\n {2}\[x\] 4\) my-model/);
+  assert.deepEqual(r.answers, { hosts: ["claude"], roster: { claude: [P("opus"), P("sonnet"), U("my-model", ["T1"])] }, cli: { claude: "cc" }, wrappers: "no", decisions: {}, crossHost: {} });
+});
+
+test("collectAnswers: flags override the previous answers file", async () => {
+  const previous = { hosts: ["codex"], roster: { codex: CODEX_IDS.map(P) }, cli: { claude: "cc", codex: "codex" }, wrappers: "yes" };
+  const s = scriptedIo(["1,2", "", ""]);
+  const r = await collect({ hosts: "claude", cli: ["claude=claude"] }, previous, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.roster("Claude Code"), "Bind the personas with native wrappers (Step 8E)? [Y/n]", Q.confirm]);
+  assert.deepEqual(r.answers.hosts, ["claude"]);
+  assert.deepEqual(r.answers.cli, { claude: "claude" });
+});
+
+// ---- --yes, no TTY (FR-1 No TTY, FR-6 --yes re-run, W6) ----
+
+test("collectAnswers: --yes with complete flags asks 0 questions (TTY or not)", async () => {
+  const args = { hosts: "claude", models: ["claude=opus,sonnet,haiku"], cli: ["claude=claude"], wrappers: "yes", yes: true };
+  for (const isTTY of [true, false]) {
+    const s = scriptedIo([]);
+    const r = await collect(args, null, s, isTTY);
+    assert.deepEqual(s.asked, []);
+    assert.deepEqual(r.answers.roster, { claude: [P("opus"), P("sonnet"), P("haiku")] });
+  }
+});
+
+test("collectAnswers: no TTY + missing roster -> usage error naming the non-interactive form; io.ask never called", async () => {
+  const s = scriptedIo([]);
+  const r = await collect({ hosts: "claude", yes: true }, null, s, false);
+  assert.deepEqual(s.asked, []);
+  assert.match(r.error || "", /--models claude=…/);
+  assert.match(r.error || "", /--hosts <h1,h2> --models <host>=<id>\[@T<n>\[\+T<m>\]\],… --cli <host>=<binary> --wrappers yes\|no --yes/);
+  const none = scriptedIo([]);
+  const r2 = await collect({}, null, none, false);
+  assert.deepEqual(none.asked, []);
+  assert.match(r2.error || "", /missing: --hosts, --models, --yes/);
+});
+
+test("collectAnswers: no TTY, the previous answers file completes the picture -> --yes succeeds without prompting; without --yes -> usage error", async () => {
+  const previous = { hosts: ["claude"], roster: { claude: [P("sonnet"), P("haiku")] }, cli: {}, wrappers: "no", decisions: {}, authorAuditor: { claude: "ok" } };
+  const s = scriptedIo([]);
+  const r = await collect({ yes: true }, previous, s, false);
+  assert.deepEqual(s.asked, []);
+  assert.deepEqual(r.answers, { hosts: ["claude"], roster: { claude: [P("sonnet"), P("haiku")] }, cli: {}, wrappers: "no", decisions: {}, crossHost: {} });
+  const r2 = await collect({}, previous, s, false);
+  assert.deepEqual(s.asked, []);
+  assert.match(r2.error || "", /missing: --yes/);
+});
+
+test("collectAnswers: a hand-edited previous user entry without tiers -> usage error naming the entry", async () => {
+  const previous = { hosts: ["claude"], roster: { claude: [P("opus"), { id: "x-model", source: "user" }] }, wrappers: "yes" };
+  const r = await collect({ yes: true }, previous, scriptedIo([]), false);
+  assert.match(r.error || "", /roster\.claude\[1\] \(`x-model`\): source "user" needs tiers T1–T6/);
+});
+
+// ---- FR-1 adjust a tier ----
+
+test("collectAnswers: FR-1 adjust — `t`, T3, a pick equal to T2 is rejected with a one-line reason and re-asked, then accepted", async () => {
+  const s = scriptedIo(["t", "3", "2", "3", "a"]);
+  const r = await collect({ hosts: "claude", models: ["claude=opus,sonnet,haiku"], cli: ["claude=claude"], wrappers: "yes" }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [
+    Q.confirm,
+    Q.tier,
+    Q.pick("T3"),
+    "T3 = T2 rejected: `sonnet` is the Implementer's model (T2) — the Reviewer must run on a different model (author ≠ auditor)",
+    Q.confirm,
+  ]);
+  assert.match(s.asked[4], /\n {2}T3 {2}haiku /);
+  const flags = await fromFlags({ hosts: "claude", models: ["claude=opus,sonnet,haiku@T3"], cli: ["claude=claude"], wrappers: "yes" });
+  assert.deepEqual(r, flags);
+});
+
+test("collectAnswers: adjust works on any selected host and any tier (host question when more than one)", async () => {
+  const s = scriptedIo(["t", "2", "5", "1", "a"]);
+  const r = await collect({ hosts: "claude,codex", models: ["claude=opus,sonnet,haiku", `codex=${CODEX_IDS.join(",")}`], cli: ["claude=claude", "codex=codex"], wrappers: "yes" }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.confirm, "Adjust which host?", Q.tier, Q.pick("T5"), Q.confirm]);
+  assert.deepEqual(r.answers.roster.codex[0], U("gpt-6-astra", ["T5"]));
+});
+
+test("promptTierAdjust: placing a tier moves it off another user placement; a packaged id emptied of tiers reverts to packaged", async () => {
+  const mapping = deriveFor("claude", [U("opus", ["T5"]), P("sonnet"), P("haiku")]);
+  const s = scriptedIo(["5", "3"]);
+  const r = await routing.promptTierAdjust(s.io, mapping, [U("opus", ["T5"]), P("sonnet"), P("haiku")], { packagedIds: ["opus", "sonnet", "haiku"] });
+  assert.deepEqual(r.roster, [P("opus"), P("sonnet"), U("haiku", ["T5"])]);
+});
+
+// ---- FR-3 unknown id, dated id, single-model roster ----
+
+test("collectAnswers: FR-3 unknown id via *other* -> one placement question; recorded source user with the given tiers", async () => {
+  const s = scriptedIo(["1,2,4", "my-new-model", "1,3", "", "", ""]);
+  const r = await collect({ hosts: "claude" }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.roster("Claude Code"), Q.ids("Claude Code"), Q.place("my-new-model"), Q.cli("Claude Code", "claude"), Q.wrappers, Q.confirm]);
+  const flags = await fromFlags({ hosts: "claude", models: ["claude=opus,sonnet,my-new-model@T1+T3"], cli: ["claude=claude"], wrappers: "yes" });
+  assert.deepEqual(r, flags);
+});
+
+test("collectAnswers: FR-3 placement on both T2 and T3 is re-asked with the reason", async () => {
+  const s = scriptedIo(["1,2,4", "my-new-model", "2,3", "1", "", "", ""]);
+  const r = await collect({ hosts: "claude" }, null, s);
+  assert.equal(firstLine(s.asked[3]), "`my-new-model` cannot serve both T2 and T3 — T3 must differ from T2 (author ≠ auditor) — try again.");
+  assert.deepEqual(r.answers.roster.claude[2], U("my-new-model", ["T1"]));
+});
+
+test("collectAnswers: FR-3 dated id -> reason question after its placement; equals --pin-reason", async () => {
+  const id = "claude-opus-4-20250514";
+  const s = scriptedIo(["1,2,4", id, "1", "eval parity with the 2025 baseline", "", "", ""]);
+  const r = await collect({ hosts: "claude" }, null, s);
+  assert.deepEqual(s.asked.slice(1, 4).map(firstLine), [Q.ids("Claude Code"), Q.place(id), Q.reason(id)]);
+  const flags = await fromFlags({ hosts: "claude", models: [`claude=opus,sonnet,${id}@T1`], pinReason: [`claude=${id}=eval parity with the 2025 baseline`], cli: ["claude=claude"], wrappers: "yes" });
+  assert.deepEqual(r, flags);
+  assert.equal(r.answers.roster.claude[2].reason, "eval parity with the 2025 baseline");
+});
+
+test("collectAnswers: dated id given by --models without --pin-reason on a TTY -> the reason is asked, not an error", async () => {
+  const id = "claude-opus-4-20250514";
+  const s = scriptedIo(["why", "", ""]);
+  const r = await collect({ hosts: "claude", models: [`claude=opus,sonnet,${id}@T1`], cli: ["claude=claude"] }, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.reason(id), Q.wrappers, Q.confirm]);
+  assert.equal(r.answers.roster.claude[2].reason, "why");
+});
+
+const SINGLE = { hosts: "claude", models: ["claude=sonnet"], cli: ["claude=claude"], wrappers: "yes" };
+
+test("collectAnswers: FR-3 single-model roster — accept offers add / cross-host / leave; cross-host equals --t3-cross-host", async () => {
+  const s = scriptedIo(["a", "2", "1", "a"]);
+  const r = await collect(SINGLE, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.confirm, Q.unsat("Claude Code"), "Claude Code — dispatch the Reviewer (T3) to which host?", Q.confirm]);
+  assert.match(s.asked[1], /\n {2}1\) add a model\n {2}2\) dispatch T3 cross-host\n {2}3\) leave it/);
+  assert.deepEqual(r.answers.crossHost, { claude: "opencode" });
+  assert.deepEqual(r, await fromFlags({ ...SINGLE, t3CrossHost: ["claude=opencode"] }));
+});
+
+test("collectAnswers: FR-3 single-model roster — leave it records nothing; add a model re-asks the roster pre-checked", async () => {
+  const leave = scriptedIo(["a", "3"]);
+  const r1 = await collect(SINGLE, null, leave);
+  assert.equal(leave.left(), 0);
+  assert.deepEqual(r1, await fromFlags(SINGLE));
+  const s = scriptedIo(["a", "1", "2,1", "a"]);
+  const r2 = await collect(SINGLE, null, s);
+  assert.deepEqual(s.asked.map(firstLine), [Q.confirm, Q.unsat("Claude Code"), Q.rosterPre("Claude Code"), Q.confirm]);
+  assert.match(s.asked[2], /\[x\] 2\) Sonnet \(sonnet\)/);
+  assert.deepEqual(r2.answers.roster.claude, [P("sonnet"), P("opus")]);
+});
+
+test("collectAnswers: --yes with a single-model roster leaves it (no prompt) — buildPlan reports the skip", async () => {
+  const s = scriptedIo([]);
+  const r = await collect({ ...SINGLE, yes: true }, null, s, true);
+  assert.deepEqual(s.asked, []);
+  assert.deepEqual(r.answers.crossHost, {});
+});
+
+test("collectAnswers: `q` at the confirm quits with nothing collected", async () => {
+  const r = await collect({ ...SINGLE, models: ["claude=opus,sonnet"] }, null, scriptedIo(["q"]));
+  assert.deepEqual(r, { quit: true });
+});

@@ -288,7 +288,7 @@ A fenced body that is not what the previous answers render is a hand edit; refus
 | Measure | Estimate | Basis |
 |---|---|---|
 | Tasks | **8** | T1 data files + drift test · T2 `routing.js` parse + derive (tdd) · T3 `routing.js` render + fence + wrappers + plan (tdd) · T4 `akili.js` flags + `collectAnswers` seam + `persona.js` export (tdd) · T5 `akili.js` apply/summary/json + io tests · T6 constitution Step 8C/8E/9 + checklist + mirror · T7 audit, root rule, docs, README, flow tenant, CHANGELOG · T8 closing validation |
-| LOC | **~1,550** | `routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210 |
+| LOC | **~1,550** → **revised ~3,400 after T3** (user decision at the budget tripwire, 2026-10-01: 2,319 LOC landed after 3 tasks — per-task size, not scope; new tripwire ~4,000) | `routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210 |
 | Review rounds | **18** | code tasks 5 × 2 = 10 (precedent: the Cursor spec consumed 18 of 16 — U5) · rules docs 2 × 2 = 4 · validation 1 · margin 3 |
 
 Depth check: more code than the Cursor spec (8 / ~700 / 16), same risk class (no data, auth, API) → **Standard holds**, at its upper edge; splitting into two specs would separate the CLI from the constitution it serves and lose the single validation. Tripwire: `/akili-execute` escalates at task 9, ~1,900 LOC, or round 19.
