@@ -204,9 +204,9 @@ No DD removes, disables, or inverts delivered behavior: Step 8C/8E text is **dem
 | Function | In → Out | Owner FR |
 |---|---|---|
 | `parseHosts(str)` | → host keys or `{ error }` | FR-2 |
-| `parseModels(list, hosts, registry)` | → `roster` map or `{ error }` (unknown host · host ∉ hosts · empty · bad `@T` · unknown id without `@T` · `@` in id · same id T2+T3 · dated id without reason in non-interactive mode) | FR-2, FR-3 |
+| `parseModels(list, hosts, registry, { reasons, interactive })` | → `roster` map or `{ error }` (unknown host · host ∉ hosts · empty · bad `@T` · unknown id without `@T` · `@` in id · same id T2+T3 · dated id without reason in non-interactive mode) | FR-2, FR-3 |
 | `parseCli(list, hosts)`, `parseCrossHost(list, hosts)` | → maps or `{ error }` | FR-2 |
-| `deriveTiers(roster, hostRegistry, crossHostChoice, selectedHosts, hostKey)` | → `{ mapping, authorAuditor, notes[] }` per §5.3 | FR-3 |
+| `deriveTiers(roster, hostRegistry, { crossHost, selectedHosts, hostKey, crossHostT6Owner })` | → `{ mapping, authorAuditor, notes[] }` per §5.3 (signature as shipped — aligned at archive 2026-10-02) | FR-3 |
 | `renderRegistryTable(mappingByHost, registry, roster)` | → 7-column Markdown; Fallback cell = per-host `` `id` (host) `` list; `roster` supplies the `[pin N]` markers for dated ids (T3: `hosts` was unused and dropped) | FR-4 |
 | `renderSection(template, ctx)` | `{{placeholders}}` → body | FR-4 |
 | `replaceFencedSection(text, body, sinceTag, expectedBody, opts)` | → `{ text, state, token, diff? }` for (a)/(a′)/(b)/(c)/(e)/(f); `(d)` when `text === null` | FR-4 |

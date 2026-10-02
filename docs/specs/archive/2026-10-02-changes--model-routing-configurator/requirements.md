@@ -13,7 +13,7 @@
 | Source | `proposal.md` (approved 2026-10-01, Option B; three open questions resolved — non-interactive flags in v1, answers file at `.agents/model-routing.json`, `doctor --routing` deferred). Release class: **minor** |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/requirements.md` — this repo has no `docs/specs/general-setup/` (it packages the methodology rather than consuming it) |
 | Verified at | `8eb0227` (every `file:line` below) |
-| Deviations from proposal | none at Phase 1. One refinement: unknown model ids (not in the packaged roster) take an explicit tier placement — an interactive prompt, or an `@T<n>` suffix in `--models` — because a non-interactive run has no other way to rank an id it has never seen (FR-3) |
+| Deviations from proposal | **One, found at validation (2026-10-02):** the proposal's success criterion said *≤ 6 prompts*; FR-1 says *≤ 8* (judgment round 1 added the per-host invocation and the Step 8E wrapper questions) — FR-1 governs. Otherwise none at Phase 1. One refinement: unknown model ids (not in the packaged roster) take an explicit tier placement — an interactive prompt, or an `@T<n>` suffix in `--models` — because a non-interactive run has no other way to rank an id it has never seen (FR-3) |
 
 ## 2. Executive Summary
 
@@ -278,7 +278,7 @@ Before the spec is complete, the shipped command SHALL be exercised on a scratch
 | NFR-3 | **Atomic, scoped writes.** Files are written with the existing atomic helper; nothing outside `AGENTS.md`'s fence, the five wrapper directories (`.claude/agents/`, `.opencode/agent/` or its override, `.agents/agents/`, `.codex/agents/`, `.cursor/agents/`), and `.agents/model-routing.json` changes | `git status --porcelain` after a run lists only those paths |
 | NFR-4 | **Cross-platform.** Paths built with `path.join`; CI matrix (ubuntu/macos/windows × Node 18/22) green; `readline/promises` is available on Node ≥ 17 | CI run |
 | NFR-5 | **Pure core.** Derivation and rendering live in `bin/routing.js` as functions with no I/O, unit-tested without a subprocess | `test/routing.test.js` requires the module directly |
-| NFR-6 | **Output discipline.** Summary ≤ 1 line per file + 1 per host + 1 for `AGENTS.md`; `--dry-run` prefixed `[dry-run]` | eyeball on fixture output, asserted in the io test |
+| NFR-6 | **Output discipline.** Summary ≤ 1 line per file + 1 per host + 1 for `AGENTS.md`, plus the `reports[]` lines design §7 defines (restriction/effort omissions, cross-host, skipped roles — amended at archive 2026-10-02 to match the shipped `reports[]`); `--dry-run` prefixes the file lines `[dry-run]` | eyeball on fixture output, asserted in the io test |
 | NFR-7 | **Claims dated.** Every host-shape claim the generator implements cites the Step 8E pin it derives from (`Last verified` + URL in `design.md`) | review |
 | NFR-8 | **Fence compatibility.** The `model-routing` fence uses the exact grammar `bin/persona.js:10-11` accepts, so `doctor --agents` never misparses an `AGENTS.md` it does not read and future tooling can | `node -e` regex test in the unit suite |
 
@@ -300,7 +300,7 @@ Before the spec is complete, the shipped command SHALL be exercised on a scratch
 | Wrong host shape (TOML colons, missing `subagent: true`) | unit snapshot per host of all four wrappers against the Step 8E field tables | remove `subagent: true` → red |
 | Interactive TTY path (prompt order, pre-fill, adjust loop) | unit tests through the injectable `ask` seam (prompt count, answers equality with the flag-built answers); the live TTY session itself has **no automated gate** — exercised manually in FR-11 and recorded as an accepted gap | a scripted answer sequence that skips a prompt → red |
 | Section template fixed prose drifts from `docs/model-routing.md` | **no automated gate** — the drift test covers the table data only; recorded as an accepted gap, re-read at each release (release checklist) | — |
-| Real-host acceptance of the generated wrapper (model id accepted, `readonly` honored) | **no automated gate here** — covered on Claude Code by FR-11's scratch run; other hosts rely on the pins recorded in the archived Codex/Cursor specs; recorded as **accepted risk** for OpenCode/Antigravity in this spec | — |
+| Real-host acceptance of the generated wrapper (model id accepted, `readonly` honored) | **no automated gate here** — **not exercised on Claude Code either** (re-worded at archive, 2026-10-02: no T8 case loaded the generated `.claude/agents/akili-reviewer.md` in a Claude Code session; T8 case 11 listed the Cursor Reviewer as `readonly: true` without attempting a write); every host relies on the Step 8E pins recorded in the archived Codex/Cursor specs — recorded as **accepted risk** for all five hosts | — |
 
 ## 9. Requirement ID Index
 

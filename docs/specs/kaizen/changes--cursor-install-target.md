@@ -59,7 +59,7 @@
 | Target | `.claude/templates/leader.md` — Primary Instructions, item 3 *Brief contract (principle)*, append after "state every infrastructure or third-party fact source-or-`UNVERIFIED`" |
 | Edit | "**A quotation in a brief is raw-verified by the Leader before it is written** — a summarizing fetch, a Reviewer advisory, or a prior spec's summary is never a source for text inside quotation marks: fetch the raw page and grep the sentence, or write the claim as a paraphrase carrying the `UNVERIFIED` marker." |
 | Severity | High |
-| Status | deferred |
+| Status | applied (2026-10-02) |
 
 ### P2
 
@@ -71,6 +71,8 @@
 | Severity | Medium |
 | Status | deferred |
 
+> Apply pass 2026-10-02: approved and written, then **reverted** — `test/agents-doctor.test.js` compares `test/fixtures/personas/*` (incl. `verbatim-marked.md`, a byte copy of the implementer template) against the current implementer template, so the edit turned six tests red. Applying it needs the persona fixtures regenerated in the same change — a task for `/akili-propose`/`/akili-quick`, not an archive-time edit. Stays deferred; the re-verify probe (anchor present) did not see this blast radius.
+
 ### P3
 
 | Field | Value |
@@ -79,7 +81,7 @@
 | Target | `KZ-002` |
 | Edit | Add `changes/cursor-install-target` as a source spec; recurrence 6 — a CHANGELOG clause claimed "new command capability" (no command shipped), FR-4 asserted "210 files" for a counter that counts operations, the constitution said "All four `exit 0` terminals route through `allow`" (three do), and the registry stated "plan-gated"/"Requires approval" from a summarizing fetch; each caught only by quote-checking the clause at HEAD. Severity stays High. |
 | Severity | High |
-| Status | deferred |
+| Status | applied (2026-10-02) |
 
 ### P4
 
@@ -89,7 +91,7 @@
 | Target | `KZ-changes--leader-brief-contract-2` |
 | Edit | Add `changes/cursor-install-target` as a source spec; recurrence ×2 — NFR-7 declared F1 "red" (it exits 2 at baseline; never run before written) and FR-7 asserted "`/model` in both IDE and CLI" from no source; both found at execute time. Raise Medium → **High**. |
 | Severity | High |
-| Status | deferred |
+| Status | applied (2026-10-02) |
 
 ### P5
 
@@ -99,6 +101,8 @@
 | Target | `KZ-changes--persona-upgrade-1` |
 | Edit | Add `changes/cursor-install-target` as a source spec; recurrence with **current** personas (`doctor --agents` clean) — 6 of 14 spawns over the 60-call bound — so the root cause is broader than drift: the self-counted bound is unobservable (see KZ-changes--cursor-install-target-2 / P2). |
 | Severity | Medium |
-| Status | deferred |
+| Status | applied (2026-10-02) |
 
 **Standardize menu (apply-capable branch):** the user moved to archive/release before answering → recorded as **Defer all**; every item stays in the backlog and is re-offered at the next apply pass (`kaizen apply` on `master`). Backlog across `docs/specs/kaizen/` at this pass: these 5 items, highest severity **High**.
+
+**Apply pass 2026-10-02 (`master`, apply-capable):** P1–P5 re-verified at HEAD and approved — P1 appended to the leader template's *Brief contract* bullet; **P2 reverted after it turned six `agents-doctor` tests red (see its block) — deferred**; P3–P5 merged into the digest (P4 merged with `changes/model-routing-configurator`'s recurrence of the same ID and raised to High). Digest row added for KZ-changes--cursor-install-target-1 (not -2, whose edit is deferred).

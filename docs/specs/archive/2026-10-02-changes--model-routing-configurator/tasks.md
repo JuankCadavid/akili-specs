@@ -497,7 +497,7 @@ No gap is discharged by citing a different requirement; every clause above names
 
 ## 4. Estimated LOC and PR Strategy
 
-**~1,550 lines** (code ~640 · data/template ~220 · tests ~480 · prose ~210), matching the design budget. The spec exceeds ~400 LOC and mixes a CLI feature with rules-document edits, so **two PRs** are recommended on `master` (this repo releases direct-to-master; PRs are optional review boundaries):
+**~1,550 lines** estimated (code ~640 · data/template ~220 · tests ~480 · prose ~210) — **actual ~4,130** after 13 tasks (budget revised to ~3,400 after T3; see `execution.md` Budget Tripwire and §3). The spec exceeds ~400 LOC and mixes a CLI feature with rules-document edits, so **two PRs** are recommended on `master` (this repo releases direct-to-master; PRs are optional review boundaries):
 
 - **PR 1 — CLI (T1–T5):** data files, `routing.js`, `akili.js` wiring, tests. Review first: `routing.js` §5.3 derivation and §5.6 states. Out of scope: constitution text.
 - **PR 2 — Methodology (T6–T8):** constitution delegation, docs, CHANGELOG, validation evidence. Review first: the Step 8C obligation walk. Links back to PR 1.
