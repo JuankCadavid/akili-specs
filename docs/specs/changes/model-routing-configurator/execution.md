@@ -415,3 +415,33 @@ T6's scope and check 3 assumed `docs/commands/akili-constitution.md` is a verbat
 - Carried from attempts 1–2 (recorded above): the runbook step-2 drift-note wording is exact only for the slug-change scenario; `model-routing.md:817` "The one writer of models is `akili routing`" omits the Fallback; README `:55` / `docs/README.md:11/44` still say "install/update/list/doctor"; README `:904` "(PRO) and OpenCode Go"; the pinned-id `*(alias — always latest)*` note (T2/T3 defect, parked).
 
 **Decisions made:** check-4 amendment at T6 carried; the continuation ruled in scope (closure sweep, obligation-keyed); `:727` left (upheld by two Reviewers); historical CHANGELOG entries frozen; attempt-3 tier escalation. **Issues encountered:** the same write-target phrase survived two attempts in sentences edited at the end and not re-read from the start — **kaizen (High candidate):** on a rules/docs task whose obligation is "X is no longer the place/way", the brief must carry a mechanical sweep for the *phrase family* over every file in scope, run before the report, not a list of sites — attempts 1 and 2 each fixed the sites they were pointed at (KZ-changes--kaizen-loop-closure-2 recurrence, third spec). One Reviewer runtime event (provider limit) recovered at rung 1. **Review rounds:** 3 for this task (budget 2) — spec total **10 of 18** after T7. **Final verification:** `npm test` 223/223; `git diff --check` clean; 13/13 option lines; `verify:cli` unchanged.
+
+### T8 — Closing validation on a scratch project (CLI) and the constitution delegation walk (Claude Code)
+
+| Field | Value |
+|---|---|
+| Status | **in progress** — cases 3–9 recorded (all matched); cases 1, 2, 10 (and optional 11) owed by the user on a real TTY / in a Claude Code session |
+| Date | 2026-10-01 |
+| Skills (Leader selection) | `systematic-debugging`, `caveman` — as listed |
+| Effort / model | Implementer `opus`, `high` (cases 3–9) |
+| Requirements covered so far | FR-11 cases 3–9; FR-1 *Dry run*, FR-4 states (a)–(e) live, FR-5 unsatisfiable/cross-host live, FR-6 idempotence live, NFR-2 live |
+
+**Cases 3–9 (Implementer, scratch project — never this repo).** Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validation-evidence.md` (43 command blocks, each with `exit=<n>`; outputs untrimmed). Baseline established with the FR-2 non-interactive form equivalent to case 1's answers (`--hosts claude,cursor --models claude=opus,sonnet,haiku --models cursor=claude-opus-4-6@T1+T3,composer-2@T2+T5,claude-sonnet-4-6@T4+T6 --cli claude=claude --cli cursor=agent --wrappers yes --yes` → `appended AGENTS.md`, 8 wrappers `created`, answers file `created`; committed as `baseline`).
+
+| Case | Expected | Observed | Match |
+|---|---|---|---|
+| 3 | `no changes`; porcelain empty | `no changes`, exit 0; 10 paths `unchanged`; porcelain 0 lines | yes — **live idempotence falsifier held** |
+| 4 | `refused (hand-edited fence; --force to regenerate)` exit 1; `--force` → `overwritten` | T5 Claude cell `haiku`→`sonnet` edited inside the fence → refused + diff, exit 1, edit kept; `--force` → `overwritten`, exit 0, cell restored | yes — **live provenance falsifier held** |
+| 5 | `skipped (unfenced; --adopt to replace)`; `--adopt --yes` → `adopted` | skipped, exit 0, file untouched; `adopted`, exit 0, fence restored byte-identical | yes |
+| 6 | `created` + constitution hint; malformed → `refused (malformed fence)`, wrappers still written | `created` + `hint: run /akili-constitution to complete AGENTS.md`; `refused (malformed fence)`, exit 1, 8 wrappers `created` (wrapper dirs removed beforehand so the write is visible) | yes |
+| 7 | `--dry-run` on a changed roster (`claude=opus,sonnet`) → tree unchanged | `[dry-run] replaced` ×2 printed; shasum identical, porcelain empty | yes |
+| 8 | exit 0, `skipped (author ≠ auditor unsatisfiable)`, no Claude wrappers; `--t3-cross-host claude=antigravity` → three wrappers, no Reviewer | exit 0, skipped ×4, no `.claude/agents` (removed beforehand); exit 0, 3 wrappers, no reviewer | yes |
+| 9 | usage error naming the non-interactive form, < 2 s, three runs | exit 1 ×3, stderr names `use the non-interactive form: akili routing --hosts …`; **127.0 / 75.1 / 90.0 ms** (spread 51.9 ms; Python `subprocess` with `shell=True` — a conservative upper bound) | yes — conclusive |
+
+- *Evidence re-run (Leader):* the evidence file inspected — every case block carries its command, verbatim output and `exit=`; the summary table reproduced above from the file; repo `git status --porcelain` empty at `08ab78d` after the run (the Implementer wrote only the scratchpad file).
+- *Spawns:* Implementer 19 calls (self-count 16), 122,355 tokens, ended complete.
+- *Observations outside the case expectations (Implementer, verbatim; Leader disposition in brackets):*
+  1. Two Cursor cells in the generated registry pair the model with the wrong family label: T3 `` `claude-opus-4-6` GPT-5.6 Sol/Terra family ``, T6 `` `claude-sonnet-4-6` Gemini 3.8 Flash family ``. [**Same root cause as the T3-item-9 / T7-advisory `*(alias — always latest)*` defect:** §5.3 step 6 appends the registry's fixed per-tier note regardless of which id the user placed. Design-conformant, user-visibly wrong. **Surfaced to the user at this gate as a spec gap** — a one-line §5.3 step 6 amendment ("fixed notes apply only when the tier's primary is the packaged head") plus a ~15-LOC `deriveTiers` change and two tests; outside every approved task → the user decides: reopen via the Pivot Protocol (a ninth task, which trips the task budget) or a follow-up `/akili-propose` after archive.]
+  2. The printed fence diff lists the `+` line before the `-` line in each changed pair and covers the whole section as one 110-line hunk. [Cosmetic; `unifiedDiff` in `routing.js`; follow-up.]
+  3. Case 5's `skipped (unfenced…)` run still ends with `no changes`, exit 0. [Per the §5.6 rule — `no changes` when every write is `unchanged`/`skipped`; reads oddly beside a skip that needs `--adopt`; advisory.]
+  4. The case-6b malformed run prints the `commit .agents/model-routing.json…` hint although `model-routing.json` is `unchanged`. [Wrappers were `created` in that run — a real write happened, so the hint is per design §7; advisory.]
