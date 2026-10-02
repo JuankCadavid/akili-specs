@@ -464,13 +464,81 @@ The `.agents/` directory must be tool-agnostic:
 
 ### Step 8C: Scaffold Model Routing
 
-Add or upgrade a `## Model Routing` section in the project's root `AGENTS.md` **only** — the
-project's single canonical agent guide — so each project carries its own editable, per-tool
-model-selection registry. This is **guidance only** — it tells humans and agents which model to
-switch to per phase. Do not add `model:` frontmatter to any command and do not change the installer.
-Never write this section into `CLAUDE.md`: a project that keeps one carries it only as an
-`@AGENTS.md` import (see the rule after Step 0's file list), which already includes this section by
-reference.
+**Collect the answers in chat, then let `akili routing` write.** One non-interactive run of the
+packaged CLI renders the project's `## Model Routing` section, the Step 8E agent wrappers (when the
+user opts in), and `.agents/model-routing.json` (the answers file a later run re-reads) from the
+same answers. When the binary is absent or predates `routing`, the **Fallback** below writes the same
+section by hand.
+
+| What | Rule |
+|---|---|
+| Where | The project's root `AGENTS.md` **only** — the project's single canonical agent guide — so each project carries its own per-tool model-selection registry. Never write this section into `CLAUDE.md`: a project that keeps one carries it only as an `@AGENTS.md` import (see the rule after Step 0's file list), which already includes this section by reference |
+| Fence | The section sits inside an AKILI-owned fence: `<!-- akili:section id=model-routing since=<version> -->` on the line before `## Model Routing`, `<!-- /akili:section -->` after its last line. The CLI and the Fallback write the same fence id |
+| Status | **Guidance** for the main loop — it tells humans and agents which model to switch to per phase; enforced bindings for subagents live only in the Step 8E wrappers. Do not add `model:` frontmatter to any command and do not change the installer |
+| Terminal | Never send the user to a terminal to run the interactive wizard (`akili routing` with no flags) — you ask the questions, the CLI only writes |
+
+**1. Ask in chat, in this order.** Use your question tool. The order is the `QUESTION ORDER`
+contract of `collectAnswers` in the packaged `bin/routing.js`; the Fallback asks the same questions
+in the same order. Each answer becomes a flag:
+
+| # | Ask | Flag |
+|---|---|---|
+| 1 | Which hosts the project uses — Claude Code, OpenCode, Antigravity, Codex, Cursor. Ask about **all five**, even when the user works in only one today: an unselected host keeps its registry column with the packaged defaults or `<CONFIRM SLUG>` placeholders, never a dropped column | `--hosts claude,opencode,antigravity,codex,cursor` (the selected ones) |
+| 2 | Per selected host, in host order: the models the user can actually run there — plan and rate limits on Claude Code, the OpenCode roster, `agy models` on Antigravity, the `/model` roster **and account plan** on Codex, the `/model` picker in the `agent` CLI on Cursor (the Fallback's item 4 names each). For an id outside the packaged roster: which tiers (T1–T6) it serves. For a dated id: why it is pinned (the alias-first rule) | `--models <host>=<id>[@T<n>[+T<m>]],…` (one per host); `--pin-reason <host>=<id>=<text>` per dated id |
+| 3 | Per selected host: the CLI invocation (`claude`, `opencode`, `agy`, `codex`, `agent`). **Ask; never probe the filesystem.** An unconfirmed invocation gets no flag and renders `<CONFIRM>` | `--cli <host>=<binary>` |
+| 4 | Antigravity only: the Reviewer's tool names, **confirmed against the installed binary** (Step 8E). Unconfirmed → no flag; the restriction is omitted and reported | `--antigravity-tools <a,b>` |
+| 5 | OpenCode only: the agent directory, when not `.opencode/agent` | `--opencode-agent-dir <path>` |
+| 6 | Step 8E's one question — bind the personas with native wrappers? | `--wrappers yes` or `--wrappers no` |
+| 7 | Show the derived tier table and ask the user to accept or adjust it (step 2 below). A tier adjustment is a placement: re-run with `<id>@T<n>` in `--models` | `--yes` once accepted |
+| 8 | A host whose Reviewer (T3) cannot differ from the Implementer (T2) is `unsatisfiable`: ask whether to add a model, dispatch its T3 to another host, or leave it (registry written, that host's wrappers skipped) | `--t3-cross-host <host>=<other>` |
+
+**2. Preview, then run.** Show the derived table with the same command plus `--dry-run` (no
+`--json`): it prints the tier table and the planned writes and writes nothing. Once the user
+accepts, run the command for real:
+
+```bash
+akili routing --project . --hosts <h1,h2> --models <host>=<id>[@T<n>[+T<m>]],… [--models …] --cli <host>=<binary> [--cli …] --wrappers yes|no [--t3-cross-host <host>=<other>] [--antigravity-tools <a,b>] [--opencode-agent-dir <path>] [--pin-reason <host>=<id>=<text>] --yes --json
+```
+
+Without a TTY the CLI asks nothing, so `--yes` is required. Never add `--force` or `--adopt` on
+your own — each overwrites something the user owns, and each needs the user's answer (step 3).
+
+**3. Read the result — three branches.**
+
+| Branch | What you see | Do |
+|---|---|---|
+| **CLI present, knows `routing`** | One JSON object on stdout: `dryRun`, `exitCode`, `hosts`, `writes[]` (`relPath`, `token`, `note`), `restrictions`, `authorAuditor`, `placeholdersByColumn`, `sectionBytes`, `stale`, `reports`, `hints` | Keep it for Step 9. Act on the tokens in the next table |
+| **CLI present, predates `routing`** | `ERROR: Unknown command: routing` on stderr, exit 1 | Run the **Fallback**. Tell the user a newer `akili-specs` package provides the command |
+| **CLI absent** | The shell cannot resolve `akili` | Run the **Fallback** |
+
+Any other `ERROR:` line (a usage error, a flag the CLI rejects) is not a fallback trigger: fix the
+flags from the message and re-run.
+
+| `AGENTS.md` token | Meaning | Do |
+|---|---|---|
+| `created` · `appended` · `replaced` · `unchanged` · `adopted` · `overwritten` | The section is in place | Nothing |
+| `skipped (unfenced; --adopt to replace)` | An unfenced `## Model Routing` section exists — the Safe Update case | Show the user its diff (re-run with `--dry-run`, no `--json`). Ask: adopt it (re-run with `--adopt`, passing the user's existing pins through `--models`), or keep it and fill gaps by hand per the Fallback's mode policy |
+| `refused (hand-edited fence; --force to regenerate)` | The fenced body is not what the previous answers render — a hand edit, or a section the Fallback wrote | `exitCode` is 1; wrappers and the answers file **were** written. Show the diff; regenerate with `--force` only when the user says so |
+| `refused (malformed fence)` | Broken or duplicated `model-routing` markers | `exitCode` is 1; nothing was written to `AGENTS.md`, while the wrappers and the answers file were. Ask the user to repair the markers, then re-run |
+
+`stale[]` lists mapping ids absent from the packaged roster — report them, never edit them (the mode
+policy's *flag stale entries*). In **Legacy** mode, annotate the project's actual tooling after the
+run, directly below the closing fence marker: an annotation inside the fence is a hand edit that the
+next `akili routing` run refuses.
+
+#### Fallback (no `akili routing`)
+
+Run this only on the two fallback branches above. Ask the same questions in the same order, then
+write by hand:
+
+- the section, inside the same fence — `<!-- akili:section id=model-routing since=<version> -->`
+  and `<!-- /akili:section -->`, each marker on its own line; `<version>` is `v` plus the installed
+  AKILI version, one token with no spaces;
+- the Step 8E wrappers, when the user opted in;
+- no answers file.
+
+Tell the user: a later `akili routing` run finds this fence without an answers file, treats it as
+hand-edited, and needs `--force` to regenerate it.
 
 The canonical reference is the packaged `docs/model-routing.md` (criteria-first philosophy, the six
 capability tiers, the phase→tier mapping, and the model registry). Mirror its content into the
@@ -570,9 +638,10 @@ project guides so the project does not depend on the package's `docs/` after ins
    but only for a real capability gap — a cross-host spawn costs a fresh context, which a
    one-tier difference does not repay.* This is what gives every command's model checkpoint its
    third option (dispatch the phase) alongside switch-model and continue-as-is.
-5. The instruction: *"To change models, edit only this registry table. Never pin a dated model name
-   where a floating alias exists. Model selection is guidance only in command prompts — never add
-   `model:` to command frontmatter; enforced bindings live only in the Step 8E agent wrappers."*
+5. The instruction: *"To change models, re-run `akili routing` — it regenerates only this fenced
+   section — or remove the fence and edit the table by hand. Never pin a dated model name where a
+   floating alias exists. Never add `model:` to command frontmatter; enforced bindings live only in
+   the Step 8E agent wrappers."*
 6. A compact **Effort dial** subsection (mirroring the packaged `docs/model-routing.md` → *Effort
    dial*): effort is the second, **per-task** routing dimension, orthogonal to the tier — the tier
    picks the model, effort picks how hard it thinks on *this* task. Include: (a) the effort-by-signal
@@ -602,6 +671,10 @@ project guides so the project does not depend on the package's `docs/` after ins
   project registry against the packaged default in `docs/model-routing.md` and list (do not edit)
   entries that name models the tool no longer offers or dated pins that an alias would now cover —
   the user decides whether to refresh them.
+
+The generator's provenance check is this Safe Update rule in code: without `--force`,
+`akili routing` refuses to overwrite a fenced section whose body is not what the previous answers
+render, and without `--adopt` it skips an unfenced one.
 
 Confirm the user's available models before writing concrete identifiers: which tier they run in
 Claude Code (and their plan's rate limits) and which models their OpenCode roster exposes. Ask about
@@ -672,6 +745,14 @@ Ask the user first (one question): *"Bind the AKILI personas to models with nati
 so the Implementer/Reviewer/Tester automatically run on their tier's model?"* If declined, skip
 this step — the guidance-only flow keeps working.
 
+**Generated by the same `akili routing` run.** Step 8C asks this question as its sixth and passes
+the answer as `--wrappers yes|no`; on `yes` the run writes the wrappers for every selected host from
+the same mapping as the registry, and its JSON reports each file's token and each Reviewer's
+restriction state. The per-tool bullets and the rules below are the **contract** that run
+implements, and the **fallback**: when Step 8C took its Fallback, write the wrappers by hand from
+them. Either way, existing wrapper files are skipped unless the user asks to replace them (rule 4;
+`--force` on the CLI).
+
 **Per tool:**
 
 - **Claude Code:** create project-level `.claude/agents/akili-leader.md`, `akili-implementer.md`,
@@ -687,9 +768,10 @@ this step — the guidance-only flow keeps working.
   operating contract before doing anything else.
   ```
 
-  Models come from the registry's Claude Code column as **aliases** (default: leader `opus` (T1 —
-  orchestration judgment), implementer `sonnet`, reviewer `opus`, tester `sonnet`). Never copy the
-  persona body into the wrapper — `.agents/` stays the single source of truth.
+  Models come from the registry's Claude Code column as **aliases**, from the mapping: leader T1
+  (orchestration judgment), implementer T2, reviewer T3, tester T2 (e.g. `opus` / `sonnet` /
+  `opus` / `sonnet` on the packaged roster). Never copy the persona body into the wrapper —
+  `.agents/` stays the single source of truth.
 
   **The Reviewer wrapper additionally carries a `tools` allowlist — it is the one wrapper that
   gets one.** `.agents/reviewer.md` opens by declaring the role read-only, but an instruction is
@@ -720,13 +802,15 @@ this step — the guidance-only flow keeps working.
   nothing and breaks the role.
 
 - **OpenCode:** create the equivalent project agent definitions (`.opencode/agent/akili-*.md` or
-  the `agent` block of `opencode.json`, matching the user's OpenCode version) with `model:` set to
-  the registry's OpenCode slugs (default: leader `opencode-go/deepseek-v4-pro` (T1 — orchestration
-  judgment), reviewer `opencode-go/deepseek-v4-pro`, implementer `opencode-go/deepseek-v4.1-flash`,
-  tester `opencode-go/deepseek-v4-flash`). **Leader and Reviewer share the T1/T3 model** — that is
-  not a break of `author ≠ auditor`, which is enforced between Implementer (`deepseek-v4.1-flash`)
-  and Reviewer (`deepseek-v4-pro`), the two roles the guarantee actually governs. The Tester still
-  lands on a **different model than the Implementer** (author ≠ tester).
+  the `agent` block of `opencode.json`, matching the user's OpenCode version; `akili routing` writes
+  only the directory form, so the `opencode.json` form is always written by hand) with `model:` set
+  to the registry's OpenCode slugs, from the mapping: leader T1 (orchestration judgment), reviewer
+  T3, implementer T2, tester T2 (e.g. leader and reviewer `opencode-go/deepseek-v4-pro`, implementer
+  `opencode-go/deepseek-v4.1-flash` on the packaged roster). **Leader and Reviewer share the T1/T3
+  model** — that is not a break of `author ≠ auditor`, which is enforced between Implementer
+  (`deepseek-v4.1-flash`) and Reviewer (`deepseek-v4-pro`), the two roles the guarantee actually
+  governs. Prefer a Tester on a **different model than the Implementer** (author ≠ tester — e.g.
+  `opencode-go/deepseek-v4-flash`); where the mapping gives both the T2 pick, note it per rule 1.
 
   Apply the same **read-only restriction to the Reviewer wrapper only**, for the reason given in the
   Claude Code bullet. OpenCode's mechanism for this has changed across versions — it has been both a
@@ -758,7 +842,7 @@ this step — the guidance-only flow keeps working.
 
   | Field | Why AKILI sets it |
   |---|---|
-  | `model` | `inherit` \| `flash` \| `pro` — the registry's Antigravity column. Leader/Reviewer `pro` (T1/T3), Implementer/Tester `flash` (T2) |
+  | `model` | `inherit` \| `flash` \| `pro` — the registry's Antigravity column, from the mapping: each role's tier pick (Leader T1, Reviewer T3, Implementer/Tester T2) written as the family it belongs to — a Gemini Pro pick is `pro`, a Gemini Flash pick is `flash` (on the packaged roster: Reviewer `pro`, the other three `flash`) |
   | `subagent: true` | **Required** for the Leader to reach it via `invoke_subagent`. Without it the wrapper exists and is never invocable |
   | `mainAgent: false` | Keeps Implementer/Reviewer/Tester out of the primary-agent picker — they are only ever dispatched. The Leader keeps `mainAgent: true` |
   | `tools` | The Reviewer's read-only role stops being an instruction and becomes a **restriction** |
@@ -888,14 +972,14 @@ this step — the guidance-only flow keeps working.
   Pin: <https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01` (field table,
   `readonly` quote, precedence quote, depth-limit quote).
 
-  **`.agents/` gains a third tenant on Codex** (one repo, three non-colliding uses of the same
-  directory name):
+  **`.agents/` holds four tenants** (one repo, four non-colliding uses of the same directory name):
 
   | Path | Tenant | Written by |
   |---|---|---|
   | `.agents/<role>.md` | AKILI personas (all hosts) | `/akili-constitution` Step 7 |
   | `.agents/agents/akili-<role>/agent.md` | Antigravity wrappers | Step 8E, above |
   | `.agents/skills/<name>/SKILL.md` | Codex and Cursor repo-scope skills | `akili install --tool codex --local` or `--tool cursor --local` |
+  | `.agents/model-routing.json` | Model-routing answers (all hosts) — what a later `akili routing` run re-reads | `akili routing` (Step 8C); the Fallback writes none |
 
   Codex scans `.agents/skills` in every directory from the working directory up to the repository
   root, plus the user-scope `$HOME/.agents/skills` (`Last verified: 2026-09-16` —
@@ -1319,11 +1403,11 @@ After drafting or enhancing the documents, generate a short, easy-to-understand 
 - The main technical decisions captured in the TRD
 - The core infrastructure decisions captured in the Infrastructure document
 - The state of `.agents/` (created from defaults, customized to detected stack, or preserved with upgrades) and any customizations applied
-- The `## Model Routing` registry (Step 8C): that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill
+- The `## Model Routing` registry (Step 8C): whether `akili routing` wrote it or **the Fallback was used** (and why — binary absent, or `Unknown command: routing`); that it was written to the root `AGENTS.md`, which host columns it carries, and any `<CONFIRM SLUG>` placeholders left for the user to fill. When the `--json` result exists, read these from it, never from memory: the hosts configured (`hosts`), the placeholder count per column (`placeholdersByColumn`), every file written or skipped with its token (`writes`), each Reviewer's restriction state (`restrictions`), `authorAuditor` per host, and any `stale` ids. When `exitCode` is 1 with a `refused (…)` token on `AGENTS.md`, say plainly that the section was **not** written while the wrappers and the answers file were, and what the user decided (step 3 of Step 8C). After a Fallback run, repeat that a later `akili routing` needs `--force` on the hand-written fence
 - The `## Skill Map` (Step 8D): which stack skills were mapped, and on what evidence
-- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. On Cursor, name the four wrapper files (`.cursor/agents/akili-{leader,implementer,reviewer,tester}.md`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `readonly: true`**. Also name the `.agents/` three-tenant table (personas / Antigravity wrappers / Codex and Cursor skills, defined in Step 8E) so the user knows the layout is collision-free.
+- The Step 8E agent wrappers: generated (and for which tool), or declined — and whether the Reviewer wrapper carries the host's **read-only restriction** or is read-only by instruction only (name which, per Step 8E rule 2). On Codex, name the four wrapper files (`.codex/agents/akili-{leader,implementer,reviewer,tester}.toml`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `sandbox_mode`** — Codex's equivalent of Claude Code's `tools` allowlist and Antigravity's `tools` list. On Cursor, name the four wrapper files (`.cursor/agents/akili-{leader,implementer,reviewer,tester}.md`), the two distinct `model` values bound to Leader/Implementer vs Reviewer, and state plainly that **the Reviewer is read-only by `readonly: true`**. Also name the `.agents/` four-tenant table (personas / Antigravity wrappers / Codex and Cursor skills / the `akili routing` answers file, defined in Step 8E) so the user knows the layout is collision-free.
 - The Step 8F guardrail hook: scaffolded (noting it is **enforced** on Claude Code, Codex, and the Cursor CLI (observed 2026-10-01; the Cursor IDE is unverified), **instructional** on OpenCode and Antigravity, and that the PASS check is the v1 heuristic), or declined. Name which script location was used for Codex (its own `.codex/hooks/` copy, or the shared `.claude/hooks/akili-tasks-gate.sh`). On Codex, also name the hook-trust state ("hook trusted via `/hooks`: yes/no") — an untrusted hook is scaffolded but inert. On a Cursor-hosted project, name the import-toggle answer (the *Include Third-Party Plugins, Skills, and Other Configs* setting: on / off / unknown), which hook entry exists as a result (the imported `.claude/settings.json` entry alone, or that plus a native `.cursor/hooks.json` entry), and that enforcement there is **enforced on the Cursor CLI** (observed 2026-10-01) — **the Cursor IDE is unverified**.
-- **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it.
+- **For Codex projects only:** a one-line check that the combined `AGENTS.md` (constitution summary + `## Model Routing` + `## Skill Map`) stays under Codex's project-doc read limit — the config key to raise if it doesn't is `project_doc_max_bytes` in `config.toml` (`Last verified: 2026-09-16` — <https://learn.chatgpt.com/docs/config-file/config-reference>: "Maximum bytes read from `AGENTS.md` when building project instructions"). The reference page does not state a default byte count in the table itself, so confirm the installed default before telling the user how close they are to it. When `akili routing` wrote the section, its `--json` result carries the section's byte length (`sectionBytes`) — use it for the `## Model Routing` share of the total.
 - Any assumptions and open questions that still need validation
 
 Report a step that was **skipped** as explicitly as one that ran — a silently omitted Step 8C is the failure this summary exists to catch.
@@ -1356,6 +1440,7 @@ Before presenting the summary, confirm each of these. Report any that fail rathe
 - [ ] **A `## Model Routing` section exists in `AGENTS.md`, and is not duplicated into a `CLAUDE.md` body** — `docs/model-routing.md` is the packaged reference and is deliberately **not** copied into the project. If the project keeps a `CLAUDE.md`, it carries the registry only through its `@AGENTS.md` import, never as a second copy.
 - [ ] That registry carries **every supported host column** (Claude Code, OpenCode, Antigravity, Codex, and Cursor — all five are CLI install targets), with `<CONFIRM SLUG>` placeholders for any roster the user could not confirm — never a dropped column.
 - [ ] The registry includes the six tiers, the `Updated: <YYYY-MM>` stamp, the author ≠ auditor note, and the Effort dial subsection.
+- [ ] **The `## Model Routing` section carries the `akili:section id=model-routing` fence**, and the summary says whether `akili routing` or the Fallback wrote it — both write the fence, so a later `akili routing` run can find the section.
 - [ ] **A `## Skill Map` section exists in `AGENTS.md`, and is not duplicated into a `CLAUDE.md` body** — same rule as `## Model Routing` above.
 - [ ] In Safe Update mode, no project space was changed in the baseline docs, `.agents/`, the registry, or the Skill Map.
 - [ ] Every legacy path migration proposed in Step 1 was either applied with references updated, or explicitly declined by the user.

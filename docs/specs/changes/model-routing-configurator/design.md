@@ -64,7 +64,7 @@ docs/
   cli.md                   + `routing` row (:77-84), flag rows (:95-118), new "## Routing" section before "## Persona Drift" (:301)
   model-routing.md         + How to apply per tool (:760) first bullet; Cross-tool safety carve-out (:791-817)
   flow.md                  + fourth tenant row (table :354-358)
-  commands/akili-constitution.md   mirror (incl. tenant table :79-85)
+  commands/akili-constitution.md   summary doc (NOT a mirror — T6-gate correction 2026-10-01): tenant table :79-85 + Model Routing Scaffolding section
 README.md                  + `routing` row in "### CLI Commands" (:428-441); mention at :53, :885-904
 AGENTS.md                  :37 carve-out
 <project>/                 (written at run time)
@@ -228,10 +228,10 @@ No DD removes, disables, or inverts delivered behavior: Step 8C/8E text is **dem
 | | | `docs/cli.md:75-84`, `:95-118` | one row; thirteen option rows; `## Routing` section |
 | | | **`README.md:428-441` "### CLI Commands" table** (C12) | one row |
 | `.agents/` tenants | `.agents/model-routing.json` | `akili-constitution.md:891-906`; Step 9 `:1324` "three-tenant" | fourth row; "four-tenant" wording |
-| | | `docs/flow.md:354-358`; **`docs/commands/akili-constitution.md:79-85`** (C14) | fourth row each |
+| | | `docs/flow.md:354-358`; **`docs/commands/akili-constitution.md:79-85`** (C14 — a summary doc, not a mirror; T6-gate correction) | fourth row each |
 | | | `agentsDirtyStatus` `:1483-1494` | counts as dirty until committed — unchanged, hinted (DD-9) |
 | `.claude/templates/` files | two data files | `release.js` `ROLES` `:15`; `AGENT_TEMPLATES` `:75`, `:776-790`, `:1232-1236`, `:1078-1079`; `docs/cli.md:268-280` Packaged Resources | **not enumerated / not listed** — by design (P-4): they are inputs to `routing`, not installed resources; `docs/cli.md` *Routing* section says so |
-| Step 8C/8E flow | delegation | `akili-constitution.md` Step 8C `:465-617`, Step 8E `:663-930`, Step 9 `:1309-1329` (incl. `:1326`), checklist `:1352-1358`, model-checkpoint fallback `:23`, guide rule `:79-81`; mirror `docs/commands/akili-constitution.md` | rewritten per DD-6; fallback keeps the text; item 5 re-worded |
+| Step 8C/8E flow | delegation | `akili-constitution.md` Step 8C `:465-617`, Step 8E `:663-930`, Step 9 `:1309-1329` (incl. `:1326`), checklist `:1352-1358`, model-checkpoint fallback `:23`, guide rule `:79-81`; summary doc `docs/commands/akili-constitution.md` (not a mirror — T6-gate correction) | rewritten per DD-6; fallback keeps the text; item 5 re-worded; summary doc updated for consistency |
 | Model Registry Drift | third signal | `akili-audit.md:56`; `docs/flow.md:407` (the mirror `docs/commands/akili-audit.md` carries no such clause — `grep -in "registry drift\|Model Routing"` → 0, U3) | one clause in the two existing sites |
 | Installer rule | carve-out | `AGENTS.md:37`; `docs/model-routing.md:791-817` | one sentence each |
 | `persona.js` exports | two regexes | `module.exports` `:917-937`; `test/persona-digests.test.js` | additive; existing tests unaffected |
