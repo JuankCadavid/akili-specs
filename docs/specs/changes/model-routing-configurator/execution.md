@@ -513,3 +513,28 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 | 11 | Cursor `agent` lists the reviewer; `readonly` holds | Cursor Agent `2026.10.01-14929f9`, logged in; `agent -p --trust --mode ask …` lists 4 project subagents, `akili-reviewer` the only one `readonly: true` (first try without `--trust` → `Workspace Trust Required`, exit 1) | matches for the listing; the read-only *block* itself not exercised (no write attempted through the Reviewer) — recorded as the accepted gap requirements §8 names; note: `claude-opus-4-6` / `claude-sonnet-4-6` are not in this account's `--list-models` — the wizard never checks ids (DD-10) |
 
 - *Spawns:* cases 1/2/11 Implementer 29 calls (self-count 20), 129,061 tokens, ended complete; case 10 agent 23 calls (self-count 19), 116,054 tokens, ended complete. Scratch worktree `akili-old` removed; repo untouched by both workers (`git status --porcelain` empty at `fdaf8eb`).
+
+### T11 — `deriveTiers` step 6: discriminator by registry membership (pivot 2, tdd)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 1) |
+| Date | 2026-10-02 |
+| Implementer attempts | 1 |
+| Skills (Leader selection) | `tdd`, `caveman` — as listed |
+| Effort | Implementer `high`; Reviewer `medium` (47-line diff) |
+| Models | Implementer `opus` · Reviewer `fable` — author ≠ auditor holds |
+| Requirements covered | FR-3, FR-4, FR-1 *Adjust a tier* (re-pick of a packaged id keeps sibling notes — T8 case 2) |
+| Continue gate | auto-approved (user instruction after T1) |
+
+**Attempt 1**
+
+- *Runtime events:* none. Ran in parallel with T10 (disjoint files).
+- *Files changed:* `bin/routing.js` (+7/−4 — step 6: `packagedIds` from `hostRegistry.models[].id` (nulls dropped); `isNonMemberId = p => !isPlaceholder(p) && !p.startsWith("→ ") && !packagedIds.includes(p)`; note appended unless `isNonMemberId(primary)`; `userIds` line removed; comment updated) · `test/routing.test.js` (+11 — case (e) `deriveTiers: packaged opus re-placed on Claude T3 as a user entry -> T1 and T3 keep their fixed notes`).
+- *Implementer verification:* red `not ok 43` — `The input did not match the regular expression /alias — always latest/. Input: ''` (112 / 111 / 1); after: `# tests 112 # pass 112 # fail 0`; T9's (a)/(b) green. Falsifier (T9's `source`-based condition restored inline) → `not ok 43` again, input `''`; restored → 112/112. `npm test` `# tests 226 # pass 226 # fail 0`; `git diff --check` clean. Live scratch `--models claude=opus@T3,sonnet,haiku --wrappers no --yes` → `grep -c "alias — always latest"` 1, `grep -c "must differ from T2"` 1; cells `` `opus` *(alias — always latest)* `` / `` `opus` *(must differ from T2)* ``.
+- *Evidence re-run (Leader-inline):* **VERIFIED** — 112/112; 226/226; `diff --check` clean; probe after a user re-pick of `opus` on T3 → `T1: *(alias — always latest)* | T3: *(must differ from T2)*`; the second `userIds` site (`:843`) is the §5.4 stale-id rule (user ids excluded from "stale", T3-gate clarification) — correctly untouched.
+- *Reviewer verdict:* **PASS** — rule traced by probe per primary kind (packaged id kept; non-member id dropped incl. Cursor T1 `Claude Opus family` absent — disqualifier holds; placeholder kept; `→ antigravity` kept; Cursor `packagedIds` = `[]`); case (e) fixture traced (T1 and T3 both `opus`, packaged → notes kept); red run sound (the `equal` assertions pass under either rule, the old rule strips both notes → the red fell on the behavioral `match`); diff is a pure insertion after the existing tests; the rejected per-tier-source rule did not ship. Reviewer note: `design.md:88` still carried the T9 wording — Pivot Record 2's sweep listed `:88` as amended when only `:120` was; **corrected now** (kaizen: a sweep row that *lists* a site as amended must be written after the edit, not before).
+- *Implementer `Not Done / Assumptions` (verbatim):* A second `userIds` derivation exists at `bin/routing.js:843`. It is a different function and outside T11's scope, so I did not touch it or check what it does. It may be worth a look to see whether it repeats the old `source`-based rule. → *Leader: it is the §5.4 stale-id rule; correct.* I treat `null` ids in `models[]` as never matching, so every Cursor user id counts as non-member. That matches the Leader's note.
+- *Spawns:* Implementer 15 calls (self-count 13), 70,810 tokens, ended complete; Reviewer 10 calls, 71,894 tokens, ended complete.
+
+**Decisions made:** `design.md:88` aligned to registry membership after the Reviewer's note. **Budget:** LOC ~4,010 after T11 — the ~4,000 tripwire is crossed by the fix the user approved at pivot 2b; recorded, not re-asked. **Final verification:** `npm test` 226/226; `git diff --check` clean.

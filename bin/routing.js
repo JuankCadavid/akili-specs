@@ -239,13 +239,16 @@ function deriveTiers(roster, hostRegistry, opts = {}) {
     else tierNotes.T6.push(`→ cross-host dispatch: ${owner}`);
   }
   // Step 6: notes from the final mapping, fixed per-tier notes appended — the
-  // fixed note describes the packaged default, so never for a `source: "user"`
-  // primary (T8 pivot); packaged ids and placeholders keep it.
+  // fixed note describes the packaged default, so it is dropped only for a
+  // primary that is an id absent from the host's packaged `models[]` (registry
+  // membership, T11 correction; not roster `source`). Placeholders and
+  // cross-host `→ <other>` primaries are not ids and keep it.
   const fixed = hostRegistry.notes || {};
-  const userIds = roster.filter((e) => e.source === "user").map((e) => e.id);
+  const packagedIds = (hostRegistry.models || []).map((m) => m.id).filter((x) => x);
+  const isNonMemberId = (p) => !isPlaceholder(p) && !p.startsWith("→ ") && !packagedIds.includes(p);
   const ordered = {};
   for (const t of TIERS) {
-    if (fixed[t] && !userIds.includes(mapping[t].primary)) tierNotes[t].push(fixed[t]);
+    if (fixed[t] && !isNonMemberId(mapping[t].primary)) tierNotes[t].push(fixed[t]);
     ordered[t] = { ...mapping[t], note: tierNotes[t].join("; ") };
   }
   const notes = ids.length === 1 ? ["single-model roster"] : [];

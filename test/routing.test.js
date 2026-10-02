@@ -346,6 +346,17 @@ test("deriveTiers: a dated user id on Claude T1 -> T1 note drops `alias — alwa
   assert.match(r.mapping.T3.note, /\*\(must differ from T2\)\*/);
 });
 
+// T11 (pivot 2, §5.3 step 6 as corrected): the discriminator is registry
+// membership, not roster `source` — a T3 re-pick of the packaged `opus` (T8
+// case 2) must not strip T1's or T3's fixed note.
+test("deriveTiers: packaged `opus` re-placed on Claude T3 as a user entry -> T1 and T3 keep their fixed notes", () => {
+  const r = derive("claude", [U("opus", ["T3"]), P("sonnet"), P("haiku")]);
+  assert.equal(r.mapping.T1.primary, "opus");
+  assert.equal(r.mapping.T3.primary, "opus");
+  assert.match(r.mapping.T1.note, /alias — always latest/);
+  assert.match(r.mapping.T3.note, /must differ from T2/);
+});
+
 // ---- canonicalAnswers (FR-6, DD-8) ----
 
 test("canonicalAnswers: stable key order, `updatedAt` excluded, array order kept", () => {

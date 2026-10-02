@@ -375,7 +375,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T9 (added by the T8 Pivot Record 2, 2026-10-02 — user-approved) |
 | Requirements | FR-3 (notes part of the mapping), FR-4 (cells render the mapping's notes), FR-1 *Adjust a tier* (a re-pick of a packaged id must not strip sibling tiers' notes — T8 case 2) |
