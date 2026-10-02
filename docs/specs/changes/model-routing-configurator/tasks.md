@@ -169,7 +169,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Depends on | T3, T4 |
 | Requirements | FR-1 (Dry run; No TTY and incomplete answers — exit code and message), FR-2 (Fully specified no TTY — exit 0, byte-identical; validate before first write), FR-4 state (d) hint, FR-5 Skip-by-default (file-level), FR-6 (Idempotent re-run — `git status --porcelain` empty), FR-8 (`--json` shape the constitution reads), FR-10 (`install`/`doctor` byte-identical; `akili help` line; no `dependencies`), NFR-1, NFR-2, NFR-3, NFR-4, NFR-6 |

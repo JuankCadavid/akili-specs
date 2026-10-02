@@ -207,6 +207,7 @@ Commands:
   update    Update npm package to latest version, reinstall files, and show what changed
   doctor    Check whether expected files are installed
   list      List packaged commands, skills, and helper resources
+  routing   Configure model routing: AGENTS.md ## Model Routing, native agent wrappers, .agents/model-routing.json
   check-update    Print one line if a newer version exists (--quiet: silent when current; for session hooks)
   notifications   enable | disable | status — opt-in Claude Code SessionStart hook announcing new versions
   help      Show this help
@@ -233,6 +234,21 @@ Options:
   --fix                Automatically fix missing files during doctor command
   --local, -l          Install locally to the current project instead of globally
 
+Routing options (akili routing; flags pre-answer the wizard):
+  --hosts <a,b>        Hosts to configure: claude, opencode, antigravity, codex, cursor
+  --models <host>=<id>[@T<n>[+T<m>]],...  Models for one host (repeatable; last per host wins)
+  --cli <host>=<binary>  Confirmed CLI invocation for a host (repeatable)
+  --wrappers yes|no    Write native agent wrappers (Step 8E); --yes without it means yes
+  --t3-cross-host <host>=<other>  Dispatch a host's Reviewer (T3) to another host (repeatable)
+  --antigravity-tools <a,b>  Confirmed Antigravity tool names for the Reviewer restriction
+  --opencode-agent-dir <path>  OpenCode wrapper directory. Default: .opencode/agent
+  --pin-reason <host>=<id>=<text>  Recorded reason for a dated model id (repeatable)
+  --yes                Accept the derived mapping without the confirm prompt
+  --adopt              Adopt an unfenced ## Model Routing section without asking
+  --json               Print the plan result as JSON on stdout (nothing else)
+  --project <path>     Project directory. Default: current directory
+  --force / --dry-run  With routing: overwrite wrappers and a hand-edited fence / print the plan only
+
 Examples:
   akili init
   akili install
@@ -249,6 +265,9 @@ Examples:
   akili doctor --tool cursor
   akili list
   akili notifications enable
+  akili routing
+  akili routing --hosts claude --models claude=opus,sonnet,haiku --cli claude=claude --wrappers yes --yes --json
+  akili routing --dry-run
 `);
 }
 
@@ -302,6 +321,20 @@ function getArgs() {
     agents: { type: "boolean", default: false },
     section: { type: "string", multiple: true, default: [] },
     "allow-branch": { type: "boolean", default: false },
+    // routing (model-routing-configurator FR-2 / design §5.7): flags
+    // pre-answer the wizard; validation lives in bin/routing.js.
+    hosts: { type: "string" },
+    models: { type: "string", multiple: true },
+    cli: { type: "string", multiple: true },
+    wrappers: { type: "string" },
+    "t3-cross-host": { type: "string", multiple: true },
+    "antigravity-tools": { type: "string" },
+    "opencode-agent-dir": { type: "string" },
+    "pin-reason": { type: "string", multiple: true },
+    yes: { type: "boolean", default: false },
+    adopt: { type: "boolean", default: false },
+    json: { type: "boolean", default: false },
+    project: { type: "string" },
   };
 
   try {
@@ -357,6 +390,18 @@ function getArgs() {
       agents: values.agents,
       section: values.section,
       allowBranch: values["allow-branch"],
+      hosts: values.hosts,
+      models: values.models,
+      cli: values.cli,
+      wrappers: values.wrappers,
+      t3CrossHost: values["t3-cross-host"],
+      antigravityTools: values["antigravity-tools"],
+      opencodeAgentDir: values["opencode-agent-dir"],
+      pinReason: values["pin-reason"],
+      yes: values.yes,
+      adopt: values.adopt,
+      json: values.json,
+      project: values.project,
       claudeTarget: resolveUserPath(resolveToolTarget("claude", values, "claude-target", defaultPaths.claude, baseClaude)),
       opencodeTarget: resolveUserPath(resolveToolTarget("opencode", values, "opencode-target", defaultPaths.opencode, baseOpencode)),
       antigravityTarget: resolveUserPath(resolveToolTarget("antigravity", values, "antigravity-target", defaultPaths.antigravity, baseAntigravity)),
@@ -2066,6 +2111,171 @@ async function runInteractiveInit() {
   runInstall(args);
 }
 
+// ---- akili routing (model-routing-configurator, design §3, §7) ----
+// bin/routing.js owns flags, derivation, rendering, and the plan (pure);
+// this block keeps only the I/O: answers file, terminal, snapshot, writes.
+
+const routing = require("./routing.js");
+const ROUTING_ANSWERS = ".agents/model-routing.json";
+const ROUTING_ROLES = ["leader", "implementer", "reviewer", "tester"];
+
+function routingAbs(projectDir, relPath) {
+  return path.join(projectDir, ...relPath.split("/"));
+}
+
+function readTextOrNull(file) {
+  try {
+    return fs.readFileSync(file, "utf8");
+  } catch (e) {
+    if (e.code === "ENOENT") return null;
+    throw e;
+  }
+}
+
+function readRoutingAnswers(projectDir) {
+  const text = readTextOrNull(routingAbs(projectDir, ROUTING_ANSWERS));
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    fail(`${ROUTING_ANSWERS}: not valid JSON (${e.message}) — fix or remove it`);
+  }
+}
+
+// Everything buildPlan reads from disk (design §7 snapshot): AGENTS.md,
+// CLAUDE.md, existing wrapper contents at the five hosts' locations (the
+// OpenCode dir from the answers, else the previous file, else the default),
+// the previous answers, the EOL, and the packaged section template.
+function takeSnapshot(projectDir, registry, answers, previousAnswers) {
+  const agentsMd = readTextOrNull(path.join(projectDir, "AGENTS.md"));
+  const existingFiles = new Map();
+  const pick = (a) => (a && a.decisions && a.decisions.opencode && typeof a.decisions.opencode.agentDir === "string" ? a.decisions.opencode.agentDir : undefined);
+  const opencodeDir = pick(answers) || pick(previousAnswers);
+  for (const host of routing.HOST_KEYS) {
+    const location = registry.hosts[host].wrapper.location;
+    for (const role of ROUTING_ROLES) {
+      const relPath = host === "opencode" && opencodeDir
+        ? path.posix.join(opencodeDir, `akili-${role}.md`)
+        : location.replace("<role>", role);
+      const content = readTextOrNull(routingAbs(projectDir, relPath));
+      if (content !== null) existingFiles.set(relPath, content);
+    }
+  }
+  return {
+    agentsMd,
+    claudeMd: readTextOrNull(path.join(projectDir, "CLAUDE.md")),
+    existingFiles,
+    previousAnswers,
+    eol: agentsMd !== null && /\r\n/.test(agentsMd) ? "\r\n" : "\n",
+    sectionTemplate: fs.readFileSync(path.join(PACKAGE_ROOT, ".claude", "templates", "model-routing.section.md"), "utf8"),
+  };
+}
+
+const ROUTING_WRITING = ["created", "replaced", "appended", "adopted", "overwritten"];
+
+// NFR-3: every planned path stays inside the project (an --opencode-agent-dir
+// of `../x` is refused here, before any write).
+function checkRoutingPaths(plan, projectDir) {
+  const root = path.resolve(projectDir);
+  for (const w of plan.writes) {
+    const abs = path.resolve(routingAbs(root, w.relPath));
+    if (abs !== root && !abs.startsWith(root + path.sep)) fail(`routing: ${w.relPath} resolves outside the project (${root})`);
+  }
+}
+
+// The only writer (DD-1): atomic writes for the writing tokens, nothing for
+// skipped / unchanged / refused, nothing at all under --dry-run. Missing
+// directories are created quietly and reported as one aggregated line under
+// --dry-run (U4). Returns the summary lines (one per planned file — NFR-6).
+function applyPlan(plan, args, projectDir) {
+  const toWrite = plan.writes.filter((w) => ROUTING_WRITING.includes(w.token));
+  const dirs = [...new Set(toWrite.map((w) => path.dirname(routingAbs(projectDir, w.relPath))))].filter((d) => !fs.existsSync(d));
+  const lines = [];
+  if (args.dryRun) {
+    if (dirs.length > 0) lines.push(`[dry-run] would create ${dirs.length} dir${dirs.length === 1 ? "" : "s"}`);
+  } else {
+    for (const d of dirs) fs.mkdirSync(d, { recursive: true });
+    for (const w of toWrite) atomicWriteFileSync(routingAbs(projectDir, w.relPath), w.content);
+  }
+  const prefix = args.dryRun ? "[dry-run] " : "";
+  for (const w of plan.writes) {
+    const note = w.note ? (w.note.startsWith("—") ? ` ${w.note}` : ` — ${w.note}`) : "";
+    lines.push(`${prefix}${w.token}  ${w.relPath}${note}`);
+  }
+  return lines;
+}
+
+function printRoutingSummary(plan, lines, args) {
+  for (const line of lines) console.log(line);
+  const agents = plan.writes.find((w) => w.relPath === "AGENTS.md");
+  if (agents && agents.diff) console.log(agents.diff.replace(/\n$/, "").split("\n").map((l) => `    ${l}`).join("\n"));
+  for (const r of plan.stale) console.log(r);
+  for (const r of plan.reports) console.log(r);
+  if (args.dryRun) {
+    console.log("");
+    console.log(plan.registryTable.replace(/\n$/, ""));
+  } else {
+    for (const h of plan.hints) console.log(`${colors.cyan}hint:${colors.reset} ${h}`);
+  }
+}
+
+// --json (U1, FR-8): the plan result the constitution's Step 9 reads — no
+// content bodies, and the --dry-run fact as a field, not a token prefix.
+function printRoutingJson(plan, args) {
+  const restrictions = {};
+  for (const h of plan.answers.hosts) restrictions[h] = (plan.answers.decisions[h] || {}).restriction;
+  const out = {
+    dryRun: args.dryRun === true,
+    exitCode: plan.exitCode,
+    hosts: plan.answers.hosts,
+    writes: plan.writes.map((w) => (w.note ? { relPath: w.relPath, token: w.token, note: w.note } : { relPath: w.relPath, token: w.token })),
+    restrictions,
+    authorAuditor: plan.authorAuditor,
+    placeholdersByColumn: plan.placeholdersByColumn,
+    sectionBytes: plan.sectionBytes,
+    stale: plan.stale,
+    reports: plan.reports,
+    hints: args.dryRun ? [] : plan.hints,
+  };
+  process.stdout.write(JSON.stringify(out, null, 2) + "\n");
+}
+
+async function runRouting(args) {
+  const projectDir = path.resolve(args.project || process.cwd());
+  if (!fs.existsSync(projectDir) || !fs.statSync(projectDir).isDirectory()) fail(`--project: ${projectDir} is not a directory`);
+  const registry = JSON.parse(fs.readFileSync(path.join(PACKAGE_ROOT, ".claude", "templates", "model-registry.json"), "utf8"));
+  const previous = readRoutingAnswers(projectDir);
+  // W6 / NFR-2: a terminal reader only on a TTY — without one, collectAnswers
+  // never asks and returns a usage error when answers are still missing.
+  const isTTY = process.stdin.isTTY === true;
+  const rl = isTTY ? readline.createInterface({ input: process.stdin, output: args.json ? process.stderr : process.stdout }) : null;
+  const io = { ask: (question, def) => rl.question(def ? `${question} [${def}] ` : `${question} `) };
+  try {
+    const collected = await routing.collectAnswers(args, previous, registry, io, { isTTY });
+    if (collected.error) fail(collected.error);
+    if (collected.quit) return;
+    const snapshot = takeSnapshot(projectDir, registry, collected.answers, previous);
+    const build = (adopt) => routing.buildPlan(collected.answers, registry, currentVersion, snapshot, new Date(), { force: args.force, adopt });
+    let plan = build(args.adopt);
+    // State (b) on a TTY: show the diff, ask adopt / skip (without a TTY,
+    // --adopt alone decides — W5).
+    const agents = plan.writes.find((w) => w.relPath === "AGENTS.md");
+    if (isTTY && !args.adopt && agents && agents.token === "skipped (unfenced; --adopt to replace)") {
+      const out = args.json ? process.stderr : process.stdout;
+      if (agents.diff) out.write(agents.diff.endsWith("\n") ? agents.diff : agents.diff + "\n");
+      const reply = String(await io.ask("AGENTS.md has an unfenced ## Model Routing section — [a]dopt / [s]kip?", "s")).trim().toLowerCase();
+      if (reply === "a" || reply === "adopt") plan = build(true);
+    }
+    checkRoutingPaths(plan, projectDir);
+    const lines = applyPlan(plan, args, projectDir);
+    if (args.json) printRoutingJson(plan, args);
+    else printRoutingSummary(plan, lines, args);
+    if (plan.exitCode !== 0) process.exitCode = plan.exitCode;
+  } finally {
+    if (rl) rl.close();
+  }
+}
+
 async function main() {
   const args = getArgs();
 
@@ -2077,9 +2287,12 @@ async function main() {
     return;
   }
 
-  await checkForUpdates();
+  // routing --json: stdout carries the JSON plan result and nothing else (U1).
+  const routingJson = args.command === "routing" && args.json;
 
-  if (args.command !== "help" && args.command !== "list" && args.command !== "init") {
+  if (!routingJson) await checkForUpdates();
+
+  if (args.command !== "help" && args.command !== "list" && args.command !== "init" && !routingJson) {
     printBanner();
   }
 
@@ -2102,6 +2315,9 @@ async function main() {
       } else {
         runDoctor(args);
       }
+      break;
+    case "routing":
+      await runRouting(args);
       break;
     case "list":
       runList();
