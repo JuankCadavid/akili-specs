@@ -1,0 +1,10 @@
+# T13 (changes/model-routing-configurator), NFR-4 Cross-platform.
+#
+# Windows CI (core.autocrlf=true) converts LF-committed fixtures to CRLF on
+# checkout. test/routing.test.js and test/persona-digests.test.js /
+# test/agents-doctor*.test.js assert byte-exact fixture content, including
+# the deliberate CRLF fixtures (agents-crlf.md, personas/crlf.md) that must
+# stay CRLF on every platform. Declaring the whole fixture tree byte-exact
+# keeps every fixture's committed line ending intact regardless of checkout
+# platform or autocrlf setting.
+test/fixtures/** -text

@@ -663,3 +663,26 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 | Two-direction sweep | Forward (`autocrlf` / `.gitattributes` / `CRLF` across the spec folder): design §5.6 (EOL rule — unchanged, it is what the code does), tasks T3 (CRLF fixture requirement — unchanged), `execution.md` T3 entry (the untracked-CRLF-fixture note — consistent). Backward (who cites NFR-4): requirements NFR-4 (unchanged), validation report WARN #2 (to be updated to the run result). |
 | Also to explain | the Windows job reports `# tests 219` where the local run reports 231 — T13 names the suite or cases that do not run on `win32`. |
 | Resumption | T13 (Implementer → Reviewer) → push → CI matrix green → update `validation-report.md` WARN #2 → `/akili-archive`. |
+
+### T13 — Windows CI: fixture EOL under `core.autocrlf` (`.gitattributes` + EOL-aware expectations)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 1) — CI gate recorded below after the push |
+| Date | 2026-10-02 |
+| Implementer attempts | 1 (one runtime event — see below) |
+| Skills (Leader selection) | `systematic-debugging`, `caveman` — as listed |
+| Effort | Implementer `high`; Reviewer `medium` (79-line diff) |
+| Models | Implementer `sonnet` (registry T2 — rung-4 fresh worker after the opus limit) · Reviewer `fable` — author ≠ auditor holds |
+| Requirements covered | NFR-4 (Windows jobs), FR-4 CRLF clause (unchanged behavior, now asserted EOL-aware) |
+| Continue gate | auto-approved (user instruction after T1) |
+
+**Attempt 1 — in progress**
+
+- *Runtime events:* Implementer (`opus`) provider-limit death ×1 — `Agent terminated early due to an API error: You've hit your session limit · resets 11:10am (America/Bogota) (error type rate_limit, HTTP 429, model sent to the API: claude-opus-5-5)` — before any edit (tree probe at 10:06: `git status --porcelain` empty, no `.gitattributes`). Ladder: rung 1 (immediate retry) and rung 2 (retry after 3 min) skipped — their condition (a transient failure) does not hold against a session limit with a known reset 64 minutes out; rung 3 skipped (no worker context survives a death-before-first-call); **rung 4** — a fresh worker continues from the partial state (none) on `sonnet`, the registry's T2 default (no tier escalation; the Reviewer stays `fable`, author ≠ auditor holds). Attempt counter untouched.
+- *Files changed:* `.gitattributes` (new — comment header + `test/fixtures/** -text`; `* text=auto` rejected: a dry-run renormalize churned 17 tracked files incl. flipping `agents-crlf.md` to LF — the disqualifier) · `test/routing.test.js` (+19/−5 — `fixtureEol(text)` mirroring `detectEol`'s majority rule, `blockNewFor(src)`; cases (a), (a′ `--force`), (f) use it; (b) appends `eol+eol`; (c) `src + eol + blockNewFor(src) + eol`).
+- *Implementer verification:* autocrlf clone before the fix — `file test/fixtures/routing/agents-fenced-clean.md` → CRLF; `node --test test/routing.test.js` → `# tests 117 # pass 112 # fail 5`, assertion byte-identical to the CI excerpt (`+ '<!-- akili:section id=model-routing since=v9.9.9 -->\r\n' …` vs `- '…\n'`). After (files copied into the clone, `rm -rf test/fixtures && git checkout -- test/fixtures` — **not** `git add --renormalize` first, which on a `-text` path re-adds the CRLF worktree bytes into the index; the Implementer saw that corrupt the index and redid the clone): LF fixture plain ASCII, `agents-crlf.md` / `personas/crlf.md` still CRLF, 117/117. Check 2 `git check-attr -a` → `text: unset` ×3. Check 3 `npm test` 231/231; `diff --check` clean; scratch-index renormalize → zero diff. `219` vs `231`: `test/tasks-gate.test.js:145` registers one `test.skip` on `win32` instead of F1–F13 (13 − 1 = 12); no other platform guard; pre-existing, correct, untouched. **Falsifier discrepancy reported, not suppressed:** `: > .gitattributes` + re-checkout → the CRLF fixture returns but the five reds do **not** — the EOL-aware tests mask the attribute-side probe (the task's falsifier was written without being run — kaizen candidate #2, fourth instance).
+- *Evidence re-run (Leader-inline):* **VERIFIED** — 231/231; `diff --check` clean; `check-attr text` unset on both fixture kinds; own autocrlf clone: before 112/5 with the CRLF fixture; after the LF fixture reads plain ASCII, `agents-crlf.md` CRLF, 117/117.
+- *Reviewer verdict:* **PASS** — reproduced every claim in its own autocrlf clone; `git ls-files --eol` → `i/crlf w/crlf attr/-text` for both CRLF fixtures, `i/lf w/lf attr/-text` for an LF one; `git diff --stat HEAD -- test/fixtures bin/` empty; `fixtureEol` byte-identical to `detectEol` (`bin/routing.js:296-300`); all five expectations derive EOL from the fixture they read; the W14 CRLF test untouched. **Falsifier ruling:** each half fixes the Windows failure independently — attribute removed + new tests → 117/117; attribute kept + HEAD's old tests → 117/117 — so the "five reds return" clause can fire only with both removed; the second run is behavioral proof of the attribute half. `219`/`231` confirmed.
+- *Spawns:* Implementer (`opus`) died — provider limit, no report, no edit; Implementer (`sonnet`, rung 4) 46 calls (self-count 29), 125,699 tokens, ended complete; Reviewer __REVIEWER_SPAWN_13__.
+- *Runtime events:* `provider-limit death ×1 → rung 4` (recorded above).

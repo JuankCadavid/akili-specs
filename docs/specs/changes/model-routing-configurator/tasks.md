@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Reopened by CI** — T13 added for the Windows EOL failure (2026-10-02); 12 of 13 `[x]` |
+| Status | **Complete** — all 13 tasks `[x]` (2026-10-02; T12 from validation, T13 from CI); see `execution.md` §3 |
 | Date | 2026-10-01 |
 | Budget (design §10) | 8 tasks · ~1,550 LOC (`routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210) · 18 review rounds (code 5 × 2; rules docs 2 × 2; validation 1; margin 3) |
 | Design review | Judgment Day round 1: 15 confirmed severe + 3 split + 17 warnings **fixed** (Fix only, no re-judgment) — `judgment.md` |
@@ -434,7 +434,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (config + tests) |
 | Depends on | T3 (added by Pivot Record 4 after the first CI run of this spec, 2026-10-02 — user-approved) |
 | Requirements | NFR-4 *Cross-platform* — "CI matrix (ubuntu/macos/windows × Node 18/22) green"; FR-4 CRLF clause unchanged (the replacer preserves the file's EOL — that is correct and is what exposed the test assumption) |

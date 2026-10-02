@@ -401,6 +401,18 @@ const CLOSE = "<!-- /akili:section -->";
 const BLOCK_NEW = `${OPEN_NEW}\n## Model Routing\n\nNew registry body.\n${CLOSE}`;
 const TOKEN_REFUSED_EDIT = "refused (hand-edited fence; --force to regenerate)";
 
+// Mirrors bin/routing.js detectEol (majority line ending, routing.js:294-300)
+// so expectations match the EOL replaceFencedSection actually emits even on
+// a checkout that converts the LF fixtures to CRLF (e.g. Windows
+// core.autocrlf=true) -- T13, NFR-4. Not imported: routing.js exports no
+// EOL helper (read-only per the brief).
+function fixtureEol(text) {
+  const crlfCount = (text.match(/\r\n/g) || []).length;
+  const lfOnlyCount = (text.match(/\n/g) || []).length - crlfCount;
+  return crlfCount > lfOnlyCount ? "\r\n" : "\n";
+}
+const blockNewFor = (src) => (fixtureEol(src) === "\r\n" ? BLOCK_NEW.replace(/\n/g, "\r\n") : BLOCK_NEW);
+
 // Bytes before the open marker and after the close marker, cut by the test.
 function outside(text) {
   const open = text.indexOf("<!-- akili:section id=model-routing");
@@ -415,7 +427,7 @@ test("replacer (a) clean fence, new body -> `replaced`, only the fence changes, 
   const out = routing.replaceFencedSection(src, NEW_BODY, "v9.9.9", OLD_BODY, {});
   assert.equal(out.token, "replaced");
   const { before, after } = outside(src);
-  assert.equal(out.text, before + BLOCK_NEW + after);
+  assert.equal(out.text, before + blockNewFor(src) + after);
 });
 
 test("replacer (a) clean fence, same body -> `unchanged`, file byte-identical, since= kept", () => {
@@ -456,7 +468,7 @@ test("replacer (a′) with --force -> `overwritten`, bytes outside the fence unt
   const out = routing.replaceFencedSection(src, NEW_BODY, "v9.9.9", OLD_BODY, { force: true });
   assert.equal(out.token, "overwritten");
   const { before, after } = outside(src);
-  assert.equal(out.text, before + BLOCK_NEW + after);
+  assert.equal(out.text, before + blockNewFor(src) + after);
 });
 
 test("replacer (b) unfenced heading, no --adopt -> skipped with a diff; extent ignores headings in code fences", () => {
@@ -474,14 +486,16 @@ test("replacer (b) unfenced heading with --adopt -> `adopted`, extent up to the 
   assert.equal(out.token, "adopted");
   const head = src.slice(0, src.indexOf("## Model Routing"));
   const tail = src.slice(src.indexOf("## Release Rules"));
-  assert.equal(out.text, head + BLOCK_NEW + "\n\n" + tail);
+  const eol = fixtureEol(src);
+  assert.equal(out.text, head + blockNewFor(src) + eol + eol + tail);
 });
 
 test("replacer (c) no section -> `appended` after a blank line, existing bytes kept", () => {
   const src = fixture("agents-no-section.md");
   const out = routing.replaceFencedSection(src, NEW_BODY, "v9.9.9", null, {});
   assert.equal(out.token, "appended");
-  assert.equal(out.text, src + "\n" + BLOCK_NEW + "\n");
+  const eol = fixtureEol(src);
+  assert.equal(out.text, src + eol + blockNewFor(src) + eol);
 });
 
 test("replacer (d) no AGENTS.md (text null) -> `created` with the one-line header", () => {
@@ -509,7 +523,7 @@ test("replacer (f) fence + stray unfenced heading -> handled as (a), stray headi
   assert.equal(out.token, "replaced");
   assert.deepEqual(out.notes, ['+ stray "## Model Routing" heading at line 5 — remove it']);
   const { before, after } = outside(src);
-  assert.equal(out.text, before + BLOCK_NEW + after);
+  assert.equal(out.text, before + blockNewFor(src) + after);
 });
 
 test("replacer: CRLF file -> fence detected, output keeps `\\r\\n`, outside bytes untouched (W14)", () => {
