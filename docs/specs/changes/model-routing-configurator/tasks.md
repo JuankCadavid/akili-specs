@@ -29,6 +29,7 @@ T1 (packaged data: registry JSON, section template, drift test)
                              └─→ T7 (audit, AGENTS.md:37, model-routing.md, flow tenant, cli.md, README, CHANGELOG, closure sweep)
                                   └─→ T8 (closing validation: scratch project + constitution delegation walk)
 T2 ─→ T9 (pivot, 2026-10-02: deriveTiers step 6 — fixed notes only for packaged primaries; T8 case 1's registry check re-runs after T9)
+T6 ─→ T10 (pivot 2: Step 8C branch detection via `akili help`; preview `--yes --dry-run`; Step 9 pairing wording)   T9 ─→ T11 (pivot 2: step 6 keyed on registry membership) — T10 ∥ T11 (disjoint files)
 ```
 
 Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — sequence the commits, parallel work only in separate worktrees) → **T5** → **T6** → **T7** → **T8**. No circular dependencies. T6 waits for T5 so the flag names it documents are the ones `getArgs` accepts.
@@ -279,7 +280,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 |---|---|
 | Status | `[ ]` |
 | Size | M |
-| Depends on | T1–T7; **T9** for the registry-content check of case 1 (pivot, 2026-10-02) |
+| Depends on | T1–T7; **T9** for the registry-content check of case 1; **T10/T11** for the closing record (pivot 2, 2026-10-02) |
 | Requirements | FR-11 (all cases listed in the requirement; Validation blocked), FR-1 interactive scenarios on a real TTY (the accepted gap of §8 — closed here), FR-8 CLI-present scenario (zero TTY prompts) |
 | Design refs | §5.6 states, §5.7, DD-6, DD-14, P-20 |
 | Review | `full` — the only run on a real terminal and inside a real session |
@@ -335,6 +336,66 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 **Done.** Rule in code; cases (a)–(d) green with (a)/(b) observed red first; live re-check quoted.
 **Skills.** `tdd`, `caveman`.
 
+---
+
+### T10 — Constitution Step 8C: branch detection before composing the command; preview `--yes --dry-run`; Step 9 pairing wording (pivot 2, docs-only)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S (rules document) |
+| Depends on | T6 (added by the T8 Pivot Record 2, 2026-10-02 — user-approved) |
+| Requirements | FR-8 **as amended** (older-binary branch detected via `akili help` before composing the command), FR-8 *CLI present* (zero TTY prompts — the preview must not fail without `--yes`), FR-8 Step 9 report |
+| Design refs | DD-6 **as amended**; §5.7 (`--yes` required without a TTY) |
+| Review | `full` — rules text other agents execute |
+
+**Scope.** `.claude/commands/akili-constitution.md` Step 8C and Step 9 (then the summary doc `docs/commands/akili-constitution.md` and `docs/cli.md` / `docs/flow.md` wherever they name the fallback trigger — grep `Unknown command: routing`):
+- **Branch detection first:** before step 2, probe `akili help` — its output lists `routing` on the new binary (6 lines) and not on an older one; `akili` not resolving is the absent branch. The three-branch table keys on that probe, and names both stderr forms an agent may still see: `ERROR: Unknown option '--project'` (older strict parser — fallback) and `ERROR: Unknown command: routing` (bare `akili routing` on an older binary — fallback). The sentence "Any other `ERROR:` line … is not a fallback trigger: fix the flags" is narrowed to a binary whose help *does* list `routing`.
+- **Preview:** step 2's `--dry-run` preview is `--yes --dry-run` (without a TTY the CLI requires `--yes`; the preview still writes nothing); Q7's "`--yes` once accepted" re-worded accordingly.
+- **Step 9:** the wrapper-pairing sentence states what the mapping yields — the Reviewer's model differs from the Implementer's (T3 ≠ T2); the Leader (T1) may share the Reviewer's model, and the Tester (T2) the Implementer's — instead of "Leader/Implementer vs Reviewer". `note` in `writes[]` is optional (absent when nothing to report). The Fallback's "Ask the same questions" → "reuse the answers already collected".
+- Obligation sweep as in T6 (every Step 8C/8E/9 clause still present after the edits; the Fallback text untouched except the one phrase).
+
+**Verification.**
+1. `grep -n "akili help" .claude/commands/akili-constitution.md` ⇒ ≥ 1 in Step 8C; `grep -c "Unknown option '--project'" …` ⇒ ≥ 1; `grep -n "yes --dry-run\|--dry-run --yes" …` ⇒ ≥ 1.
+2. Live probe on both binaries (scratch shims, never this repo): `akili help | grep -c routing` ⇒ `6` on HEAD's `bin/akili.js`, `0` on a `8eb0227` worktree's; the composed command on the old shim ⇒ stderr `ERROR: Unknown option '--project'`, exit 1 (quote).
+3. `grep -rn "Unknown command: routing" .claude/commands docs README.md --exclude-dir=specs` — every hit re-read: each either names the bare-command form correctly or is re-worded (list).
+4. `npm test` green; `git diff --check` clean.
+
+**Falsifier.** n/a (prose) — baseline: `grep -c "akili help" .claude/commands/akili-constitution.md` at `fdaf8eb` → quote (expected 0 in Step 8C).
+**Red run.** n/a (prose).
+**Disqualifier.** A branch table that keeps `Unknown command: routing` as the *only* older-binary trigger is not fixed. A sweep that greps only the identifier and not the obligation ("how the agent learns the binary is old") is void.
+**Consumers.** `docs/commands/akili-constitution.md` (summary), `docs/cli.md` Routing section, `docs/flow.md` Step 8C sentences — each grepped for the trigger wording and updated where it names it.
+
+**Done.** Probe-first branch table; both stderr forms named; preview `--yes --dry-run`; Step 9 pairing wording; `note` optional; Fallback phrase; consumers consistent; live probe quoted.
+**Skills.** `cognitive-doc-design`, `caveman`.
+
+---
+
+### T11 — `deriveTiers` step 6: discriminator by registry membership (pivot 2, tdd)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | T9 (added by the T8 Pivot Record 2, 2026-10-02 — user-approved) |
+| Requirements | FR-3 (notes part of the mapping), FR-4 (cells render the mapping's notes), FR-1 *Adjust a tier* (a re-pick of a packaged id must not strip sibling tiers' notes — T8 case 2) |
+| Design refs | §5.3 step 6 **as corrected** (registry membership), §5.1 `hosts.<host>.notes` row |
+| Review | `full` |
+
+**Scope.** `bin/routing.js` `deriveTiers` step 6: replace the `source: "user"` test with registry membership — the fixed note is dropped only when `mapping[t].primary` is an **id** (not a placeholder `<CONFIRM…>`, not a cross-host `→ <other>`) that is absent from `hostRegistry.models[].id`. `test/routing.test.js`: (e) T8 case-2 regression — Claude roster `opus` placed as `source: "user", tiers: ["T3"]` with packaged `sonnet`, `haiku` → T1 note still contains `alias — always latest` and T3 note still contains `must differ from T2`; (a)/(b) from T9 stay green (Cursor ids and the dated pin are not in `models[]`); cross-host and every-host cases untouched.
+
+**Verification.**
+1. `node --test test/routing.test.js` ⇒ green (111 + 1). **Falsifier (executed):** restore T9's `source`-based condition → case (e) red (quote expected/actual); revert.
+2. `npm test` ⇒ green; `git diff --check`.
+3. Live: scratch project, `--hosts claude --models claude=opus@T3,sonnet,haiku --wrappers no --yes` → `grep -c "alias — always latest" AGENTS.md` ⇒ 1 and `grep -c "must differ from T2" AGENTS.md` ⇒ ≥ 1 (Claude cells).
+
+**Red run.** Case (e) observed red on the `match` assertion before the change (`actual: ''`).
+**Disqualifier.** A fix that keeps notes by checking `tiers.includes(t)` on the user entry (per-tier source) is not the amended rule — the rule is registry membership; a Cursor user id placed on T1 must still get no `Claude Opus family` note.
+**Consumers.** `renderRegistryTable`/`tableParts` (no change); T9's two tests (must stay green).
+
+**Done.** Rule in code; case (e) green with its red observed; T9 tests green; live counts quoted.
+**Skills.** `tdd`, `caveman`.
+
 ## 3. Coverage Closure (scenario / clause → owner)
 
 | Requirement · scenario / clause | Owner |
@@ -364,7 +425,8 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 | FR-9 every SHALL · Aggregate-claim falsification | T7 |
 | FR-10 tests green · `install`/`doctor` identical · `help` line · no `model:` · no deps | T5, T7 |
 | FR-11 all cases · Validation blocked | T8 (case 1's registry-content check after T9) |
-| FR-3 notes · FR-4 cells render only the mapping's notes (fixed note never on a user id — pivot) | T9 |
+| FR-3 notes · FR-4 cells render only the mapping's notes (fixed note only for registry-known ids — pivot, corrected) | T9, T11 |
+| FR-8 older-binary branch detected before composing the command (`akili help`) · preview `--yes --dry-run` · Step 9 pairing wording | T10 |
 | NFR-1 · NFR-2 · NFR-3 · NFR-4 · NFR-5 · NFR-6 · NFR-7 · NFR-8 | T5 · T5/T8 · T3/T5 · T5 (CI) · T2–T4 · T5 · T1/T7 · T3 |
 
 No gap is discharged by citing a different requirement; every clause above names the task that proves it.
