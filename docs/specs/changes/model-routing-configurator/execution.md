@@ -502,7 +502,7 @@ T6's scope and check 3 assumed `docs/commands/akili-constitution.md` is a verbat
 
 ### T8 — progress (2026-10-02): cases 1, 2, 10, 11 recorded
 
-Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validation-evidence-tty-and-constitution.md` (1,607 lines — expect scripts, raw ANSI logs + cleaned copies, file dumps, diffs; case 10 commands/outputs/JSON). Mechanism: the "needs a human at a TTY" assumption was probed per `leader.md` → *Deferring a check* and refuted — `script(1)` gives the wizard a pseudo-TTY (`isTTY: true`) and `/usr/bin/expect` waits on each prompt; case 10 ran as a **proxy walk** (a Claude Code subagent executing the Step 8C text with the user's chat answers pre-supplied — not a human-driven session; recorded as such).
+Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validation-evidence-tty-and-constitution.md` (1,607 lines — expect scripts, raw ANSI logs + cleaned copies, file dumps, diffs; case 10 commands/outputs/JSON). Mechanism: the "needs a human at a TTY" assumption was probed per `leader.md` → *Deferring a check* and refuted — the Leader's probe showed `script(1)` gives a child `isTTY: true` with paced input; the cases themselves were then driven by `/usr/bin/expect` (its own pty), and the TTY path is proven behaviorally by the drawn prompts (the non-TTY path exits 1 — case 9); case 10 ran as a **proxy walk** (a Claude Code subagent executing the Step 8C text with the user's chat answers pre-supplied — not a human-driven session; recorded as such).
 
 | Case | Expected | Observed | Match |
 |---|---|---|---|
@@ -565,3 +565,49 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 **ADVISORY (recorded, never gating):** Step 9 `:1418` — the Tester always binds the Implementer's model (`ROLE_TIER` T2 for both); "may share … the Tester (T2) the Implementer's" hedges a certainty — "shares" would be exact. Cosmetic; follow-up.
 
 **Decisions made:** none beyond the pivot-2 record. **Final verification:** `npm test` 226/226; `git diff --check` clean.
+
+### T8 — closing record (2026-10-02)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (closing Reviewer over the derived evidence record, attempt 1) |
+| Implementer spawns | 3 (cases 3–9 · cases 1/2/11 · case 10 proxy walk) + the Leader-inline post-T9 registry re-check; no rework attempt consumed |
+| Skills (Leader selection) | `systematic-debugging`, `caveman` — as listed |
+| Models | Implementers `opus` · Reviewer `fable` — author ≠ auditor holds |
+| Requirements covered | FR-11 (all eleven cases; *Validation blocked* not triggered), FR-1 interactive scenarios on a pseudo-TTY (the §8 accepted gap, closed as far as a non-human TTY can), FR-8 *CLI present* (zero TTY prompts, Step 9 from JSON — proxy walk) |
+| Continue gate | auto-approved (user instruction after T1) — the two pivots inside T8 each stopped for the user, as exceptions must |
+
+- *Evidence re-run (Reviewer, non-author — fresh scratch project at `ff6a3cd`, FR-2 baseline form, deleted afterwards):* case 3 `unchanged` ×10, `no changes`, exit 0, porcelain 0; case 4 T5 cell `haiku`→`sonnet` inside the fence → `refused (hand-edited fence; --force to regenerate)  AGENTS.md`, exit 1, cell still `sonnet`; `--yes --force` → `overwritten  AGENTS.md`, exit 0, cell `haiku`; case 9 `printf '' | akili routing` → exit 1 ×3, stderr `ERROR: stdin is not a TTY and answers are still missing: --hosts, --models, --yes — use the non-interactive form: akili routing --hosts …`, **133.1 / 99.0 / 107.6 ms**, 0 files written. **Post-T11 case-1 registry baseline (the owed re-run, closed by the Reviewer):** `grep -c "Sol/Terra family\|Gemini 3.8 Flash family"` → 0; `grep -c "alias — always latest"` → 1; T3 row `` `opus` *(must differ from T2)* `` · `` `gpt-5.6-terra` *(≠ Luna)* `` intact.
+- *Reviewer verdict:* **PASS** — "The T8 record discharges FR-11 as written and T8 may close `[x]`. Every one of the eleven cases carries a quoted command, verbatim output and an exit code, run in `mktemp -d`/scratchpad projects outside this repo … The two falsifiers held live (case 4 refusal, case 3 idempotence); case 9 has three timings; case 10 quotes the command as run and the 11 JSON keys, so no disqualifier fires. Mismatches (case 1 count, case 10 Branch B trigger) are explained by quoted output, not narration, and each fed a user-approved pivot (T9/T10/T11) now `[x]`." Rulings: (1) the case-10 proxy walk is acceptable — a Claude Code subagent executing the Step 8C text is a Claude Code session; FR-8's scenario proven behaviorally; (2) `expect` pseudo-TTY acceptable — the drawn prompts prove the TTY path; (3) case-1 count classification correct (`requirements.md:83` bounds ≤ 8 only when every id is packaged; a Cursor family pick adds an id prompt and a placement prompt → 9; step 8 §5.3-correct); (4) case 11 honestly recorded, consistent with §8; (5) post-T11 baseline was owed — closed above; (6) cases 6b/8a dir removal fine. Red run: n/a (validation).
+- *Gaps named, not implied (Reviewer advisories folded in):* **Branch B of case 10 was not re-walked after T10** — verified by component: T10's two-shim probe (old `help` → 0 `routing` lines, both stderr forms; new → 6) plus the T10 Reviewer's text read; a live re-walk is a post-archive follow-up. **`requirements.md` §8 row "Real-host acceptance" claims Claude Code coverage "by FR-11's scratch run", but no T8 case loads the generated `.claude/agents/akili-reviewer.md` in a Claude Code session** — not an FR-11 obligation; the §8 row is to be re-worded at archive. Case 11's `readonly` block itself was not exercised (listing only).
+- *Spawns:* closing Reviewer 25 calls, 128,831 tokens, ended complete; earlier T8 spawns recorded in the two progress entries above.
+
+## 3. Summary — all tasks complete (2026-10-02)
+
+| Measure | Design budget | Revised | Actual |
+|---|---|---|---|
+| Tasks | 8 | 9 → 11 (two user-approved pivots from FR-11) | **11 `[x]`** |
+| Review rounds | 18 | 18 | **14** (T1–T6 one each · T7 three · T9, T10, T11, T8 one each) + 1 Reviewer runtime event (provider limit, rung 1) |
+| LOC (code + tests + data, excl. `docs/specs`) | ~1,550 | ~3,400 (tripwire ~4,000) | **~4,010** — tripwire crossed by T11's approved fix; recorded |
+| Implementer attempts consumed by FAIL | — | — | 2 (both T7, same phrase family) |
+| Continuations | — | — | 1 (T7 closure-sweep item) |
+| Checkpoints | — | — | 0 |
+| Runtime events | — | — | 2 (T1 spawn failure → rung 1; T7 Reviewer provider limit → rung 1) |
+| Pivots | — | — | 2 (both surfaced by FR-11's live validation, neither by a Reviewer) |
+| `REVIEW_WAIVED` / `REVIEW_SKIPPED` | — | — | 0 / 0 — every task closed on a Reviewer `PASS` from a different model than its Implementer |
+
+**Shipped:** `akili routing` (`bin/routing.js` pure module + `bin/akili.js` wiring, 12 flags, `--json`), `.claude/templates/model-registry.json` + `model-routing.section.md`, `test/{registry-drift,routing,routing-io}.test.js` (`npm test` 94 → 226), `/akili-constitution` Step 8C delegating to the CLI with a probe-first branch table and the former text as an inline Fallback, Step 8E/9/checklist updates, `/akili-audit` third drift signal, docs (`cli.md` Routing, `model-routing.md`, `flow.md`, README, release-checklist), `AGENTS.md:37` carve-out, CHANGELOG minor entry.
+
+**Kaizen candidates for `/akili-archive` (root cause + evidence in the entries above):**
+1. **Phrase-family sweep on rules/docs tasks (High)** — T7 lost two rounds to the same write-target phrase surviving in sentences edited at the end; the brief must carry a mechanical sweep over the phrase family across every in-scope file (KZ-changes--kaizen-loop-closure-2, third spec).
+2. **Unexecuted falsifier predictions (Medium)** — T2's `opus,sonnet` "goes red", T5's "times out", T8's "7 + 1 prompts": three task-text predictions never run at specify time (KZ-changes--leader-brief-contract-2 recurrence ×3).
+3. **A sweep's own filter needs its falsifier run first (Medium)** — T6's first script was blind to fragments < 25 chars; caught only because the task's falsifier was executed before the real walk.
+4. **FR-11 found what eleven Reviewer PASSes could not (High, positive)** — both pivots (unreachable fallback branch; note-stripping on adjust) were design-conformant and visible only live; keep a closing-validation task in every Standard spec and give it a Reviewer over its derived record.
+5. **Sweep rows written before the edit they describe (Low)** — Pivot Record 2 listed `design.md:88` as amended when only `:120` was; write the sweep row after the edit.
+6. **Host-reported vs self-counted tool calls (Low)** — every spawn's self-count was below the host's (T7 attempt 1: 61 vs 41, past the persona's 60-call bound by the host's count) — KZ-changes--persona-upgrade-1's pattern persists.
+7. **Premise ledger misses (Low)** — P-9 missed three `Model Routing` sites; the "mirror" premise for `docs/commands/*.md` was never verified; `--pin-reason`/step 2/(a′) design clauses contradicted requirement scenarios once data existed — six execute-time clarifications before T4.
+8. **Leader brief restating a rule in two forms (Low)** — T9's brief paraphrased the amended rule more narrowly than its operative clause; the Implementer caught it. State the rule once, by pointer.
+
+**Open follow-ups (outside this spec; recorded, never tasks here):** live re-walk of Step 8C Branch B after T10; `requirements.md` §8 "Real-host acceptance" re-wording; `placeholdersByColumn` counting the host's Fallback-column placeholders (F3); Fallback `since=` source when `akili` is absent (F5); Step 8E exact frontmatter for Leader/Tester wrappers (F6); `--force` prints the diff after `overwritten` (F8); `DATE_STAMP_RE` 8-digit guard; `detectEol` duplicated from `persona.js`; `cliSuggestion` composite prose in the registry JSON; README `:55`/`:890`/`:904` and `docs/README.md` hub lines; Step 9 "may share" → "shares" for the Tester; cross-host dispatch clearing has no wizard path; Codex roster without Luna → `unsatisfiable` (specified, but worth a wizard hint).
+
+**Next:** `/akili-test` is not owed separately — the spec's gates were test-first throughout (226 tests); `/akili-validate` then `/akili-archive` (release class **minor**; the archive's Kaizen Retrospective takes the eight candidates above; the premise-ledger corrections; the §8 re-wording).

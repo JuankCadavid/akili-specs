@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | Draft — Phase 3 |
+| Status | **Complete** — all 11 tasks `[x]` (2026-10-02); see `execution.md` §3 |
 | Date | 2026-10-01 |
 | Budget (design §10) | 8 tasks · ~1,550 LOC (`routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210) · 18 review rounds (code 5 × 2; rules docs 2 × 2; validation 1; margin 3) |
 | Design review | Judgment Day round 1: 15 confirmed severe + 3 split + 17 warnings **fixed** (Fix only, no re-judgment) — `judgment.md` |
@@ -278,7 +278,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1–T7; **T9** for the registry-content check of case 1; **T10/T11** for the closing record (pivot 2, 2026-10-02) |
 | Requirements | FR-11 (all cases listed in the requirement; Validation blocked), FR-1 interactive scenarios on a real TTY (the accepted gap of §8 — closed here), FR-8 CLI-present scenario (zero TTY prompts) |
