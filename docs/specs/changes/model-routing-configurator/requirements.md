@@ -221,7 +221,7 @@ The package SHALL ship `.claude/templates/model-registry.json`: per host `lastVe
 
 - GIVEN the registry table in `docs/model-routing.md` (`:118-125` at `8eb0227`; the only other `| Tier |` table — the definitions table at `:52` — is **not** the anchor; the test anchors on the header line starting `| Tier | Claude Code |`)
 - WHEN `npm test` runs
-- THEN for every host column and tier row, each backticked id and each family word in the doc cell exists in that host's `models`, each placeholder appears in that tier's `tierPreference`, and the list's head and second appear in the corresponding doc cell; the shared `Fallback` column is not checked
+- THEN for every host column and tier row, each backticked id and each family word in the doc cell exists in that host's `models`, each placeholder appears in that tier's `tierPreference`, the list's head appears in the corresponding host cell, and the list's second entry (when present) appears in that host cell **or in the row's shared `Fallback` column** — where a single-id host cell keeps its fallback (FR-3's Claude fallbacks `sonnet, haiku, sonnet, opus, sonnet, opus` all live there); the shared `Fallback` column is otherwise not walked as a column (execute-time clarification, 2026-10-01, T1 gate)
 - AND IT MUST go red when one id is changed in either file (falsifier executed once in the task's red run)
 
 ### FR-8: `/akili-constitution` delegates to `akili routing`

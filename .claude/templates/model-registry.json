@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "crossHost": {
+    "T6": "antigravity"
+  },
+  "hosts": {
+    "claude": {
+      "label": "Claude Code",
+      "cliSuggestion": "claude",
+      "lastVerified": "2026-09",
+      "pin": null,
+      "wrapper": {
+        "location": ".claude/agents/akili-<role>.md",
+        "shape": "md-yaml",
+        "restriction": "tools",
+        "effortField": "none"
+      },
+      "models": [
+        { "id": "opus", "label": "Opus", "alias": true, "dated": false, "effortRungs": null },
+        { "id": "sonnet", "label": "Sonnet", "alias": true, "dated": false, "effortRungs": null },
+        { "id": "haiku", "label": "Haiku", "alias": true, "dated": false, "effortRungs": null }
+      ],
+      "tierPreference": {
+        "T1": ["opus", "sonnet"],
+        "T2": ["sonnet", "haiku"],
+        "T3": ["opus", "sonnet"],
+        "T4": ["sonnet", "opus"],
+        "T5": ["haiku", "sonnet"],
+        "T6": ["sonnet", "opus"]
+      },
+      "notes": {
+        "T1": "*(alias — always latest)*",
+        "T3": "*(must differ from T2)*",
+        "T4": "(long context)",
+        "T6": "(vision)"
+      }
+    },
+    "opencode": {
+      "label": "OpenCode",
+      "cliSuggestion": "opencode",
+      "lastVerified": "2026-09-17",
+      "pin": "https://opencode.ai/docs/go",
+      "wrapper": {
+        "location": ".opencode/agent/akili-<role>.md",
+        "shape": "opencode-md",
+        "restriction": "none",
+        "effortField": "none"
+      },
+      "models": [
+        { "id": "opencode-go/deepseek-v4-pro", "label": "DeepSeek V4 Pro", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/deepseek-v4.1-flash", "label": "DeepSeek V4.1 Flash", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/deepseek-v4-flash", "label": "DeepSeek V4 Flash", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/deepseek-v4-flash-vision-exp", "label": "DeepSeek V4 Flash Vision (Exp)", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/glm-5.3", "label": "GLM 5.3", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/glm-5.3-flash", "label": "GLM 5.3 Flash", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/mimo-v2.5", "label": "MiMo V2.5", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "opencode-go/qwen3.8-flash", "label": "Qwen3.8 Flash", "alias": false, "dated": false, "effortRungs": null }
+      ],
+      "tierPreference": {
+        "T1": ["opencode-go/deepseek-v4-pro", "opencode-go/glm-5.3"],
+        "T2": ["opencode-go/deepseek-v4.1-flash", "opencode-go/deepseek-v4-flash", "opencode-go/glm-5.3-flash"],
+        "T3": ["opencode-go/deepseek-v4-pro"],
+        "T4": ["opencode-go/deepseek-v4.1-flash", "opencode-go/mimo-v2.5", "<CONFIRM>"],
+        "T5": ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"],
+        "T6": ["opencode-go/deepseek-v4-flash-vision-exp"]
+      },
+      "notes": {
+        "T1": "(5,200 @ $15)",
+        "T2": "(32,500 @ $15; 4x promo → 130,000 @ $60 through 2026-09-20)",
+        "T3": "(5,200 @ $15) *(≠ T2)*",
+        "T4": "`<CONFIRM>` context window (32,500 @ $15)",
+        "T5": "(65,000 @ $30)",
+        "T6": "(32,500 @ $15; **Exp**)"
+      }
+    },
+    "antigravity": {
+      "label": "Antigravity",
+      "cliSuggestion": "agy",
+      "lastVerified": "2026-09-17",
+      "pin": null,
+      "wrapper": {
+        "location": ".agents/agents/akili-<role>/agent.md",
+        "shape": "agy-yaml",
+        "restriction": "tools-confirm",
+        "effortField": "in-id"
+      },
+      "models": [
+        { "id": "gemini-3.8-flash-high", "label": "Gemini 3.8 Flash (High)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["high"] },
+        { "id": "gemini-3.8-flash-medium", "label": "Gemini 3.8 Flash (Medium)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["medium"] },
+        { "id": "gemini-3.8-flash-low", "label": "Gemini 3.8 Flash (Low)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["low"] },
+        { "id": "gemini-3.1-pro-high", "label": "Gemini 3.1 Pro (High)", "alias": false, "dated": false, "wrapperModel": "pro", "effortRungs": ["high"] },
+        { "id": "claude-sonnet-4-6", "label": "Claude Sonnet 4.6", "alias": false, "dated": false, "effortRungs": null }
+      ],
+      "tierPreference": {
+        "T1": ["gemini-3.8-flash-high"],
+        "T2": ["gemini-3.8-flash-medium"],
+        "T3": ["gemini-3.1-pro-high", "claude-sonnet-4-6"],
+        "T4": ["gemini-3.8-flash-high"],
+        "T5": ["gemini-3.8-flash-low"],
+        "T6": ["gemini-3.8-flash-high", "<CONFIRM ID>"]
+      },
+      "notes": {
+        "T3": "*(≠ T2 family)*",
+        "T6": "vision"
+      }
+    },
+    "codex": {
+      "label": "Codex",
+      "cliSuggestion": "codex — commands invoked as `$akili-<name>`",
+      "lastVerified": "2026-09-16",
+      "pin": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+      "wrapper": {
+        "location": ".codex/agents/akili-<role>.toml",
+        "shape": "toml",
+        "restriction": "sandbox",
+        "effortField": "toml-key"
+      },
+      "models": [
+        { "id": "gpt-6-astra", "label": "GPT-6 Astra", "family": "Astra", "alias": false, "dated": false, "effortRungs": null, "planGated": true },
+        { "id": "gpt-5.6-sol", "label": "GPT-5.6 Sol", "family": "Sol", "alias": false, "dated": false, "effortRungs": null, "planGated": true },
+        { "id": "gpt-5.6-terra", "label": "GPT-5.6 Terra", "family": "Terra", "alias": false, "dated": false, "effortRungs": null },
+        { "id": "gpt-5.6-luna", "label": "GPT-5.6 Luna", "family": "Luna", "alias": false, "dated": false, "effortRungs": ["low", "medium", "high", "xhigh", "max", "ultra"] }
+      ],
+      "tierPreference": {
+        "T1": ["gpt-5.6-terra", "gpt-5.6-sol"],
+        "T2": ["gpt-5.6-luna"],
+        "T3": ["gpt-5.6-terra", "gpt-5.6-sol"],
+        "T4": ["gpt-5.6-terra", "<CONFIRM SLUG>"],
+        "T5": ["gpt-5.6-luna"],
+        "T6": ["gpt-5.6-terra", "<CONFIRM SLUG>"]
+      },
+      "notes": {
+        "T1": "Sol where the plan allows",
+        "T3": "*(≠ Luna)*; Sol where the plan allows",
+        "T6": "prefer cross-host dispatch"
+      }
+    },
+    "cursor": {
+      "label": "Cursor",
+      "cliSuggestion": "agent — commands invoked as `/akili-<name>`",
+      "lastVerified": "2026-10-01",
+      "pin": "https://cursor.com/docs/context/subagents",
+      "wrapper": {
+        "location": ".cursor/agents/akili-<role>.md",
+        "shape": "md-yaml",
+        "restriction": "readonly",
+        "effortField": "bracket"
+      },
+      "models": [
+        { "id": null, "label": "Claude Opus family", "family": "Claude Opus", "alias": false, "dated": false, "effortRungs": null },
+        { "id": null, "label": "Composer family", "family": "Composer", "alias": false, "dated": false, "effortRungs": null },
+        { "id": null, "label": "GPT-5.6 Sol/Terra family", "family": "GPT-5.6 Sol/Terra", "alias": false, "dated": false, "effortRungs": null },
+        { "id": null, "label": "Claude Sonnet family", "family": "Claude Sonnet", "alias": false, "dated": false, "effortRungs": null },
+        { "id": null, "label": "Composer (Fast) family", "family": "Composer (Fast)", "alias": false, "dated": false, "effortRungs": null },
+        { "id": null, "label": "Gemini 3.8 Flash family", "family": "Gemini 3.8 Flash", "alias": false, "dated": false, "effortRungs": null }
+      ],
+      "tierPreference": {
+        "T1": ["<CONFIRM SLUG>"],
+        "T2": ["<CONFIRM SLUG>"],
+        "T3": ["<CONFIRM SLUG>"],
+        "T4": ["<CONFIRM SLUG>"],
+        "T5": ["<CONFIRM SLUG>"],
+        "T6": ["<CONFIRM SLUG>"]
+      },
+      "notes": {
+        "T1": "Claude Opus family",
+        "T2": "Composer family (Cursor-native)",
+        "T3": "GPT-5.6 Sol/Terra family *(≠ T2 — different vendor)*",
+        "T4": "Claude Sonnet family (1M context)",
+        "T5": "Composer (Fast) family",
+        "T6": "Gemini 3.8 Flash family (vision)"
+      }
+    }
+  }
+}

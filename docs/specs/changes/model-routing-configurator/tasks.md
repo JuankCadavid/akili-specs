@@ -40,7 +40,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | none |
 | Requirements | FR-7 (all), FR-4 content list (template side: Step 8C items 1–6 fixed prose, `{{placeholders}}` named in design §5.4), NFR-7 (pins in the JSON) |
@@ -51,7 +51,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 - `.claude/templates/model-registry.json` per §5.1: five hosts; `label`, `cliSuggestion`, `lastVerified`, `pin`, `wrapper{location, shape, restriction, effortField}`, `models[]` (`id`|`null`+`family`, `label`, `alias`, `dated`, `wrapperModel?`, `effortRungs`, `planGated?`), `tierPreference` T1–T6 whose head/second equal the doc cell's primary/fallback **by reading `docs/model-routing.md:120-125` cell by cell**, `notes`; `crossHost.T6 = "antigravity"`. Cursor entries: family placeholders (`id: null`) for the six families named at `:120-125`; Codex: `gpt-6-astra` (Astra, `planGated`), `gpt-5.6-sol` (Sol, `planGated`), `gpt-5.6-terra`, `gpt-5.6-luna` with `family`; Antigravity: `gemini-3.8-flash-{high,medium,low}` (`wrapperModel: flash`), `gemini-3.1-pro-high` (`wrapperModel: pro`); Claude: `opus`/`sonnet`/`haiku` (`alias: true`, `effortRungs: null`); OpenCode slugs as in the table.
 - `.claude/templates/model-routing.section.md`: the Step 8C items 1–6 prose (mirroring `docs/model-routing.md` → *Philosophy*, *Capability tiers*, *Phase → tier mapping*, *Effort dial* compactly), the amended item 5 instruction (design §5.4), rate-limit and frontier-pin sentences, `{{registryTable}}`, `{{updated}}`, `{{cliInvocationRow}}`, `{{crossHostLine}}`, `{{antigravityDialMap}}`, `{{authorAuditorNotes}}`, `{{pinReasons}}`, `{{regenerateHint}}`. **No** `Default Branch:` / `Integration Branch:` strings (P-7).
-- `test/registry-drift.test.js`: locate the table by the header line starting `| Tier | Claude Code |`; walk rows T1–T6, columns 2–6; apply the §5.1 cell grammar; assert (i) every backticked id / family word exists in `models[]`, (ii) every placeholder appears in that tier's `tierPreference`, (iii) `tierPreference[T][0]` and `[1]` (when present) appear in the cell; skip the `Fallback` column. Also assert the template contains none of the P-7 strings and that every `{{placeholder}}` in the template is in the fixed set.
+- `test/registry-drift.test.js`: locate the table by the header line starting `| Tier | Claude Code |`; walk rows T1–T6, columns 2–6; apply the §5.1 cell grammar; assert (i) every backticked id / family word exists in `models[]`, (ii) every placeholder appears in that tier's `tierPreference`, (iii) `tierPreference[T][0]` appears in the host cell, and `[1]` (when present) appears in the host cell **or in that row's shared `Fallback` column** (a single-id host cell keeps its fallback there — amended at the T1 gate, 2026-10-01); the `Fallback` column is not otherwise walked. Also assert the template contains none of the P-7 strings and that every `{{placeholder}}` in the template is in the fixed set.
 
 **Verification.**
 1. `node --test test/registry-drift.test.js` ⇒ green at HEAD. **Falsifier:** change `sonnet`→`haiku` in Claude `tierPreference.T2[0]` → red naming host/tier; change `` `haiku` ``→`` `opus` `` in `docs/model-routing.md:124` Claude cell → red. Both executed and reverted.
