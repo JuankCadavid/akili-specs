@@ -445,3 +445,17 @@ T6's scope and check 3 assumed `docs/commands/akili-constitution.md` is a verbat
   2. The printed fence diff lists the `+` line before the `-` line in each changed pair and covers the whole section as one 110-line hunk. [Cosmetic; `unifiedDiff` in `routing.js`; follow-up.]
   3. Case 5's `skipped (unfenced…)` run still ends with `no changes`, exit 0. [Per the §5.6 rule — `no changes` when every write is `unchanged`/`skipped`; reads oddly beside a skip that needs `--adopt`; advisory.]
   4. The case-6b malformed run prints the `commit .agents/model-routing.json…` hint although `model-routing.json` is `unchanged`. [Wrappers were `created` in that run — a real write happened, so the hint is per design §7; advisory.]
+
+## Pivot Record: T8 (2026-10-02)
+
+| Field | Content |
+|---|---|
+| Trigger | T8 cases 3–9 (Implementer observation 1) + T3 Implementer item 9 + T7 Reviewer advisory: the generated registry pairs a user-placed id with another family's fixed note (`` `claude-opus-4-6` GPT-5.6 Sol/Terra family ``, `` `claude-sonnet-4-6` Gemini 3.8 Flash family ``) and a pinned Claude id with `*(alias — always latest)*` |
+| Why a pivot, not a FAIL | Every Reviewer passed it because design §5.3 step 6 said "the fixed per-tier notes from `hosts.<host>.notes` are appended" — unconditionally. The code conforms to the design; the design is wrong for user-placed ids (the fixed note describes the packaged default, not the slot) |
+| Alternatives considered | (a) record as a known defect, follow-up `/akili-propose` after archive — shipped registries show wrong family notes meanwhile; (b) fold into T8 — T8 writes only `execution.md`, and a code change needs its own Reviewer; (c) **chosen:** amend §5.3 step 6 and add T9 (S: ~15 LOC + tests) |
+| User approval | AskUserQuestion, 2026-10-02 — *Reopen now: amend §5.3 step 6, add T9*. The task budget (8) is exceeded by T9 (9); that question was the budget escalation |
+| Spec edits | `design.md` §5.3 step 6 (fixed note only for a packaged-id or placeholder primary, never a `source: "user"` id); §5.1 `hosts.<host>.notes` row (same); §10 tasks 8 → 9. `tasks.md`: task graph (T2 → T9), T8 depends on T9 for case 1's registry-content check, new T9 block, coverage rows |
+| Rule chosen over the alternative | "only when the primary is the packaged head" was rejected: it would drop `*(must differ from T2)*` from an unsatisfiable T3 whose primary is a packaged non-head id (the `sonnet`-only case) and turn T2's green test red for no user benefit. "Packaged id or placeholder, never a user id" fixes both observed renderings and leaves every existing T2/T3 test green |
+| Two-direction sweep | Forward (`fixed per-tier note|fixed notes|notes.*appended|step 6` over the spec folder): `design.md:88`, `:120` — both amended; `tasks.md:52` names `notes` as a T1 field only. Backward (citations of `hosts.<host>.notes` / step 6): `design.md:88`, `:120` only; code `bin/routing.js:241-248` (T9's edit site). `git diff` of the two amended documents read: every removed line is an intended removal (the two replaced table cells; the §10 task count) |
+| ADR impact | none (no TRD in this repo) |
+| Resumption | T9 runs next (Implementer → Reviewer); T8's case 1 registry-content check is re-run after T9; the user's cases 1, 2, 10 (prompt order, adjust round, constitution walk) remain valid evidence regardless — the pivot changes a rendered note, not a prompt or a token |

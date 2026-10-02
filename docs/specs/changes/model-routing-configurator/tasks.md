@@ -28,6 +28,7 @@ T1 (packaged data: registry JSON, section template, drift test)
                         └─→ T6 (constitution Step 8C/8E/9 + checklist + mirror)
                              └─→ T7 (audit, AGENTS.md:37, model-routing.md, flow tenant, cli.md, README, CHANGELOG, closure sweep)
                                   └─→ T8 (closing validation: scratch project + constitution delegation walk)
+T2 ─→ T9 (pivot, 2026-10-02: deriveTiers step 6 — fixed notes only for packaged primaries; T8 case 1's registry check re-runs after T9)
 ```
 
 Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — sequence the commits, parallel work only in separate worktrees) → **T5** → **T6** → **T7** → **T8**. No circular dependencies. T6 waits for T5 so the flag names it documents are the ones `getArgs` accepts.
@@ -278,7 +279,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 |---|---|
 | Status | `[ ]` |
 | Size | M |
-| Depends on | T1–T7 |
+| Depends on | T1–T7; **T9** for the registry-content check of case 1 (pivot, 2026-10-02) |
 | Requirements | FR-11 (all cases listed in the requirement; Validation blocked), FR-1 interactive scenarios on a real TTY (the accepted gap of §8 — closed here), FR-8 CLI-present scenario (zero TTY prompts) |
 | Design refs | §5.6 states, §5.7, DD-6, DD-14, P-20 |
 | Review | `full` — the only run on a real terminal and inside a real session |
@@ -306,6 +307,33 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 **Skills.** `systematic-debugging`, `caveman`.
 
 ---
+
+---
+
+### T9 — `deriveTiers` step 6: fixed per-tier notes only for packaged primaries (pivot, tdd)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S |
+| Depends on | T2 (added by the T8 Pivot Record, 2026-10-02 — user-approved) |
+| Requirements | FR-3 statement (notes are part of the mapping) · FR-4 (registry cells render the mapping's notes) · FR-11 case 1 (the registry a user inspects must not pair a user id with another family's note) |
+| Design refs | §5.3 step 6 **as amended**, §5.1 `hosts.<host>.notes` row **as amended**, §5.4 item 4 (dated ids footnoted — unchanged) |
+| Review | `full` — a derivation rule change; the registry every project renders |
+
+**Scope.** `bin/routing.js` `deriveTiers` step 6 (`:241-248` at `c3f3f09`): append the fixed per-tier note from `hostRegistry.notes[T]` only when the tier's final `primary` is a packaged id (an `id` present in `hostRegistry.models[]` with `source: "packaged"` in the roster) or a placeholder; never when the primary is a `source: "user"` id. Computed notes (`single-model roster`; the step-4 T3 note; the step-5 T4/T6 notes) are unchanged. `test/routing.test.js` (part 1 additions): (a) Cursor roster `claude-opus-4-6@T1+T3`, `composer-2@T2+T5`, `claude-sonnet-4-6@T4+T6` → no mapping note contains `family`; (b) Claude roster `claude-opus-4-20250514@T1` (+ reason) with `opus,sonnet,haiku` → T1 note does not contain `alias — always latest`; (c) the existing `sonnet`-only case keeps `*(must differ from T2)*` (packaged id — regression guard, already present); (d) full packaged roster per host still equals the packaged column including notes (existing every-host case must stay green).
+
+**Verification.**
+1. `node --test test/routing.test.js` ⇒ green. **Falsifier (executed):** restore the unconditional append → cases (a) and (b) go red (quote expected/actual); revert.
+2. `node --test test/registry-drift.test.js test/routing-io.test.js` ⇒ unchanged green; `npm test` ⇒ green; `git diff --check`.
+3. Live re-check in a `mktemp -d` scratch project: the T8 baseline command (`--hosts claude,cursor --models claude=opus,sonnet,haiku --models cursor=claude-opus-4-6@T1+T3,composer-2@T2+T5,claude-sonnet-4-6@T4+T6 --cli claude=claude --cli cursor=agent --wrappers yes --yes`) → `grep -c "Sol/Terra family\|Gemini 3.8 Flash family" AGENTS.md` ⇒ 0 for the Cursor cells holding user ids; `grep -c "alias — always latest" AGENTS.md` ⇒ still ≥ 1 (the packaged `opus` T1 cell keeps it).
+
+**Red run.** Cases (a) and (b) observed red on the note assertion before the change (`actual: '…GPT-5.6 Sol/Terra family', expected: no match`).
+**Disqualifier.** A test that asserts the note is empty is wrong — computed notes may legitimately remain; assert the absence of the fixed-note text only. The every-host packaged-column case must stay green unchanged — a change there means the rule over-fired on packaged ids.
+**Consumers.** `renderRegistryTable`/`tableParts` (T3) render `mapping.<tier>.note` — no change expected; `test/routing.test.js` part 2/3 cases that snapshot notes — run them (check 1 covers the file).
+
+**Done.** Rule in code; cases (a)–(d) green with (a)/(b) observed red first; live re-check quoted.
+**Skills.** `tdd`, `caveman`.
 
 ## 3. Coverage Closure (scenario / clause → owner)
 
@@ -335,7 +363,8 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 | FR-8 Obligation sweep | T6 |
 | FR-9 every SHALL · Aggregate-claim falsification | T7 |
 | FR-10 tests green · `install`/`doctor` identical · `help` line · no `model:` · no deps | T5, T7 |
-| FR-11 all cases · Validation blocked | T8 |
+| FR-11 all cases · Validation blocked | T8 (case 1's registry-content check after T9) |
+| FR-3 notes · FR-4 cells render only the mapping's notes (fixed note never on a user id — pivot) | T9 |
 | NFR-1 · NFR-2 · NFR-3 · NFR-4 · NFR-5 · NFR-6 · NFR-7 · NFR-8 | T5 · T5/T8 · T3/T5 · T5 (CI) · T2–T4 · T5 · T1/T7 · T3 |
 
 No gap is discharged by citing a different requirement; every clause above names the task that proves it.
