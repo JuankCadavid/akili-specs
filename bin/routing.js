@@ -170,6 +170,14 @@ function isPlaceholder(x) {
   return PLACEHOLDER_RE.test(x);
 }
 
+// The value a wrapper binds for `id` on this host (§5.1, T12): the registry
+// entry's `wrapperModel` when it carries one (Antigravity `flash` | `pro`),
+// else the id itself — so on every other host the bound value is the id.
+function boundModel(hostRegistry, id) {
+  const entry = ((hostRegistry && hostRegistry.models) || []).find((m) => m.id === id);
+  return entry && entry.wrapperModel ? entry.wrapperModel : id;
+}
+
 // The fallback cell: the first candidate other than the chosen primary.
 function fallbackOf(cands, primary) {
   const next = cands.find((x) => x !== primary);
@@ -207,11 +215,14 @@ function deriveTiers(roster, hostRegistry, opts = {}) {
   // Step 3: T2 first (empty -> `<CONFIRM SLUG>`, like T1/T5).
   if (!pick("T2")) mapping.T2 = { primary: "<CONFIRM SLUG>", fallback: "—" };
   const t2 = mapping.T2.primary;
-  // Step 4: T3 — the first id candidate ≠ T2's pick. Ids only: a placeholder
-  // neither satisfies nor is excluded by the rule, and `ok` needs two ids.
-  // A recorded `--t3-cross-host` choice dispatches the Reviewer elsewhere.
+  // Step 4: T3 — the first id candidate ≠ T2's pick, compared on the bound
+  // wrapper value (T12: two Antigravity flash variants are distinct ids but
+  // both bind `flash`). Ids only: a placeholder neither satisfies nor is
+  // excluded by the rule, and `ok` needs two ids. A recorded
+  // `--t3-cross-host` choice dispatches the Reviewer elsewhere.
   let authorAuditor;
-  const t3 = isPlaceholder(t2) ? undefined : cands.T3.find((x) => !isPlaceholder(x) && x !== t2);
+  const t2Bound = boundModel(hostRegistry, t2);
+  const t3 = isPlaceholder(t2) ? undefined : cands.T3.find((x) => !isPlaceholder(x) && x !== t2 && boundModel(hostRegistry, x) !== t2Bound);
   if (opts.crossHost) {
     mapping.T3 = { primary: `→ ${opts.crossHost}`, fallback: "—", crossHost: opts.crossHost };
     authorAuditor = `cross-host: ${opts.crossHost}`;
@@ -797,6 +808,17 @@ function buildPlan(answers, registry, pkgVersion, snapshot, now, opts = {}) {
         reports.push(`${hl} ${ROLE_LABEL[role]}: ${w.skipText}`);
         continue;
       }
+      // Belt and braces (§5.5, T12): Step 8E Rule 1 is a MUST — never write a
+      // Reviewer whose rendered `model` equals the Implementer's, whatever
+      // the derivation let through.
+      if (role === "reviewer") {
+        const impl = planWrapper(h, "implementer", mapping[h], decisions[h], registry);
+        if (impl.content !== undefined && impl.model === w.model) {
+          writes.push({ relPath: w.relPath, token: "skipped (author ≠ auditor unsatisfiable)", content: null });
+          reports.push(`${hl} Reviewer skipped: its wrapper model ${w.model} equals the Implementer's`);
+          continue;
+        }
+      }
       planned[role] = w;
       const existing = files.get(w.relPath);
       if (existing === undefined) writes.push({ relPath: w.relPath, token: "created", content: w.content });
@@ -934,6 +956,7 @@ async function promptOne(io, title, options) {
   return r.error ? { error: `${title}: ${r.error}` } : r;
 }
 
+const REASON_T3_T2_BOUND = (id, m, t2) => `T3 = T2 rejected: \`${id}\` binds wrapper model \`${m}\`, the same as the Implementer's (T2 \`${t2}\`) — the Reviewer must run on a different model (author ≠ auditor)`;
 const REASON_T3_T2 = (id) => `T3 = T2 rejected: \`${id}\` is the Implementer's model (T2) — the Reviewer must run on a different model (author ≠ auditor)`;
 
 // One tier per round (FR-1 *Adjust a tier*): which tier, then which roster
@@ -941,6 +964,8 @@ const REASON_T3_T2 = (id) => `T3 = T2 rejected: \`${id}\` is the Implementer's m
 // preference list, DD-4) and the tier moves off any other user placement. A
 // pick that makes T3 = T2 is rejected with a one-line reason and re-asked.
 // opts.packagedIds: a packaged id left with no placement reverts to packaged.
+// opts.hostRegistry: the host's registry entry — T3 = T2 compares bound
+// wrapper values (T12), not only ids.
 // -> { roster, tier, id } | { error }.
 async function promptTierAdjust(io, mapping, roster, opts = {}) {
   const packagedIds = opts.packagedIds || [];
@@ -954,14 +979,17 @@ async function promptTierAdjust(io, mapping, roster, opts = {}) {
     const r = await askValid(io, q, "", (s) => parseOneNumber(s, ids.length));
     if (r.error) return { error: `${tier} — pick a model: ${r.error}` };
     const id = ids[r.value];
-    const reason = adjustRejection(tier, id, mapping, roster, packagedIds);
+    const reason = adjustRejection(tier, id, mapping, roster, packagedIds, opts.hostRegistry);
     if (!reason) return { roster: placeOnTier(roster, id, tier, packagedIds), tier, id };
     q = `${reason}\n${question}`;
   }
 }
 
-function adjustRejection(tier, id, mapping, roster, packagedIds) {
+function adjustRejection(tier, id, mapping, roster, packagedIds, hostRegistry) {
   if (tier === "T3" && id === mapping.T2.primary) return REASON_T3_T2(id);
+  if (tier === "T3" && boundModel(hostRegistry, id) === boundModel(hostRegistry, mapping.T2.primary)) {
+    return REASON_T3_T2_BOUND(id, boundModel(hostRegistry, id), mapping.T2.primary);
+  }
   const own = roster.find((e) => e.id === id);
   const ownTiers = own.source === "user" ? own.tiers : [];
   if ((tier === "T2" && ownTiers.includes("T3")) || (tier === "T3" && ownTiers.includes("T2"))) {
@@ -1338,7 +1366,7 @@ async function collectAnswers(args, previous, registry, io, opts = {}) {
         }
         const d = deriveFor(h, roster[h], registry, hosts, crossHost);
         const packagedIds = registry.hosts[h].models.filter((m) => m.id !== null).map((m) => m.id);
-        const adj = await promptTierAdjust(io, d.mapping, roster[h], { packagedIds });
+        const adj = await promptTierAdjust(io, d.mapping, roster[h], { packagedIds, hostRegistry: registry.hosts[h] });
         if (adj.error) return adj;
         roster[h] = adj.roster;
         continue;

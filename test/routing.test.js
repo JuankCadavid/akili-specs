@@ -1199,3 +1199,73 @@ test("collectAnswers: `q` at the confirm quits with nothing collected", async ()
   const r = await collect({ ...SINGLE, models: ["claude=opus,sonnet"] }, null, scriptedIo(["q"]));
   assert.deepEqual(r, { quit: true });
 });
+
+// ---- T12: author ≠ auditor compared on the bound wrapper model (validation FAIL FR-3) ----
+
+test("deriveTiers (f): Antigravity `gemini-3.8-flash-medium` + `gemini-3.8-flash-high@T3` -> both bind `flash`, unsatisfiable", () => {
+  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), U("gemini-3.8-flash-high", ["T3"])]);
+  assert.equal(r.authorAuditor, "unsatisfiable");
+  assert.ok(r.mapping.T3.note.includes("author ≠ auditor NOT satisfied"), r.mapping.T3.note);
+});
+
+test("deriveTiers (g): Antigravity `gemini-3.8-flash-medium` + `gemini-3.1-pro-high@T3` -> distinct wrapper models, ok", () => {
+  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), U("gemini-3.1-pro-high", ["T3"])]);
+  assert.equal(r.authorAuditor, "ok");
+  assert.equal(r.mapping.T3.primary, "gemini-3.1-pro-high");
+  assert.ok(!r.mapping.T3.note.includes("author ≠ auditor NOT satisfied"), r.mapping.T3.note);
+});
+
+const REASON_SHARED = "T3 = T2 rejected: `gemini-3.8-flash-high` binds wrapper model `flash`, the same as the Implementer's (T2 `gemini-3.8-flash-medium`) — the Reviewer must run on a different model (author ≠ auditor)";
+
+test("promptTierAdjust (h): a T3 pick sharing T2's wrapper model is rejected with a one-line reason and re-asked", async () => {
+  const roster = [P("gemini-3.8-flash-medium"), P("gemini-3.8-flash-high"), P("gemini-3.1-pro-high")];
+  const mapping = deriveFor("antigravity", roster);
+  const s = scriptedIo(["3", "2", "3"]);
+  const r = await routing.promptTierAdjust(s.io, mapping, roster, { packagedIds: roster.map((e) => e.id), hostRegistry: REGISTRY.hosts.antigravity });
+  assert.equal(s.asked.length, 3, "expected a rejection, got acceptance");
+  assert.equal(firstLine(s.asked[2]), REASON_SHARED);
+  assert.equal(r.id, "gemini-3.1-pro-high");
+  // The wizard passes the host's registry: the same rejection through collectAnswers.
+  const w = scriptedIo(["-", "t", "3", "2", "3", "a"]); // `-`: Antigravity's Reviewer tool-names question first
+  await collect({ hosts: "antigravity", models: ["antigravity=gemini-3.8-flash-medium,gemini-3.8-flash-high,gemini-3.1-pro-high"], cli: ["antigravity=agy"], wrappers: "yes" }, null, w);
+  assert.equal(firstLine(w.asked[4]), REASON_SHARED);
+});
+
+const modelLine = (content) => {
+  const m = String(content || "").match(/^model\s*[:=].*$/m);
+  return m ? m[0] : null;
+};
+
+test("buildPlan (i): for every host's full packaged roster, the Reviewer wrapper's `model` differs from the Implementer's", () => {
+  const written = { claude: true, opencode: true, antigravity: true, codex: true, cursor: false }; // Cursor ships no packaged ids
+  assert.deepEqual(Object.keys(REGISTRY.hosts), Object.keys(written));
+  const rosters = Object.keys(REGISTRY.hosts).map((h) => [h, packagedRoster(h)]).concat([["cursor", CURSOR_ROSTER]]);
+  for (const [h, roster] of rosters) {
+    const p = routing.buildPlan({ version: 1, hosts: [h], roster: { [h]: roster }, cli: {}, wrappers: "yes", decisions: {} }, REGISTRY, PKG, snapshot(), SEPT);
+    const loc = REGISTRY.hosts[h].wrapper.location;
+    const impl = W(p, loc.replace("<role>", "implementer"));
+    const rev = W(p, loc.replace("<role>", "reviewer"));
+    const expectWritten = roster === CURSOR_ROSTER || written[h];
+    assert.equal(rev.token, expectWritten ? "created" : "skipped (author ≠ auditor unsatisfiable)", `${h} reviewer`);
+    if (!expectWritten) continue;
+    assert.equal(impl.token, "created", `${h} implementer`);
+    assert.ok(modelLine(rev.content) && modelLine(impl.content), `${h} model lines`);
+    assert.notEqual(modelLine(rev.content), modelLine(impl.content), `${h}: reviewer ${modelLine(rev.content)} vs implementer ${modelLine(impl.content)}`);
+  }
+});
+
+test("buildPlan (j) belt and braces: a mapping the derivation lets through with T2 = T3 rendered models -> Reviewer skipped + report, Implementer written", () => {
+  // Cursor's effort bracket: T2 `m` (rung `medium`) renders `m[effort=medium]`;
+  // T3 is the distinct id `m[effort=medium]` with no rungs — it renders the
+  // same string. Distinct ids and distinct bound values, so deriveTiers says ok.
+  const reg = JSON.parse(JSON.stringify(REGISTRY));
+  reg.hosts.cursor.models.push({ id: "m", label: "m", alias: false, dated: false, effortRungs: ["medium"] });
+  const roster = [U("m", ["T1", "T2", "T5"]), U("m[effort=medium]", ["T3"])];
+  const p = routing.buildPlan({ version: 1, hosts: ["cursor"], roster: { cursor: roster }, cli: {}, wrappers: "yes", decisions: {} }, reg, PKG, snapshot(), SEPT);
+  assert.equal((p.authorAuditor || {}).cursor, "ok");
+  assert.equal(W(p, ".cursor/agents/akili-reviewer.md").token, "skipped (author ≠ auditor unsatisfiable)");
+  assert.equal(W(p, ".cursor/agents/akili-reviewer.md").content, null);
+  assert.ok(p.reports.includes("Cursor Reviewer skipped: its wrapper model m[effort=medium] equals the Implementer's"), JSON.stringify(p.reports));
+  assert.equal(W(p, ".cursor/agents/akili-implementer.md").token, "created");
+  assert.equal(modelLine(W(p, ".cursor/agents/akili-implementer.md").content), "model: m[effort=medium]");
+});

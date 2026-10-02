@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Reopened by validation** — T12 added for FR-3 (2026-10-02); 11 of 12 `[x]` |
+| Status | **Complete** — all 12 tasks `[x]` (2026-10-02; T12 from validation); see `execution.md` §3 |
 | Date | 2026-10-01 |
 | Budget (design §10) | 8 tasks · ~1,550 LOC (`routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210) · 18 review rounds (code 5 × 2; rules docs 2 × 2; validation 1; margin 3) |
 | Design review | Judgment Day round 1: 15 confirmed severe + 3 split + 17 warnings **fixed** (Fix only, no re-judgment) — `judgment.md` |
@@ -403,7 +403,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Depends on | T11 (added by `/akili-validate` Remediation #1 via the Pivot Protocol, 2026-10-02 — user-approved) |
 | Requirements | FR-3 *Single-model roster* "BUT it must NOT write a Reviewer wrapper whose model equals the Implementer's — on any host, in any mode"; FR-1 *Adjust a tier* (a pick making T3 = T2 is rejected); FR-5 (Reviewer restriction/model per host) |
