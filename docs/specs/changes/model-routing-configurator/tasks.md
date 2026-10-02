@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Complete** — all 12 tasks `[x]` (2026-10-02; T12 from validation); see `execution.md` §3 |
+| Status | **Reopened by CI** — T13 added for the Windows EOL failure (2026-10-02); 12 of 13 `[x]` |
 | Date | 2026-10-01 |
 | Budget (design §10) | 8 tasks · ~1,550 LOC (`routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210) · 18 review rounds (code 5 × 2; rules docs 2 × 2; validation 1; margin 3) |
 | Design review | Judgment Day round 1: 15 confirmed severe + 3 split + 17 warnings **fixed** (Fix only, no re-judgment) — `judgment.md` |
@@ -31,6 +31,7 @@ T1 (packaged data: registry JSON, section template, drift test)
 T2 ─→ T9 (pivot, 2026-10-02: deriveTiers step 6 — fixed notes only for packaged primaries; T8 case 1's registry check re-runs after T9)
 T6 ─→ T10 (pivot 2: Step 8C branch detection via `akili help`; preview `--yes --dry-run`; Step 9 pairing wording)   T9 ─→ T11 (pivot 2: step 6 keyed on registry membership) — T10 ∥ T11 (disjoint files)
 T11 ─→ T12 (validation FAIL FR-3, 2026-10-02: author ≠ auditor compared on `wrapperModel`; buildPlan belt-and-braces)
+T3 ─→ T13 (NFR-4, 2026-10-02: Windows CI — LF fixtures arrive CRLF under autocrlf; `.gitattributes` + EOL-aware expectations)
 ```
 
 Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — sequence the commits, parallel work only in separate worktrees) → **T5** → **T6** → **T7** → **T8**. No circular dependencies. T6 waits for T5 so the flag names it documents are the ones `getArgs` accepts.
@@ -427,6 +428,38 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 **Done.** Predicate in step 4 and the adjust loop; belt-and-braces in `buildPlan`; tests (f)–(j) green with reds observed; live probe quoted.
 **Skills.** `tdd`, `caveman`.
 
+---
+
+### T13 — Windows CI: fixture EOL under `core.autocrlf` (`.gitattributes` + EOL-aware expectations)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S (config + tests) |
+| Depends on | T3 (added by Pivot Record 4 after the first CI run of this spec, 2026-10-02 — user-approved) |
+| Requirements | NFR-4 *Cross-platform* — "CI matrix (ubuntu/macos/windows × Node 18/22) green"; FR-4 CRLF clause unchanged (the replacer preserves the file's EOL — that is correct and is what exposed the test assumption) |
+| Design refs | §5.6 EOL rule (W14), §4 `test/fixtures/routing/`, DD-1 |
+| Review | `full` — a repo-wide git attribute is a shared contract |
+
+**Scope.** CI run `37023589684` at `d2ee881`: macOS/Ubuntu × Node 18/22 green; **Windows × Node 18/22 red** — 5 failures, all in `test/routing.test.js` replacer cases ((a) `replaced`, (a′) `--force`, (b) `--adopt`, (c) `appended`, (f) stray heading): the runner's `core.autocrlf=true` checkout turns the LF fixtures under `test/fixtures/routing/` into CRLF; `replaceFencedSection` correctly re-emits CRLF; the tests' expected strings are LF literals (`before + BLOCK_NEW + after` with `\n`). The repo has no `.gitattributes`.
+- Add `.gitattributes` at the repo root declaring the fixture trees byte-exact: `test/fixtures/** -text` (keeps LF fixtures LF and the deliberate CRLF fixtures `agents-crlf.md` / `personas/crlf.md` CRLF on every platform). Consider `* text=auto` for the rest only if it changes no tracked file (`git add --renormalize --dry-run` → nothing); otherwise leave other paths untouched.
+- Make the five replacer expectations EOL-aware where they concatenate LF literals with fixture text: derive the fixture's EOL from the file (`/\r\n/.test(text) ? "\r\n" : "\n"`) and build `BLOCK_NEW`/expected text with it — so the suite is correct even on a checkout that converts.
+- Explain the Windows job's `# tests 219` vs the local `# tests 231`: find which suite/tests do not run on `win32` (a `skip`, a platform guard, or a glob difference) and state it; if a routing suite is silently skipped on Windows, say so (do not change it — report).
+
+**Verification.**
+1. Local reproduction of the Windows checkout: `git -c core.autocrlf=true clone -q . <tmp>` **before** the fix → in the clone, `file test/fixtures/routing/agents-fenced-clean.md` shows CRLF and `node --test test/routing.test.js` → the five cases red (quote one assertion); **after** the fix (commit nothing — use `git stash`-free means: copy the fixed `.gitattributes` + tests into the clone, run `git add --renormalize . && git checkout -- .` or re-clone from the working tree) → fixtures LF, suite green. Quote both.
+2. `git check-attr -a test/fixtures/routing/agents-fenced-clean.md test/fixtures/routing/agents-crlf.md test/fixtures/personas/crlf.md` ⇒ `text: unset` on each.
+3. `npm test` ⇒ green locally (231); `git diff --check` clean; `git status` shows no renormalization churn on tracked files.
+4. After the Leader pushes: CI matrix green on all six jobs (the Leader records the run id and per-job conclusions — the task's real gate).
+
+**Falsifier.** Remove the `-text` rule in the autocrlf clone → the CRLF fixtures and the five reds return. Executed once in the clone.
+**Red run.** The CI failure itself (`not ok 148 … replacer (a) …` with `+ '<!-- akili:section id=model-routing since=v9.9.9 -->\r\n'` vs `- '…\n'`), reproduced locally in the autocrlf clone before the change.
+**Disqualifier.** A fix that converts the deliberate CRLF fixtures to LF (or the LF ones to CRLF) is wrong — the CRLF cases must still exercise CRLF. A fix verified only on macOS is incomplete until CI's Windows jobs are green.
+**Consumers.** `test/persona-digests.test.js` / `test/agents-doctor*.test.js` (use `test/fixtures/personas/crlf.md` — must stay green); `.github/workflows/ci.yml` (unchanged commands); the `-text` rule applies to every future fixture.
+
+**Done.** `.gitattributes` present; five expectations EOL-aware; autocrlf clone green; `# tests 219` delta explained; CI matrix green after push.
+**Skills.** `systematic-debugging`, `caveman`.
+
 ## 3. Coverage Closure (scenario / clause → owner)
 
 | Requirement · scenario / clause | Owner |
@@ -458,7 +491,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 | FR-11 all cases · Validation blocked | T8 (case 1's registry-content check after T9) |
 | FR-3 notes · FR-4 cells render only the mapping's notes (fixed note only for registry-known ids — pivot, corrected) | T9, T11 |
 | FR-8 older-binary branch detected before composing the command (`akili help`) · preview `--yes --dry-run` · Step 9 pairing wording | T10 |
-| NFR-1 · NFR-2 · NFR-3 · NFR-4 · NFR-5 · NFR-6 · NFR-7 · NFR-8 | T5 · T5/T8 · T3/T5 · T5 (CI) · T2–T4 · T5 · T1/T7 · T3 |
+| NFR-1 · NFR-2 · NFR-3 · NFR-4 · NFR-5 · NFR-6 · NFR-7 · NFR-8 | T5 · T5/T8 · T3/T5 · T5 (CI) + **T13 (Windows EOL)** · T2–T4 · T5 · T1/T7 · T3 |
 
 No gap is discharged by citing a different requirement; every clause above names the task that proves it.
 

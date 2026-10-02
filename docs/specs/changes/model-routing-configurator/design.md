@@ -287,7 +287,7 @@ A fenced body that is not what the previous answers render is a hand edit; refus
 
 | Measure | Estimate | Basis |
 |---|---|---|
-| Tasks | **8** → **9** (T9, T8 pivot) → **11** (T10 docs + T11 code, T8 pivot 2) → **12** (T12, validation FAIL FR-3 — all user-approved, 2026-10-02) | T1 data files + drift test · T2 `routing.js` parse + derive (tdd) · T3 `routing.js` render + fence + wrappers + plan (tdd) · T4 `akili.js` flags + `collectAnswers` seam + `persona.js` export (tdd) · T5 `akili.js` apply/summary/json + io tests · T6 constitution Step 8C/8E/9 + checklist + mirror · T7 audit, root rule, docs, README, flow tenant, CHANGELOG · T8 closing validation |
+| Tasks | **8** → **9** (T9, T8 pivot) → **11** (T10 docs + T11 code, T8 pivot 2) → **12** (T12, validation FAIL FR-3) → **13** (T13, Windows CI EOL fixtures — all user-approved, 2026-10-02) | T1 data files + drift test · T2 `routing.js` parse + derive (tdd) · T3 `routing.js` render + fence + wrappers + plan (tdd) · T4 `akili.js` flags + `collectAnswers` seam + `persona.js` export (tdd) · T5 `akili.js` apply/summary/json + io tests · T6 constitution Step 8C/8E/9 + checklist + mirror · T7 audit, root rule, docs, README, flow tenant, CHANGELOG · T8 closing validation |
 | LOC | **~1,550** → **revised ~3,400 after T3** (user decision at the budget tripwire, 2026-10-01: 2,319 LOC landed after 3 tasks — per-task size, not scope; new tripwire ~4,000) | `routing.js` ~420 · `akili.js` ~220 · `persona.js` 2 · JSON ~140 · template ~80 · tests ~480 · prose ~210 |
 | Review rounds | **18** | code tasks 5 × 2 = 10 (precedent: the Cursor spec consumed 18 of 16 — U5) · rules docs 2 × 2 = 4 · validation 1 · margin 3 |
 

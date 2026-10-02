@@ -650,3 +650,16 @@ Full verbatim record: `docs/specs/changes/model-routing-configurator/t8-validati
 **ADVISORY (recorded, never gating):** when the guard fires, `authorAuditor` stays `ok` in the answers file and the T3 cell names a model no wrapper binds — deterministic, no drift; a follow-up spec could flip the recorded state. `adjustRejection` evaluates `boundModel` twice.
 
 **Decisions made:** none beyond Pivot Record 3. **Final verification:** `npm test` 231/231; `git diff --check` clean. **Spec totals after T12:** 12 tasks `[x]`; 15 review rounds of 18; LOC ~4,110.
+
+## Pivot Record 4: CI (2026-10-02)
+
+| Field | Content |
+|---|---|
+| Trigger | First CI run of this spec after the push `e270428..d2ee881` (validation Remediation #2 / NFR-4): run `37023589684` — `CLI on macos-latest / Node 22: success`, `ubuntu-latest / Node 18: success`, `ubuntu-latest / Node 22: success`, `macos-latest / Node 18: success`, **`windows-latest / Node 22: failure`, `windows-latest / Node 18: failure`**; `Release Status: success`. Windows Node 22: `# tests 219 # pass 213 # fail 5` — `not ok 148 replacer (a) clean fence, new body -> replaced…`, `153 (a′) with --force -> overwritten…`, `155 (b) unfenced heading with --adopt -> adopted…`, `156 (c) no section -> appended…`, `159 (f) fence + stray unfenced heading…`. Assertion: actual `'<!-- akili:section id=model-routing since=v9.9.9 -->\r\n' + '## Model Routing\r\n' …` vs expected the same with `\n`. |
+| Root cause | The Windows runner checks out with `core.autocrlf=true`; the repo has **no `.gitattributes`**, so the LF fixtures under `test/fixtures/routing/` arrive as CRLF. `replaceFencedSection` detects the file's EOL and re-emits CRLF — the specified behavior (§5.6, W14). The five tests concatenate LF literals (`before + BLOCK_NEW + after`) and so expect LF. A test-fixture / repo-attribute defect, not a CLI defect. The pre-existing persona CRLF fixture passed because those tests compare against the fixture's own EOL. |
+| Why a pivot, not a FAIL | No task owned cross-platform fixture handling; NFR-4's only evidence is CI, which ran for the first time after validation (`master` had been 18 commits ahead of `origin`). The validator flagged exactly this risk ("CRLF handling" among the Windows-sensitive spots). |
+| User approval | AskUserQuestion, 2026-10-02 — *T13 via Pivot: .gitattributes + EOL-aware tests, re-push*. Tasks 12 → 13. |
+| Spec edits | `tasks.md` status row ("Reopened by CI"), graph (T3 → T13), T13 block, NFR-4 coverage row; `design.md` §10 tasks 13. No requirement text changes (NFR-4 already says the matrix must be green). |
+| Two-direction sweep | Forward (`autocrlf` / `.gitattributes` / `CRLF` across the spec folder): design §5.6 (EOL rule — unchanged, it is what the code does), tasks T3 (CRLF fixture requirement — unchanged), `execution.md` T3 entry (the untracked-CRLF-fixture note — consistent). Backward (who cites NFR-4): requirements NFR-4 (unchanged), validation report WARN #2 (to be updated to the run result). |
+| Also to explain | the Windows job reports `# tests 219` where the local run reports 231 — T13 names the suite or cases that do not run on `win32`. |
+| Resumption | T13 (Implementer → Reviewer) → push → CI matrix green → update `validation-report.md` WARN #2 → `/akili-archive`. |
