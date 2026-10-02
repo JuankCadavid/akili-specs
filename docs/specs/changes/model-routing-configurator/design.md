@@ -112,9 +112,10 @@ For host H with roster R (ids), `tierPreference` P, and user placements U (`sour
 | Step | Rule |
 |---|---|
 | 1 | For each tier T: `list(T) = U.filter(tiers ∋ T) ++ P[T]` — user-placed ids go to the **head**, in the order given |
-| 2 | `cands(T) = list(T).filter(x => x ∈ R or x is a placeholder)` — placeholders survive only when no roster id precedes them |
+| 2 | `cands(T) = list(T).filter(x => x ∈ R or x is a placeholder)` — placeholders are always kept as candidates in list position (T2-gate clarification, 2026-10-01: every packaged list orders ids before placeholders and user placements prepend, so a present roster id always takes the primary slot; a placeholder surfaces as **primary** only when no listed id is in the roster, and as **fallback** when it is the list's next entry — which is what keeps `derive(full packaged roster) == tierDefaults` for Codex T4/T6 `[gpt-5.6-terra, <CONFIRM SLUG>]` and Antigravity T6, FR-3) |
 | 3 | T2 first: `primary = cands(T2)[0]`, `fallback = cands(T2)[1] ?? "—"` |
 | 4 | T3: `primary = first cands(T3) with id ≠ T2.primary`; none → `authorAuditor = unsatisfiable`, `primary = T2.primary` **in the registry only**, note `author ≠ auditor NOT satisfied — add a model or dispatch T3 cross-host`; if `--t3-cross-host H=other` → `primary = "→ other"`, `crossHost: other`, `authorAuditor = cross-host: other` |
+|   | **Ids only (T2-gate clarification, 2026-10-01):** the `≠ T2.primary` comparison is between ids — a placeholder candidate (`<CONFIRM…>`) neither satisfies nor is excluded by it. `authorAuditor = ok` requires T2.primary and T3.primary to both be ids and differ; when either resolves to a placeholder the host is `unsatisfiable` (a Reviewer wrapper cannot be bound to a placeholder — S1), with T3's registry cell = `cands(T3)[0] ?? T2.primary` and the note above. Unselected hosts' columns are rendered from `tierPreference` heads (§5.4), never derived, so the packaged Cursor column (all `<CONFIRM SLUG>`) is unaffected |
 | 5 | T1, T4, T5, T6: `primary = cands(T)[0]`, `fallback = cands(T)[1] ?? "—"`; empty → T4: `T2.primary` + note `no long-context model selected`; T6: `<CONFIRM>` + note `→ cross-host dispatch: <crossHost.T6>` when `crossHost.T6 ≠ H` and ∉ `hosts[]`, `→ cross-host dispatch: <crossHost.T6> (selected)` when it is selected, `no vision model selected` when H is `crossHost.T6` itself (W17); T1/T5 empty → `<CONFIRM SLUG>` |
 | 6 | Notes are computed from the **final** mapping (W2): `single-model roster` when `|R| = 1`; the fixed per-tier notes from `hosts.<host>.notes` are appended |
 
@@ -184,7 +185,7 @@ EOL is detected as `persona.js:92-95` does and lines are split as `:177` does (`
 | `--wrappers yes\|no` | string | Step 8E opt-in (C7); interactive default prompt `[Y/n]`; `--yes` without it → `yes` |
 | `--t3-cross-host <host>=<other>` | string, `multiple: true` | records the cross-host Reviewer choice (C11) |
 | `--antigravity-tools <a,b>` | string | confirmed tool names; absent → omitted + reported |
-| `--pin-reason <host>=<id>=<text>` | string, `multiple: true` | the recorded reason for a dated id (alias-first "record why"); required non-interactively for any `dated: true` id or any user id that is not a floating alias |
+| `--pin-reason <host>=<id>=<text>` | string, `multiple: true` | the recorded reason for a dated id (alias-first "record why"); required non-interactively for any packaged id with `dated: true` or any user id carrying a date stamp (`YYYYMMDD` or `YYYY-MM-DD` inside the id); a user id without a date stamp (e.g. `claude-opus-4-6`, a Cursor slug) needs none — FR-2's *Fully specified, no TTY* scenario passes Cursor user ids with no `--pin-reason` and exits 0 (T2-gate clarification, 2026-10-01) |
 | `--opencode-agent-dir <path>` | string | default `.opencode/agent` |
 | `--yes` | boolean | accept the derived mapping; non-TTY + still-incomplete answers → usage error |
 | `--adopt` | boolean | adopt an unfenced section non-interactively (W5) |

@@ -31,6 +31,25 @@ Classed as an execute-time clarification (no approved requirement's meaning chan
 
 **Second clarification, same gate (Leader call, no user question — the strict grammar was unsatisfiable, not ambiguous):** design §5.1's cell grammar (backticked id · family word · placeholder; "anything else ignored") left the Antigravity T4 cell (`Gemini 3.8 Flash (High)`, no backticks, no placeholder) with zero tokens, so no `tierPreference.T4` head could ever "appear in" it. Added one sentence to §5.1: for the head/second check only, an entry also appears in a cell when the cell names it by its `models[]` `label` verbatim. FR-7's checks (i)–(ii) are unchanged. Carried into the T1 and T2 Reviewer briefs with the first clarification.
 
+### Gate instruction (after T1, 2026-10-01)
+
+User: *"continue with all"* — routine continue/pause gates auto-pass for the remainder of this run (logged per task as `auto-approved (user instruction after T1)`); HALT, Pivot, budget tripwire, `FATAL_FAIL`, `REVIEW_WAIVED`, and the Leader-inline ask still stop for the user.
+
+### Pre-spawn design clarification (T2 gate, 2026-10-01 — Leader call)
+
+§5.3 step 4 compared `cands(T3)` against `T2.primary` without saying whether placeholders count as ids. T1 shipped every Cursor tier list as `["<CONFIRM SLUG>"]`, so a literal reading would either exclude T3's only candidate (as "equal" to T2) or declare `ok` on two placeholders. Added one row to §5.3 (after step 4): comparisons are between ids only; `ok` requires two distinct ids; a placeholder in either slot → `unsatisfiable` (a wrapper cannot bind to a placeholder — S1); unselected hosts render from heads, so the packaged Cursor column is unaffected. No requirement meaning changed (FR-3's scenarios all use ids). Carried into T2's and T3's Reviewer briefs as a named check.
+
+### Post-report design clarifications (T2, before the Reviewer spawn, 2026-10-01 — Leader calls)
+
+The T2 Implementer's `Not Done / Assumptions` surfaced two places where design text, read literally against T1's shipped data, contradicts a requirement scenario. Requirements bind; the design text is amended to match (no requirement meaning changed):
+
+| Design site | Was | Now | Why |
+|---|---|---|---|
+| §5.3 step 2 | "placeholders survive only when no roster id precedes them" | placeholders are always kept as candidates in list position; a present id still takes primary | Literal reading drops Codex T4's `<CONFIRM SLUG>` fallback for a full roster → `derive(full roster) ≠ tierDefaults`, violating FR-3 "equal to the packaged default column by construction" |
+| §5.7 `--pin-reason` row | required for "any `dated: true` id or any user id that is not a floating alias" | required for a packaged `dated: true` id or a user id carrying a date stamp | The literal rule fails FR-2 *Fully specified, no TTY* (Cursor user ids, no `--pin-reason`, exit 0) and goes beyond FR-3 ("a dated id … additionally asks for the reason") |
+
+Both carried into T2's Reviewer brief as named checks (with the T1-gate pair and the §5.3 "Ids only" row), and into T3's/T4's. **Kaizen note:** T2's check-1 falsifier text predicted the `opus,sonnet` case would go red when the `≠ T2` filter is removed; it does not (`cands(T3) = [opus, sonnet]` picks `opus` either way). The Implementer added a `sonnet@T3` case that does separate the rules — an unexecuted falsifier reading at specify time (KZ-changes--leader-brief-contract-2 recurrence; no attempt lost).
+
 ## 2. Task Execution History
 
 ### T1 — Packaged data: `model-registry.json`, `model-routing.section.md`, drift test
@@ -78,3 +97,45 @@ Classed as an execute-time clarification (no approved requirement's meaning chan
 **Forward pointers (carried into the named task's brief at compose time — context, not scope):** T2 — Cursor lists are all `["<CONFIRM SLUG>"]`: T3 ≠ T2 must compare ids, not placeholders; full-roster test should pin Codex T4 fallback `<CONFIRM SLUG>` and OpenCode T4's placeholder non-surfacing. T3 — Antigravity renderer tolerates a missing `wrapperModel`; template body opens with the `## Model Routing` heading (fence encloses it). T4 — `cliSuggestion` for Codex/Cursor is composite prose per §5.1; the prompt default must present the binary, not the sentence.
 
 **Decisions made:** two execute-time spec clarifications at the gate (Document Control, above) — carried as named Reviewer checks here; carry once more into T2's Reviewer brief, then drop. **Issues encountered:** one transient spawn failure (above). Lookup note: TRD and UX/UI design not in project (S5). **Final verification:** `npm test` 101/101; `git diff --check` clean; `list`/`doctor`/`install --dry-run` unchanged.
+
+### T2 — `bin/routing.js`: flag grammar and derivation (tdd)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer, attempt 1) |
+| Date | 2026-10-01 |
+| Implementer attempts | 1 |
+| Skills (Leader selection) | `tdd`, `systematic-debugging`, `caveman` — as listed; no deviation |
+| Effort | Implementer `high` (eleven error classes + the T3 ≠ T2 hard rule); Reviewer `high` |
+| Models | Implementer `opus` · Reviewer `fable` — author ≠ auditor holds |
+| Requirements covered | FR-2 (Validation errors), FR-3 (all three scenarios), NFR-5 |
+| Continue gate | auto-approved (user instruction after T1) |
+
+**Attempt 1**
+
+- *Runtime events:* none.
+- *Files changed:* `bin/routing.js` (new, 277 lines — exports `HOST_KEYS`, `parseHosts`, `parseModels`, `parsePinReasons`, `parseCli`, `parseCrossHost`, `deriveTiers`, `canonicalAnswers`) · `test/routing.test.js` (new, 355 lines, 43 tests).
+- *Implementer verification:* `node --test test/routing.test.js` → `# tests 43 # pass 43 # fail 0`; `npm test` → `# tests 144 # pass 144 # fail 0`; check 3 `node -e "require('./bin/routing.js')"` → prints nothing, exit 0; check 4 `grep -n "require(" bin/routing.js` → `7:const path = require("path"); // eslint-disable-line no-unused-vars -- wrapper paths (T3)` only; `git diff --check` clean.
+- *Falsifier 1* (step 4 → `cands.T3.find(x => !isPlaceholder(x))`, reverted): `deriveTiers: FR-3 single-model roster sonnet -> unsatisfiable…` → `actual: 'ok', expected: 'unsatisfiable'`; `deriveTiers: T2's pick placed at the T3 head (sonnet@T3) is skipped -> T3 opus` → `actual: 'sonnet', expected: 'opus'`. The task's prediction that `opus,sonnet` would also go red was wrong (stays green: `cands(T3) = [opus, sonnet]` picks `opus` either way) — recorded above as a kaizen note. *Falsifier 2* (`tierPreference.T4.reverse()` on the in-memory registry copy): full-Claude case `actual T4: ['opus','sonnet'], expected ['sonnet','opus']`; `opus,sonnet` case same. Suite 43/43 after each revert.
+- *Red run (by test name, first red; verbatim files in the scratchpad `run-r2.txt`…`run-r6.txt`, `red-1-parseHosts.txt`):* parseHosts accepts → `actual: { hosts: [] }, expected: { hosts: ['claude','cursor'] }`; every grammar error case → `actual: 'undefined'` against a regex naming the bad value (`/\`codex\`.*--hosts: claude/`, `/\`claude=\`.*empty/`, `/\`T9\`/`, `/\`my-new-model\`/`, `/\`org@model\`.*reserved/`, `/\`x\`.*T2 and T3/`, `/\`claude-opus-4-20250514\`/`, `/\`opencode-go\/glm-5.3\`.*--pin-reason/`); deriveTiers full Claude → `actual T1: [null, null]`; every-host → `actual: null, expected: 'opus'`; placeholder case → `actual [null,null], expected ['gpt-5.6-terra','<CONFIRM SLUG>']`; sonnet-only note → actual `'author ≠ auditor NOT satisfied — add a model or dispatch T3 cross-host'`, expected that text + `'; *(must differ from T2)*'`; cross-host → `actual primary 'sonnet'`, expected `'→ antigravity'` + `crossHost`; empty T4 / T6 / T1-T5 / T2 → `primary: undefined` vs the expected fallback; canonicalAnswers → `actual: ''`. **Never red:** `opus,sonnet`, `x@T1+T3`, `sonnet@T3`, T2+T3 parse error (step 4 already written when added; covered by falsifier 1 except `opus,sonnet` — the Reviewer probed `x@T1+T3` with a step-1 mutation and it discriminates, T1 `x`→`opus`); determinism case (a stub cannot fail it); purity lock (static source check, added after code).
+- *Consumers:* `grep -rn "routing" bin test` → T1's `test/registry-drift.test.js` lines 5, 6, 16, 18, 52 (template/doc filenames) + the two new files; no code consumers.
+- *Evidence re-run (Leader-inline, non-author):* **VERIFIED** — 43/43; `npm test` 144/144; `require` silent exit 0; `require(` grep = `path` only; `grep -n "writeFileSync\|readFileSync\|process\.\(cwd\|stdin\|stdout\)" bin/routing.js` → no match (NFR-5); `git diff --check` clean.
+- *Reviewer verdict:* **PASS** — "`bin/routing.js` + `test/routing.test.js` conform to FR-2 (Validation errors), FR-3 whole, §5.3 steps 1–6 as amended today (incl. the "Ids only" row, step 2 placeholders-kept, `--pin-reason` date-stamp rule), §5.7, §7, §5.1/5.2, DD-4/DD-5, W1/W2/W17, NFR-5. Red run verified on behavioral assertions (expected/actual by test name, no TypeErrors); both falsifiers trace through the fixtures." Term-by-term walk recorded branch → test for each FR-2 input (`routing.js:32/test:319` … `:146/:432`), each FR-3 clause (`:197`, `:201`, `:219`, `:228`, `:235`, `:239–245`, `:234`, `:221`, `:253`, `:250`, static lock `:639`), the every-host loop loading the shipped JSON (`:305–306`), `DATE_STAMP_RE` (`:98`) probed with `claude-opus-4-6` / `…-20250514` / `2025-05-14` / Cursor slugs. All four named conformance checks hold.
+- *Implementer `Not Done / Assumptions` (verbatim — judgment calls and one spec conflict the Leader settled by design amendment above; no owed item, no blocker):*
+  1. **Spec conflict on which ids need a reason. Leader decision needed.** The brief's note says any user id that isn't a packaged alias needs `--pin-reason`. That would make FR-2's "Fully specified, no TTY" scenario (Cursor user ids, no `--pin-reason`, exit 0) fail validation. I followed the task text ("dated id") and FR-3 ("a dated id … additionally"): a packaged id needs a reason when its registry `dated` flag is true; a user id needs one only when it carries a date stamp (`\d{8}` or `\d{4}-\d{2}-\d{2}`, `DATE_STAMP_RE`). Switching to the Leader's reading is a one-line change in `needsPinReason`. → *Leader: settled in the Implementer's favor; §5.7 amended (see "Post-report design clarifications").*
+  2. **Step 2 placeholders.** I keep every placeholder candidate rather than dropping those preceded by a roster id. That is the only reading under which FR-3's "every host's full roster equals the packaged column" holds. The full-roster case asserts the result explicitly: Codex T4/T6 fallback is `<CONFIRM SLUG>` and Antigravity T6 fallback is `<CONFIRM ID>`, not `—`. → *Leader: §5.3 step 2 amended to match.*
+  3. **Cases the spec doesn't define, and what I chose:** an empty T2 becomes `<CONFIRM SLUG>`, like T1/T5, and therefore makes the host `unsatisfiable`; the T3 fallback is the first candidate other than the primary; a cross-host T3 gets fallback `—` and no unsatisfiable note; it is applied whenever the flag is given; computed and fixed notes are joined with `"; "`; `--t3-cross-host` doesn't require the other host to be in `--hosts`.
+  4. **API choices:** `parseModels(list, hosts, registry, { reasons, interactive })`, `interactive` defaulting to false; a packaged id given an `@T…` placement becomes `source: "user"` with `tiers`; a repeated id in one list replaces the earlier entry; `parseHosts` returns `{ hosts }`; `canonicalAnswers` returns a compact JSON string.
+  5. `path` is required but not yet used (the brief's scope says the module requires it); it is marked for T3.
+- *Spawns:* Implementer 37 calls (self-count 36), 141,748 tokens, ended complete; Reviewer 9 calls, 102,613 tokens, ended complete.
+
+**ADVISORY (4R, final Reviewer verdict — recorded, never gating, never a task):**
+- Reliability: `DATE_STAMP_RE` treats any 8-digit run as a date (`model-12345678` → reason required); a `(19|20)\d{6}` guard would avoid a false "dated" error on a numeric slug.
+- Resilience: `--t3-cross-host` is applied unconditionally when given, even when T3 is satisfiable locally, and `other` need not be in `--hosts` — T3's summary should surface a dispatch target that is unselected.
+- Readability: `TIER_SUFFIX_RE` fails on `x@T1+` / `x@t1`, surfacing as the "`@` reserved" error — correct value, slightly misleading cause.
+- Reliability: `deriveTiers` assumes every `source: "user"` entry has `tiers`; a hand-edited `.agents/model-routing.json` (FR-6 pre-fill) could omit it and throw — worth a guard at the pre-fill seam.
+- Risk: `path` is a dead import until T3; the purity test's allowlist stays the single source of truth.
+
+**Forward pointers (carried into the named task's brief — context, not scope):** T3 — `path` is reserved for wrapper paths, use it or keep the purity allowlist honest; `renderWrapper` for Antigravity must tolerate a missing `wrapperModel` (`claude-sonnet-4-6`); a cross-host target outside `hosts[]` should be visible in the summary; `buildPlan` calls `deriveTiers` with `{ crossHost, selectedHosts, hostKey, crossHostT6Owner }`; the template body opens with the `## Model Routing` heading (fence encloses it). T4 — pre-fill from a previous answers file should validate `source: "user"` entries carry `tiers`; `cliSuggestion` for Codex/Cursor is composite prose (T1 advisory). T2 API surface for T3/T4: `parseHosts → { hosts }`, `parseModels(list, hosts, registry, { reasons, interactive }) → { roster }`, `canonicalAnswers → string`.
+
+**Decisions made:** two execute-time design clarifications after the Implementer report (§5.3 step 2, §5.7 `--pin-reason`) — recorded in "Post-report design clarifications" above; carried as named Reviewer checks here and once more into T3's and T4's Reviewer briefs, then drop. The T1-gate pair drops after this task. **Issues encountered:** the task's falsifier prediction for `opus,sonnet` was wrong (kaizen note above). **Final verification:** `npm test` 144/144; `git diff --check` clean.

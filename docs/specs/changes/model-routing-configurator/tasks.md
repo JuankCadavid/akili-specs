@@ -74,7 +74,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** (disjoint functions in one file — s
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Depends on | T1 |
 | Requirements | FR-2 (Validation errors scenario — every listed error), FR-3 (all three scenarios, every `BUT`/`AND IT MUST`), NFR-5 |
