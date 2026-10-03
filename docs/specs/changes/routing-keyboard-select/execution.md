@@ -58,5 +58,5 @@
 | Implementer `Not Done / Assumptions` (verbatim, assumptions only — no owed item, no continuation) | "`grep -c "setRawMode" bin/akili.js` returns 3, not 2. The third line is the `typeof process.stdin.setRawMode` member that the brief requires verbatim in `canKeySelect`. The two actual calls (`setRawMode(` at `:2274` and `:2304`) are both inside `keySelect`." · "The original `keys.exp` waits for `> ` at line 11, which the keyboard list never prints. My copy `scratchpad/t2/keys2.exp` waits for `Enter confirms` instead; the original is untouched." · "Falsifier (1) needed my own script, `scratchpad/t2/echo.exp`. It reaches a typed question by picking `other (type id)` (`a` then Enter), because that is the first typed question after the roster." |
 | Issues encountered | none (no stray files this time) |
 | runtime events | none |
-| spawns | implementer 32 calls, 105,306 tokens, ended complete; reviewer not reported by host at the time of writing |
+| spawns | implementer 32 calls, 105,306 tokens, ended complete; reviewer 8 calls, 84,551 tokens, ended complete |
 | Final verification | `npm test` 251/251; pty keyboard path live on macOS; tree holds `bin/akili.js`, `test/routing-io.test.js`, this log, `tasks.md` |
