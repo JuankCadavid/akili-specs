@@ -1838,6 +1838,7 @@ function runDoctor(args) {
 }
 
 const readline = require("readline/promises");
+const readlineCore = require("readline"); // emitKeypressEvents (P-3: absent from readline/promises)
 const https = require("https");
 const { version: currentVersion } = require("../package.json");
 
@@ -2240,16 +2241,105 @@ function printRoutingJson(plan, args) {
   process.stdout.write(JSON.stringify(out, null, 2) + "\n");
 }
 
+// @akili-spec changes/routing-keyboard-select
+// Terminal I/O for the routing prompts (design §7.2): one readline interface
+// per typed question (DD-4) and, on a capable terminal (DD-3), a raw-mode
+// keyboard multi-select driven by routing.js's pure reducer (DD-1). Ctrl-C in
+// the select is a tagged rejection that runRouting turns into exit 130 (DD-5).
+
+// The four DD-3 members, a closed set; `out` is the prompt output stream.
+function canKeySelect(out) {
+  return process.stdin.isTTY === true && typeof process.stdin.setRawMode === "function" && out.isTTY === true && process.env.TERM !== "dumb";
+}
+
+// -> select(title, options, preChecked) -> Promise<ascending checked indices>;
+// rejects with the tagged abort error on Ctrl-C. Raw mode is held for this
+// question only and restored on confirm, Ctrl-C, and any throw (FR-5).
+function keySelect(out) {
+  return (title, options, preChecked) => new Promise((resolve, reject) => {
+    const stdin = process.stdin;
+    let state = { options, checked: options.map((_, i) => preChecked.includes(i)), cursor: 0, guidance: false, done: false, aborted: false };
+    let drawn = 0;
+    let wasRaw = false;
+    let restored = false;
+    const draw = () => {
+      const lines = routing.selectLines(title, state);
+      out.write((drawn ? `\x1b[${drawn}A` : "") + lines.map((l) => `\x1b[2K${l}\n`).join(""));
+      drawn = lines.length;
+    };
+    const restore = () => {
+      if (restored) return;
+      restored = true;
+      stdin.removeListener("keypress", onKey);
+      stdin.setRawMode(wasRaw);
+      stdin.pause();
+      out.write("\x1b[?25h");
+    };
+    const fault = (e) => { restore(); reject(e); };
+    function onKey(str, key) {
+      try {
+        const token = routing.keyToken(str, key);
+        if (token === null) return;
+        state = routing.selectStep(state, token);
+        if (state.aborted) {
+          restore();
+          out.write("\n");
+          reject(Object.assign(new Error("selection aborted"), { code: "AKILI_SELECT_ABORT" }));
+          return;
+        }
+        draw();
+        // selectStep sets `done` only when >= 1 option is checked, so the
+        // resolved list is never empty (design §5.3).
+        if (state.done) {
+          restore();
+          resolve(state.checked.flatMap((c, i) => (c ? [i] : [])));
+        }
+      } catch (e) {
+        fault(e);
+      }
+    }
+    try {
+      readlineCore.emitKeypressEvents(stdin);
+      wasRaw = stdin.isRaw === true;
+      stdin.setRawMode(true);
+      stdin.resume();
+      out.write("\x1b[?25l");
+      draw();
+      stdin.on("keypress", onKey);
+    } catch (e) {
+      fault(e);
+    }
+  });
+}
+
+// -> { ask, select? }: `ask` opens and closes its own readline interface per
+// question, in today's `q [def] ` format; `select` only on a capable terminal.
+function makeRoutingIo(args) {
+  const out = args.json ? process.stderr : process.stdout;
+  const io = {
+    ask: async (question, def) => {
+      const rl = readline.createInterface({ input: process.stdin, output: out });
+      try {
+        return await rl.question(def ? `${question} [${def}] ` : `${question} `);
+      } finally {
+        rl.close();
+      }
+    },
+  };
+  if (canKeySelect(out)) io.select = keySelect(out);
+  return io;
+}
+
 async function runRouting(args) {
   const projectDir = path.resolve(args.project || process.cwd());
   if (!fs.existsSync(projectDir) || !fs.statSync(projectDir).isDirectory()) fail(`--project: ${projectDir} is not a directory`);
   const registry = JSON.parse(fs.readFileSync(path.join(PACKAGE_ROOT, ".claude", "templates", "model-registry.json"), "utf8"));
   const previous = readRoutingAnswers(projectDir);
-  // W6 / NFR-2: a terminal reader only on a TTY — without one, collectAnswers
-  // never asks and returns a usage error when answers are still missing.
+  // W6 / NFR-2: without a TTY on stdin, collectAnswers never asks and returns
+  // a usage error when answers are still missing.
   const isTTY = process.stdin.isTTY === true;
-  const rl = isTTY ? readline.createInterface({ input: process.stdin, output: args.json ? process.stderr : process.stdout }) : null;
-  const io = { ask: (question, def) => rl.question(def ? `${question} [${def}] ` : `${question} `) };
+  // @akili-spec changes/routing-keyboard-select — per-question readline, keyboard select when capable.
+  const io = makeRoutingIo(args);
   try {
     const collected = await routing.collectAnswers(args, previous, registry, io, { isTTY });
     if (collected.error) fail(collected.error);
@@ -2271,8 +2361,14 @@ async function runRouting(args) {
     if (args.json) printRoutingJson(plan, args);
     else printRoutingSummary(plan, lines, args);
     if (plan.exitCode !== 0) process.exitCode = plan.exitCode;
-  } finally {
-    if (rl) rl.close();
+  } catch (e) {
+    // FR-5 / DD-5: Ctrl-C in a keyboard question — terminal already restored,
+    // nothing written (the plan is built only after collectAnswers resolves).
+    if (e && e.code === "AKILI_SELECT_ABORT") {
+      process.exitCode = 130;
+      return;
+    }
+    throw e;
   }
 }
 

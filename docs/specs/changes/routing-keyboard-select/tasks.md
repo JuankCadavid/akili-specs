@@ -73,7 +73,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~70 LOC product · ~25 LOC tests) |
 | Depends on | T1 |
 | Requirements | FR-1 *Redraw* and `BUT it must NOT echo … or append a second copy`, `AND IT MUST accept the keys without any prior typed input`; FR-4 (predicate, *stdin not a TTY* row, *Piped stdin keeps NFR-2* scenario incl. `AND IT MUST produce the same stderr text`); FR-5 (restore on confirm/Ctrl-C/throw; exit 130; `BUT it must NOT print a stack trace`; *Questions alternate between seams*); NFR-1, NFR-2, NFR-5 |
@@ -101,7 +101,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 | Disqualifier | A `keys.exp` run that **times out** is inconclusive, not a product red, unless it reproduces 3/3 with a 15 s timeout (pty timing — T8 precedent). A fallback lock that strips more than ANSI (e.g. collapses whitespace) could hide a changed usage line — the lock strips `ESC[…m` only, exactly as `stripAnsi` at `test/routing-io.test.js:30-32`. The 155 ms figure is a hang guard, not the claim: a single run over 2 s is reported, not failed |
 | Consumers | `bin/akili.js:2266` (adopt/skip `io.ask` — keeps working through the builder); `bin/routing.js` exports from T1; `test/routing-io.test.js` all existing runs (pipe stdin — `select` never attached); `/akili-constitution` Step 8C (`--yes --json`, no prompt — unaffected by construction) |
 
-**Done.** `npm test` green on this machine; the manual `keys.exp` run shows `❯`, `RC=130`, `STTY: echo`, empty tree; falsifiers (1), (2), (4), (5) executed and quoted; `grep -c "setRawMode" bin/akili.js` → 2 (set true, restore) and both sit inside `keySelect`; `grep -n "AKILI_SELECT_ABORT" bin/akili.js` → 2 hits (throw site, catch site).
+**Done.** `npm test` green on this machine; the manual `keys.exp` run shows `❯`, `RC=130`, `STTY: echo`, empty tree; falsifiers (1), (2), (4), (5) executed and quoted; `grep -c 'setRawMode(' bin/akili.js` → 2 (set true, restore) and both sit inside `keySelect` — corrected at execute (2026-10-02): the predicate's `typeof process.stdin.setRawMode` member is a third textual hit of the bare word; `grep -n "AKILI_SELECT_ABORT" bin/akili.js` → 2 hits (throw site, catch site).
 
 ---
 

@@ -97,6 +97,29 @@ test("non-TTY, no flags, no answers file: exit != 0, stderr names --hosts, tree 
   }, "agents-no-section.md");
 });
 
+// @akili-spec changes/routing-keyboard-select — FR-4 *Piped stdin keeps NFR-2*:
+// the fallback is frozen at the `dbdccea` stderr text (ANSI stripped, nothing
+// else normalized), with and without --json.
+const FROZEN_USAGE_ERROR = "ERROR: stdin is not a TTY and answers are still missing: --hosts, --models, --yes — use the non-interactive form: akili routing --hosts <h1,h2> --models <host>=<id>[@T<n>[+T<m>]],… --cli <host>=<binary> --wrappers yes|no --yes";
+
+test("non-TTY fallback lock (FR-4): stderr byte-equals the dbdccea usage error, exit 1, tree unchanged; --json keeps stdout free of JSON", () => {
+  withProject((ctx) => {
+    const before = tree(ctx.project);
+    const r = run(ctx, []);
+    assert.equal(r.signal, null, `hung: killed by ${r.signal}`);
+    assert.equal(r.status, 1);
+    assert.equal(r.stderr, FROZEN_USAGE_ERROR + "\n");
+    assert.deepEqual(tree(ctx.project), before);
+
+    const j = run(ctx, ["--json"]);
+    assert.equal(j.signal, null, `hung: killed by ${j.signal}`);
+    assert.equal(j.status, 1);
+    assert.equal(j.stderr, FROZEN_USAGE_ERROR + "\n");
+    assert.ok(!/^\s*\{/m.test(j.stdout), `stdout holds a JSON object: ${j.stdout}`);
+    assert.deepEqual(tree(ctx.project), before);
+  }, "agents-no-section.md");
+});
+
 test("NFR-2 timing: the usage-error case, three runs (each reported; < 2 s is the bound)", (t) => {
   withProject((ctx) => {
     const times = [];
