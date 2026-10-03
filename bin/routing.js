@@ -918,7 +918,7 @@ async function askValid(io, question, def, parse) {
 // "3,1" -> [2, 0] (0-based, typed order, duplicates dropped) or { error }.
 function parseNumberList(s, max) {
   const items = splitList(s).filter((x) => x !== "");
-  if (items.length === 0) return { error: "nothing selected" };
+  if (items.length === 0) return { error: "nothing selected: type at least one number, e.g. 1,3" };
   const list = [];
   for (const x of items) {
     const n = /^\d+$/.test(x) ? Number(x) : NaN;
@@ -935,12 +935,77 @@ function parseOneNumber(s, max) {
   return { value: r.value[0] };
 }
 
+// @akili-spec changes/routing-keyboard-select
+// Keyboard multi-select: a pure (state, token) -> state reducer plus a pure
+// renderer (design §5.1, §5.2, §5.4; DD-1). No terminal I/O here — `bin/akili.js`
+// turns real keypresses into tokens via keyToken and redraws via selectLines.
+
+const SELECT_HINT = "↑/↓ move · space toggles · a toggles all · Enter confirms";
+const SELECT_GUIDANCE = "mark at least one option — space toggles, Enter confirms";
+
+// readline (str, key) -> one of the closed set of tokens (§5.2), or null for
+// any other key (no redraw).
+function keyToken(str, key) {
+  const name = key && key.name;
+  if (name === "up" || name === "down") return name;
+  if (name === "space" || str === " ") return "space";
+  if (str === "a" && !(key && (key.ctrl || key.meta))) return "toggle-all";
+  if (name === "return" || name === "enter") return "confirm";
+  if (key && key.ctrl && key.name === "c") return "abort";
+  return null;
+}
+
+// Pure reducer: never mutates `state`. `token === null` is a no-op (the caller
+// never redraws on it).
+function selectStep(state, token) {
+  const { options, checked, cursor } = state;
+  const n = options.length;
+  switch (token) {
+    case "up":
+      return { ...state, cursor: (cursor - 1 + n) % n };
+    case "down":
+      return { ...state, cursor: (cursor + 1) % n };
+    case "space": {
+      const next = checked.slice();
+      next[cursor] = !next[cursor];
+      return { ...state, checked: next, guidance: false };
+    }
+    case "toggle-all": {
+      const allChecked = checked.every(Boolean);
+      return { ...state, checked: options.map(() => !allChecked), guidance: false };
+    }
+    case "confirm":
+      return checked.some(Boolean) ? { ...state, done: true } : { ...state, guidance: true };
+    case "abort":
+      return { ...state, aborted: true };
+    default:
+      return state;
+  }
+}
+
+// -> string[], exactly options.length + 2 lines (§5.4): title, one row per
+// option, then the hint line or (FR-2) the guidance line.
+function selectLines(title, state) {
+  const { options, checked, cursor, guidance } = state;
+  const rows = options.map((o, i) => `${i === cursor ? "❯" : " "} [${checked[i] ? "x" : " "}] ${i + 1}) ${o}`);
+  return [title, ...rows, guidance ? SELECT_GUIDANCE : SELECT_HINT];
+}
+
+// FR-1 *Result order*: ascending `picked` unless it is the same set as
+// `checked` (the pre-checked indices), in which case the pre-checked order
+// is kept so an unchanged re-run stays `unchanged` (DD-2).
+function orderPicked(picked, checked) {
+  const sameSet = picked.length === checked.length && checked.every((i) => picked.includes(i));
+  return sameSet ? checked.slice() : picked;
+}
+
 // Numbered multi-select, `akili init`'s numbered style extended to comma lists
 // (P-21): `[x]` marks the pre-checked options, Enter keeps them (in the order
 // given), an invalid number is re-asked once, then an error.
 // -> { picked: [0-based index] } | { error }.
 async function promptMultiSelect(io, title, options, preChecked) {
   const checked = (preChecked || []).filter((i) => Number.isInteger(i) && i >= 0 && i < options.length);
+  if (typeof io.select === "function") return { picked: orderPicked(await io.select(title, options, checked), checked) };
   const hint = checked.length > 0 ? "comma-separated numbers; Enter keeps [x]" : "comma-separated numbers";
   const lines = options.map((o, i) => `  [${checked.includes(i) ? "x" : " "}] ${i + 1}) ${o}`);
   const question = `${title} (${hint})\n${lines.join("\n")}\n> `;
@@ -1414,4 +1479,8 @@ module.exports = {
   collectAnswers,
   promptMultiSelect,
   promptTierAdjust,
+  keyToken,
+  selectStep,
+  selectLines,
+  orderPicked,
 };

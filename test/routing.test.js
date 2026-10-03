@@ -893,7 +893,7 @@ test("buildPlan dated id: rendered with a pin marker and its recorded reason (C9
 // so an unexpected prompt is visible both as a recorded question and a throw.
 // ===========================================================================
 
-function scriptedIo(replies) {
+function scriptedIo(replies, selects) {
   const asked = [];
   const defaults = [];
   const queue = replies.slice();
@@ -905,7 +905,17 @@ function scriptedIo(replies) {
       return queue.shift();
     },
   };
-  return { io, asked, defaults, left: () => queue.length };
+  const result = { io, asked, defaults, left: () => queue.length };
+  if (selects) {
+    const selectQueue = selects.slice();
+    result.selectCalls = [];
+    io.select = async (title, options, preChecked) => {
+      result.selectCalls.push({ title, options, preChecked });
+      if (selectQueue.length === 0) throw new Error(`scripted io: no select reply for \`${title}\``);
+      return selectQueue.shift();
+    };
+  }
+  return result;
 }
 const firstLine = (q) => String(q).split("\n")[0];
 const collect = (args, previous, s, isTTY = true) =>
@@ -959,6 +969,210 @@ test("promptMultiSelect: invalid number -> re-ask once with the reason, then err
   assert.match(r.error || "", /Pick: `x` is not a number from 1 to 2/);
   const empty = scriptedIo(["", ""]);
   assert.match((await routing.promptMultiSelect(empty.io, "Pick", ["A"], [])).error || "", /nothing selected/);
+});
+
+test("promptMultiSelect: FR-2 comma form — the empty-reply re-ask carries the new guidance text; :961's regex still matches", async () => {
+  const s = scriptedIo(["", ""]);
+  const r = await routing.promptMultiSelect(s.io, "Pick", ["A"], []);
+  assert.equal(firstLine(s.asked[1]), "nothing selected: type at least one number, e.g. 1,3 — try again.");
+  assert.match(r.error || "", /nothing selected/);
+});
+
+test("promptMultiSelect: io.select receives preChecked filtered exactly as the comma form (`:943`)", async () => {
+  const s = scriptedIo([], [[0]]);
+  const r = await routing.promptMultiSelect(s.io, "Pick", ["A", "B", "C"], [-1, 0, 9]);
+  assert.deepEqual(r, { picked: [0] });
+  assert.deepEqual(s.selectCalls, [{ title: "Pick", options: ["A", "B", "C"], preChecked: [0] }]);
+});
+
+// ---- keyToken (design §5.2, closed set) ----
+
+test("keyToken: up/down from key.name", () => {
+  assert.equal(routing.keyToken("", { name: "up" }), "up");
+  assert.equal(routing.keyToken("", { name: "down" }), "down");
+});
+
+test("keyToken: space from key.name === \"space\" or the literal \" \" string", () => {
+  assert.equal(routing.keyToken("", { name: "space" }), "space");
+  assert.equal(routing.keyToken(" ", {}), "space");
+});
+
+test("keyToken: toggle-all from `a` with no ctrl/meta", () => {
+  assert.equal(routing.keyToken("a", {}), "toggle-all");
+  assert.equal(routing.keyToken("a", { name: "a" }), "toggle-all");
+});
+
+test("keyToken: confirm from return or enter", () => {
+  assert.equal(routing.keyToken("", { name: "return" }), "confirm");
+  assert.equal(routing.keyToken("", { name: "enter" }), "confirm");
+});
+
+test("keyToken: abort from Ctrl-C", () => {
+  assert.equal(routing.keyToken("\u0003", { ctrl: true, name: "c" }), "abort");
+});
+
+test("keyToken: everything else is null, including `a` with ctrl or meta held", () => {
+  assert.equal(routing.keyToken("x", { name: "x" }), null);
+  assert.equal(routing.keyToken("", { name: "left" }), null);
+  assert.equal(routing.keyToken("a", { ctrl: true, name: "a" }), null);
+  assert.equal(routing.keyToken("a", { meta: true, name: "a" }), null);
+});
+
+// ---- selectStep / selectLines (design §5.1, §5.2, §5.4; FR-1, FR-2) ----
+
+const SELECT_HINT = "↑/↓ move · space toggles · a toggles all · Enter confirms";
+const SELECT_GUIDANCE = "mark at least one option — space toggles, Enter confirms";
+
+function selState(options, overrides) {
+  return Object.assign({ options, checked: options.map(() => false), cursor: 0, guidance: false, done: false, aborted: false }, overrides);
+}
+
+test("selectStep/selectLines: space toggles the current row and clears guidance; does not mutate the input state", () => {
+  const s0 = selState(["A", "B", "C"], { guidance: true });
+  const s1 = routing.selectStep(s0, "space");
+  assert.deepEqual(s1.checked, [true, false, false]);
+  assert.equal(s1.guidance, false);
+  assert.deepEqual(s0.checked, [false, false, false], "input state must not mutate");
+  assert.deepEqual(routing.selectLines("Pick", s1), ["Pick", "❯ [x] 1) A", "  [ ] 2) B", "  [ ] 3) C", SELECT_HINT]);
+});
+
+test("selectStep/selectLines: ↑/↓ move the cursor and wrap at both ends", () => {
+  let s = selState(["A", "B", "C"]);
+  s = routing.selectStep(s, "down");
+  assert.equal(s.cursor, 1);
+  s = routing.selectStep(s, "down");
+  assert.equal(s.cursor, 2);
+  s = routing.selectStep(s, "down");
+  assert.equal(s.cursor, 0, "wraps past the last row back to the first");
+  const up = routing.selectStep(selState(["A", "B", "C"], { cursor: 0 }), "up");
+  assert.equal(up.cursor, 2, "wraps past the first row back to the last");
+  assert.deepEqual(routing.selectLines("Pick", up), ["Pick", "  [ ] 1) A", "  [ ] 2) B", "❯ [ ] 3) C", SELECT_HINT]);
+});
+
+test("selectStep/selectLines: FR-1 scenario — space, ↓×4, space, confirm selects rows 1 and 5 in list order", () => {
+  const options = ["Claude Code", "OpenCode", "Antigravity", "Codex", "Cursor"];
+  let s = selState(options);
+  s = routing.selectStep(s, "space");
+  for (let i = 0; i < 4; i++) s = routing.selectStep(s, "down");
+  s = routing.selectStep(s, "space");
+  assert.deepEqual(s.checked, [true, false, false, false, true]);
+  s = routing.selectStep(s, "confirm");
+  assert.equal(s.done, true);
+  assert.equal(s.aborted, false);
+  assert.deepEqual(routing.selectLines("Which hosts do you use?", s), [
+    "Which hosts do you use?",
+    "  [x] 1) Claude Code",
+    "  [ ] 2) OpenCode",
+    "  [ ] 3) Antigravity",
+    "  [ ] 4) Codex",
+    "❯ [x] 5) Cursor",
+    SELECT_HINT,
+  ]);
+});
+
+test("selectStep: `a` toggles all; all-true flips back to all-false on a second press (FR-1 scenario)", () => {
+  const options = ["A", "B", "C", "D", "E"];
+  let s = selState(options);
+  s = routing.selectStep(s, "toggle-all");
+  assert.deepEqual(s.checked, [true, true, true, true, true]);
+  assert.deepEqual(routing.selectLines("Pick", s), [
+    "Pick",
+    "❯ [x] 1) A",
+    "  [x] 2) B",
+    "  [x] 3) C",
+    "  [x] 4) D",
+    "  [x] 5) E",
+    SELECT_HINT,
+  ]);
+  s = routing.selectStep(s, "toggle-all");
+  assert.deepEqual(s.checked, [false, false, false, false, false]);
+  const wrapped = routing.selectStep(selState(options, { cursor: 0 }), "up");
+  assert.equal(wrapped.cursor, 4);
+});
+
+test("selectStep/selectLines: confirm with nothing checked sets guidance and never done; a toggle clears it (FR-2 keyboard)", () => {
+  const options = ["A", "B"];
+  let s = selState(options);
+  s = routing.selectStep(s, "confirm");
+  assert.equal(s.guidance, true);
+  assert.equal(s.done, false, "must NOT count as a retry, error, or exit");
+  assert.deepEqual(routing.selectLines("Pick", s), ["Pick", "❯ [ ] 1) A", "  [ ] 2) B", SELECT_GUIDANCE]);
+  s = routing.selectStep(s, "space");
+  assert.equal(s.guidance, false, "the guidance line is replaced by the normal hint on the next toggle");
+  assert.deepEqual(routing.selectLines("Pick", s), ["Pick", "❯ [x] 1) A", "  [ ] 2) B", SELECT_HINT]);
+});
+
+test("selectStep: Ctrl-C sets aborted", () => {
+  const s = routing.selectStep(selState(["A"]), "abort");
+  assert.equal(s.aborted, true);
+});
+
+test("selectStep: an unrecognized key (keyToken's null) leaves state unchanged — no redraw", () => {
+  const s0 = selState(["A", "B"], { cursor: 1, checked: [true, false] });
+  const s1 = routing.selectStep(s0, routing.keyToken("x", { name: "x" }));
+  assert.deepEqual(s1, s0);
+});
+
+// ---- orderPicked (design §7.1; FR-1 Result order) ----
+
+test("orderPicked: keeps pre-checked order when the picked set is unchanged, else returns picked in list order", () => {
+  assert.deepEqual(routing.orderPicked([0, 4], [4, 0]), [4, 0]);
+  assert.deepEqual(routing.orderPicked([0, 4], [0]), [0, 4]);
+});
+
+// ---- FR-3: io.select seam, deep equality with the comma form ----
+
+test("FR-3: collectAnswers deep-equals through io.select vs the comma form; select called 3x with the comma form's own titles/options; ask never sees a multi-select question", async () => {
+  const commaRun = scriptedIo(["1,4", "1,2,3", "1,2,3,4", "", "", "", ""]);
+  const viaComma = await collect({}, null, commaRun);
+
+  const viaSelect = scriptedIo(["", "", "", ""], [[0, 3], [0, 1, 2], [0, 1, 2, 3]]);
+  const r = await collect({}, null, viaSelect);
+
+  assert.equal(routing.canonicalAnswers(r.answers), routing.canonicalAnswers(viaComma.answers));
+  assert.equal(viaSelect.selectCalls.length, 3);
+
+  const parseCommaQuestion = (q) => {
+    const lines = q.split("\n");
+    return {
+      title: lines[0].replace(/ \(comma-separated numbers.*\)$/, ""),
+      options: lines.slice(1, -1).map((l) => l.replace(/^ {2}\[.\] \d+\) /, "")),
+    };
+  };
+  for (let i = 0; i < 3; i++) {
+    const expected = parseCommaQuestion(commaRun.asked[i]);
+    assert.deepEqual({ title: viaSelect.selectCalls[i].title, options: viaSelect.selectCalls[i].options }, expected, `select call ${i} vs comma question ${i}`);
+  }
+  assert.deepEqual(viaSelect.asked.map(firstLine), [Q.cli("Claude Code", "claude"), Q.cli("Codex", "codex"), Q.wrappers, Q.confirm]);
+});
+
+test("FR-3: previous hosts [cursor, claude] through io.select -> answers.hosts stays [cursor, claude] (pre-checked order kept)", async () => {
+  const previous = {
+    hosts: ["cursor", "claude"],
+    wrappers: "yes",
+  };
+  const s = scriptedIo([""], [[0, 4]]);
+  const r = await collect(
+    {
+      models: ["claude=opus,sonnet,haiku", "cursor=c-one@T1+T3,c-two@T2+T5,c-three@T3"],
+      cli: ["claude=claude", "cursor=agent"],
+      wrappers: "yes",
+    },
+    previous,
+    s,
+  );
+  assert.equal(s.selectCalls.length, 1);
+  assert.deepEqual(s.selectCalls[0].preChecked, [4, 0]);
+  assert.deepEqual(r.answers.hosts, ["cursor", "claude"]);
+  assert.deepEqual(s.asked.map(firstLine), [Q.confirm]);
+});
+
+test("FR-3: the adjust-path (`t`) replay with io.select present leaves select uncalled — single-choice prompts stay io.ask", async () => {
+  const s = scriptedIo(["t", "3", "2", "3", "a"], []);
+  const r = await collect({ hosts: "claude", models: ["claude=opus,sonnet,haiku"], cli: ["claude=claude"], wrappers: "yes" }, null, s);
+  assert.equal(s.selectCalls.length, 0);
+  const flags = await fromFlags({ hosts: "claude", models: ["claude=opus,sonnet,haiku@T3"], cli: ["claude=claude"], wrappers: "yes" });
+  assert.deepEqual(r, flags);
 });
 
 // ---- collectAnswers: FR-1 order and count ----

@@ -37,7 +37,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~70 LOC product · ~110 LOC tests) |
 | Depends on | none |
 | Requirements | FR-1 (all three scenarios at the reducer level; *Result order*; *Any other key* ignored), FR-2 keyboard scenario incl. `BUT it must NOT count as a retry`, FR-2 comma scenario incl. `AND IT MUST keep … /nothing selected/ green`, FR-3 (scenario, `BUT it must NOT call io.select for single-choice`, `AND IT MUST pass preChecked filtered`), NFR-4 |
