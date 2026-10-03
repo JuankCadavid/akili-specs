@@ -79,5 +79,5 @@
 | **Spec tension (Pivot Detection — lightest form, raised at this gate)** | FR-4 says the fallback is "byte-identical to `dbdccea`: same prompts, same hints, same exit codes", while FR-2's comma scenario changes the empty-reply error text that `askValid` embeds in the re-ask prompt. The code implements FR-2 (approved delta, proposal §9 MODIFIED). **Proposed one-line amendment to FR-4:** "…byte-identical to `dbdccea` — same prompts, same hints, same exit codes — **except the empty-reply error text FR-2 changes (`nothing selected: …`), which both forms carry**". Awaiting the user's answer at the T4 continue gate; recorded in `requirements.md` once answered |
 | Issues encountered | none beyond the FAIL above |
 | runtime events | none |
-| spawns | implementer (attempt 1) 27 calls, 121,634 tokens, ended complete; reviewer (attempt 1) 9 calls, 76,967 tokens, ended complete; implementer (attempt 2) 22 calls, 88,180 tokens, ended complete; reviewer (attempt 2) not reported by host at the time of writing |
+| spawns | implementer (attempt 1) 27 calls, 121,634 tokens, ended complete; reviewer (attempt 1) 9 calls, 76,967 tokens, ended complete; implementer (attempt 2) 22 calls, 88,180 tokens, ended complete; reviewer (attempt 2) 9 calls, 70,173 tokens, ended complete |
 | Final verification | greps 3 / 0 / line 12; `git diff --check` clean on the three files |
