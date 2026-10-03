@@ -1871,16 +1871,19 @@ function writeUpdateCache(latest) {
 function fetchLatestVersion() {
   return new Promise((resolve) => {
     const req = https.get("https://registry.npmjs.org/-/package/akili-specs/dist-tags", { timeout: 1500 }, (res) => {
+      // 🛡️ Sentinel: Handle stream errors to prevent unhandled exceptions and DoS.
+      // MUST attach the error handler immediately before any early returns to protect
+      // against DoS if the stream fails while being consumed/resumed on error statuses.
+      res.on("error", () => {
+        req.destroy();
+        resolve(null);
+      });
+
       if (res.statusCode !== 200) {
         res.resume();
         return resolve(null);
       }
       let data = "";
-      // 🛡️ Sentinel: Handle stream errors to prevent unhandled exceptions and DoS
-      res.on("error", () => {
-        req.destroy();
-        resolve(null);
-      });
       res.on("data", (chunk) => {
         data += chunk;
         if (data.length > 50000) {
