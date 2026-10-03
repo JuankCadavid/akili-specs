@@ -146,7 +146,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC) |
 | Depends on | T2 (documents shipped behavior; may run parallel with T3) |
 | Requirements | FR-6 (both bullets); design §4 `AGENTS.md:12` clause |

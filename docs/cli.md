@@ -338,6 +338,23 @@ Each question is answered by its flag when given, else by the previous answers f
 Previous answers are final under `--yes` or without a TTY; otherwise they pre-fill the prompt
 (Enter keeps them).
 
+On a capable terminal — stdin is a TTY, raw mode is available (`setRawMode`), the prompt's output
+stream is a TTY (stderr under `--json`, else stdout), and `TERM` is not `dumb` — both multi-select
+questions (hosts, then each host's models) render as a keyboard list instead of a typed line. When
+any of those four conditions fails, the comma form is used (same prompts and exit codes, except its
+empty-reply error text now carries guidance too: `nothing selected: type at least one number, e.g.
+1,3`), and single-choice prompts always stay typed.
+
+| Key | Effect |
+|---|---|
+| `↑/↓` | Move the cursor one row; wraps at both ends |
+| `space` | Toggle the current row |
+| `a` | Toggle all rows — matches the on-screen hint `↑/↓ move · space toggles · a toggles all · Enter confirms` |
+| Enter | Confirm — requires at least one checked row; otherwise shows a guidance line |
+| Ctrl-C | Exit 130; nothing is written |
+
+*The in-place redraw assumes the terminal is at least as wide as the longest option or hint line (about 60 columns).*
+
 | # | Question | Flag |
 |---|---|---|
 | 1 | Which hosts you use | `--hosts` |
