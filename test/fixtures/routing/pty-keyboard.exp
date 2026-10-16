@@ -1,0 +1,87 @@
+# changes/routing-keyboard-select T3 — keyboard happy path on a real pty
+# (FR-1 *Hosts 1 and 5 by keyboard*, FR-5 *Questions alternate between seams*).
+# argv: node bin project home log  (the pty transcript goes to <log>; stdout
+# stays quiet so a closed or non-tty stdin on the caller side cannot matter)
+# Runs `akili routing` inside /bin/sh so `$?` and `stty -a` are read on the
+# same pty afterwards. Every wait is anchored on rendered text.
+set timeout 15
+set node [lindex $argv 0]
+set bin [lindex $argv 1]
+set proj [lindex $argv 2]
+set home [lindex $argv 3]
+log_user 0
+log_file -a -noappend [lindex $argv 4]
+set env(HOME) $home
+set env(USERPROFILE) $home
+set env(PS1) "SH> "
+if {![info exists env(TERM)] || $env(TERM) eq "" || $env(TERM) eq "dumb"} { set env(TERM) "xterm-256color" }
+proc fail {what} { send_log "\n<<TIMEOUT: $what>>\n"; exit 2 }
+
+spawn /bin/sh
+# expect_after binds to the current spawn id, so it must follow `spawn`; the
+# pattern list spans lines (a one-line braced list is read as ONE pattern).
+expect_after {
+  timeout { fail "unmatched wait" }
+  eof { fail "early eof" }
+}
+expect "SH> "
+send "'$node' '$bin' routing --project '$proj'\r"
+
+# Hosts: space, down x4, space, Enter -> 1) Claude Code + 5) Cursor.
+expect -re {Which hosts do you use\?}
+expect -re {Enter confirms}
+send " "
+send "\033\[B\033\[B\033\[B\033\[B"
+send " "
+# Gate on the rendered state before confirming, so a dead key stalls here
+# (exit 2, <<TIMEOUT>>) instead of drifting into later questions.
+expect -re {❯ \[x\] 5\) Cursor}
+send "\r"
+
+# Claude Code roster: `a` checks all four, up wraps to row 4 (other), space
+# unchecks it -> opus, sonnet, haiku.
+expect -re {Claude Code — which models do you have\?}
+expect -re {Enter confirms}
+send "a"
+send "\033\[A"
+send " "
+expect -re {\[x\] 3\) Haiku \(haiku\)\r\n(?:\033\[2K)?❯ \[ \] 4\) other \(type id\)}
+send "\r"
+
+# Cursor roster: up wraps to the last row (`other (type id)`), space, Enter.
+expect -re {Cursor — which models do you have\?}
+expect -re {Enter confirms}
+send "\033\[A"
+send " "
+expect -re {❯ \[x\] \d+\) other \(type id\)}
+send "\r"
+
+expect -re {Cursor — type the model id\(s\), comma-separated[^\n]*\n> }
+send "c-one,c-two,c-three\r"
+expect -re {Which tier\(s\) does `c-one` serve\?[^\n]*\n> }
+send "1,3\r"
+expect -re {Which tier\(s\) does `c-two` serve\?[^\n]*\n> }
+send "2,5\r"
+expect -re {Which tier\(s\) does `c-three` serve\?[^\n]*\n> }
+send "3\r"
+
+# Typed CLI question right after keyboard selects: the typed line must echo.
+expect -re {Claude Code — CLI invocation[^\n]*\n(?:[^\n]*\n)*?> }
+send "claude\r"
+expect -re {claude\r+\n}
+expect -re {Cursor — CLI invocation[^\n]*\n(?:[^\n]*\n)*?> }
+send "agent\r"
+
+expect -re {Bind the personas with native wrappers[^\n]*\n> }
+send "Y\r"
+expect -re {\[A\]ccept / \[t\] adjust a tier / \[q\] quit[^\n]*\n> }
+send "A\r"
+
+expect "SH> "
+send "echo RC=\$?\r"
+expect -re {RC=\d+}
+send "stty -a | tr ';' '\\n' | grep -w -o -- '-\\?echo' | head -1\r"
+expect -re {\r\n(-?echo)\r\n}
+send_log "\n<<STTY: $expect_out(1,string)>>\n"
+send "exit\r"
+expect eof

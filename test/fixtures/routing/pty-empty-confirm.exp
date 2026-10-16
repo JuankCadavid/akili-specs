@@ -1,0 +1,45 @@
+# changes/routing-keyboard-select T3 — FR-2 *Keyboard path* on a real pty:
+# Enter with nothing marked shows the guidance line and the question stays
+# open; space + Enter then proceeds to the next question.
+# argv: node bin project home log  (transcript -> <log>; stdout stays quiet)
+set timeout 20
+set node [lindex $argv 0]
+set bin [lindex $argv 1]
+set proj [lindex $argv 2]
+set home [lindex $argv 3]
+log_user 0
+log_file -a -noappend [lindex $argv 4]
+set env(HOME) $home
+set env(USERPROFILE) $home
+set env(PS1) "SH> "
+if {![info exists env(TERM)] || $env(TERM) eq "" || $env(TERM) eq "dumb"} { set env(TERM) "xterm-256color" }
+proc fail {what} { send_log "\n<<TIMEOUT: $what>>\n"; exit 2 }
+
+spawn /bin/sh
+# expect_after binds to the current spawn id, so it must follow `spawn`; the
+# pattern list spans lines (a one-line braced list is read as ONE pattern).
+expect_after {
+  timeout { fail "unmatched wait" }
+  eof { fail "early eof" }
+}
+expect "SH> "
+send "'$node' '$bin' routing --project '$proj'\r"
+
+expect -re {Which hosts do you use\?}
+expect -re {Enter confirms}
+send "\r"
+expect -re {mark at least one option — space toggles, Enter confirms}
+send " "
+send "\r"
+expect -re {Claude Code — which models do you have\?}
+expect -re {Enter confirms}
+send "\003"
+
+expect "SH> "
+send "echo RC=\$?\r"
+expect -re {RC=\d+}
+send "stty -a | tr ';' '\\n' | grep -w -o -- '-\\?echo' | head -1\r"
+expect -re {\r\n(-?echo)\r\n}
+send_log "\n<<STTY: $expect_out(1,string)>>\n"
+send "exit\r"
+expect eof

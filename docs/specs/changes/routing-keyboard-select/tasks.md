@@ -109,7 +109,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~120 LOC test + fixtures · 4 LOC CI) |
 | Depends on | T2 |
 | Requirements | FR-1 *Hosts 1 and 5 by keyboard* on a real pty (rows, `❯`, no `> ` line, in-place redraw via `ESC[7A`); FR-2 keyboard scenario on a real pty; FR-4 rows *stdin TTY without setRawMode*, *output stream not a TTY*, *`TERM=dumb`* + scenario *`TERM=dumb` on a pty* incl. `BUT it must NOT show the ❯ cursor`; FR-5 *Ctrl-C aborts without writing* (exit 130, tree unchanged, `stty` echo, `BUT no stack trace`, `AND IT MUST leave the comma path's Ctrl-C … exit 0`), *Questions alternate between seams*; NFR-3, NFR-5 |

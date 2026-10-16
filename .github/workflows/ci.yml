@@ -37,6 +37,13 @@ jobs:
       - name: verify:cli (list packaged commands, skills, resources)
         run: npm run verify:cli
 
+      # routing-keyboard-select (P-10): test/routing-pty.test.js drives a real
+      # pty through `expect`; macOS runners ship it, Ubuntu needs the package,
+      # Windows has no pty and the suite skips with a printed reason.
+      - name: Install expect (pty tests, Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y expect
+
       - name: Unit tests (node:test)
         run: npm test
 

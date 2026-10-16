@@ -1,0 +1,60 @@
+# changes/routing-keyboard-select T3 — FR-4 fallback members on a real pty.
+# Each mode falsifies exactly one capable-terminal member; the comma form must
+# render (`(comma-separated numbers)` + a `> ` line, no keyboard list).
+#   dumb       TERM=dumb; `1,5` is accepted, then Ctrl-C at the roster
+#              question (the comma path's Ctrl-C: exit 0)
+#   norawmode  node -r <preload> deletes tty.ReadStream#setRawMode
+#   piped      the CLI's stdout is piped through `cat`
+# argv: node bin project home log mode [preload]
+#   (transcript -> <log>; stdout stays quiet)
+set timeout 20
+set node [lindex $argv 0]
+set bin [lindex $argv 1]
+set proj [lindex $argv 2]
+set home [lindex $argv 3]
+set mode [lindex $argv 5]
+set preload [lindex $argv 6]
+log_user 0
+log_file -a -noappend [lindex $argv 4]
+set env(HOME) $home
+set env(USERPROFILE) $home
+set env(PS1) "SH> "
+if {$mode eq "dumb"} {
+  set env(TERM) "dumb"
+} elseif {![info exists env(TERM)] || $env(TERM) eq "" || $env(TERM) eq "dumb"} {
+  set env(TERM) "xterm-256color"
+}
+proc fail {what} { send_log "\n<<TIMEOUT: $what>>\n"; exit 2 }
+
+switch -- $mode {
+  dumb      { set cmd "'$node' '$bin' routing --project '$proj'" }
+  norawmode { set cmd "'$node' -r '$preload' '$bin' routing --project '$proj'" }
+  piped     { set cmd "'$node' '$bin' routing --project '$proj' | cat" }
+  default   { send_log "\n<<BAD MODE: $mode>>\n"; exit 3 }
+}
+
+spawn /bin/sh
+# expect_after binds to the current spawn id, so it must follow `spawn`; the
+# pattern list spans lines (a one-line braced list is read as ONE pattern).
+expect_after {
+  timeout { fail "unmatched wait" }
+  eof { fail "early eof" }
+}
+expect "SH> "
+send "$cmd\r"
+
+expect -re {Which hosts do you use\?[^\n]*\n(?:[^\n]*\n)*?> }
+if {$mode eq "dumb"} {
+  send "1,5\r"
+  expect -re {Claude Code — which models do you have\?[^\n]*\n(?:[^\n]*\n)*?> }
+}
+send "\003"
+
+expect "SH> "
+send "echo RC=\$?\r"
+expect -re {RC=\d+}
+send "stty -a | tr ';' '\\n' | grep -w -o -- '-\\?echo' | head -1\r"
+expect -re {\r\n(-?echo)\r\n}
+send_log "\n<<STTY: $expect_out(1,string)>>\n"
+send "exit\r"
+expect eof
