@@ -116,5 +116,24 @@
 | Implementer `Not Done / Assumptions` (verbatim, assumptions only — no owed item) | "Case 1 key sequence. The roster step is `a` · ↑ · space · Enter, not `a` · Enter. `a` also checks the 4th row, `other (type id)`, which opens a typed-id prompt. Unchecking it gives `claude=opus,sonnet,haiku`, which is the baseline F5 assumes. The Cursor roster checks `other` and types `c-one,c-two,c-three`. I kept both as the previous worker wrote them." · "Byte-equality. The two runs landed on the same UTC day, so the files were compared byte for byte with nothing stripped." · "Linux. I could not run the suite on a Linux pty here. Its first CI run is still open (P-10)." |
 | Issues encountered | Session ended mid-spawn (see Spawn 1). `timeout`/`gtimeout` absent on this macOS — Leader re-runs rely on the tool's own timeout |
 | runtime events | died ×1 → rung 4 |
-| spawns | implementer (spawn 1) not reported by host — died with the session, calls/tokens unknown, ended died; implementer (spawn 2) 20 calls, 95,863 tokens, ended complete; reviewer not reported by host at the time of writing |
+| spawns | implementer (spawn 1) not reported by host — died with the session, calls/tokens unknown, ended died; implementer (spawn 2) 20 calls, 95,863 tokens, ended complete; reviewer 14 calls, 103,929 tokens, ended complete |
 | Final verification | pty suite 6/6 · `npm test` 258/258 · `bin/` clean. **Open:** P-10 (Linux runner `expect`; Windows skip lines) — settled by the first CI run after push; write the run id into design §12 P-10 |
+
+## 3. Summary — all tasks complete (2026-10-16)
+
+| Measure | Budget (design §11) | Actual |
+|---|---|---|
+| Tasks | 4 | **4** — T1, T2, T4, T3 all `[x]` with a Reviewer `PASS` each; no `REVIEW_WAIVED`, no `REVIEW_SKIPPED` |
+| LOC | ~430 (tripwire ~520) | **~860** — product 179 (`routing.js` +71/−2, `akili.js` +108/−6) · tests ~680 (`routing.test.js` +218, `routing-io.test.js` +23, pty suite + fixtures ~440) · CI/docs ~26. Over the estimate, under no tripwire event at the time: the overrun is entirely test code — the pty harness (six cases + four fixtures) was budgeted at ~120 and landed at ~440 because each case carries its own shell-in-pty fixture with `RC`/`stty` readback. Product LOC (179) matches the ~140 estimate. Recorded for kaizen, not escalated: the budget check compares at task gates and the figure was within ~520 until T3's recovery spawn landed the final fixtures |
+| Review rounds | 8 | **5** — T1 1 · T2 1 · T4 2 (FAIL → PASS) · T3 1 |
+| Rework attempts consumed | — | 1 (T4 attempt 1, two KZ-002 clauses) |
+| Runtime events | — | spawn failure ×1 (T1, rung 1) · worker died with the session ×1 (T3, rung 4) — neither consumed an attempt |
+| Checkpoints / continuations | — | none |
+| Spec amendments | — | 1 — FR-4 gains the FR-2 empty-reply exception (user-approved 2026-10-16); design §6 row aligned |
+| Open premise | — | **P-10** (`ubuntu-latest` needs `apt-get install expect`; `windows-latest` skips) — settled by the first CI run after push; write the run id into `design.md` §12 |
+
+**Models:** Implementers `sonnet` (T1, T4) / `opus` (T2, T3 — escalations recorded); Reviewers `opus` (T1, T4) / `fable` (T2, T3) — author ≠ auditor held on every task. **Spawns:** 10 (6 Implementer incl. one died, 5 Reviewer… see entries) — host-reported totals where available: ≈ 1.07 M subagent tokens.
+
+**Verification at close:** `npm test` → 258/258 (unit + subprocess + pty on macOS); `bin/` only the two product blocks under `// @akili-spec changes/routing-keyboard-select`; `package.json` still without `dependencies`.
+
+**Next:** push to run the six-job CI matrix (settles P-10 and NFR-3's Linux/Windows legs) → `/akili-test` is optional (the suites were written test-first inside the tasks) → `/akili-validate changes/routing-keyboard-select` → `/akili-archive` (kaizen: budget under-estimate on pty harness LOC; two KZ-002 recurrences caught by the Reviewer at attempt 1; the `a · Enter` scope-text slip; `timeout` absent on macOS; worker death across a session boundary recovered by rung 4). Release class **patch** (CHANGELOG entry already under Unreleased).

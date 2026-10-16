@@ -8,7 +8,7 @@
 | Depth | Standard (compact) |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Approved** — 2026-10-02 (user, Phase 3 gate: Continue); ready for `/akili-execute` |
+| Status | **Complete** — all 4 tasks `[x]` (T1, T2, T4 on 2026-10-02; T3 on 2026-10-16 after a session-boundary recovery); see `execution.md` §3 |
 | Date | 2026-10-02 |
 | Budget (design §11) | **4 tasks · ~430 LOC · 8 review rounds** — `/akili-execute` stops and escalates past 4 tasks, ~520 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/routing-keyboard-select]` |
