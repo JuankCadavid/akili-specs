@@ -17,7 +17,7 @@
 
 ## 2. Executive Summary
 
-On a real terminal, the two multi-select questions of `akili routing` — *Which hosts do you use?* and, per host, *which models do you have?* — become a cursor list: ↑/↓ move, space toggles `[x]`, `a` toggles all, Enter confirms, Ctrl-C aborts without writing. Confirming with nothing marked shows one guidance line instead of today's `nothing selected — try again.` retry. Everywhere the terminal cannot do this — piped stdin or stdout, `TERM=dumb`, a stdin without raw mode, `--yes`/flags — the command behaves **byte-for-byte as today**: the comma form, the same questions, the same answers object, the same files. No runtime dependency is added; the non-interactive contract `/akili-constitution` Step 8C relies on is untouched.
+On a real terminal, the two multi-select questions of `akili routing` — *Which hosts do you use?* and, per host, *which models do you have?* — become a cursor list: ↑/↓ move, space toggles `[x]`, `a` toggles all, Enter confirms, Ctrl-C aborts without writing. Confirming with nothing marked shows one guidance line instead of today's `nothing selected — try again.` retry. Everywhere the terminal cannot do this — piped stdin or stdout, `TERM=dumb`, a stdin without raw mode, `--yes`/flags — the command behaves **byte-for-byte as today** (save the empty-reply error text FR-2 changes): the comma form, the same questions, the same answers object, the same files. No runtime dependency is added; the non-interactive contract `/akili-constitution` Step 8C relies on is untouched.
 
 ## 3. Glossary
 
@@ -133,7 +133,7 @@ When the capable-terminal predicate (FR-4) holds, each multi-select question SHA
 
 ### FR-4: Capable-terminal predicate and byte-identical fallback
 
-`bin/akili.js` SHALL attach `io.select` only when **all four** hold: `process.stdin.isTTY === true` · `typeof process.stdin.setRawMode === "function"` · the prompt output stream (`process.stderr` under `--json`, else `process.stdout`) has `isTTY === true` · `process.env.TERM !== "dumb"`. When any member fails, the run SHALL be byte-identical to `dbdccea`: same prompts, same hints, same exit codes.
+`bin/akili.js` SHALL attach `io.select` only when **all four** hold: `process.stdin.isTTY === true` · `typeof process.stdin.setRawMode === "function"` · the prompt output stream (`process.stderr` under `--json`, else `process.stdout`) has `isTTY === true` · `process.env.TERM !== "dumb"`. When any member fails, the run SHALL be byte-identical to `dbdccea` — same prompts, same hints, same exit codes — **except the empty-reply error text FR-2 changes (`nothing selected: type at least one number, e.g. 1,3`), which both forms carry** *(amended 2026-10-16 at the T4 continue gate, user-approved — spec tension FR-4 vs FR-2 surfaced by the T4 Reviewer; see `execution.md` T4)*.
 
 | Member false | Observable |
 |---|---|

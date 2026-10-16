@@ -81,3 +81,14 @@
 | runtime events | none |
 | spawns | implementer (attempt 1) 27 calls, 121,634 tokens, ended complete; reviewer (attempt 1) 9 calls, 76,967 tokens, ended complete; implementer (attempt 2) 22 calls, 88,180 tokens, ended complete; reviewer (attempt 2) 9 calls, 70,173 tokens, ended complete |
 | Final verification | greps 3 / 0 / line 12; `git diff --check` clean on the three files |
+
+### Spec amendment — FR-4 (2026-10-16, user-approved at the T4 continue gate)
+
+| Field | Value |
+|---|---|
+| Tension | FR-4 "byte-identical to `dbdccea`: same prompts, same hints, same exit codes" vs FR-2's approved change of the comma empty-reply error text (embedded by `askValid` in the re-ask prompt) — surfaced by the T4 Reviewer (attempt 1, issue 2) |
+| Decision | **Approve amendment** (user, 2026-10-16). FR-4 gains: "except the empty-reply error text FR-2 changes (`nothing selected: type at least one number, e.g. 1,3`), which both forms carry" |
+| Edits | `requirements.md` §6 FR-4 statement; §2 Executive Summary ("byte-for-byte as today (save the empty-reply error text FR-2 changes)"); `design.md` §6 row *Multi-select prompt elsewhere* |
+| Correction closure | Forward sweep `byte-identical\|byte-for-byte\|byte for byte\|unchanged` over `requirements.md`, `design.md`, `tasks.md`: the two requirements sites and one design site above were the only claims of fallback identity; the remaining hits are about other things (signature, Ctrl-C typed path, answers `unchanged` token, consumers). `proposal.md` left as the historical intent document. Backward sweep: no document cites FR-4's identity clause except the T4 docs already qualified (`docs/cli.md`, `CHANGELOG.md`) |
+| Carry | Named conformance check for the next Reviewer brief (T3): "conformance to `requirements.md#FR-4` as amended 2026-10-16" |
+| Session note | The previous session ended while T3's Implementer was running (host stopped it: "didn't finish before the previous session ended") — a runtime event (**died**), attempt counter unchanged; recovery per the Implementer ladder: rung 1–2 not applicable (no live host to retry into), rung 3 skipped (no surviving worker context), **rung 4 — a fresh worker audits the partial diff and continues**, user-approved 2026-10-16. Partial tree at recovery: `.github/workflows/ci.yml` (+7, expect step), `test/routing-pty.test.js` (204 lines), `test/fixtures/routing/pty-{keyboard,empty-confirm,ctrl-c,fallback}.exp`, `test/fixtures/routing/no-rawmode.js`; `bin/` clean (falsifier mutations restored) |

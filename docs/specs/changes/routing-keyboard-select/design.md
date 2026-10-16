@@ -112,7 +112,7 @@ No HTTP/CLI flag surface changes. CLI-visible deltas:
 | Surface | Before (`dbdccea`) | After |
 |---|---|---|
 | Multi-select prompt on a capable terminal | `Title (comma-separated numbers)` + rows + `> ` | §5.4 block, keys |
-| Multi-select prompt elsewhere | as before | **unchanged** |
+| Multi-select prompt elsewhere | as before | **unchanged** (except the empty-reply error text, next row but one — FR-4 as amended 2026-10-16) |
 | Empty Enter, keyboard | n/a | guidance line, question stays open |
 | Empty Enter, comma, nothing pre-checked | `nothing selected — try again.` | `nothing selected: type at least one number, e.g. 1,3 — try again.` |
 | Ctrl-C during a keyboard question | n/a | exit 130, newline, nothing written |
