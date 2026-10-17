@@ -8,7 +8,7 @@
 | Depth | Standard (compact) |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **In progress** — T1–T5 `[x]`; **T6 added 2026-10-16** as the validation report's V-2 remediation (flake recurred on CI run `38985298750`) |
+| Status | **Complete** — T1–T6 `[x]` (T5 Pivot B, T6 V-2 remediation, both 2026-10-16); see `execution.md` §3 and the Ubuntu CI tally |
 | Date | 2026-10-02 |
 | Budget (design §11) | **4 tasks · ~430 LOC · 8 review rounds** — `/akili-execute` stops and escalates past 4 tasks, ~520 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/routing-keyboard-select]` |
@@ -207,7 +207,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16) → 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (test-only: ~25 LOC across the four `.exp` fixtures and `test/routing-pty.test.js`) |
 | Depends on | T5 |
 | Requirements | NFR-3 (six CI jobs green, deterministically); no product requirement changes — the gate's *diagnosability*, not its contract |

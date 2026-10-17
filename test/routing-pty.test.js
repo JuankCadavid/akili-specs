@@ -64,11 +64,11 @@ function runExpect(ctx, fixture, extra = []) {
   const r = spawnSync("expect", [path.join(FIXTURES_DIR, fixture), process.execPath, AKILI_BIN, ctx.project, ctx.home, logFile, ...extra], {
     stdio: ["ignore", "pipe", "pipe"],
     encoding: "utf8",
-    timeout: 30000,
+    timeout: 60000,
   });
   const raw = fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8") : "";
   const log = stripAnsi(raw).replace(/\r/g, "");
-  return { raw, log, fixture, status: r.status, signal: r.signal, stderr: r.stderr || "" };
+  return { raw, log, fixture: extra.length ? `${fixture} ${extra[0]}` : fixture, status: r.status, signal: r.signal, stderr: r.stderr || "" };
 }
 
 // Asserted last in every test, so a behavioral assertion (the rendered text)
@@ -76,6 +76,35 @@ function runExpect(ctx, fixture, extra = []) {
 // transcript) only surfaces when every rendered-text assertion held.
 function assertFinished(run) {
   assert.equal(run.status, 0, `expect ${run.fixture} exited ${run.status} (signal ${run.signal}); stderr:\n${run.stderr}\ntranscript tail:\n${run.log.slice(-1500)}`);
+}
+
+function logTail(run, n = 30) {
+  return run.log.split("\n").slice(-n).join("\n");
+}
+
+// T6 (V-2): a fixture that never got the shell back (`<<HUNG>>`, exit 99) or
+// a spawnSync kill (status null) fails here with the transcript's last 30
+// lines, before any assertion that would only report a missing `RC=`.
+function assertNotHung(t, run) {
+  if (run.log.includes("<<HUNG>>") || run.status === null) {
+    const tail = logTail(run);
+    t.diagnostic(`${run.fixture} hung (status ${run.status}, signal ${run.signal}); last 30 log lines:\n${tail}`);
+    assert.fail(`${run.fixture}: the process did not return to the shell (status ${run.status}, signal ${run.signal}); last 30 log lines:\n${tail}`);
+  }
+}
+
+// T6 (V-2): every Ctrl-C case reports how long the shell prompt took to come
+// back, and a first Ctrl-C that did not return within 25 s is a FAIL even when
+// the fixture's second Ctrl-C recovered it — the marker only makes it legible.
+function assertCtrlCReturned(t, run) {
+  const back = run.log.match(/<<BACK-IN (\d+) ms>>/);
+  t.diagnostic(`${run.fixture}: ${back ? `<<BACK-IN ${back[1]} ms>>` : "no <<BACK-IN>> line"}`);
+  if (run.log.includes("<<NO-PROMPT-AFTER-CTRL-C>>")) {
+    const tail = logTail(run);
+    t.diagnostic(`${run.fixture}: <<NO-PROMPT-AFTER-CTRL-C>>; last 30 log lines:\n${tail}`);
+    assert.fail(`${run.fixture}: no shell prompt within 25 s of Ctrl-C (<<NO-PROMPT-AFTER-CTRL-C>>); last 30 log lines:\n${tail}`);
+  }
+  assertNotHung(t, run);
 }
 
 function shellRc(log) {
@@ -104,6 +133,7 @@ test("pty FR-1 / FR-5: keyboard happy path — hosts 1+5 by keys, in-place redra
   if (SKIP) return t.skip(SKIP);
   withProject((kb) => {
     const run = runExpect(kb, "pty-keyboard.exp");
+    assertNotHung(t, run);
     const { raw, log } = run;
     // The host block: from its title to Claude Code's model question.
     const hostAt = log.indexOf("Which hosts do you use?");
@@ -150,6 +180,7 @@ test("pty FR-2: empty confirm shows the guidance line and keeps the question ope
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-empty-confirm.exp");
+    assertCtrlCReturned(t, run);
     const { log } = run;
     assert.ok(log.includes("mark at least one option — space toggles, Enter confirms"));
     assert.ok(log.includes("Claude Code — which models do you have?"), "space + Enter after the guidance must proceed");
@@ -164,6 +195,7 @@ test("pty FR-5: Ctrl-C at the host question exits 130, writes nothing, restores 
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-ctrl-c.exp");
+    assertCtrlCReturned(t, run);
     const { log } = run;
     assert.ok(log.includes("❯ [ ] 1) Claude Code"), "the keyboard list must have rendered before Ctrl-C");
     assert.equal(shellRc(log), 130);
@@ -178,6 +210,7 @@ test("pty FR-4 / FR-5: TERM=dumb renders the comma form; `1,5` is accepted; Ctrl
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-fallback.exp", ["dumb"]);
+    assertCtrlCReturned(t, run);
     const { log } = run;
     assertComma(log);
     assert.match(log, /Claude Code — which models do you have\? \(comma-separated numbers\)/, "`1,5` must be accepted");
@@ -195,6 +228,7 @@ test("pty FR-4: stdin TTY without setRawMode renders the comma form", (t) => {
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-fallback.exp", ["norawmode", NO_RAWMODE]);
+    assertCtrlCReturned(t, run);
     const { log } = run;
     assertComma(log);
     // No raw mode -> the pty stays cooked and Ctrl-C is a SIGINT (RC=130), as
@@ -208,6 +242,7 @@ test("pty FR-4: output stream not a TTY (`| cat`) renders the comma form", (t) =
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-fallback.exp", ["piped"]);
+    assertCtrlCReturned(t, run);
     const { log } = run;
     assertComma(log);
     // `$?` is cat's status here (SIGINT reaches the whole pipeline), so only echo is read.

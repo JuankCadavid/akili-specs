@@ -14,6 +14,29 @@ set env(USERPROFILE) $home
 set env(PS1) "SH> "
 if {![info exists env(TERM)] || $env(TERM) eq "" || $env(TERM) eq "dumb"} { set env(TERM) "xterm-256color" }
 proc fail {what} { send_log "\n<<TIMEOUT: $what>>\n"; exit 2 }
+# T6 (V-2): Ctrl-C, then a two-stage wait for the shell prompt, so a slow or
+# missed return is legible in the transcript instead of a bare wait timeout.
+# Each wait carries its own `timeout` branch, so `expect_after` cannot
+# pre-empt it; `timeout` is proc-local (a braced list after `-timeout n`
+# would be read as ONE pattern). Logs <<BACK-IN n ms>> on return.
+proc ctrl_c_to_shell {} {
+  set t0 [clock milliseconds]
+  send "\003"
+  set timeout 25
+  expect {
+    "SH> " {}
+    timeout {
+      send_log "\n<<NO-PROMPT-AFTER-CTRL-C>>\n"
+      send "\003"
+      set timeout 10
+      expect {
+        "SH> " {}
+        timeout { send_log "\n<<HUNG>>\n"; exit 99 }
+      }
+    }
+  }
+  send_log "\n<<BACK-IN [expr {[clock milliseconds] - $t0}] ms>>\n"
+}
 
 spawn /bin/sh
 # expect_after binds to the current spawn id, so it must follow `spawn`; the
@@ -33,9 +56,8 @@ send " "
 send "\r"
 expect -re {Claude Code — which models do you have\?}
 expect -re {Enter confirms}
-send "\003"
+ctrl_c_to_shell
 
-expect "SH> "
 send "echo RC=\$?\r"
 expect -re {RC=\d+}
 send "stty -a | tr ';' '\\n' | grep -w -o -- '-\\?echo' | head -1\r"

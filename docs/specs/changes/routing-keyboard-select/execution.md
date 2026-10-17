@@ -174,3 +174,25 @@
 | runtime events | none |
 | spawns | implementer 24 calls, 97,725 tokens, ended complete; reviewer 15 calls, 88,258 tokens, ended complete |
 | Final verification | 6/6 pty on both Nodes · 258/258 · **CI run `38985298750` on `ae07590`**: attempt 1 → 5/6 (both Node 22 jobs green — V-1 closed; `ubuntu-latest / Node 18` red on case 4 with `shellRc = null` after a 20 s wait — the V-2 flake shape, second occurrence); attempt 2 (re-run of the failed job) → **6/6 green**. Ubuntu executions to date: 6, failures 2 (run `38983739454` case 2 on Node 22; run `38985298750` attempt 1 case 4 on Node 18), never the same case twice, never on macOS/Windows, never locally on 18.20.8 / 22.12.0 / 22.23.3 (Ctrl-C at the roster returns in ≤ 7 ms, `RC=130`) → T6 adds diagnostics |
+
+### T6 — Validation V-2 remediation: pty harness diagnostics and wait budget
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-16 |
+| Attempts | 1 |
+| Models | Implementer `opus` (test harness across three Node versions; effort high; skill `tdd`) · Reviewer `fable` (effort high) |
+| Files changed | `test/fixtures/routing/pty-ctrl-c.exp`, `pty-empty-confirm.exp`, `pty-fallback.exp` (shared `ctrl_c_to_shell` proc: 25 s wait → `<<NO-PROMPT-AFTER-CTRL-C>>` + second `\003` → 10 s → `<<HUNG>>` / `exit 99`; `<<BACK-IN n ms>>`) · `test/routing-pty.test.js` (`spawnSync` timeout 60000; `assertNotHung` all six cases; `assertCtrlCReturned` marker assertion cases 2–6; failures quote the last 30 log lines; `t.diagnostic` of BACK-IN). `pty-keyboard.exp` untouched (no `\003`). Product untouched (`git diff --stat -- bin/` empty) |
+| Implementer verification | pty 6/6 on 22.12.0 (`<<BACK-IN 2 ms>>`), 22.23.3 (`10 ms`), 18.20.8 (`7 ms`); every BACK-IN 1–10 ms; `npm test` 258/258; `git diff --check` clean |
+| Red run | n/a (no product change) — falsifier stands in |
+| Falsifiers (executed on case 3, restored, `cmp` identical) | (1a) 40 s sleep before the abort catch's `return` → FAIL `pty-ctrl-c.exp: no shell prompt within 25 s of Ctrl-C (<<NO-PROMPT-AFTER-CTRL-C>>)`; tail: marker, `^C`, `SH> `, `<<BACK-IN 25009 ms>>`, `RC=130` (second ^C arrived as SIGINT in cooked mode) · (1b) + `process.on("SIGINT", () => {})` → `<<NO-PROMPT-AFTER-CTRL-C>>` then `<<HUNG>>`, duration 35.4 s, FAIL · (2) marker check disabled → under 1b still fails (`status 99`), under 1a **passes** (`BACK-IN 25018 ms`) — the marker assertion is the only catch for a swallowed-then-recovered first Ctrl-C |
+| Evidence re-run (Leader-inline, non-author) | BACK-IN 2–8 ms on 22.12.0 / 22.23.3 / 18.20.8 (all five Ctrl-C fixtures); `npm test` 258/258; `git diff --check` clean — **VERIFIED** (Reviewer re-ran on 22.23.3: 6/6, BACK-IN 5–9 ms) |
+| Reviewer verdict | **PASS** — scope met exactly; behavioral assertions byte-for-byte unchanged (only `timeout: 30000` and a label line removed in the test; only `send "\003"` + `expect "SH> "` replaced in fixtures); Tcl form verified empirically (`set timeout` proc-local; per-`expect` `timeout` branches pre-empt `expect_after`); worst-case budgets 35 s (hung) / ~48 s (recovered-then-timeout) under the 60 s ceiling; `exit 99` → `<<HUNG>>` caught; `status === null` = spawnSync kill → FAIL with tail; the second `\003` cannot mask a hang because the marker assertion fails first; LF preserved, no absolute paths; `clock milliseconds` needs Tcl ≥ 8.5 (local 8.5.9, runners 8.6) |
+| ADVISORY (recorded, never gating) | Readability: the 18-line proc is triplicated — a `source`d `ctrl-c-to-shell.tcl` would centralise the 25 s / 10 s budget (follow-up). Resilience: a 1–25 s return passes silently; a soft `t.diagnostic` threshold (> 2000 ms) would make CI tallies cheaper to read. Reliability: on a spawnSync kill the orphaned `sh`/node under `expect` are not reaped — pre-existing, window now longer |
+| Requirements covered | NFR-3 (diagnosability of the cross-platform gate); no product requirement touched |
+| Decisions | Task added as the validation report's stated V-2 remediation after the flake recurred (second occurrence, run `38985298750` attempt 1); test-only, no scope change to product behaviour |
+| Implementer `Not Done / Assumptions` (verbatim) | "Only 4 paths changed, not 5. `pty-keyboard.exp` contains no `\003`, so there was nothing to change there. Its case does get the new hung check." · "Disqualifier applies: a green run here says nothing about the Ubuntu flake. Only CI re-runs can measure it." |
+| runtime events | none |
+| spawns | implementer 22 calls, 94,045 tokens, ended complete; reviewer not reported by host at the time of writing |
+| Final verification | 6/6 on three Nodes · 258/258 · CI measurement: see the Ubuntu tally below |
