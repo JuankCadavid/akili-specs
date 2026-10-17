@@ -194,5 +194,17 @@
 | Decisions | Task added as the validation report's stated V-2 remediation after the flake recurred (second occurrence, run `38985298750` attempt 1); test-only, no scope change to product behaviour |
 | Implementer `Not Done / Assumptions` (verbatim) | "Only 4 paths changed, not 5. `pty-keyboard.exp` contains no `\003`, so there was nothing to change there. Its case does get the new hung check." · "Disqualifier applies: a green run here says nothing about the Ubuntu flake. Only CI re-runs can measure it." |
 | runtime events | none |
-| spawns | implementer 22 calls, 94,045 tokens, ended complete; reviewer not reported by host at the time of writing |
+| spawns | implementer 22 calls, 94,045 tokens, ended complete; reviewer 10 calls, 88,512 tokens, ended complete |
 | Final verification | 6/6 on three Nodes · 258/258 · CI measurement: see the Ubuntu tally below |
+
+### Ubuntu CI tally (V-2) — as of 2026-10-16
+
+| Run | Commit | Ubuntu/18 | Ubuntu/22 | Diagnostics |
+|---|---|---|---|---|
+| `38983739454` | `5c3996a` | ok | **case 2 fail** (`shellRc = null`, 20 s) | none yet |
+| `38985298750` attempt 1 | `ae07590` | **case 4 fail** (`shellRc = null`, 20 s) | ok | none yet |
+| `38985298750` attempt 2 | `ae07590` | ok | ok | none yet |
+| `38987129273` attempt 1 | `8e246b5` (T6) | ok, `BACK-IN` 3–7 ms | ok, `BACK-IN` 3–7 ms | live |
+| `38987129273` attempt 2 | `8e246b5` | ok, `BACK-IN` 2–10 ms | ok, `BACK-IN` 4–11 ms | live |
+
+10 Ubuntu executions, 2 failures (both before T6, each a different case, each at the second question), 0 since the diagnostics went live; no `<<NO-PROMPT-AFTER-CTRL-C>>` or `<<HUNG>>` observed yet. The flake stays characterised but unexplained; the next occurrence will say whether the first Ctrl-C was swallowed or the process hung. Not a release blocker: the gate fails loudly either way.
