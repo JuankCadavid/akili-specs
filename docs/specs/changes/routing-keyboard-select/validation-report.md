@@ -6,18 +6,18 @@
 |---|---|
 | Spec Path | `changes/routing-keyboard-select` |
 | Depth | Standard (compact) |
-| Validated at | `5c3996a` (pushed 2026-10-16; CI run `38983739454`) |
+| Validated at | `5c3996a` (CI run `38983739454`) — **re-validated at `973e801`** after T5 (Pivot B) and T6 (CI runs `38985298750` ×2, `38987129273` ×2) |
 | Validator | Claude Fable 5.1 (session) — author ≠ auditor: Implementers ran on `sonnet`/`opus`; this validator wrote no code |
 | Date | 2026-10-16 |
 | Inputs | `requirements.md` (FR-4 amended 2026-10-16), `design.md`, `tasks.md` (4/4 `[x]`), `execution.md` (4 PASS entries + §3 summary), `proposal.md`; no `test-report.md` (suites were written test-first inside the tasks) |
-| Verdict | **NOT archive-ready — 1 FAIL (CI red on Node 22.23.3), 2 WARN; remediation is a spec clause + one test case (or one small product change, user's call)** |
+| Verdict | **ARCHIVE-READY** — V-1 resolved by Pivot B / T5 (product fix, both forms exit 130 on every Node; CI six green ×2); V-2 characterised and instrumented by T6 (10 Ubuntu executions, 2 pre-T6 flakes, 0 since) — accepted WARN; V-3 accepted |
 
 ## 2. Summary
 
 | Level | Count | What |
 |---|---|---|
-| **FAIL** | 1 | **V-1** — CI red on `ubuntu-latest / Node 22` and `macos-latest / Node 22`: pty case 4 asserts comma-path Ctrl-C → `RC=0`; on Node 22.23.3 the exit is **1** with an `AbortError: Aborted with Ctrl+C` stack trace. Reproduced locally under 22.23.3 **at the baseline commit `dbdccea` too** — pre-existing Node behavior, not a regression; but FR-5's `AND IT MUST … exit 0` clause, premise P-5, and the test encode a Node-version-dependent value |
-| **WARN** | 2 | **V-2** — pty case 2 returned `shellRc = null` once on `ubuntu-latest / Node 22` (a wait timed out; passes locally on 22.23.3 and 22.12.0 → flake candidate, needs 3/3 on a re-run). **V-3** — `design.md` §11 budget (~430 LOC) vs actual ~860 — all test code; recorded in `execution.md` §3, no tripwire fired at a gate |
+| ~~FAIL~~ → **PASS** | 0 | **V-1 (resolved 2026-10-16, Pivot B / T5)** — CI red on `ubuntu-latest / Node 22` and `macos-latest / Node 22`: pty case 4 asserts comma-path Ctrl-C → `RC=0`; on Node 22.23.3 the exit is **1** with an `AbortError: Aborted with Ctrl+C` stack trace. Reproduced locally under 22.23.3 **at the baseline commit `dbdccea` too** — pre-existing Node behavior, not a regression; but FR-5's `AND IT MUST … exit 0` clause, premise P-5, and the test encode a Node-version-dependent value |
+| **WARN** | 2 (accepted) | **V-2** — pty case 2 returned `shellRc = null` once on `ubuntu-latest / Node 22` (a wait timed out; passes locally on 22.23.3 and 22.12.0 → flake candidate, needs 3/3 on a re-run). **V-3** — `design.md` §11 budget (~430 LOC) vs actual ~860 — all test code; recorded in `execution.md` §3, no tripwire fired at a gate |
 | PASS | all else | Tasks, files, build, requirement clauses, design conformance, docs, validator probes (`--json` predicate member; keyboard pre-fill + order rule) |
 
 ## 3. Task Completion
@@ -60,12 +60,12 @@ All 14 paths present: `bin/routing.js`, `bin/akili.js`, `test/routing.test.js`, 
 | FR-4 (amended) byte-identical fallback except the FR-2 text | T3 cases 4–6 | comma prompts rendered | PASS |
 | FR-5 restore on confirm / Ctrl-C / throw | T2, T3 case 3 | `RC=130`, `stty echo`; throw path = Reviewer-read gap (accepted in tasks §3) | PASS (accepted gap) |
 | FR-5 *Ctrl-C aborts* — 130, nothing written, no stack trace | T3 case 3 | green on all 6 CI jobs where run | PASS |
-| **FR-5 `AND IT MUST leave the comma path's Ctrl-C behavior as it is today (exit 0, nothing written)`** | T3 case 4 | **Node-dependent**: 22.12 / 18 → exit 0, no trace; **22.23.3 → exit 1 + `AbortError: Aborted with Ctrl+C` trace — at HEAD *and* at `dbdccea`**. "Nothing written" holds on both (tree `.git` only) | **FAIL (V-1)** — the clause pins an environment fact |
+| **FR-5 `AND IT MUST give the comma path's Ctrl-C the same ending` (as amended by Pivot B)** | T5 · T3 case 4 (rewritten) | `makeRoutingIo.ask` races `question()` against `close` and maps `AbortError`; pty case 4 → `RC=130`, `echo`, no trace, tree empty on 18.20.8 / 22.12.0 / 22.23.3 locally and on all six CI jobs (`38987129273` ×2) | **PASS** (was FAIL V-1 at `5c3996a`) |
 | FR-5 *Questions alternate* | T3 case 1 | typed `claude` echoes after two selects | PASS |
 | FR-6 docs | T4 | quote-checked; KZ-002 pass on attempt 2 | PASS |
 | NFR-1 no dependency | T2 | probe | PASS |
 | NFR-2 non-TTY budget | T2 | 119/74/71 ms | PASS |
-| NFR-3 cross-platform | T3 + CI | Linux `expect` installed; Windows skips with reason; **Node 22.23 divergence** | WARN → resolves with V-1 |
+| NFR-3 cross-platform | T3 + T6 + CI | Linux `expect` installed; Windows skips 7 with reason; six green ×2 on `8e246b5`; harness diagnostics live (`<<BACK-IN n ms>>`, Ubuntu 2–11 ms) | PASS (V-2 accepted WARN) |
 | NFR-4 pure reducer | T1 | unit | PASS |
 | NFR-5 Node 18 | CI | 18.20.8 legs green | PASS |
 
@@ -117,4 +117,4 @@ No `## Constitution Impact` block (no module created or reshaped). `AGENTS.md:12
 
 ## 12. Archive Readiness Recommendation
 
-**Not yet.** Resolve V-1 (A or B), re-run CI to six green (also clears V-2 or confirms it), write P-10's settlement into `design.md` §12, then `/akili-archive changes/routing-keyboard-select`. Everything else is archive-ready: 4/4 tasks with Reviewer PASS, clause-level coverage closed, validator probes green, docs quote-checked, no dependency added.
+**Ready.** V-1 resolved by Pivot B (T5, Reviewer PASS; CI six green on `ae07590` attempt 2 and `8e246b5` ×2). V-2 instrumented by T6 (Reviewer PASS) and tallied in `execution.md` — 10 Ubuntu executions, 2 failures (both pre-T6, different cases, second question), 0 since; the gate now fails loudly with `<<NO-PROMPT-AFTER-CTRL-C>>`/`<<HUNG>>` markers if it recurs — accepted as WARN, follow-up Bug proposal only if a marker ever appears. V-3 accepted (test-code overrun, kaizen input). P-10 settled (`design.md` §12). Follow-ups queued outside this spec: `akili init` Ctrl-C trace on Node ≥ 22.23 (Bug), Antigravity Argon registry refresh (Change). Next: `/akili-archive changes/routing-keyboard-select`.
