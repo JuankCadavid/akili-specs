@@ -172,5 +172,5 @@
 | Implementer `Not Done / Assumptions` (verbatim, assumptions only) | "Falsifier (1) is refuted by how Node orders its calls. While the close listener is present, the `ABORT_ERR`/`AbortError` mapping cannot be reached on a Ctrl-C. I kept it because T5's scope requires it and it covers a Node that might reject before emitting `close`. No test can tell whether it is there; the Leader/Reviewer should decide whether to keep it or drop it." · "`docs/cli.md:346` reads \"…`1,3`, and Ctrl-C excepted: 130 on both forms)\", which is the brief's suggested wording dropped into the existing sentence. It is a little clumsy." · "CI was not run; the Leader pushes." |
 | Issues encountered | none |
 | runtime events | none |
-| spawns | implementer 24 calls, 97,725 tokens, ended complete; reviewer not reported by host at the time of writing |
+| spawns | implementer 24 calls, 97,725 tokens, ended complete; reviewer 15 calls, 88,258 tokens, ended complete |
 | Final verification | 6/6 pty on both Nodes · 258/258 · CI: pending push (recorded below) |

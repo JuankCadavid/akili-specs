@@ -8,7 +8,7 @@
 | Depth | Standard (compact) |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **In progress** — T1–T4 `[x]`; **T5 added by Pivot B (2026-10-16)** after validation V-1; see `execution.md` Pivot Record |
+| Status | **In progress** — T1–T5 `[x]`; **T6 added 2026-10-16** as the validation report's V-2 remediation (flake recurred on CI run `38985298750`) |
 | Date | 2026-10-02 |
 | Budget (design §11) | **4 tasks · ~430 LOC · 8 review rounds** — `/akili-execute` stops and escalates past 4 tasks, ~520 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/routing-keyboard-select]` |
@@ -25,7 +25,7 @@ T1 (routing.js: keyToken · selectStep · selectLines · orderPicked · promptMu
       └─→ T4 (docs/cli.md Routing · CHANGELOG · AGENTS.md:12 clause)        T3 ∥ T4 (disjoint files)
 ```
 
-Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16). No circular dependencies. T4 waits for T2 so every documented key and predicate member is quote-checked against shipped code, not design text (KZ-002).
+Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16) → **T6** (V-2 remediation, 2026-10-16). No circular dependencies. T4 waits for T2 so every documented key and predicate member is quote-checked against shipped code, not design text (KZ-002).
 
 **`skip-eligible` tasks: none.** T1 is logic under `tdd`; T2 edits terminal state; T3 is a timing-sensitive harness; T4 is the KZ-002 recurrence site (CHANGELOG clauses).
 
@@ -201,6 +201,38 @@ Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16). No 
 | Consumers | `test/routing-pty.test.js` cases 3 and 4; `docs/cli.md:344` and the key table; `CHANGELOG.md` Unreleased entry; `/akili-constitution` Step 8C (`--yes --json`, never prompts — unaffected); `akili init` **not** a consumer (separate `readline` use, follow-up bug) |
 
 **Done.** 6/6 pty on 22.12.0 and 22.23.3; falsifiers (1)–(3) quoted; docs clauses quote-checked; pushed and CI six green (run id recorded in `execution.md`).
+
+
+### T6 — Validation V-2 remediation: pty harness diagnostics and wait budget
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S (test-only: ~25 LOC across the four `.exp` fixtures and `test/routing-pty.test.js`) |
+| Depends on | T5 |
+| Requirements | NFR-3 (six CI jobs green, deterministically); no product requirement changes — the gate's *diagnosability*, not its contract |
+| Design refs | §7.3 (test seams), DD-6, T3 Disqualifier ("an `expect` timeout is inconclusive unless 3/3") |
+| Review | `full` — it changes the fixtures every Ctrl-C assertion runs through |
+
+**Why.** CI run `38983739454` (Ubuntu/22, case 2) and run `38985298750` (Ubuntu/18, case 4) each failed once with `shellRc = null`: the first `expect "SH> "` after `\003` timed out at 20 s, so the process did not return to the shell — or returned too slowly — and the log says nothing about which. Locally (macOS; Node 18.20.8, 22.12.0, 22.23.3) Ctrl-C at the roster question returns in ≤ 7 ms with `RC=130`, both forms, every run. Both CI failures are at the **second** question; case 3 (first question) has never failed.
+
+**Scope.**
+
+- All four fixtures: after every `send "\003"`, replace the bare `expect "SH> "` with a two-stage wait: up to **25 s** for `SH> `; on timeout write a log marker `<<NO-PROMPT-AFTER-CTRL-C>>`, send a second `\003`, wait up to 10 s more; on a second timeout write `<<HUNG>>` and `exit 99`. Then read `RC=$?` and `stty -a` as today.
+- `test/routing-pty.test.js`: raise `spawnSync` `timeout` to **60000**; assert the log does **not** contain `<<NO-PROMPT-AFTER-CTRL-C>>` (a swallowed first Ctrl-C is still a FAIL — the marker only makes the failure legible) and treat `<<HUNG>>` / status `null` as a FAIL that quotes the last 30 log lines via `t.diagnostic`. On every Ctrl-C case also `t.diagnostic` the measured milliseconds between `\003` and the shell prompt (fixture logs `<<BACK-IN n ms>>` using `clock milliseconds`).
+- No product code changes. No change to what the cases assert about behavior (`RC=130`, `echo`, no trace, tree) beyond the diagnostics above.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | pty suite under Node 22.12.0, 22.23.3 **and** 18.20.8 (`PATH=/Users/jcadavid/.nvm/versions/node/v<ver>/bin:$PATH node --test --test-reporter=tap test/routing-pty.test.js`) → 6/6 each, `<<BACK-IN n ms>>` diagnostics printed; `npm test` green; then push → CI, and **re-run the Ubuntu jobs twice** (`gh run rerun --failed` / `gh run rerun <id>`) to collect at least 3 Ubuntu executions |
+| Red run | n/a for behavior (no product change); the harness change is proven by its falsifier |
+| Falsifier | (1) Temporarily make `runRouting`'s abort catch `return` **without** setting `exitCode` *and* keep stdin resumed (e.g. comment out `restore()`'s `stdin.pause()`) so the process lingers → fixture must print `<<NO-PROMPT-AFTER-CTRL-C>>` and the test must FAIL quoting it, not time out silently (restore both, `cmp` identical). (2) Remove the marker assertion → that mutation passes → red proves the assertion is live |
+| Disqualifier | Diagnostics that fire only on timeout are untested by a green run — falsifier (1) is mandatory evidence; a local 6/6 says nothing about the Ubuntu flake itself, which only the CI re-runs can measure |
+| Consumers | `test/routing-pty.test.js` all six cases; `.github/workflows/ci.yml` (unchanged) |
+
+**Done.** 6/6 on three Nodes locally with `<<BACK-IN … ms>>` lines; falsifier (1) and (2) quoted; pushed; Ubuntu CI executions recorded in `execution.md` with their outcome — if the flake recurs, the marker/log tells whether Ctrl-C was swallowed or the process hung, and that evidence goes to a follow-up Bug proposal instead of blocking the release.
 
 
 ## 3. Coverage Closure (scenario / clause → task)
