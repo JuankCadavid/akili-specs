@@ -201,7 +201,7 @@ Depth check: the proposal guessed Lite; four tasks and a pty harness are Standar
 
 ## 12. Premise Ledger
 
-**Count:** 15 rows — 14 verified, 1 `UNVERIFIED` (0 High, 1 Low).
+**Count:** 15 rows — 15 verified, 0 `UNVERIFIED` (P-10 settled by CI run `38983739454` on 2026-10-16; P-5 refuted on Node ≥ 22.23 → Pivot B).
 **Blast-radius triggers:** `live-path` fires (user action `akili routing` → the two multi-select questions); `shared-state` fires (`process.stdin` raw-mode/keypress state is shared by the `readline` interface and the new select); `consumer` fires (the `io` seam gains a method; `routing.js` gains exports; the `nothing selected` string changes).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
