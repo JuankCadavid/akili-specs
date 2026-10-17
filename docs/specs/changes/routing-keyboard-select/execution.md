@@ -173,4 +173,4 @@
 | Issues encountered | none |
 | runtime events | none |
 | spawns | implementer 24 calls, 97,725 tokens, ended complete; reviewer 15 calls, 88,258 tokens, ended complete |
-| Final verification | 6/6 pty on both Nodes · 258/258 · CI: pending push (recorded below) |
+| Final verification | 6/6 pty on both Nodes · 258/258 · **CI run `38985298750` on `ae07590`**: attempt 1 → 5/6 (both Node 22 jobs green — V-1 closed; `ubuntu-latest / Node 18` red on case 4 with `shellRc = null` after a 20 s wait — the V-2 flake shape, second occurrence); attempt 2 (re-run of the failed job) → **6/6 green**. Ubuntu executions to date: 6, failures 2 (run `38983739454` case 2 on Node 22; run `38985298750` attempt 1 case 4 on Node 18), never the same case twice, never on macOS/Windows, never locally on 18.20.8 / 22.12.0 / 22.23.3 (Ctrl-C at the roster returns in ≤ 7 ms, `RC=130`) → T6 adds diagnostics |
