@@ -10,7 +10,7 @@
 | Approval Mode | gated |
 | Date | 2026-10-17 |
 | Author | AKILI session (proposer) |
-| Status | Draft — awaiting approval |
+| Status | **Approved** — 2026-10-17 (user) |
 | Related | `docs/specs/archive/2026-10-16-changes--routing-keyboard-select/` (T3 pty suite, T6 diagnostics); CI runs 38987507717, 38991178162 (attempts 1–3) |
 | Depends on | none |
 | Parallel-safe | yes (test/CI files only; no shared module with any active spec) |
