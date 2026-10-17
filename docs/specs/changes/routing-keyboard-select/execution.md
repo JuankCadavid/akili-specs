@@ -137,3 +137,17 @@
 **Verification at close:** `npm test` → 258/258 (unit + subprocess + pty on macOS); `bin/` only the two product blocks under `// @akili-spec changes/routing-keyboard-select`; `package.json` still without `dependencies`.
 
 **Next:** push to run the six-job CI matrix (settles P-10 and NFR-3's Linux/Windows legs) → `/akili-test` is optional (the suites were written test-first inside the tasks) → `/akili-validate changes/routing-keyboard-select` → `/akili-archive` (kaizen: budget under-estimate on pty harness LOC; two KZ-002 recurrences caught by the Reviewer at attempt 1; the `a · Enter` scope-text slip; `timeout` absent on macOS; worker death across a session boundary recovered by rung 4). Release class **patch** (CHANGELOG entry already under Unreleased).
+
+## Pivot Record: T5 (Pivot B — typed-question Ctrl-C, 2026-10-16)
+
+| Field | Value |
+|---|---|
+| Trigger | `/akili-validate` V-1: CI run `38983739454` red on `ubuntu-latest / Node 22` and `macos-latest / Node 22` (22.23.3) — pty case 4 asserted comma-path Ctrl-C `RC=0`; observed `1` |
+| Root cause (confirmed) | Node ≥ 22.23 `readline/promises`: on Ctrl-C the interface rejects the pending `question()` with `AbortError: Aborted with Ctrl+C` (`node:internal/readline/interface:1148`) → unhandled rejection → stack trace + exit 1. Reproduced locally (nvm 22.23.3) at **HEAD and at the baseline `dbdccea` worktree**: `<<RC=1>>`, 803-byte trace; Node 22.12.0 → `<<RC=0>>` on both. Not a regression of this spec; premise **P-5** was true only on Node ≤ 22.12 / 18 — **refuted** |
+| Spec tension | FR-5 `AND IT MUST leave the comma path's Ctrl-C behavior as it is today (exit 0)` pinned an environment-dependent value; "as it is today" on current Node means a stack trace |
+| Alternatives | (A) spec + test only: FR-5 → "never 130, nothing written", case 4 asserts `RC !== 130`; ships the Node 22.23 trace as documented behavior. **(B) product: `makeRoutingIo.ask` maps readline's Ctrl-C to the tagged abort → exit 130 cleanly on both forms, every Node; FR-5 flips to "either path exits 130"** |
+| Decision | **(B)**, user-approved 2026-10-16. Scope grows by one small task (T5); `akili init`'s identical trace stays out (follow-up Bug proposal queued) |
+| Amendments | `requirements.md`: §4 *Out of scope*, §5 stakeholder row, FR-4 exception clause, FR-5 statement + `AND IT MUST` clause. `design.md`: §4 `bin/akili.js` row, §6 *Ctrl-C during a typed question*, DD-5 rewritten with its **reversion challenge** (nothing in the repo reads the typed-path exit code; Step 8C never prompts; only pty case 4 pinned it), Reversion-challenge paragraph, P-5 row (refuted → Pivot B). `tasks.md`: T3 case 4 text, coverage row, waves, **T5 added**, Document Control status |
+| Correction closure | Forward sweep `exit 0\|exits 0\|RC=0\|exit codes\|typed question\|comma path's Ctrl-C\|P-5` over the spec folder, `docs/cli.md`, `CHANGELOG.md`, `test/routing-pty.test.js`, `test/fixtures/routing/pty-fallback.exp`: spec sites amended above; product/test/doc sites (`cli.md:344`, CHANGELOG `:11`, test `:177`, fixture `:5`) are T5's scope. Backward sweep: `execution.md` T2/T3 entries and `validation-report.md` quote the old clause as history — left as records. `proposal.md` untouched (intent document) |
+| Re-issued briefs | None outstanding — T1–T4 closed; T5's brief is composed from the amended text |
+| ADR impact | none (no TRD in this repository) |

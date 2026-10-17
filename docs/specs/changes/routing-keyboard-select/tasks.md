@@ -8,7 +8,7 @@
 | Depth | Standard (compact) |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Complete** — all 4 tasks `[x]` (T1, T2, T4 on 2026-10-02; T3 on 2026-10-16 after a session-boundary recovery); see `execution.md` §3 |
+| Status | **In progress** — T1–T4 `[x]`; **T5 added by Pivot B (2026-10-16)** after validation V-1; see `execution.md` Pivot Record |
 | Date | 2026-10-02 |
 | Budget (design §11) | **4 tasks · ~430 LOC · 8 review rounds** — `/akili-execute` stops and escalates past 4 tasks, ~520 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/routing-keyboard-select]` |
@@ -25,7 +25,7 @@ T1 (routing.js: keyToken · selectStep · selectLines · orderPicked · promptMu
       └─→ T4 (docs/cli.md Routing · CHANGELOG · AGENTS.md:12 clause)        T3 ∥ T4 (disjoint files)
 ```
 
-Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits for T2 so every documented key and predicate member is quote-checked against shipped code, not design text (KZ-002).
+Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16). No circular dependencies. T4 waits for T2 so every documented key and predicate member is quote-checked against shipped code, not design text (KZ-002).
 
 **`skip-eligible` tasks: none.** T1 is logic under `tdd`; T2 edits terminal state; T3 is a timing-sensitive harness; T4 is the KZ-002 recurrence site (CHANGELOG clauses).
 
@@ -123,7 +123,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
   1. **Keyboard happy path**: space · `\x1b[B`×4 · space · Enter; then Claude Code roster `a` · Enter; then the CLI-invocation typed question `claude\r` (echo asserted — *Questions alternate*); remaining questions Enter/`Y`/`A` → log contains `❯ [x] 5) Cursor`, contains `\x1b[7A` (in-place redraw for 5 options + 2 lines), does **not** contain `> ` between the host title and the roster title, does not contain `nothing selected`; `.agents/model-routing.json` byte-equals the file written by the flags run `--hosts claude,cursor --models claude=opus,sonnet,haiku --models cursor=… --cli claude=claude --wrappers yes --yes` in a second scratch project **on the same UTC day** (P-6: `updatedAt` is a date).
   2. **Empty confirm**: Enter with nothing marked → log contains `mark at least one option — space toggles, Enter confirms`; then space · Enter proceeds (question stayed open).
   3. **Ctrl-C**: at the host question → `RC=130`, `stty -a` reports `echo` (not `-echo`), tree unchanged, log has no line matching `^\s+at ` (stack trace).
-  4. **`TERM=dumb`**: host prompt reads `Which hosts do you use? (comma-separated numbers)` with a `> ` line, no `❯`; `1,5\r` accepted; Ctrl-C at the roster question → `RC=0` (comma path unchanged, P-5).
+  4. **`TERM=dumb`**: host prompt reads `Which hosts do you use? (comma-separated numbers)` with a `> ` line, no `❯`; `1,5\r` accepted; Ctrl-C at the roster question → `RC=130`, no `^\s+at ` line (comma path ends like the keyboard path — FR-5 as amended by Pivot B; before the pivot this read `RC=0`, true on Node ≤ 22.12 only).
   5. **No `setRawMode`**: `node -r <fixture>/no-rawmode.js <bin> routing …` where the preload does `delete require("tty").ReadStream.prototype.setRawMode` → comma prompt, no `❯`.
   6. **Output not a TTY**: `node <bin> routing … | cat` inside the pty → comma prompt in the piped output, no `❯`.
 - `.github/workflows/ci.yml`: one step before *Unit tests*, `if: runner.os == 'Linux'`, `run: sudo apt-get update && sudo apt-get install -y expect` (P-10).
@@ -173,6 +173,36 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 
 ---
 
+### T5 — Pivot B: typed-question Ctrl-C ends like the keyboard path (exit 130, no trace, every Node)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S (~10 LOC product · ~10 LOC test · ~6 LOC docs) |
+| Depends on | T2, T3, T4 |
+| Requirements | FR-5 statement (amended) and scenario clause `AND IT MUST give the comma path's Ctrl-C the same ending`; FR-4 (amended: Ctrl-C exception); FR-6 (docs stay quote-true); NFR-3 (six CI jobs green incl. Node 22.23) |
+| Design refs | §6 row *Ctrl-C during a typed question*, §7.2 `makeRoutingIo`, DD-5 (rewritten, with reversion challenge), P-5 (refuted) |
+| Review | `full` — it changes an exit code other readers (the pty suite, docs) pin, and rework after a validation FAIL (override e) |
+
+**Scope.**
+
+- `bin/akili.js` `makeRoutingIo.ask`: wrap the `rl.question(...)` await so a rejection whose `code === "ABORT_ERR"` or `name === "AbortError"` (Node ≥ 22.23 `readline/promises` on Ctrl-C) is rethrown as `Object.assign(new Error("question aborted"), { code: "AKILI_SELECT_ABORT" })` after the interface is closed (`finally` already closes it); write `\n` to `out` so the shell prompt starts on a fresh line. Nothing else in `ask` changes. On Node ≤ 22.12 the old behavior (interface closes, promise never settles, process drains to exit 0) **must also become 130**: after `rl.close()` on Ctrl-C the pending promise never settles there — so `ask` must also listen for the interface's `close` event while the question is pending and reject with the same tagged error when close fires before an answer (one `Promise.race` or a `close` listener removed in `finally`). Design §7.2 governs; keep the comment style of the surrounding block.
+- `test/routing-pty.test.js` case 4 + `test/fixtures/routing/pty-fallback.exp`: Ctrl-C at the roster question → assert `RC=130`, `stty` `echo`, no `^\s+at ` line, tree `.git` only (replace the `RC=0` assertion and the fixture's `exit 0` comment). Case title updated accordingly.
+- `docs/cli.md` *Routing*: the Ctrl-C row reads "Exit 130; nothing is written — in either form"; the fallback sentence's "same prompts and exit codes" drops "and exit codes" or gains "(Ctrl-C excepted: 130 on both forms)". `CHANGELOG.md` Unreleased entry: "Ctrl-C … exits the process with code `130`; nothing is written" gains "in either form, on every supported Node — on Node ≥ 22.23 the comma form previously printed an `AbortError` stack trace and exited 1"; the "same prompts and exit codes, except …" clause is corrected the same way. Every clause quote-checked at HEAD (KZ-002).
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `npm test` under the default Node **and** under Node 22.23.3 (`~/.nvm/versions/node/v22.23.3/bin/node --test test/routing-pty.test.js` with that bin dir first on `PATH`) → 6/6 on both; `node --check bin/akili.js`; greps for the docs clauses; push → CI six green |
+| Red run (executed at baseline by the validator, 2026-10-16) | `scratchpad/ctrlc2.exp` at `5c3996a`: Node 22.23.3 → `<<RC=1>>`, stderr 803 bytes beginning `node:internal/readline/interface:1148 … AbortError: Aborted with Ctrl+C`; Node 22.12.0 → `<<RC=0>>`. Case 4 as rewritten is red on both Nodes before the change (`1 !== 130` / `0 !== 130`) |
+| Falsifier | (1) Remove the `ABORT_ERR` mapping → under 22.23.3 case 4 red (`1 !== 130`) and the no-stack-trace assertion red. (2) Remove the `close` listener → under 22.12.0 case 4 red (`0 !== 130`). (3) Set the tagged code to another string → `runRouting` rethrows → exit 1 + trace → red. Each executed on its Node and quoted |
+| Disqualifier | A green only on one Node is not evidence — both Node runs are required; an `expect` timeout is inconclusive unless 3/3 |
+| Consumers | `test/routing-pty.test.js` cases 3 and 4; `docs/cli.md:344` and the key table; `CHANGELOG.md` Unreleased entry; `/akili-constitution` Step 8C (`--yes --json`, never prompts — unaffected); `akili init` **not** a consumer (separate `readline` use, follow-up bug) |
+
+**Done.** 6/6 pty on 22.12.0 and 22.23.3; falsifiers (1)–(3) quoted; docs clauses quote-checked; pushed and CI six green (run id recorded in `execution.md`).
+
+
 ## 3. Coverage Closure (scenario / clause → task)
 
 | Requirement clause | Owner |
@@ -188,7 +218,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4**. No circular dependencies. T4 waits f
 | FR-4 *Piped stdin keeps NFR-2* — THEN exit 1 < 2 s, usage text, no `setRawMode` / AND IT MUST same stderr | T2 (frozen baseline lock; `setRawMode` absent on a pipe, P-3) |
 | FR-4 *`TERM=dumb` on a pty* — THEN comma prompt accepts `1,5` / BUT no `❯` or hint | T3 case 4 |
 | FR-5 restore on confirm / Ctrl-C / throw | T2 (`restore()` in all three branches) · T3 cases 1, 3; **throw path: no automated gate** — the Reviewer verifies `restore()` runs on the handler's throw path (accepted gap, recorded) |
-| FR-5 *Ctrl-C aborts* — THEN 130, nothing written, `stty` echo / BUT no stack trace / AND IT MUST comma Ctrl-C exit 0 | T3 case 3 · case 4's Ctrl-C |
+| FR-5 *Ctrl-C aborts* — THEN 130, nothing written, `stty` echo / BUT no stack trace / AND IT MUST comma Ctrl-C exit 130, no trace (Pivot B) | T3 case 3 · **T5** (product + case 4 rewrite + docs) |
 | FR-5 *Questions alternate* | T3 case 1 (typed `claude` echoes after two selects) |
 | FR-6 both bullets | T4 |
 | NFR-1 | T2 (`dependencies` probe, `require(` grep) |

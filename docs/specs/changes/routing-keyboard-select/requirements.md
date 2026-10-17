@@ -48,14 +48,14 @@ On a real terminal, the two multi-select questions of `akili routing` — *Which
 | CI | `.github/workflows/ci.yml`: matrix `ubuntu-latest, macos-latest, windows-latest` × Node `18, 22`; `npm test` step; no `expect`/pty step. `/usr/bin/expect` exists on macOS runners and this machine; ubuntu runners need `apt-get install expect` (UNVERIFIED — confirm at source before relying on it; settled by T3's CI run) |
 | Package | `package.json`: no `dependencies` key (`grep -n '"dependencies"' package.json` → 0 hits); `engines.node >= 18.0.0`; `files` includes `bin` |
 | Docs | `docs/cli.md:315-455` *Routing* (`### Question order` `:335`; "Previous answers … pre-fill the prompt (Enter keeps them)"); `CHANGELOG.md` Unreleased = "No unreleased changes yet."; `README.md:439` names the command only |
-| Out of scope | Single-choice prompts; any runtime dependency; the answers file, question order/count, flags, `--json`, anything Step 8C runs; a full-screen TUI, mouse, colours, search; Ctrl-C on the **comma** path (stays exit 0 — unchanged by the fallback rule); Windows keyboard-path verification (fallback must hold there; keyboard path recorded `not exercised` on Windows) |
+| Out of scope | Single-choice prompts; any runtime dependency; the answers file, question order/count, flags, `--json`, anything Step 8C runs; a full-screen TUI, mouse, colours, search; Ctrl-C on the **comma** path was out of scope until Pivot B (2026-10-16) brought it in: it now exits 130 cleanly too (FR-5); `akili init`'s questions stay out of scope (follow-up bug); Windows keyboard-path verification (fallback must hold there; keyboard path recorded `not exercised` on Windows) |
 
 ## 5. Stakeholders / Personas
 
 | Stakeholder | Interest |
 |---|---|
 | Developer running `akili routing` in a terminal | Select with arrows and space; never trapped by an empty Enter; same files written |
-| Developer in a dumb/piped terminal or CI | Nothing changes — comma form, same prompts, same exit codes |
+| Developer in a dumb/piped terminal or CI | Nothing changes — comma form, same prompts, same exit codes (save Ctrl-C, which now exits 130 cleanly on every Node — FR-5, Pivot B) |
 | The agent running `/akili-constitution` Step 8C | Nothing changes — `--hosts/--models … --yes --json` never reaches a prompt |
 | Methodology maintainer | Zero dependencies kept; the prompt logic stays unit-testable through the seam; the terminal plumbing has a real pty gate in CI |
 
@@ -133,7 +133,7 @@ When the capable-terminal predicate (FR-4) holds, each multi-select question SHA
 
 ### FR-4: Capable-terminal predicate and byte-identical fallback
 
-`bin/akili.js` SHALL attach `io.select` only when **all four** hold: `process.stdin.isTTY === true` · `typeof process.stdin.setRawMode === "function"` · the prompt output stream (`process.stderr` under `--json`, else `process.stdout`) has `isTTY === true` · `process.env.TERM !== "dumb"`. When any member fails, the run SHALL be byte-identical to `dbdccea` — same prompts, same hints, same exit codes — **except the empty-reply error text FR-2 changes (`nothing selected: type at least one number, e.g. 1,3`), which both forms carry** *(amended 2026-10-16 at the T4 continue gate, user-approved — spec tension FR-4 vs FR-2 surfaced by the T4 Reviewer; see `execution.md` T4)*.
+`bin/akili.js` SHALL attach `io.select` only when **all four** hold: `process.stdin.isTTY === true` · `typeof process.stdin.setRawMode === "function"` · the prompt output stream (`process.stderr` under `--json`, else `process.stdout`) has `isTTY === true` · `process.env.TERM !== "dumb"`. When any member fails, the run SHALL be byte-identical to `dbdccea` — same prompts, same hints, same exit codes — **except the empty-reply error text FR-2 changes (`nothing selected: type at least one number, e.g. 1,3`), which both forms carry, and Ctrl-C, which FR-5 makes exit 130 cleanly on both forms** *(amended 2026-10-16 at the T4 continue gate, user-approved — spec tension FR-4 vs FR-2 surfaced by the T4 Reviewer; see `execution.md` T4)*.
 
 | Member false | Observable |
 |---|---|
@@ -158,7 +158,7 @@ When the capable-terminal predicate (FR-4) holds, each multi-select question SHA
 
 ### FR-5: Terminal restored on every exit of a question
 
-The keyboard path SHALL hold raw mode only for the duration of one question and SHALL restore the terminal — `setRawMode(false)`, keypress listener removed, cursor visible, stdin paused as it was — on confirm, on Ctrl-C, and on any thrown error (the error then propagates as today).
+The keyboard path SHALL hold raw mode only for the duration of one question and SHALL restore the terminal — `setRawMode(false)`, keypress listener removed, cursor visible, stdin paused as it was — on confirm, on Ctrl-C, and on any thrown error (the error then propagates as today). **Ctrl-C during a typed (`ask`) question SHALL end the run the same way as on the keyboard path: exit 130, nothing written, no stack trace — on every supported Node version.** *(Pivot B, 2026-10-16, user-approved — validation V-1: Node ≥ 22.23 `readline/promises` rejects a pending `question()` with `AbortError: Aborted with Ctrl+C` on Ctrl-C → stack trace + exit 1 at baseline and HEAD; see `execution.md` Pivot Record T5)*
 
 #### Scenario: Ctrl-C aborts without writing
 
@@ -166,7 +166,7 @@ The keyboard path SHALL hold raw mode only for the duration of one question and 
 - WHEN the user presses Ctrl-C
 - THEN the process exits **130** with a trailing newline, no file under the project is created or modified, and the parent shell's terminal is sane (echo on, cursor visible — the next `stty -a` on the pty reports `echo`, not `-echo`)
 - BUT it must NOT print a stack trace
-- AND IT MUST leave the comma path's Ctrl-C behavior as it is today (exit 0, nothing written — §4)
+- AND IT MUST give the comma path's Ctrl-C the same ending: exit 130, nothing written, no stack trace — on Node 18, 22.12 and 22.23+ alike (before Pivot B this clause read "as it is today (exit 0)", a value true only on Node ≤ 22.12 — §4, P-5)
 
 #### Scenario: Questions alternate between seams
 
