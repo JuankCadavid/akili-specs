@@ -177,7 +177,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16). No 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~10 LOC product · ~10 LOC test · ~6 LOC docs) |
 | Depends on | T2, T3, T4 |
 | Requirements | FR-5 statement (amended) and scenario clause `AND IT MUST give the comma path's Ctrl-C the same ending`; FR-4 (amended: Ctrl-C exception); FR-6 (docs stay quote-true); NFR-3 (six CI jobs green incl. Node 22.23) |
@@ -196,7 +196,7 @@ Waves: **T1** → **T2** → **T3 ∥ T4** → **T5** (Pivot B, 2026-10-16). No 
 |---|---|
 | Command | `npm test` under the default Node **and** under Node 22.23.3 (`~/.nvm/versions/node/v22.23.3/bin/node --test test/routing-pty.test.js` with that bin dir first on `PATH`) → 6/6 on both; `node --check bin/akili.js`; greps for the docs clauses; push → CI six green |
 | Red run (executed at baseline by the validator, 2026-10-16) | `scratchpad/ctrlc2.exp` at `5c3996a`: Node 22.23.3 → `<<RC=1>>`, stderr 803 bytes beginning `node:internal/readline/interface:1148 … AbortError: Aborted with Ctrl+C`; Node 22.12.0 → `<<RC=0>>`. Case 4 as rewritten is red on both Nodes before the change (`1 !== 130` / `0 !== 130`) |
-| Falsifier | (1) Remove the `ABORT_ERR` mapping → under 22.23.3 case 4 red (`1 !== 130`) and the no-stack-trace assertion red. (2) Remove the `close` listener → under 22.12.0 case 4 red (`0 !== 130`). (3) Set the tagged code to another string → `runRouting` rethrows → exit 1 + trace → red. Each executed on its Node and quoted |
+| Falsifier | (1) *as first written* "remove the `ABORT_ERR` mapping alone → 22.23.3 red" **does not go red** — Node 22.23's Ctrl-C handler emits `close` synchronously before rejecting, so the listener settles the race first (executed 2026-10-16: stays `ok`; corrected at execute). **Executed substitute:** remove the mapping **and** the `close` listener → under 22.23.3 case 4 red (`1 !== 130`) and the no-stack-trace assertion red. (2) Remove the `close` listener → under 22.12.0 case 4 red (`0 !== 130`). (3) Set the tagged code to another string → `runRouting` rethrows → exit 1 + trace → red on both Nodes. Each executed on its Node and quoted |
 | Disqualifier | A green only on one Node is not evidence — both Node runs are required; an `expect` timeout is inconclusive unless 3/3 |
 | Consumers | `test/routing-pty.test.js` cases 3 and 4; `docs/cli.md:344` and the key table; `CHANGELOG.md` Unreleased entry; `/akili-constitution` Step 8C (`--yes --json`, never prompts — unaffected); `akili init` **not** a consumer (separate `readline` use, follow-up bug) |
 

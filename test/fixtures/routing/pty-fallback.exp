@@ -2,7 +2,8 @@
 # Each mode falsifies exactly one capable-terminal member; the comma form must
 # render (`(comma-separated numbers)` + a `> ` line, no keyboard list).
 #   dumb       TERM=dumb; `1,5` is accepted, then Ctrl-C at the roster
-#              question (the comma path's Ctrl-C: exit 0)
+#              question (the comma path's Ctrl-C: exit 130, as on the
+#              keyboard path — Pivot B)
 #   norawmode  node -r <preload> deletes tty.ReadStream#setRawMode
 #   piped      the CLI's stdout is piped through `cat`
 # argv: node bin project home log mode [preload]

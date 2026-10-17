@@ -174,16 +174,19 @@ test("pty FR-5: Ctrl-C at the host question exits 130, writes nothing, restores 
   });
 });
 
-test("pty FR-4: TERM=dumb renders the comma form; `1,5` is accepted; Ctrl-C on the comma path still exits 0", (t) => {
+test("pty FR-4 / FR-5: TERM=dumb renders the comma form; `1,5` is accepted; Ctrl-C on the comma path exits 130 too", (t) => {
   if (SKIP) return t.skip(SKIP);
   withProject((ctx) => {
     const run = runExpect(ctx, "pty-fallback.exp", ["dumb"]);
     const { log } = run;
     assertComma(log);
     assert.match(log, /Claude Code — which models do you have\? \(comma-separated numbers\)/, "`1,5` must be accepted");
-    assert.equal(shellRc(log), 0);
+    // Pivot B: a typed question's Ctrl-C ends like the keyboard path's on every
+    // Node (Node >= 22.23 rejects readline's pending question with AbortError).
+    assert.equal(shellRc(log), 130, "Ctrl-C at the roster question (comma path) exits 130");
     assert.equal(sttyEcho(log), "echo");
     assert.deepEqual(entries(ctx.project), []);
+    assert.doesNotMatch(log, /^\s+at /m);
     assertFinished(run);
   });
 });

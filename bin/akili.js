@@ -2319,9 +2319,26 @@ function makeRoutingIo(args) {
   const io = {
     ask: async (question, def) => {
       const rl = readline.createInterface({ input: process.stdin, output: out });
+      // FR-5 / DD-5 (Pivot B): Ctrl-C closes the interface. Node >= 22.23
+      // rejects the pending question with an AbortError; Node <= 22.12 / 18
+      // never settles it — so a close before the answer rejects too. Both end
+      // as the tagged abort that runRouting turns into exit 130.
+      const abort = () => {
+        out.write("\n");
+        return Object.assign(new Error("question aborted"), { code: "AKILI_SELECT_ABORT" });
+      };
+      let onClose;
+      const closed = new Promise((_, reject) => {
+        onClose = () => reject(abort());
+      });
+      rl.once("close", onClose);
       try {
-        return await rl.question(def ? `${question} [${def}] ` : `${question} `);
+        return await Promise.race([rl.question(def ? `${question} [${def}] ` : `${question} `), closed]);
+      } catch (e) {
+        if (e && (e.code === "ABORT_ERR" || e.name === "AbortError")) throw abort();
+        throw e;
       } finally {
+        rl.removeListener("close", onClose);
         rl.close();
       }
     },

@@ -343,7 +343,7 @@ stream is a TTY (stderr under `--json`, else stdout), and `TERM` is not `dumb` �
 questions (hosts, then each host's models) render as a keyboard list instead of a typed line. When
 any of those four conditions fails, the comma form is used (same prompts and exit codes, except its
 empty-reply error text now carries guidance too: `nothing selected: type at least one number, e.g.
-1,3`), and single-choice prompts always stay typed.
+1,3`, and Ctrl-C excepted: 130 on both forms), and single-choice prompts always stay typed.
 
 | Key | Effect |
 |---|---|
@@ -351,7 +351,7 @@ empty-reply error text now carries guidance too: `nothing selected: type at leas
 | `space` | Toggle the current row |
 | `a` | Toggle all rows — matches the on-screen hint `↑/↓ move · space toggles · a toggles all · Enter confirms` |
 | Enter | Confirm — requires at least one checked row; otherwise shows a guidance line |
-| Ctrl-C | Exit 130; nothing is written |
+| Ctrl-C | Exit 130; nothing is written — in either form |
 
 *The in-place redraw assumes the terminal is at least as wide as the longest option or hint line (about 60 columns).*
 
