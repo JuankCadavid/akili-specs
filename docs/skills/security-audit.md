@@ -36,7 +36,7 @@ AKILI gates wrap the upstream workflow and never relax its scope, authorization,
 |---|---|
 | Author | Cloudflare, Inc. |
 | Source | `https://github.com/cloudflare/security-audit-skill` (`skills/security-audit` @ `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`) |
-| Licence | MIT, kept in `.claude/skills/security-audit/LICENSE` ("Copyright (c) 2025-2026 Cloudflare, Inc.") |
+| Licence | MIT, copied from the upstream repo root into `.claude/skills/security-audit/LICENSE` ("Copyright (c) 2025-2026 Cloudflare, Inc.") |
 | Adapted by | Juan Carlos Cadavid — jcadavid.com, for AKILI-SPECS |
 
 Only `SKILL.md` is edited (frontmatter plus an `## AKILI-SPECS Integration` section). Every other file stays byte-identical to upstream at the pin.
@@ -65,8 +65,8 @@ AKILI-owned smoke cases in `test/security-audit-skill.test.js` replace them (DD-
 ## Re-sync procedure
 
 1. Clone `cloudflare/security-audit-skill` at the new commit into an **empty** directory.
-2. Diff `skills/security-audit/` against `.claude/skills/security-audit/`.
-3. Copy every changed or new file **except** the `*.test.cjs` files. Keep our `SKILL.md` frontmatter and `## AKILI-SPECS Integration` section; merge only upstream body changes into it.
+2. Diff `skills/security-audit/` against `.claude/skills/security-audit/`, and the upstream **repo-root** `LICENSE` against `.claude/skills/security-audit/LICENSE` (`skills/security-audit/` holds no `LICENSE`).
+3. Copy every changed or new file **except** the `*.test.cjs` files, **plus the upstream repo-root `LICENSE`** (copied to `.claude/skills/security-audit/LICENSE`). Keep our `SKILL.md` frontmatter and `## AKILI-SPECS Integration` section; merge only upstream body changes into it.
 4. Update the pin everywhere it appears: `SKILL.md` frontmatter (`source`, `version`), `UPSTREAM_SHA` and the file list in `test/security-audit-skill.test.js`, this page, and `CHANGELOG.md`.
 5. Run `npm test`.
 

@@ -194,3 +194,22 @@ The user approved T-1, T-2 and T-3 as proposed, and the `LICENSE` clause for T5a
 **Correction closure.** Forward sweep (`~`-relative, `home-relative`, `inside the repository are`) over `requirements.md`, `design.md`, `tasks.md`, `.claude/`, `docs/skills/`: the only surviving old-form sites are in `.claude/commands/akili-security.md` (`:103`, `:125`, `:153`) — attempt 2's work, carried in its brief. `judgment.md` I-2/I-3 rows are history (what was approved then), left as is. Backward sweep (citations of FR-4/FR-8/FR-10/FR-12): `tasks.md` T2 Requirements/Scope, §3 coverage rows, `design.md` §7.1 checklist row — none asserts the superseded text. `git diff` of the three amended files read: every removed line is an intended replacement.
 
 These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs as named conformance checks.
+
+### T5a (reopened) — re-sync procedure copies the upstream repo-root `LICENSE`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (reopened scope, attempt 1 of the addition) |
+| Date | 2026-10-18 |
+| Cause | User-approved scope addition at the T2 gate (T5a Reviewer advisory promoted by the user; `tasks.md` T5a Scope amended) — not a FAIL, consumes no attempt |
+| Models | Implementer `sonnet` (effort low, `cognitive-doc-design`) · Reviewer `opus` (checklist, effort low) |
+| Files changed | `docs/skills/security-audit.md` (3+/3−): Licence row → "copied from the upstream repo root into `.claude/skills/security-audit/LICENSE`"; re-sync step 2 also diffs the upstream repo-root `LICENSE` ("`skills/security-audit/` holds no `LICENSE`"); step 3 copies it |
+| Implementer verification | `shasum -a 256` shipped `LICENSE` and `/tmp/cf-sas.S52m/repo/LICENSE` → both `e598e694…6391`; `ls /tmp/cf-sas.S52m/repo/skills/security-audit/LICENSE` → `No such file or directory`; `grep -n LICENSE` → `:39`, `:51`, `:68`, `:69`, each true |
+| Falsifier | Pre-edit re-sync section (`git show HEAD:docs/skills/security-audit.md \| sed -n 65,72p \| grep -c LICENSE`) → `0` — removing the clauses restores the gap (walked against HEAD, not a scratch mutation) |
+| Evidence re-run (Leader-inline) | **VERIFIED** — same four `grep` hits; both hashes identical (`uniq -c` → 2); upstream skill dir holds no `LICENSE` |
+| Reviewer verdict | **PASS** — amended scope delivered; re-ran the hashes and the upstream listing (20 files, two `*.test.cjs`, no `LICENSE`); page read whole, `:42` byte-identity claim and the 19-file set still hold. No advisory |
+| Named conformance check | `tasks.md` T5a Scope as amended 2026-10-18 |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+
+- Running totals: tasks 6/12 (T5a closed again) · LOC ~399 · review rounds 9 / 18.
