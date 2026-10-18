@@ -54,3 +54,17 @@
 | LOC | ≈373 inserted / 46 deleted (budget ~180, tripwire ~230 — overrun accepted by the user before review) |
 | Open | P-4 (Node 18) settles on the CI leg at the first push (Juan Carlos). Follow-ups already recorded in `proposal.md`: stdin EOF before an answer, top-level `main().catch` |
 | Next | `/akili-test bugfix/init-ctrlc-abort` → `/akili-validate` → `/akili-archive`. No push, no release from this worktree |
+
+## Pivot Record: V-1 (raised at `/akili-validate`, after T1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Raised by | Independent validator (`fable`) in `/akili-validate`, `validation-report.md` V-1 (FAIL) |
+| Blocker | DD-1's close-race fires on **any** `close` before an answer, and end-of-input closes the interface. `akili init </dev/null` (and piped `1\n1\n`) moved from `rc=0` at `ad7022a` to `rc=130` at `22dc7ed`, on 22.23.3 and 22.12.0, nothing installed either way. That contradicts `proposal.md` Proposed Outcome ("**unchanged**") + Non-Goals and `design.md` §6 ("exit codes of every other path are unchanged"), and was absent from CHANGELOG and `docs/cli.md`. Leader reproduced it in place (baseline file swapped in and restored byte-exact; a first out-of-tree baseline run read `rc=1` because the copied file could not resolve its package — discarded as a probe fault) |
+| Alternatives | (a) Accept: amend docs, pin with a test, no code change. (b) Reject: TTY guard in the helper so EOF stays 0, plus a pinning test — code change + review round. (c) Pause |
+| Decision | **(a) "Accept, amend docs"** — Juan Carlos, 2026-10-18 (gate answer) |
+| Spec amendments | `proposal.md` Proposed Outcome EOF row + Non-Goals EOF bullet · `requirements.md` §4 out-of-scope bullet, new **FR-4** + scenario, defect-class gate row, ID index · `design.md` §6 sentence, new **DD-6** · `tasks.md` budget row + new **T2** (S, depends on T1). Each amended site carries an "Amended 2026-10-18 (Pivot V-1)" note; originals quoted where text was replaced |
+| Correction closure | Forward: `grep -n -i "eof\|every other path\|unchanged\|silent exit 0"` over the spec folder — remaining hits are the amended sites, `proposal.md:127` Follow-up 1 (still valid: the exit-2 usage-error question), the `<<EOF>>` expect marker (unrelated) and FR-2/FR-3 "unchanged" (other paths, still true). Backward: no document cites `design.md` §6 by anchor. `git diff` of each amended document read: removed lines = the EOF row, the EOF bullet's opening, the §4 bullet, the §6 sentence, the budget row — all intended |
+| Budget | Re-run by the user's approval: 2 tasks · 2 review rounds (1 used). T1's LOC overrun was accepted separately |
+| ADR | none (no TRD in this repo) |

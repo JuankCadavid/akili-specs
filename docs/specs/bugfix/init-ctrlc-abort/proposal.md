@@ -10,7 +10,7 @@
 | Approval Mode | gated |
 | Date | 2026-10-18 |
 | Author | AKILI session (proposer) |
-| Status | **Approved** — 2026-10-18 (Juan Carlos, via Methodology agent): Option A; EOF case and global `main().catch` out of scope as follow-ups; update-cache decision delegated to `/akili-specify` |
+| Status | **Approved** — 2026-10-18 (Juan Carlos, via Methodology agent): Option A; EOF case and global `main().catch` out of scope as follow-ups; update-cache decision delegated to `/akili-specify`. *Amended 2026-10-18 (Pivot V-1): EOF's exit code moves 0 → 130 (in scope, FR-4); only the exit-2 usage-error question stays a follow-up* |
 | Related | `docs/specs/archive/2026-10-16-changes--routing-keyboard-select/` (T5 / Pivot B fixed the same defect for `akili routing` only); `bugfix/pty-harness-ubuntu-flake` (pty harness, Ubuntu flake still open) |
 | Depends on | none |
 | Parallel-safe | yes (touches `bin/akili.js` `runInteractiveInit` + `makeRoutingIo.ask`, `test/`, `docs/cli.md`, `CHANGELOG.md`; no active spec edits these, but `bugfix/pty-harness-ubuntu-flake` owns `test/routing-pty.test.js` — the new test goes in its own file) |
@@ -35,7 +35,7 @@ Ctrl-C in the `akili init` wizard ends it the way Ctrl-C ends `akili routing`: o
 | Ctrl-C at question 1 or 2, Node ≥ 22.23 | trace + exit 1 | newline, exit 130, no `^\s+at ` lines, nothing installed |
 | Ctrl-C at question 1 or 2, Node ≤ 22.12 / 18 | silent exit 0 | newline, exit 130, nothing installed |
 | Normal answers | install runs | unchanged (same prompts, same mapping) |
-| stdin EOF before answering (`</dev/null`, piped) | silent exit 0, nothing installed | **unchanged** (see Non-Goals) |
+| stdin EOF before answering (`</dev/null`, piped) | silent exit 0, nothing installed | newline, exit **130**, nothing installed. *Amended 2026-10-18 (Pivot V-1, user decision "Accept, amend docs"): validation found that DD-1's close-race also turns end-of-input into exit 130.* Was "unchanged" |
 
 ## Scope
 
@@ -46,7 +46,7 @@ Ctrl-C in the `akili init` wizard ends it the way Ctrl-C ends `akili routing`: o
 
 ## Non-Goals
 
-- **EOF / closed stdin before an answer.** Today that is a silent exit 0 with nothing installed. It is a different input (no TTY, no Ctrl-C) and a different contract question: should non-interactive `init` be a usage error? That change would affect scripted callers, so it is out of scope and listed under Open Questions.
+- **EOF / closed stdin before an answer** — *amended 2026-10-18 (Pivot V-1): the exit-code change is now **in** scope (0 → 130, nothing installed, see Proposed Outcome); whether non-interactive `init` should instead be a usage error (exit 2) stays out of scope as Follow-up 1.* Original text: Today that is a silent exit 0 with nothing installed. It is a different input (no TTY, no Ctrl-C) and a different contract question: should non-interactive `init` be a usage error? That change would affect scripted callers, so it is out of scope and listed under Open Questions.
 - Redesigning the wizard (keyboard select, defaults, validating answers outside 1–7). The current mapping falls back to `claude` / global and stays as is.
 - Root-causing the open Ubuntu pty flake (`bugfix/pty-harness-ubuntu-flake`).
 - Release, push, or publish.

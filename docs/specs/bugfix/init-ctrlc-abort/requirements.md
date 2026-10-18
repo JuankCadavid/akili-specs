@@ -33,7 +33,7 @@ Ctrl-C at either `akili init` question SHALL end the process with one newline an
 - Node 18: `UNVERIFIED — confirm at source before relying on it`. Settled by the CI `node: [18, 22]` matrix (`.github/workflows/ci.yml:31`) on the Node 18 CI leg at the first push after T1 (owner: Juan Carlos, who pushes; design P-4). *Amended 2026-10-18 at the Phase 3 checklist to match the user's Phase 1 decision "Node 18 coverage via CI is fine": the local-install path is dropped.*
 - `akili routing` already does the corrected behavior for its typed questions (`makeRoutingIo.ask`, `bin/akili.js:2319–2344`; `runRouting` catch → `process.exitCode = 130` at `:2384`).
 - When stdout is a TTY, `init` runs the update check first (`checkForUpdates`, `bin/akili.js:1926–1928`). That check hits `registry.npmjs.org` unless `$HOME/.akili-specs-update.json` holds a `checkedAt` under 24 h old (`readUpdateCache`, `:1849–1862`; `getLatestVersion`, `:1910–1915`).
-- **Out of scope** (approved as follow-ups 2026-10-18): stdin EOF before an answer (today a silent exit 0 that installs nothing), and a top-level `main().catch`. Also out of scope: any wizard redesign.
+- **Out of scope** (approved as follow-ups 2026-10-18): making stdin EOF before an answer a usage error (exit 2), and a top-level `main().catch`. *Amended 2026-10-18 (Pivot V-1): EOF's exit code itself moves from 0 to 130 and is now FR-4; this bullet said EOF "(today a silent exit 0 that installs nothing)" was out of scope.* Also out of scope: any wizard redesign.
 
 ## 5. Stakeholders / Personas
 
@@ -86,6 +86,18 @@ The system SHALL keep `akili routing`'s typed-question Ctrl-C at exit `130`, wit
 - WHEN the suite runs after the change
 - THEN the case passes with `RC=130`, as it does at `2e6de45`
 
+### FR-4: End of input before an answer exits 130 (added by Pivot V-1, 2026-10-18)
+
+The system SHALL end the process with exit code `130` when stdin reaches end-of-input before the wizard has an answer (`</dev/null`, or a closed pipe). No trace lines and no install targets. This is the same abort path as FR-1: the interface closes before an answer. It replaces the old silent exit `0`. Whether non-interactive `init` should be a usage error (exit `2`) instead remains proposal Follow-up 1.
+
+#### Scenario: `init` with stdin at EOF
+
+- GIVEN `akili init` run with stdin redirected from `/dev/null` and a scratch `HOME`
+- WHEN the wizard reaches its first question
+- THEN the process exits `130`
+- BUT it must NOT print `AbortError` or any trace line
+- AND IT MUST create no install target
+
 ## 7. Non-Functional Requirements
 
 | ID | Requirement |
@@ -103,6 +115,7 @@ The system SHALL keep `akili routing`'s typed-question Ctrl-C at exit `130`, wit
 | Wizard prompt/mapping drift (FR-2) | Pty test of the answered path (prompt text and the target it creates) |
 | Routing regression from the extraction (FR-3) | `npm test` (routing pty + io suites) on 22.12.0 and 22.23.3 |
 | Test hits the network / flakes offline (NFR-1) | Cache-seed byte check in the test |
+| Exit-code drift on non-interactive `init` (FR-4) | Non-pty test: `init` with stdin at EOF → status `130`, no trace line, no install target (T2) |
 | Ubuntu pty flake (open, `bugfix/pty-harness-ubuntu-flake`) | No automated gate. **Accepted risk:** a red on Ubuntu CI is read through the transcript artifact before anyone calls it a product failure |
 
 ## 8. Requirement ID Index
@@ -112,6 +125,7 @@ The system SHALL keep `akili routing`'s typed-question Ctrl-C at exit `130`, wit
 | FR-1 | Ctrl-C at a wizard question aborts cleanly with exit 130 |
 | FR-2 | Answered wizard behaves as before |
 | FR-3 | `akili routing` Ctrl-C is unchanged |
+| FR-4 | End of input before an answer exits 130 (Pivot V-1) |
 | NFR-1 | Regression test is offline |
 | NFR-2 | Pty harness conventions, own files, Windows skip |
 | NFR-3 | No new dependency |

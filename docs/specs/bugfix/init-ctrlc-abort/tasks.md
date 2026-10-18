@@ -8,7 +8,7 @@
 | Depth | **Lite** (Bug Mode) |
 | Status | **Approved** — 2026-10-18 (Juan Carlos, Phase 3 gate: Continue). Checklist amendment: FR-1 newline assertion + falsifier (6) added (coverage closure) |
 | Date | 2026-10-18 |
-| Budget (design §12) | **1 task · ~180 LOC · 2 review rounds**. `/akili-execute` stops and escalates past 1 task, ~230 LOC, or 2 rounds |
+| Budget (design §12) | **1 task · ~180 LOC · 2 review rounds**. `/akili-execute` stops and escalates past 1 task, ~230 LOC, or 2 rounds. *Pivot V-1 (2026-10-18, user-approved): +1 task (T2, ~30 LOC, 1 review round) → 2 tasks · 2 review rounds total; the LOC overrun at T1 was accepted separately* |
 | Commit prefix | `[SPEC:bugfix/init-ctrlc-abort]`. Local commits only: no push, no release, no `npm publish` |
 | Format precedent | `docs/specs/bugfix/pty-harness-ubuntu-flake/tasks.md` |
 | Verified at | `dd23554`. Every baseline reading below was **executed** on 2026-10-18 and is quoted, not predicted (KZ-changes--leader-brief-contract-2) |
@@ -84,3 +84,39 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 - [x] `docs/cli.md` line and CHANGELOG entry quote-checked.
 - [x] **P-4 left open, not faked:** `execution.md` records that the Node 18 leg runs at the first push, which is Juan Carlos's, and that its result settles P-4. If that leg is red, it is a Pivot, not a follow-up edit.
 - [x] Local commits with the `[SPEC:bugfix/init-ctrlc-abort]` prefix. No push.
+
+---
+
+### T2 — Pin end-of-input → exit 130 (Pivot V-1)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | S (~30 LOC: `test/init-pty.test.js` case (d) ~20 · `CHANGELOG.md` 1 clause · `docs/cli.md` 1 line) |
+| Depends on | T1 |
+| Requirements | FR-4 (scenario: status `130`; `BUT` no `AbortError`/trace line; `AND IT MUST` no install target in `HOME` or cwd); NFR-1 (seed byte-identical, no `https` call); NFR-3 |
+| Design refs | §6 (amended), DD-6 |
+| Review | `full`: CLI exit-code contract (override (b)) |
+
+**Scope.** No change to `bin/`.
+
+1. `test/init-pty.test.js`: case **(d)** `init with stdin at EOF exits 130, nothing installed (FR-4)`. It needs no pty, so it does **not** use `SKIP` (it runs on every OS). Through `withScratch`, `spawnSync(process.execPath, [AKILI_BIN, "init"], { cwd, stdio: ["ignore", "pipe", "pipe"], env: { …process.env, HOME, USERPROFILE: home, NODE_OPTIONS: "--require <no-network.js>", AKILI_NET_MARKER: <root>/net.log } })` (`"ignore"` opens the null device). Assert, through the existing `assertChecks` shape: `status === 130`; zero `^\s+at ` lines and no `AbortError` in stdout+stderr; `noInstallTarget`; `offlineChecks`. Print `process.version` via `t.diagnostic`. `failWith` expects a pty run object — give (d) an equivalent message (reason, status/signal, last 30 lines of stdout+stderr).
+2. `CHANGELOG.md` `## [Unreleased]` entry: add one clause — end-of-input before an answer (`</dev/null` or a closed pipe) now also exits `130` with nothing installed (was a silent `0`). Quote-check it against the shipped test (KZ-002).
+3. `docs/cli.md` *Init*: after the Ctrl-C line, "With no input (stdin at end-of-input), `init` also exits 130; nothing is installed."
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `~/.nvm/versions/node/v22.23.3/bin/node --test test/init-pty.test.js` and the same with v22.12.0: 4/4 green each. `npm test` under each version: all green. `npm run verify:cli` · `npm run pack:dry-run` · `git diff --check` · `git diff -- package.json bin/` → empty |
+| Red run | **Observed at baseline** (Leader probe, 2026-10-18, `ad7022a`'s `bin/akili.js` in place, scratch `HOME`, `</dev/null`): `rc=0`, nothing installed, 0 trace lines, on 22.23.3 and 22.12.0. So case (d) run against `ad7022a`'s `bin/akili.js` must be red on the status assertion only. Re-run it that way (temporarily `git show ad7022a:bin/akili.js > bin/akili.js`, then restore byte-exact) and quote it |
+| Falsifier | **(7) Catch removed** (drop `runInteractiveInit`'s `AKILI_SELECT_ABORT` branch): **observed** by the Leader 2026-10-18 on the EOF path → `rc=1`, 9 trace lines, `new Error("question aborted")` in the output, on 22.23.3 and 22.12.0. Case (d) must go red on status and on the trace check. Apply, observe, restore, observe green |
+| Disqualifier | A run under the wrong Node is not evidence (`process.version` printed). A (d) that inherits the parent's TTY is not this test — stdin must be the null device |
+| Consumers | `test/init-pty.test.js` cases (a)–(c) (must stay green) · `CHANGELOG.md` · `docs/cli.md` |
+
+**Done.**
+- [ ] (d) red at baseline on the status assertion (both versions), quoted. Green after, 4/4 on both versions.
+- [ ] Falsifier (7) observed red on (d) and restored green.
+- [ ] `npm test` green on both versions; `verify:cli`, `pack:dry-run`, `git diff --check` clean; no `bin/` or `package.json` diff.
+- [ ] CHANGELOG clause and `docs/cli.md` line quote-checked.
+
