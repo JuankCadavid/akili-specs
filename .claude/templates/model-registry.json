@@ -76,7 +76,7 @@
     "antigravity": {
       "label": "Antigravity",
       "cliSuggestion": "agy",
-      "lastVerified": "2026-09-17",
+      "lastVerified": "2026-10-18",
       "pin": null,
       "wrapper": {
         "location": ".agents/agents/akili-<role>/agent.md",
@@ -85,16 +85,16 @@
         "effortField": "in-id"
       },
       "models": [
+        { "id": "gemini-4-argon-high", "label": "Gemini 4 Argon (High)", "alias": false, "dated": false, "effortRungs": ["high"] },
         { "id": "gemini-3.8-flash-high", "label": "Gemini 3.8 Flash (High)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["high"] },
         { "id": "gemini-3.8-flash-medium", "label": "Gemini 3.8 Flash (Medium)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["medium"] },
         { "id": "gemini-3.8-flash-low", "label": "Gemini 3.8 Flash (Low)", "alias": false, "dated": false, "wrapperModel": "flash", "effortRungs": ["low"] },
-        { "id": "gemini-3.1-pro-high", "label": "Gemini 3.1 Pro (High)", "alias": false, "dated": false, "wrapperModel": "pro", "effortRungs": ["high"] },
-        { "id": "claude-sonnet-4-6", "label": "Claude Sonnet 4.6", "alias": false, "dated": false, "effortRungs": null }
+        { "id": "claude-sonnet-5-5-high", "label": "Claude Sonnet 5.5 (High)", "alias": false, "dated": false, "effortRungs": ["high"] }
       ],
       "tierPreference": {
-        "T1": ["gemini-3.8-flash-high"],
+        "T1": ["gemini-4-argon-high"],
         "T2": ["gemini-3.8-flash-medium"],
-        "T3": ["gemini-3.1-pro-high", "claude-sonnet-4-6"],
+        "T3": ["gemini-4-argon-high", "claude-sonnet-5-5-high"],
         "T4": ["gemini-3.8-flash-high"],
         "T5": ["gemini-3.8-flash-low"],
         "T6": ["gemini-3.8-flash-high", "<CONFIRM ID>"]

@@ -101,7 +101,7 @@ This is the single editable source of truth. Phases reference **tiers**; only th
 models. When the packaged defaults change, edit this table together with
 `.claude/templates/model-registry.json` (the roster `akili routing` reads — a drift test fails when
 the two disagree); a project changes its own models by re-running `akili routing`, or by removing
-the fence and editing its table by hand. *Registry updated: 2026-09.*
+the fence and editing its table by hand. *Registry updated: 2026-10.*
 
 > **Worked example — the Opus 5 release required zero edits to this table.** When Anthropic shipped
 > Claude Opus 5, the `opus` alias moved to it on its own; T1/T3 followed automatically. That is the
@@ -120,9 +120,9 @@ below.
 
 | Tier | Claude Code | OpenCode Go (requests/month @ that model's own limit — plan page monthly column) | Antigravity (family · effort ID) | Codex | Cursor (family · effort param) | Fallback |
 |---|---|---|---|---|---|---|
-| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 3.8 Flash (High) — `gemini-3.8-flash-high` | Terra; Sol where the plan allows | Claude Opus family `<CONFIRM SLUG>` | `opencode-go/glm-5.3` / `sonnet` |
+| **T1 Architect** | `opus` *(alias — always latest)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) | Gemini 4 Argon (High) — `gemini-4-argon-high` | Terra; Sol where the plan allows | Claude Opus family `<CONFIRM SLUG>` | `opencode-go/glm-5.3` / `sonnet` |
 | **T2 Coder** | `sonnet` | `opencode-go/deepseek-v4.1-flash` (32,500 @ $15; 4x promo → 130,000 @ $60 through 2026-09-20) | Gemini 3.8 Flash (Medium) — `gemini-3.8-flash-medium` | Luna | Composer family (Cursor-native) `<CONFIRM SLUG>` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) / `opencode-go/glm-5.3-flash` (31,580 @ $60) / `haiku` |
-| **T3 Auditor** *(≠ T2)* | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) *(≠ T2)* | Gemini 3.1 Pro (High) — `gemini-3.1-pro-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | GPT-5.6 Sol/Terra family *(≠ T2 — different vendor)* `<CONFIRM SLUG>` | `claude-sonnet-4-6` on Antigravity where exposed / `sonnet` |
+| **T3 Auditor** *(≠ T2)* | `opus` *(must differ from T2)* | `opencode-go/deepseek-v4-pro` (5,200 @ $15) *(≠ T2)* | Gemini 4 Argon (High) — `gemini-4-argon-high` *(≠ T2 family)* | Terra *(≠ Luna)*; Sol where the plan allows | GPT-5.6 Sol/Terra family *(≠ T2 — different vendor)* `<CONFIRM SLUG>` | `claude-sonnet-5-5-high` on Antigravity where exposed / `sonnet` |
 | **T4 Context-Ingest** | `sonnet` (long context) | `opencode-go/deepseek-v4.1-flash` `<CONFIRM>` context window (32,500 @ $15) | Gemini 3.8 Flash (High) | Terra `<CONFIRM SLUG>` | Claude Sonnet family (1M context) `<CONFIRM SLUG>` | `opencode-go/mimo-v2.5` (150,400 @ $60) / `opus` |
 | **T5 Fast-Cheap** | `haiku` | `opencode-go/deepseek-v4-flash` (65,000 @ $30) | Gemini 3.8 Flash (Low) — `gemini-3.8-flash-low` | Luna | Composer (Fast) family `<CONFIRM SLUG>` | `opencode-go/qwen3.8-flash` (27,000 @ $30) / `sonnet` |
 | **T6 Multimodal** | `sonnet` (vision) | `opencode-go/deepseek-v4-flash-vision-exp` (32,500 @ $15; **Exp**) | Gemini 3.8 Flash (High) `<CONFIRM ID>` vision | Terra `<CONFIRM SLUG>` — prefer cross-host dispatch | Gemini 3.8 Flash family (vision) `<CONFIRM SLUG>` | `opus` |
@@ -132,7 +132,7 @@ figure** — the plan page sets the limit per model, not per plan, so there is n
 assume. `opencode-go/deepseek-v4-flash` is T2's higher-volume alternative: 65,000 requests/month at
 its $30 limit against `deepseek-v4.1-flash`'s 32,500 at $15. **Pins:** OpenCode figures ← plan page
 <https://opencode.ai/docs/go>
-(**Last verified: 2026-09-17**); Antigravity IDs ← `agy models` (**Last verified: 2026-09-17**);
+(**Last verified: 2026-09-17**); Antigravity IDs ← `agy models` (**Last verified: 2026-10-18**);
 Codex families ← <https://learn.chatgpt.com/docs/models> (existing pin, **Last verified:
 2026-09-16**) + the T7 plan-gating paragraph below (existing); Cursor families ←
 <https://cursor.com/docs/models> (**Last verified: 2026-10-01**) — no floating alias besides `auto`
@@ -234,17 +234,32 @@ All OpenCode Go slugs and figures are re-read from the
 [OpenCode Go model list](https://opencode.ai/docs/go) (**Last verified: 2026-09-17**). Confirm them
 against your own OpenCode configuration and adjust if your roster differs.
 
-**Antigravity.** The roster (`agy models`, **Last verified: 2026-09-17**) currently tops out at
-**Gemini 3.8 Flash** — the family this table routes to T1, T2, T4, T5, and T6, with the effort rung
+**Antigravity.** The roster (`agy models`, **Last verified: 2026-10-18**) now lists **Gemini 4
+Argon** as its top model. This table routes it to **T1 Architect** and **T3 Auditor**
+(`gemini-4-argon-high`); T2, T4, T5 and T6 stay on **Gemini 3.8 Flash**, with the effort rung
 carried in the ID itself (`gemini-3.8-flash-high` / `-medium` / `-low`; see *Effort dial* below for
 the AKILI-rung mapping) rather than as a separate dial, since that is what the host actually
-exposes. **T3 Auditor uses Gemini 3.1 Pro (High)** (`gemini-3.1-pro-high`) instead — a different
-family from the T2 Flash coder — the only Pro generation the roster exposes, against a current 3.8
-Flash; that roster-generation gap, not a benchmark ranking, is the whole basis for keeping Pro off the default
-column even though it satisfies author ≠ auditor. Where a plan exposes it, prefer **Claude Sonnet
-4.6 (Thinking)** (`claude-sonnet-4-6`, confirmed in the same roster) as the T3 upgrade over Pro 3.1.
-T6's vision path carries `<CONFIRM ID>` because the roster does not label a model vision-specific;
-confirm the exact ID per project.
+exposes. Argon is a different family from the T2 Flash coder, so author ≠ auditor is satisfied.
+Where a plan exposes it, **Claude Sonnet 5.5 (High)** (`claude-sonnet-5-5-high`, confirmed in the
+same roster) is the T3 fallback. T6's vision path carries `<CONFIRM ID>` because the roster does not
+label a model vision-specific; confirm the exact ID per project.
+
+**Argon is not a wrapper tier.** An Antigravity wrapper's `model:` accepts only `inherit`, `flash`
+or `pro`; `agy plugin validate` (2026-10-18) rejected all 16 candidate values it was given
+with `Invalid model tier`, including every Argon spelling tried (`argon`, `Argon`, `gemini-4-argon`,
+`gemini-4-argon-high`, `gemini-4`), and which model `pro` runs on is unconfirmed. The Argon entry therefore
+carries no `wrapperModel`, and the Leader and Reviewer, which route to Argon, are skipped with a
+reason instead of being written with an unconfirmed value. The Implementer and Tester keep their
+`flash` wrappers. To keep author ≠ auditor, run the session on `gemini-4-argon-high`: an unwrapped
+Reviewer is a generic subagent that inherits the session model, so it runs on Argon, not on the
+`flash` Implementer. It is read-only by instruction rather than by a `tools` restriction. If a
+`model: pro` subagent is confirmed live to run Gemini 4 Argon, Argon may carry `wrapperModel: pro`,
+which restores the Leader and Reviewer wrappers and the `tools` restriction.
+
+**Upgrading an existing Antigravity project.** Re-run `akili routing` with
+`--models antigravity=gemini-4-argon-high,gemini-3.8-flash-high,gemini-3.8-flash-medium,gemini-3.8-flash-low,claude-sonnet-5-5-high`.
+A plain re-run from the answers file drops the retired ids and degrades to author ≠ auditor NOT
+satisfied, with all four wrappers skipped.
 
 **Codex.** The split stays inside one vendor's roster rather than crossing labs, so it leans on the
 pinned page's own capability language. **Terra → T1 Architect, T3 Auditor, T4 Context-Ingest, T6
@@ -519,7 +534,7 @@ personas there:
 |---|---|---|
 | Claude Code | `.claude/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level) | Alias from the registry (`model: sonnet`, `model: opus`, `model: haiku`) |
 | OpenCode | Project agent config (`.opencode/agent/*.md` or the `agent` block of `opencode.json`, per your OpenCode version) | Provider slug from the registry (`model: opencode-go/deepseek-v4.1-flash`) |
-| Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro` |
+| Antigravity | `.agents/agents/akili-{leader,implementer,reviewer,tester}/agent.md` (project-level; flat `.agents/agents/<name>.md` is equivalent) | `model:` from the registry's Antigravity column — `inherit` / `flash` / `pro`; an Argon pick has no wrapper value, so its role is skipped (see *Argon is not a wrapper tier* above) |
 | Codex | `.codex/agents/akili-{leader,implementer,reviewer,tester}.toml` (project-level) | `model =` from the registry's Codex column, plus `model_reasoning_effort =` — see below |
 | Cursor | `.cursor/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level; Cursor also reads `.claude/agents/` and `.codex/agents/`, and on a same-name clash `.cursor/` takes precedence) | `model:` a concrete ID from the registry's Cursor column, optionally with `[effort=…]`; the Reviewer wrapper alone adds `readonly: true` — see below |
 

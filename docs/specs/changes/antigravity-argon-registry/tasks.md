@@ -33,7 +33,7 @@ Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~50 LOC: JSON ~15, doc ~35) |
 | Depends on | none |
 | Requirements | FR-1 (scenario, `BUT` routed ids only, `AND IT MUST` byte-equal labels); FR-2 (Antigravity column + T3 Fallback; `BUT` no other host); FR-3 doc half (`AND IT MUST` doc states Argon roles are not wrapper-bound, with the C-Q1 date); FR-4 (scenario + falsifier clause) |
