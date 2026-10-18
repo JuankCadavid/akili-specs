@@ -15,6 +15,7 @@ Commands:
   OK akili-propose.md
   OK akili-quick.md
   OK akili-resume.md
+  OK akili-security.md
   OK akili-seo.md
   OK akili-specify.md
   OK akili-test.md
@@ -36,6 +37,7 @@ Skills:
   OK nestjs-expert
   OK product-manager-toolkit
   OK react-doctor
+  OK security-audit
   OK seo-audit
   OK shadcn-ui
   OK software-architect
@@ -69,7 +71,7 @@ Environment (recommended, not required):
 
 ────────────────────────────────────────────────────────
 Doctor Summary — akili-specs v<VERSION>
-  CODEX        HEALTHY  ok 43 | missing 0 | fixed 0
+  CODEX        HEALTHY  ok 45 | missing 0 | fixed 0
                → <HOME>/.codex
 
 All checks passed. Your installation is complete and healthy.

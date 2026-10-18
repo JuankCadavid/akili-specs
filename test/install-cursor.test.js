@@ -213,7 +213,7 @@ function autoDetectedList(output) {
     .filter(Boolean);
 }
 
-// Real packaged content counts (brief: "confirm 199 by counting files under
+// Real packaged content counts (brief: "confirm 218 by counting files under
 // .claude/skills -- report the real number and assert it"). A fixed resource
 // list (RESOURCE_SCRIPTS + AGENT_TEMPLATES + digests.json + .mcp.json.example,
 // bin/akili.js installTool's resources loop) is NOT directory-derived, so it
@@ -224,29 +224,29 @@ const SKILL_FILE_COUNT = countFiles(SOURCE_SKILLS);
 const SKILL_DIR_COUNT = fs
   .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
   .filter((e) => e.isDirectory()).length;
-const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 11 + 199 = 210
+const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 12 + 218 = 230
 const RESOURCE_FILE_COUNT = 8; // gsc_verify.py, parse_tests.js, leader/implementer/reviewer/tester.md, digests.json, .mcp.json.example
 // The installer's OWN install/skip/overwrite counters (and the printed
 // "install "/"skip existing " lines) are per top-level operation, not per
 // recursive file: copyDirectoryContents(SOURCE_SKILLS, targetSkills, args)
-// loops SOURCE_SKILLS's 24 top-level skill directories and logs/counts once
+// loops SOURCE_SKILLS's 25 top-level skill directories and logs/counts once
 // per directory (copyTreeSync then copies each directory's files silently,
 // recursively, with no further per-file logging) -- pre-existing behavior,
 // identical for Claude Code/OpenCode today, not something this spec changed.
 // Commands-as-skills and resources ARE logged per actual file (one
 // copySingleFile call each), so those two counts stay file-accurate.
-const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 11 + 24 = 35
+const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 12 + 25 = 37
 
 test(
   "@akili-spec changes/cursor-install-target FR-2/FR-4 (Codex and Cursor share one skills root): Codex installs fresh, Cursor skips every shared-root file while its own resources install",
   (t) => {
     assert.equal(
       SKILL_FILE_COUNT,
-      199,
-      `expected 199 packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
+      218,
+      `expected 218 packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
         "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"
     );
-    assert.equal(COMMAND_COUNT, 11, `expected 11 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);
+    assert.equal(COMMAND_COUNT, 12, `expected 12 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);
 
     const home = mkHome(t, "akili-cursor-shared-");
     const skillsShared = path.join(home, "shared-skills");
@@ -337,7 +337,7 @@ test(
 
     // File-level proof (the "every skill FILE skipped" half of the scenario,
     // not just every top-level directory operation): the shared root holds
-    // exactly the real 210 files (11 command SKILL.md + 199 packaged skill
+    // exactly the real 230 files (12 command SKILL.md + 218 packaged skill
     // files), and the Cursor block rewrote none of them -- content is
     // byte-identical to what the Codex block alone wrote.
     const sharedFileList = listRelativeFiles(skillsShared);
@@ -384,7 +384,7 @@ test(
     );
 
     // Step 2: cursor alone, onto the SAME shared skills root. The shared-root
-    // operations (11 command skills + 24 skill directories) are all
+    // operations (12 command skills + 25 skill directories) are all
     // skip-existing; only Cursor's own 8 resource files install. Codex's
     // resources root is untouched by this step and stays present.
     const runCursor = runAkili(

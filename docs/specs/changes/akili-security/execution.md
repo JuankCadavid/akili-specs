@@ -323,3 +323,27 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 **Leader adjudication.** All three are in scope (KZ-002 recurrence: summary clauses overstating the shipped text). Attempt 1 consumed. Effort bump high → xhigh. Leader note: the evidence re-run read "writes only a redacted index" in `README.md:844` as scoped, which it is not. The same unscoped phrasing also survives at `README.md:844` ("writes only a redacted index under `docs/specs/audits/`"), so attempt 2's brief names that site too (same obligation, FAIL 2).
 
 - Running totals: tasks 7/12 · review rounds 14 / 18 (T4 verdict pending).
+
+### T4 — Install counts and doctor fixture
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1), with one recorded Done deviation (Linux images) |
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (effort medium, no skill — mechanical counts; `tdd` not assigned, the red already existed) · Reviewer `opus` (checklist, effort medium) |
+| Files changed | `test/install-cursor.test.js` (9 lines: comments `:216` 218, `:227` `12 + 218 = 230`, `:232` 25, `:238` `12 + 25 = 37`, `:340` 230 / `12 + 218`, `:387` `12 + 25`; asserts `:245`/`:246` 218, `:249` `COMMAND_COUNT, 12` + message) · `test/fixtures/doctor-codex-baseline.txt` (+`  OK akili-security.md`, +`  OK security-audit` in sorted position; summary `ok 43` → `ok 45` — outside the listed lines but required: 12 commands + 25 skill dirs + 8 resources = 45; LF, `-text` per `.gitattributes`) |
+| Red run | `not ok 65 - … FR-2/FR-4 (Codex and Cursor share one skills root)…` and `not ok 75 - … doctor --tool codex output matches the pre-change (7cd681a) baseline byte-for-byte` (Leader's post-T2 run, taken as the baseline) |
+| Implementer verification | Derived counts measured: 12 commands, 25 skill dirs, 218 skill files. Closing grep `grep -nE "199\|210\|\b24\b\|\b11\b" test/install-cursor.test.js` → no output. Host `npm test`/`node --test`: Node 18.20.8, 22.12.0, 22.23.3 → 265/265, 0 fail. Docker `node:18` and `node:22` (`--network none`, repo `:ro` copied to `/tmp/w`, `--user node`): 253 tests, 246 pass, 6 skip, 1 fail (`tasks-gate`, jq absent). Install dry-run (scratch HOME): `akili-security` and `security-audit` listed for all five hosts. Pack: baseline `6d1e152` 4,494,174 B / 280 files; now 4,785,677 B / 302 files → **+291,503 B (~285 KB) ≤ 320 KB** (tree also held T5a/T5b docs). `git diff --stat -- bin/` → empty |
+| Falsifiers | Fixture reset to HEAD → `not ok … doctor --tool codex output matches the pre-change (7cd681a) baseline byte-for-byte`; `:245` = 217 → `not ok … FR-2/FR-4 (Codex and Cursor share one skills root)` (numbered 11 / 1 because the file ran alone); reverted → 265/265 |
+| Evidence re-run (Leader-inline) | **VERIFIED** — `npm test` (Node 22.12.0) 265/265; Node 18.20.8 `--test` 265/265; closing grep empty; `bin/` diff empty; fixture diff = the three lines above |
+| Leader probe (*Deferring a check*) | Assumption: "the Docker `tasks-gate` failure is the bare image lacking `jq`, not this change". Probe: `git archive 6d1e152` into scratch, `node --test test/tasks-gate.test.js` in `node:18` and `node:22` → both `jq is required to run test/tasks-gate.test.js (NFR-7 fixtures) but was not found on PATH on linux` → **reproduces at baseline**. Count gap: host `node --test test/tasks-gate.test.js` → `# tests 13`, the image reports 1 (the file aborts at its first assertion) → 265 − 12 = 253, so the Linux runs are full runs, not partial |
+| **Done deviation** | T4 Done says "Suite green on … both Linux images". **Not met as written:** Linux images 246 pass / 6 skip / 1 fail; the fail is `tasks-gate` jq-absent, reproduced at baseline `6d1e152` in both images → environment gap of bare images (CI installs jq). T4-attributable failures: **0**. A jq-equipped image was not built (`--network none` blocks apt) |
+| Windows | `UNVERIFIED` (P-13) — open for the user's first CI run |
+| Reviewer verdict | **PASS** — every scoped line correct, constants still sourced from `SOURCE_SKILLS`/`COMMAND_COUNT`; fixture sorted, two-space indent, LF; `ok 45` required and correct; Node 18 run present (Disqualifier met). Issue raised for the record (not blocking): the Linux-images Done clause must be recorded as a deviation, not "green" — recorded above |
+| ADVISORY | Explain the 253 vs 265 gap (done — `tasks-gate` 13 → 1); Windows `UNVERIFIED` in the Done record (done) |
+| Requirements covered | FR-1 *Install on every host*, NFR-1 (`bin/` unchanged), NFR-3 (Node 18 + 22 local; Linux with the recorded gap; Windows open), NFR-4 (pack delta ≤ 320 KB) |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+| Final verification | `npm test` 265/265 on Node 18.20.8, 22.12.0, 22.23.3 |
+
+- Running totals after T4: tasks 8/12 · LOC ~423 · review rounds 15 / 18.

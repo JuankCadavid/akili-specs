@@ -209,7 +209,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~12 lines) |
 | Depends on | T1, T2 |
 | Requirements | FR-1 (*Install on every host*), NFR-1, NFR-3, NFR-4 |
