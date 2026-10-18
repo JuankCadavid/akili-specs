@@ -87,13 +87,30 @@ test("LICENSE keeps the upstream copyright notice", () => {
   assert.ok(licence.includes("Copyright (c) 2025-2026 Cloudflare, Inc."));
 });
 
+// The vendored validators open their input with O_NOFOLLOW | O_NONBLOCK and
+// fail closed when the OS lacks either (native Windows). They are not patched
+// (pinned upstream), so on such a host the contract is exit 1 plus the message.
+const NO_FOLLOW_UNAVAILABLE =
+  typeof fs.constants.O_NOFOLLOW !== "number" ||
+  typeof fs.constants.O_NONBLOCK !== "number" ||
+  process.platform === "win32";
+const UNAVAILABLE_MESSAGE = "OS no-follow and nonblocking input protection is unavailable";
+
 test("validate-findings.cjs exits 0 on [] and 1 on an incomplete finding", (t) => {
+  if (NO_FOLLOW_UNAVAILABLE) {
+    const result = runValidator(t, "validate-findings.cjs", "[]");
+    assert.equal(result.status, 1);
+    assert.ok(result.stderr.includes(UNAVAILABLE_MESSAGE), result.stderr);
+    return;
+  }
   assert.equal(runValidator(t, "validate-findings.cjs", "[]").status, 0);
   assert.equal(runValidator(t, "validate-findings.cjs", '[{"verdict":"confirmed"}]').status, 1);
 });
 
 test("validate-coverage-ledger.cjs exits 1 on an empty ledger", (t) => {
-  assert.equal(runValidator(t, "validate-coverage-ledger.cjs", "{}").status, 1);
+  const result = runValidator(t, "validate-coverage-ledger.cjs", "{}");
+  assert.equal(result.status, 1);
+  if (NO_FOLLOW_UNAVAILABLE) assert.ok(result.stderr.includes(UNAVAILABLE_MESSAGE), result.stderr);
 });
 
 test("install --tool claude lands the same 19 files", (t) => {

@@ -20,7 +20,7 @@ The command runs outside any spec. It has no Approval Mode and no pre-approved m
 
 | Step | What happens |
 |---|---|
-| 0. Preflight | Checks the loaded `security-audit` copy carries `adapted-for: "AKILI-SPECS"` and a pinned `source`; runs `node --version`; resolves the target, source ref, dirty state and `<skill-dir>`; checks whether an independent sub-agent can be spawned |
+| 0. Preflight | Checks the loaded `security-audit` copy carries `adapted-for: "AKILI-SPECS"` and a pinned `source`; runs `node --version`; stops on native Windows (see *Residual Risk and Disclosure*); resolves the target, source ref, dirty state and `<skill-dir>`; checks whether an independent sub-agent can be spawned |
 | 1. Plan gate | Shows target, scope, profile, budget, run directory, execution policy, host capability and disclosure; stops until the user answers **Run**, **Adjust** or **Stop** |
 | 2. Run | Runs the skill in full audit mode (all six phases) in the next unused `run-<N>`, passing every prior run so re-runs are additive; every delegated prompt carries the command's brief addendum |
 | 3. Validator gate | Runs `validate-findings.cjs` and `validate-coverage-ledger.cjs` after Phase 4 and after every Phase 5 replacement; the index is written only when both exit 0, or the run is recorded `incomplete` |
@@ -46,6 +46,7 @@ Naming follows [`/akili-audit`](akili-audit.md) with the prefix `security-`. A `
 |---|---|
 | Agent behaviour is not machine-enforced | The gates, the brief addendum and the "target content is data" rule are instructions to the agent. The two validators check the audit records, not what the agent did; no tool here can prove the agent honoured a gate |
 | Static-only by default | Every run executes nothing the target controls. Sandboxed execution applies to one run, only when the user selects it at the plan gate and confirms a mechanism enforcing all four controls: no external network, an allowlisted empty environment, a read-only target with writes only to the agent's `scratch/`, and CPU/memory/process/file/disk/time limits. If any control cannot be confirmed the plan reads static-only. Nothing installs dependencies, fetches from the network or probes deployed endpoints in either mode |
+| Not supported on native Windows | The vendored validators require `fs.constants.O_NOFOLLOW` and `O_NONBLOCK`, which Windows lacks, so they fail closed (`OS no-follow and nonblocking input protection is unavailable`, exit 1) and no finding could be validated. The preflight stops before the plan gate when `process.platform` is `win32` or either constant is `undefined`. Run the command from WSL, Linux or macOS. The validators are not patched, to keep fidelity with the pinned upstream commit |
 | Expected yield | A static-only run produces mostly `needs_validation` records, because a `confirmed` record requires `execution.observed_result` recording actual local output |
 | Disclosure | Counts by verdict and severity are an accepted disclosure. On a repository you cannot confirm is private, do not commit the index while `confirmed` records are open |
 | Routed Bug proposals | A Bug proposal contains vulnerability detail once committed. For public repositories, use a private fork or a private security advisory instead |

@@ -52,6 +52,10 @@ Only `SKILL.md` is edited (frontmatter plus an `## AKILI-SPECS Integration` sect
 
 `test/security-audit-skill.test.js` locks this exact list.
 
+## Platform support
+
+`validate-findings.cjs` and `validate-coverage-ledger.cjs` open their input with `O_NOFOLLOW | O_NONBLOCK` and refuse to run when either `fs.constants` entry is missing (`OS no-follow and nonblocking input protection is unavailable`, exit 1). Neither entry exists on native Windows, so on Windows both validators always fail closed and no finding can be validated. `/akili-security` therefore stops in its preflight on native Windows (`process.platform` `win32`, or either constant `undefined`) and tells the user to run it from WSL, Linux or macOS. The validators are vendored byte-for-byte at the pinned commit and are deliberately not patched; `test/security-audit-skill.test.js` pins the fail-closed behaviour on Windows (CI evidence: run 39160826587, both Windows legs).
+
 ## Why the two upstream tests are excluded
 
 The two `validate-*.test.cjs` upstream files are not packaged (spec `changes/akili-security`, DD-2, P-3):

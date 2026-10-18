@@ -88,6 +88,14 @@ test("FR-2 No Node.js: a failing `node --version` stops before the plan gate", (
     "Node.js stop before the plan gate missing");
 });
 
+test("FR-2 Native Windows: the preflight stops before the plan gate and names the O_NOFOLLOW/O_NONBLOCK reason", () => {
+  const s0 = step(0);
+  has(s0, /\*\*Native Windows is not supported\.\*\*/, "native Windows stop missing");
+  has(s0, /If it prints `win32`, or either `typeof` is `undefined`, stop before the plan gate/, "win32 / undefined-constant stop missing");
+  has(s0, /`fs\.constants\.O_NOFOLLOW` and `O_NONBLOCK` do not exist there/, "O_NOFOLLOW/O_NONBLOCK reason missing");
+  has(s0, /Do not patch or bypass the validators/, "no-patch clause missing");
+});
+
 test("FR-2 No Node.js BUT: never runs an audit whose findings cannot be validated", () => {
   has(step(0), /Never run an audit whose findings cannot be validated/, "unvalidatable-audit prohibition missing");
 });
