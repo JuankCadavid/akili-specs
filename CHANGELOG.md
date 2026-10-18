@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **A red Ctrl-C case in the pty suite now carries its own evidence instead of `null !== 130` (release classified patch, `bugfix/pty-harness-ubuntu-flake`).** `test/routing-pty.test.js` fails an `RC` or tty assertion with the case's reason, `expect <fixture> exited with status <n> (signal <s>)`, every `<<…>>` marker the transcript holds, and the transcript's last 30 lines, emitted through `t.diagnostic` and the assertion message; the four `pty-*.exp` fixtures replace their `echo RC=$?` and `stty -a` exchanges with one `\n`-terminated probe line that logs `<<TTY: <flags> PG=<n> FG=<n>>>` before `RC=`, and the suite asserts `icrnl`, `icanon`, `isig`, `echo` and `PG == FG` (the retired `<<STTY: …>>` marker and `sttyEcho` are gone). When `AKILI_PTY_LOG_DIR` is set, every transcript of a run is copied there before the scratch root is removed; unset, nothing changes. `.github/workflows/ci.yml` sets that variable on the Unit tests step, uploads the directory from the Linux legs as `pty-transcripts-<os>-node<version>` on a failed job (`if: failure()`, `if-no-files-found: ignore`), prints `node -v && expect -v` on Linux, and gains `workflow_dispatch` inputs `pty_loops` (run the pty suite N times) and `pty_inject_failure` (put a failing fake `expect` on `PATH`). A new regression test, `test/routing-pty-evidence.test.js`, drives the real suite with that fake `expect` (`test/fixtures/routing/fake-expect.sh`, installed executable at runtime, never committed as one) and asserts the sentinel, `status 2` and `<<TIMEOUT: unmatched wait>>` inside the Ctrl-C case's own TAP block; it skips on Windows with a printed reason like the suite it drives. `AGENTS.md` names the env var and the artifact. The Ubuntu flake's root cause stays open — the next red carries the fields that separate the hypotheses. `test/` and `ci.yml` are not in the package; the spec folder ships under `docs/`.
 
 ## [2.32.1] - 2026-10-17
 

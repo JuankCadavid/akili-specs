@@ -60,3 +60,11 @@
 **Final verification result:** PASS — all T1 verification commands green in author and non-author runs; four falsifiers red and restored; `bin/` untouched.
 
 **Constitution Impact:** none — no module created or reshaped; `test/` gains one test file and one fixture inside existing folders. CodeGraph re-index pending at `/akili-archive` as usual.
+
+### T2 — CI: dispatch inputs, versions, transcript artifact, failure injection; `AGENTS.md:13` clause — IN PROGRESS
+
+**Decisions made so far (recorded at the moment of each edit):**
+- **User decision at the T1 gate (2026-10-18):** continue to T2; LOC overrun pre-approved up to ~250; before any push, prepare patch release v2.32.2 per `AGENTS.md` → Release Rules and `docs/release-checklist.md` (CHANGELOG *Unreleased* notes → `npm run release:patch` → verifications → release commit); after the release commit, the push to `origin/master` and T2's CI runs (including `pty_inject_failure=true`) are approved; **no `npm publish`, no `npm whoami`, no GitHub Release** — npm publication is ordered separately by the user.
+- **Spec conflict reported and resolved:** design §9 stated that no CHANGELOG *Unreleased* line is added. The Leader stopped and reported the clash; the user approved an execute-time edit to §9 (amendment appended, meaning of the approved requirements unchanged) and the CHANGELOG entry. Carried into the T2 Reviewer brief as a named conformance check.
+- **Two-phase T2 spawn (Leader design, from the release-before-push rule):** Phase A — local edits to `ci.yml` and `AGENTS.md`, verified by a Ruby YAML load and `git diff --check`, committed as `443fbe9`; Phase B — after the push, the same Implementer (context kept) reads the push run, runs the inject dispatch, settles P-12, and edits design §12. Phase A's `Not Done / Assumptions` names the Leader-owned push as the pending item — a deliberate partial, not a continuation and not an attempt.
+- Leader brief error, recorded for kaizen: the T2 brief predicted that `grep -n "artifact\|pty" docs/release-checklist.md` would hit the word "artifact"; the Implementer executed it and found 0 hits (KZ-changes--leader-brief-contract-2 shape, no cost).
