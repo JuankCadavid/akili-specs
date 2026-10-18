@@ -30,7 +30,7 @@ Ctrl-C at either `akili init` question SHALL end the process with one newline an
 ## 4. System Context & Scope
 
 - Node 22.23.3: Ctrl-C at either question prints `AbortError: Aborted with Ctrl+C` plus frames and exits 1. Node 22.12.0: Ctrl-C exits 0 with no output. Both versions install nothing (proposal → *Reproduction Steps*, `expect` run 2026-10-18 on both versions × both questions).
-- Node 18: `UNVERIFIED — confirm at source before relying on it`. Settled by the CI `node: [18, 22]` matrix (`.github/workflows/ci.yml:31`) at T1's CI run, or by a local `nvm install 18` run (owner: T1).
+- Node 18: `UNVERIFIED — confirm at source before relying on it`. Settled by the CI `node: [18, 22]` matrix (`.github/workflows/ci.yml:31`) on the Node 18 CI leg at the first push after T1 (owner: Juan Carlos, who pushes; design P-4). *Amended 2026-10-18 at the Phase 3 checklist to match the user's Phase 1 decision "Node 18 coverage via CI is fine": the local-install path is dropped.*
 - `akili routing` already does the corrected behavior for its typed questions (`makeRoutingIo.ask`, `bin/akili.js:2319–2344`; `runRouting` catch → `process.exitCode = 130` at `:2384`).
 - When stdout is a TTY, `init` runs the update check first (`checkForUpdates`, `bin/akili.js:1926–1928`). That check hits `registry.npmjs.org` unless `$HOME/.akili-specs-update.json` holds a `checkedAt` under 24 h old (`readUpdateCache`, `:1849–1862`; `getLatestVersion`, `:1910–1915`).
 - **Out of scope** (approved as follow-ups 2026-10-18): stdin EOF before an answer (today a silent exit 0 that installs nothing), and a top-level `main().catch`. Also out of scope: any wizard redesign.
