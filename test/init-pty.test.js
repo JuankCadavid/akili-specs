@@ -215,3 +215,43 @@ test("pty init FR-2 (c): answered 1/1 installs Claude Code globally and exits 0"
     ]);
   });
 });
+
+// FR-4 (Pivot V-1): stdin at end-of-input before an answer exits 130. No pty
+// is involved — stdin is the null device — so this case never uses SKIP.
+function failEof(t, r, reasons) {
+  const out = `${r.stdout || ""}${r.stderr || ""}`;
+  const tail = stripAnsi(out).replace(/\r/g, "").split("\n").slice(-30).join("\n");
+  const head = `init eof: ${reasons.join("; ")}\nakili init exited with status ${r.status} (signal ${r.signal})`;
+  t.diagnostic(`${head}\nlast 30 output lines:\n${tail}`);
+  assert.fail(`${head}\nlast 30 output lines:\n${tail}`);
+}
+
+test("init FR-4 (d): init with stdin at EOF exits 130, nothing installed", (t) => {
+  t.diagnostic(`process.version ${process.version} (${process.execPath})`);
+  withScratch((ctx) => {
+    const preload = path.join(__dirname, "fixtures", "init", "no-network.js");
+    const r = spawnSync(process.execPath, [AKILI_BIN, "init"], {
+      cwd: ctx.cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
+      timeout: 60000,
+      env: {
+        ...process.env,
+        HOME: ctx.home,
+        USERPROFILE: ctx.home,
+        NODE_OPTIONS: `--require "${preload}"`,
+        AKILI_NET_MARKER: ctx.netLog,
+      },
+    });
+    const out = `${r.stdout || ""}${r.stderr || ""}`;
+    const checks = [
+      [`FR-4: status 130 (read ${r.status})`, r.status === 130],
+      ["FR-4: zero trace lines (^\\s+at )", !/^\s+at /m.test(out)],
+      ["FR-4: no AbortError", !out.includes("AbortError")],
+      ["FR-4: no install target in HOME or cwd", noInstallTarget(ctx)],
+      ...offlineChecks(ctx),
+    ];
+    const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
+    if (failed.length) failEof(t, r, failed);
+  });
+});

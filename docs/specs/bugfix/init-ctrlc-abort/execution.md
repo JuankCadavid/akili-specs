@@ -45,15 +45,43 @@
 | Issues encountered | none beyond the tripwire |
 | Final verification | PASS — see evidence re-run |
 
+### T2 — Pin end-of-input → exit 130 (Pivot V-1)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 |
+| Review intensity | Reviewer **owed**: `Review: full`, override (b) (CLI exit-code contract), and (e) on attempt 2 (rework) |
+| Models | Implementer `sonnet` (registry T2; effort medium → high on attempt 2). Reviewer `opus` (≠ Implementer) |
+| **Attempt 1** — files changed | `test/init-pty.test.js` (+40: `failEof` + case (d) `init FR-4 (d): init with stdin at EOF exits 130, nothing installed`, no `SKIP`, `stdio: ["ignore","pipe","pipe"]`, scratch `HOME`/`USERPROFILE`, `--require` preload) · `CHANGELOG.md` (one clause added to the `[Unreleased]` entry) · `docs/cli.md` (+1 line) |
+| Attempt 1 — red run | `ad7022a`'s `bin/akili.js` swapped in, restored `cmp`-exact: v22.23.3 and v22.12.0 → `not ok 4 - init FR-4 (d): init with stdin at EOF exits 130, nothing installed` / `init eof: FR-4: status 130 (read 0)`; only the status check red |
+| Attempt 1 — falsifier (7) | `AKILI_SELECT_ABORT` branch disabled → (d) `FR-4: status 130 (read 1); FR-4: zero trace lines (^\s+at )` on both versions; restored → 4/4 |
+| Attempt 1 — evidence re-run | **VERIFIED** (Leader-inline): `init-pty` 4/4 on both versions, `npm test` 264/264 on both, `verify:cli` ok, `pack:dry-run` 0 `test/`, `diff --check` clean, no `bin/`/`package.json` diff |
+| Attempt 1 — Reviewer | **`STATUS: FAIL`** (verbatim issue): "In the CHANGELOG `[Unreleased]` entry, the sentence after the inserted clause still reads: \"It skips on Windows, or when `expect` is not on `PATH`, with a printed reason, and copies its transcripts to `AKILI_PTY_LOG_DIR` when that is set.\" It was written for the three pty cases. Placed right after \"A fourth case, which needs no pty…\", its subject \"It\" (the regression test) now takes in case (d). For (d) this is false" (never skips; no expect transcript). Violated: `tasks.md` T2 steps 1–2, KZ-002. Remediation: rescope the sentence to the three pty cases |
+| Budget tripwire | Attempt 2 meant review round 3 vs 2 budgeted (pivot-adjusted). **Escalated; user decision 2026-10-18: "Approve round 3"** |
+| **Attempt 2** — files changed | `CHANGELOG.md` only: the sentence now reads "The three pty cases skip on Windows, or when `expect` is not on `PATH`, with a printed reason, and copy their transcripts to `AKILI_PTY_LOG_DIR` when that is set; the end-of-input case runs on every OS." |
+| Attempt 2 — evidence re-run | **VERIFIED** (Leader-inline): `init-pty` 4/4 on v22.23.3 and v22.12.0, `npm test` 264/264 on both, `verify:cli` ok, `pack:dry-run` 0 `test/`, `diff --check` clean, no `bin/`/`package.json` diff |
+| Attempt 2 — Reviewer | `STATUS: PASS` — issue 1 resolved; every `[Unreleased]` sentence re-quote-checked against the shipped test/code ("It runs offline" now covers all four cases, which is true). Re-review by message to the same Reviewer context |
+| ADVISORY (recorded — not tasks) | "`docs/cli.md` → *Init* states the Ctrl-C contract" now understates (cli.md also states the end-of-input contract) — not false |
+| Implementer `Not Done / Assumptions` (attempt 1, verbatim; judgment calls, no owed item → no continuation) | The existing CHANGELOG sentence said "in three cases" for the pty test. I left it as is, since it describes the pty cases. The new clause says "A fourth case, which needs no pty", so the entry stays truthful. This is a judgment call, not a spec requirement. `pack:dry-run` printed `akili-specs-2.32.2.tgz`, but no tgz appears in `git status`. |
+| runtime events | none |
+| spawns | Implementer a1 (sonnet) 14 calls, 90968 tokens, ended complete; Reviewer a1 (opus) 4 calls, 71926 tokens, ended complete; Implementer a2 (sonnet) 5 calls, 63958 tokens, ended complete; Reviewer a2 (opus, resumed by message) 2 calls, 76834 tokens, ended complete |
+| Budget running totals | tasks 2/2 (pivot-adjusted) · LOC ≈+433 / −47 across T1+T2 (T2 ≈+42/−1) · review rounds 3 vs 2 (round 3 user-approved) |
+| Requirements covered | FR-4, NFR-1, NFR-3 |
+| Decisions made | Pivot V-1 spec amendments (see Pivot Record, commit `e9838e9`) |
+| Issues encountered | the CHANGELOG scope sentence (attempt 1 FAIL) |
+| Final verification | PASS |
+
 ## 3. Summary
 
 | Field | Value |
 |---|---|
-| Tasks | 1/1 `[x]` (T1 PASS, attempt 1) |
-| Review rounds | 1 (budget 2) |
-| LOC | ≈373 inserted / 46 deleted (budget ~180, tripwire ~230 — overrun accepted by the user before review) |
+| Tasks | 2/2 `[x]` (T1 PASS attempt 1; T2 PASS attempt 2 — added by Pivot V-1) |
+| Review rounds | 3 (budget 2; round 3 user-approved) |
+| LOC | ≈+433 / −47 at T2 close, including the /akili-test +18 (budget ~180, tripwire ~230 — T1 overrun accepted by the user before review) |
 | Open | P-4 (Node 18) settles on the CI leg at the first push (Juan Carlos). Follow-ups already recorded in `proposal.md`: stdin EOF before an answer, top-level `main().catch` |
-| Next | `/akili-test bugfix/init-ctrlc-abort` → `/akili-validate` → `/akili-archive`. No push, no release from this worktree |
+| Next | Re-test (test-report case (d)) → re-validate → `/akili-archive`. No push, no release from this worktree |
 
 ## Pivot Record: V-1 (raised at `/akili-validate`, after T1)
 

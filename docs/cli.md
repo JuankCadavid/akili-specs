@@ -15,6 +15,7 @@ akili init
 ```
 
 Ctrl-C at either question exits with code 130; nothing is installed.
+With no input (stdin at end-of-input), `init` also exits 130; nothing is installed.
 
 The tool prompt lists `1) Claude Code`, `2) OpenCode`, `3) Google Antigravity`, `4) OpenAI Codex CLI`,
 `5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five`. Inputs `5` and `6` changed

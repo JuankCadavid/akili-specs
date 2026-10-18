@@ -91,7 +91,7 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC: `test/init-pty.test.js` case (d) ~20 · `CHANGELOG.md` 1 clause · `docs/cli.md` 1 line) |
 | Depends on | T1 |
 | Requirements | FR-4 (scenario: status `130`; `BUT` no `AbortError`/trace line; `AND IT MUST` no install target in `HOME` or cwd); NFR-1 (seed byte-identical, no `https` call); NFR-3 |
@@ -115,8 +115,8 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 | Consumers | `test/init-pty.test.js` cases (a)–(c) (must stay green) · `CHANGELOG.md` · `docs/cli.md` |
 
 **Done.**
-- [ ] (d) red at baseline on the status assertion (both versions), quoted. Green after, 4/4 on both versions.
-- [ ] Falsifier (7) observed red on (d) and restored green.
-- [ ] `npm test` green on both versions; `verify:cli`, `pack:dry-run`, `git diff --check` clean; no `bin/` or `package.json` diff.
-- [ ] CHANGELOG clause and `docs/cli.md` line quote-checked.
+- [x] (d) red at baseline on the status assertion (both versions), quoted. Green after, 4/4 on both versions.
+- [x] Falsifier (7) observed red on (d) and restored green.
+- [x] `npm test` green on both versions; `verify:cli`, `pack:dry-run`, `git diff --check` clean; no `bin/` or `package.json` diff.
+- [x] CHANGELOG clause and `docs/cli.md` line quote-checked.
 
