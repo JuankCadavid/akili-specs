@@ -143,6 +143,22 @@ function shellPromptOnOwnLine(log, question) {
   return at === 0 || after[at - 1] === "\n";
 }
 
+// FR-1 "one newline" (strict, /akili-test): the line right before the shell
+// prompt is the question's bare `> ` — no blank line from a doubled newline,
+// no text written after the prompt.
+function exactlyOneNewline(log, question) {
+  const lines = log.slice(log.lastIndexOf(question)).split("\n");
+  const at = lines.findIndex((l) => l.startsWith("SH> "));
+  return at > 0 && lines[at - 1] === "> ";
+}
+
+// FR-2 BUT (/akili-test): each answered question's prompt line reads exactly
+// `> <answer>` — no default marker or trailing text after the prompt.
+function promptLinesExact(log, answers) {
+  const prompts = log.split("\n").filter((l) => l.startsWith(">"));
+  return prompts.length === answers.length && prompts.every((l, i) => l === `> ${answers[i]}`);
+}
+
 function noInstallTarget(ctx) {
   return INSTALL_TARGETS.every((d) => !fs.existsSync(path.join(ctx.home, d)) && !fs.existsSync(path.join(ctx.cwd, d)));
 }
@@ -167,6 +183,7 @@ function abortCase(mode, question) {
       assertChecks(t, run, [
         [`FR-1: RC=130 (read RC=${rc})`, rc === 130],
         ["FR-1: newline before the shell prompt (SH> starts its own line)", shellPromptOnOwnLine(run.log, question)],
+        ["FR-1: exactly one newline (the line before SH> is the bare `> `)", exactlyOneNewline(run.log, question)],
         ["FR-1: zero trace lines (^\\s+at )", !/^\s+at /m.test(run.log)],
         ["FR-1: no AbortError", !run.log.includes("AbortError")],
         ["FR-1: no install target in HOME or cwd", noInstallTarget(ctx)],
@@ -191,6 +208,7 @@ test("pty init FR-2 (c): answered 1/1 installs Claude Code globally and exits 0"
     assertChecks(t, run, [
       [`FR-2: RC=0 (read RC=${rc})`, rc === 0],
       ...[...TOOL_OPTIONS, ...SCOPE_OPTIONS].map((o) => [`FR-2: option line verbatim: ${JSON.stringify(o)}`, lines.has(o)]),
+      ["FR-2: prompt lines read exactly `> 1` (no default marker or trailing text)", promptLinesExact(run.log, ["1", "1"])],
       ["FR-2: HOME/.claude/commands present", fs.existsSync(path.join(ctx.home, ".claude", "commands"))],
       ["FR-2: nothing created in cwd", fs.readdirSync(ctx.cwd).length === 0],
       ...offlineChecks(ctx),
