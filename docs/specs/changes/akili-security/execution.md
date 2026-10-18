@@ -278,3 +278,48 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 | Final verification | `npm test` 263/265 with exactly the two T4-owned reds; command 173 lines |
 
 - Running totals after T2: tasks 7/12 · LOC ~413 authored · review rounds **13 / 18** (T2 used 6 of its 2 budgeted — three attempts × two lenses). Remaining at one round each if all pass first time (T4 1, T5b 1, T6 2, T7 1): 18 / 18 — at the tripwire, not over. A further FAIL anywhere trips it.
+
+### T5b — command docs, README, `docs/flow.md`, T3 doc mirrors — attempt 1: FAIL
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (effort high, `cognitive-doc-design`) · Reviewer `opus` (checklist, effort high) |
+| Files changed | new `docs/commands/akili-security.md` (63 lines); `README.md` (+6/−1: contents list, table row, description entry, lifecycle bullet, audit description), `docs/cli.md` (6/6: 11 → 12 commands at four sites, 24 → 25 skills at three), `docs/commands/README.md` (+3/−1), `docs/commands/akili-archive.md` (`:68` → `drift-*`), `docs/commands/akili-audit.md` (`:34` → `drift-*` + DD-5 hand-rename note), `docs/commands/akili-constitution.md` (`:43`, `:53`), `docs/flow.md` (+8/−4: security artifact row, new §2b, `drift-*` at the artifact table, §2 narrative, Measure bullet), `docs/skills/kaizen.md` (`:24`) |
+| Red run | `ls docs/commands/akili-security.md` → `No such file or directory`; `grep -c "drift-\*" docs/flow.md` → `0` (now `3`); counts at HEAD `ls .claude/commands \| wc -l` → 12, `ls -d .claude/skills/*/ \| wc -l` → 25 |
+| Implementer verification | Phrase sweep (`t5b/sweep.md`): 18 hits — 9 updated, 9 correct as is; count sweep: five `docs/cli.md` hit groups updated, others unrelated (`docs/plans/` dates); quote-check (`t5b/quote-check.md`) against the shipped command and T3 files; two non-command clauses flagged (hand-rename note — task-mandated; "agent behaviour is not machine-enforced" — `Unverified:`) |
+| Not Done / Assumptions (verbatim) | "The flow.md model-routing table (:390 neighbourhood) has no `/akili-security` row. The task did not list it. The command's Step 0 does state T1 for orchestration and T3 for verifiers, so a row is possible if you want one." · "I added README.md's lifecycle bullet and flow.md section 2b beyond the listed lines, as the "standalone-commands narrative"." · "The sweep excluded docs/plans, which holds historical plan files." — Leader: no owed item; a model-routing row is out of scope by DD-7 |
+| Evidence re-run (Leader-inline) | **VERIFIED** — phrase-family grep over `docs/` + `README.md` (excl. `docs/specs/`, `docs/plans/`) → every hit scoped to `drift-*`/`security-*` or a carve-out; `\b(11\|24)\b` → 0 hits; page 63 lines |
+| Reviewer verdict | **FAIL** — 3 issues (verbatim below); forward pointers closed, counts right, DD-7 held, additions within FR-14 |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended partial (assumptions only); reviewer — not reported by host, ended complete (FAIL) |
+
+**Reviewer FAIL report (verbatim; relayed unchanged to attempt 2):**
+
+> STATUS: FAIL
+>
+> 1. Discovered Issue: summary rows say full artifacts are always outside the target.
+>    - `docs/flow.md` artifact table row: "Full findings stay in the run directory outside the target"
+>    - `docs/flow.md` §2b: "Full findings stay in a run directory outside the target"
+>    - `README.md` table row and `docs/commands/README.md` row: "full artifacts in an external run directory"
+>    Violated Rule: FR-6 ("outside the target by default. A directory inside the target MAY be used only when … `git check-ignore` confirms"), KZ-002. The shipped plan-gate Disclosure row says: "Full findings stay in the run directory, outside the target or in the ignored directory chosen below". Step 4 also has a "Repo-relative" run-path form for that case. The new command page states it correctly ("by default … or `--out`").
+>    Remediation Suggestion: say "outside the target by default (or in an ignored in-target directory)" in all four places, or shorten it to "in the run directory".
+>
+> 2. Discovered Issue: `docs/flow.md` §2b says "the command writes only a redacted index at `docs/specs/audits/security-…`".
+>    Violated Rule: amended FR-12 ("Its only writes to tracked repository content are the index file"), FR-6, and the shipped Step 1 text "This command never writes tracked repository content except the index". The command also writes `run-metadata.json`, `akili-index-map.json` and the full findings set to the run directory. "Writes only" is the unscoped claim the amendment removed. The Leader re-run flagged this sentence.
+>    Remediation Suggestion: "the only tracked repository content it writes is a redacted index at …", which matches the command page's own sentence.
+>
+> 3. Discovered Issue: the `README.md` description bullet says "the validators must both exit 0 before an index is written".
+>    Violated Rule: FR-7 / shipped Step 3: "The index (Step 4) and the user report are produced only when **both exit 0**, or when `run-metadata.json` records `run_status: "incomplete"` with its `incomplete_reason`, which the index then states first." An incomplete run does write an index without both validators passing. The new command page gets this right ("or the run is recorded `incomplete`").
+>    Remediation Suggestion: "…the index is written only when both validators exit 0, or with the run recorded `incomplete`".
+>
+> ADVISORY
+> - On the command page, the "Static-only by default" row opens with "Every run executes nothing the target controls" and then gives the sandboxed exception. The shipped text has the same shape, but on a summary page it reads as a contradiction. Consider "Unless sandboxed execution is approved for that run, a run executes nothing the target controls."
+> - The command page's `## Source` line is `../../.claude/commands/akili-security.md`. Sibling pages (akili-audit.md, akili-seo.md) use `.claude/commands/<name>.md`. Match the convention.
+> - `docs/commands/akili-constitution.md` scaffold sentence: "most recent drift report" narrows the shipped `.claude/commands/akili-constitution.md` Step 7.6 wording ("most recent report"). It is harmless and consistent with FR-13, but it no longer quotes the shipped text exactly.
+> - The plan-gate row on the command page lists the displayed fields without "Expected yield", which the shipped plan table includes. Expected yield is covered further down the page, so this is not a contradiction.
+> - The README "Agent behaviour cannot be machine-enforced" clause is task-mandated and was marked Unverified by the Implementer. It is accepted as a residual-risk statement, not a factual claim about tooling.
+
+**Leader adjudication.** All three are in scope (KZ-002 recurrence: summary clauses overstating the shipped text). Attempt 1 consumed. Effort bump high → xhigh. Leader note: the evidence re-run read "writes only a redacted index" in `README.md:844` as scoped, which it is not. The same unscoped phrasing also survives at `README.md:844` ("writes only a redacted index under `docs/specs/audits/`"), so attempt 2's brief names that site too (same obligation, FAIL 2).
+
+- Running totals: tasks 7/12 · review rounds 14 / 18 (T4 verdict pending).
