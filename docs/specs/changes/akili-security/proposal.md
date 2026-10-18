@@ -10,7 +10,7 @@
 | Approval Mode | gated (the user asked for one approval per phase: propose → specify → execute) |
 | Date | 2026-10-18 |
 | Author | AKILI session (proposer) |
-| Status | **Draft** — awaiting approval (Juan Carlos Cadavid) |
+| Status | **Approved** — 2026-10-18 (Juan Carlos Cadavid, via the Methodology agent): option A; open questions 1, 2, 4 take the recommended default; Q3 reversed at specify (tests not vendored — P-3, design DD-2); Q5 deferred (design DD-7) |
 | Related | `/akili-audit` (`.claude/commands/akili-audit.md`), `/akili-seo` (domain-command precedent), `docs/skills/governance.md` |
 | Upstream source | `https://github.com/cloudflare/security-audit-skill` @ `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8` (2026-09-14, "Clarify guidance and full audit modes"), path `skills/security-audit/` |
 | Depends on | none |
