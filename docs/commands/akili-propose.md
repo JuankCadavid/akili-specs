@@ -45,6 +45,8 @@ Bare names default to `changes/<name>`. Paths containing `/` are used as provide
 
 The detected type is recorded as `Type: Bug | Change | Trivial` in the proposal's Document Control so `/akili-specify` inherits it.
 
+**Deliverable:** recorded beside `Type` as `Deliverable: software | video`, orthogonal to it. `Type` is the risk track; `Deliverable` is the kind of artifact the spec produces, detected from the requested deliverable (a rendered video file, or a composition that renders to one) and resolved inside the one classification question when ambiguous. A Trivial request with `Deliverable: video` continues as a Lite proposal and is never routed to `/akili-quick`, which has no render gate. The next command is still `/akili-specify`, where Video Mode applies.
+
 ## Output
 
 Creates or updates:
@@ -57,7 +59,7 @@ If `docs/specs/kaizen-log.md` exists, the command reads its `## Active Lessons` 
 
 ## Proposal Sections
 
-- Document Control (records `Type: Bug | Change | Trivial`)
+- Document Control (records `Type: Bug | Change | Trivial` and `Deliverable: software | video`)
 - Intent
 - Problem / Current Behavior
 - Proposed Outcome

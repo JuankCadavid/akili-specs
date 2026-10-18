@@ -54,6 +54,14 @@ docs/specs/<spec-path>/validation-report.md
 - a lightweight **Agent Guide / Constitution Impact** check: if `execution.md` records module-boundary changes, confirm the child guides and the parent `## Module Guides` index are not stale (flagged WARN and left for `/akili-archive`)
 - UI/UX, API, security, accessibility, error handling, and observability as relevant
 
+## Video Specs
+
+When `requirements.md` records `Deliverable: video` (an absent row means software), validate loads `video-production` in its setup so the availability gate fires here too; if the gate stops, validation is BLOCKED. Then:
+
+- `check` is the build-integrity command, and a passing `check` never replaces the final look.
+- **Final look:** validate does not report PASS for the spec without one, whatever else is green. Decoded frames of the draft render are reviewed against every acceptance criterion and the storyboard in `design.md`, by a human at the HITL pause or a tier-T6 multimodal review. The look and its verdict are recorded in the report.
+- **Delivery render:** run only after the final look is approved, locally, and never while a delegated agent is active.
+
 ## Next Step
 
 If archive-ready:

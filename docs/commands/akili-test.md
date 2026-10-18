@@ -25,6 +25,8 @@ The main session acts as the **Leader** (orchestrator). It partitions testing in
 
 If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold it.
 
+**Video specs:** when `requirements.md` Document Control has `Deliverable: video` (an absent row means software), the Leader plans a **render evidence** suite for the video tasks in place of unit/E2E, per `video-production`. If the suite has no HyperFrames install when suites are planned, that is missing test infrastructure: the command stops, tells the user the install route from `video-production`, and writes no substitute test.
+
 **Cross-tool spawn:** Claude Code / OpenCode spawn the Step 8E `akili-tester` wrapper when present; Google Antigravity uses `invoke_subagent`; **Codex**, if `.codex/agents/akili-tester.toml` exists, has the Leader request the named `akili-tester` role by name with the suite's context slice — Codex spawns it, routes the work, and waits. **Cursor**, if `.cursor/agents/akili-tester.md` exists, has the Leader invoke the named subagent with the suite's context slice — Cursor's Task tool launches it and returns its report to the Leader; several independent suites spawn several Testers in one message, running in parallel (<https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01`). Without wrappers, every host falls back to a sub-prompt seeded with `tester.md`. **Observed live 2026-09-17 (codex-cli 0.154.0), per the model-driven-orchestration note in `/akili-execute`:** the Leader calls a `spawn_agent` tool with the wrapper's name as `agent_type`; the subagent's report returns to the Leader, inspectable with `/subagents`.
 
 **Model checkpoint:** the Leader runs best on **T1**; Testers route through their Step 8E wrapper (T2) when present. Switch with `/model` in Claude Code, the OpenCode model selector, `/model` in Codex (also sets reasoning effort when available — no separate `/reasoning` command; `Last verified: 2026-09-17` — <https://learn.chatgpt.com/docs/cli/slash-commands>), or `/model` in the Cursor `agent` CLI (`Last verified: 2026-10-01` — <https://cursor.com/docs/cli/reference/configuration>; the IDE's model picker is `UNVERIFIED — confirm at source before relying on it`). The registry is a floor, not a ceiling: a stronger session model than the registry entry means the registry is stale, not that you should downgrade.
@@ -54,6 +56,7 @@ The report includes:
 - frontend unit test evidence
 - integration test evidence
 - E2E test evidence
+- render evidence (only when `Deliverable: video`)
 - requirement-to-test matrix
 - scenario coverage status
 - failures and remediation

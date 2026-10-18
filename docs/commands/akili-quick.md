@@ -31,6 +31,7 @@ Before editing, the command checks all gate criteria. If any fails, it **stops a
 
 - Small but with logic, or a real bugfix → `/akili-specify <spec-path>` (Lite).
 - A **bug** whose fix touches logic/behavior → `/akili-propose <name>` (Bug Track: diagnose the root cause first), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick`.
+- Edits a **video** composition (a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
 - Non-trivial, risky, cross-cutting, or uncertain → `/akili-propose <change-name>`.
 - Needs a new design token/pattern → `/akili-propose` or `/akili-specify` so the token is designed, not improvised.
 

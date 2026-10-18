@@ -165,7 +165,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T10 — Docs surfaces
 
-- **Status:** [ ] · **Size:** M · **Depends on:** T1–T9
+- **Status:** [x] · **Size:** M · **Depends on:** T1–T9
 - **Requirements:** FR-10 (docs clauses), FR-9 (README restatements), FR-8 (truthful index row)
 - **Design:** §4 docs row; P-6, P-15, P-16
 - **Scope:** `docs/skills/video-production.md` (new); `docs/skills/README.md` row; `README.md` skill list + `:151` + `:828`; `AGENTS.md` Skill Usage bullet; `docs/flow.md` conditional list; `docs/commands/akili-{propose,specify,test,validate,quick}.md`; `docs/cli.md:183,195,216` counts

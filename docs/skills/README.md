@@ -42,6 +42,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 | [`tailwind-design-system`](tailwind-design-system.md) | stack | Seth Hobson (MIT) | Tailwind CSS v4 tokens, component systems, responsive patterns | Skill Map; constitution/specify stack lists |
 | [`ui-ux-pro-max`](ui-ux-pro-max.md) | conditional | nextlevelbuilder (MIT) | UI/UX design intelligence, palettes, typography, accessibility — AKILI's preferred UI/UX skill | UI steps of `/akili-constitution`, `/akili-specify`, `/akili-execute`, `/akili-test`, `/akili-validate`, `/akili-seo` |
 | [`vercel-react-best-practices`](vercel-react-best-practices.md) | stack | Vercel (MIT) | React and Next.js performance and architecture guidance | Skill Map; constitution/specify/test stack lists |
+| [`video-production`](video-production.md) | conditional | Juan Carlos Cadavid — jcadavid.com (MIT); inspired by HyperFrames by HeyGen (Apache-2.0) | Bridge between AKILI phases and the installed HyperFrames skills for `Deliverable: video` specs: availability gate, phase map, privacy and render rules (never vendors HyperFrames) | `/akili-specify` Video Mode, `/akili-test` render evidence suite, `/akili-validate` final look and delivery render |
 
 ## Usage Rules
 

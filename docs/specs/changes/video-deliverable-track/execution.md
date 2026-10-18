@@ -271,3 +271,26 @@
 - spawns: implementer 4 calls, 56 318 tokens, ended partial (assumption only); reviewer not reported by host at write time, ended complete
 - Constitution impact: none (no module created or reshaped); deployed `.agents/leader.md` copies read OUTDATED after the next release (P-17) — release-time, via `doctor --agents --fix`
 - Running totals vs budget: tasks 9/12 · LOC ~286 + spec amendments · review rounds 13/13 expected (tripwire 20); remaining T10, T11 → expected 15 — over the 13 estimate by the two amendment re-reviews, under the tripwire
+
+### T10 — Docs surfaces
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (ran alone) |
+| Review intensity | Reviewer **owed**: quote-check is judgment; override (c) — derived evidence (counts, aggregate claims) |
+| Requirements covered | FR-10 (docs clauses), FR-9 (README restatements), FR-8 (truthful index row) |
+
+- Files changed: new `docs/skills/video-production.md` (~60 lines, shape of `gsap-animation.md`); `docs/skills/README.md`, `README.md` (skill list + both FR-9 restatements), `AGENTS.md` (Skill Usage bullet), `docs/flow.md`, `docs/cli.md` (3 counts), `docs/commands/akili-{propose,specify,test,validate,quick}.md` — tracked +25/−7
+- Skills: `cognitive-doc-design`. Effort: high
+- Red run (baseline at `22e990b`): `grep -n "24 packaged skills" docs/cli.md` → 3 hits
+- Implementer verification: counts re-measured at `7a152bb` — `ls -d .claude/skills/*/ | wc -l` → 25, `find .claude/skills -type f | wc -l` → 202; `docs/cli.md` "25 packaged skills" ×3; "24 packaged skills|24 skills" in live docs → 0; claim table with a HEAD citation per clause (SKILL.md Step 0 / Privacy / Render rules / frontmatter; `akili-propose.md:92,99,100,165,272`; `akili-specify.md:63-69,232,418`; `akili-test.md:108,111`; `akili-validate.md:68,92,141,143`; `akili-quick.md:55`; governance rules 2/4; `akili-constitution.md:732-734`); P-6 sweep on-topic `README.md:152,829`, `governance.md:27,29`, `akili-constitution.md:732-733` (FR-9 rule), off-topic `README.md:128,132,141`, `governance.md:57`, `akili-constitution.md:859`
+- Falsifier executed: "AKILI installs HyperFrames" appended → `grep -n -i hyperframes bin/akili.js bin/routing.js bin/persona.js scripts/*.js` → no lines (no installer backing); removed
+- Not Done / Assumptions: `docs/commands/akili-{test,validate}.md` had no skills-wiring section — short "Video specs" paragraphs + one render-evidence bullet added; archive untouched; `npm test` left to T11
+- Evidence re-run (Leader-inline): **VERIFIED** — 10 modified + 1 new; 0 stale-count hits; 3 "25 packaged skills"; `git diff --check` clean; falsifier line absent
+- Reviewer (opus): **PASS** — every behaviour sentence quote-checked against HEAD, none overstated or unsourced; counts re-measured (25 / 202; 27 skill pages = 25 + README + governance); FR-10 surfaces complete; FR-9 restatements match governance rule 2
+- ADVISORY (recorded, not actioned): (i) the "render evidence" bullet in `docs/commands/akili-test.md`'s report list is backed only indirectly (the command's Output list and Phase 4 report sections have no render-evidence entry; backing is the planned suite feeding the requirement-to-test matrix); (j) `docs/skills/README.md` and `governance.md` still describe `conditional` as "(UI, animation)" beside tables that now include `video-production`; (k) `README.md` "prints the install route" (singular) vs SKILL.md printing all routes — matches the command's own wording
+- runtime events: none
+- spawns: implementer 13 calls, 93 860 tokens, ended partial (assumptions only); reviewer not reported by host at write time, ended complete
+- Running totals vs budget: tasks 10/12 · LOC ~286 product + ~85 docs ≈ 371 (~650 est.) · review rounds 14 (13 expected; +2 amendment re-reviews, T2 FAIL) — under the 20 tripwire

@@ -107,6 +107,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `tailwind-design-system`
   - `ui-ux-pro-max`
   - `vercel-react-best-practices`
+  - `video-production`
 - `.claude/templates/`
   - `leader.md`
   - `implementer.md`
@@ -150,7 +151,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Python 3 + `google-auth` + `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | Plus a Google service-account key; the rest of `/akili-seo` runs without Python |
 | Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present. Codex's own Windows git-bash dependency is unconfirmed — name it explicitly for Windows Codex users |
 | Archify skill (`npx skills add tt-a1i/archify`) | Interactive HTML views of diagram slots (optional) | Your own install; without it, diagrams stay Mermaid (see below) |
-| Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command works without them (see `docs/skills/governance.md`) |
+| Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command still runs without them, except that a spec whose `Deliverable` selects one (`Deliverable: video` and `hyperframes`, through `video-production`) stops at that skill's availability gate (see `docs/skills/governance.md`) |
 
 `akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every push.
 
@@ -830,7 +831,7 @@ Fallback rule:
 
 - when `ui-ux-pro-max` is unavailable, use `frontend-design` + `stitch-design` for UX/UI design work and `frontend-design` for UI validation/testing support.
 
-**Skill governance:** the skill set is curated, not accumulated. Every packaged skill declares its original author and license plus how AKILI binds it into the flow (`core` — hard-wired to a command step; `conditional` — loaded when the work touches its domain; `stack` — selected per project via the `## Skill Map` that `/akili-constitution` writes into the project guides). New skills enter only through the acceptance checklist in [docs/skills/governance.md](docs/skills/governance.md). Skills shipped by external tools — `orchestration`, `playwright-cli`, the `hyperframes` family — are **referenced through the Skill Map, never vendored**: the tool serves the version-matched guide, and availability stays per-developer. Curation and adaptation by [Juan Carlos Cadavid](https://jcadavid.com), always preserving original authorship.
+**Skill governance:** the skill set is curated, not accumulated. Every packaged skill declares its original author and license plus how AKILI binds it into the flow (`core` — hard-wired to a command step; `conditional` — loaded when the work touches its domain; `stack` — selected per project via the `## Skill Map` that `/akili-constitution` writes into the project guides). New skills enter only through the acceptance checklist in [docs/skills/governance.md](docs/skills/governance.md). Skills shipped by external tools — `orchestration`, `playwright-cli`, the `hyperframes` family — are **referenced through the Skill Map, never vendored**: the tool serves the version-matched guide, and availability stays per-developer. Every command still runs without them; the one narrowing is that a spec whose `Deliverable` selects one (`Deliverable: video`, through the packaged `video-production` bridge skill) stops at that skill's availability gate and prints the install route. Curation and adaptation by [Juan Carlos Cadavid](https://jcadavid.com), always preserving original authorship.
 
 **Optional: Archify interactive diagrams.** The packaged `diagram-design` skill writes every diagram slot as inline Mermaid. If you also want an interactive HTML view of each slot, install [Archify](https://github.com/tt-a1i/archify) by tt-a1i (MIT licence) yourself: `npx skills add tt-a1i/archify`. AKILI references it and never ships or installs it; without it, diagrams stay Mermaid and every command works unchanged.
 

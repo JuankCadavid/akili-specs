@@ -47,6 +47,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `tdd` for test-first implementation of logic-heavy tasks (algorithms, business rules, contracts); the `/akili-execute` Leader assigns it per task — expected values come from `requirements.md` scenarios, seams from `design.md`.
 - Use `frontend-design`, `ui-ux-pro-max`, `tailwind-design-system`, or `shadcn-ui` for UI work.
 - Use `gsap-animation` for animation work (read the matching `references/` file for the task).
+- Use `video-production` for specs whose Document Control records `Deliverable: video`; it runs the availability gate for the environment-provided `hyperframes` skills and maps video activities to AKILI phases (read the matching `references/` file for the task).
 - Use `judgment-day` for blind adversarial design reviews during `/akili-specify`.
 - Use `kaizen` for continuous-improvement retrospectives; `/akili-archive` loads it in its Kaizen Retrospective step.
 - Use `software-architect` for TRD creation, NFR/quality-attribute identification, architecture style and pattern selection, and robust-vs-lite stack sizing; `/akili-constitution` loads it in its TRD step and `/akili-specify` for architecturally significant designs (read only the matching `references/` file per task).
