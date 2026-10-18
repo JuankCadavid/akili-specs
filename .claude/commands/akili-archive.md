@@ -80,8 +80,8 @@ docs/specs/archive/2026-05-16-bugfix--login-redirect/
 4. Read Kaizen inputs (each only if it exists):
    - `docs/specs/kaizen-log.md` — the `## Active Lessons` digest. Its `## Entries` section is frozen history: readable as a permanent legacy fallback, never written.
    - the entry files under `docs/specs/kaizen/` — the pending backlog and the recurrence feed (their `## Noted, not a lesson` sections included).
-   - the most recent report under `docs/specs/audits/`. **Most recent** means the highest `Date` header *inside* the reports, ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. A scaffolded `README.md` or `.gitkeep` is not a report.
-   - `docs/specs/drift-report.md` — the permanent legacy fallback for the drift source, read only when `docs/specs/audits/` holds no report file at all.
+   - the most recent drift report (`drift-*.md`) under `docs/specs/audits/` — a `security-*.md` index is never a drift source. **Most recent** means the highest `Date` header *inside* the `drift-*.md` reports, ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. A scaffolded `README.md` or `.gitkeep` is not a report.
+   - `docs/specs/drift-report.md` — the permanent legacy fallback for the drift source, read only when `docs/specs/audits/` holds no `drift-*.md` file.
    - `docs/specs/quick/quick-log.md` (only if this spec escalated from `/akili-quick`)
 
 ### Step 1: Check Archive Readiness

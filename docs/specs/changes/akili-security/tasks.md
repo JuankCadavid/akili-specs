@@ -101,7 +101,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (2 lines) |
 | Depends on | none |
 | Requirements | FR-13 (scenario incl. `BUT it must NOT read the security index as drift`) |
@@ -128,7 +128,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (1–2 lines) |
 | Depends on | none |
 | Requirements | FR-13 |
@@ -155,7 +155,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (2 lines) |
 | Depends on | none |
 | Requirements | FR-13 |
@@ -182,7 +182,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (1 line) |
 | Depends on | none |
 | Requirements | FR-13 (last sentence) |

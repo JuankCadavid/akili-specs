@@ -36,7 +36,7 @@ For all three modes:
 2. Ensure `docs/specs/` exists.
 3. Ensure `docs/specs/general-setup/` exists (its templates, including `family.md` for spec families, are authored in Step 7).
 4. Ensure `docs/specs/kaizen/` exists, scaffolded with a one-line `README.md` stating its role: *one kaizen entry file per spec, written by the `kaizen` skill's Record phase.*
-5. Ensure `docs/specs/audits/` exists, scaffolded with a one-line `README.md` stating its role: *one drift report per `/akili-audit` run.*
+5. Ensure `docs/specs/audits/` exists, scaffolded with a one-line `README.md` stating its role: *one drift report per `/akili-audit` run (`drift-*`) and one redacted index per `/akili-security` run (`security-*`).*
 6. **Both READMEs are scaffolding, never content.** A README never counts as a kaizen entry file or as an audit report for any reader: a "most recent report" read that finds only the README must conclude the directory holds none, and a pending-item count over `docs/specs/kaizen/` must skip it.
 7. Ensure root `AGENTS.md` exists or is enhanced — the project's single canonical agent guide.
 8. `CLAUDE.md` is optional: only ensure it when the project already has one, or when it needs one for a host or toolchain that cannot read `AGENTS.md` directly. When you do ensure it, it must be an `@AGENTS.md` import (see the rule immediately below this list), never a second copy of the guide.
