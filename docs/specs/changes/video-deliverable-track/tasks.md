@@ -11,8 +11,8 @@
 | Pinned upstream | `heygen-com/hyperframes@01adadb9` — every HyperFrames claim is raw-checked against it (KZ-changes--cursor-install-target-1) |
 | Revision | Round 1 after Judgment Day (`judgment.md`): T2 split per file, quick task added, fixture/doc consumers added, falsifiers re-stated |
 
-**Order:** T1 → (T2 ∥ T3 ∥ T4 ∥ T5 ∥ T6 ∥ T7 ∥ T8 ∥ T9) → T10 → T11 → T12. T2–T9 each edit one different
-file; each depends on T1 for the skill name and layout.
+**Order:** T1 → (T2 ∥ T3 ∥ T4 ∥ T5 ∥ T7 ∥ T8 ∥ T9) → T6 (alone, so its scoped suite runs on a quiet tree) → T10 → T11 → T12.
+T2–T9 each edit one different file; each depends on T1 for the skill name and layout.
 
 **Quiet-tree rule:** no `npm test` / `npm run …` while a delegated agent is active (AGENTS.md Concurrency).
 During the T2–T9 window, a task that needs a test runs a **scoped** suite only after its own Implementer
@@ -34,7 +34,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 - **Requirements:** FR-3 (routing to `hyperframes`), FR-4 (both scenarios + `AND IT MUST` both router names), FR-5, FR-6/FR-7 evidence text, FR-2 criteria and Bug-on-video shape, FR-8 (all clauses), NFR-2, NFR-3, NFR-4
 - **Design:** §4, §9, DD-2, DD-3, DD-6, DD-8, DD-9, DD-11, DD-12; P-7…P-11, P-14, P-18, P-19
 - **Scope:** `SKILL.md` (frontmatter per governance original-authorship variant; availability gate accepting `hyperframes` or a plugin-namespaced router; install routes for the 5 hosts, project-scoped dirs only; phase map; privacy defaults; draft vs delivery render; quiet-tree note; deferral table → `hyperframes`, `hyperframes-core`, `hyperframes-cli`, `hyperframes-animation`, `hyperframes-creative`, `media-use`, `embedded-captions`); `references/acceptance-criteria.md`; `references/render-evidence.md` (`format.duration` vs target ± tolerance and vs root `data-duration`)
-- **Tests / Verification:** (1) frontmatter walk vs `docs/skills/governance.md` schema; (2) `grep -n -o -E "npx hyperframes [a-z-]+( [a-z-]+)?" -r .claude/skills/video-production` — every **instructed** command ∈ NFR-2's instruct list; outward actions appear only inside the consent rule; each verified in the clone; (3) `cat .claude/skills/video-production/**/* | wc -c` ≤ 20000 and file count = 3; (4) `grep -ril "heygen" .claude/skills/video-production` hits only attribution/install lines; (5) 5 distinctive upstream sentences `grep -F` → 0 hits
+- **Tests / Verification:** (1) frontmatter walk vs `docs/skills/governance.md` schema; (2) `grep -n -o -E "npx hyperframes [a-z-]+( [a-z-]+)?" -r .claude/skills/video-production` — every **instructed** command ∈ NFR-2's instruct list; outward actions appear only inside the consent rule; each verified in the clone; (3) `find .claude/skills/video-production -type f -exec cat {} + | wc -c` ≤ 20000 and `find .claude/skills/video-production -type f | wc -l` = 3; (4) `grep -ril "heygen" .claude/skills/video-production` hits only attribution/install lines; (5) 5 distinctive upstream sentences `grep -F` → 0 hits
 - **Falsifier:** post-change, append an instruction line "run `npx hyperframes lambda render`" outside the consent rule → check (2) must flag it; set `name: hyperframes-bridge` → FR-8 walk must fail. Observe both, quote, revert
 - **Red run:** n/a — new files
 - **Disqualifier:** a subcommand "verified" from memory, not from the clone; a size measured with `du` (blocks)
@@ -92,7 +92,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 - **Status:** [ ] · **Size:** M · **Depends on:** T1
 - **Requirements:** FR-2 (both scenarios incl. `BUT`), FR-1 default + "reaches every reader" scenarios, FR-3 (owner of the per-task skill list), NFR-1
-- **Design:** §3 row 2; §5; §9 rows 1–2; DD-5; P-3, P-21
+- **Design:** §3 row 2; §5; §9 rows 1–2; DD-5; P-3, P-15, P-21
 - **Scope:** `### Video Mode` block after Bug Mode (trigger, load `video-production`, copy `Deliverable` into `requirements.md` Document Control, criteria via `acceptance-criteria.md`, storyboard-in-design rule, Bug × video regression shape); Phase 2 line beside the animation line; Step 3.2 clause: every task of a video spec lists `video-production`; Verification Checklist item (4 sites)
 - **Tests / Verification:** term walk of FR-2, FR-1 (default, reaches-every-reader) and FR-3 against the shipped text; every new line carries the `Deliverable: video` condition
 - **Falsifier:** post-change, drop the copy-into-requirements sentence → FR-1 "reaches every reader" must have no owning sentence; drop the Bug × video sentence → FR-2 scenario 2 must lose its owner. Observe, quote, revert
@@ -137,8 +137,8 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 - **Status:** [ ] · **Size:** S · **Depends on:** T1
 - **Requirements:** FR-7 (incl. MUST NOT PASS without the look; loads the bridge), FR-3 render-after-approval, NFR-1
-- **Design:** §3 row 5; §9 last two rows; DD-11
-- **Scope:** Phase 0 or 3 — load `video-production`; Phase 3 — `hyperframes check` as build integrity; Phase 6 — final look (HITL / T6, *Cross-host dispatch*) against each criterion and the storyboard, then the delivery render (2–3 sites)
+- **Design:** §3 row 5; §9 last two rows; DD-11; P-15
+- **Scope:** Phase 0 or 3 — load `video-production`; Phase 3 — `hyperframes check` as build integrity; Phase 6 — final look (human check at the HITL pause, or a tier-T6 Multimodal review routed per the registry's *Cross-host dispatch*, as `/akili-specify`'s defect-class rule already states) against each criterion and the storyboard, then the delivery render (2–3 sites; validate has no HITL anchor today — the text is new)
 - **Tests / Verification:** term walk FR-7 and FR-3 scenario 2
 - **Falsifier:** post-change, make the final look "recommended" → FR-7's MUST NOT PASS must lose its owner; observe, quote, revert
 - **Red run:** precondition: `grep -c "Deliverable: video" .claude/commands/akili-validate.md` → 0

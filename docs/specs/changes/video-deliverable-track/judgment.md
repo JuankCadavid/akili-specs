@@ -39,8 +39,45 @@
 | J-20 | Compare `format.duration` with target and `data-duration`; Skill Map row precedence | A-16 SUGG | — | info (applied) | DD-12; §9 precedence note |
 | J-21 | Q3 (doctor probe) unrecorded; persona drift consumer | — | B-17 SUGG | info (applied) | requirements Document Control; P-17 |
 
-**Counts:** 4 confirmed severe (J-1–J-4) · 3 more both-judge confirmations with split severity (J-5, J-6, and J-4's WARNING half) · 9 confirmed WARNING · 5 suspect (all settled at the source and applied) · 2 info · 0 contradictions.
+**Counts:** 4 confirmed severe (J-1–J-4) · 3 more both-judge confirmations with split severity (J-5, J-6, and J-4's WARNING half) · 9 confirmed WARNING · 4 suspect (J-7, J-17, J-18, J-19 — all settled at the source and applied) · 2 info · 0 contradictions.
 
-## Round 1 — scoped re-judgment
+## Round 1 — scoped re-judgment (target: ledger at `4f3f83f` + delta `22e990b..4f3f83f`)
 
-See the section below, appended after the re-judges return.
+Both judges were interrupted once by a usage limit and resumed from their saved state. They ran read-only and did not touch git.
+
+| J | Judge A | Judge B |
+|---|---|---|
+| J-1–J-6, J-8–J-13, J-16, J-17, J-19–J-21 | resolved | resolved |
+| J-7 | partially (parallel window vs quiet tree) | resolved |
+| J-14 | partially (T8 anchor, T1 glob) | resolved |
+| J-15 | partially (rounds per intensity) | partially |
+| J-18 | resolved | partially (T1 glob) |
+
+New findings from the delta: **0 severe**. Warnings and suggestions are listed below; all were applied in a polish commit, which is not a second fix round.
+
+| ID | Raised by | Finding | Applied |
+|---|---|---|---|
+| R-1 | A-5, B-1 | T1 size check used `**` without globstar and `cat` on a directory | `find … -type f -exec cat {} + \| wc -c`; file count via `find` |
+| R-2 | A-6, B-3 | 20 rounds was not backed by the Review intensities | expected 13 (full = 2, checklist = 1), ceiling and tripwire 20 |
+| R-3 | A-4, B-5 | "T6 Multimodal" (tier) collided with task T6 | written "tier-T6" |
+| R-4 | A-7, B-6 | P-23 download route checkable now | cited `package.json:41`; local presence stays `UNVERIFIED` |
+| R-5 | A-1 | P-22 counted verified while unsettled | marked `UNVERIFIED`, owner T11 |
+| R-6 | A-7 | P-20 settleable now | verified (`akili-audit.md` 0 hits; `:33,46`) |
+| R-7 | A-2 | T6 scoped suite vs parallel window | T6 runs alone after the parallel window |
+| R-8 | A-3 | validate has no HITL / Cross-host anchor | T8 scope cites specify's defect-class rule; the text is new |
+| R-9 | B-2 | P-4 comment lines wrong | re-run: `:232,:238,:387` |
+| R-10 | B-4 | judgment counts said 5 suspects | corrected to 4 |
+| R-11 | B (passed-checks note) | T5/T8 Design omitted P-15 | added |
+
+Counts after the polish: 20 verified · 2 `UNVERIFIED` (P-22, P-23) · 1 refuted — 23 rows. P-20 moved to verified and P-22 to `UNVERIFIED`.
+
+## Terminal receipt
+
+| Field | Value |
+|---|---|
+| Rounds used | 1 fix round + 1 scoped re-judgment (of 2 allowed) |
+| Confirmed severe at close | 0 |
+| Contradictions | 0 |
+| Skill resolution | `judgment-day` (user `~/.claude/skills`); `cognitive-doc-design` for the ledger |
+
+**JUDGMENT: APPROVED ✅**

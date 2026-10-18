@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/video-deliverable-track` |
 | Depth | Standard (re-checked in §12) |
-| Status | Draft — revised after Judgment Day round 1 (`judgment.md`), awaiting the specify gate |
+| Status | Draft — Judgment Day APPROVED (`judgment.md`), awaiting the specify gate |
 | Date | 2026-10-18 |
 | Verified at | `22e990b` (this repo); `01adadb9` (`heygen-com/hyperframes`, shallow clone, LFS off); skills CLI `1.5.18` and `1.7.2` |
 | Skill name decision | `video-production` — confirmed (DD-2) |
@@ -112,7 +112,7 @@ fix now costs a Lite proposal; accepted, because quick cannot produce render evi
 
 ## 11. Premise Ledger
 
-Counts: 20 verified · 2 `UNVERIFIED` (both Low: P-20, P-23) · 1 refuted-and-absorbed (P-14) — 23 rows.
+Counts: 20 verified · 2 `UNVERIFIED` (both Low: P-22, P-23) · 1 refuted-and-absorbed (P-14) — 23 rows.
 Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P-21; `shared-state` fires
 (one condition read by several blocks) → P-22; `consumer` fires (new field; skill set; `leader.md` section)
 → P-15, P-16, P-17.
@@ -122,7 +122,7 @@ Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P
 | P-1 | `Type` is read downstream only by specify (Bug Mode) and mentioned by quick | existence | `grep -n -E "Type: Bug\|\`Type\`\|Type: Change\|Bug Mode" .claude/commands/*.md .claude/templates/*.md` → hits only in `akili-quick.md:52`, `akili-propose.md`, `akili-specify.md` (both judges re-ran) | `22e990b` | §3 fall-through rows wrong (High) | — |
 | P-2 | Governance forbids vendoring `hyperframes`; rule 2 says every command must work without it | other | `docs/skills/governance.md:17-31` (rule 2 at :27-29) | `22e990b` | DD-7 unnecessary (Low) | — |
 | P-3 | Conditional skills wire by one specify line + task skill lists the Leader treats as defaults | location | `akili-specify.md:220`, `:404`; `.claude/templates/leader.md:25` | `22e990b` | DD-5 path changes (High) | — |
-| P-4 | Skill-set counts: 199 files, 24 dirs; only `install-cursor.test.js:245` is a literal, dirs/ops are computed; comments at `:216,232,340,387` state 24 | data-env | `find .claude/skills -type f \| wc -l` → 199; `ls -d .claude/skills/*/ \| wc -l` → 24; judge A read of `:216-387` | `22e990b` | T11 scope (Low) | — |
+| P-4 | Skill-set counts: 199 files, 24 dirs; only `install-cursor.test.js:245` is a literal, dirs/ops are computed; comments at `:232,238,387` state 24 | data-env | `find .claude/skills -type f \| wc -l` → 199; `ls -d .claude/skills/*/ \| wc -l` → 24; `grep -n 24 test/install-cursor.test.js` → `:232,:238,:387` | `22e990b` | T11 scope (Low) | — |
 | P-5 | Installer copies skill dirs recursively, no filter | location | `bin/akili.js:50` `copyTreeSync`, `:456` `listSkills`, `:638` `copyDirectoryContents` | `22e990b` | installer task needed (High) | — |
 | P-6 | The "works without it" rule and its family are stated at `governance.md:27,29`, `akili-constitution.md:730-731`, `README.md:151`, `README.md:828` | other | `grep -rn -i -E "work without\|without (it\|them\|that tool)\|run every command\|every command (works\|must)\|per-developer\|Skill Map, never vendored" docs/skills/governance.md .claude/commands/akili-constitution.md README.md docs/flow.md AGENTS.md` → those hits plus off-topic `governance.md:43`, `README.md:127,131,140`, `constitution.md:856` | `22e990b` | FR-9 sweep misses a site (High) | — |
 | P-7 | Upstream is Apache-2.0 with no NOTICE | existence | upstream `LICENSE`; `find . -maxdepth 2 -iname 'NOTICE*' -not -path './.git/*' \| wc -l` → 0 | `01adadb9` | NOTICE task needed if we ever redistribute (Low) | — |
@@ -138,10 +138,10 @@ Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P
 | P-17 | Changing `leader.md` text inside `primary-instructions` changes its section hash vs the `2.32.2` digest; deployed copies read OUTDATED after release; digests are written by `scripts/release.js`, not by this change | consumer | judge A hash simulation (edited ≠ `2.32.2` digest); AGENTS.md (templates bullet: `release.js` writes `digests.json`) | `22e990b` | DD-5 rationale (Low) | — |
 | P-18 | Outward commands exist upstream: `feedback`, `publish`, `cloud`, `lambda`, `cloudrun`; `--file-issue` on feedback | data-env | upstream `packages/cli/src/commands/{cloud,cloudrun,lambda,publish,feedback}.ts` (judge B); `skills/hyperframes-cli/SKILL.md:134-146`, `references/preview-render.md:182` (judge A) | `01adadb9` | FR-5 list wrong (Low) | — |
 | P-19 | Plugin installs expose the router namespaced (`/hyperframes:hyperframes`); agents' non-interactive install is `npx hyperframes skills update`; non-interactive `npx skills add` without `--skill` installs all 21 | data-env | upstream `README.md:47,53-58,70` | `01adadb9` | FR-4 gate misses plugin installs (High) | — |
-| P-20 | `/akili-audit` compares codebase vs TRD/UX and has no spec-type branch, so compositions are audited as project files | other | `UNVERIFIED — confirm at source before relying on it` | — | an audit could flag compositions as undocumented drift; accepted (Low) | Juan Carlos — at the first real video spec's `/akili-audit` |
+| P-20 | `/akili-audit` compares codebase vs TRD/UX and has no spec-type branch, so compositions are audited as project files | other | `grep -c -E "Type:\|Deliverable" .claude/commands/akili-audit.md` → 0; Steps 1–2 scan the codebase vs docs (`akili-audit.md:33,46`) | `4f3f83f` | an audit could flag compositions as undocumented drift; accepted (Low) | — |
 | P-21 | Live path: propose Document Control → specify Step 0 item 3 reads `proposal.md` → specify writes `requirements.md` Document Control (new, T5) → test/validate read `requirements.md` → Leader reads task skill lists | live-path | `akili-specify.md` Step 0 item 3; `akili-test.md:30`; `akili-validate.md:67`; `leader.md:25` | `22e990b` | a reader never sees the field (High) | — |
-| P-22 | The `Deliverable: video` condition is read by these blocks: specify Video Mode, specify Phase 2 line, specify Step 3.2 clause, specify checklist item, test Phase 1 suite list + STOP bullet, validate Phase 3 + Phase 6, quick escalation line, `leader.md` example | shared-state | enumeration of this design's §3/§4 sites — to be re-grepped at T11 (`grep -rn "Deliverable: video" .claude`) | `22e990b` (design) | a block drifts from the shared definition (Low) | T11 grep |
-| P-23 | Chrome availability for local render | data-env | `UNVERIFIED — confirm at source before relying on it` (CLI downloads Chrome via `@puppeteer/browsers`) | — | T12 blocked (Low) | T12 first step |
+| P-22 | The `Deliverable: video` condition is read by these blocks: specify Video Mode, specify Phase 2 line, specify Step 3.2 clause, specify checklist item, test Phase 1 suite list + STOP bullet, validate Phase 3 + Phase 6, quick escalation line, `leader.md` example | shared-state | `UNVERIFIED — confirm at source before relying on it` — baseline `grep -rn "Deliverable: video" .claude \| wc -l` → 0 at `4f3f83f`; the blocks do not exist yet | — | a block drifts from the shared definition (Low) | T11 — `grep -rn "Deliverable: video" .claude` matches this enumeration |
+| P-23 | Chrome is available locally for render | data-env | `UNVERIFIED — confirm at source before relying on it` — the download route is verified (upstream `packages/cli/package.json:41` `@puppeteer/browsers ^3.2.2`); local presence is not | — | T12 blocked (Low) | T12 first step |
 
 Consumer rows → `Consumers` fields: P-15 → T4, T5, T7, T8, T10; P-16 → T10, T11; P-17 → T6.
 
@@ -151,7 +151,7 @@ Consumer rows → `Consumers` fields: P-15 → T4, T5, T7, T8, T10; P-16 → T10
 |---|---|
 | Tasks | 12 |
 | LOC (mostly prose) | ~650 added / ~25 changed |
-| Review rounds | 20 — two per rules-text task (T1–T9 = 18), one each for T10–T11; T12 `skip-eligible` = 0 |
+| Review rounds | expected 13 (`full` = 2: T1, T5; `checklist` = 1: T2–T4, T6–T11; `skip-eligible` = 0: T12) — ceiling 20 (two per rules-text task T1–T9, per specify Step 2.4) |
 
 Depth check: Standard holds — twelve bounded tasks, no code path. Tripwire for `/akili-execute`: stop and
-escalate past 14 tasks, ~850 LOC, or 25 review rounds.
+escalate past 14 tasks, ~850 LOC, or 20 review rounds.

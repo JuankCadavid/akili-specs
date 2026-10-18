@@ -36,7 +36,7 @@ copied into the package.
 | Render evidence | The proof set for a video: `hyperframes check` result, timed snapshots, `ffprobe` metadata of a **draft render**, output file, final look |
 | Draft render | A local `render --quality draft` (or `looks`) made at test time for evidence; never the deliverable |
 | Delivery render | The local `render --quality delivery` that produces the deliverable — only after the final-look approval |
-| Final look | Human HITL or T6 Multimodal review of decoded frames against each acceptance criterion |
+| Final look | Human HITL or tier-T6 Multimodal review of decoded frames against each acceptance criterion |
 | Availability gate | The check that HyperFrames skills are installed before any video work starts |
 
 ## 4. System Context & Scope
