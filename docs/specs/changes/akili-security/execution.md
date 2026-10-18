@@ -499,3 +499,14 @@ Open items for the user (recorded, not tasks):
 
 - Kaizen candidate **K-8**: in a self-audit (dogfood), the validators the command runs live inside the audited target; trusting them rests on the T1 checksum walk, and the command has no wording for that case.
 - Agents: recon `sonnet` ×4 · hunters `sonnet` ×5 · critic `opus` ×1; `spawns` token counts not reported by host.
+
+**T8 routing-gate decision (2026-10-18).** User (Methodology agent, by Juan Carlos Cadavid's delegation): "opción 1, commitea el índice redactado tal como está (commit local, sin push). Registra los 4 deferred como candidatos para una corrida standard posterior." The index is committed as written.
+
+**Candidates for a later `standard` run** (from `coverage-ledger.json`, status `deferred`, reason `quick_profile_final_critic`; recorded, not tasks):
+
+| # | Surface → attack class | Why it needs a pass |
+|---|---|---|
+| D-1 | `bin/akili.js` `init` local-scope install → Resource and file handling | Install roots come from `process.cwd()`; a cloned repo's committed symlinked root could redirect copy writes and `cleanupLegacyFiles` deletions |
+| D-2 | `.claude/skills/*/scripts` executables → AI-AND-LLM Tool-argument injection | `design_system.py` persists under `design-system/<project_slug>/…` with no `..` rejection; `find-polluter.sh` unquoted expansion; argv output paths |
+| D-3 | `.claude/skills/*/SKILL.md` → AI-AND-LLM Indirect injection | No installed skill prompt was checked for fetched or cloned-repo content reaching a side-effecting sink |
+| D-4 | `bin/persona.js` parse/fix/migrate → Business logic | Marker and digest handling on attacker-editable persona files was never read |
