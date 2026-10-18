@@ -579,7 +579,7 @@ project guides so the project does not depend on the package's `docs/` after ins
    (slugs are concrete — no alias mechanism); if it is unknown, leave clearly-marked
    `<CONFIRM SLUG>` placeholders rather than guessing. Fill the **Antigravity** column the same way —
    name the family and effort ID rather than an alias: **Gemini 3.8 Flash** (effort carried in the
-   ID — `-high` / `-medium` / `-low`) for the volume tiers, and **Gemini 3.1 Pro** as the T3 auditor.
+   ID — `-high` / `-medium` / `-low`) for the volume tiers, and **Gemini 4 Argon** for T1 and the T3 auditor.
    Confirm the exact ID with the user by running `agy models`, mapping the AKILI effort dial onto the
    roster's three effort IDs per the registry's dial → ID map (`low`→`-low`, `medium`→`-medium`,
    `high`/`xhigh`/`max`→`-high`), and placeholdering what cannot be confirmed with `<CONFIRM ID>`.
@@ -852,7 +852,7 @@ them. Either way, existing wrapper files are skipped unless the user asks to rep
 
   | Field | Why AKILI sets it |
   |---|---|
-  | `model` | `inherit` \| `flash` \| `pro` — the registry's Antigravity column, from the mapping: each role's tier pick (Leader T1, Reviewer T3, Implementer/Tester T2) written as the family it belongs to — a Gemini Pro pick is `pro`, a Gemini Flash pick is `flash` (on the packaged roster: Reviewer `pro`, the other three `flash`) |
+  | `model` | `inherit` \| `flash` \| `pro` — the registry's Antigravity column, from the mapping: each role's tier pick (Leader T1, Reviewer T3, Implementer/Tester T2) written as the family it belongs to — a Gemini Flash pick is `flash`; a Gemini 4 Argon pick has no wrapper value, so its role is skipped and reported (on the packaged roster the Leader and Reviewer route to Argon and are skipped; Implementer and Tester are written `flash`) |
   | `subagent: true` | **Required** for the Leader to reach it via `invoke_subagent`. Without it the wrapper exists and is never invocable |
   | `mainAgent: false` | Keeps Implementer/Reviewer/Tester out of the primary-agent picker — they are only ever dispatched. The Leader keeps `mainAgent: true` |
   | `tools` | The Reviewer's read-only role stops being an instruction and becomes a **restriction** |

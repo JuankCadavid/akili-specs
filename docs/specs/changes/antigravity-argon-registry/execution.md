@@ -56,3 +56,32 @@
 - Reviewer (resume): not reported by host, ended `complete`.
 
 **Running totals vs budget (3 tasks · ~100 LOC · 6 rounds):** tasks 1/3 · LOC 53 · review rounds 2/6 — within budget.
+
+### T2 — Rules and docs text naming the retired T3 pick
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Attempts | 1 (run in parallel with T3; disjoint files) |
+| Requirements covered | FR-3 `AND IT MUST` documented (Step 8E row, `docs/cli.md`); FR-4 (retired Gemini 3.1 Pro text gone outside `docs/model-routing.md`) |
+| Skills | `cognitive-doc-design` (as tasks.md lists) · Effort `medium` |
+
+**Attempt 1.**
+- Files changed: `.claude/commands/akili-constitution.md` (`:582`, `:855`), `docs/commands/akili-constitution.md` (`:94`), `docs/cli.md` (`:448`) — 4+/4-.
+- Implementer verification: `git grep -c -e '3\.1 Pro' -e 'Reviewer \`pro\`' -e 'Sonnet 4\.6' -e 'model: flash\` or \`pro\`'` over the three files → no output (baseline 2/1/1). Falsifier: old `:582` text restored → `.claude/commands/akili-constitution.md:1`; edit restored. `npm run verify:cli` → `11 commands | 24 skills | 8 resources (akili-specs v2.32.2)`.
+- Not Done / Assumptions (verbatim gist): "I added no explicit 'skipped' mention to `:582` or `docs/commands/akili-constitution.md:94`. The task asked for the one-phrase swap only. The Argon skip reason is already stated in `docs/model-routing.md`." It names no blocker and no owed item, so it is not a continuation; the Reviewer judged it acceptable.
+- Evidence re-run (Leader-inline): **VERIFIED** — grep empty (rc=1), `verify:cli` same summary, `git diff --check` clean.
+- Reviewer (`opus`): **PASS** — the four sites are as specified; no site names `pro` as Argon's wrapper value; the skip wording matches `bin/routing.js:649`; the `:855` row reads correctly as a whole; the template is untouched (A2).
+- runtime events: none.
+
+**ADVISORY (recorded, not actioned).**
+1. `.claude/commands/akili-constitution.md:838-848`: the Step 8E Antigravity example YAML still shows `name: akili-reviewer` / `model: pro`, directly above the rewritten row. Step 8E is also the manual fallback when `akili routing` is unavailable, so an agent copying it could write a `pro` Reviewer for an Argon-routed role. P-7's sweep pattern (backticked `` `pro` ``) missed it. Leader confirmed the text at HEAD. **Flagged at the continue gate as a possible spec gap** (Advisory Never Becomes A Task).
+2. The `:855` row keeps `pro` in the value set but gives no rule for when `pro` is written.
+3. `docs/commands/akili-constitution.md:98`: "the Reviewer wrapper pins a different model than the Implementer wrapper" does not hold for Antigravity on the packaged roster. The line predates this spec.
+
+**Spawns.**
+- Implementer: 6 calls, 67,996 tokens, ended `partial` (Not Done carried; no continuation owed).
+- Reviewer: 6 calls, 77,968 tokens, ended `complete`.
+
+**Running totals vs budget (3 tasks · ~100 LOC · 6 rounds):** tasks 2/3 · LOC 61 · review rounds 3/6 — within budget.

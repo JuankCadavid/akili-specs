@@ -68,7 +68,7 @@ Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~15 LOC, 4 sites in 3 files) |
 | Depends on | T1 |
 | Requirements | FR-3 (`AND IT MUST` documented); FR-4 (prose drops the Gemini 3.1 Pro / Sonnet 4.6 text) — at the sites outside `docs/model-routing.md` (design P-7) |

@@ -448,7 +448,7 @@ dispatched cross-host (`--t3-cross-host`) gets three wrappers and no Reviewer.
 |---|---|---|---|---|
 | Claude Code | `.claude/agents/akili-<role>.md` | `tools: Read, Grep, Glob` | none | Step 8E, Claude Code bullet (no vendor URL) |
 | OpenCode | `.opencode/agent/akili-<role>.md` (`--opencode-agent-dir` overrides) | none — reported `read-only by instruction` on every run that writes it | none | Step 8E, OpenCode bullet (no vendor URL) |
-| Antigravity | `.agents/agents/akili-<role>/agent.md` | `tools:` only from confirmed names (`--antigravity-tools`); else omitted and reported | none in the wrapper (`model: flash` or `pro`); the effort lives in the registry id | Step 8E, Antigravity bullet (no vendor URL) |
+| Antigravity | `.agents/agents/akili-<role>/agent.md` | `tools:` only from confirmed names (`--antigravity-tools`); else omitted and reported | none in the wrapper (`model: flash`; an Argon pick writes no wrapper, its role is skipped and reported); the effort lives in the registry id | Step 8E, Antigravity bullet (no vendor URL) |
 | Codex | `.codex/agents/akili-<role>.toml` | `sandbox_mode = "read-only"` | `model_reasoning_effort` | <https://learn.chatgpt.com/docs/agent-configuration/subagents>, `Last verified: 2026-09-16` |
 | Cursor | `.cursor/agents/akili-<role>.md` | `readonly: true` | `[effort=<rung>]` bracket, only for a confirmed rung | <https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01` |
 
