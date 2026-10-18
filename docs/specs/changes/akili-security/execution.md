@@ -176,3 +176,21 @@ Exactly one mismatch: `SKILL.md` (adapted).
 Attempt 1 consumed (safety-lens FAIL is in scope). Rework (attempt 2, effort bumped xhigh → max — escalation of the tier is not taken; see the gate) is held until the user answers the three amendment proposals, so the rework brief carries the amended text instead of a pre-amendment one.
 
 - Running totals after T2 attempt 1: tasks 6/12 · LOC ~396 authored (T2 attempt 1: 163) · review rounds 8 / 18 (two lens verdicts).
+
+### Gate decision — 2026-10-18 (after T2 attempt 1, T5a)
+
+The user approved T-1, T-2 and T-3 as proposed, and the `LICENSE` clause for T5a ("Apruebo T-1, T-2 y T-3 tal como las propones, y sí, agrega la línea del LICENSE al alcance de T5a").
+
+**Execute-time spec edits (decisions made):**
+
+| Edit | File + section | Reason |
+|---|---|---|
+| T-1 | `requirements.md` FR-8 (statement + scenario `THEN`), FR-10 (`<pointer>`); `design.md` §5.1 Header row; `tasks.md` §3 FR-8 coverage row | Run path by location: `~/…` under HOME · repo-relative for an ignored in-target dir (FR-6) · otherwise `<external>/run-<N>`, real path in conversation only |
+| T-2 | `requirements.md` FR-12 | "only writes to tracked repository content"; an ignored in-repo run dir (FR-6) is not tracked content |
+| T-3 | `requirements.md` FR-4; `design.md` §5.1 Execution-policy row | *who* = the approver as named at the gate (default "the user"), never an OS account, git identity or home path |
+| T5a scope | `tasks.md` T5a Scope | re-sync procedure also copies the upstream repo-root `LICENSE` (T5a Reviewer advisory, promoted to scope by the user — not by the Leader); T5a reopened `[~]` |
+| Document Control | `requirements.md`, `design.md` §1 | `Amendments` row |
+
+**Correction closure.** Forward sweep (`~`-relative, `home-relative`, `inside the repository are`) over `requirements.md`, `design.md`, `tasks.md`, `.claude/`, `docs/skills/`: the only surviving old-form sites are in `.claude/commands/akili-security.md` (`:103`, `:125`, `:153`) — attempt 2's work, carried in its brief. `judgment.md` I-2/I-3 rows are history (what was approved then), left as is. Backward sweep (citations of FR-4/FR-8/FR-10/FR-12): `tasks.md` T2 Requirements/Scope, §3 coverage rows, `design.md` §7.1 checklist row — none asserts the superseded text. `git diff` of the three amended files read: every removed line is an intended replacement.
+
+These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs as named conformance checks.

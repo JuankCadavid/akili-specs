@@ -10,6 +10,7 @@
 | Approval Mode | `gated` (single specify gate at the user's instruction — see `requirements.md` §1) |
 | Status | **Approved** at the specify gate, 2026-10-18 (Juan Carlos Cadavid), after judgment-day APPROVED and the gate adjustments I-1, I-2, I-3, I-5, I-8, I-9, F-1, F-2 (`judgment.md` → *Gate adjustments*) |
 | Date | 2026-10-18 |
+| Amendments | 2026-10-18, execute-time spec tensions T-1 (run path by location: FR-8, FR-10, design §5.1), T-2 (FR-12 "tracked repository content"), T-3 (FR-4 *who*, design §5.1) — approved by the user at the T2 gate; record in `execution.md` → T2 |
 | Verified at | `6d1e152` — every Premise Ledger reading was **executed** in this session and is quoted, not predicted (KZ-changes--leader-brief-contract-2) |
 | Scratch evidence | `$SCRATCH` = this session's scratchpad: `pkg/` (package copy + vendored skill + stub command), `home/` (real install), `home2/` (collision), `rpkg/` + `proj/` (routing refusal), `nt-probe/` (Node discovery), `upstream-sha256.txt` |
 | Upstream clone | `/tmp/cf-sas.S52m/repo` @ `c1c8a8c` (untrusted download; only read, plus the two validators executed with path arguments) |
@@ -87,9 +88,9 @@ Name rules: identical to `/akili-audit` Step 3's table (date, `$SAFE_NAME` branc
 
 | Section | Fields (redacted default) | Detailed opt-in adds |
 |---|---|---|
-| Header | `# AKILI Security Audit Index` · `Date of Audit` · run id · run directory (`~`-relative) · source ref + dirty flag · profile · scope · prior runs read (count) | — |
+| Header | `# AKILI Security Audit Index` · `Date of Audit` · run id · run directory (location form, FR-8: `~/…` · repo-relative · `<external>/run-<N>`) · source ref + dirty flag · profile · scope · prior runs read (count) | — |
 | Verdict line | complete │ incomplete + `incomplete_reason` (first, when incomplete) | — |
-| Execution policy | static-only │ sandboxed (approved by, at, mechanism) | — |
+| Execution policy | static-only │ sandboxed (approved by — the approver as named at the gate, default "the user", never an OS account, git identity or home path — at, mechanism) | — |
 | Validators | both results (`PASS` / exit codes) | — |
 | Counts | by verdict (confirmed / needs_validation / rejected) · confirmed by severity | — |
 | Records | `S-n` · verdict · severity (confirmed only) · routing status (`open` / `routed → bugfix/security-<date>-s<n>`) | title · fingerprint |

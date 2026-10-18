@@ -236,14 +236,14 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[x]` |
+| Status | `[~]` |
 | Size | S (~70 lines) |
 | Depends on | T1 |
 | Requirements | FR-14 (skill page incl. re-sync procedure; README row; governance `core` row) |
 | Design refs | DD-2, DD-11, §7.2 |
 | Review | `checklist` |
 
-**Scope.** Page: what/when/binding/attribution/licence, file set, why the two tests are excluded (P-3), re-sync procedure (clone at new commit into an empty dir → diff → copy minus tests → keep `SKILL.md` frontmatter + AKILI section → update pin in frontmatter, test, page, CHANGELOG). README row truthful (Binding `core`). Governance *Current assignment* `core` row gains `security-audit` (security). Governance checklist items 1–5 answered in the page with links.
+**Scope.** Page: what/when/binding/attribution/licence, file set, why the two tests are excluded (P-3), re-sync procedure (clone at new commit into an empty dir → diff → copy minus tests, **plus the upstream repo-root `LICENSE`** → keep `SKILL.md` frontmatter + AKILI section → update pin in frontmatter, test, page, CHANGELOG). *(LICENSE clause added 2026-10-18 at the user's approval, after T5a's first PASS — T5a reopened.)* README row truthful (Binding `core`). Governance *Current assignment* `core` row gains `security-audit` (security). Governance checklist items 1–5 answered in the page with links.
 
 **Verification.**
 
@@ -379,7 +379,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | FR-5 *Injected instruction* (+ `AND IT MUST` eligible as finding) | T2 |
 | FR-6 *In-repo output not ignored* (+ `BUT` only the index under `docs/specs/`) | T2 |
 | FR-7 *Validator fails* (+ `BUT` not complete) | T2; validator behaviour T1 (d) |
-| FR-8 *Default index content* (+ `BUT` forbidden list incl. absolute home path / user name; `AND IT MUST` `Date of Audit`); `~`-relative path; accepted-disclosure advice | T2, T8 |
+| FR-8 *Default index content* (+ `BUT` forbidden list incl. absolute home path / user name; `AND IT MUST` `Date of Audit`); run path in location form (T-1); accepted-disclosure advice | T2, T8 |
 | FR-9 *Host without sub-agents* (+ `BUT` no self-verified confirmed) | T2 |
 | FR-10 *Selection* (+ `BUT` creates nothing; `BUT` slug/pointer from date + `S-n` only; `AND IT MUST` disclosure warning) | T2, T8 |
 | FR-11, FR-12 | T2 |

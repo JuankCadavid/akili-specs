@@ -10,6 +10,7 @@
 | Approval Mode | `gated` — at the user's instruction the three specify phases are presented at **one** specify gate ("Detente en el gate de aprobación de specify con el resumen", 2026-10-18) |
 | Status | **Approved** at the specify gate, 2026-10-18 (Juan Carlos Cadavid), after judgment-day APPROVED and the gate adjustments I-1, I-2, I-3, I-5, I-8, I-9, F-1, F-2 (`judgment.md` → *Gate adjustments*) |
 | Date | 2026-10-18 |
+| Amendments | 2026-10-18, execute-time spec tensions T-1 (run path by location: FR-8, FR-10, design §5.1), T-2 (FR-12 "tracked repository content"), T-3 (FR-4 *who*, design §5.1) — approved by the user at the T2 gate; record in `execution.md` → T2 |
 | Proposal | `proposal.md` — **Approved** 2026-10-18 (Juan Carlos Cadavid, via the Methodology agent): option A, vendored skill with `LICENSE` and pinned `c1c8a8c`, redacted in-repo index + full artifacts outside, static-only by default |
 | Format source | `docs/specs/archive/2026-10-16-changes--routing-keyboard-select/` — this repo has no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, as run 2026-10-18) |
 | Release | A new command → **minor** release (AGENTS.md *Release Rules*: "minor for new commands"). Recorded only; **no release, push or publish in this cycle** |
@@ -105,7 +106,7 @@ The command SHALL show a plan and stop for the user before spawning any agent: t
 
 ### FR-4: Execution gate — static-only by default
 
-Every run SHALL be static-only unless, at the plan gate, the user explicitly selects sandboxed execution for **this run** and confirms a sandbox mechanism that enforces all four upstream controls (no external network; allowlisted empty environment; read-only target with writes only to the agent's `scratch/`; CPU/memory/process/file/disk/time limits). The approval MUST be recorded in the index (who, when, mechanism). `run-metadata.json` keeps upstream's fixed `execution_policy: "sandboxed-source-and-local-only"` (upstream `SKILL.md:86` — static-only is the subset that executes nothing) and gains `akili_execution: "static-only" | "sandboxed-approved"`; neither validator reads `run-metadata.json` (design P-17). **Expected yield (stated in the plan gate):** a static-only run produces mostly `needs_validation` records, because a `confirmed` record requires `execution.observed_result` recording actual local output (upstream `HUNTING.md:210`, `validate-findings.cjs:553-554`); the plan gate says so before **Run**.
+Every run SHALL be static-only unless, at the plan gate, the user explicitly selects sandboxed execution for **this run** and confirms a sandbox mechanism that enforces all four upstream controls (no external network; allowlisted empty environment; read-only target with writes only to the agent's `scratch/`; CPU/memory/process/file/disk/time limits). The approval MUST be recorded in the index (who, when, mechanism), where *who* is the approver as the user names them at the gate (default "the user") — never an OS account, git identity or home path (FR-8; amended 2026-10-18, T-3). `run-metadata.json` keeps upstream's fixed `execution_policy: "sandboxed-source-and-local-only"` (upstream `SKILL.md:86` — static-only is the subset that executes nothing) and gains `akili_execution: "static-only" | "sandboxed-approved"`; neither validator reads `run-metadata.json` (design P-17). **Expected yield (stated in the plan gate):** a static-only run produces mostly `needs_validation` records, because a `confirmed` record requires `execution.observed_result` recording actual local output (upstream `HUNTING.md:210`, `validate-findings.cjs:553-554`); the plan gate says so before **Run**.
 
 #### Scenario: Default run
 
@@ -156,13 +157,13 @@ After Phase 4 and after every Phase 5 replacement the command SHALL run `node <s
 
 ### FR-8: Redacted index in `docs/specs/audits/`
 
-Each run that reaches a terminal state SHALL write `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`, with the same date, branch-suffix and collision rules as `/akili-audit`'s drift report. **Default (redacted)** content: run id, date, source ref + dirty flag, profile, scope + coverage statement (partial/complete, prior runs read), execution policy (FR-4 record), validator results, counts by verdict and by severity, one row per `confirmed` / `needs_validation` record keyed by an opaque local id (`S-1`, `S-2`, …) with severity (confirmed only) and routing status, and the run-directory path written home-relative (`~/…`), never as an absolute path that names the user or the home layout. Counts by verdict and severity are an **accepted disclosure**; the command still advises, on a repository it cannot confirm is private, not to commit the index while `confirmed` records are open. **Detailed** content (title + fingerprint per row) only when the user opts in at the routing gate after confirming the repository is private.
+Each run that reaches a terminal state SHALL write `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`, with the same date, branch-suffix and collision rules as `/akili-audit`'s drift report. **Default (redacted)** content: run id, date, source ref + dirty flag, profile, scope + coverage statement (partial/complete, prior runs read), execution policy (FR-4 record), validator results, counts by verdict and by severity, one row per `confirmed` / `needs_validation` record keyed by an opaque local id (`S-1`, `S-2`, …) with severity (confirmed only) and routing status, and the run-directory path written by location — home-relative (`~/…`) when under HOME; repo-relative when it is an ignored directory inside the target (FR-6); otherwise `<external>/run-<N>`, with the real path given only in conversation — never as an absolute path that names the user or the home layout (amended 2026-10-18, T-1). Counts by verdict and severity are an **accepted disclosure**; the command still advises, on a repository it cannot confirm is private, not to commit the index while `confirmed` records are open. **Detailed** content (title + fingerprint per row) only when the user opts in at the routing gate after confirming the repository is private.
 
 #### Scenario: Default index content
 
 - GIVEN a run with confirmed findings and the default index
 - WHEN the index is read
-- THEN it holds counts, `S-n` ids, severities and the `~`-relative run path
+- THEN it holds counts, `S-n` ids, severities and the run path in its location form (`~/…`, repo-relative, or `<external>/run-<N>`)
 - BUT it must NOT contain an absolute home path or user name, a title, fingerprint, file path or line of a finding, trace, payload, reproduction command, code excerpt, environment value or secret
 - AND IT MUST carry a `Date of Audit` header so `/akili-audit`'s reading rule stays well-defined for the folder
 
@@ -179,7 +180,7 @@ Full audit mode SHALL run only where the host can spawn independent sub-agents. 
 
 ### FR-10: Findings routing gate
 
-After the index is written, the command SHALL list `confirmed` records (severity descending) and `needs_validation` records (with blocker) and ask which confirmed records become specs. For each selected record it prints the exact next command (`/akili-propose bugfix/security-<YYYY-MM-DD>-s<n> <pointer>`, where the slug is built **only** from the run date and the `S-n` id, charset `[a-z0-9-]`, and `<pointer>` is the `~`-relative run directory plus `S-n` — never a finding title, fingerprint or any other text derived from target content) and updates the index row's routing status. `rejected` records are not listed.
+After the index is written, the command SHALL list `confirmed` records (severity descending) and `needs_validation` records (with blocker) and ask which confirmed records become specs. For each selected record it prints the exact next command (`/akili-propose bugfix/security-<YYYY-MM-DD>-s<n> <pointer>`, where the slug is built **only** from the run date and the `S-n` id, charset `[a-z0-9-]`, and `<pointer>` is the run directory in FR-8's location form plus `S-n` — never a finding title, fingerprint or any other text derived from target content) and updates the index row's routing status. `rejected` records are not listed.
 
 #### Scenario: Selection
 
@@ -196,7 +197,7 @@ The command SHALL use the next unused `run-<N>` under the same repo root and pas
 
 ### FR-12: Report-only towards the target
 
-The command SHALL NOT modify target source, commit, push, or open issues/PRs. Its only writes inside the repository are the index file (and `docs/specs/audits/` when absent).
+The command SHALL NOT modify target source, commit, push, or open issues/PRs. Its only writes to tracked repository content are the index file (and `docs/specs/audits/` when absent); an ignored in-repo run directory chosen under FR-6 is not tracked content (amended 2026-10-18, T-2).
 
 ### FR-13: `docs/specs/audits/` readers take drift reports only
 
