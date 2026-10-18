@@ -43,7 +43,7 @@ One new command file, one vendored skill directory, four one-clause reader edits
   │
   ├─ Step 4  Redacted index → docs/specs/audits/security-<date>[-branch][-N].md   [FR-8, DD-4]
   │
-  └─ Step 5  ROUTING GATE (always stops): select confirmed S-n →               [FR-10, DD-9]
+  └─ Step 5  ROUTING GATE (stops whenever reached): select confirmed S-n →               [FR-10, DD-9]
               print `/akili-propose bugfix/security-<date>-s<n> …` (slug from `S-n` only) · disclosure warning · index row → routed
 
 docs/specs/audits/  ── drift-*.md    ← /akili-audit writes; archive · audit · kaizen read (FR-13)
@@ -204,4 +204,3 @@ Depth check: Full was chosen for the safety gate; 12 tasks / ~650 LOC fits Full.
 | P-15 | Approval Mode is a per-spec field inherited by downstream spec commands, so a command run outside a spec has none | other | `.claude/commands/akili-propose.md` Step 1 *Approval Mode* ("recorded in the same Document Control block, inherited downstream") | `6d1e152` | DD-6 would need a mode rule (Low) | — |
 | P-16 | `/akili-audit` writes only `drift-<…>.md` names into `docs/specs/audits/` | existence | `.claude/commands/akili-audit.md:68` (single path pattern); `:65` ("one report file per audit run") | `6d1e152` | DD-5's reversion challenge outcome changes (Low) | — |
 | P-17 | Upstream fixes `run-metadata.json` `execution_policy` to `"sandboxed-source-and-local-only"`, no validator reads `run-metadata.json`, and a `confirmed` record requires `execution.observed_result` holding actual local output | other | Upstream `SKILL.md:86` (`execution_policy: "sandboxed-source-and-local-only"`); `grep -n "run-metadata" validate-findings.cjs validate-coverage-ledger.cjs` → 0 hits; `validate-findings.cjs:553-554` ("confirmed finding requires a visible execution observed_result"); `HUNTING.md:210` ("`observed_result` records actual local output") | `c1c8a8c` | FR-4's `akili_execution` field and the expected-yield statement change (Low) | — |
-

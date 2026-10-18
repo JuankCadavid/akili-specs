@@ -590,3 +590,18 @@ Reviewer ADVISORY recorded:
 | Review rounds | 18 | 21 (T2 took 3 attempts × 2 lenses; T7a and T8 added after the budget was reached, with the user's authorization) |
 
 All tasks are `[x]`. Spec amendments T-1, T-2 and T-3 and Pivot T7a are recorded above. Open items for `/akili-test` → `/akili-validate`: Windows CI (P-13), the bare Linux images' missing `jq` (pre-existing), kaizen candidates K-1 to K-9, and deferred audit units D-1 to D-4. No push, tag, release or publish was run.
+
+## Archive gate decisions — 2026-10-18
+
+**User (Methodology agent, by Juan Carlos Cadavid's delegation), verbatim:** "Acepto las 8 WARN tal como las propones (W-1, W-5 y W-7 se corrigen en archive; W-6 queda para antes del release; W-2, A-4 a A-8 y D-1 a D-4 van a una propuesta aparte; W-3 aceptada; W-4 se verifica en el primer push) y acepto la ronda de revisión 21 (W-8); regístralo."
+
+| WARN | Disposition |
+|---|---|
+| W-1 `design.md` blank line at EOF | **Fixed at archive** — `git diff --check 6d1e152` → exit 0 |
+| W-5 `design.md` §3 "ROUTING GATE (always stops)" | **Fixed at archive** → "(stops whenever reached)"; forward sweep `always stops` in `design.md` leaves only the plan-gate sites (§3 Step 1, §7.1 Step 1 row), which are correct |
+| W-7 ID Index / coverage omit T7a and T8 | **Fixed at archive** — `requirements.md` §9 FR-3 → T2, T7a, T8; FR-7 → + T8; FR-10 → T2, T7a, T8; `tasks.md` §3 FR-3, FR-7, FR-10 rows gain T7a/T8 |
+| W-6 CHANGELOG figures stale (+291,842 B → +297,685 B; 265 → 325 tests) | Deferred to before the release commit (not edited here) |
+| W-2 pin literal; A-4…A-8; D-1…D-4 | Deferred to a separate proposal |
+| W-3 redaction unexercised | Accepted |
+| W-4 Windows CI | Verified at the first push |
+| W-8 review round 21 (T8 rework), past the user-authorized 20 | **Accepted by the user** — recorded here; the budget line closes at 21 / 18 |

@@ -245,14 +245,14 @@ The change SHALL satisfy `docs/skills/governance.md`'s five acceptance items wit
 |---|---|---|
 | FR-1 | Byte-faithful vendor with attribution | T1, T4 |
 | FR-2 | Invocation and preflight | T2 |
-| FR-3 | Pre-run plan gate | T2 |
+| FR-3 | Pre-run plan gate | T2, T7a, T8 |
 | FR-4 | Execution gate | T2, T8 |
 | FR-5 | Target content is data | T2 |
 | FR-6 | Artifact location and disclosure | T2 |
-| FR-7 | Validators gate the report | T1 (smoke), T2 |
+| FR-7 | Validators gate the report | T1 (smoke), T2, T8 |
 | FR-8 | Redacted index | T2, T8 |
 | FR-9 | Host capability | T2 |
-| FR-10 | Findings routing gate | T2 |
+| FR-10 | Findings routing gate | T2, T7a, T8 |
 | FR-11 | Re-runs additive | T2 |
 | FR-12 | Report-only | T2 |
 | FR-13 | `audits/` readers scoped | T3a, T3b, T3c, T3d, T5b |

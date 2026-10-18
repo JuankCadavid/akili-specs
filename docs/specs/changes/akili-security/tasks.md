@@ -401,14 +401,14 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | FR-1 *Install on every host* (19 files, validators, schema, LICENSE; `BUT` no `*.test.cjs`; `AND IT MUST` `diff -r`) | T1 (e), T4 |
 | FR-1 *Upstream fidelity* (17 + LICENSE match; `AND IT MUST` body unchanged) | T1 |
 | FR-2 *Foreign copy* (+ `BUT` not silent) · *No Node.js* (+ `BUT` no unvalidated run) | T2 |
-| FR-3 *Nothing before approval* (+ `AND IT MUST` always stop) | T2, T8 |
+| FR-3 *Nothing before approval* (+ `AND IT MUST` always stop) | T2, T7a (gate wording), T8 |
 | FR-4 *Default run* (+ `BUT` no execution; `AND IT MUST NOT` installs/network/endpoints) · *control unconfirmed* · `run-metadata.json` `akili_execution` + expected-yield statement (P-17) | T2, T8 |
 | FR-5 *Injected instruction* (+ `AND IT MUST` eligible as finding) | T2 |
 | FR-6 *In-repo output not ignored* (+ `BUT` only the index under `docs/specs/`) | T2 |
-| FR-7 *Validator fails* (+ `BUT` not complete) | T2; validator behaviour T1 (d) |
+| FR-7 *Validator fails* (+ `BUT` not complete) | T2, T8; validator behaviour T1 (d) |
 | FR-8 *Default index content* (+ `BUT` forbidden list incl. absolute home path / user name; `AND IT MUST` `Date of Audit`); run path in location form (T-1); accepted-disclosure advice | T2, T8 |
 | FR-9 *Host without sub-agents* (+ `BUT` no self-verified confirmed) | T2 |
-| FR-10 *Selection* (+ `BUT` creates nothing; `BUT` slug/pointer from date + `S-n` only; `AND IT MUST` disclosure warning) | T2, T8 |
+| FR-10 *Selection* (+ `BUT` creates nothing; `BUT` slug/pointer from date + `S-n` only; `AND IT MUST` disclosure warning) | T2, T7a (routing gate stops whenever reached), T8 |
 | FR-11, FR-12 | T2 |
 | FR-13 *Only a security index present* (+ `BUT` not read as drift) | T3a, T3b, T3c; README sentence T3d; mirrors T5b |
 | FR-14 (page + re-sync, README row, governance, command page, commands README, README, flow.md, AGENTS.md, CHANGELOG + release class) | T5a, T5b, T6, T7 |
