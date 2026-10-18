@@ -121,6 +121,7 @@ The summary must include:
 8. Validation Summary
 9. Accepted Warnings Or Follow-Ups
 10. Historical Notes
+11. Diagrams: links to the spec's interactive views, and each baseline diagram slot the spec's design made stale as a follow-up (load `diagram-design` only when the spec has a `diagrams/` folder or slot)
 
 ### Step 3: Constitution & Graph Sync
 

@@ -75,7 +75,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (~3 LOC) |
 | Depends on | T1 |
 | Requirements | FR-8 (row 5), FR-8 scenario clause "leave `/akili-archive` Step 3 unchanged" |

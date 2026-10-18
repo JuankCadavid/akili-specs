@@ -141,3 +141,26 @@ spawns: implementer 5 calls, 61 538 tokens, ended complete; reviewer not reporte
 ADVISORY: suppressed (diff < 50 LOC).
 Decisions made: Leader classified the skip claim as not earned (above). Budget running totals: tasks 4/7 · LOC ≈ 113 / ~300 · review rounds 6/12.
 Final verification: VERIFIED.
+
+### T4 — `/akili-archive` Step 2 summary item 11 "Diagrams"
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (parallel with T5) |
+| Review intensity | Reviewer **owed**: `Review: checklist`; `Consumers` ≠ `none` (P-12); override (a) |
+| Skills | none. Effort: medium |
+| Requirements covered | FR-8 row 5; FR-8 scenario THEN, BUT, "AND IT MUST leave Step 3 unchanged"; DD-6 |
+
+**Attempt 1**
+- Files changed: `.claude/commands/akili-archive.md:124` — "11. Diagrams: links to the spec's interactive views, and each baseline diagram slot the spec's design made stale as a follow-up (load `diagram-design` only when the spec has a `diagrams/` folder or slot)"
+- Implementer verification: baseline `grep -c Kind` 2 (re-measured); single hunk `@@ -123,0 +124 @@` before `### Step 3` (126); Kind after 2; archify 0; no new `trd.md` hit in Step 2; diff-check clean; `archive-summary` readers `:109`, `:202` only; `npm test` 257/2 (65, 75 — T6-owned). Falsifier executed: `- Kind: diagram-sync` in Step 3 → second hunk + Kind 3 → restored → passes
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **PASS** — "matches this term by term … one hunk, and it sits before `### Step 3` … Item 11 names no write to `docs/trd/trd.md` … ISSUES: none"
+- runtime events: none
+
+spawns: implementer 9 calls, 67 044 tokens, ended complete; reviewer 5 calls, 67 456 tokens, ended complete
+ADVISORY: suppressed (diff < 50 LOC).
+Decisions made: none. Budget running totals: tasks 5/7 · LOC ≈ 114 / ~300 · review rounds 7/12.
+Final verification: VERIFIED.
