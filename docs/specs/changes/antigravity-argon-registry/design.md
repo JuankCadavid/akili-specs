@@ -149,3 +149,19 @@ Found while running the T4 falsifier at baseline, after the Phase 2 gate. **P-10
 
 - **DD-7:** the example becomes the **Implementer** wrapper (`name: akili-implementer`, `description` for the Implementer, `model: flash`, `subagent: true`, `mainAgent: false`) and drops the `tools:` list, because `tools` applies to the Reviewer alone. Nothing else changes. The field table's `tools` row and the "Apply `tools` to the Reviewer and nowhere else" paragraph below the example still describe the Reviewer-only field, so the example no longer has to illustrate it. Rejected: keeping a Reviewer example with `model: flash`, because on the packaged roster that would bind the auditor to the Implementer's model and break author ≠ auditor.
 - **Budget (A4):** tasks 3 → **4**, LOC ~100 → **~150** (actual 138 before T4), review rounds 6 (unchanged; T4 estimates 1–2, and 4 are used so far).
+
+## 17. Amendment A5 — APPROVED by the user 2026-10-18 (Pivot after validation; W1–W3)
+
+| # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
+|---|---|---|---|---|---|---|
+| P-17 | Step 8E's Antigravity bullet still says to create all four wrappers (`.claude/commands/akili-constitution.md:833-834`) and that in `/agents` "**only `akili-leader` appears.** … One entry is the success condition" (`:870-874`). On the packaged roster no Leader wrapper is written, so this repeats the claim A1 removed from `bin/routing.js:843` | consumer | `git grep -n "only \`akili-leader\`\|lists only\|One entry is the success" -- ':!docs/specs' ':!releases' ':!CHANGELOG.md'` → `akili-constitution.md:871`, `:873`; `bin/routing.js:843` and `test/routing.test.js:865` (code path now gated on `planned.leader` — correct) | `1c6600a` | — | — |
+| P-18 | `docs/commands/akili-constitution.md:98` says "the Reviewer wrapper pins a different model than the Implementer wrapper" with no host qualifier; on Antigravity's packaged roster no Reviewer wrapper is written | consumer | read at `1c6600a` | `1c6600a` | — | — |
+| P-19 | `docs/model-routing.md:242` says "author ≠ auditor is satisfied" unconditionally; `:253` makes it hold only when the session runs on Argon | consumer | read at `1c6600a` | `1c6600a` | — | — |
+
+- **DD-8:** qualify, don't restructure.
+  - `:833-834`: a wrapper is created for each role whose tier pick has a wrapper value; a role routed to Argon gets none and is reported (on the packaged roster: Implementer and Tester only).
+  - `:870-874`: `akili-leader` appears in `/agents` only when its wrapper was written. On the packaged roster (Leader → Argon) no AKILI entry appears, and that is expected. The failure signal stays the same: Implementer, Reviewer or Tester listed as a main agent.
+  - `:98`: the guarantee holds where a Reviewer wrapper is written; on Antigravity's packaged roster it is not, and author ≠ auditor holds by running the session on Argon.
+  - `:242`: add the condition and point to *Argon is not a wrapper tier*.
+- **Out of scope here (validation W4–W6):** cross-document figure drift in the spec documents, the A2 template debt seen live, and T4's clause citation. These go to the Kaizen retrospective and follow-ups at `/akili-archive`.
+- **Budget (A5):** tasks 4 → **5**, LOC ~150 → **~170**, review rounds 6 → **8** (T5 estimates 2 rounds: rules text).

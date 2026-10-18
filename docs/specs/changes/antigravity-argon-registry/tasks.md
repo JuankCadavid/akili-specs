@@ -8,7 +8,7 @@
 | Depth | **Lite** |
 | Status | **Approved** — 2026-10-18 (Juan Carlos, Phase 3 gate: Continue; Amendments A1–A3 approved) |
 | Date | 2026-10-18 |
-| Budget (design §16, A4) | **4 tasks · ~150 LOC · 6 review rounds** (was 3 · ~100 · 6; raised by the user-approved Pivot after T3) — `/akili-execute` stops and escalates past 4 tasks, ~180 LOC, or 6 rounds |
+| Budget (design §17, A5) | **5 tasks · ~170 LOC · 8 review rounds** (was 4 · ~150 · 6 after A4; was 3 · ~100 · 6 originally; raised by user-approved Pivots after T3 and after validation) — `/akili-execute` stops and escalates past 5 tasks, ~200 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/antigravity-argon-registry]` — local commits only; no push, release, or publish |
 | Format precedent | `docs/specs/bugfix/pty-harness-ubuntu-flake/tasks.md` |
 | Verified at | `186c6a0` — every baseline reading below was **executed** on 2026-10-18 and is quoted, not predicted (KZ-changes--leader-brief-contract-2). Every mutation probe restored the file; `git status` was clean apart from the spec folder |
@@ -21,9 +21,10 @@ T1 (registry JSON + docs/model-routing.md)
  │    └─→ T4 (Step 8E example wrapper → Implementer `flash`; added by Pivot A4)
  └─→ T3 (bin/routing.js report gate + test rebase + CHANGELOG)
       └─→ T4 (also amends T3's CHANGELOG entry)
+           └─→ T5 (Step 8E bullet + docs qualifiers; Pivot A5 after validation)
 ```
 
-Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4). T2 and T3 touch disjoint files, but T3's tests read T1's JSON and T2's wording cites T1's cells. T4 edits T2's file and T3's CHANGELOG entry, so it runs after both. No cycles.
+Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4) → **T5** (Pivot A5). T2 and T3 touch disjoint files, but T3's tests read T1's JSON and T2's wording cites T1's cells. T4 edits T2's file and T3's CHANGELOG entry, so it runs after both. No cycles.
 
 **`skip-eligible` tasks: none.** T1 changes a contract the drift test guards. T2 edits rules text agents execute. T3 changes code and assertions.
 
@@ -171,6 +172,37 @@ Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4). T2 and T3 touch disjoint 
 
 **Done.** Grep shows only the two correct hits; the falsifier is quoted; `npm test` is green; the Reviewer PASSes; local commit.
 
+---
+
+### T5 — Step 8E Antigravity bullet and doc qualifiers (Pivot A5, validation W1–W3)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | XS (~15 LOC: `akili-constitution.md` ~8 · `docs/commands/akili-constitution.md` ~2 · `docs/model-routing.md` ~2 · `CHANGELOG.md` ~2) |
+| Depends on | T4 |
+| Requirements | FR-3 scenario (Leader and Reviewer skipped; Implementer and Tester `flash`) and `AND IT MUST` (documented), applied to the Step 8E prose, `docs/commands`, and `docs/model-routing.md:242`; NFR-2; NFR-3 |
+| Design refs | §17 A5 (P-17, P-18, P-19, DD-8) |
+| Review | `full` — rules text agents execute (override (a)). Estimate 2 rounds |
+
+**Scope.**
+- `.claude/commands/akili-constitution.md:833-834` and `:870-874` — per DD-8.
+- `docs/commands/akili-constitution.md:98` — qualify the Reviewer-wrapper guarantee sentence per DD-8. Nothing else on that line.
+- `docs/model-routing.md:242` — add the "when the session runs on Argon" condition and point to *Argon is not a wrapper tier*.
+- `CHANGELOG.md` `Unreleased` — one clause in the existing `### Changed` entry: Step 8E's `/agents` check and wrapper list now match the skipped Leader and Reviewer.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `git grep -n -e 'only \`akili-leader\` appears' -e 'One entry is the success condition' -- .claude/commands/akili-constitution.md` → no output · phrase-family sweep of the three files (`akili-leader`, `/agents`, `four`, `Reviewer wrapper pins`, `is satisfied`) with every hit judged · `npm test` → `# fail 0` · `npm run verify:cli` · `node --test test/registry-drift.test.js` (`docs/model-routing.md` is its input) · `git diff --check` |
+| Red run | **Observed at HEAD before T5:** the same `git grep` → `.claude/commands/akili-constitution.md:871` and `:873` |
+| Falsifier | Restore the `:871` sentence → the grep prints `:871` again; quote it and restore |
+| Disqualifier | The grep proves two phrases are gone, not that the bullet is coherent. The Reviewer reads the whole Antigravity bullet, the `:98` sentence, and the `:236-260` block of `docs/model-routing.md`. No sentence may still say the packaged roster writes a Leader or Reviewer wrapper for Antigravity, and none may claim enforced author ≠ auditor there without the session-on-Argon condition |
+| Consumers | Agents running Step 8E by hand · `docs/commands` readers · `test/registry-drift.test.js` (reads `docs/model-routing.md`) · `test/tasks-gate.test.js` (reads the constitution) |
+
+**Done.** Grep clean; the falsifier is quoted; the sweep hits are judged; tests green; the Reviewer PASSes; local commit; then `/akili-validate` re-runs.
+
 ## 3. Coverage (clause level)
 
 | Clause | Task |
@@ -179,7 +211,7 @@ Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4). T2 and T3 touch disjoint 
 | FR-2 scenario (derivation) · author ≠ auditor satisfied · `BUT` other hosts untouched | T1 (data), T3 (tests 134/135 assert it) |
 | FR-3 scenario (Implementer/Tester `flash`; Leader/Reviewer skipped naming the id) | T3 |
 | FR-3 `BUT` no `model:` outside `inherit/flash/pro` | T3 (66/135 assert wrapper content); T1 (no `wrapperModel` on Argon) |
-| FR-3 `AND IT MUST` documented with C-Q1 date | T1 (`docs/model-routing.md`), T2 (constitution, cli.md), T4 (Step 8E example) |
+| FR-3 `AND IT MUST` documented with C-Q1 date | T1 (`docs/model-routing.md`), T2 (constitution, cli.md), T4 (Step 8E example), T5 (Step 8E prose, `docs/commands`, `docs/model-routing.md:242`) |
 | FR-4 dates/prose · drift test passes · `AND IT MUST` falsifier still red | T1 |
 | FR-5 suite green · `BUT` no deleted/weakened test | T3 |
 | NFR-1 / NFR-2 / NFR-3 | T3 (T1/T2 commit locally under NFR-3) |

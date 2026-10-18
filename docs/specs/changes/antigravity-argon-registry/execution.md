@@ -9,7 +9,7 @@
 | Approval Mode | `gated` (inherited from `proposal.md`) |
 | Started | 2026-10-18 |
 | Started at | `6e802a5` (clean tree) |
-| Budget (design §15; raised by §16 A4 on 2026-10-18) | 3 → **4** tasks · ~100 → **~150** LOC · 6 review rounds — tripwire compared at every task's finalize |
+| Budget (design §15; raised by §16 A4 and §17 A5 on 2026-10-18) | 3 → 4 → **5** tasks · ~100 → ~150 → **~170** LOC · 6 → **8** review rounds — tripwire compared at every task's finalize |
 | Leader | Claude Code session model Opus 5.5 (`claude-opus-5-5`). Model checkpoint: this repo's `AGENTS.md` has no `## Model Routing` section; the default registry (`docs/model-routing.md`) maps T1 → `opus`, which matches the session → pass |
 | Spawn path | No Step 8E wrappers (`.claude/agents/` absent) → fallback sub-prompt path; workers read their persona from `.agents/` themselves (host workers). `.agents/` is gitignored and was absent in this worktree; copied from the main checkout `/Users/jcadavid/Development/sdd-jc-methodology/.agents` (2026-10-18). `akili doctor --agents`: every section `CURRENT`; one `UNLOCATED shared-file-discipline` (maintainer's call, same as `bugfix/pty-harness-ubuntu-flake`) — no stop |
 | Models | Implementer `sonnet` (registry T2). Reviewer `opus` (T3, ≠ Implementer) |
@@ -186,3 +186,14 @@
 | Budget | 4/4 tasks · 151 LOC vs ~150 · 5/6 review rounds |
 | Open for the user | (b) the A3 silent-degrade Bug proposal; (c) the template-evolution Bug (A2 known debt: `model-routing.section.md:48`); (d) DD-4: the live `pro` probe; the advisories recorded per task |
 | Next | `/akili-test changes/antigravity-argon-registry` — held at the user's instruction |
+
+## Pivot Record: T5 (added after validation)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Trigger | `validation-report.md` (`1c6600a`) W1–W3. W1: Step 8E's Antigravity bullet still says to create all four wrappers, and that "only `akili-leader` appears" in `/agents` as the success condition. Both are false on the packaged roster, and the claim is the one A1 removed from code. W2: `docs/commands/akili-constitution.md:98`'s unqualified Reviewer-wrapper guarantee. W3: `docs/model-routing.md:242`'s unconditional "author ≠ auditor is satisfied". Leader confirmed W1 at `1c6600a` |
+| Decision | User (Juan Carlos), 2026-10-18: "Opción 1: arregla W1 (y de paso W2 y W3) como tarea T5 vía Pivot, con su Reviewer, y vuelve a validar. Lleva W4–W6 a la retrospectiva de kaizen/seguimientos" |
+| Spec edits | `design.md` §17 (A5: P-17..P-19, DD-8, budget); `tasks.md` (T5 block, graph, waves, budget row, coverage row). `requirements.md` unchanged |
+| Carried, not fixed | W4 (cross-document figure drift in the spec documents), W5 (A2 template debt seen live), W6 (T4 clause citation) → Kaizen retrospective and follow-ups at `/akili-archive` |
+| Correction closure | Live budget sites updated (tasks.md budget row, execution.md Doc Control). Earlier budget lines are history. FR-3 coverage row names T5 |
