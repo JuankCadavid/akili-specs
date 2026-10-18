@@ -120,7 +120,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T7 — `/akili-test`: render-evidence suite
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1
+- **Status:** [x] · **Size:** S · **Depends on:** T1
 - **Requirements:** FR-6 (both scenarios incl. `BUT`), FR-4 at test time, NFR-1
 - **Design:** §3 row 4; DD-11, DD-12; P-8, P-15
 - **Scope:** Phase 1 step 1 suite list gains "render evidence (`Deliverable: video`, per `video-production`)"; the no-infrastructure STOP bullet names missing HyperFrames as the same STOP (2 sites)

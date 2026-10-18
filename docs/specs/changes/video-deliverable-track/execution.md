@@ -171,3 +171,24 @@
 | Requirements covered | FR-9 (governance clause + rule 2 narrowing), FR-8 (assignment row) |
 | spawns | implementer 7 calls, 71 664 tokens, ended complete; reviewer 7 calls, 68 373 tokens, ended fail; implementer (resumed) 4 calls, 78 464 tokens cumulative, ended complete; reviewer (resumed) 2 calls, 72 358 tokens cumulative, ended complete |
 | Running totals vs budget | tasks 5/12 · LOC ~273 · review rounds 8/13 (2 for T2) — within budget (tripwire 20) |
+
+### T7 — `/akili-test`: render-evidence suite
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `T7 STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (wave 2: T7 ∥ T8 ∥ T9, disjoint files, no build) |
+| Review intensity | Reviewer **owed**: walk is judgment; override (a) |
+| Requirements covered | FR-6 (both scenarios incl. `BUT`), FR-4 at test time, NFR-1 |
+
+- Files changed: `.claude/commands/akili-test.md` (+3/−1): Phase 1 step 1 sub-bullet "When `requirements.md` Document Control has `Deliverable: video` (an absent row means software), plan a **render evidence** suite for the video tasks in place of unit/E2E, per `video-production`…"; STOP bullet "**Missing HyperFrames is the same STOP** (applies only when `Deliverable: video`)…"; sweep fix: "four software suite types … ; the `Deliverable: video` render evidence suite is separate"
+- Skills: `cognitive-doc-design`. Effort: medium
+- Precondition: `grep -c "render evidence\|video-production"` → 0 before, 3 after
+- Scenario walk: 28.9 s vs 30 s ± 0.5 → row 6 "Duration" + "Duration comparison": |30 − 28.9| = 1.1 > 0.5 → FAIL citing 28.9, 30, 0.5; "A zero exit from `check` never offsets a duration failure."
+- Falsifier executed: "Duration comparison" section of `render-evidence.md` deleted → row 6 "see below" points at nothing; no sentence fails the drift case, which passes on `check` alone; restored byte-exact (`git diff --quiet -- .claude/skills/video-production` → 0)
+- Not Done / Assumptions: the "four suite types" sweep fix goes beyond the two named sites — Reviewer: required (the old sentence would become false), not a widening
+- Evidence re-run (Leader-inline): **VERIFIED** — count 3; skill dir unchanged (exit 0)
+- Reviewer (opus, combined T7/T8/T9 spawn — deviation: one Reviewer, three separate verdicts, for three sub-50-LOC diffs; Delegation Ceiling): **PASS** — FR-6 term by term across the command line and `render-evidence.md` rows 1–6; NFR-1 holds. ISSUES: none. ADVISORY: omitted (< 50 LOC)
+- runtime events: none
+- spawns: implementer 7 calls, 71 442 tokens, ended complete; reviewer (shared T7/T8/T9) — see T9
