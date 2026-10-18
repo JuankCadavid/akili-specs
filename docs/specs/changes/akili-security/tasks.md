@@ -60,7 +60,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Command | `node --test test/security-audit-skill.test.js` · `npm test` · upstream checksum walk (`shasum -a 256 .claude/skills/security-audit/* \| sort` vs upstream, `SKILL.md` the only mismatch) · `diff <(sed -n '/^# Security Audit/,$p' upstream/SKILL.md) <(sed -n '/^# Security Audit/,/^## AKILI-SPECS Integration/p' .claude/skills/security-audit/SKILL.md \| sed '$d')` → empty |
+| Command | `node --test test/security-audit-skill.test.js` · `npm test` · upstream checksum walk (`shasum -a 256 .claude/skills/security-audit/* \| sort` vs upstream, `SKILL.md` the only mismatch) · body gate: `diff <(sed -n '/^# Security Audit/,$p' upstream/SKILL.md) <(sed -n '/^# Security Audit/,$p' .claude/skills/security-audit/SKILL.md \| sed '/^## AKILI-SPECS Integration/,$d' \| awk '{a[NR]=$0} END{n=NR; while(n>0 && a[n]=="") n--; for(i=1;i<=n;i++) print a[i]}')` → empty, exit 0. **Executed at spec time** (judgment-day J-A2): on a scratch adaptation of upstream `SKILL.md` (3 frontmatter lines added + blank line + `## AKILI-SPECS Integration`) → exit 0; same file with one body byte changed → exit 1. The first draft's `sed '$d'` form left the separator blank line (`187a188 >`, exit 1) and is withdrawn |
 | Red run (executed at baseline) | `ls .claude/skills/security-audit` → `No such file or directory` (so every case of the new test is red before the copy); validator smoke expectations executed on the upstream clone: `[]` → exit 0, `[{"verdict":"confirmed"}]` → exit 1, ledger `{}` → exit 1 (Node 18.20.8 and 22.23.3) |
 | Falsifier | (1) copy `validate-findings.test.cjs` in → case (a) red. (2) delete `LICENSE` → (a) and (c) red. (3) edit one byte of `HUNTING.md` → checksum walk shows a second mismatch. (4) remove the pin from `source` → (b) red. Each executed post-change, red quoted |
 | Disqualifier | A file-set check that reads the list from the directory it asserts (tautology) proves nothing — the 19 names are literals in the test. A smoke case run only on the session's Node is not CI-matrix evidence; Windows stays `UNVERIFIED` (P-13) until the user's first push |
@@ -118,7 +118,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Red run | Baseline `grep -c "drift-" .claude/commands/akili-archive.md` → `1` (the legacy `drift-report.md` name only, `:84`) — no scoping exists |
 | Falsifier | Revert `:83` only → the walk's input resolves the security index as "most recent report" (red); quote it |
 | Disqualifier | A grep hit for `drift-*` that sits in a sentence about something else is presence, not the rule — read the hit |
-| Consumers | `docs/commands/akili-archive.md` (none restates the rule — checked in T5b), `docs/flow.md:424-425` (T5b) |
+| Consumers | `docs/commands/akili-archive.md:68` restates the rule ("the most recent report under `docs/specs/audits/` …") — mandatory edit in T5b; `docs/flow.md:424-425` (T5b) |
 
 **Done.** Two lines changed, walk and falsifier quoted.
 
@@ -172,7 +172,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Red run | Baseline `grep -c "drift-" .claude/skills/kaizen/SKILL.md` → `2` (both the legacy `drift-report.md` name) |
 | Falsifier | Revert `:74` only → its definition again admits any report file (red in the walk) |
 | Disqualifier | As T3a |
-| Consumers | `docs/skills/kaizen.md` (checked in T5b for a restatement) |
+| Consumers | `docs/skills/kaizen.md:24` restates the source ("drift (the most recent report under `docs/specs/audits/` …)") — mandatory edit in T5b |
 
 **Done.** As T3a.
 
@@ -216,7 +216,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Design refs | §9, P-1, P-2, P-10 |
 | Review | `checklist` |
 
-**Scope.** `test/install-cursor.test.js`: 199 → 218 (`:245` + message), 11 → 12 (`:249`), comment `11 + 24 = 35` → `12 + 25 = 37` (`:238`), `210` comment → `230` (`:340`), `:387` comment counts; any derived constant read, not guessed. `test/fixtures/doctor-codex-baseline.txt`: add `OK akili-security.md` and `OK security-audit` in sorted position.
+**Scope.** `test/install-cursor.test.js`: 199 → 218 (`:245` + message), 11 → 12 (`:249`), comment `11 + 24 = 35` → `12 + 25 = 37` (`:238`), `210` comment → `230` (`:340`), `:387` comment counts, plus the comments at `:216` (199), `:227` (`11 + 199 = 210` → `12 + 218 = 230`), `:232` (24 → 25) and the `:246` message; close with `grep -nE "199|210|\b24\b|11 \+" test/install-cursor.test.js` → no stale hit; any derived constant read, not guessed. `test/fixtures/doctor-codex-baseline.txt`: add `OK akili-security.md` and `OK security-audit` in sorted position.
 
 **Verification.**
 
@@ -270,15 +270,15 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Design refs | §9 consumers, P-7 |
 | Review | `checklist` |
 
-**Scope.** New `docs/commands/akili-security.md` (incl. residual risk: agent behaviour cannot be machine-enforced; static-only default; disclosure note). Rows in `docs/commands/README.md` and `README.md` (command list `:84`, table `:583` neighbourhood, description list `:792` neighbourhood). `docs/flow.md` artifact table (`:153`) + standalone-commands narrative (`:284` neighbourhood) + `:424-425` drift-source wording → `drift-*`. `docs/commands/akili-audit.md:34`, `docs/commands/akili-constitution.md:43,53`, `docs/skills/kaizen.md` if it restates the source.
+**Scope.** New `docs/commands/akili-security.md` (incl. residual risk: agent behaviour cannot be machine-enforced; static-only default; disclosure note). Rows in `docs/commands/README.md` and `README.md` (command list `:84`, table `:583` neighbourhood, description list `:792` neighbourhood). `docs/flow.md` artifact table (`:153`) + standalone-commands narrative (`:284` neighbourhood) + `:424-425` drift-source wording → `drift-*`. `docs/commands/akili-audit.md:34`, `docs/commands/akili-archive.md:68` and `docs/skills/kaizen.md:24` (both restate the drift source — mandatory `drift-*` rewrite), `docs/commands/akili-constitution.md:43,53`. Count restatements in `docs/cli.md:117,182,194,216` (11 → 12 commands) and `:183,195,216` (24 → 25 skills).
 
 **Verification.**
 
 | Field | Value |
 |---|---|
-| Command | Phrase-family sweep over `docs/ README.md` for `most recent report`, `one drift report`, `audits/` → every hit read and either updated or recorded as correct; quote-check each new clause against the shipped command (T2) |
+| Command | Phrase-family sweep over `docs/ README.md` for `most recent report`, `one drift report`, `audits/`, `drift-report` → every hit read and either updated or recorded as correct; count sweep `grep -rnE "\b(11\|24)\b" docs/ README.md` (excluding `docs/specs/`) → every command/skill-count hit updated or recorded as unrelated; quote-check each new clause against the shipped command (T2) |
 | Red run | Baseline: `ls docs/commands/akili-security.md` → no such file; `grep -c "drift-\*" docs/flow.md` → `0` |
-| Falsifier | Leave `docs/flow.md:424-425` unedited → sweep shows an unscoped "most recent report under `docs/specs/audits/`" (red) |
+| Falsifier | Leave `docs/flow.md:424-425` (or `docs/commands/akili-archive.md:68`, or `docs/skills/kaizen.md:24`) unedited → sweep shows an unscoped "most recent report under `docs/specs/audits/`" (red). Leave `docs/cli.md:182` unedited → count sweep shows "the 11 commands" (red) |
 | Disqualifier | As T5a |
 | Consumers | none beyond the docs |
 
