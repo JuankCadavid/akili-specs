@@ -140,3 +140,12 @@ Found while running the T4 falsifier at baseline, after the Phase 2 gate. **P-10
 
 - **Decision (recommended):** document the upgrade path; do not fix the code here. `CHANGELOG.md` gets an *Expected on upgrade* note telling Antigravity projects to re-run with `--models antigravity=<new packaged ids>` (the command in P-10). `docs/model-routing.md`'s Antigravity paragraph says the same. The silent degrade itself (dropped packaged ids produce no `stale?` line and exit 0) is a configurator defect that **predates** this spec. It is queued as a separate Bug proposal, not absorbed here ("scope only grows through approval").
 - **Budget (A1+A2+A3):** 3 tasks, ~100 LOC, 6 review rounds.
+
+## 16. Amendment A4 — APPROVED by the user 2026-10-18 (Pivot after T3; T2 ADVISORY 1)
+
+| # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
+|---|---|---|---|---|---|---|
+| P-16 | The Step 8E Antigravity example wrapper in `/akili-constitution` shows `name: akili-reviewer` with `model: pro`. Step 8E is also the manual fallback when `akili routing` is unavailable, so an agent copying the example writes a `pro` Reviewer for an Argon-routed T3, which is what FR-3 forbids | consumer | `.claude/commands/akili-constitution.md:838-850` (read at `afea75c`). `git grep -n -e 'model: pro' -e 'model:pro' -- ':!docs/specs' ':!releases' ':!CHANGELOG.md'` → `akili-constitution.md:842` (the example), `docs/model-routing.md:256` (DD-4 reopen sentence — correct), `test/routing.test.js:670-671` (registry-clone fixture — correct). P-7's sweep missed it because its pattern required a backticked `` `pro` `` | `afea75c` | — | — |
+
+- **DD-7:** the example becomes the **Implementer** wrapper (`name: akili-implementer`, `description` for the Implementer, `model: flash`, `subagent: true`, `mainAgent: false`) and drops the `tools:` list, because `tools` applies to the Reviewer alone. Nothing else changes. The field table's `tools` row and the "Apply `tools` to the Reviewer and nowhere else" paragraph below the example still describe the Reviewer-only field, so the example no longer has to illustrate it. Rejected: keeping a Reviewer example with `model: flash`, because on the packaged roster that would bind the auditor to the Implementer's model and break author ≠ auditor.
+- **Budget (A4):** tasks 3 → **4**, LOC ~100 → **~150** (actual 138 before T4), review rounds 6 (unchanged; T4 estimates 1–2, and 4 are used so far).

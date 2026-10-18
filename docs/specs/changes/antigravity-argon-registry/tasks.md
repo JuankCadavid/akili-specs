@@ -8,7 +8,7 @@
 | Depth | **Lite** |
 | Status | **Approved** — 2026-10-18 (Juan Carlos, Phase 3 gate: Continue; Amendments A1–A3 approved) |
 | Date | 2026-10-18 |
-| Budget (design §15) | **3 tasks · ~100 LOC · 6 review rounds** — `/akili-execute` stops and escalates past 3 tasks, ~130 LOC, or 6 rounds |
+| Budget (design §16, A4) | **4 tasks · ~150 LOC · 6 review rounds** (was 3 · ~100 · 6; raised by the user-approved Pivot after T3) — `/akili-execute` stops and escalates past 4 tasks, ~180 LOC, or 6 rounds |
 | Commit prefix | `[SPEC:changes/antigravity-argon-registry]` — local commits only; no push, release, or publish |
 | Format precedent | `docs/specs/bugfix/pty-harness-ubuntu-flake/tasks.md` |
 | Verified at | `186c6a0` — every baseline reading below was **executed** on 2026-10-18 and is quoted, not predicted (KZ-changes--leader-brief-contract-2). Every mutation probe restored the file; `git status` was clean apart from the spec folder |
@@ -18,10 +18,12 @@
 ```
 T1 (registry JSON + docs/model-routing.md)
  ├─→ T2 (rules/docs text: akili-constitution.md ×2, docs/commands/akili-constitution.md, docs/cli.md)
+ │    └─→ T4 (Step 8E example wrapper → Implementer `flash`; added by Pivot A4)
  └─→ T3 (bin/routing.js report gate + test rebase + CHANGELOG)
+      └─→ T4 (also amends T3's CHANGELOG entry)
 ```
 
-Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests read T1's JSON and T2's wording cites T1's cells. No cycles.
+Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4). T2 and T3 touch disjoint files, but T3's tests read T1's JSON and T2's wording cites T1's cells. T4 edits T2's file and T3's CHANGELOG entry, so it runs after both. No cycles.
 
 **`skip-eligible` tasks: none.** T1 changes a contract the drift test guards. T2 edits rules text agents execute. T3 changes code and assertions.
 
@@ -140,6 +142,35 @@ Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests 
 
 ---
 
+---
+
+### T4 — Step 8E Antigravity example wrapper → Implementer `flash` (Pivot A4)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | XS (~10 LOC: `akili-constitution.md` ~8 · `CHANGELOG.md` ~2) |
+| Depends on | T2, T3 |
+| Requirements | FR-3 `BUT` (no instruction leads to a `model:` value that binds an unconfirmed tier to an Argon-routed role) and `AND IT MUST` (documented) — at the Step 8E example site; NFR-2 (CHANGELOG), NFR-3 |
+| Design refs | §16 A4 (P-16, DD-7) |
+| Review | `checklist` — one site in one rules document plus one CHANGELOG clause (overrides (a), (e)-style rules text → a Reviewer is owed) |
+
+**Scope.**
+- `.claude/commands/akili-constitution.md:838-850`: the example becomes `name: akili-implementer`, an Implementer `description`, `model: flash`, `subagent: true`, `mainAgent: false`, with no `tools:` list. The persona line becomes `.agents/implementer.md`. Nothing else in Step 8E changes.
+- `CHANGELOG.md` `Unreleased`: extend T3's `### Changed` entry by one clause saying the Step 8E Antigravity example now shows the Implementer (`flash`), not a `pro` Reviewer.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `git grep -n -e 'model: pro' -e 'model:pro' -- ':!docs/specs' ':!releases' ':!CHANGELOG.md'` → only `docs/model-routing.md:256` and `test/routing.test.js:670-671` (both correct per P-16) · `sed -n 838,852p .claude/commands/akili-constitution.md` shows the Implementer example · `npm test` → `# fail 0` (`test/tasks-gate.test.js` reads this file) · `npm run verify:cli` · `git diff --check` |
+| Red run | **Observed at `afea75c`:** the same `git grep` → `.claude/commands/akili-constitution.md:842:  model: pro` plus the two correct hits |
+| Falsifier | Put `model: pro` back on the example line → the grep prints `.claude/commands/akili-constitution.md:842` again. Run it post-change, quote it, and restore |
+| Disqualifier | A clean grep proves `model: pro` is gone, not that the example is coherent. The Reviewer reads the whole Antigravity bullet: the example must not keep a `tools:` list (Reviewer-only), the `name`, `description` and persona path must all say Implementer, and the surrounding text must not still refer to "the example" as the Reviewer |
+| Consumers | Agents running `/akili-constitution` Step 8E by hand · `test/tasks-gate.test.js` (reads the same file; different line) |
+
+**Done.** Grep shows only the two correct hits; the falsifier is quoted; `npm test` is green; the Reviewer PASSes; local commit.
+
 ## 3. Coverage (clause level)
 
 | Clause | Task |
@@ -148,7 +179,7 @@ Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests 
 | FR-2 scenario (derivation) · author ≠ auditor satisfied · `BUT` other hosts untouched | T1 (data), T3 (tests 134/135 assert it) |
 | FR-3 scenario (Implementer/Tester `flash`; Leader/Reviewer skipped naming the id) | T3 |
 | FR-3 `BUT` no `model:` outside `inherit/flash/pro` | T3 (66/135 assert wrapper content); T1 (no `wrapperModel` on Argon) |
-| FR-3 `AND IT MUST` documented with C-Q1 date | T1 (`docs/model-routing.md`), T2 (constitution, cli.md) |
+| FR-3 `AND IT MUST` documented with C-Q1 date | T1 (`docs/model-routing.md`), T2 (constitution, cli.md), T4 (Step 8E example) |
 | FR-4 dates/prose · drift test passes · `AND IT MUST` falsifier still red | T1 |
 | FR-5 suite green · `BUT` no deleted/weakened test | T3 |
 | NFR-1 / NFR-2 / NFR-3 | T3 (T1/T2 commit locally under NFR-3) |

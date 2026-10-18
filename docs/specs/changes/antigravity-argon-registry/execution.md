@@ -9,7 +9,7 @@
 | Approval Mode | `gated` (inherited from `proposal.md`) |
 | Started | 2026-10-18 |
 | Started at | `6e802a5` (clean tree) |
-| Budget (design §15) | 3 tasks · ~100 LOC · 6 review rounds — tripwire compared at every task's finalize |
+| Budget (design §15; raised by §16 A4 on 2026-10-18) | 3 → **4** tasks · ~100 → **~150** LOC · 6 review rounds — tripwire compared at every task's finalize |
 | Leader | Claude Code session model Opus 5.5 (`claude-opus-5-5`). Model checkpoint: this repo's `AGENTS.md` has no `## Model Routing` section; the default registry (`docs/model-routing.md`) maps T1 → `opus`, which matches the session → pass |
 | Spawn path | No Step 8E wrappers (`.claude/agents/` absent) → fallback sub-prompt path; workers read their persona from `.agents/` themselves (host workers). `.agents/` is gitignored and was absent in this worktree; copied from the main checkout `/Users/jcadavid/Development/sdd-jc-methodology/.agents` (2026-10-18). `akili doctor --agents`: every section `CURRENT`; one `UNLOCATED shared-file-discipline` (maintainer's call, same as `bugfix/pty-harness-ubuntu-flake`) — no stop |
 | Models | Implementer `sonnet` (registry T2). Reviewer `opus` (T3, ≠ Implementer) |
@@ -131,3 +131,16 @@
 | Budget | 3/3 tasks · 138 LOC vs ~100 · 4/6 review rounds |
 | Open for the user | (a) T2 ADVISORY 1, a possible spec gap: the Step 8E example YAML (`.claude/commands/akili-constitution.md:838-848`) still shows a Reviewer with `model: pro`; (b) the A3 silent-degrade Bug proposal; (c) the template-evolution Bug (A2 known debt); (d) DD-4: the live `pro` probe |
 | Next | `/akili-test changes/antigravity-argon-registry` |
+
+## Pivot Record: T4 (added after T3)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Trigger | T2 Reviewer ADVISORY 1, confirmed by the Leader at `afea75c`: `.claude/commands/akili-constitution.md:838-850`'s Step 8E Antigravity example shows `akili-reviewer` / `model: pro`. An agent copying the manual fallback would write a `pro` Reviewer for an Argon-routed T3, against FR-3 (design §16 P-16). Advisories never become tasks on their own, so the Leader escalated it as a spec gap at the post-T3 gate |
+| Alternatives | (a) amend now: example → Implementer `flash` as T4; (b) defer to another spec or `/akili-quick` |
+| Decision | **(a)**, chosen by the user (Juan Carlos), 2026-10-18: "agrega T4 vía el Pivot Protocol con la enmienda mínima … con test/verificación y commit local. Al terminar T4 detente y espera; no corras /akili-test todavía" |
+| Spec edits | `design.md` §16 (A4: P-16, DD-7, budget); `tasks.md` (T4 block, task graph, waves line, budget row, coverage row). `requirements.md` unchanged: FR-3's `BUT` and `AND IT MUST` already cover the site |
+| Correction closure | Forward sweep of the spec folder for "3 tasks" / "3/3": hits are historical entries in `execution.md` (kept as history) and the design §13/§15 budget lines (kept; each amendment records its own budget). The live sites (tasks.md budget row, execution.md Doc Control budget) were updated. Backward: tasks.md coverage row for FR-3 `AND IT MUST` now names T4 |
+| ADR impact | none (no TRD in this repo) |
+| §3 Summary above | superseded by the summary written after T4 |
