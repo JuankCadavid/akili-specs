@@ -164,3 +164,10 @@ spawns: implementer 9 calls, 67 044 tokens, ended complete; reviewer 5 calls, 67
 ADVISORY: suppressed (diff < 50 LOC).
 Decisions made: none. Budget running totals: tasks 5/7 · LOC ≈ 114 / ~300 · review rounds 7/12.
 Final verification: VERIFIED.
+
+### Spec amendment — 2026-10-18 (before T6)
+
+- Approved by the user ("Apruebo la enmienda: añade test/fixtures/doctor-codex-baseline.txt a T6", 2026-10-18).
+- Cause: Premise Ledger P-5 (`consumer`) missed `test/fixtures/doctor-codex-baseline.txt` — its search pattern keyed on count literals, not on skill names; `npm test` test 75 surfaced it after T1.
+- Edits (meaning-preserving, scope-completing): `requirements.md` FR-10 bullet 1; `design.md` P-5 citation; `tasks.md` T6 Scope + Consumers. Correction-closure sweep: `grep -rn "doctor-codex-baseline" docs/specs/changes/archify-diagrams` → hits in all three docs plus this log; backward references to P-5 (`tasks.md` T6 Consumers) updated in the same edit.
+- Carried into the T6 Reviewer brief as a named conformance check.

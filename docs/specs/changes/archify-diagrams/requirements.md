@@ -200,7 +200,7 @@ The following SHALL load `diagram-design` with one conditional line each, placed
 
 ### FR-10: Package and test hygiene
 
-- `test/install-cursor.test.js` literal 199 and its count comments updated to the real post-change numbers; `npm test` passes.
+- `test/install-cursor.test.js` literal 199 and its count comments updated to the real post-change numbers; `test/fixtures/doctor-codex-baseline.txt` updated for the new skill (amended 2026-10-18); `npm test` passes.
 - `npm run pack:dry-run` grows by ≤ 20 KB unpacked; `npm run verify:cli` lists `diagram-design`; `git diff --check` is clean.
 
 ## 7. Non-Functional Requirements
