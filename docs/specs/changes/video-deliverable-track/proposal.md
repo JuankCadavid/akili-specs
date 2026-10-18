@@ -203,7 +203,7 @@ user's HyperFrames copy).
 
 | | A — Vendor the skills | **B — Reference + bridge skill + `Deliverable` axis** (recommended) | C — Skill Map row + docs only |
 |---|---|---|---|
-| What ships | Copies of 6–21 upstream skills + Apache LICENSE/NOTICE text | One AKILI-authored skill (~3–4 short references), command/persona edits, governance amendment | Docs page; existing Step 8D row |
+| What ships | Copies of 6–21 upstream skills + Apache LICENSE/NOTICE text | One AKILI-authored skill (`SKILL.md` + 2 short references — amended at specify), command/persona edits, governance amendment | Docs page; existing Step 8D row |
 | Governance | **Violates** rule 1 and the prior declined request | Compliant; amends the environment-provided rule with one bounded clause | Compliant |
 | Freshness | Stale on day one (`hyperframes-media` rename) | Upstream stays the source of truth | Same as B |
 | Size | +18 MB (skills only) | ~tens of KB | 0 |
