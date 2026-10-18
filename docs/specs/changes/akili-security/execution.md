@@ -42,3 +42,54 @@ Decision: the four XS reader edits ran in one Implementer spawn and one Reviewer
 - spawns: implementer — not reported by host; reviewer — not reported by host (ended complete for both).
 - Final verification: the four `git diff --stat` lines — archive 4, audit 2, constitution 2, kaizen 4 (6 insertions, 6 deletions).
 - Running totals after T3a–T3d: tasks 4/12 · LOC ~6 · review rounds 4 / 18.
+
+### T1 — Vendor `security-audit` at `c1c8a8c` + `test/security-audit-skill.test.js`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Attempts | 1 |
+| Models | Implementer `sonnet` (T2, effort high, skill `tdd`) · Reviewer `opus` (T3, effort high, lens checklist) |
+| Files changed | `.claude/skills/security-audit/` — 19 files (18 upstream non-test files + upstream repo `LICENSE`; `*.cjs` exec bit kept); `SKILL.md` adapted per design §7.2 (frontmatter keys, description sentence, `## AKILI-SPECS Integration`); new `test/security-audit-skill.test.js` (6 cases) |
+| Upstream | `git -C /tmp/cf-sas.S52m/repo rev-parse HEAD` → `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8` (Implementer before copying; Reviewer again) |
+| Red run (pre-copy, quoted) | Cases 1, 2, 3, 6 red with `ENOENT … scandir/open '.../.claude/skills/security-audit...'` (the directory's absence is the behaviour under test — tasks.md *Red run*); case 4 `expected: 0, actual: 1`; case 5 (ledger `{}` → 1) **green pre-copy** — a missing validator also exits 1, so the case is inert before the copy. Disclosed by the Implementer; the falsifiers carry the discrimination |
+| Implementer verification | `node --test test/security-audit-skill.test.js` → `# pass 6 / # fail 0` on Node v22.12.0 and v18.20.8; `npm test` → `# pass 263 / # fail 2` — `not ok 65` (install-cursor count, `:245`) and `not ok 75` (`doctor-codex-baseline.txt`) = the declared Consumers, **expected reds fixed in T4**, not regressions; body gate → empty, `body-exit=0`; Windows `UNVERIFIED` (P-13) |
+| Falsifiers (executed post-green, each reverted, revert confirmed by checksum) | (1) `validate-findings.test.cjs` copied in → `not ok 1 - vendored file set is exactly the 19 expected names...`, `not ok 6 - install ... lands the same 19 files` · (2) `LICENSE` deleted → `not ok 1`, `not ok 3 - LICENSE keeps the upstream copyright notice`, `not ok 6` · (3) one byte appended to `HUNTING.md` → `5948d7d0…edb5` vs upstream `71c121de…de09`, a second checksum-walk mismatch · (4) pin removed from `source` → `not ok 2 - SKILL.md frontmatter carries upstream attribution and AKILI binding` |
+| Evidence re-run (Leader-inline, non-author) | **VERIFIED** — `node --test test/security-audit-skill.test.js` → pass 6 / fail 0; `npm test` → pass 263 / fail 2 (`not ok 65`, `not ok 75`, the same two); checksum walk below; `LICENSE` → `e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391`; body gate → `body-exit=0`; `ls | wc -l` → 19 |
+| Reviewer verdict | **PASS** — "T1 matches FR-1, FR-7 (smoke) and NFR-2, and design §4, §7.2, DD-2, DD-3 and DD-11". Frontmatter checked against §7.2 key by key; the AKILI section covers every §7.2 item and claims nothing beyond the spec. The Reviewer also ran FR-1 *Install on every host* (`AND IT MUST … diff -r`): `HOME=<scratch> node bin/akili.js install --tool all` → exit 0; six roots each hold 19 files, 0 `*.test.cjs`, `diff -r` identical to source. `git diff -- package.json bin/` → empty |
+| ADVISORY (recorded, never gating) | Reliability: case 5 (ledger `{}` → 1) and the `[{"verdict":"confirmed"}]` → 1 half of case 4 cannot tell "validator rejects" from "validator missing" (both exit 1); asserting the P-6 stderr text or adding a valid-ledger → 0 case would close it. Readability: the AKILI section's redaction sentence omits the private-repo opt-in (title + fingerprint, DD-4/FR-8) — not a contradiction. Risk: two executable `.cjs` files ship to six roots (mitigated by P-6 and the byte-identity checks); a re-sync should re-run the P-6 grep. Recorded only — no task is widened to absorb them |
+| Requirements covered | FR-1 (both scenarios incl. `BUT` no `*.test.cjs`, `AND IT MUST` `diff -r` — Reviewer-run — and body unchanged), FR-7 (validator smoke), NFR-2 |
+| Decisions | Skills per task list (`tdd`), no deviation. Effort `high` (first vendored third-party payload with executable files). T1's brief narrowed "record in `execution.md`" to "report it" — the Leader owns the log. Review intensity not met (Consumers non-`none`; Review `full`) → Reviewer owed and run |
+| Issues encountered | Weak baseline red for case 5 (above). No backups left in the tree |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+| Final verification | New test green on Node 22 and 18; `npm test` 263/265 with exactly the two T4-owned reds |
+
+**Checksum walk** (`shasum -a 256`, upstream list = 18 lines in the spec session's `upstream-sha256.txt`; Leader re-run):
+
+| File | Upstream | Vendored | Result |
+|---|---|---|---|
+| `AI-AND-LLM.md` | `7335a95c…d2ef` | `7335a95c…d2ef` | match |
+| `ATTACK-CLASSES.md` | `3ee4f00c…ef83` | `3ee4f00c…ef83` | match |
+| `CLIENT-SIDE.md` | `613f6b98…370c` | `613f6b98…370c` | match |
+| `CLOUD-AND-DEPLOYMENT.md` | `3c80f308…6ca3` | `3c80f308…6ca3` | match |
+| `DATA-ISOLATION-AND-LIFECYCLE.md` | `307dcb3e…a4ad` | `307dcb3e…a4ad` | match |
+| `DESKTOP-MOBILE-AND-LOCAL-IPC.md` | `58eae8ee…8cb2` | `58eae8ee…8cb2` | match |
+| `HUNTING.md` | `71c121de…de09` | `71c121de…de09` | match |
+| `MEMORY-SAFETY-AND-BINARY.md` | `7c8b0dcc…24a7` | `7c8b0dcc…24a7` | match |
+| `PROTOCOLS-RPC-AND-MESSAGING.md` | `8b73816f…a619` | `8b73816f…a619` | match |
+| `RECONNAISSANCE.md` | `02ca887a…81a2` | `02ca887a…81a2` | match |
+| `report-schema.json` | `6575c9de…5519` | `6575c9de…5519` | match |
+| `RESOURCE-EXHAUSTION-AND-AVAILABILITY.md` | `4326fab5…4baa` | `4326fab5…4baa` | match |
+| `SKILL.md` | `5e3e96a1…ac85` | `7e11f5e2…59ff` | **MISMATCH** (adapted) |
+| `SUPPLY-CHAIN-AND-RELEASE.md` | `f372e919…52a5` | `f372e919…52a5` | match |
+| `validate-coverage-ledger.cjs` | `2eb280bd…8ac8` | `2eb280bd…8ac8` | match |
+| `validate-findings.cjs` | `e85f232e…5283` | `e85f232e…5283` | match |
+| `VALIDATION-AND-REPORTING.md` | `b892470c…9449` | `b892470c…9449` | match |
+| `WEB-PROTOCOL-AND-AUTH.md` | `4f3066df…2b5c` | `4f3066df…2b5c` | match |
+| `LICENSE` (upstream repo root) | `e598e694…6391` (expected) | `e598e694…6391` | match |
+
+Exactly one mismatch: `SKILL.md` (adapted).
+
+- Running totals after T1: tasks 5/12 · LOC ~140 authored (T1 ~134: test + SKILL.md additions; ~4 300 vendored lines copied, not authored) · review rounds 5 / 18.

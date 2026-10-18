@@ -42,7 +42,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~45 LOC authored in `SKILL.md` · ~140 LOC test · 18 files copied) |
 | Depends on | none |
 | Requirements | FR-1 (both scenarios incl. `BUT … any *.test.cjs`, `AND IT MUST … diff -r`, `AND IT MUST … body unchanged`), FR-7 (validator behaviour the gate relies on — smoke), NFR-2 |
