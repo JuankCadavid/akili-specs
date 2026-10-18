@@ -152,3 +152,22 @@
 - runtime events: none
 - spawns: implementer 10 calls, 77 780 tokens, ended partial (assumptions only); reviewer 11 calls, 82 811 tokens, ended complete
 - Running totals vs budget: tasks 4/12 · LOC ~259 · review rounds 6/13 (tripwire 20) — within budget
+
+**Attempt 2** (2026-10-18, rework after FAIL — Implementer resumed with the FAIL report verbatim; effort medium → high)
+- Files changed: `docs/skills/governance.md` (cumulative +14/−3). Rule 2 tail: "…every command still runs without it. The one narrowing is rule 4: a spec whose `Deliverable` selects an environment-provided skill stops at that skill's availability gate instead of proceeding." Rule 4: "Today's instance: `Deliverable: video` in the spec's Document Control loads the packaged bridge skill `video-production` (AKILI-authored, listed below), and the bridge, not the command, runs the availability gate for the environment-provided `hyperframes` router (standalone, or plugin-namespaced) and routes to it."
+- Implementer verification: P-6 sweep → `:27`, `:29` on-topic; `:54` off-topic. Falsifier executed: old sentence restored → `29: ...and every command must still work without it.` directly above `32: 4. **Command text may name one only behind a selector and a gate.**`; reverted
+- Not Done / Assumptions: "Rule 4 says the bridge, not the command, runs the gate. That follows design §9, but the other files' wording is not mine to check" — assumption only
+- Evidence re-run (Leader-inline): **VERIFIED** — same hits, +14/−3
+- Reviewer (opus, resumed): **PASS** — skills kept apart; rule 2 and rule 4 agree with FR-9; rule 1 unchanged; "Four rules" correct; `conditional` row per FR-8; intro examples, wiring norm and rules of thumb do not contradict rule 4
+- ADVISORY → **spec tension** (per *Pivot Detection*, settled at the next gate, not carried): `/akili-constitution` Step 8D is command text that names `hyperframes` (and `orchestration`, `playwright-cli`) as Skill Map examples with no `Deliverable` selector; read literally, FR-9's "only behind a recorded `Deliverable` selector" and rule 4 forbid that. Reviewer's resolutions: scope rule 4 to *load-directing* mentions (the `stack` rule's own wording) or add a Skill Map-builder carve-out
+- runtime events: none
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 (one rework attempt consumed) |
+| Review intensity | Reviewer **owed**: verification is a grep plus judgment; override (a); attempt 2 also override (e) rework |
+| Requirements covered | FR-9 (governance clause + rule 2 narrowing), FR-8 (assignment row) |
+| spawns | implementer 7 calls, 71 664 tokens, ended complete; reviewer 7 calls, 68 373 tokens, ended fail; implementer (resumed) 4 calls, 78 464 tokens cumulative, ended complete; reviewer (resumed) 2 calls, 72 358 tokens cumulative, ended complete |
+| Running totals vs budget | tasks 5/12 · LOC ~273 · review rounds 8/13 (2 for T2) — within budget (tripwire 20) |

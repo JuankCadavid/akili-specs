@@ -45,7 +45,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T2 — Governance amendment
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1
+- **Status:** [x] · **Size:** S · **Depends on:** T1
 - **Requirements:** FR-9 (both clauses), FR-8 (assignment row)
 - **Design:** DD-7; P-2, P-6
 - **Scope:** `docs/skills/governance.md` — new clause under *Environment-provided skills*; rule 2 (:27-29) narrowed; *Current assignment* `conditional` row gains `video-production (video deliverables)` (3 sites, 1 file)

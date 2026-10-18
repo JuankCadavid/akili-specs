@@ -18,7 +18,7 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 Map are shipped by a *tool* rather than by AKILI — standing examples: an agent orchestrator's
 coordination skill (`orchestration`), Microsoft's `playwright-cli` browser-automation skill (the
 token-lean alternative to loading the Playwright MCP schemas into every session), and the
-`hyperframes` video-composition family, and `archify` (tt-a1i's interactive diagram renderer, MIT). Three rules govern them:
+`hyperframes` video-composition family, and `archify` (tt-a1i's interactive diagram renderer, MIT). Four rules govern them:
 
 1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
    own binary serves the version-matched guide; a vendored copy goes stale the moment the tool
@@ -26,16 +26,27 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    by name and let the environment provide it.
 2. **Availability is per-developer, not per-project.** The Skill Map is committed and shared, so an
    environment-skill row records *what to use when it is present*, never an assumption that it is.
-   A teammate without the tool simply never loads it, and every command must still work without it.
+   A teammate without the tool simply never loads it, and every command still runs without it. The one
+   narrowing is rule 4: a spec whose `Deliverable` selects an environment-provided skill stops at that
+   skill's availability gate instead of proceeding.
 3. **Attribution stays with the author.** These skills are not AKILI's and carry no AKILI
    authorship frontmatter; the acceptance checklist below applies only to skills we ship.
+4. **Command text may name one only behind a selector and a gate.** An environment-provided skill is
+   named in command text only when (a) the spec records a `Deliverable` selector that calls for it and
+   (b) that skill's own availability gate runs first. Today's instance: `Deliverable: video` in the
+   spec's Document Control loads the packaged bridge skill `video-production` (AKILI-authored, listed
+   below), and the bridge, not the command, runs the availability gate for the environment-provided
+   `hyperframes` router (standalone, or plugin-namespaced) and routes to it. Specs without the selector,
+   including every software spec, never reach the gate and are unaffected. A spec whose `Deliverable`
+   calls for an environment-provided skill stops at the gate when that skill is missing, prints the
+   install route, and never falls back to a hand-built substitute.
 
 ### Current assignment
 
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security) |
-| `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:
