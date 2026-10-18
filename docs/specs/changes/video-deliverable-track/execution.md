@@ -1,0 +1,73 @@
+# Execution Log: Video Deliverable Track
+
+## 1. Document Control
+
+| Field | Value |
+|---|---|
+| Spec Path | `changes/video-deliverable-track` |
+| Depth | Standard |
+| Approval Mode | `gated` (inherited from `requirements.md`); user run instruction 2026-10-18: "Ejecuta T1 a T11 con commits locales. Antes de T12 (instala HyperFrames desde la red) detente y pide permiso. Sin push, release, tag ni publish." — continue gates T1→T11 pre-authorized; HALT, Pivot, budget tripwire, waiver and an unearned skip still stop |
+| Started | 2026-10-18 |
+| Started at | `877e393` (clean tree) |
+| Budget (design §12) | 12 tasks · ~650 LOC added / ~25 changed · 13 review rounds expected; tripwire 14 tasks / ~850 LOC / 20 rounds — compared at every task's finalize |
+| Leader | Claude Code session model Opus 5.5 (`claude-opus-5-5`). Model checkpoint: this repo's `AGENTS.md` has no `## Model Routing` registry section; `docs/model-routing.md` default maps T1 → `opus` — session matches, pass |
+| Spawn path | No Step 8E wrappers (`.claude/agents/` absent) → fallback sub-prompt path; each worker reads its persona from `.agents/`. `.agents/` is gitignored (`.gitignore:8`) and absent in this worktree; copied from the main checkout `~/Development/sdd-jc-methodology/.agents/` (untracked, ignored — no git effect). `node bin/akili.js doctor --agents` here (2026-10-18): every section `CURRENT` except `shared-file-discipline` UNLOCATED in leader/implementer — "No persona drift blocking CI" |
+| Models | Implementer `sonnet` (T2), Reviewer `opus` (T3 per precedent, ≠ Implementer) |
+| Upstream clone | `/private/tmp/hf-src/repo` at `01adadb9` (verified `git rev-parse`, clean) |
+| Environment pre-check (Step 2.1) | T1–T11 need no running stack. T12 needs network + third-party install: stop and ask the user first |
+| Commits | Local only, `[SPEC:changes/video-deliverable-track]` prefix; no push, release, tag or publish |
+
+## 2. Task Execution History
+
+### T1 — Author the `video-production` skill
+
+**Attempt 1** (2026-10-18)
+- Files changed: `.claude/skills/video-production/SKILL.md` (new, 6,418 B), `references/acceptance-criteria.md` (new, 2,181 B), `references/render-evidence.md` (new, 2,242 B) — total 10,841 B, 3 files
+- Skills: `cognitive-doc-design`, `brainstorming` (as tasks.md lists — no deviation). Effort: high
+- Implementer verification: (1) frontmatter = original-authorship variant (`license: MIT`, `author`, `inspired-by` HyperFrames by HeyGen Apache-2.0 + URL, `binding: conditional`, `version`); (2) `npx hyperframes` grep → only `check`, `snapshot --at`, `render --quality` (draft/delivery), `preview`, `skills check`, `skills update`; outward names only at `SKILL.md:72` (consent rule); (3) 3 files, 10,841 B (`wc -c`); (4) `heygen` at `SKILL.md:7` (inspired-by), `:31` (install), `:108` (attribution); (5) 7 distinctive upstream sentences `grep -F` → 0 hits
+- Falsifiers executed: F1 appended ``Run `npx hyperframes lambda render` after the check.`` → check (2) printed `109:npx hyperframes lambda render`, flagged; reverted. F2 `name: hyperframes-bridge` → walk printed `FR-8 walk FAILS: name=hyperframes-bridge`; reverted
+- Not Done / Assumptions (verbatim, condensed): "The project-scope dirs per host (P-11) come from the design's Premise Ledger and were not re-verified… The 'from the project root' and 'project scope' wording for `skills update`… is my reading. I did not confirm that `skills update` writes to a project dir rather than a global one." / plugin route described generically / no render run — assumptions only, no owed item → no continuation
+- Evidence re-run (Leader-inline): **VERIFIED** — 3 files, 10,841 B, identical grep hits. Leader probe of the assumption at source: **refuted** — `npx hyperframes skills update` is global (`skills.ts:97-119`) → Pivot Record T1 below
+- Reviewer (opus, install-route scope excluded as under amendment): **PASS** — "every obligation that falls to the skill files is in the shipped text"; upstream facts re-checked in the clone (`snapshot.ts:995`, `render.ts:159,177-182`, `skills.ts:27-29,589,710`, `policy.ts:32`, `feedback.ts:38,183,239`, cli SKILL.md:126-128, README.md:47-58)
+- ADVISORY (recorded, not actioned — advisories never become tasks): (a) excluded item — `SKILL.md:30` "from the project root" / `:33` "never suggest a global directory" vs global `skills update`; handled by the Pivot. (b) `SKILL.md:101` maps "Burned-in captions" to `embedded-captions`; upstream scopes it to existing talking-head footage, composition captions go via the router (`hyperframes/SKILL.md:66,108`). (c) `SKILL.md:100` puts "audio, voice" under `media-use`; upstream routes mixing/voice-over to `hyperframes-audio` (router :109). Mitigated by the skill's "installed skill wins" line. (d) FR-4 says "the install route for that host"; the skill prints all routes (superset)
+- runtime events: none
+
+## Pivot Record: T1
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Trigger | Implementer assumption probed by the Leader at source |
+| Blocker | design §9 / FR-4 named `npx hyperframes skills update` as the project-scoped agent install route; upstream `packages/cli/src/commands/skills.ts:97-119` always passes `--global --agent claude-code universal --copy --full-depth --yes` and mirrors to every other installed agent's global dir — contradicts §9 "project-scoped only", DD-10 and T12 |
+| Verified alternative | skills CLI `1.7.2` `dist/cli.mjs:4887-4903`: `npx skills add <src>` without `-g` → project scope (default under `--yes`); `--skill` at `:5955` |
+| Alternatives offered | Re-label (recommended) · drop `skills update` · accept global |
+| User decision | **Re-label** (AskUserQuestion, 2026-10-18): agent route = `npx skills add heygen-com/hyperframes --skill <name>… --yes` without `-g`; `npx hyperframes skills update` kept, labelled a global install needing explicit consent; T12 uses the project route |
+| Spec edits | `requirements.md` FR-4 "Not installed" THEN line; `design.md` §9 availability/install paragraph, P-19 (struck clause), new P-24, ledger counts (21 verified, 24 rows); `tasks.md` T12 Scope. `proposal.md:173` and `judgment.md:32` left as historical records |
+| Correction closure | Forward grep `skills update|project-scoped|global` over the spec folder — remaining hits are DD-8 (command list, unaffected), DD-10 (already "never globally" — now consistent), NFR-2 (instruct list, unaffected), T1 Scope "project-scoped dirs only" (consistent), T12 title/Done (consistent). Backward: §9 is cited by T1 and P-14 — both consistent. `git diff` removed lines: exactly the four superseded statements + old counts line |
+| ADR affected | none (no TRD in this repo) |
+| Resume | T1 attempt 2 re-issued with the amended text (install-routes delta only) |
+
+### T1 — closing entry
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2, post-Pivot) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 (attempt 2 = Pivot re-issue, not a FAIL — no rework attempt consumed) |
+| Review intensity | Reviewer **owed**: `Review: full`; override (a) — the skill defines obligations other agents execute |
+| Requirements covered | FR-2…FR-8 (skill side), NFR-2, NFR-3, NFR-4; FR-4 as amended 2026-10-18 |
+
+**Attempt 2** (2026-10-18)
+- Files changed: `.claude/skills/video-production/SKILL.md` only — install-routes table (:26-32), :34 (global-dir exception), :67 (`skills check` row). Total 3 files, 11,549 B
+- Skills: `cognitive-doc-design`. Effort: high (post-Pivot)
+- Implementer verification: 3 files; 11,549 B; `npx hyperframes` hits = check, snapshot, render, preview, skills check, plus `skills update` only at :32 (global, consent-gated); `skills update|global|-g` hits :30, :32, :34, :67 — all consistent with §9/P-24; `heygen` only on install/attribution lines. Core `--skill` list = upstream `FALLBACK_CORE_SKILLS` (`packages/cli/src/utils/skillsManifest.ts:150-161`, 10 names)
+- Falsifier executed: route 4 relabelled "`npx hyperframes skills update` from the project root" → `grep -n "skills update"` → `32:| Core set | \`npx hyperframes skills update\` from the project root |` (unlabelled project-root claim contradicting P-24); reverted
+- Not Done / Assumptions (verbatim, condensed): "I did not re-read the spec text for §9, P-24, P-19 or FR-4. I worked from your brief's description of the amendment." / "The `--skill` list is generated from upstream's pinned fallback core, not from the live manifest." — assumptions only; the Reviewer audited against the amended source text
+- Evidence re-run (Leader-inline): **VERIFIED** — 3 files, 11,549 B, same hits; `FALLBACK_CORE_SKILLS` read at source
+- Reviewer (opus, resumed with attempt-1 context): **PASS** — route form matches §9/FR-4 (`--skill <name>… --yes` without `-g`); scope verified in skills CLI 1.7.2 (`cli.mjs:4887-4890`, `:5941-5955`); global behaviour confirmed (`skills.ts:113-120`, :97-101); FR-4 obligations, NFR-3/4 intact; execute-time edit checks (design §9 as amended, FR-4 THEN as amended) conform
+- ADVISORY (recorded, not actioned): (e) the project route passes no `--agent`; under `--yes` skills CLI 1.7.2 installs to every detected agent plus universal (`cli.mjs:4875-4879`), or all agents when none detected (:4863-4865) — `--agent <host-id>` would make it host-specific. (f) without `--copy` the CLI symlinks (:4906); `skills check` may then read skills as not current. (b)/(c) carried from attempt 1 (captions → `embedded-captions` scope; voice/mixing → `hyperframes-audio`)
+- **Forward pointer → T12:** advisories (e) and (f) bear on the live smoke run — T12 should observe which agent dirs the project route populates and what `skills check` reports; record, do not widen T12
+- runtime events: none
+- spawns: implementer 16 calls, 110 539 tokens, ended partial (assumptions only); reviewer 12 calls, 91 815 tokens, ended complete (PASS, scope-excluded); implementer (attempt 2) 11 calls, 68 321 tokens, ended partial (assumptions only); reviewer (resumed) 4 calls, 99 613 tokens cumulative, ended complete
+- decisions made: execute-time spec edits — see Pivot Record T1 (requirements FR-4 THEN; design §9, P-19, P-24, counts; tasks T12 Scope), user-approved
+- Running totals vs budget: tasks 1/12 · LOC ~188 skill lines + 11/7 spec lines (~199 / ~650) · review rounds 2 (budget 2 for T1; total 2/13, tripwire 20) — within budget

@@ -30,7 +30,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T1 — Author the `video-production` skill
 
-- **Status:** [ ] · **Size:** M · **Depends on:** none
+- **Status:** [x] · **Size:** M · **Depends on:** none
 - **Requirements:** FR-3 (routing to `hyperframes`), FR-4 (both scenarios + `AND IT MUST` both router names), FR-5, FR-6/FR-7 evidence text, FR-2 criteria and Bug-on-video shape, FR-8 (all clauses), NFR-2, NFR-3, NFR-4
 - **Design:** §4, §9, DD-2, DD-3, DD-6, DD-8, DD-9, DD-11, DD-12; P-7…P-11, P-14, P-18, P-19
 - **Scope:** `SKILL.md` (frontmatter per governance original-authorship variant; availability gate accepting `hyperframes` or a plugin-namespaced router; install routes for the 5 hosts, project-scoped dirs only; phase map; privacy defaults; draft vs delivery render; quiet-tree note; deferral table → `hyperframes`, `hyperframes-core`, `hyperframes-cli`, `hyperframes-animation`, `hyperframes-creative`, `media-use`, `embedded-captions`); `references/acceptance-criteria.md`; `references/render-evidence.md` (`format.duration` vs target ± tolerance and vs root `data-duration`)
@@ -198,7 +198,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 - **Status:** [ ] · **Size:** S · **Depends on:** T11
 - **Requirements:** FR-4 (gate + install route), FR-5 (telemetry off), FR-6 (evidence set), NFR-4 (Claude Code host only — others accepted risk)
 - **Design:** DD-10, DD-11; P-12, P-19, P-23
-- **Scope:** in a scratch dir, **after asking the user** (network + third-party install): settle P-23 (Chrome); `npx hyperframes skills update` project-scoped (core set); a 5-second smoke composition per the installed skills; `HYPERFRAMES_NO_TELEMETRY=1` `check`, `snapshot --at`, `render --quality draft`, `ffprobe`; confirm the skill resolution path is the scratch project, not `~/.claude/skills`
+- **Scope:** in a scratch dir, **after asking the user** (network + third-party install): settle P-23 (Chrome); `npx skills add heygen-com/hyperframes --skill <core set>… --yes` without `-g` (project-scoped; never `npx hyperframes skills update`, which is global — P-24, amended 2026-10-18); a 5-second smoke composition per the installed skills; `HYPERFRAMES_NO_TELEMETRY=1` `check`, `snapshot --at`, `render --quality draft`, `ffprobe`; confirm the skill resolution path is the scratch project, not `~/.claude/skills`
 - **Tests / Verification:** evidence set per `render-evidence.md`; `format.duration` within tolerance of 5 s and equal to `data-duration`
 - **Falsifier:** declare 5 s, render a 4 s composition → the duration comparison must report FAIL; observe, quote
 - **Red run:** the falsifier, executed once

@@ -80,9 +80,12 @@ n/a — no UI.
 
 Availability gate: the router is installed when either `hyperframes` (standalone) or a plugin-namespaced
 router (`/hyperframes:hyperframes`) is loadable (P-19). Install routes: the host's HyperFrames plugin;
-`npx hyperframes skills update` (core set, non-interactive — the route for agents); `npx skills add
-heygen-com/hyperframes` (interactive picker; non-interactive without `--skill` installs all 21). Hints name
-**project-scoped** locations only; global dirs differ across skills-CLI versions (P-14).
+`npx skills add heygen-com/hyperframes --skill <name>… --yes` without `-g` (core set, non-interactive,
+project-scoped — the route for agents); `npx skills add heygen-com/hyperframes` (interactive picker; choose
+project scope; non-interactive without `--skill` installs all 21). `npx hyperframes skills update` is named
+only as a **global** install (it always passes `--global` and mirrors to other agents' global dirs, P-24) that
+needs the user's explicit consent. Hints name **project-scoped** locations only; global dirs differ across
+skills-CLI versions (P-14). *Amended 2026-10-18 during T1 (user-approved Pivot, `execution.md` Pivot Record T1).*
 
 When a project's Skill Map already has a `hyperframes` row, the bridge still routes: the row stays the
 per-developer availability note, the bridge owns the AKILI phase mapping.
@@ -112,7 +115,7 @@ fix now costs a Lite proposal; accepted, because quick cannot produce render evi
 
 ## 11. Premise Ledger
 
-Counts: 20 verified · 2 `UNVERIFIED` (both Low: P-22, P-23) · 1 refuted-and-absorbed (P-14) — 23 rows.
+Counts: 21 verified · 2 `UNVERIFIED` (both Low: P-22, P-23) · 1 refuted-and-absorbed (P-14) — 24 rows (P-24 added 2026-10-18 during T1; it partially refutes P-19).
 Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P-21; `shared-state` fires
 (one condition read by several blocks) → P-22; `consumer` fires (new field; skill set; `leader.md` section)
 → P-15, P-16, P-17.
@@ -137,11 +140,12 @@ Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P
 | P-16 | Readers of the packaged skill set: `install-cursor.test.js:245` (+ comments), `test/fixtures/doctor-codex-baseline.txt` (byte-exact skill list, lines 23-47), `docs/cli.md:183,195,216` ("24 packaged skills"), `README.md` skill list, `docs/skills/README.md` | consumer | `grep -rln "vercel-react-best-practices" test/` → `test/fixtures/doctor-codex-baseline.txt`; `grep -n "24 packaged skills" docs/cli.md` → 3 hits; judge B scratch `npm test` with 3 added files → `not ok 65`, `not ok 75` | `22e990b` | T10/T11 scope (High) | — |
 | P-17 | Changing `leader.md` text inside `primary-instructions` changes its section hash vs the `2.32.2` digest; deployed copies read OUTDATED after release; digests are written by `scripts/release.js`, not by this change | consumer | judge A hash simulation (edited ≠ `2.32.2` digest); AGENTS.md (templates bullet: `release.js` writes `digests.json`) | `22e990b` | DD-5 rationale (Low) | — |
 | P-18 | Outward commands exist upstream: `feedback`, `publish`, `cloud`, `lambda`, `cloudrun`; `--file-issue` on feedback | data-env | upstream `packages/cli/src/commands/{cloud,cloudrun,lambda,publish,feedback}.ts` (judge B); `skills/hyperframes-cli/SKILL.md:134-146`, `references/preview-render.md:182` (judge A) | `01adadb9` | FR-5 list wrong (Low) | — |
-| P-19 | Plugin installs expose the router namespaced (`/hyperframes:hyperframes`); agents' non-interactive install is `npx hyperframes skills update`; non-interactive `npx skills add` without `--skill` installs all 21 | data-env | upstream `README.md:47,53-58,70` | `01adadb9` | FR-4 gate misses plugin installs (High) | — |
+| P-19 | Plugin installs expose the router namespaced (`/hyperframes:hyperframes`); ~~agents' non-interactive install is `npx hyperframes skills update`~~ (scope refuted by P-24 — it is global); non-interactive `npx skills add` without `--skill` installs all 21 | data-env | upstream `README.md:47,53-58,70` | `01adadb9` | FR-4 gate misses plugin installs (High) | — |
 | P-20 | `/akili-audit` compares codebase vs TRD/UX and has no spec-type branch, so compositions are audited as project files | other | `grep -c -E "Type:\|Deliverable" .claude/commands/akili-audit.md` → 0; Steps 1–2 scan the codebase vs docs (`akili-audit.md:33,46`) | `4f3f83f` | an audit could flag compositions as undocumented drift; accepted (Low) | — |
 | P-21 | Live path: propose Document Control → specify Step 0 item 3 reads `proposal.md` → specify writes `requirements.md` Document Control (new, T5) → test/validate read `requirements.md` → Leader reads task skill lists | live-path | `akili-specify.md` Step 0 item 3; `akili-test.md:30`; `akili-validate.md:67`; `leader.md:25` | `22e990b` | a reader never sees the field (High) | — |
 | P-22 | The `Deliverable: video` condition is read by these blocks: specify Video Mode, specify Phase 2 line, specify Step 3.2 clause, specify checklist item, test Phase 1 suite list + STOP bullet, validate Phase 3 + Phase 6, quick escalation line, `leader.md` example | shared-state | `UNVERIFIED — confirm at source before relying on it` — baseline `grep -rn "Deliverable: video" .claude \| wc -l` → 0 at `4f3f83f`; the blocks do not exist yet | — | a block drifts from the shared definition (Low) | T11 — `grep -rn "Deliverable: video" .claude` matches this enumeration |
 | P-23 | Chrome is available locally for render | data-env | `UNVERIFIED — confirm at source before relying on it` — the download route is verified (upstream `packages/cli/package.json:41` `@puppeteer/browsers ^3.2.2`); local presence is not | — | T12 blocked (Low) | T12 first step |
+| P-24 | `npx hyperframes skills update` installs **globally** (`--global --agent claude-code universal --copy --full-depth --yes`, then mirrors to every other installed agent's global dir); `npx skills add <src> --skill <n> --yes` without `-g` installs project-scoped | data-env | upstream `packages/cli/src/commands/skills.ts:97-119` (`GLOBAL_INSTALL_ARGS_TAIL`), `:131-140`; skills CLI `1.7.2` `dist/cli.mjs:4887-4903` (`installGlobally = options.global ?? false`; scope prompt skipped under `--yes`), `:5941` (`-g`/`--global`) — Leader, during T1 | `01adadb9`, `1.7.2` | install route touches global dirs (High) | — absorbed: §9, FR-4, T12 amended 2026-10-18 |
 
 Consumer rows → `Consumers` fields: P-15 → T4, T5, T7, T8, T10; P-16 → T10, T11; P-17 → T6.
 

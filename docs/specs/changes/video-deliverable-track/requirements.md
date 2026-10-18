@@ -170,7 +170,7 @@ the host, and SHALL stop with the host-specific install hint when they are not.
 
 - GIVEN a host with no `hyperframes` skill installed
 - WHEN a video task starts
-- THEN the agent stops and prints the install route for that host (the host's HyperFrames plugin, `npx hyperframes skills update` for the core set, or `npx skills add heygen-com/hyperframes`)
+- THEN the agent stops and prints the install route for that host (the host's HyperFrames plugin, or `npx skills add heygen-com/hyperframes` project-scoped — `--skill <name>… --yes` without `-g` for the core set non-interactively; `npx hyperframes skills update` is named only as a **global** install that needs the user's explicit consent — amended 2026-10-18, P-24)
 - AND IT MUST accept both the standalone name `hyperframes` and a plugin-namespaced router (e.g. `/hyperframes:hyperframes`) as installed
 - BUT it must NOT hand-write a video pipeline, vendor a copy, or install anything without consent
 
