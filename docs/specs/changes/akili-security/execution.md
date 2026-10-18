@@ -471,3 +471,31 @@ Open items for the user (recorded, not tasks):
 
 - Kaizen candidate **K-7**: "every run" in FR-3 ignores the preflight abort paths (no Node.js, foreign skill copy) — T7a Reviewer advisory 2.
 - Running totals after T7a: tasks 12/13 (T7a added by the Pivot) · review rounds **19 / 18** (over by 1, user-authorized — see *Resume*).
+
+### T8 — Dogfood `/akili-security --profile quick` (HITL) — run observed, **paused at the routing gate**
+
+| Field | Value |
+|---|---|
+| Status | `[~]` — the run reached its terminal state; closure waits on the user's index decision at the routing gate, then a Reviewer (`full`) |
+| Date | 2026-10-18 |
+| Authorization | User message relaying Juan Carlos Cadavid's delegation to his Methodology agent ("AUTORIZA T8 …"); plan gate answered **Adjust** → scope `bin/ scripts/ .claude/ test/`, then Run ("Corre el audit con ese alcance") |
+| Invocation | This worktree's own `.claude/commands/akili-security.md` + `.claude/skills/security-audit/` (no install; the user's HOME untouched); `--profile quick --budget 15 --out <session scratchpad>/security-run` → run dir `…/security-run/run-1` |
+| Session restart | The host session hit its account limit after reconnaissance; the user restarted on a new account and asked to resume. State survived on disk (run dir, `run-metadata.json`, recon reports in context); no agent had to be re-run |
+
+**Observations (tasks.md T8 scope).**
+
+| Check | Observed |
+|---|---|
+| No agent before **Run** | Preflight read only: frontmatter grep (`adapted-for: "AKILI-SPECS"`, `source` pinned `c1c8a8c…`), `node --version` → `v22.12.0`, `git rev-parse` / `git status --porcelain` / `git remote get-url` / `git ls-files` counts. The plan gate was shown and the run directory did not exist (`ls` → `No such file or directory`) until after Adjust + Run |
+| Static-only — target code executed? | **No target-controlled build, test, script or fixture ran.** Shell commands issued by the parent: the preflight reads above; `mkdir`/`cat`/`python3 -I` writing **only** inside the run directory (ledger seeding, hunter-context building, consolidation, reports); `shasum`. Delegated agents (4 recon, 5 hunters, 1 critic) were read-only by prompt. One nuance: the command's Step 3 runs the validators from `<skill-dir>`, which in a dogfood run lies inside the audited target. They were run as `node <skill-dir>/validate-*.cjs <path>`, and their hashes match the vendored upstream (`e85f232e…`, `2eb280bd…`, T1's checksum walk). Recorded as kaizen candidate K-8 |
+| No install / network / endpoint probe | None issued |
+| Brief addendum in every delegated prompt | Yes — all 10 delegated prompts carried it verbatim (recon ×4, hunters ×5, critic) |
+| Validators | `validate-findings.cjs findings.json` → `PASS: 0 findings valid` (exit 0); `validate-coverage-ledger.cjs coverage-ledger.json` → `PASS: 21 coverage units valid` (exit 0), after seeding, after consolidation and before Phase 6 |
+| Result | 0 confirmed · 0 needs_validation · 0 rejected; 12 units covered, 4 deferred (critic, `quick_profile_final_critic`), 5 out of scope; 19 hardening notes in `REPORT.md`; 10 of 15 agent invocations spent |
+| Index | Written, **untracked**: `docs/specs/audits/security-2026-10-18-JuankCadavid--skill-security-audit.md` (branch suffix: not the default branch). Run path in the `<external>/run-1` form. A grep for `/Users`, `/private`, `jcadavid`, `claude-501`, `.js:` and `.md:` found nothing. Not committed: waits on the user's decision |
+| Redaction | **Unexercised** — zero confirmed / needs_validation records, so no `S-n` row exists (tasks.md T8 Disqualifier) |
+| Routing gate | Reached (an index was written); nothing to route — no confirmed record; presented to the user |
+| Bookkeeping | Seven hunter checks omitted `method`; normalized to `source` (artifact null) and disclosed in `REPORT.md` |
+
+- Kaizen candidate **K-8**: in a self-audit (dogfood), the validators the command runs live inside the audited target; trusting them rests on the T1 checksum walk, and the command has no wording for that case.
+- Agents: recon `sonnet` ×4 · hunters `sonnet` ×5 · critic `opus` ×1; `spawns` token counts not reported by host.
