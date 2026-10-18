@@ -91,7 +91,7 @@ Not every change needs the full lifecycle. For a genuinely trivial, low-risk cha
 ```text
 You: /akili-quick login-button-color use the brand accent token on the primary login button
 AI:  ✓ checks the triviality gate (cosmetic/copy-only, no behavior/data/API/auth change,
-       ≤ ~20 LOC in one component, design-token safe)
+       ≤ ~20 LOC in one component, not a video composition, design-token safe)
      ✓ makes the edit directly
      ✓ runs a light verification (lint / type-check / existing test / manual note)
      ✓ appends a one-line entry to docs/specs/quick/quick-log.md

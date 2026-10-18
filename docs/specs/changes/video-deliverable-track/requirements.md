@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | software — this spec ships methodology text and one skill; it produces no video |
 | Approval Mode | gated |
-| Status | Draft — awaiting the specify gate |
+| Status | Approved and executed — specify gate passed; `/akili-execute` T1–T12 + A3, A4 complete; `/akili-test` PASS; validated 2026-10-18 (`validation-report.md`) |
 | Date | 2026-10-18 |
 | Proposal | `proposal.md` — approved 2026-10-18 by Juan Carlos Cadavid (Option B; bridge name must not start with `hyperframes-`; `HYPERFRAMES_NO_TELEMETRY=1`) |
 | Phase gates | Phase 1 and Phase 2 pauses folded into one specify gate at the user's up-front instruction (2026-10-18: "specify y execute, cada uno con su aprobación"); `judgment-day` run at the user's request 2026-10-18 — see `judgment.md` |
@@ -282,7 +282,7 @@ counts and comments, `test/fixtures/doctor-codex-baseline.txt`) to the measured 
 
 | ID | Requirement |
 |---|---|
-| NFR-1 | **Software path untouched:** every added sentence in specify, the Leader persona, test and validate is conditional on `Deliverable: video`. Carve-outs: propose's detection text (it must read every request) and quick's one escalation line — both leave the software route's outcome unchanged |
+| NFR-1 | **Software path untouched:** every added sentence in specify, the Leader persona, test and validate is conditional on `Deliverable: video`. Carve-outs: propose's detection text (it must read every request) and quick's video gate criterion ("Not a video composition") with its escalation line — both leave the software route's outcome unchanged *(amended 2026-10-18 at `/akili-validate`, amendment V1: quick gained a gate criterion in A4)* |
 | NFR-2 | **Freshness:** AKILI text **instructs** only HyperFrames commands verified at `01adadb9` — `check`, `snapshot`, local `render`, `preview`, `skills update`/`skills check` — plus `ffprobe`; it **names without instructing** only the consent-gated outward actions of FR-5 (`feedback`, `--file-issue`, `publish`, `cloud`, `lambda`, `cloudrun`); anything else defers to the installed `hyperframes-cli` skill |
 | NFR-3 | **Size:** bridge skill ≤ 3 files and ≤ 20,000 bytes (`wc -c`) |
 | NFR-4 | **Host-agnostic:** install hints cover Claude Code, OpenCode, Codex, Cursor, Antigravity |

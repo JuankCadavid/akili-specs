@@ -433,3 +433,16 @@ Open at this gate: spec tensions S1–S5 and the `~/.cache/hyperframes` cleanup 
 - runtime events: none
 - spawns: implementer 13 calls, 72 805 tokens, ended complete; reviewer 8 calls, 77 734 tokens, ended complete
 - Running totals vs budget: review rounds **20** (tripwire: stop past 20 — reached, not exceeded; the user pre-approved exceeding it)
+
+## Amendment V1 (validate-time) — NFR-1 quick wording and quick-gate restatements
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| User decision | Methodology agent, delegated by Juan Carlos: "Acepto tu propuesta de enmendar la frase de NFR-1 para que refleje el nuevo criterio del gate de quick; y en el barrido de validate decide sobre AGENTS.md y docs/flow.md (si enumeran los criterios de quick, agrega el nuevo para que no queden inconsistentes)." |
+| Spec edits | `requirements.md` NFR-1 carve-out: "quick's video gate criterion (\"Not a video composition\") with its escalation line"; `design.md` §3 `/akili-quick` row (correction closure — it still said "one escalation line"). Status cells of `requirements.md` and `design.md` updated to approved/executed and the P-23 counts phrase reworded (validation R2). Named "V1" to avoid clashing with walkthrough advisories A1–A5 (validation V-1) |
+| Product edits | `AGENTS.md` and `docs/flow.md` triviality-gate parentheticals gain "not a video composition" (both enumerate the criteria; same order as `akili-quick.md`) |
+| Correction closure | Forward: "one escalation line" survives only in historical records (`execution.md` A4 entry, `test-report.md` §8 resolution note) and T9's original scope (superseded by A4). Backward: NFR-1 and §3 citations (`tasks.md`, `execution.md`) agree. No other live enumeration of the quick gate (README none; `docs/commands/akili-quick.md` already carried the criterion) |
+| Verification | Leader quiet-tree build integrity: `npm test` 275/275, `verify:cli` 25 skills, `pack:dry-run` 284 files, `install --tool all --dry-run` lists `video-production`, `git diff --check` clean |
+| Audit | Independent validation auditor (opus, fresh context): edits correct and closed (`validation-report.md` §8, §10) |
+| Review rounds | No Reviewer round consumed (audited inside `/akili-validate`); total stays 20 |

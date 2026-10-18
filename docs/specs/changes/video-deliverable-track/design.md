@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/video-deliverable-track` |
 | Depth | Standard (re-checked in §12) |
-| Status | Draft — Judgment Day APPROVED (`judgment.md`), awaiting the specify gate |
+| Status | Approved and executed — Judgment Day APPROVED (`judgment.md`); specify gate passed; amended during execution (P-24, A2, A3, A4, V1); validated 2026-10-18 |
 | Date | 2026-10-18 |
 | Verified at | `22e990b` (this repo); `01adadb9` (`heygen-com/hyperframes`, shallow clone, LFS off); skills CLI `1.5.18` and `1.7.2` |
 | Skill name decision | `video-production` — confirmed (DD-2) |
@@ -28,7 +28,7 @@ receives it as `video-production` in every task's skill list. All video know-how
 | `/akili-execute` (Leader) | each task's skill list | assigns `video-production` (task lists are the Leader's defaults, `leader.md:25`); `leader.md` names the swap-in as an example |
 | `/akili-test` | `requirements.md` (`akili-test.md:13,30`) | render-evidence suite with a draft render; missing HyperFrames = STOP |
 | `/akili-validate` | `requirements.md` (`akili-validate.md:67`) | loads `video-production`; `hyperframes check` as build integrity; final look before PASS; delivery render after approval |
-| `/akili-quick` | — (no spec) | one escalation line: an edit to a video composition → `/akili-propose` |
+| `/akili-quick` | — (no spec) | gate criterion "Not a video composition" plus its escalation line: an edit to a video composition → `/akili-propose` (A4, V1) |
 | `/akili-archive` | — | **fall-through:** readiness, summary and kaizen work on documents; a video spec archives like any spec |
 | `/akili-audit` | — | **fall-through:** scans the codebase against TRD/UX; compositions are project files and are audited as such (P-20) |
 | `/akili-resume` | — | **fall-through:** phase detection is by spec files present, unchanged |
@@ -115,7 +115,7 @@ fix now costs a Lite proposal; accepted, because quick cannot produce render evi
 
 ## 11. Premise Ledger
 
-Counts: 21 verified · 1 settled partially true (P-22, accepted at T11) · 1 settled refuted (P-23, T12 — open spec tension) · 1 refuted-and-absorbed (P-14) — 24 rows (P-24 added 2026-10-18 during T1; it partially refutes P-19).
+Counts: 21 verified · 1 settled partially true (P-22, accepted at T11) · 1 settled refuted (P-23, T12 — resolved by amendment A3) · 1 refuted-and-absorbed (P-14) — 24 rows (P-24 added 2026-10-18 during T1; it partially refutes P-19).
 Blast-radius triggers: `live-path` fires (`Deliverable` is a branch point) → P-21; `shared-state` fires
 (one condition read by several blocks) → P-22; `consumer` fires (new field; skill set; `leader.md` section)
 → P-15, P-16, P-17.
