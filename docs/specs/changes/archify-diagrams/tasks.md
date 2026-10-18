@@ -17,7 +17,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~180 LOC) |
 | Depends on | none |
 | Requirements | FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, NFR-1, NFR-2, NFR-3, NFR-4 |
