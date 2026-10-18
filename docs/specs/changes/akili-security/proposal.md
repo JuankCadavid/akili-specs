@@ -45,7 +45,7 @@ Give AKILI projects a defensible way to **discover vulnerabilities in a reposito
 |---|---|---|
 | License | MIT, "Copyright (c) 2025-2026 Cloudflare, Inc." | upstream `LICENSE` |
 | Author | Cloudflare (contributors via PRs #2, #3, #4, #6, #12) | `git log` upstream |
-| Layout | One skill dir: `SKILL.md` (192 lines) + 13 companion `.md` (phase docs + 10 attack-class domains) + `report-schema.json` + 2 validators `.cjs` + 2 validator tests `.test.cjs` | `wc -l skills/security-audit/*` |
+| Layout | One skill dir: `SKILL.md` (192 lines) + 14 companion `.md` (4 phase docs + 10 attack-class domains) + `report-schema.json` + 2 validators `.cjs` + 2 validator tests `.test.cjs` | `wc -l skills/security-audit/*` |
 | Size | 348 KB on disk (56 KB of it the two `.test.cjs`); 5 276 lines | `du -sk`, `wc -l` |
 | Runtime deps | **None.** Validators `require` only `fs`/`path`/`util`; **no** `child_process`, network, or `fs.write*` — read-only openers (`openSync`/`fstatSync`/`readSync`) | `grep require\|child_process\|fetch\|fs\.` over `validate-*.cjs` |
 | Validator CLI | `node validate-findings.cjs <findings.json>`, `node validate-coverage-ledger.cjs <ledger.json>`, exit code = result | `validate-findings.cjs:5,773`; `validate-coverage-ledger.cjs:5,872` |

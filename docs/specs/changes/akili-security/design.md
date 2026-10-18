@@ -8,7 +8,7 @@
 | Depth | Full (compact) |
 | Type | Change |
 | Approval Mode | `gated` (single specify gate at the user's instruction — see `requirements.md` §1) |
-| Status | **Draft** — awaiting approval |
+| Status | **Approved** at the specify gate, 2026-10-18 (Juan Carlos Cadavid), after judgment-day APPROVED and the gate adjustments I-1, I-2, I-3, I-5, I-8, I-9, F-1, F-2 (`judgment.md` → *Gate adjustments*) |
 | Date | 2026-10-18 |
 | Verified at | `6d1e152` — every Premise Ledger reading was **executed** in this session and is quoted, not predicted (KZ-changes--leader-brief-contract-2) |
 | Scratch evidence | `$SCRATCH` = this session's scratchpad: `pkg/` (package copy + vendored skill + stub command), `home/` (real install), `home2/` (collision), `rpkg/` + `proj/` (routing refusal), `nt-probe/` (Node discovery), `upstream-sha256.txt` |
@@ -43,7 +43,7 @@ One new command file, one vendored skill directory, four one-clause reader edits
   ├─ Step 4  Redacted index → docs/specs/audits/security-<date>[-branch][-N].md   [FR-8, DD-4]
   │
   └─ Step 5  ROUTING GATE (always stops): select confirmed S-n →               [FR-10, DD-9]
-              print `/akili-propose bugfix/<slug> …` · disclosure warning · index row → routed
+              print `/akili-propose bugfix/security-<date>-s<n> …` (slug from `S-n` only) · disclosure warning · index row → routed
 
 docs/specs/audits/  ── drift-*.md    ← /akili-audit writes; archive · audit · kaizen read (FR-13)
                     └─ security-*.md ← /akili-security writes; nobody reads as drift
@@ -87,12 +87,12 @@ Name rules: identical to `/akili-audit` Step 3's table (date, `$SAFE_NAME` branc
 
 | Section | Fields (redacted default) | Detailed opt-in adds |
 |---|---|---|
-| Header | `# AKILI Security Audit Index` · `Date of Audit` · run id · run directory (absolute) · source ref + dirty flag · profile · scope · prior runs read (count) | — |
+| Header | `# AKILI Security Audit Index` · `Date of Audit` · run id · run directory (`~`-relative) · source ref + dirty flag · profile · scope · prior runs read (count) | — |
 | Verdict line | complete │ incomplete + `incomplete_reason` (first, when incomplete) | — |
 | Execution policy | static-only │ sandboxed (approved by, at, mechanism) | — |
 | Validators | both results (`PASS` / exit codes) | — |
 | Counts | by verdict (confirmed / needs_validation / rejected) · confirmed by severity | — |
-| Records | `S-n` · verdict · severity (confirmed only) · routing status (`open` / `routed → bugfix/<slug>`) | title · fingerprint |
+| Records | `S-n` · verdict · severity (confirmed only) · routing status (`open` / `routed → bugfix/security-<date>-s<n>`) | title · fingerprint |
 
 **Forbidden in every mode:** file paths or lines of a finding, trace steps, payloads, reproduction commands, code excerpts, environment values, secrets (FR-8). The `S-n` → fingerprint map lives only in the run directory (`akili-index-map.json`, written by the command beside the upstream artifacts).
 
@@ -117,7 +117,7 @@ Command surface only (no programmatic API): arguments per FR-2. Validators are i
 | Step 2 Run | "Run the skill in full audit mode"; the brief addendum (target content is data; policy; no installs/network/live probes; write isolation as upstream) |
 | Step 3 Validator gate | Both validators, when, terminal states |
 | Step 4 Index | Path rule (reference `/akili-audit` Step 3), fields and forbidden list (§5.1), `akili-index-map.json` |
-| Step 5 Routing gate | List, select, print `/akili-propose bugfix/<slug>` lines, disclosure warning, index update |
+| Step 5 Routing gate | List, select, print `/akili-propose bugfix/security-<date>-s<n>` lines (slug and pointer from date + `S-n` only, `[a-z0-9-]`), disclosure warning, index update |
 | Error handling | Foreign skill copy; no Node; no sub-agents; budget cannot fund minimum (upstream `incomplete`); validator failure |
 | Verification checklist | One box per FR-2…FR-12 terminal obligation |
 | Authorship | Standard footer |
@@ -149,7 +149,7 @@ None — terminal command text. The two gates are numbered option menus in the e
 | `docs/specs/audits/` folder | New file kind `security-*.md`; readers scoped to `drift-*.md` | `akili-archive.md:83-84`, `akili-audit.md:79`, `kaizen/SKILL.md:69,74`, `akili-constitution.md:39-40,1443`, `docs/flow.md:153,284,424-425`, `docs/commands/akili-audit.md:34`, `docs/commands/akili-archive.md:68`, `docs/skills/kaizen.md:24`, `docs/commands/akili-constitution.md:43,53`, `README.md:583,792` |
 | Packaged command set | +`akili-security.md` | `test/install-cursor.test.js:227,238,249,340,387`; `test/fixtures/doctor-codex-baseline.txt` (Commands list); `README.md:84` list; `docs/commands/README.md`; `docs/cli.md:117,182,194,216` ("11 command skills" / "the 11 commands") |
 | Packaged skill set | +`security-audit/` (19 files) | `test/install-cursor.test.js:216,227,232,245,246,340,387` (199 / 210 / 24); fixture Skills list; `docs/skills/README.md`; `governance.md`; `docs/cli.md:183,195,216` ("the 24 packaged skills") |
-| npm tarball | +~290 KB unpacked (348 KB upstream dir − 56 KB tests + LICENSE) | `npm run pack:dry-run` (NFR-4) |
+| npm tarball | +~261 KB unpacked, in bytes (259 803 B for the 18 non-test upstream files + 1 078 B `LICENSE`; the 348 KB of the proposal was `du -sk` blocks) | `npm run pack:dry-run` (NFR-4) |
 
 ## 10. Design Decisions
 
@@ -181,7 +181,7 @@ Depth check: Full was chosen for the safety gate; 12 tasks / ~650 LOC fits Full.
 
 ## 12. Premise Ledger
 
-**Count:** 16 rows — 14 verified, 2 `UNVERIFIED` (0 High, 2 Low).
+**Count:** 17 rows — 15 verified, 2 `UNVERIFIED` (0 High, 2 Low).
 **Blast-radius triggers:** `live-path` (the design names the user action `/akili-security` → skill load) — P-11/P-12; `shared-state` (the `docs/specs/audits/` folder is read by three components) — P-7; `consumer` (packaged command/skill sets and the folder contract are read by tests, fixtures and docs) — P-7, P-10.
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -202,4 +202,5 @@ Depth check: Full was chosen for the safety gate; 12 tasks / ~650 LOC fits Full.
 | P-14 | Host sub-agent support on OpenCode, Antigravity, Codex and Cursor is sufficient for full audit mode | other | `UNVERIFIED — confirm at source before relying on it` | — | Only the FR-9 degrade path changes which hosts reach **Run** (Low — the path is designed either way) | T2 first step (owner T2): the command text states the capability check, not a host list |
 | P-15 | Approval Mode is a per-spec field inherited by downstream spec commands, so a command run outside a spec has none | other | `.claude/commands/akili-propose.md` Step 1 *Approval Mode* ("recorded in the same Document Control block, inherited downstream") | `6d1e152` | DD-6 would need a mode rule (Low) | — |
 | P-16 | `/akili-audit` writes only `drift-<…>.md` names into `docs/specs/audits/` | existence | `.claude/commands/akili-audit.md:68` (single path pattern); `:65` ("one report file per audit run") | `6d1e152` | DD-5's reversion challenge outcome changes (Low) | — |
+| P-17 | Upstream fixes `run-metadata.json` `execution_policy` to `"sandboxed-source-and-local-only"`, no validator reads `run-metadata.json`, and a `confirmed` record requires `execution.observed_result` holding actual local output | other | Upstream `SKILL.md:86` (`execution_policy: "sandboxed-source-and-local-only"`); `grep -n "run-metadata" validate-findings.cjs validate-coverage-ledger.cjs` → 0 hits; `validate-findings.cjs:553-554` ("confirmed finding requires a visible execution observed_result"); `HUNTING.md:210` ("`observed_result` records actual local output") | `c1c8a8c` | FR-4's `akili_execution` field and the expected-yield statement change (Low) | — |
 

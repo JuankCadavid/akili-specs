@@ -45,3 +45,20 @@ Fix-caused findings (info, non-blocking): **F-1** (A warning; B noted the same a
 Re-judgment verdicts: Judge A `PASS (0 severe)` · Judge B `PASS`.
 
 **JUDGMENT: APPROVED ✅** — round 1 of 2; no severe finding open.
+
+## Gate adjustments (approved by the user at the specify gate, 2026-10-18)
+
+Juan Carlos Cadavid approved applying these info items as a **user-approved gate adjustment** (not judge-verified fixes; no re-judgment was requested):
+
+| ID | Adjustment | Where |
+|---|---|---|
+| I-1 | Tarball delta restated in bytes: ~261 KB (259 803 B + 1 078 B `LICENSE`) | `design.md` §9 |
+| I-2 | Index run path `~`-relative; absolute home path / user name added to FR-8's forbidden list; counts by severity declared accepted disclosure, with "do not commit while confirmed findings are open" advice | `requirements.md` FR-8; `design.md` §5.1; `tasks.md` coverage |
+| I-3 | Routing slug `bugfix/security-<YYYY-MM-DD>-s<n>`, pointer = `~`-relative run dir + `S-n`, charset `[a-z0-9-]`; new FR-10 `BUT` clause: no text from a finding | `requirements.md` FR-10; `design.md` §3, §5.1, §7.1; `tasks.md` T2 falsifier, coverage |
+| I-5 | `run-metadata.json` keeps upstream's fixed `execution_policy` and gains `akili_execution`; plan gate states the expected yield (mostly `needs_validation` under static-only); new premise row P-17 | `requirements.md` FR-4; `design.md` P-17 (+ count line); `tasks.md` coverage |
+| I-8 | 14 companion `.md` (4 phase docs + 10 domains) | `proposal.md` |
+| I-9 | T8: runs only on Juan Carlos's explicit go-ahead; no install (the worktree's own `.claude/` is loaded), `--out` under the session scratchpad — the real HOME is never written | `tasks.md` T8 |
+| F-1 | T4 closing grep gains `\b11\b` (covers `:249`) | `tasks.md` T4 |
+| F-2 | T1 Consumers aligned with T4's comment list | `tasks.md` T1 |
+
+Not applied (left as info): I-4 (budget headroom), I-6, I-7, I-10, I-11.

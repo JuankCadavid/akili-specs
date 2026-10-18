@@ -8,7 +8,7 @@
 | Depth | Full (compact) |
 | Type | Change |
 | Approval Mode | `gated` |
-| Status | **Draft** — awaiting approval at the specify gate |
+| Status | **Approved** at the specify gate, 2026-10-18 (Juan Carlos Cadavid), after judgment-day APPROVED and the gate adjustments I-1, I-2, I-3, I-5, I-8, I-9, F-1, F-2 (`judgment.md` → *Gate adjustments*) |
 | Date | 2026-10-18 |
 | Budget (design §11) | **12 tasks · ~650 LOC authored · 18 review rounds** — `/akili-execute` stops and escalates past 13 tasks, ~800 LOC, or 18 rounds |
 | Commit prefix | `[SPEC:changes/akili-security]` — local commits only; **no push, no release, no publish** |
@@ -64,7 +64,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Red run (executed at baseline) | `ls .claude/skills/security-audit` → `No such file or directory` (so every case of the new test is red before the copy); validator smoke expectations executed on the upstream clone: `[]` → exit 0, `[{"verdict":"confirmed"}]` → exit 1, ledger `{}` → exit 1 (Node 18.20.8 and 22.23.3) |
 | Falsifier | (1) copy `validate-findings.test.cjs` in → case (a) red. (2) delete `LICENSE` → (a) and (c) red. (3) edit one byte of `HUNTING.md` → checksum walk shows a second mismatch. (4) remove the pin from `source` → (b) red. Each executed post-change, red quoted |
 | Disqualifier | A file-set check that reads the list from the directory it asserts (tautology) proves nothing — the 19 names are literals in the test. A smoke case run only on the session's Node is not CI-matrix evidence; Windows stays `UNVERIFIED` (P-13) until the user's first push |
-| Consumers | `test/install-cursor.test.js:245,249,340,387` and `test/fixtures/doctor-codex-baseline.txt` go red here and are fixed in T4 (P-10) — T1's closure records them as expected reds, not regressions |
+| Consumers | `test/install-cursor.test.js` (`:245` assertion — the stale comments at `:216,:227,:232,:246,:340,:387` are T4's list) and `test/fixtures/doctor-codex-baseline.txt` go red here and are fixed in T4 (P-10) — T1's closure records them as expected reds, not regressions |
 
 **Done.** Test file green; checksum walk recorded with exactly one mismatch (`SKILL.md`); the four falsifiers executed and quoted; `git diff --stat` shows no file outside `.claude/skills/security-audit/`, `test/security-audit-skill.test.js`, and the spec folder.
 
@@ -89,7 +89,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 |---|---|
 | Command | `wc -l .claude/commands/akili-security.md` ≤ 230 · `node bin/akili.js list \| grep akili-security` → 1 hit · clause walk: a table in `execution.md` mapping every scenario line and every `BUT`/`AND IT MUST` clause of FR-2…FR-12 to the quoted command sentence that delivers it · `grep -nE "drift-report\|most recent report" .claude/commands/akili-security.md` → 0 (the command never reads drift) |
 | Red run | `ls .claude/commands/akili-security.md` → `No such file or directory` (baseline, 2026-10-18); `node bin/akili.js list` lists 11 commands |
-| Falsifier | Clause walk is the gate: delete the FR-4 "no installs/network" sentence → the walk's FR-4 `AND IT MUST NOT` row has no quote (red). Delete the "always stops" sentence → FR-3 row red. Insert "title" into the index allowed list → FR-8 `BUT` row contradicts. Each mutation applied to a scratch copy and the walk re-run, result quoted |
+| Falsifier | Clause walk is the gate: delete the FR-4 "no installs/network" sentence → the walk's FR-4 `AND IT MUST NOT` row has no quote (red). Mechanical aid: `grep -c 'bugfix/security-' .claude/commands/akili-security.md` ≥ 1 and `grep -c '~/' .claude/commands/akili-security.md` ≥ 1 (I-3, I-2 literals). Delete the "always stops" sentence → FR-3 row red. Insert "title" into the index allowed list → FR-8 `BUT` row contradicts. Each mutation applied to a scratch copy and the walk re-run, result quoted |
 | Disqualifier | A walk that cites a sentence by paraphrase rather than quotation is not evidence (KZ-changes--gate-falsifiability-2). A presence grep for a keyword ("sandbox") proves presence, not the gate — the walk quotes the full obligation |
 | Consumers | Installer enumeration (P-2) · `test/install-cursor.test.js` / doctor fixture (T4) · docs pages (T5b) |
 
@@ -216,7 +216,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Design refs | §9, P-1, P-2, P-10 |
 | Review | `checklist` |
 
-**Scope.** `test/install-cursor.test.js`: 199 → 218 (`:245` + message), 11 → 12 (`:249`), comment `11 + 24 = 35` → `12 + 25 = 37` (`:238`), `210` comment → `230` (`:340`), `:387` comment counts, plus the comments at `:216` (199), `:227` (`11 + 199 = 210` → `12 + 218 = 230`), `:232` (24 → 25) and the `:246` message; close with `grep -nE "199|210|\b24\b|11 \+" test/install-cursor.test.js` → no stale hit; any derived constant read, not guessed. `test/fixtures/doctor-codex-baseline.txt`: add `OK akili-security.md` and `OK security-audit` in sorted position.
+**Scope.** `test/install-cursor.test.js`: 199 → 218 (`:245` + message), 11 → 12 (`:249`), comment `11 + 24 = 35` → `12 + 25 = 37` (`:238`), `210` comment → `230` (`:340`), `:387` comment counts, plus the comments at `:216` (199), `:227` (`11 + 199 = 210` → `12 + 218 = 230`), `:232` (24 → 25) and the `:246` message; close with `grep -nE "199|210|\b24\b|\b11\b" test/install-cursor.test.js` → no stale hit (the `\b11\b` term covers `:249`'s `COMMAND_COUNT, 11`); any derived constant read, not guessed. `test/fixtures/doctor-codex-baseline.txt`: add `OK akili-security.md` and `OK security-audit` in sorted position.
 
 **Verification.**
 
@@ -351,7 +351,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | Design refs | §3, §5 |
 | Review | `full` — the only behavioural evidence for the two non-automatable defect classes |
 
-**Scope.** In this worktree, after a fresh install into the session host, run `/akili-security --profile quick --budget 15`. The plan gate is presented **to the user**; static-only. Observe: no agent before **Run**; no target code executed (record every shell command the run issued); validators exit 0 or `incomplete` recorded; index written with redacted fields only; routing gate shown. The index file is committed only if the user approves its content; confirmed findings are routed only on the user's selection (each becomes a separate future proposal — never part of this spec, per *Scope only grows through approval*).
+**Scope.** **Whether T8 runs at all is Juan Carlos Cadavid's decision** — it is not executed without his explicit go-ahead at its own HITL pause. If approved: **no install** — this worktree's own `.claude/commands/akili-security.md` and `.claude/skills/security-audit/` (shipped by T1/T2) are what the session host loads, so the user's real HOME is never written; run `/akili-security --profile quick --budget 15 --out <session scratchpad>/security-run` so the run directory also stays out of HOME. The plan gate is presented **to the user**; static-only. Observe: no agent before **Run**; no target code executed (record every shell command the run issued); validators exit 0 or `incomplete` recorded; index written with redacted fields only; routing gate shown. The index file is committed only if the user approves its content; confirmed findings are routed only on the user's selection (each becomes a separate future proposal — never part of this spec, per *Scope only grows through approval*).
 
 **Verification.**
 
@@ -375,13 +375,13 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 | FR-1 *Upstream fidelity* (17 + LICENSE match; `AND IT MUST` body unchanged) | T1 |
 | FR-2 *Foreign copy* (+ `BUT` not silent) · *No Node.js* (+ `BUT` no unvalidated run) | T2 |
 | FR-3 *Nothing before approval* (+ `AND IT MUST` always stop) | T2, T8 |
-| FR-4 *Default run* (+ `BUT` no execution; `AND IT MUST NOT` installs/network/endpoints) · *control unconfirmed* | T2, T8 |
+| FR-4 *Default run* (+ `BUT` no execution; `AND IT MUST NOT` installs/network/endpoints) · *control unconfirmed* · `run-metadata.json` `akili_execution` + expected-yield statement (P-17) | T2, T8 |
 | FR-5 *Injected instruction* (+ `AND IT MUST` eligible as finding) | T2 |
 | FR-6 *In-repo output not ignored* (+ `BUT` only the index under `docs/specs/`) | T2 |
 | FR-7 *Validator fails* (+ `BUT` not complete) | T2; validator behaviour T1 (d) |
-| FR-8 *Default index content* (+ `BUT` forbidden list; `AND IT MUST` `Date of Audit`) | T2, T8 |
+| FR-8 *Default index content* (+ `BUT` forbidden list incl. absolute home path / user name; `AND IT MUST` `Date of Audit`); `~`-relative path; accepted-disclosure advice | T2, T8 |
 | FR-9 *Host without sub-agents* (+ `BUT` no self-verified confirmed) | T2 |
-| FR-10 *Selection* (+ `BUT` creates nothing; `AND IT MUST` disclosure warning) | T2, T8 |
+| FR-10 *Selection* (+ `BUT` creates nothing; `BUT` slug/pointer from date + `S-n` only; `AND IT MUST` disclosure warning) | T2, T8 |
 | FR-11, FR-12 | T2 |
 | FR-13 *Only a security index present* (+ `BUT` not read as drift) | T3a, T3b, T3c; README sentence T3d; mirrors T5b |
 | FR-14 (page + re-sync, README row, governance, command page, commands README, README, flow.md, AGENTS.md, CHANGELOG + release class) | T5a, T5b, T6, T7 |
