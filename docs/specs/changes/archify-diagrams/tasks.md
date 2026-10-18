@@ -94,7 +94,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (1 line) |
 | Depends on | T1 |
 | Requirements | FR-8 (last paragraph) |

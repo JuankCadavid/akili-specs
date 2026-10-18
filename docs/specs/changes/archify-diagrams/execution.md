@@ -118,3 +118,26 @@ spawns: implementer attempt 1 (died + resumed) 73 315 tokens after resume, ended
 ADVISORY: suppressed (diff < 50 LOC).
 Decisions made: none. Budget running totals: tasks 3/7 · LOC ≈ 112 / ~300 · review rounds 5/12.
 Final verification: VERIFIED.
+
+### T5 — Point `software-architect` views reference at `diagram-design`
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (parallel with T4 — disjoint files) |
+| Review intensity | `Review: skip-eligible` **claim not earned** — predicate condition 3 fails (`Consumers` = `software-architect/SKILL.md:65`, not `none`) and override (a) applies (rules reference other agents execute). Conformance Reviewer spawned. Conditions 1–2 held (falsifier executed red; checks deterministic). Mismatch reported at the continue gate |
+| Skills | none. Effort: low |
+| Requirements covered | FR-8 last paragraph |
+
+**Attempt 1**
+- Files changed: `.claude/skills/software-architect/references/views-documentation.md:14` — appended "The `diagram-design` skill owns diagram slots, storage, and the optional interactive view." after the unchanged "Mermaid is the default renderer in AKILI docs."
+- Implementer verification: original sentence ×1; `diagram-design` ×1; stat 1+/1−; word-diff deleted words 0; archify 0; diff-check clean. Falsifier executed: sentence replaced → count 0, deleted words 1 → restored → passes
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **PASS** — "meets every obligation in FR-8's last paragraph … The word 'optional' matches the T5 Scope wording … Nothing else in the file changed"
+- runtime events: none
+
+spawns: implementer 5 calls, 61 538 tokens, ended complete; reviewer not reported by host, ended complete
+ADVISORY: suppressed (diff < 50 LOC).
+Decisions made: Leader classified the skip claim as not earned (above). Budget running totals: tasks 4/7 · LOC ≈ 113 / ~300 · review rounds 6/12.
+Final verification: VERIFIED.

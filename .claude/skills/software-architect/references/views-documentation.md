@@ -11,7 +11,7 @@ Documenting an architecture = documenting the relevant **views**, then adding wh
 | 3 | **Component** | Major building blocks inside ONE container + responsibilities | Only for complex containers |
 | 4 | Code (UML class) | Classes inside a component | Almost never; generate on demand |
 
-Rules: every element carries name + type tag + one-line description (`[Container: NestJS/Node]`); every relationship is a labeled directed arrow; **every diagram has a legend** — shared abstractions matter more than notation. Supplementary diagrams reuse the same elements: a **deployment view** (containers → AWS infrastructure) and, when async flows exist, a **runtime/sequence view** for the 1–3 most critical scenarios. Mermaid is the default renderer in AKILI docs.
+Rules: every element carries name + type tag + one-line description (`[Container: NestJS/Node]`); every relationship is a labeled directed arrow; **every diagram has a legend** — shared abstractions matter more than notation. Supplementary diagrams reuse the same elements: a **deployment view** (containers → AWS infrastructure) and, when async flows exist, a **runtime/sequence view** for the 1–3 most critical scenarios. Mermaid is the default renderer in AKILI docs. The `diagram-design` skill owns diagram slots, storage, and the optional interactive view.
 
 ## Which views, for whom (selection method)
 
