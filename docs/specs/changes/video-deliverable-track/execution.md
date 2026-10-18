@@ -234,3 +234,18 @@
 - runtime events: none
 - spawns: implementer 5 calls, 59 405 tokens, ended partial (assumption only); reviewer (shared T7/T8/T9) not reported by host at write time, ended complete
 - Running totals vs budget: tasks 8/12 · LOC ~285 · review rounds 11/13 (T7/T8/T9 count one verdict each; T2 A2 re-review pending) — within budget (tripwire 20)
+
+## Amendment A2 (spec tension, T2 Reviewer) — 2026-10-18
+
+| Field | Value |
+|---|---|
+| Tension | FR-9 / governance rule 4 ("an environment-provided skill is named in command text only behind a `Deliverable` selector + gate") vs pre-existing `/akili-constitution` Step 8D, command text naming `hyperframes`, `orchestration`, `playwright-cli` as Skill Map examples with no selector |
+| Options offered | scope to *load-directed* mentions (recommended) · Skill Map carve-out · leave as advisory |
+| User decision | **Scope to load-directed** (AskUserQuestion, 2026-10-18) |
+| Spec edits | `requirements.md` FR-9 statement (load-direct; illustrative and Skill Map-builder mentions are not load-directing); `design.md` DD-7 Decision cell. `proposal.md:65,230` left as historical records. Removed lines in `git diff`: exactly the old FR-9 statement and old DD-7 row |
+| Product edit | `docs/skills/governance.md` rule 4 re-issued to the T2 Implementer (resumed): "Command text may load-direct one only behind a selector and a gate. A command step may **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a)… (b)… Illustrative and Skill Map-builder mentions (for example the examples in `/akili-constitution` Step 8D that name `hyperframes`, `orchestration` or `playwright-cli`) direct no load and are not restricted." (+7/−4) |
+| Implementer verification | P-6 sweep `:27`, `:29` on-topic, `:57` off-topic; `load-direct` at `:34-35` (rule 4) and `:59` (stack rule) — same meaning. Falsifier executed: qualifier + exemption removed → "An environment-provided skill is named in command text only when (a)…" — forbids Step 8D's `hyperframes` example; reverted |
+| Evidence re-run | **VERIFIED** (Leader-inline): +7/−4; `load-direct` hits; Step 8D names confirmed at `akili-constitution.md` ~:720-728 |
+| Reviewer | opus (T2 Reviewer, resumed): **PASS** — rule 4 matches amended FR-9/DD-7 term by term; exemptions mirror the stack rule's carve-outs (1) and (3); nothing in governance contradicts it. Named conformance checks (FR-9 as amended, DD-7 as amended) conform |
+| Accounting | No rework attempt consumed (amendment re-issue, not a FAIL); +1 review round for T2 (total review rounds 12/13; tripwire 20) |
+| spawns | implementer (resumed) 4 calls, 84 036 tokens cumulative, ended complete; reviewer (resumed) 2 calls, 75 373 tokens cumulative, ended complete; T7/T8/T9 shared reviewer 7 calls, 74 948 tokens, ended complete |

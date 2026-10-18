@@ -31,10 +31,13 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    skill's availability gate instead of proceeding.
 3. **Attribution stays with the author.** These skills are not AKILI's and carry no AKILI
    authorship frontmatter; the acceptance checklist below applies only to skills we ship.
-4. **Command text may name one only behind a selector and a gate.** An environment-provided skill is
-   named in command text only when (a) the spec records a `Deliverable` selector that calls for it and
-   (b) that skill's own availability gate runs first. Today's instance: `Deliverable: video` in the
-   spec's Document Control loads the packaged bridge skill `video-production` (AKILI-authored, listed
+4. **Command text may load-direct one only behind a selector and a gate.** A command step may
+   **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a) the
+   spec records a `Deliverable` selector that calls for it and (b) that skill's own availability gate
+   runs first. Illustrative and Skill Map-builder mentions (for example the examples in
+   `/akili-constitution` Step 8D that name `hyperframes`, `orchestration` or `playwright-cli`) direct no
+   load and are not restricted. Today's instance: `Deliverable: video` in the spec's Document Control
+   loads the packaged bridge skill `video-production` (AKILI-authored, listed
    below), and the bridge, not the command, runs the availability gate for the environment-provided
    `hyperframes` router (standalone, or plugin-namespaced) and routes to it. Specs without the selector,
    including every software spec, never reach the gate and are unaffected. A spec whose `Deliverable`

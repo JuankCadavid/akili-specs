@@ -242,9 +242,12 @@ HyperFrames by HeyGen (Apache-2.0) in `inspired-by`, and SHALL pass all five gov
 
 ### FR-9: Governance stays coherent
 
-`docs/skills/governance.md` SHALL state when a command may name an environment-provided skill (only
-behind a recorded `Deliverable` selector and the availability gate), and every restatement of "every
-command works without it" SHALL be reconciled with the video stop.
+`docs/skills/governance.md` SHALL state when a command may **load-direct** an environment-provided skill
+(only behind a recorded `Deliverable` selector and the availability gate — a mention that directs the agent
+to load or run it; illustrative or Skill Map-builder mentions, such as `/akili-constitution` Step 8D's
+examples, are not load-directing), and every restatement of "every command works without it" SHALL be
+reconciled with the video stop. *Amended 2026-10-18 during execution (user-approved spec tension, T2
+Reviewer; `execution.md` Amendment A2).*
 
 #### Scenario: Restatements agree
 
