@@ -347,3 +347,22 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 | Final verification | `npm test` 265/265 on Node 18.20.8, 22.12.0, 22.23.3 |
 
 - Running totals after T4: tasks 8/12 · LOC ~423 · review rounds 15 / 18.
+
+### T6 — `AGENTS.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (effort medium, no skill) · Reviewer `opus` (checklist, effort medium) |
+| Files changed | `AGENTS.md:59` (+1): "- Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions." — after the `seo-audit` bullet in `## Skill Usage` |
+| Red run | `grep -c "security-audit" AGENTS.md` → `0` |
+| Implementer verification | `grep -n "security-audit\|akili-security" AGENTS.md` → `:59` only; *Repository Purpose* `:8` "- `.claude/commands/` contains installable AKILI-SPECS command prompts." — no command list, unchanged; `CLAUDE.md` is `@AGENTS.md` (no second edit); governance `:37` lists `security-audit` (security) in the `core` row only |
+| Falsifier | "core and conditional" would contradict `docs/skills/governance.md:37` (`core` row only) — the line names no binding level |
+| Evidence re-run (Leader-inline) | **VERIFIED** — same grep → `:59` only; diff = one insertion; `SKILL.md:22` "**Guidance mode**", `:23` "**Full audit mode**" |
+| Reviewer verdict | **PASS** — form matches the `seo-audit` bullet; "loads it (full audit mode)" true (`akili-security.md:11`, `:37`, `:72`); "guidance mode for focused security questions" true (`SKILL.md:22`); binding consistent with the `core` definition; no stale skill/command list or count elsewhere in `AGENTS.md`; no model-routing claim (DD-7) |
+| Requirements covered | FR-14 (AGENTS.md *Skill Usage* line) |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+
+- Running totals after T6: tasks 9/12 · LOC ~424 · review rounds 17 / 18 (T5b attempt 2 verdict pending → 18).

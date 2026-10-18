@@ -290,7 +290,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~4 lines) |
 | Depends on | T2 |
 | Requirements | FR-14 (AGENTS.md *Skill Usage* line) |

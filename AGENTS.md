@@ -56,6 +56,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `angular-developer` for Angular projects, components, services, routing, forms, signals, SSR, accessibility, styling, animations, testing, and CLI tooling.
 - Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
+- Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
 
 If a task document lists required or recommended skills, follow that list first.
 
