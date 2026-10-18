@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.33.0] - 2026-10-18
+
 ### Added
 
 - **`/akili-security` audits a repository for security vulnerabilities with a vendored, pinned skill (release classified minor: new command, `changes/akili-security`).** The command runs the packaged `security-audit` skill in full audit mode and owns the gates around it: a preflight (skill copy checked against `adapted-for: "AKILI-SPECS"` and the pinned commit, `node --version`, sub-agent capability), a **plan gate** that stops on every run and a **routing gate** that stops whenever it is reached — only a run that writes an index reaches it (the command runs outside any spec, so it has no Approval Mode and no pre-approved mode), an **execution gate**, and a **validator gate** after Phase 4 and every Phase 5 replacement. Every run is **static-only**; sandboxed execution applies to that run only, when the user selects it at the plan gate and confirms a sandbox enforcing all four upstream controls (no external network, allowlisted empty environment, read-only target, resource limits), and on every run nothing installs dependencies, fetches from the network, or probes deployed endpoints. Full findings live in a run directory outside the target (or an ignored directory the user picked, never under `docs/specs/`); the only tracked file the command writes is one redacted index, `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` — verdict, execution policy, validator results, counts, and one row per `confirmed` / `needs_validation` record by opaque id `S-n`; finding titles and fingerprints appear only in a detailed index the user opts into at the routing gate for a private repository. The run path is written as `~/…`, repo-relative, or `<external>/run-<N>`. The routing gate prints `/akili-propose bugfix/security-<YYYY-MM-DD>-s<n> <pointer>` for each `confirmed` record the user selects and creates no spec, proposal, task or code change. With no sub-agent capability, **Guidance review** replaces **Run** (findings in conversation, no artifacts, no index). `README.md`, `docs/commands/` and `docs/flow.md` name the command, `AGENTS.md` (*Skill Usage*) names the skill and the command, and `docs/cli.md` carries the new counts; installs now carry 12 commands and 25 skills (`npm run verify:cli`).
@@ -20,7 +26,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **No model-routing row for `/akili-security` yet (deferred, with a follow-up bug).** `docs/model-routing.md` and `.claude/templates/model-routing.section.md` are unchanged: a template edit makes `akili routing` refuse every existing project's fence as hand-edited (`bin/routing.js:431-436`), and a row added only to the doc makes `/akili-audit` report a packaged-only phase as Phase→Tier Drift. The command's own model checkpoint states the tiers (T1 Leader, T3 Auditor). The follow-up Bug is that template evolution is misread as a hand edit.
 - `bin/`, `.claude/templates/`, `docs/model-routing.md` and `package.json` are unchanged against the base commit `6d1e152` (`git diff 6d1e152 -- bin/ .claude/templates/ docs/model-routing.md package.json` → empty).
 - Verified locally on Node 18.20.8 and 22.12.0 (`npm test` → 325 pass, 0 fail on each, including the 60-test `/akili-security` text-contract suite). **Windows is `UNVERIFIED`** (P-13): the first CI run after push is the evidence. Linux Docker images (`node:18`, `node:22`, bare) fail one case, `tasks-gate`, because `jq` is absent; it reproduces at the base commit, so it is an image gap, not a regression of this change.
-
 ## [2.32.2] - 2026-10-18
 
 ### Fixed
