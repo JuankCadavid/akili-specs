@@ -249,3 +249,25 @@
 | Reviewer | opus (T2 Reviewer, resumed): **PASS** — rule 4 matches amended FR-9/DD-7 term by term; exemptions mirror the stack rule's carve-outs (1) and (3); nothing in governance contradicts it. Named conformance checks (FR-9 as amended, DD-7 as amended) conform |
 | Accounting | No rework attempt consumed (amendment re-issue, not a FAIL); +1 review round for T2 (total review rounds 12/13; tripwire 20) |
 | spawns | implementer (resumed) 4 calls, 84 036 tokens cumulative, ended complete; reviewer (resumed) 2 calls, 75 373 tokens cumulative, ended complete; T7/T8/T9 shared reviewer 7 calls, 74 948 tokens, ended complete |
+
+### T6 — Leader skill rule
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (ran alone — quiet tree for the scoped suite) |
+| Review intensity | Reviewer **owed**: `Consumers` ≠ `none` (condition 3 fails); override (a) — persona obligation |
+| Requirements covered | FR-3 (example clause; rule owned by T5) |
+
+- Files changed: `.claude/templates/leader.md` (+1/−1), item 3 first bullet: "…animation → `gsap-animation`, video deliverable → `video-production`, logic-heavy task where test-first pays → `tdd`, etc.)"
+- Skills: none beyond defaults. Effort: low
+- Implementer verification: `node --test test/agents-doctor.test.js` (full file) → tests 60, pass 60, fail 0
+- Falsifier executed: item 4 renumbered to 5 → `not ok 59 - migratePersona: leader.md's primary-instructions is cut by the §5.2 row's extent (next ##), not the generic item rule — items 1-4 fenced as one block`, assertion `'item 4 must be inside the fenced span, not cut off at item 2'`; reverted; 60/60 green
+- Not Done / Assumptions: exit code not captured by the Implementer (inferred from 0 failures) — closed by the Leader re-run
+- Evidence re-run (Leader-inline, quiet tree): **VERIFIED** — `exit=0`, `# tests 60`, `# pass 60`, `# fail 0`
+- Reviewer (opus): **PASS** — DD-5 secondary path; fence intact; `digests.json` untouched (P-17); NFR-1 holds (a list item conditional by its own wording, no effect on software tasks). ISSUES: none
+- runtime events: none
+- spawns: implementer 4 calls, 56 318 tokens, ended partial (assumption only); reviewer not reported by host at write time, ended complete
+- Constitution impact: none (no module created or reshaped); deployed `.agents/leader.md` copies read OUTDATED after the next release (P-17) — release-time, via `doctor --agents --fix`
+- Running totals vs budget: tasks 9/12 · LOC ~286 + spec amendments · review rounds 13/13 expected (tripwire 20); remaining T10, T11 → expected 15 — over the 13 estimate by the two amendment re-reviews, under the tripwire

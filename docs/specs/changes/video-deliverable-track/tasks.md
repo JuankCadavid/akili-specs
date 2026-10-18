@@ -105,7 +105,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T6 — Leader skill rule
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T1
+- **Status:** [x] · **Size:** XS · **Depends on:** T1
 - **Requirements:** FR-3 (example clause; the rule itself is owned by T5)
 - **Design:** DD-5; P-3, P-13, P-17
 - **Scope:** `.claude/templates/leader.md:25` — add "video deliverable → `video-production`" to the swap-in examples, inside the existing bullet; items 1–4 keep their numbers
