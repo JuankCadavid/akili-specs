@@ -195,7 +195,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T12 — Live smoke validation (project-scoped HyperFrames)
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T11
+- **Status:** [x] · **Size:** S · **Depends on:** T11
 - **Requirements:** FR-4 (gate + install route), FR-5 (telemetry off), FR-6 (evidence set), NFR-4 (Claude Code host only — others accepted risk)
 - **Design:** DD-10, DD-11; P-12, P-19, P-23
 - **Scope:** in a scratch dir, **after asking the user** (network + third-party install): settle P-23 (Chrome); `npx skills add heygen-com/hyperframes --skill <core set>… --yes` without `-g` (project-scoped; never `npx hyperframes skills update`, which is global — P-24, amended 2026-10-18); a 5-second smoke composition per the installed skills; `HYPERFRAMES_NO_TELEMETRY=1` `check`, `snapshot --at`, `render --quality draft`, `ffprobe`; confirm the skill resolution path is the scratch project, not `~/.claude/skills`

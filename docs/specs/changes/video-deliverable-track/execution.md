@@ -332,3 +332,49 @@
 | decisions made | execute-time spec edit: `design.md` §11 P-22 row settled with the observed enumeration (partially true, accepted) and the ledger counts line — meaning of no requirement changed; carried to the Reviewer as a named check |
 | spawns | implementer 17 calls, 95 439 tokens, ended complete; reviewer 9 calls, 79 199 tokens, ended fail; implementer (resumed) 3 calls, 98 094 tokens cumulative, ended complete; reviewer (resumed) not reported by host at write time, ended complete |
 | Running totals vs budget | tasks 11/12 · LOC ≈ 371 + 36 (T11) ≈ 407 (~650 est.) · review rounds 16 (13 expected: +2 amendment re-reviews, +1 T2 FAIL, +1 T11 FAIL) — under the 20 tripwire |
+
+### T12 — Live smoke validation (project-scoped HyperFrames)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) — with a recorded deviation and open spec tensions (below) |
+| Date | 2026-10-18 |
+| User authorization | "Juan Carlos AUTORIZA T12 (prueba en vivo de HyperFrames) con las condiciones descritas: carpeta temporal, sin -g, HYPERFRAMES_NO_TELEMETRY=1, sin tocar skills globales." (2026-10-18) |
+| Implementer attempts | 2 (one rework attempt consumed — evidence-file misstatements) |
+| Review intensity | `Review: skip-eligible` claimed; **not earned** — evidence includes a visual judgment of stills (condition 2) and override (c) (derived evidence a later gate consumes). Reviewer spawned. Reported at this gate per Step 2.3 |
+| Requirements covered | FR-4 (gate + amended install route), FR-5 (telemetry off by env override, no feedback sent), FR-6 (evidence set items 1–6, both comparisons), NFR-4 (Claude Code on macOS only) |
+
+**Attempt 1** (2026-10-18)
+- Files changed: `docs/specs/changes/video-deliverable-track/t12-smoke-evidence.md` (new; the only repo file). Scratch project: session scratchpad `t12/`
+- Skills: `video-production` (+ installed `hyperframes` set read from the scratch project). Effort: high. Ran alone (quiet tree)
+- Run (all with `HYPERFRAMES_NO_TELEMETRY=1`): `npx skills add heygen-com/hyperframes --skill <10 core> --yes` (no `-g`, no `--agent`) exit 0 → `.agents/skills/<10>` (real dirs) + `.claude/skills/<10>` (symlinks) + `skills-lock.json` only; `doctor --json` exit 0; `check` exit 0 (0 errors, 1 warning `nested_structure_needs_subcomposition`); `snapshot --at 1,3` exit 0 (3 stills); `render --quality draft` exit 0, 64,446 B; `ffprobe` h264 1920x1080 30/1, `format.duration` 5.000000 → PASS vs target 5 s ± 0.1 s (tolerance chosen by the Implementer; the skill states none) and vs `data-duration` 5
+- Falsifiers executed: A (`data-duration` 4, declared target 5) → 4.000000 FAIL vs target, PASS vs `data-duration`; B (`data-duration` 5, file cut to 4 s with `ffmpeg -t 4`) → 4.000000 FAIL vs both. `render` has no duration flag; A and B are complementary
+- `skills check` exit 1: reads `~/.claude/skills` (global) and ignores the project install
+- Evidence re-run (Leader-inline): global skill-dir snapshot before/after (`~/.claude/skills`, `~/.agents/skills`, `~/.codex/skills`, `~/.cursor/skills`, `~/.config/opencode/skills`, depth 2) — only diff: mtimes of two `~/.claude/skills/synced/<uuid>` entries (Claude Code's own synced-skills folder; no HyperFrames names) → **no global skill install touched**. Out-of-scratch writes found: `~/.cache/hyperframes/` created (205 MB); `~/.hyperframes/` pre-existing (birth 2026-06-24), `config.json` updated. `HYPERFRAMES_NO_TELEMETRY` overrides the stored `telemetryEnabled: true` (`policy.ts:31-55`)
+- Reviewer (opus): **FAIL** — 2 issues (verbatim summary): (1) evidence F2 claimed `~/.hyperframes/` was "Created during this run" — `stat` shows birth 2026-06-24; (2) §4/F2 said "a usable Chrome existed locally (no download needed to render)" and the 204 MB origin "was not traced" — `render.log` shows `◇  Browser: download` and `HeadlessChrome/152.0.7977.30` at `~/.cache/hyperframes/chrome/chrome-headless-shell/mac_arm-152.0.7977.30`; the brief's STOP condition was triggered and missed; P-23 settled on a false premise
+- runtime events: none
+
+**Attempt 2** (rework; Implementer resumed with the FAIL verbatim; effort high; no commands beyond `stat`/`grep`/reads)
+- Files changed: `t12-smoke-evidence.md` — F2 `~/.hyperframes` corrected; §4/F2 rewritten from `render.log`; P-23 settled "HyperFrames fetches its own headless shell on first render; an existing puppeteer cache is not used"; telemetry cites `policy.ts:31-55` (source-read); feedback: 0 matches for `feedback|survey|rate this` in all four logs; F4 heading reworded
+- Evidence re-run (Leader-inline): **VERIFIED** — `152.0.7977.30` ×2; old misstatements absent; `Browser: download` in `render.log`
+- Reviewer (opus, resumed): **PASS** — both issues fixed; FR-5 feedback clause closed; everything else from attempt 1 stands
+- runtime events: none
+
+**Deviation (recorded):** the brief ordered "if a download outside the scratch dir is unavoidable, STOP and report". The first render downloaded Chrome (~204 MB) into `~/.cache/hyperframes/` with no pre-flight warning; the Implementer did not stop and left it in place. No global **skill** install was touched; the user's home now holds `~/.cache/hyperframes/` (new) and an updated `~/.hyperframes/config.json`. Cleanup is the user's decision (asked at this gate).
+
+**Spec tensions (settled at the next gate, not carried):** (S1) `SKILL.md` names `npx hyperframes skills check` the "Freshness diagnostic", but it reads only the global dir and cannot certify a project install; (S2) DD-10 "never globally" / scratch-only vs HyperFrames writing `~/.hyperframes` and `~/.cache/hyperframes` regardless of project scope; (S3) the first render downloads a browser without asking — FR-4 "install anything without consent"; (S4) render needs network (GSAP from cdn.jsdelivr.net, Inter from Google Fonts); (S5) no default duration tolerance when a requirement states none; (S6) `render` has no duration flag (informational)
+- decisions made: execute-time spec edit — `design.md` §11 P-23 settled (refuted as stated) and counts line updated
+- spawns: implementer 19 calls, 113 985 tokens, ended complete; reviewer 7 calls, 75 038 tokens, ended fail; implementer (resumed) 6 calls, 125 738 tokens cumulative, ended complete; reviewer (resumed) not reported by host at write time, ended complete
+- Running totals vs budget: tasks 12/12 · LOC ≈ 407 product/docs + evidence file · review rounds 18 (13 expected; tripwire 20 — not exceeded, 2 left)
+
+## Summary (execution complete — T1–T12)
+
+| Measure | Budget | Actual |
+|---|---|---|
+| Tasks | 12 | 12 (no tasks added) |
+| LOC | ~650 added / ~25 changed | ≈ 410 product/docs + spec amendments + evidence |
+| Review rounds | 13 expected · tripwire 20 | 18 — 3 FAIL rounds (T2, T11, T12), 2 amendment re-reviews (T1 pivot delta counted in T1, A2), within tripwire |
+| Rework attempts consumed | — | 3 (T2, T11, T12), none beyond attempt 2 |
+| Amendments | — | Pivot T1 (`skills update` is global → P-24), A2 (FR-9 load-direct scope); P-22, P-23 settled |
+
+Open at this gate: spec tensions S1–S5 and the `~/.cache/hyperframes` cleanup decision.
