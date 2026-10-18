@@ -213,3 +213,51 @@ Implementer notes judged by the Reviewer: README "Wired In" `/akili-archive` Ste
 Decisions made: none beyond the amendment (logged above). Concurrency note: the parallel `antigravity-argon-registry` spec may also edit `CHANGELOG.md` `[Unreleased]` — merge conflict expected at integration, not here.
 Budget running totals: tasks 6/7 · LOC ≈ 114 + 27/−16 ≈ 157 net-changed lines (new docs page 26 lines included) / ~300 · review rounds 9/12.
 Final verification: VERIFIED (`npm test` 259/259).
+
+### T7 — Executed walkthrough against real Archify (validation evidence)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Authorization | User, 2026-10-18: "Juan Carlos AUTORIZA T7: ejecutar el clon local de Archify (commit 208acba) en un proyecto de prueba dentro del scratchpad, nunca en el repo, sin red (ARCHIFY_UPDATE_CHECK_DISABLED=1), sin instalar nada, con Chrome headless local." |
+| Review intensity | Reviewer **owed**: `Review: full`; override (c) derived evidence |
+| Skills | none. Effort: high |
+| Requirements covered | FR-3, FR-4, FR-5 (unavailable path), FR-6, FR-7 (explainer/rules-file guard-rails) — behavioural proof. **Not** evidence for FR-2 (toy TRD had no C4 Context slot and no ERD slot although Postgres persists data — Reviewer coverage note) |
+
+**Attempt 1** — scratch project `<scratchpad>/t7/` (never the repo); Archify `208acba` copied to `project/.claude/skills/archify`; `diagram-design` copied byte-identical (`diff -r`, Reviewer)
+- Harness constraints (user rule, not skill behaviour): `ARCHIFY_UPDATE_CHECK_DISABLED=1` on every Archify command → FR-7's "relay an update notice at most once" **not exercised**. Masking: `~/.claude/skills/archify`, `~/.agents/skills/archify`, `~/.config/opencode/skills/archify` absent; `~/.claude/CLAUDE.md` sha1 `c0cfc8cb6e65f0dc4e52193b35019f1d33993ca4` before = after
+- **P-13:** worker session listed no `archify` skill; detection came from the §5.3 root check only → host route **not exercised**, row kept `UNVERIFIED` (design.md P-13 updated with this outcome — execute-time edit, meaning-preserving)
+- **Run A** (Archify + Chrome): `trd-c4-container` (cited) and held-out `trd-lifecycle-order` — `finalize` exit 0, gates `validate/deliver/check/browser-check: pass`, first draft, no repair; files `docs/diagrams/trd-c4-container.{json,html}` (HTML 811 507 B), `trd-lifecycle-order.{json,html}` (809 949 B); link lines `Interactive view: [C4 Container](../diagrams/trd-c4-container.html) — rendered with Archify (tt-a1i, MIT)` and `… [Order Lifecycle](../diagrams/trd-lifecycle-order.html) …` (§5.2 byte-exact); `docs/diagrams/.gitignore` 4 patterns → `git check-ignore` 8/8 receipts; no `.archify/` folder; no explainer offer
+- **Run B** (`ARCHIFY_CHROME=/nonexistent`): exit 2, `status:"skipped"`, `browser-check:"skipped"`, warning `viewer/chrome-unavailable`; HTML kept (sha256 identical to Run A, `c8c31a2b…`); link suffix ` · browser check not run`; no repair loop — Archify `references/delivery-contract.md` maps `skipped` only from exit 2 and says it does not invalidate a successful delivery
+- **Run C** (Archify parked): six-root check → none; Mermaid + legend only; `grep -c "Interactive view"` 0; no `docs/diagrams/`. FR-5 one-line report text **not captured verbatim** by the worker (gap in the record; behaviour observed)
+- **Run D** (FR-6, Archify parked, Mermaid edited): container link line, `.json`, `.html` removed; lifecycle untouched; removal report verbatim: "trd-c4-container: Mermaid changed, Archify unavailable; interactive view link, .json and .html removed."
+- Not exercised: §5 "failed after Archify's repair limit" (no failure occurred) — stays a Reviewer-walk clause per tasks.md §3
+- Evidence re-run (Leader-inline, artifacts on disk, no Archify run): **VERIFIED** — file lists, link lines (A ×2, B suffix, C 0, D lifecycle only), `check-ignore` 8/8, Run C only `trd.md`, CLAUDE.md sha unchanged, `outB.txt` `browser-check:"skipped"` vs `pass` in `outA.txt`/`outA2.txt`, repo `git status` clean
+- Reviewer (opus): **PASS** — "The on-disk evidence supports every T7 Verification item, and the outputs match the shipped `diagram-design` text … Observation 1 is not a non-conformance."
+- runtime events: none
+
+spawns: implementer 23 calls, 106 868 tokens, ended complete; reviewer not reported by host, ended complete
+
+**ADVISORY (4R, recorded — not in scope, no task minted):**
+- RISK (possible spec gap, not exercised): Archify step 5 gives later runs after a browser-check `--out-dir <folder>/review-<n>`; a successful repair could land its HTML outside the slot paths, against FR-4 "reuse the slot's existing JSON/HTML paths" and §4.3 — the skill has no promote/clean-up sentence. **Surfaced to the user at the gate** (Pivot route if it cannot wait).
+- READABILITY: `outB.txt` also carries `ok:false` and `failedStage:"browser-check"`; one §5 sentence ("a skipped browser check is not a failed delivery; do not repair it") would close the misread (T1 advisory, n=1 not triggered).
+- RELIABILITY: after §6 removal the four receipt sidecars stay orphaned (git-ignored; FR-6 names only `.json`/`.html` — conforms).
+- Observation 3 consistent with P-7 (named location overrides `.archify/`).
+
+Decisions made: P-13 kept UNVERIFIED with the outcome recorded; T7 not cited for FR-2. Budget running totals: tasks 7/7 · LOC ≈ 157 / ~300 · review rounds 10/12 — within budget.
+Final verification: VERIFIED.
+
+## 3. Summary
+
+| Item | Value |
+|---|---|
+| Tasks | 7/7 `[x]` — T1 PASS (att. 2), T2 PASS (att. 2), T3 PASS, T4 PASS, T5 PASS (skip claim not earned → reviewed), T6 PASS (att. 2), T7 PASS |
+| Review rounds | 10 of 12 budgeted; 3 FAILs, each fixed in one rework; no HALT, no Pivot, no checkpoint, no waiver, no skip |
+| LOC | ≈ 157 changed lines (budget ~300) |
+| Runtime events | 2 × provider-limit death (T2, T3 — account session limit) → rung 3 resume-by-message |
+| Spec edits during execute | Amendment 2026-10-18 (user-approved): doctor-codex fixture added to FR-10 / P-5 / T6; P-13 outcome recorded after T7 |
+| Tests | `npm test` 259/259; pack +13 518 B, 0 Archify files |
+| Open | P-13 host route UNVERIFIED (Low); FR-5 failure path and FR-7 update-notice not exercised; advisory `review-<n>` out-dir gap surfaced to the user |
+| Commits | local only, `[SPEC:changes/archify-diagrams]`; no push, no release, no tag, no publish |

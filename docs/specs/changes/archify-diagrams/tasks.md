@@ -132,7 +132,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (no shipped LOC; evidence in `execution.md`) |
 | Depends on | T1–T6 |
 | Requirements | FR-3, FR-4, FR-5, FR-6, FR-7 (behavioural proof); settles P-13 |
