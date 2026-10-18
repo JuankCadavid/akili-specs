@@ -830,8 +830,11 @@ them. Either way, existing wrapper files are skipped unless the user asks to rep
   Step 9 summary that the OpenCode Reviewer is read-only by instruction rather than by
   configuration. A wrapper that fails to load is worse than one that relies on the persona.
 
-- **Google Antigravity:** create `.agents/agents/akili-leader/agent.md`, `akili-implementer/`,
-  `akili-reviewer/`, and `akili-tester/` (the flat form `.agents/agents/<name>.md` is equivalent).
+- **Google Antigravity:** create `.agents/agents/akili-<role>/agent.md` for each role whose tier
+  pick has a wrapper value (`flash`/`pro`) — `akili-leader/`, `akili-implementer/`, `akili-reviewer/`,
+  `akili-tester/` (the flat form `.agents/agents/<name>.md` is equivalent). A role routed to Argon
+  gets no wrapper and is reported — on the packaged roster the Leader and Reviewer are skipped, and
+  only `akili-implementer/` and `akili-tester/` are written.
   **The nesting is required** — Antigravity discovers agents under `.agents/agents/`, so a persona
   left at `.agents/<role>.md` is invisible to it. Same thin wrapper, richer frontmatter:
 
@@ -868,10 +871,12 @@ them. Either way, existing wrapper files are skipped unless the user asks to rep
   **global** agents (`~/.gemini/config/agents/`); it takes no workspace flag and never reports
   project-level ones, so an empty listing says nothing about wrappers written under `.agents/agents/`.
   Verify in-session instead: open the CLI in the project and run **`/agents`**. Tell the user what a
-  correct result looks like, because it is counter-intuitive — **only `akili-leader` appears.** That
-  picker selects the *primary* agent, and Implementer / Reviewer / Tester carry `mainAgent: false`
-  precisely so they stay out of it. One entry is the success condition; four would mean the roles
-  meant to be dispatch-only are selectable as main agents.
+  correct result looks like, because it is counter-intuitive — `akili-leader` appears only when its
+  wrapper was written; on the packaged roster (Leader routed to Argon) no AKILI entry appears, and
+  that is expected. That picker selects the *primary* agent, and Implementer / Reviewer / Tester
+  carry `mainAgent: false` precisely so they stay out of it. The failure signal is the
+  Implementer, Reviewer or Tester listed as a main agent: the roles meant to be dispatch-only are
+  selectable.
 
 - **OpenAI Codex:** create project-level `.codex/agents/akili-leader.toml`, `akili-implementer.toml`,
   `akili-reviewer.toml`, and `akili-tester.toml`. TOML uses `key = value`, never YAML colons:

@@ -178,7 +178,7 @@ Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4) → **T5** (Pivot A5). T2 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~15 LOC: `akili-constitution.md` ~8 · `docs/commands/akili-constitution.md` ~2 · `docs/model-routing.md` ~2 · `CHANGELOG.md` ~2) |
 | Depends on | T4 |
 | Requirements | FR-3 scenario (Leader and Reviewer skipped; Implementer and Tester `flash`) and `AND IT MUST` (documented), applied to the Step 8E prose, `docs/commands`, and `docs/model-routing.md:242`; NFR-2; NFR-3 |

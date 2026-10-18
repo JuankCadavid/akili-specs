@@ -239,7 +239,7 @@ Argon** as its top model. This table routes it to **T1 Architect** and **T3 Audi
 (`gemini-4-argon-high`); T2, T4, T5 and T6 stay on **Gemini 3.8 Flash**, with the effort rung
 carried in the ID itself (`gemini-3.8-flash-high` / `-medium` / `-low`; see *Effort dial* below for
 the AKILI-rung mapping) rather than as a separate dial, since that is what the host actually
-exposes. Argon is a different family from the T2 Flash coder, so author ≠ auditor is satisfied.
+exposes. Argon is a different family from the T2 Flash coder, so author ≠ auditor is satisfied when the session runs on `gemini-4-argon-high` (see *Argon is not a wrapper tier* below).
 Where a plan exposes it, **Claude Sonnet 5.5 (High)** (`claude-sonnet-5-5-high`, confirmed in the
 same roster) is the T3 fallback. T6's vision path carries `<CONFIRM ID>` because the roster does not
 label a model vision-specific; confirm the exact ID per project.

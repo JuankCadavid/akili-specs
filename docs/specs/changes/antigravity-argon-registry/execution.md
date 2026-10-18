@@ -197,3 +197,44 @@
 | Spec edits | `design.md` §17 (A5: P-17..P-19, DD-8, budget); `tasks.md` (T5 block, graph, waves, budget row, coverage row). `requirements.md` unchanged |
 | Carried, not fixed | W4 (cross-document figure drift in the spec documents), W5 (A2 template debt seen live), W6 (T4 clause citation) → Kaizen retrospective and follow-ups at `/akili-archive` |
 | Correction closure | Live budget sites updated (tasks.md budget row, execution.md Doc Control). Earlier budget lines are history. FR-3 coverage row names T5 |
+
+### T5 — Step 8E Antigravity bullet and doc qualifiers (Pivot A5, validation W1–W3)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-18 |
+| Attempts | 2 |
+| Requirements covered | FR-3 scenario and `AND IT MUST` at the Step 8E prose (`.claude/commands/akili-constitution.md:833-837`, `:870-877`), `docs/commands/akili-constitution.md:98`, `docs/model-routing.md:242`; NFR-2; NFR-3 |
+| Skills | `cognitive-doc-design` · Effort: attempt 1 `medium`, attempt 2 `high` |
+
+**Attempt 1.**
+- Files changed: `.claude/commands/akili-constitution.md` (wrapper-list sentence `:833-836`; `/agents` paragraph `:872-877`), `docs/commands/akili-constitution.md:98` (one clause), `docs/model-routing.md:242` (session-on-Argon condition and forward reference), `CHANGELOG.md` (one clause).
+- Implementer verification: red-run grep (`only \`akili-leader\` appears` / `One entry is the success condition`) → empty (baseline `:871`, `:873`). `npm test` 259/0; drift 7/0; `verify:cli` OK; `git diff --check` clean. Falsifier: `:871` had been reworded, so the probe restored the old phrase on the new `:873` text, and the grep printed `:873`; restored. Sweep hits judged (other hosts' wrapper lists, "four" counting other things, `:1419` Codex, `:1447`, `docs/model-routing.md:262` degrade case, `:535-539`).
+- Evidence re-run (Leader-inline): **VERIFIED**.
+- Reviewer (`opus`): **FAIL**.
+  - W2, W3 and the `/agents` half of W1 are closed; the CHANGELOG clause is accurate.
+  - **Issue 1:** at `:835`, "A role routed to Argon gets no wrapper and is reported (on the packaged roster: the Implementer and Tester only)" reads as if the Implementer and Tester are the skipped roles. That is the reverse of the truth, and it contradicts the same bullet's `model` row at `:852`.
+  - Violated: FR-3 scenario; the T5 Disqualifier; KZ-changes--kaizen-loop-closure-2.
+  - The ambiguity came from DD-8's wording, which the Implementer copied verbatim.
+
+**Attempt 2.**
+- Files changed: `.claude/commands/akili-constitution.md:835-837` only. New sentence: "A role routed to Argon gets no wrapper and is reported — on the packaged roster the Leader and Reviewer are skipped, and only `akili-implementer/` and `akili-tester/` are written."
+- Implementer verification: `Implementer and Tester only` → 0 hits over the 3 files; red-run grep still empty; `npm test` 259/0; `git diff --check` clean.
+- Evidence re-run (Leader-inline): **VERIFIED** — plus drift 7/0.
+- Reviewer (`opus`, override (e) rework; named conformance check against DD-8 as amended): **PASS**.
+  - Issue 1 is closed: both role sets are named explicitly, and the sentence matches `bin/routing.js:649`, FR-3 and the `:852` row.
+  - Everything else is byte-identical to attempt 1.
+- runtime events: none.
+
+**Decisions made.**
+- **Execute-time spec edit:** `design.md` §17 DD-8, first bullet, wording corrected (meaning unchanged). "(on the packaged roster: Implementer and Tester only)" became "— on the packaged roster the Leader and Reviewer are skipped, and only the Implementer and Tester wrappers are written", annotated in place. Recorded here at the moment of the edit and carried to the attempt-2 Reviewer as a named conformance check.
+- **Kaizen candidate:** the Leader's own design wording introduced the defect the Reviewer caught. A parenthetical that attributes a role set must name the set it attributes to, not sit after a clause about the opposite set.
+
+**Spawns.**
+- Implementer: 8 calls, 72,671 tokens, ended `complete`.
+- Reviewer: 5 calls, 76,262 tokens, ended `fail`.
+- Implementer (resume): 2 calls, 74,894 tokens cumulative, ended `complete`.
+- Reviewer (resume): not reported by host, ended `complete`.
+
+**Running totals vs budget (A5: 5 tasks · ~170 LOC · 8 rounds):** tasks 5/5 · LOC ~174 (151 + 23) · review rounds 7/8 — within the tripwire (5 tasks / ~200 LOC / 8 rounds).

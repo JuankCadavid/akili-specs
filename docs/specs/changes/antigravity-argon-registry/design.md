@@ -159,7 +159,7 @@ Found while running the T4 falsifier at baseline, after the Phase 2 gate. **P-10
 | P-19 | `docs/model-routing.md:242` says "author ≠ auditor is satisfied" unconditionally; `:253` makes it hold only when the session runs on Argon | consumer | read at `1c6600a` | `1c6600a` | — | — |
 
 - **DD-8:** qualify, don't restructure.
-  - `:833-834`: a wrapper is created for each role whose tier pick has a wrapper value; a role routed to Argon gets none and is reported (on the packaged roster: Implementer and Tester only).
+  - `:833-834`: a wrapper is created for each role whose tier pick has a wrapper value; a role routed to Argon gets none and is reported — on the packaged roster the Leader and Reviewer are skipped, and only the Implementer and Tester wrappers are written. *(Wording corrected 2026-10-18 during T5: the earlier parenthetical read as if the Implementer and Tester were the skipped roles — T5 attempt-1 Reviewer FAIL.)*
   - `:870-874`: `akili-leader` appears in `/agents` only when its wrapper was written. On the packaged roster (Leader → Argon) no AKILI entry appears, and that is expected. The failure signal stays the same: Implementer, Reviewer or Tester listed as a main agent.
   - `:98`: the guarantee holds where a Reviewer wrapper is written; on Antigravity's packaged roster it is not, and author ≠ auditor holds by running the session on Argon.
   - `:242`: add the condition and point to *Argon is not a wrapper tier*.
