@@ -105,3 +105,38 @@ Sizing note: Lite usually means one task. This needs three because the rules-tex
 | P-7 | Sites outside the proposal state the retired T3 pick or "Reviewer `pro`": `akili-constitution.md:582`, `:855`; `model-routing.section.md:48`; `docs/commands/akili-constitution.md:94`; `docs/cli.md:448` | consumer | `git grep -n -e '\`pro\`' -e 'flash \| pro' -e 'flash \\\| pro' -e '3\.1 Pro' -e 'Sonnet 4\.6' -e 'sonnet-4-6' -e 'gemini-3\.1' -- ':!docs/specs' ':!CHANGELOG.md'` → those sites plus registry/doc/test/`bin` comments and `releases/*` (history, excluded) | `b8289f6` | A stale site ships — Low | — |
 | P-8 | Tests that name retired ids or pin the Antigravity Reviewer wrapper: `test/routing.test.js:297`, `:337`, `:700-701`, `:1439-1458`, and `buildPlan (i)` | consumer | `grep -n "gemini-3.1-pro-high\|claude-sonnet-4-6" test/routing.test.js` → 9 hits; `(i)` read at `:1467-1482`; `test/registry-drift.test.js` reads the doc and JSON generically | `b8289f6` | FR-5 misses a test — Low | — |
 | P-9 | A generic subagent inherits the session model; the doc's fallback for unconfirmed `tools` names is "read-only by instruction" | other | `docs/model-routing.md:512-514`, `:542-544` | `b8289f6` | DD-3's mitigation is wrong — High | — |
+
+## 13. Amendment A1 — APPROVED at the Phase 3 gate (2026-10-18)
+
+Found while running the T4 falsifier at baseline, after the Phase 2 gate. **P-10 refutes DD-1** ("no code change"). Per the Pivot rule, this is not a quiet edit to the approved design: it is held here for the user's sign-off.
+
+| # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
+|---|---|---|---|---|---|---|
+| P-10 | `buildPlan` emits `Antigravity: in-session \`/agents\` lists only \`akili-leader\` — that is the success condition` whenever **any** Antigravity wrapper is planned (`Object.keys(planned).length > 0`), not only when the Leader is | live-path | `bin/routing.js:842-844`; pinned by `test/routing.test.js:840`. With FR-3, Implementer and Tester are planned, but the Leader is not, so the line would claim a success condition that cannot occur | `186c6a0` | — (refutes DD-1) | — |
+| P-11 | Removing `wrapperModel` from the packaged T3 entry turns exactly three `test/routing.test.js` tests red: `renderWrapper Antigravity…` (66), `buildPlan restrictions and effort…` (82), `buildPlan (i)` (135) | consumer | Mutation run at `186c6a0`: drop `wrapperModel` from `gemini-3.1-pro-high`; `node --test test/routing.test.js` → `# pass 133`, `# fail 3`, the three `not ok` lines named; reverted | `186c6a0` | T4 scope misses a test — Low | — |
+
+- **DD-1 (amended):** one code edit. The Antigravity `/agents` success-condition report is emitted only when the **Leader** wrapper is planned (`planned.leader`). No other code changes; the skip lines already report the unwrapped Leader and Reviewer.
+- **DD-6 (extended):** tests 66 and 82 keep their coverage of the `pro`/`tools` rendering by using a **registry clone** that gives the T3 id a `pro` binding — the seam test `(j)` already uses (`JSON.parse(JSON.stringify(REGISTRY))`). Their packaged-roster assertions change to the FR-3 outcome.
+- **Budget (amended):** tasks 3 → **4**. The rules text splits per rules document (Step 3.2): command vs. section template. LOC ~90 → **~100**. Review rounds 5 → **7**.
+
+**P-10 confirmed live** (scratch project `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-argon-registry/cc1b34a7-4eec-4147-a0fb-c85fd5f8d486/scratchpad/repro-fence`): after the registry change, `akili routing --hosts antigravity --models antigravity=gemini-4-argon-high,gemini-3.8-flash-high,gemini-3.8-flash-medium,gemini-3.8-flash-low,claude-sonnet-5-5-high --cli antigravity=agy --wrappers yes --yes` prints both `no wrapper — \`gemini-4-argon-high\`…` lines **and** `Antigravity: in-session \`/agents\` lists only \`akili-leader\` — that is the success condition`, with no Leader wrapper written. Exit 0. Registry restored afterwards.
+
+## 14. Amendment A2 — APPROVED (2026-10-18): drop the section-template edit
+
+| # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
+|---|---|---|---|---|---|---|
+| P-12 | Editing `.claude/templates/model-routing.section.md:48` makes every existing project's `akili routing` re-run refuse its fence | consumer | Scratch `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-argon-registry/cc1b34a7-4eec-4147-a0fb-c85fd5f8d486/scratchpad/repro-fence2`: route once at `186c6a0` (exit 0); same flags again with only the :48 text changed → `refused (hand-edited fence; --force to regenerate)  AGENTS.md`, exit 1; template restored. Cause on record: `bin/routing.js:775` renders `expectedBody` from the previous answers with the **new** template (memory *pending-routing-template-evolution-bug*) | `186c6a0` | — | — |
+| P-13 | A registry **data** change alone does not trip that refusal | consumer | Same scratch flow with only the planned `hosts.antigravity` JSON edit applied → `replaced  AGENTS.md`, exit 0 | `186c6a0` | A1/A3 add a fence risk — High | — |
+
+- **Decision:** leave `model-routing.section.md:48` unchanged. New projects keep receiving the stale sentence "Gemini 3.1 Pro as the T3 auditor". It is recorded as known debt and goes into the queued template-evolution Bug spec, to be fixed together with the `/akili-security` row. The tier **table** rendered into `AGENTS.md` comes from the registry, so it is correct; only that prose line is stale.
+- Because `docs/cli.md:448` is a doc, not a rules document, it joins T2. **Tasks: 4 → 3.**
+
+## 15. Amendment A3 — APPROVED (2026-10-18; the defect itself queued as a separate Bug): existing Antigravity projects degrade on re-run
+
+| # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
+|---|---|---|---|---|---|---|
+| P-14 | A project scaffolded with the packaged Antigravity ids that re-runs `akili routing` from its answers file after this change silently loses the retired ids. T3 collapses to `gemini-3.8-flash-medium`, author ≠ auditor becomes NOT satisfied, all four wrappers are `skipped (author ≠ auditor unsatisfiable)`, `AGENTS.md` is `replaced` with that note, there is no `stale?` line, and the exit is 0 | live-path | Scratch `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-argon-registry/cc1b34a7-4eec-4147-a0fb-c85fd5f8d486/scratchpad/repro-fence3`: route with `gemini-3.8-flash-{high,medium,low},gemini-3.1-pro-high,claude-sonnet-4-6` at `186c6a0`; apply the planned JSON; re-run `--hosts antigravity --cli antigravity=agy --wrappers yes --yes` (no `--models`). Chain: answers file → `isNonMemberId` filter `bin/routing.js:258-259` drops ids absent from the packaged roster → mapping without them → `stale` loop `:861-871` only scans mapping ids. Registry restored | `186c6a0` | — | — |
+| P-15 | Re-running with the old ids passed explicitly fails fast: `id \`gemini-3.1-pro-high\` is not in the packaged Antigravity roster — add a placement…`, exit 1 | live-path | Same scratch flow (`repro-fence`, RUN2a) | `186c6a0` | — | — |
+
+- **Decision (recommended):** document the upgrade path; do not fix the code here. `CHANGELOG.md` gets an *Expected on upgrade* note telling Antigravity projects to re-run with `--models antigravity=<new packaged ids>` (the command in P-10). `docs/model-routing.md`'s Antigravity paragraph says the same. The silent degrade itself (dropped packaged ids produce no `stale?` line and exit 0) is a configurator defect that **predates** this spec. It is queued as a separate Bug proposal, not absorbed here ("scope only grows through approval").
+- **Budget (A1+A2+A3):** 3 tasks, ~100 LOC, 6 review rounds.
