@@ -144,3 +144,45 @@
 | Correction closure | Forward sweep of the spec folder for "3 tasks" / "3/3": hits are historical entries in `execution.md` (kept as history) and the design §13/§15 budget lines (kept; each amendment records its own budget). The live sites (tasks.md budget row, execution.md Doc Control budget) were updated. Backward: tasks.md coverage row for FR-3 `AND IT MUST` now names T4 |
 | ADR impact | none (no TRD in this repo) |
 | §3 Summary above | superseded by the summary written after T4 |
+
+### T4 — Step 8E Antigravity example wrapper → Implementer `flash` (Pivot A4)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Attempts | 1 |
+| Requirements covered | FR-3 `BUT` and `AND IT MUST` at the Step 8E example site; NFR-2; NFR-3 |
+| Skills | `cognitive-doc-design` (as tasks.md lists) · Effort `low` |
+
+**Attempt 1.**
+- Files changed: `.claude/commands/akili-constitution.md` (example block ~`:838-848`: `name: akili-implementer`; `description` byte-identical to the Claude Code Implementer example ~`:774`; `model: flash`; `subagent: true`; `mainAgent: false`; no `tools:`; persona → `.agents/implementer.md`), `CHANGELOG.md` (one clause appended to T3's `### Changed` entry) — 5+/8-.
+- Implementer verification: `git grep -n -e 'model: pro' -e 'model:pro' -- ':!docs/specs' ':!releases' ':!CHANGELOG.md'` → only `docs/model-routing.md:256` and `test/routing.test.js:670-671` (red at `afea75c` also printed `.claude/commands/akili-constitution.md:842:  model: pro`). Falsifier: `model: pro` put back → `.claude/commands/akili-constitution.md:842:  model: pro`; restored. `npm test` 259/0; `verify:cli` OK; `git diff --check` clean.
+- Evidence re-run (Leader-inline): **VERIFIED** — same grep, `npm test` 259/0, `verify:cli` same summary, `git diff --check` clean, `--stat` 2 files 5+/8-.
+- Reviewer (`opus`): **PASS**.
+  - Only the example block changed. No surrounding sentence calls the example the Reviewer or relies on `tools:`.
+  - The `tools` row and the "Apply `tools` to the Reviewer and nowhere else" paragraph read correctly without an example.
+  - The CHANGELOG clause was quote-checked and does not overstate.
+  - FR-3 is met at this site.
+- runtime events: none.
+
+**ADVISORY (recorded, not actioned).**
+1. Step 8E's `tools` guidance describes restricting a Reviewer that, on the packaged Antigravity roster, gets no wrapper. The CHANGELOG mitigation already says "read-only by instruction". Raise it as a spec gap only if wanted.
+2. Keep the two Implementer `description` examples in sync on future edits.
+
+**Spawns.**
+- Implementer: 9 calls, 64,334 tokens, ended `complete`.
+- Reviewer: not reported by host, ended `complete`.
+
+**Running totals vs budget (A4: 4 tasks · ~150 LOC · 6 rounds):** tasks 4/4 · LOC 151 (138 + 13) · review rounds 5/6 — within budget.
+
+## 4. Summary (after Pivot A4)
+
+| Item | Result |
+|---|---|
+| Tasks | 4/4 `[x]` — T1 PASS (attempt 2), T2 PASS (1), T3 PASS (1), T4 PASS (1; added by Pivot A4) |
+| Commits | `2f0235f` T1 · `b00440b` T2 · `afea75c` T3 · `fd83477` Pivot A4 spec edits · T4 commit below — local only, no push, tag, release, or publish |
+| Final verification | `npm test` 259/259/0 · `verify:cli` OK · `git diff --check` clean (`pack:dry-run` 280 files at T3; T4 adds no files) |
+| Budget | 4/4 tasks · 151 LOC vs ~150 · 5/6 review rounds |
+| Open for the user | (b) the A3 silent-degrade Bug proposal; (c) the template-evolution Bug (A2 known debt: `model-routing.section.md:48`); (d) DD-4: the live `pro` probe; the advisories recorded per task |
+| Next | `/akili-test changes/antigravity-argon-registry` — held at the user's instruction |

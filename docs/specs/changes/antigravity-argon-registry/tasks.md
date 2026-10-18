@@ -148,7 +148,7 @@ Waves: **T1** → **T2 ∥ T3** → **T4** (Pivot A4). T2 and T3 touch disjoint 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~10 LOC: `akili-constitution.md` ~8 · `CHANGELOG.md` ~2) |
 | Depends on | T2, T3 |
 | Requirements | FR-3 `BUT` (no instruction leads to a `model:` value that binds an unconfirmed tier to an Argon-routed role) and `AND IT MUST` (documented) — at the Step 8E example site; NFR-2 (CHANGELOG), NFR-3 |

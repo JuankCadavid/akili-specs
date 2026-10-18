@@ -837,16 +837,13 @@ them. Either way, existing wrapper files are skipped unless the user asks to rep
 
   ```markdown
   ---
-  name: akili-reviewer
-  description: AKILI Reviewer — independent audit of the Implementer's diff against the spec.
-  model: pro
+  name: akili-implementer
+  description: AKILI Implementer — executes one spec task with strict scope and verification.
+  model: flash
   subagent: true
   mainAgent: false
-  tools:
-    - view_file
-    - grep_search
   ---
-  Read `.agents/reviewer.md` in the project root and adopt it fully as your persona and
+  Read `.agents/implementer.md` in the project root and adopt it fully as your persona and
   operating contract before doing anything else.
   ```
 
