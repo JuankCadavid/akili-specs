@@ -85,3 +85,36 @@ ADVISORY: suppressed by the Reviewer (diff < 50 LOC, persona depth scaling).
 Decisions made: Leader judged `npm test`'s two failing cases as T6-owned after the clean-export comparison. Spec-gap finding for the gate: `test/fixtures/doctor-codex-baseline.txt` (test 75) is a consumer of the packaged skill set that the Premise Ledger P-5 and T6's `Consumers` do not list — proposed as a one-line T6 amendment at the next gate (not edited here).
 Budget running totals: tasks 2/7 (T1, T3) · LOC ≈ 109 / ~300 · review rounds 4/12 (T1 ×2, T2 attempt 1 FAIL, T3 ×1).
 Final verification: VERIFIED.
+
+### T2 — Wire `/akili-constitution` Steps 3, 4, 5
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 (attempt 1 ran in parallel with T3 — disjoint files) |
+| Review intensity | Reviewer **owed**: `Review: checklist`; override (a); attempt 2 override (e) |
+| Skills | none (as listed). Effort: medium → high |
+| Requirements covered | FR-8 rows 1–3; FR-8 scenario THEN + BUT; FR-2 scenario "TRD always carries both C4 slots" (incl. BUT) |
+
+**Attempt 1**
+- Files changed: `.claude/commands/akili-constitution.md` (+6): `**Conditional skill:**` lines at :163 (Step 3, after `**Primary skill:**`), :208 (Step 4, after the preferred skill chain), :245 (Step 5, after `**Required skill:**`)
+- runtime events: provider-limit death ×1 (session usage limit, HTTP 429, before verification) → rung 1 tree probe (3 lines present, unverified) → **rung 3** resume-by-message after the account switch
+- Implementer verification: 3 hits under Steps 3/4/5 (headings 157/199/239/277); `grep -ci archify` 0; `git diff --check` clean; consumer `test/tasks-gate.test.js` passes; `npm test` 257/2 fail (65, 75 — pre-existing at HEAD `6ceb655`, T6-owned; see T3 entry). Falsifier executed: Step 5 line under Step 6 → third hit under `### Step 6` (:277) → restored → passes (raw count stays 3 — only the heading comparison catches the move)
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **FAIL** — 1 issue, verbatim:
+  > 1. **Discovered Issue:** The Step 5 line (line 245) reads "load `diagram-design` and fill the TRD slots; C4 Context and C4 Container are always filled." It drops the "whose condition holds" clause, which the Step 3 and Step 4 lines keep. The TRD has four conditional slots in `references/slot-catalog.md` rows 14–17: `trd-deployment`, `trd-erd`, `trd-sequence-<flow>` and `trd-lifecycle-<entity>`. As written, the line can be read as "fill every TRD slot". That reading conflicts with the FR-2 BUT clause. The line also states no condition at all, which the FR-8 scenario THEN clause requires.
+  > * **Violated Rule:** `design.md` §6 row 1 (Command → skill), the one-line contract: "load `diagram-design` and fill the <step> slots whose condition holds". `requirements.md` FR-8 scenario "Wiring is conditional, not stack", THEN clause: "it names `diagram-design` and states the condition under which it loads". `requirements.md` FR-2 scenario "TRD always carries both C4 slots", BUT clause: "it must NOT add a conditional slot whose condition is false (no empty or placeholder diagrams)". FR-8 table row 3, "fill the TRD slots (C4 Context + Container always)", is shorthand for this line. Read with §6 and FR-2, it does not license dropping the condition.
+  > * **Remediation Suggestion:** Rewrite line 245 so that it keeps the §6 contract and adds the C4 obligation. For example: "**Conditional skill:** load `diagram-design` and fill the TRD slots whose condition holds; C4 Context and C4 Container are always filled." Change nothing else. Then re-run the T2 verification: `grep -n diagram-design` still returns 3 hits, under Steps 3, 4 and 5. `grep -ci archify` still returns 0. `git diff --check` is still clean.
+
+**Attempt 2**
+- Files changed: `.claude/commands/akili-constitution.md:245` → "**Conditional skill:** load `diagram-design` and fill the TRD slots whose condition holds; C4 Context and C4 Container are always filled."
+- Implementer verification: 3 hits Steps 3/4/5; archify 0; `grep -c "whose condition holds"` 3; diff-check clean; 1 file +6; `npm test` 257/2 (65, 75 only)
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **PASS** — "The rework resolves issue 1 and introduces nothing new."
+- runtime events: none
+
+spawns: implementer attempt 1 (died + resumed) 73 315 tokens after resume, ended complete; reviewer 7 calls, 71 381 tokens, ended fail; implementer attempt 2 3 calls, 75 936 tokens, ended complete; reviewer (resumed) not reported by host, ended complete
+ADVISORY: suppressed (diff < 50 LOC).
+Decisions made: none. Budget running totals: tasks 3/7 · LOC ≈ 112 / ~300 · review rounds 5/12.
+Final verification: VERIFIED.

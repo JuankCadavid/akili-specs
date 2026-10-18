@@ -160,6 +160,8 @@ Create or enhance `docs/prd.md` as a concise living document.
 
 **Primary skill:** `product-manager-toolkit` — follow its **AKILI-SPECS Integration** section: the Required PRD structure below is canonical (never substitute the toolkit's own PRD templates); use its North Star Metric framework for "Goals & Success Metrics", jobs-to-be-done for "Target Personas", and its Hypothesis Template for "Assumptions". Write the document following `cognitive-doc-design`: lead with the answer, progressive disclosure, tables and checklists over prose.
 
+**Conditional skill:** load `diagram-design` and fill the PRD slots whose condition holds.
+
 **PRD rules:**
 
 - Lead with the why: problem statement, business context, user need
@@ -203,6 +205,8 @@ Create or enhance `docs/ux-ui/design.md` as the UI/UX system blueprint.
 - `ui-ux-pro-max` if available
 - otherwise `frontend-design` + `stitch-design`
 
+**Conditional skill:** load `diagram-design` and fill the UX/UI slots whose condition holds.
+
 This document represents the visual and interaction system, not the low-level technical implementation.
 
 **Required structure:**
@@ -237,6 +241,8 @@ When the file already exists, refine it in place instead of replacing establishe
 Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 
 **Required skill:** load `software-architect` before drafting the TRD and apply its Decision Spine throughout this step — capture NFRs as six-part quality-attribute scenarios with measurable responses, choose tactics, decide the robust-vs-lite tier and architecture style, bind design patterns to named problems, and document with C4 views plus ADRs.
+
+**Conditional skill:** load `diagram-design` and fill the TRD slots whose condition holds; C4 Context and C4 Container are always filled.
 
 **Use skills when relevant** (stack skills — load only the ones matching the project's stack; the same set feeds the `## Skill Map` in Step 8D):
 

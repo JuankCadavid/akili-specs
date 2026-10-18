@@ -37,7 +37,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~6 LOC) |
 | Depends on | T1 |
 | Requirements | FR-8 (rows 1–3), FR-2 scenario "TRD always carries both C4 slots" |
