@@ -9,6 +9,16 @@ on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      pty_loops:
+        description: "Run the pty suite this many times on the Linux legs (flake hunting)"
+        type: number
+        default: 1
+      pty_inject_failure:
+        description: "Put a failing fake expect on PATH (Linux legs) to prove the transcript artifact"
+        type: boolean
+        default: false
 
 jobs:
   cli:
@@ -44,8 +54,44 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y expect
 
+      - name: Toolchain versions (Linux)
+        if: runner.os == 'Linux'
+        run: node -v && expect -v
+
+      # bugfix/pty-harness-ubuntu-flake (FR-5): dispatch-only failure injection;
+      # the shim is installed executable here (DD-4), never committed as one.
+      - name: Inject pty failure (dispatch)
+        if: runner.os == 'Linux' && inputs.pty_inject_failure == true
+        run: |
+          mkdir -p "$RUNNER_TEMP/fake-bin"
+          cp test/fixtures/routing/fake-expect.sh "$RUNNER_TEMP/fake-bin/expect"
+          chmod 755 "$RUNNER_TEMP/fake-bin/expect"
+          echo "$RUNNER_TEMP/fake-bin" >> "$GITHUB_PATH"
+
       - name: Unit tests (node:test)
         run: npm test
+        env:
+          AKILI_PTY_LOG_DIR: ${{ runner.temp }}/pty-transcripts
+
+      - name: pty loop (dispatch)
+        if: runner.os == 'Linux' && inputs.pty_loops > 1
+        continue-on-error: false
+        env:
+          AKILI_PTY_LOG_DIR: ${{ runner.temp }}/pty-transcripts
+          PTY_LOOPS: ${{ inputs.pty_loops }}
+        run: |
+          for i in $(seq 2 "$PTY_LOOPS"); do
+            echo "pty loop $i of $PTY_LOOPS"
+            node --test test/routing-pty.test.js
+          done
+
+      - name: Upload pty transcripts
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pty-transcripts-${{ matrix.os }}-node${{ matrix.node }}
+          path: ${{ runner.temp }}/pty-transcripts
+          if-no-files-found: ignore
 
       - name: Dry-run install (all tools)
         run: node bin/akili.js install --tool all --dry-run
