@@ -839,7 +839,7 @@ function buildPlan(answers, registry, pkgVersion, snapshot, now, opts = {}) {
     if (planned.reviewer && decisions[h].restriction === "omitted: names unconfirmed") {
       reports.push(`${hl} Reviewer: read-only by instruction (tools omitted — names unconfirmed)`);
     }
-    if (h === "antigravity" && Object.keys(planned).length > 0) {
+    if (h === "antigravity" && planned.leader) {
       reports.push("Antigravity: in-session `/agents` lists only `akili-leader` — that is the success condition");
     }
     if (Object.keys(planned).length > 0 && decisions[h].effortBracket === "omitted: rung unconfirmed") {

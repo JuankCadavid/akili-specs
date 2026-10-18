@@ -100,7 +100,7 @@ Waves: **T1** → **T2 ∥ T3**. T2 and T3 touch disjoint files, but T3's tests 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~35 LOC: `bin/routing.js` 1 line · `test/routing.test.js` ~25 · `CHANGELOG.md` ~8) |
 | Depends on | T1 |
 | Requirements | FR-3 (scenario: Implementer/Tester `flash`, Leader/Reviewer skipped with reasons naming `gemini-4-argon-high`; `BUT` no `model:` outside the tier set); FR-5 (scenario + `BUT` no deleted test or weakened assertion); NFR-1, NFR-2, NFR-3 |

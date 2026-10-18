@@ -294,7 +294,7 @@ test("deriveTiers: fixed per-tier notes from the registry are appended (full Cla
 });
 
 test("deriveTiers: empty T4 -> T2's pick + `no long-context model selected`", () => {
-  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), P("gemini-3.1-pro-high")]);
+  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), P("gemini-4-argon-high")]);
   assert.deepEqual(r.mapping.T4, { primary: "gemini-3.8-flash-medium", fallback: "—", note: "no long-context model selected" });
 });
 
@@ -652,18 +652,30 @@ test("renderWrapper OpenCode: slugs, no Reviewer restriction, agent dir overrida
 
 test("renderWrapper Antigravity: wrapperModel, subagent, mainAgent Leader-only, `tools` only when confirmed", () => {
   const m = deriveFor("antigravity", packagedRoster("antigravity"));
+  // Packaged roster: Argon (T1/T3) carries no wrapperModel, so Leader and Reviewer have no wrapper.
   const want = {
-    leader: ["model: flash", "subagent: true", "mainAgent: true"],
+    leader: null,
     implementer: ["model: flash", "subagent: true", "mainAgent: false"],
-    reviewer: ["model: pro", "subagent: true", "mainAgent: false"],
+    reviewer: null,
     tester: ["model: flash", "subagent: true", "mainAgent: false"],
   };
   for (const role of ROLES) {
-    assert.deepEqual(routing.renderWrapper("antigravity", role, m, {}, REGISTRY), { relPath: `.agents/agents/akili-${role}/agent.md`, content: md(role, want[role]) }, role);
+    const expected = want[role] ? { relPath: `.agents/agents/akili-${role}/agent.md`, content: md(role, want[role]) } : null;
+    assert.deepEqual(routing.renderWrapper("antigravity", role, m, {}, REGISTRY), expected, role);
+  }
+  // Registry clone (test (j) seam): Argon given wrapperModel `pro` exercises the wrapper-bearing Leader/Reviewer rendering.
+  const reg = JSON.parse(JSON.stringify(REGISTRY));
+  reg.hosts.antigravity.models.find((e) => e.id === "gemini-4-argon-high").wrapperModel = "pro";
+  const wantPro = {
+    leader: ["model: pro", "subagent: true", "mainAgent: true"],
+    reviewer: ["model: pro", "subagent: true", "mainAgent: false"],
+  };
+  for (const role of ["leader", "reviewer"]) {
+    assert.deepEqual(routing.renderWrapper("antigravity", role, m, {}, reg), { relPath: `.agents/agents/akili-${role}/agent.md`, content: md(role, wantPro[role]) }, role);
   }
   assert.equal(
-    routing.renderWrapper("antigravity", "reviewer", m, { antigravityTools: ["view_file", "grep_search"] }, REGISTRY).content,
-    md("reviewer", [...want.reviewer, "tools:", "  - view_file", "  - grep_search"]),
+    routing.renderWrapper("antigravity", "reviewer", m, { antigravityTools: ["view_file", "grep_search"] }, reg).content,
+    md("reviewer", [...wantPro.reviewer, "tools:", "  - view_file", "  - grep_search"]),
   );
 });
 
@@ -697,8 +709,8 @@ test("renderWrapper: null for a cross-host Reviewer, a placeholder tier, an Anti
   const cross = deriveFor("claude", [{ id: "sonnet", source: "packaged" }], { crossHost: "antigravity" });
   assert.equal(routing.renderWrapper("claude", "reviewer", cross, {}, REGISTRY), null);
   assert.equal(routing.renderWrapper("cursor", "leader", deriveFor("cursor", CURSOR_ROSTER.slice(1)), {}, REGISTRY), null);
-  const agy = deriveFor("antigravity", [{ id: "gemini-3.8-flash-medium", source: "packaged" }, { id: "claude-sonnet-4-6", source: "packaged" }]);
-  assert.equal(agy.T3.primary, "claude-sonnet-4-6");
+  const agy = deriveFor("antigravity", [{ id: "gemini-3.8-flash-medium", source: "packaged" }, { id: "claude-sonnet-5-5-high", source: "packaged" }]);
+  assert.equal(agy.T3.primary, "claude-sonnet-5-5-high");
   assert.equal(routing.renderWrapper("antigravity", "reviewer", agy, {}, REGISTRY), null);
 });
 
@@ -836,16 +848,27 @@ test("buildPlan restrictions and effort: omitted + reported (OpenCode, Antigravi
   const reports = p.reports || [];
   for (const line of [
     "OpenCode Reviewer: read-only by instruction (restriction shape unconfirmed — Step 8E rule 2)",
-    "Antigravity Reviewer: read-only by instruction (tools omitted — names unconfirmed)",
-    "Antigravity: in-session `/agents` lists only `akili-leader` — that is the success condition",
     "Cursor: effort bracket omitted — rung unconfirmed",
     "Codex Tester: same model as the Implementer (`gpt-5.6-luna`, T2 primary) — Step 8E default; Rule 1 allows it",
   ]) assert.ok(reports.includes(line), line);
-  assert.doesNotMatch(W(p, ".agents/agents/akili-reviewer/agent.md").content || "", /tools:/);
+  // Argon (T1/T3) has no wrapper model: no Leader/Reviewer wrapper, so `/agents` lists no `akili-leader` and the line is not emitted (FR-3).
+  assert.ok(!reports.some((l) => l.includes("`/agents`")), JSON.stringify(reports));
+  for (const role of ["Leader", "Reviewer"]) assert.ok(reports.some((l) => l.startsWith(`Antigravity ${role}: no wrapper`)), `${role} no wrapper line`);
+  assert.ok(!reports.some((l) => l.startsWith("Antigravity Reviewer: read-only")), "no Reviewer wrapper, so no read-only line");
+  assert.ok(W(p, ".agents/agents/akili-reviewer/agent.md").content == null, "no Reviewer wrapper content");
+  // Registry clone (test (j) seam): Argon given wrapperModel `pro` restores the wrapper-bearing Antigravity branches.
+  const reg = JSON.parse(JSON.stringify(REGISTRY));
+  reg.hosts.antigravity.models.find((m) => m.id === "gemini-4-argon-high").wrapperModel = "pro";
+  const pc = routing.buildPlan(answers, reg, PKG, snapshot(), SEPT);
+  for (const line of [
+    "Antigravity Reviewer: read-only by instruction (tools omitted — names unconfirmed)",
+    "Antigravity: in-session `/agents` lists only `akili-leader` — that is the success condition",
+  ]) assert.ok((pc.reports || []).includes(line), line);
+  assert.doesNotMatch(W(pc, ".agents/agents/akili-reviewer/agent.md").content || "", /tools:/);
   const dec = JSON.parse(W(p, ANS_PATH).content || "{}").decisions || {};
   assert.equal((dec.antigravity || {}).restriction, "omitted: names unconfirmed");
   assert.equal((dec.cursor || {}).effortBracket, "omitted: rung unconfirmed");
-  const pt = plan({ ...answers, decisions: { antigravity: { antigravityTools: ["view_file", "grep_search"] } } });
+  const pt = routing.buildPlan({ ...answers, decisions: { antigravity: { antigravityTools: ["view_file", "grep_search"] } } }, reg, PKG, snapshot(), SEPT);
   assert.match(W(pt, ".agents/agents/akili-reviewer/agent.md").content || "", /^tools:\n {2}- view_file\n {2}- grep_search$/m);
   assert.ok(!(pt.reports || []).some((l) => l.startsWith("Antigravity Reviewer: read-only")));
   assert.equal(JSON.parse(W(pt, ANS_PATH).content || "{}").decisions.antigravity.restriction, "applied");
@@ -1436,26 +1459,26 @@ test("deriveTiers (f): Antigravity `gemini-3.8-flash-medium` + `gemini-3.8-flash
   assert.ok(r.mapping.T3.note.includes("author ≠ auditor NOT satisfied"), r.mapping.T3.note);
 });
 
-test("deriveTiers (g): Antigravity `gemini-3.8-flash-medium` + `gemini-3.1-pro-high@T3` -> distinct wrapper models, ok", () => {
-  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), U("gemini-3.1-pro-high", ["T3"])]);
+test("deriveTiers (g): Antigravity `gemini-3.8-flash-medium` + `gemini-4-argon-high@T3` -> distinct wrapper models, ok", () => {
+  const r = derive("antigravity", [P("gemini-3.8-flash-medium"), U("gemini-4-argon-high", ["T3"])]);
   assert.equal(r.authorAuditor, "ok");
-  assert.equal(r.mapping.T3.primary, "gemini-3.1-pro-high");
+  assert.equal(r.mapping.T3.primary, "gemini-4-argon-high");
   assert.ok(!r.mapping.T3.note.includes("author ≠ auditor NOT satisfied"), r.mapping.T3.note);
 });
 
 const REASON_SHARED = "T3 = T2 rejected: `gemini-3.8-flash-high` binds wrapper model `flash`, the same as the Implementer's (T2 `gemini-3.8-flash-medium`) — the Reviewer must run on a different model (author ≠ auditor)";
 
 test("promptTierAdjust (h): a T3 pick sharing T2's wrapper model is rejected with a one-line reason and re-asked", async () => {
-  const roster = [P("gemini-3.8-flash-medium"), P("gemini-3.8-flash-high"), P("gemini-3.1-pro-high")];
+  const roster = [P("gemini-3.8-flash-medium"), P("gemini-3.8-flash-high"), P("gemini-4-argon-high")];
   const mapping = deriveFor("antigravity", roster);
   const s = scriptedIo(["3", "2", "3"]);
   const r = await routing.promptTierAdjust(s.io, mapping, roster, { packagedIds: roster.map((e) => e.id), hostRegistry: REGISTRY.hosts.antigravity });
   assert.equal(s.asked.length, 3, "expected a rejection, got acceptance");
   assert.equal(firstLine(s.asked[2]), REASON_SHARED);
-  assert.equal(r.id, "gemini-3.1-pro-high");
+  assert.equal(r.id, "gemini-4-argon-high");
   // The wizard passes the host's registry: the same rejection through collectAnswers.
   const w = scriptedIo(["-", "t", "3", "2", "3", "a"]); // `-`: Antigravity's Reviewer tool-names question first
-  await collect({ hosts: "antigravity", models: ["antigravity=gemini-3.8-flash-medium,gemini-3.8-flash-high,gemini-3.1-pro-high"], cli: ["antigravity=agy"], wrappers: "yes" }, null, w);
+  await collect({ hosts: "antigravity", models: ["antigravity=gemini-3.8-flash-medium,gemini-3.8-flash-high,gemini-4-argon-high"], cli: ["antigravity=agy"], wrappers: "yes" }, null, w);
   assert.equal(firstLine(w.asked[4]), REASON_SHARED);
 });
 
@@ -1465,7 +1488,8 @@ const modelLine = (content) => {
 };
 
 test("buildPlan (i): for every host's full packaged roster, the Reviewer wrapper's `model` differs from the Implementer's", () => {
-  const written = { claude: true, opencode: true, antigravity: true, codex: true, cursor: false }; // Cursor ships no packaged ids
+  // Cursor ships no packaged ids; Antigravity's Reviewer tier (T3 = Argon) has no wrapper model, so it is not written at all (FR-5).
+  const written = { claude: true, opencode: true, antigravity: "none", codex: true, cursor: false };
   assert.deepEqual(Object.keys(REGISTRY.hosts), Object.keys(written));
   const rosters = Object.keys(REGISTRY.hosts).map((h) => [h, packagedRoster(h)]).concat([["cursor", CURSOR_ROSTER]]);
   for (const [h, roster] of rosters) {
@@ -1473,6 +1497,11 @@ test("buildPlan (i): for every host's full packaged roster, the Reviewer wrapper
     const loc = REGISTRY.hosts[h].wrapper.location;
     const impl = W(p, loc.replace("<role>", "implementer"));
     const rev = W(p, loc.replace("<role>", "reviewer"));
+    if (written[h] === "none") {
+      assert.ok(rev.token === undefined && rev.content == null, `${h} reviewer: not written, got ${rev.token}`);
+      assert.ok((p.reports || []).includes("Antigravity Reviewer: no wrapper — `gemini-4-argon-high` has no Antigravity wrapper model (flash | pro)"), JSON.stringify(p.reports));
+      continue;
+    }
     const expectWritten = roster === CURSOR_ROSTER || written[h];
     assert.equal(rev.token, expectWritten ? "created" : "skipped (author ≠ auditor unsatisfiable)", `${h} reviewer`);
     if (!expectWritten) continue;
