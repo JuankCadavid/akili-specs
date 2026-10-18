@@ -150,7 +150,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T9 — `/akili-quick`: escalate video edits
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T1
+- **Status:** [x] · **Size:** XS · **Depends on:** T1
 - **Requirements:** FR-1 Trivial × video scenario (`AND` quick escalates, `BUT` no composition edit without evidence)
 - **Design:** §3 quick row; DD-4
 - **Scope:** `.claude/commands/akili-quick.md` escalation gate — one line: an edit to a video composition → `/akili-propose` (1 site)

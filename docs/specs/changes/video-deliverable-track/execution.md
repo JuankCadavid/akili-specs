@@ -212,3 +212,25 @@
 - Reviewer (opus, shared spawn): **PASS** — FR-7 walk complete; T6 citation real (`akili-specify.md` defect-class rule); FR-3 S2 `BUT` covered. ISSUES: none
 - runtime events: none
 - spawns: implementer 8 calls, 73 765 tokens, ended partial (assumption only); reviewer shared — see T9
+
+### T9 — `/akili-quick`: escalate video edits
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `T9 STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: walk is judgment; override (a) — an escalation rule other readers execute |
+| Requirements covered | FR-1 Trivial × video (`AND` quick escalates, `BUT` no composition edit without evidence) |
+
+- Files changed: `.claude/commands/akili-quick.md` (+1), Automatic Escalation: "- Edits a **video** composition (a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked."
+- Skills: none beyond defaults. Effort: low
+- Red run (baseline at `22e990b`): the cosmetic criterion admits "color/spacing/style-token tweaks" with no deliverable check — case 1 passed
+- Walk: "change the title colour in promo/index.html" → escalates (the new bullet); "fix a typo in the README" → not a composition, quick path unchanged
+- Falsifier executed (on a filtered copy, live file untouched): without the line, case 1 passes every gate criterion
+- Not Done / Assumptions: "I assumed 'a file that renders to the video deliverable' is enough for quick to recognise a composition without a spec."
+- Evidence re-run (Leader-inline): **VERIFIED** — +1, line present
+- Reviewer (opus, shared spawn): **PASS** — matches design §3 quick row and DD-4; the NFR-1 carve-out. ISSUES: none. Observation (carried as information, not an advisory task): the Automatic Escalation list opens "If the change fails **any** gate criterion" and the five Triviality Gate criteria name no deliverable check, so a strict reading never reaches the bullet; its own "never fast-tracked" wording and the neighbouring standalone triggers make it work in practice; the design prescribes exactly one line — a gate-criterion line would need a spec amendment
+- runtime events: none
+- spawns: implementer 5 calls, 59 405 tokens, ended partial (assumption only); reviewer (shared T7/T8/T9) not reported by host at write time, ended complete
+- Running totals vs budget: tasks 8/12 · LOC ~285 · review rounds 11/13 (T7/T8/T9 count one verdict each; T2 A2 re-review pending) — within budget (tripwire 20)

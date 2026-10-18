@@ -52,6 +52,7 @@ If the change fails **any** gate criterion, do **not** fast-track it. Stop and r
 - A **bug** (something is broken, not just a cosmetic edit) whose fix touches logic or behavior → `/akili-propose <name>` so the root cause is diagnosed first (Bug Track), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick`.
 - Non-trivial, risky, cross-cutting, or uncertain scope → `/akili-propose <change-name>` first.
 - Introduces a **new** design token or visual pattern not in `docs/ux-ui/design.md` → route through `/akili-propose` (Visual Reference) or `/akili-specify` so the token is designed, not improvised.
+- Edits a **video** composition (a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
 
 State clearly which criterion failed and which command to run instead. Never silently downgrade a real change into a quick edit.
 
