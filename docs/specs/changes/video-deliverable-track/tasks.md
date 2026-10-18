@@ -60,7 +60,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T3 — Constitution Step 8D alignment
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T1
+- **Status:** [x] · **Size:** XS · **Depends on:** T1
 - **Requirements:** FR-9 (restatement agrees)
 - **Design:** DD-7; P-6
 - **Scope:** `.claude/commands/akili-constitution.md:726-731` — the `hyperframes` row note names `video-production` as the AKILI route, and "must still be able to run every command" gains the video-spec stop (1–2 sites)

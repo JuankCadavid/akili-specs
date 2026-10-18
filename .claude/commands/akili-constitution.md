@@ -731,10 +731,13 @@ is how they reach the agents.
    to **E2E Testers** and browser-verification tasks when installed — the token-lean alternative
    to loading the Playwright MCP schemas into every session; and the `hyperframes` family
    (HTML-based video composition), when the project's work includes producing explainer, demo, or
-   launch-video content. Ask the user before adding one; never infer it from the filesystem.
+   launch-video content; its row's note names `video-production` as the AKILI route (the packaged
+   bridge skill that carries the availability gate). Ask the user before adding one; never infer it
+   from the filesystem.
    Mark the row's *When to load* with the availability condition, because the map is **committed and
    shared while the tooling is per-developer** — a teammate without that tool must still be able to
-   run every command. Never copy the skill into the repository: these stubs are thin on purpose
+   run every command, except that a spec whose `Deliverable` selects the skill
+   (`Deliverable: video`) stops at `video-production`'s availability gate. Never copy the skill into the repository: these stubs are thin on purpose
    because the tool's binary serves the version-matched guide, so a vendored copy goes stale and
    starts instructing agents to call flags that no longer exist (see the packaged
    `docs/skills/governance.md` → *Environment-provided skills*).

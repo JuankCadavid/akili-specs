@@ -71,3 +71,26 @@
 - spawns: implementer 16 calls, 110 539 tokens, ended partial (assumptions only); reviewer 12 calls, 91 815 tokens, ended complete (PASS, scope-excluded); implementer (attempt 2) 11 calls, 68 321 tokens, ended partial (assumptions only); reviewer (resumed) 4 calls, 99 613 tokens cumulative, ended complete
 - decisions made: execute-time spec edits — see Pivot Record T1 (requirements FR-4 THEN; design §9, P-19, P-24, counts; tasks T12 Scope), user-approved
 - Running totals vs budget: tasks 1/12 · LOC ~188 skill lines + 11/7 spec lines (~199 / ~650) · review rounds 2 (budget 2 for T1; total 2/13, tripwire 20) — within budget
+
+### T3 — Constitution Step 8D alignment
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (parallel wave T2–T5; disjoint files, no build) |
+| Review intensity | Reviewer **owed**: verification is a grep plus on/off-topic judgment (condition 2 fails); override (a) — restates a rule other readers execute |
+| Requirements covered | FR-9 (restatement agrees) |
+
+- Files changed: `.claude/commands/akili-constitution.md` (+5/−2; Step 8D item 3, two sites)
+- Skills: `cognitive-doc-design` (as listed). Effort: low
+- New text: "…launch-video content; its row's note names `video-production` as the AKILI route (the packaged bridge skill that carries the availability gate)." and "…must still be able to run every command, except that a spec whose `Deliverable` selects the skill (`Deliverable: video`) stops at `video-production`'s availability gate."
+- Implementer verification: phrase-family grep → `:732` per-developer (on-topic), `:733` "run every command, except that…" (on-topic), `:859` Antigravity `subagent: true` (off-topic; P-6's `:856` before the shift)
+- Red run (baseline at `22e990b`): `:730-731` unconditional "must still be able to run every command"
+- Falsifier executed: qualifier removed → grep `733: run every command. Never copy the skill into the repository...` (unconditional); restored
+- Not Done / Assumptions (verbatim, condensed): "I wrote 'stops at `video-production`'s availability gate' from your brief and did not re-read FR-9 or DD-7 at source. The wording of 'the AKILI route' in the first site is mine." — assumptions only; the Reviewer checked both against FR-9 / design §9
+- Evidence re-run (Leader-inline): **VERIFIED** — same diff, same three grep hits
+- Reviewer (opus): **PASS** — row note matches design §9 (row stays the availability note, bridge owns the phase mapping); restated rule matches FR-9 "Restatements agree"; no unqualified hit left in the file. ISSUES: none. ADVISORY: none
+- runtime events: none
+- spawns: implementer 7 calls, 63 239 tokens, ended partial (assumptions only); reviewer 4 calls, 63 604 tokens, ended complete
+- Running totals vs budget: tasks 2/12 · LOC ~213 · review rounds 3/13 (tripwire 20) — within budget
