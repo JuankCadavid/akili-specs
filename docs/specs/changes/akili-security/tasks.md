@@ -371,7 +371,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | — (a run, no code) |
 | Depends on | T7, T7a |
 | Requirements | FR-3, FR-4 (default-run scenario), FR-7, FR-8 (default index scenario), FR-10 |
