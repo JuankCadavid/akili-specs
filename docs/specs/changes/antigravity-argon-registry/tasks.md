@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/antigravity-argon-registry` |
 | Depth | **Lite** |
-| Status | **Approved** — 2026-10-18 (Juan Carlos, Phase 3 gate: Continue; Amendments A1–A3 approved) |
+| Status | **Approved** — 2026-10-18 (Juan Carlos, Phase 3 gate: Continue; Amendments A1–A3 approved at that gate; A4 (T4) and A5 (T5) approved later as Pivots) |
 | Date | 2026-10-18 |
 | Budget (design §17, A5) | **5 tasks · ~170 LOC · 8 review rounds** (was 4 · ~150 · 6 after A4; was 3 · ~100 · 6 originally; raised by user-approved Pivots after T3 and after validation) — `/akili-execute` stops and escalates past 5 tasks, ~200 LOC, or 8 rounds |
 | Commit prefix | `[SPEC:changes/antigravity-argon-registry]` — local commits only; no push, release, or publish |
