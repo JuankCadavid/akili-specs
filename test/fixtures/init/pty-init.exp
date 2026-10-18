@@ -1,0 +1,84 @@
+# bugfix/init-ctrlc-abort DD-3 — `akili init` on a real pty, inside /bin/sh.
+# mode q1:     Ctrl-C at the tool question.
+# mode q2:     answer `1`, then Ctrl-C at the scope question.
+# mode answer: answer `1`, `1`, and let the global Claude Code install run.
+# Every mode then reads `$?` on the same pty through the one-line probe.
+# argv: node bin home cwd log mode  (transcript -> <log>; stdout stays quiet)
+set timeout 20
+set node [lindex $argv 0]
+set bin [lindex $argv 1]
+set home [lindex $argv 2]
+set cwd [lindex $argv 3]
+set mode [lindex $argv 5]
+log_user 0
+log_file -a -noappend [lindex $argv 4]
+set env(HOME) $home
+set env(USERPROFILE) $home
+set env(PS1) "SH> "
+if {![info exists env(TERM)] || $env(TERM) eq "" || $env(TERM) eq "dumb"} { set env(TERM) "xterm-256color" }
+# DD-4: every https.get/request is recorded in <home>/../net.log (NFR-1).
+set preload [file join [file dirname [file normalize [info script]]] no-network.js]
+set env(NODE_OPTIONS) "--require \"$preload\""
+set env(AKILI_NET_MARKER) [file join [file dirname $home] net.log]
+
+# Ctrl-C, then a two-stage wait for the shell prompt (same as
+# test/fixtures/routing/pty-ctrl-c.exp); logs <<BACK-IN n ms>> on return.
+proc ctrl_c_to_shell {} {
+  set t0 [clock milliseconds]
+  send "\003"
+  set timeout 25
+  expect {
+    "SH> " {}
+    timeout {
+      send_log "\n<<NO-PROMPT-AFTER-CTRL-C>>\n"
+      send "\003"
+      set timeout 10
+      expect {
+        "SH> " {}
+        timeout { send_log "\n<<HUNG>>\n"; exit 99 }
+      }
+    }
+  }
+  send_log "\n<<BACK-IN [expr {[clock milliseconds] - $t0}] ms>>\n"
+}
+
+# The question's prompt line ends `>\x1b[0m \x1b[3G`, so `{> $}` never
+# matches it: the wait tolerates CSI sequences and spaces after the `>`.
+proc wait_prompt {} {
+  expect -re {>(\x1b\[[0-9;]*[A-Za-z]| )*$}
+}
+
+spawn /bin/sh
+# expect_after binds to the current spawn id, so it must follow `spawn`.
+expect_after {
+  timeout { send_log "\n<<TIMEOUT: unmatched wait>>\n"; exit 2 }
+  eof { send_log "\n<<EOF>>\n"; exit 2 }
+}
+expect "SH> "
+send "cd '$cwd' && '$node' '$bin' init\r"
+
+expect -re {Which tool}
+wait_prompt
+if {$mode eq "q1"} {
+  ctrl_c_to_shell
+} else {
+  send "1\r"
+  expect -re {globally or locally}
+  wait_prompt
+  if {$mode eq "q2"} {
+    ctrl_c_to_shell
+  } else {
+    send "1\r"
+    expect "SH> "
+  }
+}
+
+# The probe (bugfix/pty-harness-ubuntu-flake DD-2): one `\n`-terminated line
+# that saves `$?` first, prints `TTY=…` (typed as `T""TY=` so the echo cannot
+# satisfy the wait), then `RC=<saved $?>`.
+send "__rc=\$?; echo T\"\"TY=\$(stty -a | tr ';' '\\n' | grep -o -w -- '-\\?\\(icrnl\\|icanon\\|isig\\|echo\\)' | tr '\\n' ' ') PG=\$(ps -o pgid= -p \$\$ | tr -d ' ') FG=\$(ps -o tpgid= -p \$\$ | tr -d ' '); echo RC=\$__rc\n"
+expect -re {TTY=([^\r\n]*)\r?\n}
+send_log "\n<<TTY: $expect_out(1,string)>>\n"
+expect -re {RC=\d+}
+send "exit\n"
+expect eof

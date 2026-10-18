@@ -14,6 +14,8 @@ npx akili-specs init
 akili init
 ```
 
+Ctrl-C at either question exits with code 130; nothing is installed.
+
 The tool prompt lists `1) Claude Code`, `2) OpenCode`, `3) Google Antigravity`, `4) OpenAI Codex CLI`,
 `5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five`. Inputs `5` and `6` changed
 meaning from v2.31.0 — `5` used to mean Both and `6` used to mean All four; Both is now `6` and

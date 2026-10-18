@@ -2045,33 +2045,49 @@ async function runInteractiveInit() {
   console.log(`\n${colors.cyan}Welcome to the AKILI-SPECS Setup!${colors.reset}`);
   console.log("Let's configure your AI-assisted development environment.\n");
 
-  const toolAnswer = await rl.question(
-    `Which tool do you want to install AKILI-SPECS for?\n` +
-    `  1) Claude Code\n` +
-    `  2) OpenCode\n` +
-    `  3) Google Antigravity\n` +
-    `  4) OpenAI Codex\n` +
-    `  5) Cursor\n` +
-    `  6) Both (Claude Code + OpenCode)\n` +
-    `  7) All five\n` +
-    `${colors.cyan}>${colors.reset} `
-  );
-
   let tool = "claude";
-  if (toolAnswer.trim() === "2") tool = "opencode";
-  else if (toolAnswer.trim() === "3") tool = "antigravity";
-  else if (toolAnswer.trim() === "4") tool = "codex";
-  else if (toolAnswer.trim() === "5") tool = "cursor";
-  else if (toolAnswer.trim() === "6") tool = "both";
-  else if (toolAnswer.trim() === "7") tool = "all";
+  let scopeAnswer;
+  try {
+    const toolAnswer = await questionOrAbort(
+      rl,
+      `Which tool do you want to install AKILI-SPECS for?\n` +
+      `  1) Claude Code\n` +
+      `  2) OpenCode\n` +
+      `  3) Google Antigravity\n` +
+      `  4) OpenAI Codex\n` +
+      `  5) Cursor\n` +
+      `  6) Both (Claude Code + OpenCode)\n` +
+      `  7) All five\n` +
+      `${colors.cyan}>${colors.reset} `,
+      process.stdout
+    );
 
-  console.log("");
-  const scopeAnswer = await rl.question(
-    `Do you want to install it globally or locally for this specific project?\n` +
-    `  1) Globally (available in all your projects)\n` +
-    `  2) Locally (only for this project workspace)\n` +
-    `${colors.cyan}>${colors.reset} `
-  );
+    if (toolAnswer.trim() === "2") tool = "opencode";
+    else if (toolAnswer.trim() === "3") tool = "antigravity";
+    else if (toolAnswer.trim() === "4") tool = "codex";
+    else if (toolAnswer.trim() === "5") tool = "cursor";
+    else if (toolAnswer.trim() === "6") tool = "both";
+    else if (toolAnswer.trim() === "7") tool = "all";
+
+    console.log("");
+    scopeAnswer = await questionOrAbort(
+      rl,
+      `Do you want to install it globally or locally for this specific project?\n` +
+      `  1) Globally (available in all your projects)\n` +
+      `  2) Locally (only for this project workspace)\n` +
+      `${colors.cyan}>${colors.reset} `,
+      process.stdout
+    );
+  } catch (e) {
+    // bugfix/init-ctrlc-abort DD-2: Ctrl-C at either question exits 130
+    // before any install argument is built (mirrors runRouting).
+    if (e && e.code === "AKILI_SELECT_ABORT") {
+      rl.close();
+      process.exitCode = 130;
+      return;
+    }
+    throw e;
+  }
 
   const isLocal = scopeAnswer.trim() === "2";
   rl.close();
@@ -2312,6 +2328,33 @@ function keySelect(out) {
   });
 }
 
+// @akili-spec bugfix/init-ctrlc-abort — shared by `akili routing` (makeRoutingIo)
+// and `akili init` (runInteractiveInit). Asks `prompt` on `rl`; the caller owns
+// the interface and closes it.
+async function questionOrAbort(rl, prompt, out) {
+  // FR-5 / DD-5 (Pivot B): Ctrl-C closes the interface. Node >= 22.23
+  // rejects the pending question with an AbortError; Node <= 22.12 / 18
+  // never settles it — so a close before the answer rejects too. Both end
+  // as the tagged abort that the caller turns into exit 130.
+  const abort = () => {
+    out.write("\n");
+    return Object.assign(new Error("question aborted"), { code: "AKILI_SELECT_ABORT" });
+  };
+  let onClose;
+  const closed = new Promise((_, reject) => {
+    onClose = () => reject(abort());
+  });
+  rl.once("close", onClose);
+  try {
+    return await Promise.race([rl.question(prompt), closed]);
+  } catch (e) {
+    if (e && (e.code === "ABORT_ERR" || e.name === "AbortError")) throw abort();
+    throw e;
+  } finally {
+    rl.removeListener("close", onClose);
+  }
+}
+
 // -> { ask, select? }: `ask` opens and closes its own readline interface per
 // question, in today's `q [def] ` format; `select` only on a capable terminal.
 function makeRoutingIo(args) {
@@ -2319,26 +2362,9 @@ function makeRoutingIo(args) {
   const io = {
     ask: async (question, def) => {
       const rl = readline.createInterface({ input: process.stdin, output: out });
-      // FR-5 / DD-5 (Pivot B): Ctrl-C closes the interface. Node >= 22.23
-      // rejects the pending question with an AbortError; Node <= 22.12 / 18
-      // never settles it — so a close before the answer rejects too. Both end
-      // as the tagged abort that runRouting turns into exit 130.
-      const abort = () => {
-        out.write("\n");
-        return Object.assign(new Error("question aborted"), { code: "AKILI_SELECT_ABORT" });
-      };
-      let onClose;
-      const closed = new Promise((_, reject) => {
-        onClose = () => reject(abort());
-      });
-      rl.once("close", onClose);
       try {
-        return await Promise.race([rl.question(def ? `${question} [${def}] ` : `${question} `), closed]);
-      } catch (e) {
-        if (e && (e.code === "ABORT_ERR" || e.name === "AbortError")) throw abort();
-        throw e;
+        return await questionOrAbort(rl, def ? `${question} [${def}] ` : `${question} `, out);
       } finally {
-        rl.removeListener("close", onClose);
         rl.close();
       }
     },

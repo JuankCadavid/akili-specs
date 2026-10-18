@@ -30,7 +30,7 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~180 LOC: `bin/akili.js` ±25 · `test/init-pty.test.js` ~90 · `test/fixtures/init/pty-init.exp` ~45 · `test/fixtures/init/no-network.js` ~10 · `docs/cli.md` 1 · `CHANGELOG.md` ~4) |
 | Depends on | none |
 | Requirements | FR-1 (statement: one newline, exit 130; both scenarios plus the swapped-version clause; `BUT` no `AbortError`/trace line; `AND IT MUST` no install target, in `HOME` and cwd); FR-2 (scenario; `BUT` no added prompt, default marker or trailing text); FR-3 (scenario: `pty-fallback.exp dumb` stays `RC=130`); NFR-1 (seed byte-identical **and** no `https` call); NFR-2 (real pty, own files, `win32`/no-`expect` skip with a printed reason, `AKILI_PTY_LOG_DIR` copy); NFR-3 |
@@ -77,10 +77,10 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 | Consumers | `test/routing-pty.test.js` (cases at `:241`, `:256`, `:271`, `:289`, `:303`; case 4 `pty-fallback.exp dumb` is the typed-question Ctrl-C that FR-3 guards) · `test/routing-io.test.js:53` (no TTY → `ask` never called; must stay green) · `test/routing.test.js:1170`, `:1301` (scripted `io`; unaffected, must stay green) · `docs/cli.md:9–15`, `:77` · `README.md:178–181` (no Ctrl-C claim; unchanged) · `bin/akili.js:253` help text (unchanged) · `CHANGELOG.md`. Sweep: `git grep -n -E "AKILI_SELECT_ABORT\|question aborted\|makeRoutingIo\|questionOrAbort"` after the change → only `bin/akili.js` and this spec folder |
 
 **Done.**
-- [ ] (a)/(b) red at baseline on 22.23.3 and 22.12.0 on the RC assertion, quoted. (c) green at baseline.
-- [ ] 3/3 green after the fix on both versions, with `process.version` in the TAP diagnostics.
-- [ ] Falsifiers (1), (2), (4), (5), (6) observed red and restored green, quoted in `execution.md`. (3) recorded as known-inert.
-- [ ] `npm test` green on both versions (routing-pty 6/6). `verify:cli`, `pack:dry-run` and `git diff --check` clean. No `package.json` diff.
-- [ ] `docs/cli.md` line and CHANGELOG entry quote-checked.
-- [ ] **P-4 left open, not faked:** `execution.md` records that the Node 18 leg runs at the first push, which is Juan Carlos's, and that its result settles P-4. If that leg is red, it is a Pivot, not a follow-up edit.
-- [ ] Local commits with the `[SPEC:bugfix/init-ctrlc-abort]` prefix. No push.
+- [x] (a)/(b) red at baseline on 22.23.3 and 22.12.0 on the RC assertion, quoted. (c) green at baseline.
+- [x] 3/3 green after the fix on both versions, with `process.version` in the TAP diagnostics.
+- [x] Falsifiers (1), (2), (4), (5), (6) observed red and restored green, quoted in `execution.md`. (3) recorded as known-inert.
+- [x] `npm test` green on both versions (routing-pty 6/6). `verify:cli`, `pack:dry-run` and `git diff --check` clean. No `package.json` diff.
+- [x] `docs/cli.md` line and CHANGELOG entry quote-checked.
+- [x] **P-4 left open, not faked:** `execution.md` records that the Node 18 leg runs at the first push, which is Juan Carlos's, and that its result settles P-4. If that leg is red, it is a Pivot, not a follow-up edit.
+- [x] Local commits with the `[SPEC:bugfix/init-ctrlc-abort]` prefix. No push.
