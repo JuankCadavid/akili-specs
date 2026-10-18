@@ -52,10 +52,14 @@ expect -re {Which hosts do you use\?}
 expect -re {Enter confirms}
 ctrl_c_to_shell
 
-send "echo RC=\$?\r"
+# The tty probe (bugfix/pty-harness-ubuntu-flake DD-2): one `\n`-terminated
+# line — still run by the shell if icrnl was left off — that saves `$?` first,
+# prints the four flags, the shell's process group and the terminal's
+# foreground group as `TTY=…` (typed as `T""TY=`, so the echo of the typed
+# line cannot satisfy the wait), then `RC=<saved $?>`.
+send "__rc=\$?; echo T\"\"TY=\$(stty -a | tr ';' '\\n' | grep -o -w -- '-\\?\\(icrnl\\|icanon\\|isig\\|echo\\)' | tr '\\n' ' ') PG=\$(ps -o pgid= -p \$\$ | tr -d ' ') FG=\$(ps -o tpgid= -p \$\$ | tr -d ' '); echo RC=\$__rc\n"
+expect -re {TTY=([^\r\n]*)\r?\n}
+send_log "\n<<TTY: $expect_out(1,string)>>\n"
 expect -re {RC=\d+}
-send "stty -a | tr ';' '\\n' | grep -w -o -- '-\\?echo' | head -1\r"
-expect -re {\r\n(-?echo)\r\n}
-send_log "\n<<STTY: $expect_out(1,string)>>\n"
-send "exit\r"
+send "exit\n"
 expect eof

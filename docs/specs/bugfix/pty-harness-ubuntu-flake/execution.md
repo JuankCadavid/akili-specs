@@ -1,0 +1,62 @@
+# Execution Log: pty harness — a red Ctrl-C case carries its own evidence
+
+## 1. Document Control
+
+| Field | Value |
+|---|---|
+| Spec Path | `bugfix/pty-harness-ubuntu-flake` |
+| Depth | **Lite** (Bug Mode) |
+| Approval Mode | `gated` (inherited from `proposal.md`) |
+| Started | 2026-10-18 |
+| Started at | `297c80e` (clean tree) |
+| Budget (design §11) | 2 tasks · ~190 LOC · 3 review rounds — tripwire at 2 tasks / ~230 LOC / 3 rounds, compared at every task's finalize |
+| Leader | Claude Code session model Fable 5.1 (`claude-fable-5-1`). Model checkpoint: this repo's `AGENTS.md` carries no `## Model Routing` registry section (the governance bullet only); `docs/model-routing.md` default registry maps T1 → `opus`. Session model is the stronger one → pass silently; no registry entry to flag |
+| Spawn path | No Step 8E wrappers (`.claude/agents/` absent) → fallback sub-prompt path, personas seeded from `.agents/`. `akili doctor --agents` (2026-10-18): every section `CURRENT`; `implementer`/`leader` carry one `UNLOCATED shared-file-discipline` (maintainer's call, not drift) — no stop |
+| Models | Implementer `opus` (escalated from registry T2 `sonnet` — reason: Tcl `send` quoting of a POSIX pipeline, dash echo semantics, TAP block parsing and ten ordered call sites in one M task; effort `high`). Reviewer: session model `fable` (T3, ≠ Implementer) |
+| Environment pre-check (Step 2.1) | `expect` 5.45 at `/usr/bin/expect` · Docker daemon up, `node:22` image present · Node 18.20.8 at `~/.nvm/versions/node/v18.20.8/bin` · system Node v22.12.0 — all primary routes available, no fallback needed |
+| Baseline probes | Copied from the specify session's scratchpad into this session's `scratchpad/baseline/` (`baseline-red.tap`, `lf.exp`, `lf-mut.exp`, `rep.test.js`, `dash/linux-loop.sh`, `dash/loop.sh`, `dash/pty-fallback-dash.exp`) and pointed at in the T1 brief |
+| Skills | T1: `tdd` + `systematic-debugging` (as tasks.md lists — no deviation) |
+
+## 2. Task Execution History
+
+### T1 — Harness: evidence-carrying assertions, `\n` probe line, transcript copy, regression test
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: `Review: full`, `Consumers` ≠ `none`, override (b) (shared fixtures, retired `<<STTY:>>` marker). Predicate not met; no skip claimed |
+| Evidence re-run (non-author) | **VERIFIED** — Leader-inline, see below |
+| Running budget (design §11) | tasks **1 / 2** · LOC **213 added** (tracked `+110 −35` on `test/routing-pty.test.js` + four fixtures; new `fake-expect.sh` 20 + `routing-pty-evidence.test.js` 83) vs ~190 expected / ~230 tripwire → **under, but T2's ~31 LOC projects ≈ 244 > 230**, raised at this gate · review rounds **1 / 3** |
+| Spawns | Implementer `opus` (effort `high`) — not reported by host (worker gave no self-count), ended `complete`; Reviewer `fable` (effort `high`) — not reported by host, ended `complete` |
+
+**Attempt 1**
+
+- *Files changed:* `test/routing-pty.test.js` (helpers `ttyProbe`, `rcFailure`, `assertShellRc`, `assertTtySane`; `withProject` copy; ten call sites; `sttyEcho` removed), `test/fixtures/routing/pty-keyboard.exp`, `pty-empty-confirm.exp`, `pty-ctrl-c.exp`, `pty-fallback.exp` (probe line), new `test/fixtures/routing/fake-expect.sh` (mode 644), new `test/routing-pty-evidence.test.js`.
+- *Implementer verification (as reported):* red at HEAD against a pristine `git archive` export plus the new test and shim — `not ok 1 - pty FR-4: …` / `the Ctrl-C case's block holds no <<AKILI-EVIDENCE-SENTINEL 7f3a>>:` / nested `not ok 3 - pty FR-5: Ctrl-C at the host question …` / `null !== 130` / `routing-pty.test.js:201:12`. `npm test` (Node v22.12.0) `# tests 259 · # pass 259 · # fail 0`; Node v18.20.8 `# pass 7 · # fail 0`; kept transcripts on both hold `<<TTY: icanon isig echo icrnl PG=n FG=n>>` + `RC=` (130, or 0 for keyboard). Docker `node:22` (v22.23.3, sh=dash, expect 5.45.4-2+b1, procps 2:4.0.2-3): `pty-ctrl-c.exp`, `pty-empty-confirm.exp`, `pty-fallback.exp dumb` each `0/3 without RC or TTY`, flags `icrnl isig icanon echo`; Linux suite + evidence test `# pass 7`. Consumer grep `sttyEcho|<<STTY` outside the spec folder/archive: 0. `git diff --stat cabd04d..HEAD -- bin/ .claude/` and the working-tree variant: empty. `git diff --check`: clean.
+- *Falsifiers (Implementer, each restored and `cmp`-identical):* (1) tail dropped from `rcFailure` → `the Ctrl-C case's block holds no transcript tail line <<AKILI-EVIDENCE-SENTINEL 7f3a>>:` — **amended shape**: as written in `tasks.md` (`block.includes(SENTINEL)`) the mutation stayed **green**, because the sentinel is a `<<…>>` marker and reaches the block through the `markers:` line and the `# ` diagnostic; the Implementer added `routing-pty-evidence.test.js:75` (a block line equal to the sentinel, which only a tail line satisfies) and the falsifier is red against that assertion; the red at HEAD still fails first on the original `includes` assertion (`:71`). (2) `$?` read after the pipeline → only case 3 red: `Ctrl-C at the host question exits 130: the transcript reads RC=0 (expected RC=130)` / `expect pty-ctrl-c.exp exited with status 0 (signal null)` / `markers: <<BACK-IN 4 ms>> · <<TTY: icanon isig echo icrnl PG=41328 FG=41328>>`. (3) echo-unsafe `TTY=` typed, run on a container copy in `node:22` (host never mutated) → case 3 red: `tty flags not set after the prompt returned: icrnl icanon isig; the shell's process group (PG=null) is not the terminal's foreground group (FG=null) (expected <<TTY: icrnl icanon isig echo PG=n FG=n>> in any order)` with `<<TTY: $(stty -a | …; echo RC=$__rc>>` in the markers. (4) copy skipped → `error: 'AKILI_PTY_LOG_DIR holds no pty-ctrl-c.exp transcript: []'`.
+- *Leader evidence re-run (non-author, inline, 2026-10-18) — VERIFIED:* `npm test` → `# tests 259 · # pass 259 · # fail 0`, exit 0 (`scratchpad/rerun/npm-test.txt`). `PATH=~/.nvm/versions/node/v18.20.8/bin:$PATH AKILI_PTY_LOG_DIR=… node --test test/routing-pty.test.js test/routing-pty-evidence.test.js` → `# pass 7 · # fail 0`; six kept logs each with `RC=` + `<<TTY: icanon isig echo icrnl PG=n FG=n>>` (`rerun/keep18/`). Docker `node:22` loop (`rerun/docker/out.txt`): 9/9 `expect=0 RC=130 <<TTY: icrnl isig icanon echo …>>`, Linux suite `# pass 7`. Consumer grep 0; `bin/`/`.claude/` diffs empty; `git diff --check` rc 0; shim mode 644. Falsifiers re-run by the Leader with mutate → run → restore → `cmp`: (1) red on `holds no transcript tail line`, (2) red on case 3 only `reads RC=0 (expected RC=130)`, (4) red on `holds no pty-ctrl-c.exp transcript: []`, all restored identical (`rerun/f1.txt`, `f2.txt`, `f4.txt`); (3) red on case 3 only with the same `tty flags not set …` message (`rerun/docker/f3b-out.txt`). **Re-run defect, recorded:** the Leader's first two falsifier-3 container runs were invalid — the first because `cp -r /w` failed on `.codegraph/daemon.sock` (a socket this session's CodeGraph daemon holds) and short-circuited the mutation so the suite ran unmutated (green), the second because a slim copy omitted `.claude/templates/` so the CLI never rendered and all six cases timed out; the third run copied the tree via `tar --exclude=.codegraph` and reproduced the author's result exactly. Neither invalid run was counted.
+- *Reviewer verdict:* `STATUS: PASS` — "The diff conforms to FR-1, FR-2 (copy half), FR-3, FR-4, NFR-1..3 and design §5.1–§5.4/§7.1–§7.3 as amended; the red run failed on the behavioral sentinel assertion and all four falsifiers trace through the code they claim to exercise." Site count confirmed: `assertShellRc` ×4 (`:212` expects 0, `:247`, `:260`, `:278`), `assertTtySane` ×6 (`:213`, `:248`, `:261`, `:279`, `:295`, `:308`); `assertFinished` last in all six cases; `which expect` (`:35`) and `spawnSync("expect")` (`:73`) untouched; `caseBlock` bounds the case-3 block only (Disqualifier); `win32` skip prints `"win32: no pty"`.
+- *runtime events:* none.
+
+**ADVISORY (4R, recorded — never gating, never a task):**
+- **Risk (spec reconciliation, judgment call 2):** requirements.md §8 row *Transcript copy misses files or runs when unset* names "Unit assertion on `withProject` with **and without** `AKILI_PTY_LOG_DIR`", while the approved tasks.md §3 row for FR-2 `AND IT MUST` names only "`withProject` copy; evidence test kept-log assertion". The FR-2 behavioral obligation is met by the code; the "without" assertion was never scoped into T1. Not a T1 defect; the Leader should record in `execution.md` that the unset path is covered by construction plus every unset-path suite run, or reopen §8's row.
+- **Resilience:** `CASE_LINE`/`BLOCK_END` are anchored at column 0, so they depend on the runner not indenting a file's tests; verified green on 18.20.8, 22.12.0, 22.23.3. A `^\s*` prefix would decouple it from reporter nesting.
+- **Reliability:** in `withProject`'s `finally`, a throw from `mkdirSync`/`copyFileSync` skips `rmSync` and leaks the scratch root; wrapping the copy in its own `try/finally` keeps removal unconditional.
+- **Record-keeping:** falsifier (1) is only red because of the added exact-line assertion; execution.md should quote that amended falsifier shape, not the tasks.md wording alone. *(Done in the Falsifiers bullet above.)*
+
+**Requirements covered:** FR-1 (all clauses), FR-2 copy half (`THEN` copied before removal; `AND IT MUST` unset → unchanged), FR-3 (healthy scenario in full; raw-mode scenario by construction — accepted gap per tasks.md §3), FR-4 (all clauses), NFR-1, NFR-2 (macOS + Docker 6/6; Windows skip verified at T2's CI run), NFR-3.
+
+**Decisions made:**
+- **Execute-time spec edit (2026-10-18, before the Reviewer spawn):** `design.md` §5.3 and the `tasks.md` T1 scope copy amended from `expect <fixture> exited <status> (signal <signal>)` to `expect <fixture> exited with status <status> (signal <signal>)` — the design's literal format did not contain FR-1/FR-4's required substring `status 2`; the edit aligns design text to the approved requirement without changing its meaning. Two-direction sweep: forward grep of the old phrase across the spec folder → 0 remaining; backward grep of references to §5.3 → `tasks.md:45` only (amended in the same edit). Carried into the T1 Reviewer brief as a named conformance check; carried once more into the T2 Reviewer brief, then drops.
+- **FR-2 unset path (Implementer judgment call 2 / Reviewer advisory 1):** the approved `tasks.md` §3 coverage row assigns the `AND IT MUST unset → unchanged` clause to the `withProject` copy plus the kept-log assertion, not to a separate "without" unit assertion; the unset path is the default of every `npm test` run and was exercised green on macOS (Node 22.12.0, 18.20.8) and in the Docker `node:22` loop (9 fixture runs + suite), and a copy on the unset path would throw on `mkdirSync(undefined)`. Recorded as covered by construction plus those runs; requirements.md §8's row is **not** reopened. Surfaced at the T1 continue gate for the user.
+- **Falsifier (1) strengthened by the Implementer** (see Falsifiers bullet): the `tasks.md` wording predicted a red that did not occur when executed (KZ-changes--leader-brief-contract-2 shape — a post-change falsifier that could not be executed at specify time); the Implementer executed it, found it green, and added the exact-line assertion that makes it red. Accepted — it narrows the test's tolerance, adds no scope. Kaizen input for `/akili-archive`.
+- **`NODE_TEST_CONTEXT` removed from the child env** (Implementer judgment call 3) so the nested `node --test` prints TAP instead of joining the parent runner. Accepted as implementation detail of design §7.3.
+- Model escalation recorded in Document Control (Implementer `opus` over registry T2 `sonnet`). Skills as listed (`tdd`, `systematic-debugging`) — no deviation.
+
+**Issues encountered:** Implementer report truncated twice by the host relay (resent on request, verbatim). Leader falsifier-3 re-run needed three container attempts (see re-run bullet). Lookup note from the Implementer: TRD and UX/UI design entries `none` and absent from the project — nothing read.
+
+**Final verification result:** PASS — all T1 verification commands green in author and non-author runs; four falsifiers red and restored; `bin/` untouched.
+
+**Constitution Impact:** none — no module created or reshaped; `test/` gains one test file and one fixture inside existing folders. CodeGraph re-index pending at `/akili-archive` as usual.

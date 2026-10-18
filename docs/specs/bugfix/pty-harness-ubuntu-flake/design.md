@@ -61,7 +61,7 @@ Typed text (conceptually): save `$?` into a variable first; then print `T""TY=` 
 
 ### 5.3 Failure message (`rcFailure(run, expected, why)`)
 
-Lines, in order: `why`; `expect <fixture> exited <status> (signal <signal>)`; `markers: <every <<…>> line, joined by " · ">` (or `none`); `last 30 transcript lines:` + `logTail(run)`. The same string goes to `t.diagnostic` before the `assert.fail` (DD-1).
+Lines, in order: `why`; `expect <fixture> exited with status <status> (signal <signal>)`; `markers: <every <<…>> line, joined by " · ">` (or `none`); `last 30 transcript lines:` + `logTail(run)`. The same string goes to `t.diagnostic` before the `assert.fail` (DD-1).
 
 ### 5.4 Canned transcript (`fake-expect.sh`)
 

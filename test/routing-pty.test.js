@@ -54,6 +54,15 @@ function withProject(fn) {
   try {
     return fn({ root, home, project });
   } finally {
+    // bugfix/pty-harness-ubuntu-flake FR-2: keep every transcript of the run
+    // when AKILI_PTY_LOG_DIR is set, before the scratch root goes.
+    const keep = process.env.AKILI_PTY_LOG_DIR;
+    if (keep) {
+      fs.mkdirSync(keep, { recursive: true });
+      for (const f of fs.readdirSync(root)) {
+        if (f.endsWith(".log")) fs.copyFileSync(path.join(root, f), path.join(keep, `${path.basename(root)}-${f}`));
+      }
+    }
     fs.rmSync(root, { recursive: true, force: true });
   }
 }
@@ -112,9 +121,59 @@ function shellRc(log) {
   return m ? Number(m[1]) : null;
 }
 
-function sttyEcho(log) {
-  const m = log.match(/<<STTY: (-?echo)>>/);
-  return m ? m[1] : null;
+// `<<TTY: icrnl isig icanon echo PG=175 FG=175>>` (flag order differs by OS)
+// -> { flags: Set, pg, fg }; pg/fg are null unless numeric; null when absent.
+function ttyProbe(log) {
+  const m = log.match(/^<<TTY: (.*)>>$/m);
+  if (!m) return null;
+  const flags = new Set();
+  let pg = null;
+  let fg = null;
+  for (const tok of m[1].trim().split(/\s+/)) {
+    const kv = tok.match(/^(PG|FG)=(.*)$/);
+    if (!kv) flags.add(tok);
+    else if (kv[1] === "PG") pg = /^\d+$/.test(kv[2]) ? Number(kv[2]) : null;
+    else fg = /^\d+$/.test(kv[2]) ? Number(kv[2]) : null;
+  }
+  return { flags, pg, fg };
+}
+
+// bugfix/pty-harness-ubuntu-flake FR-1 (design §5.3, DD-1): a failed RC or tty
+// read carries its own evidence — why, the expect exit, every marker, the tail.
+function rcFailure(run, expected, why) {
+  const markers = run.log.match(/<<[^\n]*?>>/g) || [];
+  return [
+    `${why} (expected ${expected})`,
+    `expect ${run.fixture} exited with status ${run.status} (signal ${run.signal})`,
+    `markers: ${markers.length ? markers.join(" · ") : "none"}`,
+    `last 30 transcript lines:\n${logTail(run)}`,
+  ].join("\n");
+}
+
+function assertShellRc(t, run, expected, why) {
+  const rc = shellRc(run.log);
+  if (rc === expected) return;
+  const msg = rcFailure(run, `RC=${expected}`, `${why}: the transcript reads ${rc === null ? "no RC= line" : `RC=${rc}`}`);
+  t.diagnostic(msg);
+  assert.fail(msg);
+}
+
+// FR-3: after the prompt returned, the pty is cooked (icrnl icanon isig echo)
+// and the shell owns the terminal (PG === FG). A missing probe is a failure.
+const TTY_FLAGS = ["icrnl", "icanon", "isig", "echo"];
+function assertTtySane(t, run) {
+  const p = ttyProbe(run.log);
+  const problems = [];
+  if (!p) problems.push("no <<TTY: …>> line in the transcript (the probe never ran)");
+  else {
+    const missing = TTY_FLAGS.filter((f) => !p.flags.has(f));
+    if (missing.length) problems.push(`tty flags not set after the prompt returned: ${missing.join(" ")}`);
+    if (p.pg === null || p.pg !== p.fg) problems.push(`the shell's process group (PG=${p.pg}) is not the terminal's foreground group (FG=${p.fg})`);
+  }
+  if (!problems.length) return;
+  const msg = rcFailure(run, "<<TTY: icrnl icanon isig echo PG=n FG=n>> in any order", problems.join("; "));
+  t.diagnostic(msg);
+  assert.fail(msg);
 }
 
 // Entries in the project, `.git` excluded.
@@ -150,8 +209,8 @@ test("pty FR-1 / FR-5: keyboard happy path — hosts 1+5 by keys, in-place redra
     assert.ok(!log.includes("nothing selected"));
     // FR-5 *Questions alternate*: the typed CLI answer after two selects echoes once.
     assert.match(log, /Claude Code — CLI invocation \[claude\][^\n]*\n> +\[claude\] +claude\n/);
-    assert.equal(shellRc(log), 0);
-    assert.equal(sttyEcho(log), "echo");
+    assertShellRc(t, run, 0, "the wizard completes and the shell reads exit 0");
+    assertTtySane(t, run);
     const kbJson = fs.readFileSync(path.join(kb.project, ".agents", "model-routing.json"), "utf8");
     withProject((fl) => {
       const r = spawnSync(process.execPath, [AKILI_BIN, "routing", "--project", fl.project, ...KEYBOARD_EQUIVALENT_FLAGS], {
@@ -185,8 +244,8 @@ test("pty FR-2: empty confirm shows the guidance line and keeps the question ope
     assert.ok(log.includes("mark at least one option — space toggles, Enter confirms"));
     assert.ok(log.includes("Claude Code — which models do you have?"), "space + Enter after the guidance must proceed");
     assert.ok(!log.includes("nothing selected"));
-    assert.equal(shellRc(log), 130, "Ctrl-C at the roster question (keyboard path) exits 130");
-    assert.equal(sttyEcho(log), "echo");
+    assertShellRc(t, run, 130, "Ctrl-C at the roster question (keyboard path) exits 130");
+    assertTtySane(t, run);
     assertFinished(run);
   });
 });
@@ -198,8 +257,8 @@ test("pty FR-5: Ctrl-C at the host question exits 130, writes nothing, restores 
     assertCtrlCReturned(t, run);
     const { log } = run;
     assert.ok(log.includes("❯ [ ] 1) Claude Code"), "the keyboard list must have rendered before Ctrl-C");
-    assert.equal(shellRc(log), 130);
-    assert.equal(sttyEcho(log), "echo");
+    assertShellRc(t, run, 130, "Ctrl-C at the host question exits 130");
+    assertTtySane(t, run);
     assert.deepEqual(entries(ctx.project), []);
     assert.doesNotMatch(log, /^\s+at /m);
     assertFinished(run);
@@ -216,8 +275,8 @@ test("pty FR-4 / FR-5: TERM=dumb renders the comma form; `1,5` is accepted; Ctrl
     assert.match(log, /Claude Code — which models do you have\? \(comma-separated numbers\)/, "`1,5` must be accepted");
     // Pivot B: a typed question's Ctrl-C ends like the keyboard path's on every
     // Node (Node >= 22.23 rejects readline's pending question with AbortError).
-    assert.equal(shellRc(log), 130, "Ctrl-C at the roster question (comma path) exits 130");
-    assert.equal(sttyEcho(log), "echo");
+    assertShellRc(t, run, 130, "Ctrl-C at the roster question (comma path) exits 130");
+    assertTtySane(t, run);
     assert.deepEqual(entries(ctx.project), []);
     assert.doesNotMatch(log, /^\s+at /m);
     assertFinished(run);
@@ -232,8 +291,8 @@ test("pty FR-4: stdin TTY without setRawMode renders the comma form", (t) => {
     const { log } = run;
     assertComma(log);
     // No raw mode -> the pty stays cooked and Ctrl-C is a SIGINT (RC=130), as
-    // at dbdccea; only echo is read.
-    assert.equal(sttyEcho(log), "echo");
+    // at dbdccea; only the tty probe is read.
+    assertTtySane(t, run);
     assertFinished(run);
   });
 });
@@ -245,8 +304,8 @@ test("pty FR-4: output stream not a TTY (`| cat`) renders the comma form", (t) =
     assertCtrlCReturned(t, run);
     const { log } = run;
     assertComma(log);
-    // `$?` is cat's status here (SIGINT reaches the whole pipeline), so only echo is read.
-    assert.equal(sttyEcho(log), "echo");
+    // `$?` is cat's status here (SIGINT reaches the whole pipeline), so only the tty probe is read.
+    assertTtySane(t, run);
     assertFinished(run);
   });
 });
