@@ -14,7 +14,7 @@ Run a full repository security audit with the packaged [`security-audit`](../ski
 | `/akili-security src/auth api/` | Scoped run — named paths only; labelled partial coverage |
 | `/akili-security --profile quick` | Bounded first pass |
 
-The command runs outside any spec. It has no Approval Mode and no pre-approved mode: the plan gate and the routing gate stop on every run.
+The command runs outside any spec. It has no Approval Mode and no pre-approved mode: the plan gate stops on every run, and the routing gate stops whenever it is reached — only a run that writes an index reaches it, never **Stop**, **Guidance review** or a run that writes no index.
 
 ## Flow
 

@@ -344,7 +344,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~6 lines across 5 files) |
 | Depends on | T7 |
 | Requirements | FR-3 (scenario `AND IT MUST stop at this gate on every run`), FR-10 (the routing gate runs "After the index is written") |

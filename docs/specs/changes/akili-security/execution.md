@@ -450,3 +450,24 @@ Open items for the user (recorded, not tasks):
 | K-4 | Summary surfaces copied the command's own inexact sentence | T5b A1, T7 A1, and this Pivot | KZ-002 recurrence: the docs inherited an overstatement from the source, not from the design |
 | K-5 | The Leader's conformance brief listed a live FR-6 phrase among the superseded ones | T2 attempt 2 | A sweep list must be keyed to the amended clause, not to every sentence that shares a phrase (KZ-changes--kaizen-loop-closure-2 family) |
 | K-6 | `.agents/` absent in the worktree (gitignored) | Document Control | Worktree setup step: copy or deploy the personas before `/akili-execute` |
+
+### T7a — Gate-phrase precision (Pivot Record T7a)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (effort medium, `cognitive-doc-design`) · Reviewer `opus` (checklist, effort medium) |
+| Files changed | 5 files, 6 lines: `.claude/commands/akili-security.md:25` → "the plan gate (Step 1) stops on every run, and the routing gate (Step 5) stops whenever it is reached — only a run that writes an index reaches it, never **Stop**, **Guidance review** or a run that writes no index" (no pre-approved mode kept), plus the Step 5 heading "(always stops)" → "(stops whenever reached)", a paraphrase found by the phrase-family sweep; `docs/commands/akili-security.md:17` (same sentence); `README.md:798` and `docs/flow.md:292` → "The plan gate stops on every run, and the routing gate stops whenever it is reached (only a run that writes an index reaches it)"; `CHANGELOG.md:11` → "a **plan gate** that stops on every run and a **routing gate** that stops whenever it is reached — only a run that writes an index reaches it" |
+| Red run | At `a2ade72`, command `:25` read "both gates (Step 1, Step 5) stop on every run"; the four other sites carried the same claim |
+| Implementer verification | Phrase family `every run\|always stop\|both gates\|two gates\|each gate\|routing gate`: every "stop(s) on every run" hit names only the plan gate; no "both/two gates"; Step 1 "(always stops)" correct; `pre-approved mode` → 1 hit each in the command and the docs page; command 173 lines; `npm test` 265 / 0 |
+| Falsifier | The baseline sentence at `a2ade72` greps as "both gates (Step 1, Step 5) stop on every run" — the red state |
+| Evidence re-run (Leader-inline) | **VERIFIED** — same grep; `:42` Step 1 "(always stops)", `:124` Step 5 "(stops whenever reached)"; 173 lines; `npm test` 265 / 0 |
+| Reviewer verdict | **PASS** — the sentence holds on every path: Stop (`:66`), Guidance review (`:68`), validator failure (`:89`, `:151`, no index meanwhile), and incomplete runs (`:89`, `:93` write an index, so they do reach Step 5, consistent with "writes no index"). FR-3 meaning unchanged; named check DD-6 (amended) met; FR-10 box still consistent |
+| ADVISORY (recorded) | 1: "never **Stop**…" drops the scope's "after" (wording only). 2: a run that aborts at preflight (no Node.js; foreign-skill offer) never reaches the plan gate, so "the plan gate stops on every run" is literally false there. FR-3 has the same wording, so this is a spec-level wording point, added to the kaizen candidates as K-7. 3: the FR-10 checklist box could say "when reached" |
+| Requirements covered | FR-3, FR-10 (wording precision); DD-6 amended |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+
+- Kaizen candidate **K-7**: "every run" in FR-3 ignores the preflight abort paths (no Node.js, foreign skill copy) — T7a Reviewer advisory 2.
+- Running totals after T7a: tasks 12/13 (T7a added by the Pivot) · review rounds **19 / 18** (over by 1, user-authorized — see *Resume*).
