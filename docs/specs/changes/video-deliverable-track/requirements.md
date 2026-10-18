@@ -174,6 +174,19 @@ the host, and SHALL stop with the host-specific install hint when they are not.
 - AND IT MUST accept both the standalone name `hyperframes` and a plugin-namespaced router (e.g. `/hyperframes:hyperframes`) as installed
 - BUT it must NOT hand-write a video pipeline, vendor a copy, or install anything without consent
 
+#### Scenario: First render fetches a browser (amended 2026-10-18, A3 — S2/S3/S4)
+
+- GIVEN HyperFrames is installed and no render has run on this machine
+- WHEN the first render (draft or delivery) is due
+- THEN the agent tells the user, before running it, that HyperFrames may download its own headless browser (~200 MB) into the user's home cache (`~/.cache/hyperframes`) and keeps run state in `~/.hyperframes`, and that rendering needs network (CDN scripts, web fonts); it renders only after the user consents
+- AND these home-directory writes are runtime caches of the installed tool, not a skill install — the project-scoped install rule (DD-10) governs skills only
+
+#### Scenario: Freshness check scope (amended 2026-10-18, A3 — S1)
+
+- GIVEN a project-scoped HyperFrames install
+- WHEN freshness is checked
+- THEN `npx hyperframes skills check` is not used to certify it — that command reads only the user's global skills directory (`t12-smoke-evidence.md`); the project install is checked against its own `skills-lock.json` or reinstalled with the project-scoped route
+
 #### Scenario: Software unaffected
 
 - GIVEN `Deliverable: software`
@@ -199,7 +212,8 @@ When `Deliverable: video`, `/akili-test` SHALL plan a **render-evidence** suite 
 video tasks, collecting: `hyperframes check` exit status, snapshot stills at each beat time, a local
 **draft render**, its `ffprobe` format/stream metadata — `format.duration` compared with both the
 requirement's target ± tolerance and the composition's root `data-duration`, fps when specified — and a
-non-empty output file.
+non-empty output file. When the requirement states no tolerance, the default is **± 0.1 s** (amended
+2026-10-18, A3 — S5).
 
 #### Scenario: Duration drift
 

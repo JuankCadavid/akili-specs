@@ -44,6 +44,8 @@ The exact `--skill` list is in the skill's `SKILL.md`.
 | Draft (`--quality draft`) | `/akili-test` | Evidence only, never the deliverable |
 | Delivery (`--quality delivery`) | `/akili-validate` | The deliverable, run only after the final-look approval |
 
+Before the first render on a machine, draft or delivery, the user is told that HyperFrames may download its own headless browser (~200 MB) into `~/.cache/hyperframes`, keeps run state in `~/.hyperframes`, and needs network for rendering (CDN scripts, web fonts); it renders only after the user consents. These are the tool's runtime caches, not a skill install. `npx hyperframes skills check` reads only the user's global skills directory and never certifies a project install; check that against its `skills-lock.json` or reinstall project-scoped. The duration tolerance defaults to **± 0.1 s** when the requirement states none.
+
 A passing `check` never justifies a delivery render. No render, draft or delivery, runs while a delegated agent is active.
 
 ## Best Paired Commands

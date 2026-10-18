@@ -64,7 +64,7 @@ Only these. Everything else (flags, scaffolding, catalog, audio, captions, regis
 | `npx hyperframes render --quality draft --output <path>` | Draft render for evidence |
 | `npx hyperframes render --quality delivery --output <path>` | Delivery render, after final-look approval only |
 | `npx hyperframes preview` | Studio preview for the user's review |
-| `npx hyperframes skills check` | Freshness diagnostic; `skills update` is the consent-gated global route above |
+| `npx hyperframes skills check` | Reads only the user's global skills directory; it never certifies a project install. Check a project install against its `skills-lock.json`, or reinstall with the project-scoped route; `skills update` is the consent-gated global route above |
 | `ffprobe -v error -show_format -show_streams <file>` | Output metadata |
 
 ## Privacy and outward actions
@@ -80,6 +80,7 @@ Only these. Everything else (flags, scaffolding, catalog, audio, captions, regis
 | Draft vs delivery | Draft renders feed evidence at test time. The delivery render is the deliverable and waits for the final-look approval |
 | Check is not approval | A passing `check` never justifies a delivery render |
 | Quiet tree | No render, draft or delivery, while a delegated agent is active: a render is a measurement and competes for the browser, ports and build output. Render in the window after the completion report |
+| First render on a machine | Before the first render, draft or delivery, tell the user that HyperFrames may download its own headless browser (~200 MB) into `~/.cache/hyperframes`, keeps run state in `~/.hyperframes`, and that rendering needs network (CDN scripts, web fonts); render only after the user consents. These home writes are the tool's runtime caches, not a skill install: the project-scoped rule governs skills only |
 | Local only | Renders run on this machine; hosted or remote rendering falls under the consent rule |
 
 ## Routing within a task

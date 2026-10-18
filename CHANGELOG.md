@@ -52,6 +52,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
   - `/akili-quick` sends a video composition edit to `/akili-propose`, since it cannot produce render evidence.
   - `/akili-constitution` Step 8D names `video-production` as the AKILI route for the `hyperframes` Skill Map row; the Leader template lists it as a swap-in example.
 - **Governance rule 4 and a narrowed rule 2 (`docs/skills/governance.md`).** Command text may direct the load of an environment-provided skill only behind a `Deliverable` selector and that skill's availability gate; illustrative and Skill Map-builder mentions are exempt. Rule 2 (availability is per-developer, not per-project) gains one narrowing: a spec whose `Deliverable` selects an environment-provided skill stops at that skill's availability gate. Docs updated: the `video-production` skill page, the skills index, `README.md`, `AGENTS.md`, `docs/flow.md`, the command pages, and the `docs/cli.md` skill count (25).
+- **Live-smoke findings folded into `video-production` (A3).** Before the first render on a machine the skill has the user consent to HyperFrames' own runtime caches (a ~200 MB headless browser in `~/.cache/hyperframes`, run state in `~/.hyperframes`) and to network use (CDN scripts, web fonts); `npx hyperframes skills check` is documented as reading only the global skills directory, never a project install; the render-evidence duration tolerance defaults to ± 0.1 s when the requirement states none.
 
 ### Changed
 

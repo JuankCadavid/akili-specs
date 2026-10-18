@@ -208,6 +208,17 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 - **Done:** evidence in `execution.md`; no global install touched
 - **Skills:** `video-production`, `hyperframes` (environment)
 
+### A3 — Pivot amendment: live-smoke findings S1–S5 (added 2026-10-18, user-approved)
+
+- **Status:** [x] · **Size:** S · **Depends on:** T12
+- **Requirements:** FR-4 scenarios "First render fetches a browser" and "Freshness check scope" (amended), FR-6 default tolerance (amended); DD-8, DD-10 (amended)
+- **Scope:** `.claude/skills/video-production/SKILL.md` (S1 `skills check` scope; S2/S3/S4 first-render consent + home caches + network) and `references/render-evidence.md` (S5 default ± 0.1 s; first-render note if it owns render steps); `docs/skills/video-production.md` mirrors; `CHANGELOG.md` Unreleased clause
+- **Tests / Verification:** term walk of the amended clauses against the shipped text; NFR-3 size (≤ 3 files, ≤ 20,000 B); NFR-2 command grep unchanged in kind; quote-check the doc page and CHANGELOG at HEAD
+- **Falsifier:** post-change, delete the first-render consent sentence → the FR-4 "First render" scenario must lose its owner; observe, quote, revert
+- **Consumers:** `docs/skills/video-production.md`, `CHANGELOG.md`
+- **Review:** `checklist` — budget: at most 2 review rounds (tripwire 20)
+- **Skills:** `video-production`, `cognitive-doc-design`
+
 ---
 
 ## Coverage Map (scenario / clause → task)

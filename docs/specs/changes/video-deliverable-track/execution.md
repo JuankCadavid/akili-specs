@@ -378,3 +378,35 @@
 | Amendments | — | Pivot T1 (`skills update` is global → P-24), A2 (FR-9 load-direct scope); P-22, P-23 settled |
 
 Open at this gate: spec tensions S1–S5 and the `~/.cache/hyperframes` cleanup decision.
+
+## Pivot Record: A3 (T12 live-smoke findings S1–S5)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-18 |
+| Trigger | T12 Reviewer spec tensions S1–S5 (see T12 entry) |
+| User decision | Juan Carlos delegated to his Methodology agent: "(1) SÍ, aplica la enmienda S1–S5 como Pivot con Implementer y Reviewer antes de /akili-test; si necesita más de 2 rondas de revisión, supera el límite y para otra vez. (2) SÍ, borra ~/.cache/hyperframes/ (cache que creó la prueba; solo esa carpeta). Revisa también que ~/.hyperframes/config.json vuelva a su estado previo si puedes comprobarlo sin riesgo." |
+| Cleanup | `~/.cache/hyperframes/` inspected first (birth 2026-10-18 12:29:37; `chrome/`, `fonts/`, `history/`; 205 MB) then deleted with `rm -rf` on that exact path; `ls` confirms absent. `~/.hyperframes/config.json` **not restored**: the run rewrote it (birth 12:30:40, new file) and no earlier copy exists, so its prior state cannot be verified — left as is. `install-state.json` and empty `running/` (created by the run) left in place — outside the authorized deletion |
+| Spec edits | `requirements.md` FR-4 two new scenarios ("First render fetches a browser", "Freshness check scope"), FR-6 default ± 0.1 s; `design.md` DD-8 (`skills check` reads only the global dir), DD-10 ("never globally" governs skill installs; runtime caches consent-gated); `tasks.md` new task A3. `git diff` removed lines: exactly the old DD-8, DD-10 rows and the FR-6 closing line |
+| Resume | A3 executed below |
+
+### A3 — Pivot amendment: live-smoke findings S1–S5
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1, review round 1 of the 2 allowed) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: walk is judgment; override (a) |
+| Requirements covered | FR-4 (both amended scenarios), FR-6 default tolerance, DD-8, DD-10 |
+
+- Files changed: `.claude/skills/video-production/SKILL.md` (`skills check` row: "Reads only the user's global skills directory; it never certifies a project install…"; new Render rules row "First render on a machine" — consent before the first render, ~200 MB headless browser into `~/.cache/hyperframes`, run state in `~/.hyperframes`, network for CDN scripts and web fonts, "runtime caches, not a skill install"); `references/render-evidence.md` (default **± 0.1 s**); `docs/skills/video-production.md` (+2); `CHANGELOG.md` (+1, Unreleased)
+- Skills: `cognitive-doc-design` (`video-production` is the edited file itself). Effort: high (post-Pivot)
+- Implementer verification: 3 files, 12,186 B (was 11,549); NFR-2 distinct subcommands unchanged; sweep — no surviving "Freshness diagnostic"; falsifier executed: "First render on a machine" row deleted → `grep -rn -i -E "headless browser|only after the user consents"` → nothing (FR-4 "First render" without owner); restored (count 1)
+- Not Done / Assumptions: spec read via grep only; "~200 MB" and paths taken from the task/requirement text — Reviewer checked fidelity to `t12-smoke-evidence.md` (~204 MB: acceptable rounding)
+- Evidence re-run (Leader-inline): **VERIFIED** — 3 files, 12,186 B, "Freshness diagnostic" 0, consent sentence ×1, `git diff --check` clean; quiet-tree `npm test` exit 0, 259/259/0; `verify:cli` 11 commands | 25 skills | 8 resources
+- Reviewer (opus): **PASS** — every amended clause owned (`SKILL.md` render-rules row, `skills check` row, `render-evidence.md` duration row); amendments faithful to the T12 evidence; FR-4 BUT clause coherent (download now consent-gated, not exempted); repo-wide sweep outside `docs/specs/` finds no contradicting surface. ISSUES: none
+- ADVISORY (recorded, not actioned): (l) no rule for detecting "first render on a machine" (e.g. missing `~/.cache/hyperframes/chrome` → first, or ask); (m) "check against `skills-lock.json`" names no procedure — "compare with a fresh project-scoped reinstall" would be concrete; (n) doc page "it renders only after…" ambiguous subject; (o) `acceptance-criteria.md` row 4 could mention the ± 0.1 s default; (p) CHANGELOG drops "may" before "download"
+- runtime events: none
+- spawns: implementer 9 calls, 74 156 tokens, ended partial (assumptions only); reviewer 5 calls, 81 006 tokens, ended complete
+- Running totals vs budget: tasks 12 + 1 pivot task (A3) · review rounds 19 (tripwire 20 — not exceeded) · A3 used 1 of its 2 allowed rounds

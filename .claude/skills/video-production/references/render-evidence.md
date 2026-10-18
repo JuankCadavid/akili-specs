@@ -21,7 +21,7 @@ Compare `format.duration` from `ffprobe` with **both**:
 
 | Compared with | Catches |
 |---|---|
-| The requirement's target duration, within its stated tolerance | A composition built to the wrong length |
+| The requirement's target duration, within its stated tolerance (default **± 0.1 s** when none is stated) | A composition built to the wrong length |
 | The composition's root `data-duration` | A render defect (truncation, extra tail) |
 
 Report FAIL citing both values and the tolerance if either comparison fails. A zero exit from `check` never offsets a duration failure.
