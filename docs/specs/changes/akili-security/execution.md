@@ -385,3 +385,40 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 | spawns (attempt 2) | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
 
 - Running totals after T5b: tasks 10/12 · LOC ~540 authored (T5b: 63-line page + ~45 changed lines) · review rounds 17 / 18.
+
+### T7 — `CHANGELOG.md` + full verification sweep
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (effort high, `cognitive-doc-design`) · Reviewer `opus` (review `full`, checklist, effort high) |
+| Files changed | `CHANGELOG.md` `## [Unreleased]`: **Added** — `/akili-security` (release classified **minor**, not released in this change) and the vendored `security-audit` skill (author Cloudflare, Inc.; MIT; pin `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`; 19 files; the two `validate-*.test.cjs` excluded and why; AKILI smoke cases; pack growth +291,842 B) · **Changed** — `drift-*.md` reader scoping · **Notes** — deferred model-routing row + follow-up bug (DD-7), unchanged-files diff, verification status with Windows `UNVERIFIED` (P-13) and the Docker jq gap. "No unreleased changes yet." removed |
+| Red run | `grep -c "akili-security" CHANGELOG.md` → `0` (now `3`) |
+| Implementer verification (`t7/verification.md`) | `npm test` → 265 pass / 0 fail (Node 22.12.0); Node 18.20.8 `--test` → 265 / 0; `npm run verify:cli` → "12 commands \| 25 skills \| 8 resources", rc 0; `npm run pack:dry-run` → 302 files, 4,786,016 B unpacked, 0 `*.test.cjs`; `git diff --check` → empty; `install --tool all --dry-run` (scratch HOME) → TOTAL 335; `doctor --tool all` on the empty scratch HOME → INCOMPLETE (nothing installed — expected), after a real install into the scratch HOME → all five hosts HEALTHY ok 45 / missing 0, rc 0 (the real install was extra to the brief, scratch only); `git diff 6d1e152 -- bin/ .claude/templates/ docs/model-routing.md package.json` → empty |
+| Quote-check (`t7/quote-check.md`) | Every clause checked at HEAD; caught and fixed two of the Implementer's own overstatements before reporting ("--local install under a node --test run"; "docs/cli.md names the command" — it only carries counts) |
+| Falsifier | No "installs on all five hosts with tests" clause; `all five\|every host` in the block → 0 hits; the block says the upstream tests are "**not** packaged" |
+| Not Done / Assumptions | Windows `UNVERIFIED` (P-13) recorded open; Docker images not re-run (T4's record used); pack baseline taken from T4's entry — no owed item |
+| Evidence re-run (Leader-inline) | **VERIFIED** — `npm test` 265/0; `verify:cli` "12 commands \| 25 skills \| 8 resources (akili-specs v2.32.2)"; `git diff --check` rc 0; the `6d1e152` diff → 0 bytes; `grep -c akili-security CHANGELOG.md` → 3 |
+| Reviewer verdict | **PASS** — every clause quote-checked at HEAD on each branch (gates `:25`/`:60`/`:82`; preflight `:37`/`:38`/`:40`; disclosure `:58`, `:104-110`, `:116-118`, `:120`; routing `:131`/`:138`; Guidance review `:68`/`:148`; checkpoint `:33`); 19-file arithmetic; P-3 numbers; six test titles; 291,842 B arithmetic within NFR-4; reader scoping; `bin/routing.js:431-436` correct at HEAD; jq gap matches the T4 probe; no npm/publish/CI-green claim |
+| ADVISORY (recorded, never gating) | 1: "a plan gate and a routing gate that stop on every run" is not true on **Stop**, **Guidance review**, or a validator failure with no index — the routing gate is never reached; the shipped command's own sentence has the same shape (same finding as T5b A1). 2: "finding titles and fingerprints appear only in a detailed index" — literally, fingerprints also live in `akili-index-map.json` and the run directory; "in the tracked index only when…" would be exact |
+| Requirements covered | FR-14 (CHANGELOG with release class), NFR-1, NFR-2, NFR-4, NFR-6 (diff empty), NFR-3 (Node 18 + 22 local; Windows open — P-13) |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+
+- Running totals after T7: tasks 11/12 · LOC ~566 authored (T7: ~26) · review rounds **18 / 18** — at the tripwire, not over. Tasks within budget (12), LOC within (~650 estimate, ~800 tripwire).
+
+## Run pause — 2026-10-18 (T8 reserved)
+
+T1–T7 (including T3a–T3d) are `[x]`. **T8** (dogfood `/akili-security --profile quick` on this repository, HITL) is eligible but **reserved for Juan Carlos Cadavid** by the user's instruction ("T8 sigue reservada para Juan Carlos"); `tasks.md` T8 also states it runs only on his explicit go-ahead. Not started. No push, tag, release or publish was run.
+
+Open items for the user (recorded, not tasks):
+
+| Item | Source | Note |
+|---|---|---|
+| "Both gates stop on every run" overstates the routing gate | T5b A1, T7 A1 | Shipped command `:25` and the docs/CHANGELOG summaries; the routing gate is not reached on Stop / Guidance review / validator failure. A wording fix ("whenever reached") in a later `/akili-quick` or proposal |
+| Symlink resolution before the run-directory checks | T2 attempt 3 safety A1 | `:58` does not say to resolve the real path; low likelihood |
+| Pinned commit not named in the provenance check | T2 attempt 2 conformance advisory | `:37` checks "a `source` naming the pinned commit" without the literal pin |
+| Validator smoke cases can't tell "rejects" from "missing" | T1 advisory | assert stderr or add a valid-ledger → 0 case |
+| Windows CI legs | P-13 | first CI run after the user's push |
+| Linux bare images lack `jq` | T4 probe | pre-existing; CI installs jq |

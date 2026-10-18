@@ -317,7 +317,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~20 lines) |
 | Depends on | T1–T6 |
 | Requirements | FR-14 (CHANGELOG with release class), NFR-1–NFR-4, NFR-6 |
