@@ -74,7 +74,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | L (~210 lines) |
 | Depends on | T1 |
 | Requirements | FR-2 (both scenarios), FR-3 (scenario, `AND IT MUST stop … no pre-approved mode`), FR-4 (both scenarios incl. `BUT … must NOT run`, `AND IT MUST NOT install … network … endpoints`), FR-5 (scenario + `AND IT MUST be eligible as a finding`), FR-6 (scenario, `BUT … except the index`), FR-7 (scenario), FR-8 (scenario: allowed fields, forbidden list, `Date of Audit`), FR-9 (scenario), FR-10 (scenario: print, `routed`, no creation, disclosure warning), FR-11, FR-12, NFR-5 |

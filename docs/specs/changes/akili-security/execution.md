@@ -253,3 +253,28 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 **Leader adjudication.** Both FAILs are in scope and need no amendment. FR-6's `BUT` is unamended and binding: T-2 changed FR-12 only. Attempt 2 conflated the two, and the Leader's conformance brief listed "under `docs/specs/` except" among the old forms. That was a brief error, now corrected for attempt 3. FAIL 2 is a contradiction inside an edited paragraph. No spec tension: FR-6 (never under `docs/specs/`) and amended FR-12 (tracked content only) can both hold. Attempt 2 consumed; **attempt 3 is the last** before HALT. Attempt history for the brief: attempt 1 left four safety gaps; attempt 2 closed them but dropped FR-6's `docs/specs/` bar and left the Disclosure row contradicting the in-target option.
 
 - Running totals after T2 attempt 2: tasks 6/12 · LOC ~409 · review rounds 11 / 18.
+
+### T2 — attempt 3: **PASS** (both lenses) — task closed
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 3 of 3) |
+| Date | 2026-10-18 |
+| Attempts | 3 (attempt 1 FAIL safety · attempt 2 FAIL conformance · attempt 3 PASS both) |
+| Effort | xhigh (capped; see attempt 2) |
+| Files changed (attempt 3) | `.claude/commands/akili-security.md` (173 lines, 4 lines changed): `:55` Disclosure → "Full findings stay in the run directory, outside the target or in the ignored directory chosen below; only a redacted index…"; `:58` inserted "An in-target run directory is never under `docs/specs/`; nothing under `docs/specs/` is written except the index." before the kept T-2 sentence "This command never writes tracked repository content except the index (Step 4)."; `:149` Error row → "`--out` inside the target and not ignored, or under `docs/specs/`" → refuse (Implementer-added consistency edit; the conformance Reviewer ruled it within FR-6, no new obligation); `:161` FR-6 box extended to match |
+| Implementer verification | 173 lines; `akili list` 1; drift grep 0; `bugfix/security-` 2; `~/` 3; `outside the repository` 0; clause walk `t2a3/clause-walk.md` (+4 rows: FR-6 `BUT`, FR-6 default/ignored, FR-12, FR-3 disclosure); falsifiers f1 (delete the new `docs/specs/` sentence → FR-6 `BUT` row has no quote, red) and f2 (restore "outside the repository" → contradiction with the `git check-ignore` rule, red); `npm test` pass 263 / fail 2 (T4-owned) |
+| Not Done / Assumptions (verbatim) | "I did not touch the Reviewer's ADVISORY items." · "I treated the :149 row as a necessary consistency edit. Revert it if you want strictly three lines changed." · "No commit was made." |
+| Evidence re-run (Leader-inline) | **VERIFIED** — 173; 1; 0; `outside the repository` 0; new sentences at `:55`, `:58`, `:149`; `npm test` pass 263 / fail 2 |
+| Reviewer, lens conformance | **PASS** — both attempt-2 FAILs closed; full regression walk FR-2…FR-12 (amended) + NFR-5, nothing lost; every paragraph with a changed line read whole, no new contradiction; 11 checklist boxes; no `model:`, no line pointers. ADVISORY suppressed (diff < 50 LOC) |
+| Reviewer, lens safety | **PASS** — four attempt-1 closures hold (`:40`/`:44`, `:27`/`:76`/`:160`, `:112-118`/`:120`/`:135`, `:60`/`:107`/`:159`); the changed lines open no leak; attempt-2 advisory A2 closed (the rule binds the run directory however it is set, including via **Adjust**). Named checks FR-4, FR-8, FR-10, FR-12 (amended) and FR-6 (unamended) match |
+| ADVISORY (recorded, never gating) | Safety A1: `:58` does not say to resolve symlinks (realpath) before the in-target / ignored / `docs/specs/` checks — a symlinked `--out` could pass while writing tracked or `docs/specs/` content (low likelihood: the user picks the path). Safety A2-new: the Disclosure row says "a redacted index is written" even when only **Guidance review** is offered (overstates disclosure). Recorded only — no task widened |
+| P-14 outcome (design §12, owner T2) | Settled: the command states a self-test, not a host list — `:40` "Answer from your own tools and capabilities, not from a list of hosts: … Do not spawn an agent to find out — nothing is spawned before **Run**." Per-host support (OpenCode, Antigravity, Codex, Cursor) stays `UNVERIFIED` and is not asserted; the FR-9 degrade path (Guidance review) covers a host that answers no |
+| Requirements covered | FR-2, FR-3, FR-4 (as amended), FR-5, FR-6, FR-7, FR-8 (as amended), FR-9, FR-10 (as amended), FR-11, FR-12 (as amended), NFR-5 |
+| Decisions | Parallel lens reviewers (safety + requirement conformance) on every attempt — the task touches a security surface and its `Review` field names both lenses. The Leader's attempt-2 conformance brief wrongly listed "under `docs/specs/` except" as an old form; corrected in attempt 3's brief and recorded as a Leader brief error |
+| Constitution Impact | None needing a guide: a new command file, no module or package boundary changed. Its AGENTS.md *Skill Usage* line is T6's scope; a CodeGraph re-index is due at `/akili-archive` |
+| runtime events | none |
+| spawns (attempt 3) | implementer — not reported by host, ended partial (assumptions only); reviewer-conformance — not reported by host, ended complete; reviewer-safety — not reported by host, ended complete |
+| Final verification | `npm test` 263/265 with exactly the two T4-owned reds; command 173 lines |
+
+- Running totals after T2: tasks 7/12 · LOC ~413 authored · review rounds **13 / 18** (T2 used 6 of its 2 budgeted — three attempts × two lenses). Remaining at one round each if all pass first time (T4 1, T5b 1, T6 2, T7 1): 18 / 18 — at the tripwire, not over. A further FAIL anywhere trips it.
