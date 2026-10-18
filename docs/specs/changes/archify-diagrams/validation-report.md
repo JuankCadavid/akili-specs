@@ -1,6 +1,8 @@
 # Validation Report — diagram-design (Interactive Methodology Diagrams via Archify)
 
-**Verdict: NOT ARCHIVE-READY. 1 FAIL, 8 WARN findings.** The shipped skill, the command wiring and the docs conform to the approved spec. The one blocker is in the test file this spec added: `test/diagram-design.test.js` reads `docs/specs/changes/archify-diagrams/requirements.md` and `design.md` at runtime. `/akili-archive` Step 5 moves that folder, and a simulated move turns 2 of its 13 tests red (`ENOENT`). Running archive as things stand would leave `npm test` red on master. The fix is small and touches only the test file. After it, the spec is archive-ready; every WARN is non-blocking.
+**Verdict (updated 2026-10-18, after remediation at `dcccc95`): ARCHIVE-READY. 0 FAIL, 5 open WARN findings, none blocking.** F-1, W-3, W-5 and W-6 are resolved, and A-10 is closed; see the [Re-validation](#re-validation-2026-10-18-after-remediation) section. The original verdict at `3f084a7` follows.
+
+**Original verdict (`3f084a7`): NOT ARCHIVE-READY. 1 FAIL, 8 WARN findings.** The shipped skill, the command wiring and the docs conform to the approved spec. The one blocker is in the test file this spec added: `test/diagram-design.test.js` reads `docs/specs/changes/archify-diagrams/requirements.md` and `design.md` at runtime. `/akili-archive` Step 5 moves that folder, and a simulated move turns 2 of its 13 tests red (`ENOENT`). Running archive as things stand would leave `npm test` red on master. The fix is small and touches only the test file. After it, the spec is archive-ready; every WARN is non-blocking.
 
 | Result | Rows |
 |---|---|
@@ -324,6 +326,80 @@ Next command:
 ```
 
 That run fixes F-1 (and optionally W-3 and A-10). Re-validate F-1 only: run `npm test` plus the simulated-move check. Then:
+
+```text
+/akili-archive changes/archify-diagrams
+```
+
+---
+
+## Re-validation (2026-10-18, after remediation)
+
+**Result: ARCHIVE-READY.** The FAIL is resolved. The remaining WARNs are either accepted test gaps or bookkeeping that `/akili-archive` does. The original sections above are left as they were.
+
+| Field | Value |
+|---|---|
+| Validated at | `dcccc95` (remediation, user-approved) against `47bdc9b` (first validation commit) |
+| Diff | `git diff 47bdc9b..HEAD`: 7 files, +92/−35. The only shipped file touched is `CHANGELOG.md` (1 line). The rest is `test/diagram-design.test.js` (96 lines) and spec docs |
+| Validator | Same independent auditor (Opus 5.5). Same constraints: no commit, no network, Archify not run |
+
+### Re-run results
+
+| Check | Output | Result |
+|---|---|---|
+| `npm test` (worktree) | `# tests 272` · `# pass 272` · `# fail 0` | PASS |
+| Folder-move simulation: `git archive HEAD` export, `docs/specs/changes/archify-diagrams` moved to `docs/specs/archive/2026-10-18-changes--archify-diagrams`, full `npm test` | `# tests 272` · `# pass 272` · `# fail 0` (at `3f084a7` this was 270/272) | PASS |
+| `git diff --check` | clean, exit 0 | PASS |
+| Pack delta | `unpackedSize` 4 507 762, **+13 588 B** vs 4 494 174, 283 files, Archify-artifact regex 0. The −3 B against the original +13 591 is exactly the reword "Every diagram slot … is filled as" → "Every filled diagram slot … is" | PASS |
+
+### Checks the coordinator asked for
+
+| Check | Method | Finding | Result |
+|---|---|---|---|
+| Test literals byte-exact | Eval'd `FR2_SLOTS` from the test and parsed the FR-2 table rows from `git show <rev>:requirements.md`, for both `47bdc9b` and `HEAD`. Checked `LINK_LINE_TEMPLATE` / `LINK_LINE_SUFFIX` with `includes` against `design.md` at both revisions | 10/10 rows identical (JSON equality per cell); template and suffix present at both revisions | PASS |
+| Step 3 check is a real falsifier | Three mutations on scratch copies of `.claude/commands/` via `DD_MUTATE_COMMANDS_DIR`; repo never mutated. Each mutation was confirmed applied with `diff -q` | (1) `` `baseline-sync` `` inserted in the listing → `not ok … "got baseline-sync, factual-sweep, guide-sync, trd-adr"`. (2) Bare `- Kind: baseline-sync` line in Step 3 → same red. (3) "Refresh the TRD diagram." in Step 3 → `not ok … "must stay diagram-free"`. Unmutated: green. A non-`diagram` Kind name is caught by the Kind assertion itself, not only by the `diagram` regex. The `kinds.length > 0` guard prevents a vacuous pass | PASS |
+| No overstatement: reworded CHANGELOG clause | Quote-checked at HEAD | `CHANGELOG.md:11` "Every filled diagram slot in the baseline and spec documents is an inline Mermaid block with a legend" matches `SKILL.md:36` "Every filled slot is an inline fenced `mermaid` block in the slot's section, followed by a legend." | PASS |
+| No overstatement: execution.md corrections | Quote-checked at HEAD | "+171 / −17" re-measured at HEAD: `git diff --numstat 1db53eb..HEAD` excluding `docs/specs` and the test suite gives **171 17**. "T6 shipped +53/−16" matches `19555fd..c19252a`. "+13 591 B at `3f084a7`" is true for that commit (HEAD is now +13 588; test-report addendum records 13 588). The explanation "omitted the new 26-line docs page" is consistent: 53 − 27 = 26. Per-task entries are unchanged, so the log stays append-only | PASS |
+| Status rows (W-6) | read | All three docs read "Approved 2026-10-18 by Juan Carlos Cadavid at the specify gate (…)". The quoted user words are recorded only here; I took them as given (no other source to cross-check) | PASS |
+| Figure cross-check | Re-contrasted | 24/25 skills, 199/201 files, 10 slots, 10 of 12 review rounds and 259/272 tests are unchanged. LOC +171/−17 now agrees across execution.md and this report. Pack: execution.md "+13 591 at `3f084a7`" and test-report addendum "+13 588" (HEAD) are both true for their stated revisions | PASS |
+
+### Finding status
+
+| ID | Was | Now | Evidence | Blocks archive |
+|---|---|---|---|---|
+| F-1 | FAIL | **Resolved** | `SPEC_DIR` removed; literals byte-exact; 272/272 after the simulated move | No |
+| W-1 | WARN | **Open (accepted gap)**: FR-2 behaviour static-only (test-report gap 3) | unchanged | No |
+| W-2 | WARN | **Open (accepted gap)**: FR-5 failure path and report line, FR-7 notice not exercised (gap 2) | unchanged | No |
+| W-3 | WARN | **Resolved** | CHANGELOG `:11` quote-matches SKILL `:36` | No |
+| W-4 | WARN | **Open (Low)**: P-13 host route UNVERIFIED; fallback proven | unchanged | No |
+| W-5 | WARN | **Resolved** | execution.md §3 figures + corrections block re-measured | No |
+| W-6 | WARN | **Resolved** | Status rows record the specify approval | No |
+| W-7 | WARN | **Open (accepted risk)**: success criterion 1 not run end to end | unchanged | No |
+| W-8 | WARN | **Open, pending `/akili-archive` Step 3**: no Constitution Impact block; `AGENTS.md` Skill Usage lacks `diagram-design` (record as `guide-sync`; re-index CodeGraph) | unchanged | No |
+| A-10 | ADVISORY | **Closed** | merge-base comparison replaced by a content check that the mutations above proved is a real falsifier | — |
+
+Other advisories (A-1 accepted, A-2…A-9, A-11…A-13) are unchanged. One side note on the new test: the `DD_MUTATE_COMMANDS_DIR` seam now also redirects the `akili-archive.md` read. It stays inert unless set.
+
+### Updated counts
+
+| Result | Rows | Change vs `3f084a7` |
+|---|---|---|
+| PASS | 111 | +5 (FR-10 `npm test`; FR-9 CHANGELOG; figures LOC and pack; doc status) |
+| WARN | 11 rows → 5 open findings (W-1, W-2, W-4, W-7, W-8) | −4 rows |
+| FAIL | 0 | −1 |
+| BLOCKED | 0 | — |
+
+The remediation checks in this section add their own PASS rows; they are not folded into these totals, which count the original row set.
+
+### Archive Readiness Recommendation (updated)
+
+**Ready.** Every archive-readiness condition is met:
+
+- all 7 tasks are `[x]`;
+- no FAIL remains;
+- W-1, W-2, W-4 and W-7 are accepted gaps recorded in `test-report.md` §9 (the user confirms them at the archive summary);
+- W-8 is bookkeeping that `/akili-archive` Step 3 owns;
+- tests cover the key scenarios, and the suite survives the archive move.
 
 ```text
 /akili-archive changes/archify-diagrams
