@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change |
 | Approval Mode | gated |
-| Status | Draft — awaiting the specify approval gate |
+| Status | Approved 2026-10-18 by Juan Carlos Cadavid at the specify gate ("2. Continue: spec aprobado (DD-3 y DD-6 como están)") — executed, tested, validated; see `execution.md`, `test-report.md`, `validation-report.md` |
 | Date | 2026-10-18 |
 | Proposal | `proposal.md` — approved 2026-10-18 by Juan Carlos Cadavid (option C, name `diagram-design`, Mermaid canonical, Archify not vendored, credit to tt-a1i) |
 | Gate note | Phase gates 1.3 / 2.5 / 3.3 consolidated into **one** specify approval gate at the user's instruction ("Detente en el gate de aprobación de specify con el resumen", 2026-10-18) — the three documents are presented together; nothing was auto-approved |

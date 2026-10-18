@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/archify-diagrams` |
 | Depth | Standard |
-| Status | Draft — awaiting the specify approval gate |
+| Status | Approved 2026-10-18 by Juan Carlos Cadavid at the specify gate ("2. Continue: spec aprobado (DD-3 y DD-6 como están)") — executed, tested, validated; see `execution.md`, `test-report.md`, `validation-report.md` |
 | Date | 2026-10-18 |
 | Baseline | `854547f` — `npm test` 259/259 pass; `grep -c diagram-design` = 0 in every target file; `.claude/skills/diagram-design` absent |
 | Commit prefix | `[SPEC:changes/archify-diagrams]` — local commits only, no push |

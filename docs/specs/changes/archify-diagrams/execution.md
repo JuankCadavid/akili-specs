@@ -255,9 +255,16 @@ Final verification: VERIFIED.
 |---|---|
 | Tasks | 7/7 `[x]` — T1 PASS (att. 2), T2 PASS (att. 2), T3 PASS, T4 PASS, T5 PASS (skip claim not earned → reviewed), T6 PASS (att. 2), T7 PASS |
 | Review rounds | 10 of 12 budgeted; 3 FAILs, each fixed in one rework; no HALT, no Pivot, no checkpoint, no waiver, no skip |
-| LOC | ≈ 157 changed lines (budget ~300) |
+| LOC | Shipped (excl. `docs/specs/`, excl. the `/akili-test` suite): **+171 / −17** measured `git diff --numstat 1db53eb..HEAD` at validate (budget ~300). Corrected 2026-10-18 from the earlier "≈ 157" estimate — validation W-5 |
 | Runtime events | 2 × provider-limit death (T2, T3 — account session limit) → rung 3 resume-by-message |
 | Spec edits during execute | Amendment 2026-10-18 (user-approved): doctor-codex fixture added to FR-10 / P-5 / T6; P-13 outcome recorded after T7 |
-| Tests | `npm test` 259/259; pack +13 518 B, 0 Archify files |
+| Tests | `npm test` 259/259 at execute close (272/272 after `/akili-test`); pack delta measured at validate +13 591 B (the +13 518 B at T6 attempt 1 predates the T6 attempt-2 CHANGELOG rewording, +73 B — validation W-5); 0 Archify files |
 | Open | P-13 host route UNVERIFIED (Low); FR-5 failure path and FR-7 update-notice not exercised; advisory `review-<n>` out-dir gap surfaced to the user |
 | Commits | local only, `[SPEC:changes/archify-diagrams]`; no push, no release, no tag, no publish |
+
+## Corrections after validation (2026-10-18, user-approved remediation pass)
+
+- **W-5 (stale figures).** Per-task entries above are kept as written at the time (append-only log). Correct aggregates: T6 shipped +53/−16 (not "+27/−16" — the first figure omitted the new 26-line docs page from numstat); spec total shipped +171/−17 excl. the test suite; pack delta +13 591 B at `3f084a7` (T6 attempt 1's +13 518 B predates the attempt-2 CHANGELOG rewording). Summary table §3 updated.
+- **W-6.** `requirements.md`, `design.md`, `tasks.md` Status rows now record the specify approval (user, 2026-10-18).
+- **W-3.** `CHANGELOG.md:11` "Every diagram slot … is filled as an inline Mermaid block" → "Every filled diagram slot … is an inline Mermaid block" — now matches `SKILL.md:36` "Every filled slot is an inline fenced `mermaid` block".
+- **F-1 / A-10.** Fixed in `test/diagram-design.test.js` by a `/akili-test` Tester pass — see `test-report.md` addendum.

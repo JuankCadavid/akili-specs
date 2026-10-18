@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/archify-diagrams` |
 | Depth | Standard (re-checked in §11) |
-| Status | Draft — awaiting the specify approval gate |
+| Status | Approved 2026-10-18 by Juan Carlos Cadavid at the specify gate ("2. Continue: spec aprobado (DD-3 y DD-6 como están)") — executed, tested, validated; see `execution.md`, `test-report.md`, `validation-report.md` |
 | Date | 2026-10-18 |
 | Requirements | `requirements.md` (FR-1 … FR-10, NFR-1 … NFR-5) |
 | Verified at | `854547f` (AKILI) · `208acba` (Archify v3.2.0) |

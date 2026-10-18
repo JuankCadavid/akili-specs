@@ -108,3 +108,15 @@ None required — no FAIL, no `PRODUCT_BUG`.
 | 3 | FR-2 behavioural "TRD always carries both C4 slots" not executed | No constitution run in scope; T7's toy TRD is explicitly not FR-2 evidence | `/akili-validate` walkthrough, or a first real `/akili-constitution` run |
 | 4 | Pack-growth assertion in the test is approximate | Sums added files, not a before/after tarball | Leader's real `npm pack` delta (+13 591 B) recorded above |
 | — | Advisory (from T7): Archify `review-<n>` out-dir after a browser-check could move a repaired HTML off the slot path | Not exercised; user decision 2026-10-18: keep as advisory, candidate for a separate spec | Separate proposal if the user chooses |
+
+## Addendum — remediation pass after validation (2026-10-18)
+
+**Overall: PASS** — `npm test` 272/272 before **and after** a simulated `/akili-archive` folder move.
+
+| Finding | Fix | Evidence |
+|---|---|---|
+| F-1 (FAIL) — FR-2/FR-4 tests read `docs/specs/changes/archify-diagrams/` at runtime | `SPEC_DIR` removed; `FR2_SLOTS` (10 rows) and `LINK_LINE_TEMPLATE`/`LINK_LINE_SUFFIX` inlined as literals, checked byte-exact against `git show 47bdc9b:` copies ("FR-2 rows byte-exact: 10 / 10"; "template in design.md: true  suffix: true") | Tester: scratch export with the spec folder moved to `docs/specs/archive/2026-10-18-changes--archify-diagrams` → 13/13. Leader re-run: full working tree copied, folder moved → `npm test` 272/272 |
+| A-10 (advisory) — Step 3 compared to `git merge-base master HEAD` | Replaced by a content check: Step 3 `doesNotMatch(/diagram/i)` and names no `Kind` outside `guide-sync`, `factual-sweep`, `trd-adr` (set quoted from Step 3 at `47bdc9b`); `DD_MUTATE_COMMANDS_DIR` seam extended to `akili-archive.md` | Falsifiers executed and reverted: (a) `C4 Container` `always`→`sometimes` → `not ok 3 … FR-2` (`# fail 1`); (b) `- Kind: diagram-sync` in Step 3 → `not ok 6` "must stay diagram-free"; (b2) `- Kind: cache-sync` → `not ok 6` "got cache-sync, factual-sweep, guide-sync, trd-adr" |
+| W-3 | `CHANGELOG.md:11` → "Every filled diagram slot … is an inline Mermaid block" (Leader inline) | matches `SKILL.md:36` |
+
+Leader re-run after all fixes: `npm test` `# tests 272` `# pass 272` `# fail 0`; pack unpacked 4 507 762 B (+13 588 B vs pre-spec); `git diff --check` clean. Tester: 1 spawn (`opus`), `STATUS: PASS`, 96-line change to `test/diagram-design.test.js`, no product file touched.

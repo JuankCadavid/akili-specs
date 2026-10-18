@@ -4,10 +4,14 @@
 //
 // Static-conformance and install tests for the packaged `diagram-design`
 // skill (Mermaid-first diagram slots with an optional Archify interactive
-// view). Expected values are read from the approved spec
-// (docs/specs/changes/archify-diagrams/requirements.md, design.md §5.2/§5.3/§6)
-// wherever the spec states them as data (FR-2's slot table), and quoted from
-// it otherwise.
+// view). Expected values are quoted from the approved spec
+// (changes/archify-diagrams requirements.md, design.md §5.2/§5.3/§6).
+//
+// No runtime read of the spec folder: /akili-archive moves it out of
+// changes/, so a test that read it would go red on master after archive
+// (validation F-1). FR2_SLOTS and LINK_LINE_TEMPLATE below are literals
+// copied byte-exact from requirements.md FR-2 and design.md §5.2 at commit
+// 47bdc9b. Re-copy them only if a later approved spec changes those values.
 //
 // The install test drives the real CLI as a subprocess with every target
 // passed as an explicit --*-target flag AND HOME/USERPROFILE/CODEX_HOME/
@@ -26,7 +30,9 @@
 //         negative (no Archify CLI flag anywhere in the skill dir)
 //   FR-8  command wiring at the exact steps, conditional; BUT no command file
 //         (all of .claude/commands/) names archify; /akili-archive Step 3
-//         unchanged vs the merge-base; views-documentation keeps Mermaid
+//         diagram-free and lists no pending-item Kind beyond the closed set
+//         (content assertion, stable on master); views-documentation keeps
+//         Mermaid
 //   FR-9  governance / skills README / skill doc / README / cli.md / CHANGELOG
 //   FR-10 install lands both files byte-identical in every host skills root;
 //         `akili list` names the skill; pack growth bound
@@ -36,7 +42,9 @@
 // Falsifiability seams (test-only, inert unless set; used to record mutation
 // evidence, never set in CI):
 //   DD_MUTATE_COMMANDS_DIR  -- enumerate this directory instead of
-//                              .claude/commands/ for the FR-8 BUT test
+//                              .claude/commands/ for the FR-8 BUT test, and
+//                              read akili-archive.md from it for the FR-8
+//                              Step 3 assertion
 //   DD_MUTATE_EXPECT        -- an extra skill-relative file the install test
 //                              must find in every installed root
 
@@ -54,7 +62,32 @@ const SKILL_DIR = path.join(REPO_ROOT, ".claude", "skills", "diagram-design");
 const SKILL_MD = path.join(SKILL_DIR, "SKILL.md");
 const CATALOG_MD = path.join(SKILL_DIR, "references", "slot-catalog.md");
 const COMMANDS_DIR = path.join(REPO_ROOT, ".claude", "commands");
-const SPEC_DIR = path.join(REPO_ROOT, "docs", "specs", "changes", "archify-diagrams");
+
+// requirements.md FR-2 table (Document | Section | Slot | Condition), copied
+// byte-exact at 47bdc9b.
+const FR2_SLOTS = [
+  ["`docs/prd.md`", "User Stories", "Core user journey", "when the product has a multi-step primary flow"],
+  ["`docs/ux-ui/design.md`", "Primary User Flows", "One flow per primary flow", "when the product has a UI"],
+  ["`docs/ux-ui/design.md`", "Navigation Model", "Screen hierarchy", "when the product has ≥ 2 screens"],
+  ["`docs/trd/trd.md`", "Architecture Overview & Decisions", "C4 Context", "always"],
+  ["`docs/trd/trd.md`", "Architecture Overview & Decisions", "C4 Container", "always"],
+  ["`docs/trd/trd.md`", "Architecture Overview & Decisions", "Deployment view", "when there is more than one runtime environment or host"],
+  ["`docs/trd/trd.md`", "Data Model & Entities", "Entity-relationship", "when the system persists structured data"],
+  ["`docs/trd/trd.md`", "Backend Workflows & Business Rules", "Critical runtime sequence (1–3)", "when a flow crosses ≥ 3 participants or is asynchronous"],
+  ["`docs/trd/trd.md`", "Backend Workflows & Business Rules", "Entity lifecycle", "when an entity has ≥ 3 states"],
+  ["spec `design.md`", "Architecture Overview", "Changed-component view and any of sequence / lifecycle / ERD the change alters", "when `/akili-specify` classes the design as architecturally significant"],
+];
+
+// design.md §5.2 link-line template and browser-check suffix, copied
+// byte-exact (backticks included, as the spec states them) at 47bdc9b.
+const LINK_LINE_TEMPLATE = "`Interactive view: [<slot title>](<relative path>.html) — rendered with Archify (tt-a1i, MIT)`";
+const LINK_LINE_SUFFIX = "` · browser check not run`";
+
+// The closed pending-item Kind set /akili-archive Step 3 emits, derived from
+// .claude/commands/akili-archive.md Step 3 at 47bdc9b, which reads:
+//   "... as a typed pending item — `Kind: guide-sync`, `factual-sweep`, or
+//    `trd-adr`, with the target file, ..."
+const ARCHIVE_STEP3_KINDS = ["guide-sync", "factual-sweep", "trd-adr"];
 
 const read = (p) => fs.readFileSync(p, "utf8").replace(/\r\n/g, "\n");
 const sha256 = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
@@ -138,9 +171,17 @@ function tableRows(text) {
     );
 }
 
-function gitMergeBase() {
-  const r = spawnSync("git", ["merge-base", "master", "HEAD"], { cwd: REPO_ROOT, encoding: "utf8" });
-  return r.status === 0 ? r.stdout.trim() : null;
+// Every pending-item Kind a section names: the `Kind: a`, `b`, or `c`
+// listing form, plus any bare `Kind: x` occurrence.
+function kindsNamed(text) {
+  const kinds = new Set();
+  const listing = /`Kind:\s*([a-z0-9-]+)`((?:\s*,?\s*(?:or\s+|and\s+)?`[a-z0-9-]+`)*)/g;
+  for (const m of text.matchAll(listing)) {
+    kinds.add(m[1]);
+    for (const k of m[2].matchAll(/`([a-z0-9-]+)`/g)) kinds.add(k[1]);
+  }
+  for (const m of text.matchAll(/\bKind:\s*`?([A-Za-z0-9_-]+)/g)) kinds.add(m[1]);
+  return [...kinds].sort();
 }
 
 // ---------------------------------------------------------------------------
@@ -196,9 +237,7 @@ test("@akili-spec changes/archify-diagrams FR-1 (No Archify file ships: skill di
 // ---------------------------------------------------------------------------
 
 test("@akili-spec changes/archify-diagrams FR-2 (slot catalog has a row per FR-2 slot; both TRD C4 rows `always`)", () => {
-  const reqTable = tableRows(
-    section(read(path.join(SPEC_DIR, "requirements.md")), /^### FR-2:/).split("#### Scenario")[0]
-  );
+  const reqTable = FR2_SLOTS;
   assert.equal(reqTable.length, 10, "expected the FR-2 table to name 10 slots");
 
   const catalog = read(CATALOG_MD);
@@ -238,10 +277,8 @@ test("@akili-spec changes/archify-diagrams FR-2 (slot catalog has a row per FR-2
 
 test("@akili-spec changes/archify-diagrams FR-4 (exact link-line template and browser-check suffix, design.md §5.2)", () => {
   const skill = read(SKILL_MD);
-  const design = read(path.join(SPEC_DIR, "design.md"));
-  const template = "`Interactive view: [<slot title>](<relative path>.html) — rendered with Archify (tt-a1i, MIT)`";
-  const suffix = "` · browser check not run`";
-  assert.ok(design.includes(template) && design.includes(suffix), "expected design.md §5.2 to state the template (spec anchor)");
+  const template = LINK_LINE_TEMPLATE;
+  const suffix = LINK_LINE_SUFFIX;
   assert.ok(skill.includes(template), "expected SKILL.md to carry the §5.2 link-line template byte-exact");
   assert.ok(skill.includes(`append ${suffix}`), "expected SKILL.md to append the browser-check suffix");
   assert.ok(skill.includes("`docs/diagrams/<slot-id>.json` and `.html`"));
@@ -308,23 +345,24 @@ test("@akili-spec changes/archify-diagrams FR-8 (wiring: one conditional line at
   assert.match(specLine, /^If the design is architecturally significant/);
   assert.match(specLine, /fill the `design\.md` slots the change alters/);
 
-  const archive = read(path.join(COMMANDS_DIR, "akili-archive.md"));
+  const archive = read(path.join(process.env.DD_MUTATE_COMMANDS_DIR || COMMANDS_DIR, "akili-archive.md"));
   assert.equal(archive.split("\n").filter((l) => l.includes("diagram-design")).length, 1);
   const step2 = section(archive, /^### Step 2:/);
   assert.match(step2, /^11\. Diagrams: .*load `diagram-design` only when the spec has a `diagrams\/` folder or slot/m);
   assert.match(step2, /made stale as a follow-up/);
   const step3 = section(archive, /^### Step 3:/);
-  assert.doesNotMatch(step3, /diagram/i, "/akili-archive Step 3 must stay diagram-free");
+  assert.doesNotMatch(step3, /diagram/i, "/akili-archive Step 3 must stay diagram-free (no diagram, no diagram-design)");
 
-  // AND IT MUST leave Step 3 unchanged (no new pending-item Kind): compare
-  // with the merge-base when the history is available.
-  const base = gitMergeBase();
-  if (base) {
-    const r = spawnSync("git", ["show", `${base}:.claude/commands/akili-archive.md`], { cwd: REPO_ROOT, encoding: "utf8" });
-    if (r.status === 0) {
-      assert.equal(step3, section(r.stdout.replace(/\r\n/g, "\n"), /^### Step 3:/), "expected Step 3 byte-identical to the merge-base");
-    }
-  }
+  // AND IT MUST add no new pending-item Kind: a content assertion against the
+  // closed set (ARCHIVE_STEP3_KINDS), stable on master and on any branch that
+  // edits Step 3 for an unrelated reason.
+  const kinds = kindsNamed(step3);
+  assert.ok(kinds.length > 0, "expected Step 3 to list its pending-item Kinds (non-vacuous check)");
+  assert.deepEqual(
+    kinds.filter((k) => !ARCHIVE_STEP3_KINDS.includes(k)),
+    [],
+    `expected Step 3 to name no Kind beyond ${ARCHIVE_STEP3_KINDS.join(", ")}; got ${kinds.join(", ")}`
+  );
 
   // "Never load it outside these steps": no other command names it.
   for (const f of fs.readdirSync(COMMANDS_DIR).filter((n) => n.endsWith(".md"))) {
