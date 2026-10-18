@@ -180,7 +180,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T11 — Fixtures, CHANGELOG, package verification
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T10
+- **Status:** [x] · **Size:** S · **Depends on:** T10
 - **Requirements:** FR-10 (CHANGELOG + fixtures), NFR-5; P-22 shared-state grep
 - **Design:** P-4, P-16, P-22
 - **Scope:** `test/install-cursor.test.js` literal (`:245`) and comments (`:216,232,340,387`) set to measured values; `test/fixtures/doctor-codex-baseline.txt` skill list gains `video-production` in the installer's order; `CHANGELOG.md` Unreleased entry (no version bump)

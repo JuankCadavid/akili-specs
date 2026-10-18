@@ -294,3 +294,41 @@
 - runtime events: none
 - spawns: implementer 13 calls, 93 860 tokens, ended partial (assumptions only); reviewer not reported by host at write time, ended complete
 - Running totals vs budget: tasks 10/12 · LOC ~286 product + ~85 docs ≈ 371 (~650 est.) · review rounds 14 (13 expected; +2 amendment re-reviews, T2 FAIL) — under the 20 tripwire
+
+### T11 — Fixtures, CHANGELOG, package verification (in progress)
+
+**Attempt 1** (2026-10-18)
+- Files changed: `test/install-cursor.test.js` (+8/−8: literal 199 → 202; comments 213 / 25 / 36 / 202), `test/fixtures/doctor-codex-baseline.txt` (+2/−1: `  OK video-production` after `vercel-react-best-practices`; summary `ok 43` → `ok 44`; LF preserved), `CHANGELOG.md` (+13/−2, Unreleased)
+- Skills: `cognitive-doc-design`. Effort: medium
+- Red run (pre-edit `npm test`): 259 tests, 257 pass, 2 fail — `not ok 65` "expected 199 packaged skill files under .claude/skills; counted 202 instead"; `not ok 75` Codex doctor baseline byte-identical (summary `ok 44` vs fixture `ok 43`, missing `OK video-production`)
+- Measured: `find .claude/skills -type f | wc -l` → 202; `ls .claude/skills | wc -l` → 25; `ls .claude/commands | wc -l` → 11 (213 shared-root files, 36 operations)
+- Post-edit: `npm test` 259/259/0; `verify:cli` `11 commands | 25 skills | 8 resources (akili-specs v2.32.2)`; `pack:dry-run` 284 files, under `.claude/skills` only `video-production/` (3 files); `git diff --check` exit 0
+- Falsifier executed: 199 re-inserted → `not ok 65`, 258 pass / 1 fail; reverted
+- Consumer: `scripts/ci/install-layout-regression.js` path-based — unchanged
+- P-22 grep: see the settled P-22 row (execute-time edit to `design.md` §11 by the Leader: enumeration recorded as observed; quick line and `leader.md` example carry no literal; counts line reworded to "21 verified · 1 settled partially true (P-22) · 1 `UNVERIFIED`" after the Reviewer's note)
+- Evidence re-run (Leader-inline, quiet tree): **VERIFIED** — `npm test` exit 0 259/259/0; verify:cli summary as above; pack exit 0; diff --check clean
+- Reviewer (opus): **FAIL** — 1 issue, verbatim:
+  > 1. **Discovered Issue:** In CHANGELOG `### Changed`, the sentence "The package gains only `.claude/skills/video-production/`." is false. `package.json` `files` ships `docs` and excludes only `docs/specs`, and this branch adds `docs/skills/video-production.md`, a packaged file. The entry also contradicts itself: its own `### Added` bullet says "Docs updated: the `video-production` skill page". The task's verification scoped the claim to "only `video-production/` added under `.claude/skills`", and the CHANGELOG dropped that scope. This is the KZ-002 overstatement class.
+  > * **Violated Rule:** FR-10 (CHANGELOG notes must describe the shipped change) and task T11's verification line ("pack:dry-run (only `video-production/` added under `.claude/skills`)"). AGENTS.md Release Rules require accurate `CHANGELOG.md` notes.
+  > * **Remediation Suggestion:** Scope the sentence to what was measured, for example: "Under `.claude/skills` the package gains only `video-production/`; `docs/skills/video-production.md` is the one other new packaged file." Before claiming it, confirm against the `pack:dry-run` listing that no other new path is added.
+  Reviewer on the P-22 edit: enumeration matches HEAD exactly; "partially true — accepted" honest; neither unliteral block breaches NFR-1, FR-1 or FR-3
+- runtime events: none
+
+**Attempt 2** (2026-10-18, rework after FAIL — Implementer resumed with the FAIL report verbatim; effort medium → high)
+- Files changed: `CHANGELOG.md` only. Corrected sentence: "Of the packaged files, four are new: `.claude/skills/video-production/` (`SKILL.md`, `references/acceptance-criteria.md`, `references/render-evidence.md`) and `docs/skills/video-production.md`; every other packaged change is an edit to an existing file."
+- Implementer verification: `npm pack --dry-run --json` path list (284) vs `git diff --name-status master` → `A` only for those four, all others `M`, no `D`; `git diff --check` exit 0
+- Not Done / Assumptions: "the comparison is against local master, which I assume is the release base"
+- Evidence re-run (Leader-inline): **VERIFIED** — `git diff --name-status master | grep ^A` → the four + six `docs/specs/changes/video-deliverable-track/*` (excluded by `package.json` `files` `!docs/specs`); diff --check clean
+- Reviewer (opus, resumed): **PASS** — four new packaged files confirmed (`'docs', '!docs/specs'`); ledger counts add up to 24; CHANGELOG under `[Unreleased]`, no version claimed; first-audit fixture/count findings unchanged. ISSUES: none
+- runtime events: none
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 (one rework attempt consumed) |
+| Review intensity | Reviewer **owed**: override (c) derived evidence (counts, CHANGELOG aggregate claims); attempt 2 also (e) rework |
+| Requirements covered | FR-10 (CHANGELOG + both fixtures), NFR-5 (`npm test`, `verify:cli`, `pack:dry-run`, `git diff --check` all pass); P-22 settled |
+| decisions made | execute-time spec edit: `design.md` §11 P-22 row settled with the observed enumeration (partially true, accepted) and the ledger counts line — meaning of no requirement changed; carried to the Reviewer as a named check |
+| spawns | implementer 17 calls, 95 439 tokens, ended complete; reviewer 9 calls, 79 199 tokens, ended fail; implementer (resumed) 3 calls, 98 094 tokens cumulative, ended complete; reviewer (resumed) not reported by host at write time, ended complete |
+| Running totals vs budget | tasks 11/12 · LOC ≈ 371 + 36 (T11) ≈ 407 (~650 est.) · review rounds 16 (13 expected: +2 amendment re-reviews, +1 T2 FAIL, +1 T11 FAIL) — under the 20 tripwire |

@@ -48,6 +48,7 @@ Skills:
   OK tdd
   OK ui-ux-pro-max
   OK vercel-react-best-practices
+  OK video-production
 
 Resources:
   OK <HOME>/.codex/akili/scripts/gsc_verify.py

@@ -44,6 +44,19 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - `bin/`, `.claude/templates/`, `docs/model-routing.md` and `package.json` are unchanged against the base commit `6d1e152` (`git diff 6d1e152 -- bin/ .claude/templates/ docs/model-routing.md package.json` → empty).
 - Verified locally on Node 18.20.8 and 22.12.0 (`npm test` → 326 pass, 0 fail on each, including the 61-test `/akili-security` text-contract suite). **Windows is unsupported** (P-13, measured by the first CI run, 39160826587): see the first note. Linux Docker images (`node:18`, `node:22`, bare) fail one case, `tasks-gate`, because `jq` is absent; it reproduces at the base commit, so it is an image gap, not a regression of this change.
 
+- **A video deliverable now has a track through the flow: `Deliverable: software | video` (`changes/video-deliverable-track`).** A new `conditional` skill, `video-production`, bridges the AKILI phases to the installed HyperFrames skills: an availability gate, a phase map, and privacy and render rules. Nothing from HyperFrames is vendored and AKILI does not install it; when the router skill is missing the gate stops and prints the install routes. Where each command reads or writes the selector:
+  - `/akili-propose` records `Deliverable` beside `Type` (default `software`; an absent row reads as `software`); a `Trivial` video continues as a Lite proposal and is never routed to `/akili-quick`.
+  - `/akili-specify` runs **Video Mode** when the proposal says `Deliverable: video`: it copies the row into `requirements.md` Document Control, loads `video-production`, writes measurable video acceptance criteria, and keeps the storyboard beat table in `design.md`. For a Bug, the regression test is a frame or metadata check at the failing timestamp.
+  - `/akili-test` plans a render evidence suite in place of unit/E2E for the video tasks; a missing HyperFrames install is the same STOP as missing test infrastructure.
+  - `/akili-validate` will not report PASS without a recorded, approved final look at the draft render, and runs the local delivery render only after that approval.
+  - `/akili-quick` sends a video composition edit to `/akili-propose`, since it cannot produce render evidence.
+  - `/akili-constitution` Step 8D names `video-production` as the AKILI route for the `hyperframes` Skill Map row; the Leader template lists it as a swap-in example.
+- **Governance rule 4 and a narrowed rule 2 (`docs/skills/governance.md`).** Command text may direct the load of an environment-provided skill only behind a `Deliverable` selector and that skill's availability gate; illustrative and Skill Map-builder mentions are exempt. Rule 2 (availability is per-developer, not per-project) gains one narrowing: a spec whose `Deliverable` selects an environment-provided skill stops at that skill's availability gate. Docs updated: the `video-production` skill page, the skills index, `README.md`, `AGENTS.md`, `docs/flow.md`, the command pages, and the `docs/cli.md` skill count (25).
+
+### Changed
+
+- **Packaged-skill fixtures follow the new skill.** `test/install-cursor.test.js` counts 202 skill files (213 shared-root files, 36 operations over 25 skill directories) and `test/fixtures/doctor-codex-baseline.txt` lists `video-production` with `ok 44`. Of the packaged files, four are new: `.claude/skills/video-production/` (`SKILL.md`, `references/acceptance-criteria.md`, `references/render-evidence.md`) and `docs/skills/video-production.md`; every other packaged change is an edit to an existing file.
+
 ## [2.32.2] - 2026-10-18
 
 ### Fixed
