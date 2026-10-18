@@ -90,7 +90,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T5 — `/akili-specify`: Video Mode
 
-- **Status:** [ ] · **Size:** M · **Depends on:** T1
+- **Status:** [x] · **Size:** M · **Depends on:** T1
 - **Requirements:** FR-2 (both scenarios incl. `BUT`), FR-1 default + "reaches every reader" scenarios, FR-3 (owner of the per-task skill list), NFR-1
 - **Design:** §3 row 2; §5; §9 rows 1–2; DD-5; P-3, P-15, P-21
 - **Scope:** `### Video Mode` block after Bug Mode (trigger, load `video-production`, copy `Deliverable` into `requirements.md` Document Control, criteria via `acceptance-criteria.md`, storyboard-in-design rule, Bug × video regression shape); Phase 2 line beside the animation line; Step 3.2 clause: every task of a video spec lists `video-production`; Verification Checklist item (4 sites)

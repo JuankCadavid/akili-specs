@@ -129,3 +129,26 @@
 - runtime events: none
 - spawns: implementer 10 calls, 83 700 tokens, ended partial (assumptions only); reviewer 6 calls, 72 587 tokens, ended complete
 - Running totals vs budget: tasks 3/12 · LOC ~243 · review rounds 4/13 (+1 T2 FAIL = 5) — within budget
+
+### T5 — `/akili-specify`: Video Mode
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: `Review: full`; term walk is judgment; override (a) |
+| Requirements covered | FR-1 (Default, Reaches every reader), FR-2 (both scenarios incl. `BUT`), FR-3 (per-task skill list rule), NFR-1 |
+
+- Files changed: `.claude/commands/akili-specify.md` (+16): `### Video Mode` block after Bug Mode (:63-69); Phase 2 line (:232); Step 3.2 clause (:418); Verification Checklist item (:506) — each carries `Deliverable: video`
+- Skills: `cognitive-doc-design`. Effort: high
+- Precondition: `grep -c "Video Mode\|video-production"` → 0 before, 8 after
+- Term walk: FR-1 Default ← "An absent `Deliverable` row means `software`: Video Mode does not apply and nothing below changes."; Reaches every reader ← "Copy the `Deliverable: video` row into `requirements.md` Document Control…"; FR-2 S1 ← "each criterion carries a measurable value or an explicit `n/a - <reason>`, and the defect-class table maps each video defect class to its gate"; FR-2 S2 + `BUT` ← "Bug x video: … frame or metadata check at the failing timestamp … A unit test of composition source alone does not satisfy the Bug Mode regression requirement."; FR-3 ← "every task of the spec lists `video-production` in its skills"
+- Falsifiers executed: F1 copy sentence removed → only the opener (:63) and checklist (:505) mention the row; neither instructs a copy — FR-1 "reaches every reader" loses its owner; F2 Bug × video removed → `grep "frame or metadata|ffprobe|failing timestamp|unit test of composition"` → no output; both reverted (`cmp` identical, count 8)
+- Not Done / Assumptions (verbatim, condensed): "Prose uses `n/a - <reason>` with a plain hyphen, not an em dash." / "Bug Mode's own text has no video pointer. The Video Mode block alone owns the carve-out" — assumptions only
+- Evidence re-run (Leader-inline): **VERIFIED** — count 8; `Deliverable: video` at :63, :66, :232, :418, :506
+- Reviewer (opus): **PASS** — FR walk term by term; `acceptance-criteria.md` rows 1–10 cover every FR-2 noun; P-21 live path closed; KZ-004 landings stated (Bug Mode orthogonal, Lite "on top of the chosen depth", Phase 2 gate = storyboard approval, Phase 3 additive). ISSUES: none
+- ADVISORY (recorded, not actioned): (g) Lite's "1-2 bullet points for requirements" vs Video Mode's ten-row criteria table — "on top of the chosen depth" resolves it, a clarifying clause could help; (h) ASCII `n/a - <reason>` / `Bug x video` vs `—` / `×` in FR-2 and `acceptance-criteria.md` — cosmetic, literal greps for the reference form would miss it
+- runtime events: none
+- spawns: implementer 10 calls, 77 780 tokens, ended partial (assumptions only); reviewer 11 calls, 82 811 tokens, ended complete
+- Running totals vs budget: tasks 4/12 · LOC ~259 · review rounds 6/13 (tripwire 20) — within budget

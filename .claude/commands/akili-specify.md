@@ -58,6 +58,16 @@ When the spec is a **bug** — the proposal's Document Control says `Type: Bug`,
 - **A regression test is mandatory.** At least one task must add a test that reproduces the bug — **red before the fix, green after** — and the requirement's scenario must map to it. This is non-negotiable evidence that the bug is actually fixed and stays fixed.
 - Keep the fix scoped to the root cause; do not fold unrelated cleanup into a bugfix.
 
+### Video Mode
+
+When the proposal's Document Control says `Deliverable: video`, specify runs in **Video Mode** on top of the chosen depth. An absent `Deliverable` row means `software`: Video Mode does not apply and nothing below changes. Video Mode is orthogonal to Bug Mode; a spec may be in both.
+
+- Load `video-production` before writing `requirements.md`; its phase map says what each document owns.
+- **Copy the `Deliverable: video` row into `requirements.md` Document Control**, beside `Type`. `/akili-test` and `/akili-validate` read `requirements.md`, not the proposal, so this row is how they learn the deliverable.
+- Write the video acceptance criteria from `video-production`'s `references/acceptance-criteria.md`: each criterion carries a measurable value or an explicit `n/a - <reason>`, and the defect-class table maps each video defect class to its gate.
+- The storyboard beat table lives in `design.md`; its approval at the Phase 2 gate is the storyboard approval. Do not create a separate storyboard document.
+- **Bug x video:** when the spec is also in Bug Mode, the regression test is a frame or metadata check at the failing timestamp (snapshot or `ffprobe`, shape in `video-production`'s `references/render-evidence.md`), red before the fix and green after. A unit test of composition source alone does not satisfy the Bug Mode regression requirement.
+
 ### Approval Mode (inherited)
 
 Read `Approval Mode` from the proposal's Document Control (see `/akili-propose`). Under `pre-approved`, each phase's routine approval gate auto-passes and is **logged as `auto-approved (pre-approved mode)`** in the document produced by that phase — the gate is recorded, never silently skipped. Everything classified as an escalation still stops for the user: severe judgment-day findings, a budget that will not fit the depth, a discovery that invalidates the proposal, destructive actions. Judgment-day itself always runs — pre-approval skips *pauses*, not *review*.
@@ -220,6 +230,8 @@ If the work includes meaningful UI/UX impact, use this skill preference:
 If the work involves animation (scroll effects, transitions, motion design), load `gsap-animation` and read the reference file matching the task.
 
 If the design is architecturally significant (the same test as above), load `diagram-design` and fill the `design.md` slots the change alters.
+
+If `Deliverable: video`, load `video-production` and write the storyboard beat table into `design.md` (Video Mode).
 
 Use additional stack skills as needed — prefer the project's `## Skill Map` (in root `AGENTS.md`/`CLAUDE.md`) when it exists; otherwise pick from:
 
@@ -405,6 +417,8 @@ Each task should include:
 
 Skill inventory should use real, available skills only. Derive each task's required skills from the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) plus the conditional skills that match the task (`ui-ux-pro-max`/`frontend-design` for UI, `gsap-animation` for animation).
 
+If `Deliverable: video`, every task of the spec lists `video-production` in its skills (task skill lists are the Leader's defaults at `/akili-execute`).
+
 Task quality rules:
 
 - one task should be small enough to complete and verify in one focused session
@@ -491,6 +505,7 @@ After all three documents are approved, verify:
 - [ ] For a bug (Bug Mode): the root cause is reflected in the requirements and at least one task adds a regression test (red before, green after)
 - [ ] The spec path matches the repo's chosen taxonomy under `docs/specs/`
 - [ ] Only real, available skills are referenced in tasks
+- [ ] If `Deliverable: video`: `requirements.md` Document Control carries the `Deliverable` row, the beat table is in `design.md`, and every task lists `video-production`
 - [ ] Every task carries the four verification fields — Falsifier, Red run, Disqualifier, Consumers — with n/a or none written for the ones that do not apply, never blank
 - [ ] Every `skip-eligible` task was named with its reason in the Step 3.3 presentation list — not only inside the document — so the user saw the skip list and could reject the classification before execution started
 - [ ] Every gate that asserts size, overflow, visibility, position, or containment satisfies the rendered-measurement checklist in Step 3.2
