@@ -422,3 +422,31 @@ Open items for the user (recorded, not tasks):
 | Validator smoke cases can't tell "rejects" from "missing" | T1 advisory | assert stderr or add a valid-ledger → 0 case |
 | Windows CI legs | P-13 | first CI run after the user's push |
 | Linux bare images lack `jq` | T4 probe | pre-existing; CI installs jq |
+
+## Resume — 2026-10-18: T8 authorized; Pivot Record T7a; kaizen candidates
+
+**User instruction (verbatim):** "Juan Carlos delegó la decisión en su agente Methodology y AUTORIZA T8: corre /akili-security --profile quick como pide el spec (solo análisis, sin ejecutar código del repo auditado, sin push ni release). Las 4 advisories: la frase inexacta de los gates arréglala con /akili-quick o como Pivot mínimo, y registra las demás para kaizen. Después sigue con /akili-test y detente en el siguiente gate."
+
+**Budget tripwire.** Review rounds stood at 18 / 18 after T7, and the user was told so at the pause gate. T7a and T8 each owe one Reviewer verdict, so the run goes to **20 / 18** (+2). The cause is user-approved work added after the budget was set (T7a), plus T2's three attempts. The user's explicit instruction to continue is the escalation answer, recorded here; no further overrun is taken without asking.
+
+## Pivot Record: T7a
+
+| Field | Value |
+|---|---|
+| Blocker | Advisory (T5b A1, T7 A1): the claim "both gates (Step 1, Step 5) stop on every run" is false on **Stop**, **Guidance review**, and a run that writes no index, because the routing gate is never reached. It sits in shipped command text, so an agent may read it as an obligation to reach Step 5 |
+| Route chosen | Minimal Pivot, not `/akili-quick`. The `/akili-quick` triviality gate fails: five files across two components, and the shipped text is rules text read by agents, not copy. The user offered either route |
+| Spec change | `requirements.md`: none (FR-3 already scopes "every run" to the plan gate; FR-10 runs routing "After the index is written"). `design.md` DD-6 wording amended, meaning unchanged. `tasks.md`: new task **T7a** (scope, verification, falsifier), and T8 now depends on T7a |
+| ADR affected | none (no TRD in this repo) |
+| Correction closure | Forward: `grep -rn "every run"` over the command, the docs page, `README.md`, `docs/flow.md`, `CHANGELOG.md` and `design.md` → sites listed in T7a's Red run, plus `design.md` §3 "PLAN GATE (always stops)", which is correct (plan gate). Backward: FR-3 and FR-10 assert nothing superseded |
+| Approval | User, in the message quoted above |
+
+**Kaizen candidates** (for `/akili-archive`'s retrospective; recorded, not tasks):
+
+| # | Signal | Evidence | Candidate lesson |
+|---|---|---|---|
+| K-1 | Symlinks are not resolved before the run-directory checks | T2 attempt 3 safety advisory A1 | A path-safety rule should name realpath resolution; possibly a future Bug proposal |
+| K-2 | The provenance check does not name the pinned commit literally | T2 attempt 2 conformance advisory | A pin check stated as "names the pinned commit" without the literal is unfalsifiable |
+| K-3 | Two validator smoke cases cannot tell "rejects" from "missing" | T1 advisory; case 5 green pre-copy | An exit-code-only negative test passes when the target is absent; assert the diagnostic, or pair it with a positive case |
+| K-4 | Summary surfaces copied the command's own inexact sentence | T5b A1, T7 A1, and this Pivot | KZ-002 recurrence: the docs inherited an overstatement from the source, not from the design |
+| K-5 | The Leader's conformance brief listed a live FR-6 phrase among the superseded ones | T2 attempt 2 | A sweep list must be keyed to the amended clause, not to every sentence that shares a phrase (KZ-changes--kaizen-loop-closure-2 family) |
+| K-6 | `.agents/` absent in the worktree (gitignored) | Document Control | Worktree setup step: copy or deploy the personas before `/akili-execute` |

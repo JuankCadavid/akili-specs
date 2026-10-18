@@ -340,13 +340,40 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 ---
 
+### T7a — Gate-phrase precision (Pivot Record T7a, user-approved 2026-10-18)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | XS (~6 lines across 5 files) |
+| Depends on | T7 |
+| Requirements | FR-3 (scenario `AND IT MUST stop at this gate on every run`), FR-10 (the routing gate runs "After the index is written") |
+| Design refs | DD-6 (wording amended) |
+| Review | `checklist` |
+
+**Scope.** Replace the claim that *both* gates stop on every run with the exact branch structure: the plan gate stops on every run (FR-3); the routing gate stops whenever it is reached, which is only by a run that writes an index (FR-10) — never after **Stop**, **Guidance review**, or a run that writes no index. Sites: `.claude/commands/akili-security.md` (the no-Approval-Mode sentence), `docs/commands/akili-security.md` (same sentence), `README.md` (description bullet), `docs/flow.md` (§2b), `CHANGELOG.md` (Unreleased, `/akili-security` bullet). Meaning of FR-3 unchanged; "no pre-approved mode" kept at every site.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `grep -rnE "stop(s)? on every run" .claude/commands/akili-security.md docs/commands/akili-security.md README.md docs/flow.md CHANGELOG.md` → every hit names only the plan gate; `grep -c "pre-approved mode"` ≥ 1 in the command and the docs page; `wc -l .claude/commands/akili-security.md` ≤ 230; `npm test` 0 fail |
+| Red run | Baseline (2026-10-18, `a2ade72`): command `:25` "both gates (Step 1, Step 5) stop on every run"; docs page `:17`, `README.md:798`, `docs/flow.md:292`, `CHANGELOG.md:11` carry the same claim |
+| Falsifier | Restore the command sentence → the grep shows "both gates … stop on every run" (red) |
+| Disqualifier | A sweep that edits the sites named here and leaves a paraphrase ("each gate stops on every run", "two gates that always stop") is not a sweep — grep the phrase family |
+| Consumers | none beyond the five files |
+
+**Done.** Five sites corrected, sweep quoted.
+
+---
+
 ### T8 — Dogfood: `/akili-security --profile quick` on this repository (HITL)
 
 | Field | Value |
 |---|---|
 | Status | `[ ]` |
 | Size | — (a run, no code) |
-| Depends on | T7 |
+| Depends on | T7, T7a |
 | Requirements | FR-3, FR-4 (default-run scenario), FR-7, FR-8 (default index scenario), FR-10 |
 | Design refs | §3, §5 |
 | Review | `full` — the only behavioural evidence for the two non-automatable defect classes |
