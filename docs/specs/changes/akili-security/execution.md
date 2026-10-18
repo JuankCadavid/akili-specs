@@ -510,3 +510,57 @@ Open items for the user (recorded, not tasks):
 | D-2 | `.claude/skills/*/scripts` executables → AI-AND-LLM Tool-argument injection | `design_system.py` persists under `design-system/<project_slug>/…` with no `..` rejection; `find-polluter.sh` unquoted expansion; argv output paths |
 | D-3 | `.claude/skills/*/SKILL.md` → AI-AND-LLM Indirect injection | No installed skill prompt was checked for fetched or cloned-repo content reaching a side-effecting sink |
 | D-4 | `bin/persona.js` parse/fix/migrate → Business logic | Marker and digest handling on attacker-editable persona files was never read |
+
+**T8 — attempt 1 Reviewer: FAIL (record fidelity); Leader rework of the record.** The Reviewer (`opus`, full) verified every behavioural check independently, from the session transcript `a240a15f-8faf-4436-a99d-f1d724e32de2.jsonl` lines 2011–2655:
+- the index allowlist and name rule;
+- the terminal state, with both validators re-run → exit 0;
+- `akili_execution`;
+- no target-controlled command;
+- the plan gate before the first spawn;
+- the addendum verbatim in all 10 spawn prompts;
+- the report contents, the redaction-unexercised note and the routing decision.
+
+It failed one item: the shell-command record above misstated and omitted commands. FAIL verbatim:
+
+> 1. **Discovered Issue:** The T8 observations row "Static-only — target code executed?" summarizes parent commands as "the preflight reads above; `mkdir`/`cat`/`python3 -I` writing only inside the run directory …; `shasum`". The transcript shows other commands:
+>    - transcript line 2203: `python3 -c` (not `-I`), run with its working directory inside the audited tree (`.claude/skills/security-audit/`), reading `report-schema.json`
+>    - transcript line 2218: the same, writing `context/schema-*.json`
+>    - `wc -l` in the skill dir (2061)
+>    - `git ls-files` per-directory counts (2125)
+>    - `grep` on `AGENTS.md`
+>
+>    No target code ran (that directory holds no `.py`), but the record is the sole behavioural evidence for the "target code executed" defect class, and it misstates the interpreter isolation.
+>    * **Violated Rule:** `docs/specs/changes/akili-security/tasks.md` T8 Scope: "no target code executed (record every shell command the run issued)".
+>    * **Remediation Suggestion:** Amend the T8 row in `execution.md` with an accurate full list, either inline or by pointing to transcript `a240a15f-8faf-4436-a99d-f1d724e32de2.jsonl` lines 2011–2655. Correct the "python3 -I" claim, and note that the non-isolated `python3 -c` at 2203/2218 ran with its working directory inside the target, where nothing on the import path was target-controlled.
+
+**Corrected shell-command record** (replaces the summary in the observations row; the authoritative log is the transcript range above). Every command the parent issued for the run, in order:
+
+| # | Command (cwd) | Reads / writes |
+|---|---|---|
+| 1 | `sed -n 1,15p SKILL.md \| grep` (adapted-for, source, name); `node --version`; `git rev-parse --show-toplevel`, `HEAD`, `--abbrev-ref HEAD`; `git status --porcelain \| wc -l`; `git remote get-url origin`; `ls <run dir>`; `git ls-files \| wc -l` and per-top-level counts; `grep -n "Default Branch" AGENTS.md` (repo root) | Preflight reads |
+| 2 | `wc -l *.md *.json *.cjs` (cwd `.claude/skills/security-audit/`) | Read |
+| 3 | `mkdir -p` run-dir agent roots; `cat > run-metadata.json`; `git ls-files bin scripts .claude test \| sed \| sort \| uniq -c` | Write run dir; read |
+| 4 | **`python3 -c`** (not `-I`; cwd `.claude/skills/security-audit/`), loading `report-schema.json`; `grep -n` on `report-schema.json` | Read. Not isolated, cwd inside the target: a planted `json.py` there would have been imported. None exists — the directory holds no `.py` |
+| 5 | `mkdir context`; **`python3 -c`** (same cwd, not isolated) writing `context/schema-*.json` | Write run dir. Same isolation note |
+| 6 | `python3 -I -c` (metadata update) | Write run dir |
+| 7 | *(session restart)* `ls -R <run dir>`; `git log --oneline -2`; `git status --porcelain` | Read |
+| 8 | `cat > architecture.md`; `wc -w` | Write run dir |
+| 9 | `cat > seed_ledger.py` (parent scratch); `python3 -I seed_ledger.py`; `node <skill-dir>/validate-coverage-ledger.cjs` | Write run dir; validator (Step 3) |
+| 10 | `cat > build_hunters.py`; `python3 -I build_hunters.py`; validator | Write run dir; validator |
+| 11 | `grep` / `sed` / `awk` on `context/hunter-*.md` | Read run dir |
+| 12 | `python3 -I -c` (metadata update) | Write run dir |
+| 13 | `mkdir results`; `cat >` hunter result files; `python3 -I -c` JSON load checks | Write run dir |
+| 14 | `cat > consolidate.py`; `python3 -I consolidate.py`; validator | Write run dir; validator |
+| 15 | `cat > critic-final.json`; `python3 -I -` (add deferred units); `echo '[]'` > `findings.json` and `akili-index-map.json`; both validators | Write run dir; validators |
+| 16 | `python3 -I -` (Phase 6 reports + metadata); both validators; `ls`; `ls docs/specs/audits` | Write run dir; validators; read |
+| 17 | `mkdir -p docs/specs/audits`; `cat >` the index; `grep` for forbidden strings; `git status --porcelain` | Write the index (the only repository write); read |
+| 18 | `shasum -a 256` of both validators | Read |
+| 19 | `git add` / `git commit` (`execution.md`, `tasks.md`, then the index after the user's decision) | Local commits only |
+
+Nothing in this list executes target-controlled code beyond the command's own Step 3 validators, which match the upstream hashes. No `npm`, no `bin/akili.js`, no tests, no install and no network. The isolation lapse at rows 4–5 is added to **K-8** (the parent's own helper interpreters should run isolated, with `-I` or a cwd outside the target).
+
+Reviewer ADVISORY recorded:
+- `python3 -c` isolation (now K-8).
+- The `/akili-audit` branch-suffix rule puts a GitHub handle (`JuankCadavid`) in the index filename. FR-8 bans user names in content only, so this is a spec-level tension → kaizen candidate **K-9**.
+- Adjust and Run in one message: the plan is re-shown without a second stop. Acceptable under FR-3, but unworded.
+- Step 5 has no wording for a run with zero confirmed records.
