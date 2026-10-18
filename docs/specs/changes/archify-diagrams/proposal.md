@@ -8,7 +8,7 @@
 | Spec Path | `changes/archify-diagrams` |
 | Slug | `archify-diagrams` — derived from free-text argument ("Skill Archify … que con este skill se creen todos los diagramas de la metodología") |
 | Approval Mode | gated |
-| Status | Draft — awaiting approval (Juan Carlos Cadavid) |
+| Status | Approved 2026-10-18 by Juan Carlos Cadavid (option C; skill name `diagram-design`; Mermaid canonical; Archify not vendored; credit to tt-a1i) |
 | Date | 2026-10-18 |
 | Author | Juan Carlos Cadavid (intent) / agent (draft) |
 | Depends on | none |
@@ -27,7 +27,7 @@ The user goal: every diagram the methodology produces (architecture, flows, TRD/
 |---|---|---|
 | P1 | The only diagram the commands ask for is the TRD's **C4 Context + Container** view. | `.claude/commands/akili-constitution.md:256` |
 | P2 | Mermaid is the declared default renderer, stated once, inside a skill reference — not in any command. | `.claude/skills/software-architect/references/views-documentation.md:14` ("Mermaid is the default renderer in AKILI docs.") |
-| P3 | The PRD (Step 3), UX/UI design (Step 4), `/akili-specify`'s `design.md`, and `/akili-archive`'s summary have **no diagram slot**: the words `diagram`, `flowchart`, `mermaid` do not occur in any of them. | `grep -rn -i "diagram\|flowchart\|mermaid" .claude/commands` → only constitution `:239`/`:256` (C4) |
+| P3 | The PRD (Step 3), UX/UI design (Step 4), `/akili-specify`'s `design.md`, and `/akili-archive`'s summary have **no diagram slot**: the words `diagram`, `flowchart`, `mermaid` do not occur in any of them. | `grep -rn -i "diagram\|flowchart\|mermaid" .claude/commands` → **0 hits** (the C4 requirement at `:256` names "C4 Context + Container", never the word *diagram*) — corrected at `/akili-specify`, re-run at `854547f` |
 | P4 | Governance already forbids vendoring a skill whose own tool serves a version-matched copy. | `docs/skills/governance.md:17`, `:23` |
 | P5 | Codex and Cursor install AKILI skills into the **shared** `~/.agents/skills` root — the same root Archify's own installer (`npx skills add tt-a1i/archify`) targets for Codex. | `bin/akili.js:127`, `:139`; upstream `README_EN.md:444` |
 
@@ -49,7 +49,7 @@ So today diagrams are optional, static, inconsistent across phases, and there is
 | Conditional wiring — UX/UI navigation/screen-flow slot | `.claude/commands/akili-constitution.md` Step 4 |
 | Conditional wiring — TRD: C4 Context + Container, deployment, critical sequence, data model (ERD), key state machines | `.claude/commands/akili-constitution.md` Step 5 |
 | Conditional wiring — `design.md` diagrams for architecturally significant changes | `.claude/commands/akili-specify.md` (design phase) |
-| Archive: summary links the spec's diagrams; TRD sync refreshes the affected baseline diagram | `.claude/commands/akili-archive.md` Steps 2–3 |
+| Archive: summary links the spec's diagrams; TRD sync refreshes the affected baseline diagram — **changed at specify (design DD-6):** the summary lists stale baseline slots as follow-ups; no Step 3 write | `.claude/commands/akili-archive.md` Steps 2–3 |
 | Point `software-architect`'s "Mermaid is the default renderer" sentence at the new skill | `.claude/skills/software-architect/references/views-documentation.md:14` |
 | Governance: add `diagram-design` to the `conditional` row; add `archify` to the environment-provided examples | `docs/skills/governance.md` |
 | Docs: `docs/skills/diagram-design.md`, row in `docs/skills/README.md`, install note for Archify | `docs/skills/`, `README.md` |
