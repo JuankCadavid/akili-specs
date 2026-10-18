@@ -59,3 +59,29 @@ spawns: implementer 7 calls, 76 108 tokens, ended complete; reviewer 9 calls, 86
 Decisions made: none beyond the brief. Issues encountered: none.
 Budget running totals: tasks 1/7 · LOC ≈ 108 (two new files) / ~300 · review rounds 2/12 — within budget.
 Final verification: VERIFIED (Leader re-run after attempt 2).
+
+### T3 — Wire `/akili-specify` Step 2.1
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (ran in parallel with T2 — disjoint files) |
+| Review intensity | Reviewer **owed**: `Review: checklist`; override (a) — command text other agents execute |
+| Skills | none (as listed). Effort: medium |
+| Requirements covered | FR-8 row 4; FR-8 scenario BUT (no `archify` named) |
+
+**Attempt 1**
+- Files changed: `.claude/commands/akili-specify.md` (+2: one line at :222, after the `gsap-animation` line): "If the design is architecturally significant (the same test as above), load `diagram-design` and fill the `design.md` slots the change alters."
+- runtime events: provider-limit death ×1 (session usage limit, HTTP 429, mid-verification) → rung 1 tree probe (edit present, unverified) → **rung 3** resume-by-message after the account switch; worker context survived
+- Implementer verification: 1 hit at :222 between `#### Step 2.1` (207) and `#### Step 2.2` (236); `grep -ci archify` 0; `git diff --check` clean; file-scoped stat 1 file +2. Falsifier executed: line under `#### Step 3.2` → hit 388 outside 207–234 → restored, `cmp` identical → passes. `npm test` 257/2 fail (tests 65, 75)
+- Evidence re-run (Leader-inline): **VERIFIED** — same outputs; the two `npm test` failures (`test/install-cursor.test.js` 65 "expected 199 … counted 201", 75 codex doctor baseline fixture) reproduce identically on a clean `git archive` export of HEAD `6ceb655` (T1, without the T2/T3 diffs): pre-existing from T1's new skill, owned by T6 — not a T3 defect
+- Reviewer (opus): **PASS** — "meets every obligation of T3 … '(the same test as above)' resolves to one test only — line 213 … ISSUES: 0"
+
+Not Done / Assumptions (verbatim, assumptions-only → no continuation): "`npm test` is not fully green because of the two failures above. Under check 3 as written I should report that as a failed check. I'm treating the failures as expected from T1, not as a T3 defect." — Leader adjudication: confirmed by the clean-export run above.
+
+spawns: implementer (died + resumed) 3 calls after resume, 69 205 tokens, ended complete; reviewer 7 calls, 66 489 tokens, ended complete
+ADVISORY: suppressed by the Reviewer (diff < 50 LOC, persona depth scaling).
+Decisions made: Leader judged `npm test`'s two failing cases as T6-owned after the clean-export comparison. Spec-gap finding for the gate: `test/fixtures/doctor-codex-baseline.txt` (test 75) is a consumer of the packaged skill set that the Premise Ledger P-5 and T6's `Consumers` do not list — proposed as a one-line T6 amendment at the next gate (not edited here).
+Budget running totals: tasks 2/7 (T1, T3) · LOC ≈ 109 / ~300 · review rounds 4/12 (T1 ×2, T2 attempt 1 FAIL, T3 ×1).
+Final verification: VERIFIED.

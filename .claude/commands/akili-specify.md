@@ -219,6 +219,8 @@ If the work includes meaningful UI/UX impact, use this skill preference:
 
 If the work involves animation (scroll effects, transitions, motion design), load `gsap-animation` and read the reference file matching the task.
 
+If the design is architecturally significant (the same test as above), load `diagram-design` and fill the `design.md` slots the change alters.
+
 Use additional stack skills as needed — prefer the project's `## Skill Map` (in root `AGENTS.md`/`CLAUDE.md`) when it exists; otherwise pick from:
 
 - `nestjs-expert`

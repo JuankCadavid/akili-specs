@@ -56,7 +56,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (~2 LOC) |
 | Depends on | T1 |
 | Requirements | FR-8 (row 4) |
