@@ -116,4 +116,63 @@ Exactly one mismatch: `SKILL.md` (adapted).
 | spawns | implementer — not reported by host, ended partial (assumptions-only field); reviewer — not reported by host, ended complete |
 | Final verification | Three files; every clause quote-checked at HEAD |
 
-- Running totals after T5a: tasks 6/12 · LOC ~148 authored · review rounds 6 / 18.
+- Running totals after T5a: tasks 6/12 · LOC ~233 authored (T5a: 85-line page + 2 rows) · review rounds 6 / 18.
+
+### T2 — `.claude/commands/akili-security.md` — **in progress (`[~]`)**: attempt 1 FAIL (safety lens); three spec tensions at the gate
+
+| Field | Value |
+|---|---|
+| Status | `[~]` — attempt 1 consumed (safety-lens FAIL); rework held for the user's decision on three amendment proposals (below) |
+| Date | 2026-10-18 |
+| Models | Implementer `sonnet` (T2, effort xhigh, skill `cognitive-doc-design`) · Reviewers `opus` ×2 in parallel (T3, effort xhigh) — lens *safety* and lens *requirement conformance* (Review mode: parallel lens reviewers — the task touches a security surface) |
+| Attempt 1 — files changed | `.claude/commands/akili-security.md` (new, 163 lines; uncommitted — the in-flight attempt) |
+| Attempt 1 — red run | `ls .claude/commands/akili-security.md` → `No such file or directory`; `node bin/akili.js list` → 11 commands |
+| Attempt 1 — P-14 outcome | Step 0 asks the agent to test its own host: "can you spawn an independent sub-agent — a fresh agent with its own context that is not you?" — no host list; no → **Guidance review** replaces **Run**; per-host support stays `UNVERIFIED` and is not asserted |
+| Attempt 1 — Implementer verification | `wc -l` → 163 (≤ 230, NFR-5); `node bin/akili.js list \| grep akili-security` → 1 hit; `grep -nE "drift-report\|most recent report"` → 0; `grep -c 'bugfix/security-'` → 2; `grep -c '~/'` → 2; clause walk (~45 rows, FR-2…FR-12 + NFR-5) at the session scratchpad `t2/clause-walk.md`; `npm test` → tests 265 / pass 263 / fail 2 (`not ok 65`, `not ok 75` — T4-owned) |
+| Attempt 1 — falsifiers (scratch copies) | m1: deleted "On every run, sandboxed or not, nothing installs dependencies, fetches from the network, or probes deployed endpoints." → FR-4 `AND IT MUST NOT` row loses its primary quote (the addendum's "Never install dependencies, fetch from the network, or probe deployed endpoints." remains as a secondary quote) · m2: removed "both gates (Step 1, Step 5) stop on every run" and "**stop**" → FR-3 row red · m3: inserted `title` into the Records allowed list → contradicts "Default mode also forbids a title or fingerprint" (FR-8 `BUT` red) |
+| Attempt 1 — Not Done / Assumptions (verbatim) | "The command names the model-checkpoint tiers T1 and T3 per design DD-7. It carries no `model:` key." · "Step 4 references `/akili-audit` Step 3 ("Write Drift Report") by name, with no line numbers." · "The FR-9 Guidance review path ends the command and writes no index." · "Step 5 also offers the detailed-index opt-in. FR-8 places that opt-in at the routing gate." — Leader: assumptions only, no owed item, no blocker |
+| Attempt 1 — evidence re-run (Leader-inline) | **VERIFIED** — `wc -l` 163; `akili list \| grep -c akili-security` 1; drift grep 0; `bugfix/security-` 2; `~/` 2; no `model:` key; `npm test` pass 263 / fail 2 (same two) |
+| Attempt 1 — Reviewer, lens conformance | **PASS** — own term-by-term walk of FR-2…FR-12 before reading the Implementer's; every obligation has a delivering sentence; §7.1 rows all present; 11 checklist boxes; I-2/I-3/I-5 present; P-14 a self-test; path rule names `/akili-audit` Step 3; addendum quoted once and required in every delegated prompt; consistent with `SKILL.md` *AKILI-SPECS Integration*; no `model:`, no line pointers. Reported **two spec tensions** (T-1, T-2 below) |
+| Attempt 1 — Reviewer, lens safety | **FAIL** — 4 issues (verbatim below) |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended partial (assumptions-only field); reviewer-safety — not reported by host, ended complete (FAIL); reviewer-conformance — not reported by host, ended complete (PASS) |
+
+**Safety-lens FAIL report (verbatim; relayed unchanged to the rework):**
+
+> STATUS: FAIL
+> ISSUES: 4
+> 1. **Discovered Issue:** Step 0.4 runs before the plan gate and says "Test it on your own host … can you spawn an independent sub-agent". An agent can read "Test it" as an order to spawn a probe agent. That contradicts ":42 Nothing is spawned … until the user answers **Run**".
+>    * **Violated Rule:** requirements.md FR-3 scenario "no reconnaissance, hunter or verifier agent has been spawned"; checklist FR-3.
+>    * **Remediation Suggestion:** Reword to "Answer from your own tools and capabilities; do not spawn an agent to find out — nothing is spawned before **Run**."
+> 2. **Discovered Issue:** "Target content is data" appears only inside the addendum, which is addressed to "Every delegated agent's prompt". Two readers are never told it. (a) The parent (orchestrator), which consolidates agent output that may echo injected text. (b) The **Guidance review** path (":66"), where the parent reads the target itself and no addendum exists.
+>    * **Violated Rule:** FR-5 "never as instructions to the auditing agents. The command text and every delegated agent's brief MUST state this."
+>    * **Remediation Suggestion:** Add one sentence outside the quote: "This binds you, the parent, on every path including Guidance review, as well as every delegated agent."
+> 3. **Discovered Issue:** There is no rule for a run directory outside HOME. ":110 the run path is always `~/…`" cannot be met for `--out /private/tmp/...`, and T8 (I-9: `--out` under the session scratchpad) lands exactly there. That branch falls through. An agent will either write the absolute path (it contains `claude-501`) or invent a form. The pointer at ":125" has the same gap.
+>    * **Violated Rule:** FR-8 "never as an absolute path that names the user or the home layout"; KZ-004 (enumerate terminal branches).
+>    * **Remediation Suggestion:** Enumerate the cases. Under HOME → `~/…`. Inside the target (ignored) → repo-relative. Elsewhere → `<external>/run-<N>`, with the real path given only in conversation.
+> 4. **Discovered Issue:** ":58 Record the approval (who, when, mechanism) for the index" and ":105 approved by" contradict ":110 Forbidden in every mode: … user name". An agent filling "who" will naturally write the OS login or the git user name.
+>    * **Violated Rule:** FR-8 forbidden list vs FR-4 "recorded in the index (who, when, mechanism)".
+>    * **Remediation Suggestion:** Define "who" as the approver as the user states it at the gate (default "the user"), never the OS account, home path or git config value.
+>
+> ADVISORY:
+> - Risk: ":58" paraphrases "all four upstream controls" but drops "read-only … toolchain", "scratch-local `HOME`, temporary directories, and caches" and the loopback-only exception. A user who confirms only against this list may approve a weaker sandbox. Suggest "(as SKILL.md *Universal execution safety* states them)".
+> - Risk: when the user continues with a foreign copy, that fact is never recorded in the plan or the index. Add a "Skill copy: pinned | foreign <~path>" plan field.
+> - Risk: under `sandboxed-approved`, the addendum does not name the approved mechanism, so a delegated agent does not know which sandbox to use. Add `mechanism: <…>` to the policy line.
+> - Reliability: `bugfix/security-<date>-s<n>` collides when two runs on the same date both route S-n. Add the run number or a collision suffix.
+> - Risk: `akili install --force` overwrites every installed file on every root, not only this skill. Say so in the offer.
+
+**Conformance-lens ADVISORY (recorded, never gating):** the quoted addendum omits "write isolation as upstream", which §7.1 lists among its contents; the budget-cannot-fund path should state that an `incomplete` run before Phase 4 goes straight to the index; the FR-10 and FR-4 checklist boxes omit the `routed` update and `akili_execution` (both delivered in the steps); nothing says a sandbox approval is cleared when **Adjust** returns to static-only.
+
+**Leader adjudication.**
+
+| Finding | Ruling |
+|---|---|
+| Safety 1 (Step 0 "test it" could spawn a probe) | In scope (FR-3) — rework |
+| Safety 2 (target-content-is-data not binding on the parent / Guidance review) | In scope (FR-5 "The command text … MUST state this") — rework |
+| Safety 3 (run path outside HOME) | **Spec tension T-1** with conformance tension 1: FR-8 requires `~/…`, FR-3 allows any `--out`, T8 (I-9) puts `--out` outside HOME. Cannot be fixed without amending FR-8/FR-10 — at the gate |
+| Safety 4 ("who" vs forbidden user name) | **Spec tension T-3**: FR-4 "who" vs FR-8 "user name" — at the gate (clarification proposed) |
+| Conformance tension 2 (FR-12 vs FR-6) | **Spec tension T-2** — at the gate |
+
+Attempt 1 consumed (safety-lens FAIL is in scope). Rework (attempt 2, effort bumped xhigh → max — escalation of the tier is not taken; see the gate) is held until the user answers the three amendment proposals, so the rework brief carries the amended text instead of a pre-amendment one.
+
+- Running totals after T2 attempt 1: tasks 6/12 · LOC ~396 authored (T2 attempt 1: 163) · review rounds 8 / 18 (two lens verdicts).
