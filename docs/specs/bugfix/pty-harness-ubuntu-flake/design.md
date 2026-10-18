@@ -140,7 +140,7 @@ Depth check: two tasks under 200 LOC with no product surface — Lite holds. `/a
 
 ## 12. Premise Ledger
 
-**Count:** 12 rows — 11 verified, 1 `UNVERIFIED` (P-12, Low Impact).
+**Count:** 12 rows — 12 verified, 0 `UNVERIFIED`.
 **Blast-radius triggers:** `live-path` fires (the reproduction is a CI job reaching the `shellRc` assertion); `shared-state` fires (the four fixtures share the transcript contract and three share `ctrl_c_to_shell`); `consumer` fires (the `<<STTY:>>` marker is removed, `sttyEcho` is removed).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -156,4 +156,4 @@ Depth check: two tasks under 200 LOC with no product surface — Lite holds. `/a
 | P-9 | `node --test --test-reporter=tap` exists on Node 18.20.8 and 22.23.3 and renders a multi-line error message inside the `error: \|-` block | `data-env` | `scratchpad/rep.test.js` → `not ok 1 - x` … `error: \|-` … `line2 SENTINEL` on both | `cabd04d` | FR-4 would parse the spec reporter instead — Low | — |
 | P-10 | The suite skips on `win32` before any `expect` lookup, printing the reason; CI Windows legs log `# skipped 7` today | `data-env` | `test/routing-pty.test.js:33–38`; predecessor P-10 (CI run 38983739454) | `cabd04d` | the regression test would need its own guard — it has one anyway — Low | — |
 | P-11 | `test/fixtures/**` is byte-exact (`-text`) on every checkout; file **mode** is not covered by that attribute | `data-env` | `.gitattributes` → `test/fixtures/** -text` | `cabd04d` | DD-4 could commit an executable instead — Low | — |
-| P-12 | `actions/upload-artifact@v4` with `if: failure()` uploads only when a prior step failed; `inputs.*` is empty on `push`/`pull_request` so `inputs.pty_loops > 1` and `inputs.pty_inject_failure == true` are false there | `data-env` | `UNVERIFIED — confirm at source before relying on it` (GitHub docs are a secondary source) | — | the artifact step misfires on green or the inject step runs on push — Low (one CI run shows it) | T2: one green push run (no artifact) + one `pty_inject_failure=true` dispatch (artifact present) |
+| P-12 | `actions/upload-artifact@v4` with `if: failure()` uploads only when a prior step failed; `inputs.*` is empty on `push`/`pull_request` so `inputs.pty_loops > 1` and `inputs.pty_inject_failure == true` are false there | `data-env` | push run 39134541526 (commit `681d39c`): six legs green, `gh api .../runs/39134541526/artifacts` → `total_count: 0`, inject and loop steps skipped; dispatch run 39134676920 (`pty_inject_failure=true`): both Linux legs red at step `Unit tests (node:test)`, artifacts `pty-transcripts-ubuntu-latest-node18` and `-node22` listed, node22 download holds `<<AKILI-EVIDENCE-SENTINEL 7f3a>>` at line 7 of six transcripts, macOS and Windows legs green | `681d39c` | the artifact step misfires on green or the inject step runs on push — Low (one CI run shows it) | T2 (run 39134541526, run 39134676920) |

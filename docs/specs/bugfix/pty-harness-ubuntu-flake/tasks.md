@@ -65,7 +65,7 @@ Waves: **T1** → **T2**. No circular dependencies. T2 waits for T1 because its 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~31 LOC: `ci.yml` ~30 · `AGENTS.md` 1) |
 | Depends on | T1 |
 | Requirements | FR-2 artifact half (`THEN` artifact on a red job; `BUT` not on green, not on Windows), FR-5 (scenario; `BUT` push/PR unchanged; versions printed), NFR-4 |

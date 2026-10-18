@@ -61,7 +61,7 @@
 
 **Constitution Impact:** none — no module created or reshaped; `test/` gains one test file and one fixture inside existing folders. CodeGraph re-index pending at `/akili-archive` as usual.
 
-### T2 — CI: dispatch inputs, versions, transcript artifact, failure injection; `AGENTS.md:13` clause — IN PROGRESS
+### T2 — CI: dispatch inputs, versions, transcript artifact, failure injection; `AGENTS.md:13` clause
 
 **Decisions made so far (recorded at the moment of each edit):**
 - **User decision at the T1 gate (2026-10-18):** continue to T2; LOC overrun pre-approved up to ~250; before any push, prepare patch release v2.32.2 per `AGENTS.md` → Release Rules and `docs/release-checklist.md` (CHANGELOG *Unreleased* notes → `npm run release:patch` → verifications → release commit); after the release commit, the push to `origin/master` and T2's CI runs (including `pty_inject_failure=true`) are approved; **no `npm publish`, no `npm whoami`, no GitHub Release** — npm publication is ordered separately by the user.
@@ -69,3 +69,54 @@
 - **Two-phase T2 spawn (Leader design, from the release-before-push rule):** Phase A — local edits to `ci.yml` and `AGENTS.md`, verified by a Ruby YAML load and `git diff --check`, committed as `443fbe9`; Phase B — after the push, the same Implementer (context kept) reads the push run, runs the inject dispatch, settles P-12, and edits design §12. Phase A's `Not Done / Assumptions` names the Leader-owned push as the pending item — a deliberate partial, not a continuation and not an attempt.
 - Leader brief error, recorded for kaizen: the T2 brief predicted that `grep -n "artifact\|pty" docs/release-checklist.md` would hit the word "artifact"; the Implementer executed it and found 0 hits (KZ-changes--leader-brief-contract-2 shape, no cost).
 - **Leader KZ-002 recurrence, caught before the release commit:** the first CHANGELOG entry, the generated `releases/v2.32.2.md`, and the §9 amendment all claimed the spec folder "ships under `docs/`"; the executed check (`npm pack --dry-run` → 0 `docs/specs/` entries; `package.json` `files` carries `!docs/specs`) refuted it. All three corrected to state that nothing in this change enters the tarball. The Leader's own gate message to the user carried the same false clause and is corrected in the next user-facing message. Kaizen input: an aggregate claim about what a package ships is run through `npm pack --dry-run` before it is written.
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 (two-phase, same spawn: Phase A local edits → Leader push → Phase B CI verification by message; no continuation, no attempt consumed) |
+| Review intensity | Reviewer **owed**: `Review: checklist`, `Consumers` ≠ `none`, override (a) (the `AGENTS.md` clause is an obligation other readers execute). No skip claimed |
+| Evidence re-run (non-author) | **VERIFIED** — Leader-inline via `gh`, see below |
+| Running budget (design §11) | tasks **2 / 2** · LOC **260 added** (T1 213 + T2 47: `ci.yml` +46, `AGENTS.md` 1 line) vs ~190 expected / ~230 tripwire / **~250 pre-approved by the user at the T1 gate — exceeded by ~10 lines**, reported at the closing gate; cause: `ci.yml` input descriptions, step comments and the loop body (~30 estimated) · review rounds **2 / 3** |
+| Spawns | Implementer `sonnet` (effort `medium`) — not reported by host, ended `partial` (Phase A, by design) then `complete` (Phase B); Reviewer `fable` (effort `high` ceiling, standard mode) — not reported by host, ended `complete` |
+
+**Attempt 1**
+
+- *Files changed:* `.github/workflows/ci.yml` (+46: `workflow_dispatch` inputs; *Toolchain versions (Linux)*; *Inject pty failure (dispatch)*; Unit tests `env`; *pty loop (dispatch)*; *Upload pty transcripts*), `AGENTS.md:13` (one clause), `docs/specs/bugfix/pty-harness-ubuntu-flake/design.md` §12 (P-12 row + count line). Phase A committed as `443fbe9`; §12 in the closing commit.
+- *Implementer verification, Phase A:* Ruby YAML load `ruby yaml ok` (Python `yaml` absent); `on` keys `push`, `pull_request`, `workflow_dispatch`; `pty_loops` number default 1, `pty_inject_failure` boolean default false; step order Install expect → Toolchain versions (Linux) → Inject pty failure (dispatch) → Unit tests → pty loop (dispatch) → Upload pty transcripts → existing steps; `git diff --check` clean; `AGENTS.md:13` re-read: "…absent on Windows where the suite skips with a printed reason; a failed run's transcripts are kept under `AKILI_PTY_LOG_DIR` and uploaded by the Linux CI legs as `pty-transcripts-*`); it is not shipped in the package."; restatement sweep `grep -n "routing-pty\|expect\|pty" AGENTS.md` → line 13 + two substring hits ("expected"); `grep -c "artifact\|pty" docs/release-checklist.md` → 0.
+- *Implementer verification, Phase B (P-12 settled):* **push run 39134541526** on `681d39c` — six legs green; `gh api …/runs/39134541526/artifacts` → `total_count` 0; Inject / pty loop / Upload steps `skipped`; *Toolchain versions (Linux)*: Ubuntu Node 18 → `v18.20.8`, `expect version 5.45.4`; Ubuntu Node 22 → `v22.23.3`, `expect version 5.45.4`. Windows legs (NFR-2 forward pointer from T1): `ok 104 - pty FR-4: a red Ctrl-C case carries the transcript's evidence in its own TAP block, and the transcript is kept # SKIP win32: no pty`, six pty cases `# SKIP win32: no pty`, `# pass 239`, `# fail 0`, `# skipped 8`. **Inject dispatch 39134676920** (`pty_inject_failure=true`) — both Linux legs red at step `Unit tests (node:test)`; macOS and Windows legs green; artifacts `pty-transcripts-ubuntu-latest-node18` and `pty-transcripts-ubuntu-latest-node22`; node22 download holds the sentinel at line 7 of six files, e.g. `akili-routing-pty-fqWAUf-pty-ctrl-c.exp.log:7:<<AKILI-EVIDENCE-SENTINEL 7f3a>>`. `gh workflow view CI` parses (`CI - ci.yml`, ID 326618284). Falsifier (2) (`if: success()`) not run — (1) raised no doubt, per the task text. Step names read from `gh run view --json jobs` (raw logs label steps `UNKNOWN STEP`).
+- *Leader evidence re-run (non-author, inline via `gh`, 2026-10-18) — VERIFIED:* `gh run view 39134541526 --json …` → `681d39c push success`, all six jobs `success`; artifacts `total_count` 0. `gh run view 39134676920 --json …` → `681d39c workflow_dispatch failure`; `CLI on ubuntu-latest / Node 22: failure — failed step: Unit tests (node:test)`, same for Node 18; four other legs `success`; artifacts `2` (`…-node18 1948B`, `…-node22 1948B`); fresh download of `…-node22` → sentinel in 6 files (`scratchpad/rerun/t2-artifact/`); Ubuntu 22 log: `v22.23.3`, `expect version 5.45.4`; Windows 22 log: `ok 104 … # SKIP`. `git diff --check` rc 0.
+- *Reviewer verdict:* `STATUS: PASS` — "The committed `ci.yml`/`AGENTS.md` hunks (`443fbe9`) and the working-tree §12 hunk match tasks.md T2 Scope, design §5.5/§7.4/§9, FR-2 artifact half, FR-5 and NFR-4 clause by clause, and the behavioural proof holds when read at source: I re-read both runs via `gh run view --json jobs` and `gh api .../artifacts` myself." Named checks: (a) §5.3 amendment — no T2 text contradicts it; (b) §9 amendment — `CHANGELOG.md [2.32.2]` and `releases/v2.32.2.md` identical and every behavioural clause matches the shipped `ci.yml`/`AGENTS.md`; `package.json` `files` carries `!docs/specs`. FR-5's "Unit tests step SHALL print …" vs the shipped separate *Toolchain versions (Linux)* step: the approved design §7.4 and T2 Scope govern; obligation met (wording nit → advisory 1).
+- *runtime events:* none.
+
+**ADVISORY (4R, recorded — never gating, never a task):**
+- Readability: FR-5's sentence places the version print inside "the Unit tests step"; the approved design and the shipped file use a separate step. Carry a one-line requirements wording true-up into the archive so the archived FR matches HEAD (KZ-002 shape, no code change).
+- Risk: the release text says "Nothing in this change enters the package tarball". True of the spec's files; the release commit's own `CHANGELOG.md` and `package.json` edits do ship (`CHANGELOG.md` is in `files`). If "this change" is read as the release commit the clause is loose; consider "nothing in the spec's files" at archive time.
+- Reliability: the `inputs.pty_loops > 1` true path is unexercised in CI; only the false path (`skipped` on push and on the default-1 dispatch) is proven. tasks.md §4 already schedules the optional `pty_loops=10` data run after T2; it is the only thing that will show the loop body runs.
+
+**Requirements covered:** FR-2 artifact half (all three clauses), FR-5 (all clauses; versions printed by the separate Linux step per design §7.4), NFR-4; NFR-2's Windows half (forward pointer from T1) closed by the push run's Windows legs.
+
+**Decisions made (continued from the in-progress block above):**
+- Model: Implementer `sonnet` = registry T2, no escalation; Reviewer `fable` (≠ Implementer). Skill `cognitive-doc-design` as listed — no deviation.
+- Release v2.32.2 prepared and committed by the Leader at the user's order (`npm run release:patch` → `681d39c`), after the `[SPEC:…]` commits `443fbe9` (T2 Phase A), `ce446bc` (CHANGELOG + §9), `2c9eb95` (§9 correction). Verifications before the release commit: `npm test` 259/259; `npm run verify:cli` (11 commands | 24 skills | 8 resources, v2.32.2); `node bin/akili.js install --tool both --dry-run` exit 0; `npm run pack:dry-run` (280 files, 0 `docs/specs/` entries); `npm run release:status` → `PENDING: 2.32.2 is not published to npm yet`, no drift; `git diff --check` clean. Staged per the script's hint: `package.json`, `CHANGELOG.md`, `releases/v2.32.2.md`, `.claude/templates/digests.json` (no template `since=` rewrite). **Not run, by the user's order:** `npm publish`, `npm whoami`, tag, GitHub Release.
+- Post-T2 data run (tasks.md §4): `gh workflow run ci.yml -f pty_loops=10 --ref master` dispatched 2026-10-18 → run **39135243558**; outcome not awaited — its result (and any red's artifact) is input for the follow-up Bug proposal `bugfix/pty-ctrl-c-ubuntu-rc` (not opened).
+
+**Issues encountered:** none beyond the Leader's own brief/claim errors already recorded (release-checklist grep prediction; "ships under `docs/`" claim).
+
+**Final verification result:** PASS — push run green with 0 artifacts; inject dispatch red at Unit tests on both Linux legs with the artifact and the sentinel inside; P-12 verified at `681d39c`.
+
+**Constitution Impact:** none — `AGENTS.md:13` gains one factual clause (NFR-4), no module created or reshaped; CodeGraph re-index pending at `/akili-archive`.
+
+## 3. Summary
+
+| Field | Value |
+|---|---|
+| Tasks | 2 / 2 complete — T1 PASS (attempt 1), T2 PASS (attempt 1) |
+| Review rounds | 2 (budget 3) |
+| LOC | 260 added vs ~190 expected / ~230 tripwire / ~250 pre-approved (exceeded by ~10; see T2 entry) |
+| Reviewer closures | 2 × `PASS`; 0 `REVIEW_WAIVED`; 0 `REVIEW_SKIPPED` |
+| Evidence re-runs | 2 × `VERIFIED` (T1: macOS + Node 18 + Docker + four falsifiers; T2: both CI runs read via `gh`, artifact re-downloaded) |
+| Commits | `f67a2ac` T1 · `443fbe9` T2 phase A · `ce446bc` CHANGELOG + §9 · `2c9eb95` §9 correction · `681d39c` chore(release): v2.32.2 · closing commit (T2 entry, §12, `tasks.md`) |
+| Execute-time spec edits | design §5.3 + tasks.md T1 copy (`exited with status <status>`); design §9 amendment (CHANGELOG/release at the user's order; nothing ships); design §12 P-12 verified |
+| Open items for `/akili-archive` | kaizen inputs: falsifier (1) predicted shape vs executed (T1); Leader brief grep prediction (T2); Leader "ships under `docs/`" claim (KZ-002, Leader-side); FR-5 wording true-up (advisory 1); release-text "this change" looseness (advisory 2); data run 39135243558 outcome to read |
+| npm | **v2.32.2 prepared and committed, not published** — publication is the user's separate order |
