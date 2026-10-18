@@ -93,3 +93,27 @@ Decision: the four XS reader edits ran in one Implementer spawn and one Reviewer
 Exactly one mismatch: `SKILL.md` (adapted).
 
 - Running totals after T1: tasks 5/12 · LOC ~140 authored (T1 ~134: test + SKILL.md additions; ~4 300 vendored lines copied, not authored) · review rounds 5 / 18.
+
+### T5a — `docs/skills/security-audit.md`, `docs/skills/README.md`, `docs/skills/governance.md`
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (attempt 1) |
+| Date | 2026-10-18 |
+| Attempts | 1 |
+| Models | Implementer `sonnet` (T2, effort medium, skill `cognitive-doc-design`) · Reviewer `opus` (T3, effort medium, lens checklist) |
+| Files changed | `docs/skills/security-audit.md` (new,       85 lines) · `docs/skills/README.md` (one `core` row at `:35`, before `seo-audit`) · `docs/skills/governance.md:37` (`core` row gains `security-audit` (security)) |
+| Red run (baseline) | `ls docs/skills/security-audit.md` → `No such file or directory`; `grep -c security-audit docs/skills/governance.md` → `0` |
+| Implementer verification | Quote-check at HEAD: `ls .claude/skills/security-audit \| wc -l` → `19`; pin `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8` / `version: "c1c8a8c"`; `LICENSE` → `MIT License` / `Copyright (c) 2025-2026 Cloudflare, Inc.`; `wc -c` → `262596 total`; P-3/P-4/P-5 claims cited by premise id from the design, not re-run; `grep -n "security-audit" docs/skills/README.md docs/skills/governance.md` → `README.md:35`, `governance.md:37` |
+| Falsifier | Scratch copy + one extra file → `ls \| wc -l` → `20` against the page's "19 files" (`grep -c "19 files"` → 2) — red |
+| Not Done / Assumptions (verbatim) | "The CHANGELOG half of checklist item 5 is only referenced (that entry belongs to another FR-14 task). The page row says "CHANGELOG entry owned by the spec's FR-14 task". Reword or drop it if you want it stricter." · "I did not name the two excluded upstream test files individually. The page says "the two `validate-*.test.cjs` files" because the design only pins that glob." · "The page names `/akili-security` but says nothing about its internals beyond SKILL.md's AKILI section and FR-14." — Leader: no owed item and no blocker (assumptions only; the CHANGELOG entry is T7's scope) → no continuation |
+| Evidence re-run (Leader-inline, non-author) | **VERIFIED** — `grep -n security-audit` → `README.md:35`, `governance.md:37`, one row each; 19 files; `grep -c "19 files"` → 2; pin and licence lines present |
+| Reviewer verdict | **PASS** — every factual clause quote-checked at HEAD (19 names in four groups; 262596 bytes; pin; licence; mode table and AKILI table match `SKILL.md`; test's `UPSTREAM_SHA` and 19-name lock); P-3 measurements match design §12 word for word; all five re-sync steps present; README row `core` true (25 rows for 25 skill dirs); checklist 1–5 answered, links resolve |
+| ADVISORY (recorded, never gating) | Reliability: re-sync steps 2–3 diff and copy only upstream `skills/security-audit/`, but the shipped `LICENSE` comes from the upstream **repo root** — a re-sync following the page would never refresh `LICENSE` (e.g. a copyright-year bump); one-line fix "and the repo-root `LICENSE`". Readability: checklist items 1–4 point at sections "above" without links. Recorded only — the first is raised to the user at the continue gate as a possible spec gap (tasks.md T5a's re-sync step list omits the licence) |
+| Requirements covered | FR-14 (skill page incl. re-sync procedure; README row; governance `core` row) |
+| Decisions | Skills per task list (`cognitive-doc-design`), no deviation. Review intensity not met (task `Review` = `checklist`; docs produce derived claims a later gate reads — override c) → Reviewer owed and run. Ran in parallel with T2 (disjoint files) |
+| runtime events | none |
+| spawns | implementer — not reported by host, ended partial (assumptions-only field); reviewer — not reported by host, ended complete |
+| Final verification | Three files; every clause quote-checked at HEAD |
+
+- Running totals after T5a: tasks 6/12 · LOC ~148 authored · review rounds 6 / 18.

@@ -236,7 +236,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~70 lines) |
 | Depends on | T1 |
 | Requirements | FR-14 (skill page incl. re-sync procedure; README row; governance `core` row) |
