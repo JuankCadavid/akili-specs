@@ -171,3 +171,45 @@ Final verification: VERIFIED.
 - Cause: Premise Ledger P-5 (`consumer`) missed `test/fixtures/doctor-codex-baseline.txt` — its search pattern keyed on count literals, not on skill names; `npm test` test 75 surfaced it after T1.
 - Edits (meaning-preserving, scope-completing): `requirements.md` FR-10 bullet 1; `design.md` P-5 citation; `tasks.md` T6 Scope + Consumers. Correction-closure sweep: `grep -rn "doctor-codex-baseline" docs/specs/changes/archify-diagrams` → hits in all three docs plus this log; backward references to P-5 (`tasks.md` T6 Consumers) updated in the same edit.
 - Carried into the T6 Reviewer brief as a named conformance check.
+
+### T6 — Governance, docs, counts, install test, fixture, CHANGELOG
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 2) |
+| Date | 2026-10-18 |
+| Implementer attempts | 2 |
+| Review intensity | Reviewer **owed**: `Review: full`; overrides (b) closed enumeration/stored fixture, (c) derived evidence (counts, CHANGELOG); attempt 2 (e) |
+| Skills | `cognitive-doc-design` (as listed). Effort: high → xhigh |
+| Requirements covered | FR-9 (all bullets), FR-10 (amended), FR-1 scenario "No Archify file ships", NFR-4, NFR-5 |
+| Named conformance check | Execute-time spec amendment 2026-10-18 (FR-10 bullet 1, P-5, T6 Scope/Consumers — fixture) — confirmed by the Reviewer |
+
+**Attempt 1**
+- Files changed: `CHANGELOG.md` (`[Unreleased]` → `### Added` + `### Changed`), `README.md` (Conditional-dependencies row + "Optional: Archify interactive diagrams" paragraph), `docs/cli.md:183,195,216` (24 → 25), `docs/skills/README.md` (row after `cognitive-doc-design`), `docs/skills/governance.md` (`conditional` row + `archify` env-provided example), `docs/skills/diagram-design.md` (new), `test/install-cursor.test.js` (literal 199 → 201; comments :216, :227, :232, :238, :340, :387), `test/fixtures/doctor-codex-baseline.txt` (`  OK diagram-design` after `cognitive-doc-design`; `ok 43` → `ok 44`)
+- Red run (before edit): test 65 "expected 199 packaged skill files under .claude/skills; counted 201 instead -- if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"; test 75 diff `+ '  OK diagram-design\n'`, `+ … ok 44`, `- … ok 43`. Counts re-measured: 201 files, 25 dirs
+- Implementer verification: `npm test` 259/259; `verify:cli` lists `diagram-design`; pack `unpackedSize` 4 507 692 (+13 518 B vs 4 494 174); pack Archify-artifact grep 0; "24 packaged" outside specs 0 (baseline 3); `model:` 0; no new `npx` outside README; diff-check clean; skill-count phrase-family sweep 0. Falsifier executed: literal → 199 → test 65 fails (`# fail 1`) → restored → green
+- Evidence re-run (Leader-inline): **VERIFIED** — same outputs
+- Reviewer (opus): **FAIL** — 1 issue, verbatim:
+  > 1. **Discovered Issue:** The CHANGELOG `### Changed` bullet says `test/install-cursor.test.js` "pins 201 skill files and 25 skill directories (was 199 and 24)". Only the file count is pinned, by the literal `assert.equal(SKILL_FILE_COUNT, 201, …)`. The directory count is computed from disk (`const SKILL_DIR_COUNT = fs.readdirSync(SOURCE_SKILLS…).filter(isDirectory).length`, :224), and the test never asserts a literal 25. At HEAD, "24" appeared only in comments (:232, :238, :387), never in an assertion. So "pins … 25 skill directories (was … 24)" names a pin that does not exist, before or after the change.
+  > - **Violated Rule:** `requirements.md` FR-9 bullet 5: "`CHANGELOG.md` → `[Unreleased]` entry, every clause quote-checked against shipped text (KZ-002)". `tasks.md` T6 Disqualifier: "A CHANGELOG clause not quote-checked against the shipped file at HEAD is not evidence (KZ-002)".
+  > - **Remediation Suggestion:** Reword the clause to match the test. For example: "`test/install-cursor.test.js` pins 201 skill files (was 199), and its count comments now read 212 files, 25 skill directories and 36 operations (were 210, 24 and 35)". Keep the fixture clause as it is. Change nothing else.
+- runtime events: none
+
+**Attempt 2**
+- Files changed: `CHANGELOG.md:17` only → "… `test/install-cursor.test.js` pins 201 skill files (was 199), and its count comments now read 212 files, 25 skill directories and 36 operations (were 210, 24 and 35); and `test/fixtures/doctor-codex-baseline.txt` lists `diagram-design` (`ok 44`)."
+- Implementer verification: `grep -n "pins\|pinned"` sweep — only this change's hit is :17, matched to the assert at `test/install-cursor.test.js:244-248`; `npm test` 259/259; diff-check clean
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **PASS** — "Issue 1 is fixed, and the reworked clause at `CHANGELOG.md:17` adds no new overstatement … ISSUES: 0"
+- runtime events: none
+
+spawns: implementer 13 calls, 98 128 tokens, ended complete; reviewer 10 calls, 83 507 tokens, ended fail; implementer (resumed) 2 calls, 102 510 tokens, ended complete; reviewer (resumed) 2 calls, 85 585 tokens, ended complete
+
+**ADVISORY (4R, recorded — not in scope, no task minted):**
+- READABILITY: CHANGELOG first clause "Every diagram slot … is filled as an inline Mermaid block" can read as "every slot is filled"; SKILL §3 says "Every filled slot is an inline fenced `mermaid` block".
+- READABILITY: governance sentence has two "and"s in a row ("…family, and `archify`"); `archify` fits the paragraph's "skills that belong in the Skill Map" framing loosely, since FR-8 reaches it only through `diagram-design`.
+- RELIABILITY: `test/install-cursor.test.js:216` keeps the attribution "brief: 'confirm 201 …'" although the original brief said 199 — an altered attributed quote.
+
+Implementer notes judged by the Reviewer: README "Wired In" `/akili-archive` Step 2 acceptable (condition lives in the command line); the Implementer's claim "Step 2.1 is not a heading" was wrong (`#### Step 2.1 — Explore` at `akili-specify.md:207`) but did not reach shipped text.
+Decisions made: none beyond the amendment (logged above). Concurrency note: the parallel `antigravity-argon-registry` spec may also edit `CHANGELOG.md` `[Unreleased]` — merge conflict expected at integration, not here.
+Budget running totals: tasks 6/7 · LOC ≈ 114 + 27/−16 ≈ 157 net-changed lines (new docs page 26 lines included) / ~300 · review rounds 9/12.
+Final verification: VERIFIED (`npm test` 259/259).

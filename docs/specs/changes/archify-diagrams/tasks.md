@@ -113,7 +113,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~90 LOC) |
 | Depends on | T1–T5 |
 | Requirements | FR-9, FR-10, FR-1 scenario "No Archify file ships", NFR-5 |

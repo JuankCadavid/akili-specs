@@ -29,6 +29,7 @@ Skills:
   OK brainstorming
   OK caveman
   OK cognitive-doc-design
+  OK diagram-design
   OK error-handling-patterns
   OK frontend-design
   OK gsap-animation

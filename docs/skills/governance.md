@@ -18,7 +18,7 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 Map are shipped by a *tool* rather than by AKILI — standing examples: an agent orchestrator's
 coordination skill (`orchestration`), Microsoft's `playwright-cli` browser-automation skill (the
 token-lean alternative to loading the Playwright MCP schemas into every session), and the
-`hyperframes` video-composition family. Three rules govern them:
+`hyperframes` video-composition family, and `archify` (tt-a1i's interactive diagram renderer, MIT). Three rules govern them:
 
 1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
    own binary serves the version-matched guide; a vendored copy goes stale the moment the tool
@@ -35,7 +35,7 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security) |
-| `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:

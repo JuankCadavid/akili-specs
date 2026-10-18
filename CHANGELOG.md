@@ -36,6 +36,16 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **No model-routing row for `/akili-security` yet (deferred, with a follow-up bug).** `docs/model-routing.md` and `.claude/templates/model-routing.section.md` are unchanged: a template edit makes `akili routing` refuse every existing project's fence as hand-edited (`bin/routing.js:431-436`), and a row added only to the doc makes `/akili-audit` report a packaged-only phase as Phase→Tier Drift. The command's own model checkpoint states the tiers (T1 Leader, T3 Auditor). The follow-up Bug is that template evolution is misread as a hand edit.
 - `bin/`, `.claude/templates/`, `docs/model-routing.md` and `package.json` are unchanged against the base commit `6d1e152` (`git diff 6d1e152 -- bin/ .claude/templates/ docs/model-routing.md package.json` → empty).
 - Verified locally on Node 18.20.8 and 22.12.0 (`npm test` → 326 pass, 0 fail on each, including the 61-test `/akili-security` text-contract suite). **Windows is unsupported** (P-13, measured by the first CI run, 39160826587): see the first note. Linux Docker images (`node:18`, `node:22`, bare) fail one case, `tasks-gate`, because `jq` is absent; it reproduces at the base commit, so it is an image gap, not a regression of this change.
+### Added
+
+- **`diagram-design` skill (`conditional`, `changes/archify-diagrams`).** Every diagram slot in the baseline and spec documents is filled as an inline Mermaid block with a legend; a slot catalog (`references/slot-catalog.md`) holds each slot's condition, Archify type, and Mermaid type, and a slot whose condition is false leaves nothing in the document. When the `archify` skill is available, the slot also gets an interactive HTML view linked directly under the Mermaid block; without it the document stays complete and no phase is blocked. `/akili-constitution` Steps 3, 4 and 5 and `/akili-specify` Step 2.1 (architecturally significant designs) each gain one conditional line loading it; `/akili-archive` Step 2 gains summary item 11 "Diagrams" (links to the spec's views, and baseline slots the design made stale as follow-ups). Archify (tt-a1i, MIT, https://github.com/tt-a1i/archify) is referenced and never vendored: the package ships no Archify file, and installing it (`npx skills add tt-a1i/archify`) is the user's choice, documented in `README.md`.
+- `docs/skills/diagram-design.md` and a `docs/skills/README.md` inventory row; `docs/skills/governance.md` lists `diagram-design` under `conditional` and `archify` as an environment-provided example.
+
+### Changed
+
+- `software-architect`'s `views-documentation.md` now points to `diagram-design` for diagram slots, storage, and the optional interactive view (Mermaid stays the default renderer).
+- Packaged skill count 24 → 25 in `docs/cli.md`; `test/install-cursor.test.js` pins 201 skill files (was 199), and its count comments now read 212 files, 25 skill directories and 36 operations (were 210, 24 and 35); and `test/fixtures/doctor-codex-baseline.txt` lists `diagram-design` (`ok 44`).
+
 ## [2.32.2] - 2026-10-18
 
 ### Fixed
