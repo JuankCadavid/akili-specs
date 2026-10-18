@@ -564,3 +564,29 @@ Reviewer ADVISORY recorded:
 - The `/akili-audit` branch-suffix rule puts a GitHub handle (`JuankCadavid`) in the index filename. FR-8 bans user names in content only, so this is a spec-level tension → kaizen candidate **K-9**.
 - Adjust and Run in one message: the plan is re-shown without a second stop. Acceptable under FR-3, but unworded.
 - Step 5 has no wording for a run with zero confirmed records.
+
+### T8 — closure: **PASS** (attempt 2, record rework)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Attempts | 1 — FAIL: shell-command record misstated the interpreter isolation and omitted commands. 2 — PASS: the corrected 19-row record (`ce5ded1`) |
+| Reviewer verdict (attempt 2, `opus`) | **PASS** — rows 1–19 matched in order against every Bash call at transcript lines 2011–2725. Nothing executable missing; the other calls in the range are Read tool calls on the skill's reference files. The closing claim holds: no `npm`, no `bin/akili.js`, no tests, no install, no network |
+| ADVISORY | Row 19 omits the execute loop's own bookkeeping: the `cat >>` appends to `execution.md`, the `sed -i` on `tasks.md` and `git log`. These are not part of the audit run; recorded here to close the list |
+| Evidence re-run (non-author) | The Reviewer re-ran both validators → exit 0, with hashes matching upstream |
+| Requirements covered | FR-3, FR-4 (default run), FR-7, FR-8 (default index; redaction unexercised), FR-10 (gate reached; nothing to route) |
+| Kaizen candidates added | K-8 (extended: parent helper interpreters run isolated or outside the target), K-9 (the branch-suffix rule puts a GitHub handle in the index filename) |
+| runtime events | none for workers; one host session restart (account limit), recovered from on-disk state without re-running any agent |
+| spawns | 10 audit agents (recon `sonnet` ×4, hunters `sonnet` ×5, critic `opus` ×1); reviewer `opus` ×2 verdicts. Token counts were not reported by the host for spawned teammates; the audit agents' host usage was reported per task notification (≈43k–78k tokens each) |
+
+- Running totals: tasks 13/13 `[x]` (T8 closed) · review rounds **21 / 18** (+3: T7a and T8 were user-authorized after the budget was reached; T8 needed one rework round).
+
+## Summary — execution complete (2026-10-18)
+
+| Measure | Planned (design §11) | Actual |
+|---|---|---|
+| Tasks | 12 | 13 (T7a added by user-approved Pivot) |
+| LOC authored | ~650 | ~575 |
+| Review rounds | 18 | 21 (T2 took 3 attempts × 2 lenses; T7a and T8 added after the budget was reached, with the user's authorization) |
+
+All tasks are `[x]`. Spec amendments T-1, T-2 and T-3 and Pivot T7a are recorded above. Open items for `/akili-test` → `/akili-validate`: Windows CI (P-13), the bare Linux images' missing `jq` (pre-existing), kaizen candidates K-1 to K-9, and deferred audit units D-1 to D-4. No push, tag, release or publish was run.
