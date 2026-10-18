@@ -34,4 +34,14 @@ Fix actor: the orchestrating session (inline — spec text only). Delta: `design
 
 ## Scoped re-judgment (round 1)
 
-See below — appended when both judges return.
+| Ledger ID | Judge A | Judge B |
+|---|---|---|
+| C-1 | resolved (both restatements now in P-7, §9, §4, T3a/T3c, T5b) | resolved |
+| C-2 | resolved — new gate exit 0 on scratch adaptation; body mutations (first paragraph, last anti-pattern) exit 1 | resolved — empty vs non-empty diff on correct vs mutated adaptation |
+| S-1 | resolved — wider search over `docs/ README.md bin/ scripts/ .github/` finds the same six `docs/cli.md` lines | resolved |
+
+Fix-caused findings (info, non-blocking): **F-1** (A warning; B noted the same as harmless) — T4 closing grep cannot see `:249` (`COMMAND_COUNT, 11`), named explicitly in T4 Scope; **F-2** (A suggestion) — T1 Consumers lists `:245,249,340,387` while T4/§9 also name `:216,:227,:232,:246`. Both offered at the gate with I-1…I-11.
+
+Re-judgment verdicts: Judge A `PASS (0 severe)` · Judge B `PASS`.
+
+**JUDGMENT: APPROVED ✅** — round 1 of 2; no severe finding open.
