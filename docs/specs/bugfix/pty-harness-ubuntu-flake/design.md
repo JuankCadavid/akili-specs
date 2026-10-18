@@ -106,7 +106,7 @@ None (terminal test harness).
 
 - `<<STTY: …>>` retired → `<<TTY: …>>` (consumer: this test file only, P-6).
 - `AGENTS.md:13`: append *"a failed run's transcripts are kept under `AKILI_PTY_LOG_DIR` and uploaded by the Linux CI legs as `pty-transcripts-*`"*.
-- No package or CHANGELOG change: `test/` is not shipped (P-3). A CHANGELOG *Unreleased* line is **not** added — the release rule covers package-affecting changes only. **Amended at execute time (2026-10-18, user's order at the T1 gate):** a CHANGELOG *Unreleased* entry and a v2.32.2 patch release were added at the user's request — the spec itself owes neither; `docs/specs/bugfix/pty-harness-ubuntu-flake/` ships under `docs/`, which is in the package `files` list, so the entry has a factual basis. Recorded in `execution.md` → T2, *decisions made*.
+- No package or CHANGELOG change: `test/` is not shipped (P-3). A CHANGELOG *Unreleased* line is **not** added — the release rule covers package-affecting changes only. **Amended at execute time (2026-10-18, user's order at the T1 gate):** a CHANGELOG *Unreleased* entry and a v2.32.2 patch release were added at the user's request — the spec itself owes neither, and nothing in it enters the package tarball (`package.json` `files` excludes `docs/specs` via `!docs/specs`; `test/`, `.github/` and `AGENTS.md` are outside `files` — checked with `npm pack --dry-run` on 2026-10-18: 0 `docs/specs/` entries). Recorded in `execution.md` → T2, *decisions made*.
 
 ## 10. Design Decisions
 
