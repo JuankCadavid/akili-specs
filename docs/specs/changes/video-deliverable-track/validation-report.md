@@ -199,3 +199,17 @@ Remediation count: **3**, all on documents. No product text changes.
 ```text
 /akili-archive changes/video-deliverable-track
 ```
+
+## Post-validation resolution (Leader, 2026-10-18)
+
+| Item | Action | Status |
+|---|---|---|
+| V-1 / R1 | "A5" renamed **V1** in `requirements.md` NFR-1 and `design.md` §3; `execution.md` gains "Amendment V1 (validate-time)" with the user's decision verbatim, the four edited files and the closure greps | Resolved |
+| V-2 / R2 | `requirements.md` and `design.md` Status cells set to approved/executed; P-23 counts phrase reads "resolved by amendment A3" | Resolved |
+| V-3 / R3 | Validate-time edits, R1, R2 and this report committed (`a6ae062` and this follow-up) | Resolved |
+
+**Updated recommendation: ARCHIVE-READY.** 0 FAIL, 0 open WARN; the carried-forward advisories (execution `(b)`–`(p)`, walkthrough A1–A5) remain advisory and do not gate archive.
+
+```text
+/akili-archive changes/video-deliverable-track
+```
