@@ -135,7 +135,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T8 — `/akili-validate`: gate, final look, delivery render
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1
+- **Status:** [x] · **Size:** S · **Depends on:** T1
 - **Requirements:** FR-7 (incl. MUST NOT PASS without the look; loads the bridge), FR-3 render-after-approval, NFR-1
 - **Design:** §3 row 5; §9 last two rows; DD-11; P-15
 - **Scope:** Phase 0 or 3 — load `video-production`; Phase 3 — `hyperframes check` as build integrity; Phase 6 — final look (human check at the HITL pause, or a tier-T6 Multimodal review routed per the registry's *Cross-host dispatch*, as `/akili-specify`'s defect-class rule already states) against each criterion and the storyboard, then the delivery render (2–3 sites; validate has no HITL anchor today — the text is new)

@@ -65,6 +65,7 @@ Use these result levels consistently:
 2. Read spec context:
    - `docs/specs/$ARGUMENTS/proposal.md` if present. If it has a **Visual Reference** section, note the design source (Figma, an agent-generated mockup under `docs/specs/$ARGUMENTS/mockup/`, or a `.stitch/DESIGN.md` reference) so UI conformance can be audited against it, not only `docs/ux-ui/design.md`.
    - `docs/specs/$ARGUMENTS/requirements.md`
+   - When `requirements.md` records `Deliverable: video` (an absent row means software), load the `video-production` skill now so its availability gate fires here too; if the gate stops, validation is BLOCKED.
    - `docs/specs/$ARGUMENTS/design.md`
    - `docs/specs/$ARGUMENTS/tasks.md`
    - `docs/specs/$ARGUMENTS/execution.md` if present (including any `## Constitution Impact` notes)
@@ -87,6 +88,8 @@ Run the project's relevant build, type-check, and lint commands.
 Prefer the commands defined by the repo rather than assuming a fixed stack.
 
 If no command exists, record the gap and recommend the smallest useful command to add.
+
+When `Deliverable: video`, `hyperframes check` is the build-integrity command (invoked as `video-production` instructs, including its telemetry rule). A passing `check` is not approval: it never replaces the final look in Phase 6.
 
 **Environment boot smoke (optional):** when `docs/infrastructure.md` has a `## Local Environment` contract and the spec's behavior warrants it, boot the stack per the contract (pre-check first; fallback route if the primary is unavailable) and confirm the health check passes. Record boot failure as **FAIL**, a missing contract as a **WARN** gap recommending `/akili-constitution` (Step 6B).
 
@@ -134,6 +137,10 @@ Compare the implementation against the module design and the constitutional docs
 If the implementation intentionally differs from the design, verify that the design or execution notes explain the change. Otherwise mark the drift as WARN or FAIL depending on risk.
 
 **Cross-document figure check:** numbers are claims, and two documents agreeing is not evidence — it is often one wrong idea copied forward. Contrast every count, total, and quantity a spec document asserts against the prose of the other in-scope documents (requirements ↔ design ↔ supporting analyses): a figure contradicted by another document's own prose is a finding, and it is detectable without opening any external artifact.
+
+**Final look (when `Deliverable: video`):** validate MUST NOT report PASS for the spec without a final look, whatever else is green. Review decoded frames of the draft render against every acceptance criterion and the storyboard in `design.md`, as `video-production` `references/render-evidence.md` describes. The reviewer is a human at the HITL pause, or a tier-T6 Multimodal review routed per the registry's *Cross-host dispatch* (see `/akili-specify`, the defect-class rule's substitute for classes with no automated check). Record the look and its verdict in the report; until it is recorded and approved, the video requirements are at best BLOCKED.
+
+**Delivery render (when `Deliverable: video`):** only after the final look is approved, run the local `render --quality delivery` as `video-production` instructs, in the window after any delegated agent's completion report, never while one is active.
 
 If `proposal.md` exists, also verify that final behavior remains aligned with the approved intent, scope, non-goals, and success criteria. When the proposal has a **Visual Reference** (Figma or a generated mockup), confirm the delivered UI is consistent with it.
 

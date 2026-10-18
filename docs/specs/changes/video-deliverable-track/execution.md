@@ -192,3 +192,23 @@
 - Reviewer (opus, combined T7/T8/T9 spawn — deviation: one Reviewer, three separate verdicts, for three sub-50-LOC diffs; Delegation Ceiling): **PASS** — FR-6 term by term across the command line and `render-evidence.md` rows 1–6; NFR-1 holds. ISSUES: none. ADVISORY: omitted (< 50 LOC)
 - runtime events: none
 - spawns: implementer 7 calls, 71 442 tokens, ended complete; reviewer (shared T7/T8/T9) — see T9
+
+### T8 — `/akili-validate`: gate, final look, delivery render
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `T8 STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: walk is judgment; override (a) |
+| Requirements covered | FR-7 (incl. MUST NOT PASS; loads the bridge), FR-3 scenario 2 (render after approval, never beside an active agent), FR-4 at validate time, NFR-1 |
+
+- Files changed: `.claude/commands/akili-validate.md` (+7): Phase 0 bullet (load `video-production`; gate stop → BLOCKED); Phase 3 (`hyperframes check` as build integrity, "not approval"); Phase 6 "Final look" ("validate MUST NOT report PASS for the spec without a final look, whatever else is green" — human at the HITL pause or T6 Multimodal per *Cross-host dispatch*, citing `/akili-specify`'s defect-class rule by name); Phase 6 "Delivery render" (only after approval; never while a delegated agent is active)
+- Skills: `cognitive-doc-design`. Effort: medium
+- Precondition: `grep -c "Deliverable: video"` → 0 before, 4 after
+- Falsifier executed: "a final look is recommended before PASS" → no "MUST NOT" on a final-look/PASS line — FR-7's MUST NOT PASS loses its owner; reverted (`grep -c "validate MUST NOT report PASS"` → 1)
+- Not Done / Assumptions: "Treating an unrecorded look as BLOCKED rather than FAIL is my judgment call." — Reviewer: agrees with FR-7 (BLOCKED is not PASS) and the result-levels table
+- Evidence re-run (Leader-inline): **VERIFIED** — 4 lines, MUST NOT count 1, +7
+- Reviewer (opus, shared spawn): **PASS** — FR-7 walk complete; T6 citation real (`akili-specify.md` defect-class rule); FR-3 S2 `BUT` covered. ISSUES: none
+- runtime events: none
+- spawns: implementer 8 calls, 73 765 tokens, ended partial (assumption only); reviewer shared — see T9
