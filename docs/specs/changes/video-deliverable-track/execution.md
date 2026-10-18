@@ -94,3 +94,38 @@
 - runtime events: none
 - spawns: implementer 7 calls, 63 239 tokens, ended partial (assumptions only); reviewer 4 calls, 63 604 tokens, ended complete
 - Running totals vs budget: tasks 2/12 · LOC ~213 · review rounds 3/13 (tripwire 20) — within budget
+
+### T2 — Governance amendment (in progress)
+
+**Attempt 1** (2026-10-18)
+- Files changed: `docs/skills/governance.md` (+12/−3): "Three rules" → "Four rules"; rule 2 narrowed ("every command still runs without it. The one narrowing is rule 4…"); new rule 4 (selector + gate); `conditional` row gains `video-production` (video deliverables)
+- Skills: `cognitive-doc-design`. Effort: medium
+- Implementer verification: P-6 sweep → `:27` per-developer (on-topic), `:29` narrowed rule (on-topic), `:52` `core` rule of thumb (off-topic). Falsifier executed: old sentence restored → `29: ...every command must still work without it.` directly above rule 4; reverted
+- Evidence re-run (Leader-inline): **VERIFIED**
+- Reviewer (opus): **FAIL** — 1 issue, verbatim:
+  > 1. **Discovered Issue:** Rule 4 is about *environment-provided* skills, but its example says the selector "picks it (today `Deliverable: video` …, which picks `video-production`)". `video-production` is the packaged, AKILI-authored bridge skill. It is not environment-provided, and the same file's *Current assignment* table lists it as a shipped `conditional` skill. The environment-provided skill behind the gate is `hyperframes`: the router that design §9's availability gate checks for, either standalone or as plugin `/hyperframes:hyperframes`. As written, a reader concludes either that `video-production` is environment-provided, which contradicts the table and rule 3's "acceptance checklist applies only to skills we ship", or that the selector never reaches `hyperframes` at all. Either way, rule 4 does not precisely say *when a command may name* the environment-provided skill.
+  > * **Violated Rule:** `requirements.md` FR-9 …; `requirements.md` §3 Glossary (Bridge skill vs Environment-provided skill); `design.md` §9.
+  > * **Remediation Suggestion:** Rewrite the parenthetical to keep the two skills apart … make clause (b) name the `hyperframes` availability gate … keep rule 2's narrowing sentence consistent … re-run the P-6 sweep.
+- runtime events: none
+
+### T4 — `/akili-propose`: Deliverable field
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| Implementer attempts | 1 |
+| Review intensity | Reviewer **owed**: walkthrough is judgment (condition 2 fails); override (a), (b) — adds a field to a shared contract (Document Control) |
+| Requirements covered | FR-1 (Video request, Software-mentions-video, Orthogonal, Trivial × video propose half, Neither kind, Default), NFR-1 carve-out |
+
+- Files changed: `.claude/commands/akili-propose.md` (+22/−8): Step 1 Deliverable block (Signal, Default, Neither kind, Ambiguity, Trivial × video); Step 2 Document Control item; Visual Reference note; Next Step Trivial exception + `Deliverable: video` bullet; Review Checklist item; Report To User items 3, 7. Sweep-driven consistency edits: Trivial row exception, Bug Track fix strategy, Fix Strategy template, Bug-track Next Step (each `Deliverable: video`-scoped)
+- Skills: `cognitive-doc-design`. Effort: medium
+- Precondition: `git show 22e990b:.claude/commands/akili-propose.md | grep -c Deliverable` → 0; after → 12
+- Held-out walk (examples stripped; cases d, e not cited in the text): (a) → video, Signal row; (b) → software, "Detect the requested deliverable, not a word in passing."; (c) → Bug + video, Signal + Ambiguity row "at most that one question in total"; (d) → video, Signal; (e) → software + kind noted, Neither-kind row; (f) → Trivial + video → Lite proposal, Trivial × video row "never recommend `/akili-quick`… overrides the Trivial row above"
+- Falsifier executed: sentence deleted → Signal row left `| Signal | Record \`video\` when what the user wants produced, changed, or repaired is a rendered video file or a composition that renders to one |`; case (b) loses its explicit anti-keyword rule (FR-1 `BUT` carrier) but still resolves to software via the narrow Signal definition + Default row — the sentence is the guard, not the sole path; restored (`grep -c "not a word in passing"` → 1)
+- Not Done / Assumptions (verbatim, condensed): "The ambiguity-question wording is a suggested phrasing, not a fixed string." / "I added the Bug-track and Fix Strategy `/akili-quick` exclusions beyond the six listed sites. They are needed so that Trivial × video stays consistent." — Reviewer judged each extra site required by FR-1 / DD-4, not a widening
+- Evidence re-run (Leader-inline): **VERIFIED** — count 12, sentence present, +22/−8
+- Reviewer (opus): **PASS** — walk re-done with examples stripped, all six cases decided by shipped sentences; FR-1 term by term; NFR-1: only the detection block, Document Control, checklist and report items are unconditional (the allowed carve-out). ADVISORY: suppressed (< 50 LOC)
+- runtime events: none
+- spawns: implementer 10 calls, 83 700 tokens, ended partial (assumptions only); reviewer 6 calls, 72 587 tokens, ended complete
+- Running totals vs budget: tasks 3/12 · LOC ~243 · review rounds 4/13 (+1 T2 FAIL = 5) — within budget

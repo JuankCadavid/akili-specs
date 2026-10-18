@@ -83,11 +83,21 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
 
 | Type | Signals | Route |
 |---|---|---|
-| **Trivial** | Cosmetic/copy-only, one-line, a color/text/label tweak using existing tokens | Recommend `/akili-quick <name>` instead of a full proposal. Stop here unless the user still wants a proposal. |
+| **Trivial** | Cosmetic/copy-only, one-line, a color/text/label tweak using existing tokens | Recommend `/akili-quick <name>` instead of a full proposal. Stop here unless the user still wants a proposal. Exception: `Deliverable: video` (below) continues as a Lite proposal. |
 | **Feature / Change** | An intent ("I want X", "add/support/enable Y") | Continue with the standard proposal flow below. |
 | **Bug** | A symptom ("X is broken/failing/wrong", "regression", "error", "used to work") | Continue with the proposal flow, but follow the **Bug Track** (diagnosis-first) described below. |
 
 The proposal `frontmatter`/header should record the detected type as `Type: Bug | Change | Trivial` in Document Control so `/akili-specify` and `/akili-execute` inherit it. For bugs, prefer the `bugfix/<name>` spec path taxonomy.
+
+**Deliverable (recorded beside `Type`, orthogonal to it):** `Deliverable: software | video`. `Type` is the risk track; `Deliverable` is the kind of artifact the spec produces, so a video can be a Bug, a Change, or Trivial.
+
+| Rule | Content |
+|---|---|
+| Signal | Detect the requested deliverable, not a word in passing. Record `video` when what the user wants produced, changed, or repaired is a rendered video file or a composition that renders to one |
+| Default | `software`. An absent row reads as `software` for every downstream reader |
+| Neither kind | A deliverable that is neither software nor video records `Deliverable: software` and the proposal **notes the deliverable kind**; Video Mode does not apply |
+| Ambiguity | Resolved inside the **one** classification question above, never a second one: when the deliverable is the unclear part, that question also names it (*"…and is the result software or a video?"*). A request that settles `Type` but leaves `Deliverable` open still asks at most that one question in total |
+| Trivial × video | `Type: Trivial` with `Deliverable: video` continues with a **Lite proposal** — never recommend `/akili-quick`, which has no render gate. This overrides the Trivial row above, and the cosmetic-fix route in the Bug Track and Next Step |
 
 **Approval Mode (recorded in the same Document Control block, inherited downstream):**
 
@@ -100,7 +110,7 @@ The proposal `frontmatter`/header should record the detected type as `Type: Bug 
 - Load the `systematic-debugging` skill.
 - Capture the **observed symptom**, concrete **reproduction steps**, and the **confirmed root cause** (not a guess) before recommending any fix.
 - Record the **Blast Radius**: four checks — **Already fixed?**, **Live path?**, **Siblings on the same state**, **Downstream consumers** — each written into the Bug Diagnosis section of that name with its citation as run and its result. The four are recorded together, but they do not all run at this point in the list. **Already fixed?** runs **first**, before any root-cause work: it is the cheapest check and the only one that can make the whole spec unnecessary. **Live path?** runs as part of confirming the root cause above — a cause sitting on code the reproduction never reaches is not a confirmed cause. The two enumerations run after that, and they feed scope rather than the diagnosis. Two results stop the work: a history hit that already fixes the symptom → report it to the user and stop, no spec (a ticket a teammate closed on another branch — `bugfix--innovation-dev-p25-save-500`); the code to patch sitting off the live path → the root cause is **not** confirmed and the diagnosis reopens.
-- Recommend a **fix strategy** and route it by size: a genuinely cosmetic one-liner → `/akili-quick`; anything with logic, data, or a behavior change → `/akili-specify` (Lite) in Bug Mode, which requires a regression test.
+- Recommend a **fix strategy** and route it by size: a genuinely cosmetic one-liner → `/akili-quick` (never with `Deliverable: video`); anything with logic, data, or a behavior change → `/akili-specify` (Lite) in Bug Mode, which requires a regression test.
 - These go in the proposal's **Bug Diagnosis** section (Step 2), which replaces the Requirement Delta Preview for bugs.
 
 ### Step 1.1: Clarify Intent, Sources & Scope Chunking
@@ -152,7 +162,7 @@ Ask focused questions only when the proposal would otherwise depend on unstable 
 
 Create a concise proposal following `cognitive-doc-design` (lead with the answer, progressive disclosure, tables over prose) with this structure:
 
-1. Document Control (include `Type: Bug | Change | Trivial`; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
+1. Document Control (include `Type: Bug | Change | Trivial` and `Deliverable: software | video`; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
 2. Intent
 3. Problem / Current Behavior
 4. Proposed Outcome
@@ -185,6 +195,8 @@ Capture whatever visual source backs this change so `/akili-specify` can convert
 
 When a mockup was generated during Step 1, list the concrete artifact paths here so downstream commands treat it as approved visual design context.
 
+For `Deliverable: video`, the video is itself the visual: a Figma link or mockup, if supplied, is an input to it, and the Mockup Fallback offer does not apply. Record the supplied source (or `None`) as usual.
+
 ### Bug Diagnosis (Bug track only)
 
 For a **Bug** request, replace the Requirement Delta Preview with a diagnosis produced using the `systematic-debugging` skill. Do not propose a fix until the root cause is confirmed — a fix built on a guessed cause is the top source of non-fixes and regressions.
@@ -215,7 +227,7 @@ Four checks, each recorded with its result and either its citation as run or `UN
 - What else the same root cause affects; data integrity or security implications.
 
 ### Fix Strategy
-- The smallest safe correction, and the route: `/akili-quick` only if the fix is genuinely cosmetic with no logic; otherwise `/akili-specify` (Lite) in Bug Mode, which requires a regression test (red before the fix, green after).
+- The smallest safe correction, and the route: `/akili-quick` only if the fix is genuinely cosmetic with no logic and the deliverable is not `video`; otherwise `/akili-specify` (Lite) in Bug Mode, which requires a regression test (red before the fix, green after).
 ```
 
 If the root cause cannot be confirmed yet, say so explicitly and keep the proposal open for further investigation rather than proposing a speculative fix.
@@ -255,8 +267,9 @@ End the proposal with the exact next command, matched to the detected type:
 ```
 
 - **Change track:** `/akili-specify $SPEC_PATH` (standard depth for the work).
-- **Bug track:** `/akili-specify $SPEC_PATH` in **Bug Mode** — specify converts the confirmed root cause into a fix plan and a mandatory regression test. If the diagnosis showed the fix is genuinely cosmetic with no logic, recommend `/akili-quick <name>` instead.
-- **Trivial track:** the request should not have reached a full proposal — recommend `/akili-quick <name>`.
+- **Bug track:** `/akili-specify $SPEC_PATH` in **Bug Mode** — specify converts the confirmed root cause into a fix plan and a mandatory regression test. If the diagnosis showed the fix is genuinely cosmetic with no logic (and the deliverable is not `video`), recommend `/akili-quick <name>` instead.
+- **Trivial track:** the request should not have reached a full proposal — recommend `/akili-quick <name>`. Exception: with `Deliverable: video`, the Lite proposal is the deliverable of this command; end it with `/akili-specify $SPEC_PATH`.
+- **`Deliverable: video` (any type):** the next command is still `/akili-specify $SPEC_PATH`, and the note beside it says Video Mode applies there (alongside Bug Mode for a Bug). Never `/akili-quick`, even for a cosmetic fix.
 
 ## Review Checklist
 
@@ -264,6 +277,7 @@ Before presenting the proposal, verify:
 
 - [ ] The problem is clear.
 - [ ] The request type (Bug / Change / Trivial) is detected and recorded in Document Control.
+- [ ] `Deliverable` (software / video) is recorded beside `Type`, detected from the requested deliverable; any ambiguity cost at most the one classification question; a Trivial video request got a Lite proposal, not `/akili-quick`; a deliverable of neither kind is noted.
 - [ ] The spec slug is kebab-case; when derived from a free-text argument, the derivation is recorded in Document Control (never a sentence interpolated into a path).
 - [ ] Approval Mode is recorded — `gated` by default; `pre-approved` only on an explicit user mandate, with who and when.
 - [ ] For a bug: reproduction steps and a **confirmed** root cause are documented (not a guess).
@@ -281,11 +295,11 @@ Generate a short, easy-to-understand summary (summary facil de entender de lo qu
 
 1. proposal path
 2. resolved spec path
-3. detected request type (Bug / Change / Trivial)
+3. detected request type (Bug / Change / Trivial) and deliverable (software / video; the deliverable kind when it is neither)
 4. recommended approach (for a bug: the confirmed root cause, the **Blast Radius** result, and the fix strategy)
 5. visual reference status (Figma, generated mockup with its path, or none)
 6. main risks or open questions
-7. next command to run after approval (matched to the type)
+7. next command to run after approval (matched to the type; for `Deliverable: video`, state that Video Mode applies in `/akili-specify`)
 
 Ask whether to approve the proposal, revise it, or stop.
 

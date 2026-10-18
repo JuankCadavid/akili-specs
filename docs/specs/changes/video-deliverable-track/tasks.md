@@ -75,7 +75,7 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 
 ### T4 — `/akili-propose`: Deliverable field
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1
+- **Status:** [x] · **Size:** S · **Depends on:** T1
 - **Requirements:** FR-1 (all six scenarios incl. each `BUT` / `AND IT MUST`), NFR-1 carve-out
 - **Design:** DD-1, DD-4; §3 row 1; §5; P-15
 - **Scope:** Step 1 Deliverable block (signals, default, neither-kind rule, shared question, Trivial × video stays in propose); Step 2 Document Control item; Visual Reference note; Review Checklist item; Report To User item; Next Step note that Video Mode applies (6 sites)
