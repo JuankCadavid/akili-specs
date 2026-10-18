@@ -365,4 +365,23 @@ These sections are carried into T2 attempt 2's and T5a rework's Reviewer briefs 
 | runtime events | none |
 | spawns | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
 
-- Running totals after T6: tasks 9/12 · LOC ~424 · review rounds 17 / 18 (T5b attempt 2 verdict pending → 18).
+- Running totals after T6: tasks 9/12 · LOC ~424 · review rounds 16 / 18 (T5b attempt 2 verdict pending → 17; T7 → 18).
+
+### T5b — attempt 2: **PASS** — task closed
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-18 |
+| Effort | xhigh (bumped from high after attempt 1's FAIL) |
+| Files changed (attempt 2) | `docs/flow.md:154` → "…stay in the run directory (outside the target by default, or an ignored in-target directory); never a drift source"; `docs/flow.md:292` → "stay in a run directory (outside the target by default, or an ignored in-target directory)" and "the only tracked repository content the command writes is a redacted index at `docs/specs/audits/…`"; `README.md:587`, `docs/commands/README.md:20` → "full artifacts in the run directory (outside the target by default)"; `README.md:798` → "the index is written only when both validators exit 0, or with the run recorded `incomplete`" and "Full findings stay in the run directory (outside the target by default, or an ignored in-target directory); the only tracked repository content written is a redacted index at"; `README.md:844` → "the only tracked repository content it writes is a redacted index under `docs/specs/audits/`" (Leader-named site, same obligation as FAIL 2) |
+| Implementer verification | Sweep `external run directory\|writes only\|must both exit` over `README.md` + `docs/` (excl. specs/plans) → none remain; remaining hits (`docs/commands/akili-security.md:26`, `:48`; `docs/commands/akili-archive.md:86`) correct or unrelated; quote-check against the brief's shipped quotes (the command itself not re-opened); falsifier by reading (restoring any original clause contradicts the quoted shipped sentence) |
+| Evidence re-run (Leader-inline) | **VERIFIED** — sweep grep → every hit qualified (contexts printed for `README.md:587/:798/:844`, `docs/flow.md:154/:292`, `docs/commands/README.md:20`); raw-verified in `.claude/commands/akili-security.md` (count 1 each): "outside the target or in the ignored directory chosen below", "never writes tracked repository content except the index", `records \`run_status: "incomplete"\`` |
+| Reviewer verdict | **PASS** — three attempt-1 FAILs and `:844` closed against the shipped command at HEAD; every summary clause in the 284-line diff re-checked on each path (Run, Adjust, Stop, Guidance review, budget-incomplete, validator-fail, ignored in-target `--out`); counts 12/25 match |
+| ADVISORY (recorded, never gating — no task created) | A1: "A plan gate and a routing gate stop on every run" (`README.md:798`, `docs/flow.md` §2b, command page) does not hold on **Guidance review** or **Stop**, where the routing gate never runs. The docs copy the shipped command's own sentence ("both gates … stop on every run"), so the root cause is T2's text. Raised to the user at the closing gate. A2: `README.md:798` "Confirmed findings are routed to `/akili-propose …`" omits the user's selection. A3: command page Flow row 5 can read as if `needs_validation` records are routable. A4: command page intro "…and write a redacted index" is unconditional (Guidance review / Stop write none); qualified two sections later |
+| Requirements covered | FR-14 (command page, commands README row, README list/table/description, `flow.md`), FR-13 (doc mirrors: `docs/commands/akili-archive.md`, `docs/commands/akili-audit.md` + DD-5 hand-rename note, `docs/skills/kaizen.md`, `docs/flow.md`, `docs/commands/akili-constitution.md`), FR-4/FR-8 residual-risk statement; `docs/cli.md` counts 12/25 |
+| Forward pointers closed | T3a `docs/commands/akili-archive.md:68`, `docs/flow.md:424-425`; T3b `docs/commands/akili-audit.md:34` + DD-5 note; T3c `docs/skills/kaizen.md:24`; T3d `docs/commands/akili-constitution.md:43,53` |
+| runtime events | none |
+| spawns (attempt 2) | implementer — not reported by host, ended complete; reviewer — not reported by host, ended complete |
+
+- Running totals after T5b: tasks 10/12 · LOC ~540 authored (T5b: 63-line page + ~45 changed lines) · review rounds 17 / 18.

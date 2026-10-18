@@ -263,7 +263,7 @@ No cycles. T5b waits for T2 and T3a–d so each documented behaviour is quote-ch
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~110 lines) |
 | Depends on | T2, T3a–T3d |
 | Requirements | FR-14 (command page, commands README row, README list/table, flow.md), FR-13 (doc mirrors), FR-4/FR-8 residual-risk statement |

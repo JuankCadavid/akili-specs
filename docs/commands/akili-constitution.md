@@ -40,7 +40,7 @@ Creates or enhances:
 - `docs/specs/general-setup/task.md` (Step 7 item 3: task format, dependency graph format, testing expectations, and execution conventions, including the four Verification fields — `Falsifier`, `Red run`, `Disqualifier`, `Consumers` — named in `/akili-specify` Step 3.2's Falsifiability block, with the absent-value rule: `n/a (no test gate)` / `none (no shared symbol changed)`, never blank; and the `Review` field — `skip-eligible` / `checklist` / `full` / `lenses` — also named there, whose `skip-eligible` claim `/akili-execute` Step 2.3 proves against the Implementer's report before a task closes `REVIEW_SKIPPED` rather than under a Reviewer `PASS` or a `REVIEW_WAIVED` record)
 - `docs/specs/general-setup/family.md` (a fourth template, Step 7: the manifest schema — Document Control plus an ordered child table — that `/akili-propose` and `/akili-specify` write only when a proposal is actually split into a spec family; its absence means the spec is flat, with no added obligations)
 - `docs/specs/kaizen/` (scaffolded with a one-line `README.md`: one kaizen entry file per spec, written by the `kaizen` skill's Record phase)
-- `docs/specs/audits/` (scaffolded with a one-line `README.md`: one drift report per `/akili-audit` run)
+- `docs/specs/audits/` (scaffolded with a one-line `README.md`: one drift report per `/akili-audit` run (`drift-*`) and one redacted index per `/akili-security` run (`security-*`))
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.agents/leader.md`
@@ -50,7 +50,7 @@ Creates or enhances:
 
 Projects created before the TRD naming may still have `docs/system-design/design.md` (UX/UI blueprint) and `docs/detailed-design/detailed-design.md` (technical blueprint). The constitution treats those as the existing UX/UI Design document and TRD, and in Active-AKILI-SPECS mode offers to migrate them to `docs/ux-ui/design.md` and `docs/trd/trd.md`.
 
-Both scaffold READMEs are scaffolding, never content: a README never counts as a kaizen entry file or as an audit report for any reader, so a "most recent report" read that finds only the README concludes the directory holds none, and a pending-item count over `docs/specs/kaizen/` skips it.
+Both scaffold READMEs are scaffolding, never content: a README never counts as a kaizen entry file or as an audit report for any reader, so a "most recent drift report" read that finds only the README concludes the directory holds none, and a pending-item count over `docs/specs/kaizen/` skips it.
 
 The root guides also carry a `## Module Guides` index: modules whose conventions diverge from the root get a thin child `CLAUDE.md`/`AGENTS.md`, and every child guide must be referenced from that index. `/akili-execute` records new-module impact notes and `/akili-archive` syncs the guides and recommends a CodeGraph re-index.
 

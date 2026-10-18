@@ -150,7 +150,8 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/execution.md` | `/akili-execute` | Task execution history and evidence |
 | `docs/specs/<spec-path>/test-report.md` | `/akili-test` | Requirement-to-test matrix and coverage gaps |
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
-| `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no report |
+| `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent `drift-*.md` by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no `drift-*.md` file |
+| `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-security` | One redacted index per audit run: counts by verdict and severity, and opaque `S-n` rows for `confirmed` / `needs_validation` records. Full findings stay in the run directory (outside the target by default, or an ignored in-target directory); never a drift source |
 | `docs/specs/kaizen/<safe-spec-slug>.md` | `/akili-archive` (Kaizen Record, any branch) | One entry file per spec: metrics, root-cause lessons, sub-threshold signals, and the pending-standardization queue |
 | `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (the apply-capable branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
@@ -281,11 +282,14 @@ To establish high-traceability between spec files and source code:
 * **Comment Tracing:** For complex algorithms, API entry points, or core models, developers/agents should place a reference comment: `// @akili-spec <spec-path>`.
 
 ### 2. Specification Drift Auditing (`/akili-audit`)
-Run `/akili-audit` independently to verify that the active codebase reflects active documentation. The command writes one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — the branch slug added when the run is off the default branch or the default branch cannot be resolved, a numeric suffix on a same-day collision — so parallel runs coexist instead of overwriting one another. Readers take the most recent report by its `Date of Audit` header (ties broken by the newest filename, never filesystem mtime) and fall back to a legacy `docs/specs/drift-report.md` only when the directory holds no report at all. Each report details:
+Run `/akili-audit` independently to verify that the active codebase reflects active documentation. The command writes one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — the branch slug added when the run is off the default branch or the default branch cannot be resolved, a numeric suffix on a same-day collision — so parallel runs coexist instead of overwriting one another. Readers take the most recent `drift-*.md` report by its `Date of Audit` header (ties broken by the newest filename, never filesystem mtime) and fall back to a legacy `docs/specs/drift-report.md` only when the directory holds no `drift-*.md` file; a `security-*.md` index in the same directory is never read as a drift report. Each report details:
 * **Stale Specifications:** Documented endpoints/modules missing from code.
 * **Undocumented Code:** Active code additions completely missing from the PRD, UX/UI design, or TRD docs.
 * **Styling/Architecture Violations:** Active code violating styling tokens or engineering guidelines.
 * **Agent Guide Drift:** Modules lacking a needed child `CLAUDE.md`/`AGENTS.md`, child guides missing from the parent's `## Module Guides` index, or root-guide structure descriptions that no longer match the codebase.
+
+### 2b. Repository Security Auditing (`/akili-security`)
+Run `/akili-security` independently, outside the spec lifecycle, for a gated security audit of the repository. A plan gate and a routing gate stop on every run; the run is static-only unless sandboxed execution is approved for that run. Full findings stay in a run directory (outside the target by default, or an ignored in-target directory); the only tracked repository content the command writes is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. That index sits beside the drift reports but is never a drift source. Each confirmed finding the user selects is routed to a Bug proposal (`/akili-propose bugfix/security-<YYYY-MM-DD>-s<n>`), which then follows the Bug Track. See [the command page](commands/akili-security.md) for residual risk and disclosure.
 
 ### 3. The Pivot Protocol
 If discovery during `/akili-execute` invalidates requirements or design rules:
@@ -421,8 +425,8 @@ parallel branches never contend for the same file.
 **Retrospective phase — any branch.** Every archive runs one bounded pass:
 
 * **Measure:** hunt waste (MUDA) in the spec's own evidence — Reviewer rework attempts, pivots,
-  PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift (the most recent report
-  under `docs/specs/audits/`).
+  PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift (the most recent
+  `drift-*.md` report under `docs/specs/audits/`; a `security-*.md` index is not a drift source).
 * **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence. Generic lessons
   are banned; a clean spec records a one-line clean-run entry instead. A root cause that already
   exists becomes a `digest-update` pending item, never a duplicate lesson or a live digest edit.

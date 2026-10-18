@@ -82,6 +82,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `akili-audit.md`
   - `akili-resume.md`
   - `akili-seo.md`
+  - `akili-security.md`
 - `.claude/skills/`
   - `ai-agent-development`
   - `angular-developer`
@@ -583,6 +584,7 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | `/akili-audit` | Detecting drift between specs and codebase reality | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix |
 | `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
+| `/akili-security [<path>…]` | Auditing a repository for security vulnerabilities (plan gate, static-only by default) | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (outside the target by default) |
 
 ## How To Choose The Right Depth
 
@@ -789,9 +791,11 @@ See [OpenSpec Comparison](docs/openspec-comparison.md) for the current AKILI com
 
 ### Auxiliary commands
 
-- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths — so audits from parallel branches coexist instead of overwriting each other. A legacy `docs/specs/drift-report.md` stays readable as a permanent fallback and is never modified. Run independently or after major implementation milestones.
+- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths — so audits from parallel branches coexist instead of overwriting each other. Readers take only `drift-*.md` files as the drift source (a `security-*.md` index is never one); a legacy `docs/specs/drift-report.md` stays readable as a permanent fallback and is never modified. Run independently or after major implementation milestones.
 
 - `/akili-resume` — Resume work after a session break by scanning all active specs under `docs/specs/` and presenting a multi-spec dashboard. Shows current phase, progress bars, last action, blockers, and recommends the next command. If only one spec is active, goes directly to a detailed briefing. No arguments required.
+
+- `/akili-security [<path>…] [--profile quick|standard|deep] [--budget <N>] [--out <dir>]` — Full repository security audit using the packaged `security-audit` skill (Cloudflare, MIT). A plan gate and a routing gate stop on every run; the run is static-only unless you approve sandboxed execution for that run, and the index is written only when both validators exit 0, or with the run recorded `incomplete`. Full findings stay in the run directory (outside the target by default, or an ignored in-target directory); the only tracked repository content written is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. Confirmed findings are routed to `/akili-propose bugfix/security-<YYYY-MM-DD>-s<n>`. Agent behaviour cannot be machine-enforced, and a static-only run yields mostly `needs_validation` records — see [the command page](docs/commands/akili-security.md).
 
 - `/akili-seo <site-domain>` — SEO setup & audit via Google Search Console. Verifies a domain through DNS TXT using a service account, adds the property to GSC, then audits index coverage, sitemaps, structured data, search analytics, server-side render, internal linking, and on-page SEO (titles, metas, headings, canonicals, hreflang) using the packaged `seo-audit` skill. Produces `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/`, including a copy-paste implementation prompt for fixing every High-severity finding.
 
@@ -837,6 +841,7 @@ Fallback rule:
 - `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
 - `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
 - `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
+- `/akili-security` operates outside the main spec lifecycle: it audits the repository with the `security-audit` skill, the only tracked repository content it writes is a redacted index under `docs/specs/audits/`, and hands confirmed findings to the Bug Track through `/akili-propose`. It never modifies target source or commits.
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering
