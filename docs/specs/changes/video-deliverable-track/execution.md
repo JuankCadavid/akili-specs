@@ -410,3 +410,26 @@ Open at this gate: spec tensions S1–S5 and the `~/.cache/hyperframes` cleanup 
 - runtime events: none
 - spawns: implementer 9 calls, 74 156 tokens, ended partial (assumptions only); reviewer 5 calls, 81 006 tokens, ended complete
 - Running totals vs budget: tasks 12 + 1 pivot task (A3) · review rounds 19 (tripwire 20 — not exceeded) · A3 used 1 of its 2 allowed rounds
+
+### A4 — Rework after `/akili-test` (F1 T9, F2 T7, F3 FR-6 amendment)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (Reviewer `STATUS: PASS`, attempt 1) |
+| Date | 2026-10-18 |
+| User decision | "Opción 1: arregla F1–F3 (F1 y F2 como rework de T9 y T7, F3 como enmienda de FR-6 aplicando la tolerancia por defecto de ±0,1 s también a la comparación con data-duration). Acepto pasar de 20 rondas; registra el exceso y el motivo en el informe." |
+| Spec edits | `requirements.md` FR-6 (same tolerance on both comparisons), `design.md` DD-12, `tasks.md` A4. `git diff` removed lines: the old DD-12 row and the FR-6 closing line only |
+| Review intensity | Reviewer **owed**: override (e) — rework after FAIL findings; (a) |
+| Requirements covered | FR-1 Trivial × video (F1), FR-3 `BUT` (F2), FR-6 amended (F3) |
+
+- Files changed: `.claude/commands/akili-quick.md` (gate criterion "Not a video composition", cosmetic-bug line qualified, escalation bullet re-keyed), `.claude/commands/akili-test.md` (render-evidence suite "runs alone, after every other Tester has reported…"), `.claude/skills/video-production/references/render-evidence.md` (`data-duration` row "within that same tolerance (stated, else default ± 0.1 s)"), `docs/commands/akili-quick.md`, `docs/commands/akili-test.md`. Skill 3 files, 12,250 B
+- Skills: `cognitive-doc-design`. Effort: high (rework)
+- Implementer verification: C6/C15/C24 re-walked — single reading each; falsifiers executed (each sentence removed → its case regains two readings; F3 as a computed text diff, file never altered); reverted; `npm test` 275/275 (a first edit of the target row broke test 11 and was put back to its exact text)
+- Not Done / Assumptions: Deployment Rule table row unchanged (the render line states the exception); `docs/skills/video-production.md` and `CHANGELOG.md` already true — unchanged
+- Evidence re-run (Leader-inline, quiet tree): **VERIFIED** — `npm test` exit 0, 275/275; skill 12,250 B; `git diff --check` clean; the three sentences present (`akili-quick.md:45`, `akili-test.md:108`, `render-evidence.md:25`)
+- Reviewer (opus): **PASS** — C6, C15, C24 single-reading; FR-1/FR-3/FR-6 term by term; docs pages match the commands word for word; CHANGELOG owes nothing more under FR-10. ISSUES: none
+- Spec tensions for the next gate: (1) NFR-1 carve-out wording "quick's one escalation line" is stale (quick now has criterion + escalation + qualifying clause; obligation not broken, software outcome unchanged) — recommended one-line NFR-1 amendment; (2) `AGENTS.md` and `docs/flow.md` restate the quick gate without the new criterion (neither claims completeness) — for the `/akili-validate` sweep
+- Re-test (`/akili-test` affected suites): Suite 1 `npm test` 275/275; Suite 2 C6/C15/C24 re-walked inline by the Leader (Deployment Rule — 3 trivial cases) → 32/32 PASS; `test-report.md` updated
+- runtime events: none
+- spawns: implementer 13 calls, 72 805 tokens, ended complete; reviewer 8 calls, 77 734 tokens, ended complete
+- Running totals vs budget: review rounds **20** (tripwire: stop past 20 — reached, not exceeded; the user pre-approved exceeding it)

@@ -1,14 +1,15 @@
 # Test Report: Video Deliverable Track
 
-**Overall: FAIL — 3 ambiguity findings in shipped prompt text (F1–F3); all automated tests green.**
+**Overall: PASS (after rework A4) — F1–F3 fixed and re-walked; all automated tests green.** First run: FAIL (3 ambiguity findings), kept below for traceability.
 
 | Signal | Result |
 |---|---|
 | Automated suite (`npm test`) | **275 / 275 pass**, 0 fail, 0 skipped (exit 0) — includes 16 new tests in `test/video-production.test.js` |
 | Packaging | `verify:cli` → `11 commands \| 25 skills \| 8 resources (akili-specs v2.32.2)`; `git diff --check` clean |
-| Held-out prompt walkthrough | **32 cases: 29 PASS, 3 FAIL** (F1, F2, F3) — `test-walkthrough.md` |
+| Held-out prompt walkthrough | **32 / 32 PASS** after A4 (first run 29 PASS, 3 FAIL: F1, F2, F3) — `test-walkthrough.md` incl. re-walk section |
 | Live render evidence | Cited from T12 (`t12-smoke-evidence.md`), not re-run (would re-download ~200 MB; consent-gated) |
-| Product bugs | 0 classified `PRODUCT_BUG`; F1 is the strongest candidate (see §8) |
+| Product bugs | 0 classified `PRODUCT_BUG`; F1–F3 (ambiguities) fixed by A4 — §8 |
+| Review budget | **20 of 20** rounds used (tripwire: stop *past* 20 — reached, not exceeded). The user pre-approved exceeding it for F1–F3 ("Acepto pasar de 20 rondas"); A4 closed in one round, so no excess occurred |
 
 ## 1. Document Control
 
@@ -17,7 +18,7 @@
 | Spec Path | `changes/video-deliverable-track` |
 | Depth | Standard |
 | Date | 2026-10-18 |
-| Tested at | `e78d4c6` + untracked test artifacts |
+| Tested at | `e78d4c6` (first run); re-run after A4 on the A4 working tree |
 | Leader | Claude Code, Opus 5.5 |
 | Testers | 2, in parallel, both `opus` (Implementers were `sonnet` — author ≠ tester) |
 | Spawn path | No `akili-tester` wrapper → fallback sub-prompt; each Tester read `.agents/tester.md` |
@@ -78,17 +79,17 @@ n/a — no UI (design §8).
 |---|---|---|---|---|---|
 | FR-1 | Video / mentions video `BUT` / orthogonal `AND IT MUST` ≤ 1 question | walkthrough | C1, C2, C3, C9 | PASS | |
 | FR-1 | Trivial × video (propose) / Neither kind / Default / Reaches every reader | walkthrough + unit | C5, C4, C7, C8; test 13 | PASS | |
-| FR-1 | Trivial × video: direct `/akili-quick` escalates (`AND`, `BUT`) | walkthrough | C6 | **FAIL** | F1 |
+| FR-1 | Trivial × video: direct `/akili-quick` escalates (`AND`, `BUT`) | walkthrough | C6 (re-walk) | PASS | F1 fixed (A4) |
 | FR-2 | Criteria present; Bug × video regression `BUT` | walkthrough | C10, C11 | PASS | |
 | FR-3 | Skills assigned + deviation recorded | walkthrough | C12, C13 | PASS | |
 | FR-3 | Delivery render approval-gated; quiet tree at execute | walkthrough | C14, C16 | PASS | |
-| FR-3 | Quiet tree (`BUT`) with parallel `/akili-test` suites | walkthrough | C15 | **FAIL** | F2 |
+| FR-3 | Quiet tree (`BUT`) with parallel `/akili-test` suites | walkthrough | C15 (re-walk) | PASS | F2 fixed (A4) |
 | FR-4 | Not installed (`AND IT MUST` both names, `BUT`) | unit + walkthrough | tests 6, 7; C17, C18 | PASS | |
 | FR-4 | First render fetches a browser (A3); freshness scope (A3) | unit + walkthrough | tests 8, 9; C19, C20 | PASS | |
 | FR-4 | Validate BLOCKED; software unaffected | walkthrough + unit | C21, C22; tests 12, 13 | PASS | text gating only — no runtime to execute |
 | FR-5 | Telemetry off, no feedback | unit + live | test 5; T12 (0 feedback matches in logs) | PASS | suppression source-read (`policy.ts:31-55`), not network-observed |
 | FR-6 | Duration drift `BUT`; stated tolerance; outside default; HyperFrames missing STOP | unit + walkthrough + live | test 11; C23, C25, C26; T12 | PASS | |
-| FR-6 | Inside default tolerance vs `data-duration` | walkthrough | C24 | **FAIL** | F3 |
+| FR-6 | Inside default tolerance vs `data-duration` | walkthrough + unit | C24 (re-walk); test 11 | PASS | F3 fixed (FR-6 amended, A4) |
 | FR-7 | No PASS without final look; delivery render after approval | walkthrough | C27, C28 | PASS | |
 | FR-8 | Frontmatter, name `BUT`, HeyGen sites | unit | tests 1, 2 | PASS | "no upstream passage copied" covered at T1 (7 sentences `grep -F` → 0), not re-automated (needs the upstream clone) |
 | FR-9 | Load-direct rule; rule 2 reconciled | unit | tests 14, 15 | PASS | README / `flow.md` / `AGENTS.md` restatements covered by T10's phrase-family sweep, not automated |
@@ -105,6 +106,16 @@ n/a — no UI (design §8).
 | F1 | `akili-quick.md:49` "If the change fails **any** gate criterion, do **not** fast-track it" — none of the five criteria names video; `:52` lets a cosmetic typo stay in quick; `:55` "…so it is never fast-tracked" sits in the escalation list. Reading A: quick edits the composition (violates FR-1 `AND`/`BUT`). Reading B: escalates. Same observation the T9 Reviewer recorded | FR-1 Trivial × video | Make "not a video composition" a gate criterion, or open `:55` with "Regardless of the criteria above" | Rework of T9 (shipped text) — strongest `PRODUCT_BUG` candidate |
 | F2 | `akili-test.md` Deployment Rule "Spawn **one Tester per suite, in parallel**"; `render-evidence.md:3` "run the quiet-tree rule first"; nothing makes the render suite run alone — a draft render can run beside a sibling Tester | FR-3 `BUT` (quiet tree) | Add to the render-evidence suite line: run it alone, after any other Tester's report | Rework of T7 |
 | F3 | `render-evidence.md:24` applies the ± 0.1 s default to the target comparison only; `:25` (`data-duration`) states no tolerance; `:27` FAIL "if either comparison fails" — 12.08 s vs `data-duration="12"` fails read exactly, passes with the default | FR-6 | State the tolerance for the `data-duration` comparison | **Requirement amendment** — FR-6 itself is silent (Pivot Protocol) |
+
+### Resolution (A4, 2026-10-18)
+
+| ID | Fix shipped | Re-test |
+|---|---|---|
+| F1 | `akili-quick.md` gate criterion "**Not a video composition**"; cosmetic-bug line limited to changes passing every criterion; escalation bullet re-keyed; `docs/commands/akili-quick.md` mirrors | C6 re-walk PASS |
+| F2 | `akili-test.md` render-evidence line: "runs alone, after every other Tester has reported — it renders, so never beside an active agent, even when it is independent of the other suites"; `docs/commands/akili-test.md` mirrors | C15 re-walk PASS |
+| F3 | FR-6 and DD-12 amended (A4); `render-evidence.md` `data-duration` row "within that same tolerance (stated, else default ± 0.1 s)" | C24 re-walk PASS; `npm test` 275/275 (test 11 green) |
+
+Reviewer (opus): PASS, 0 issues. Open for the next gate: NFR-1 wording — the carve-out still says "quick's one escalation line"; quick now carries a gate criterion, the escalation and a qualifying clause (software outcome unchanged). Restatements of the quick gate in `AGENTS.md` and `docs/flow.md` do not list the new criterion (neither claims to be complete).
 
 ## 9. Accepted Gaps
 

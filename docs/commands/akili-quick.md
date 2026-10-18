@@ -21,6 +21,7 @@ Examples:
 - The change is cosmetic or copy-only: text/label edits, color/spacing/style-token tweaks, small static markup additions.
 - It changes no behavior, data, API, auth, or shared contract.
 - It is small and local (~≤ 20 LOC, one component/file).
+- It is not a video composition: it does not edit a HyperFrames composition or a file that renders to a video deliverable, however small or cosmetic the edit.
 - Any visual change uses an existing approved token from `docs/ux-ui/design.md`.
 
 Do **not** use it for real features, logic changes, bugfixes with behavior impact, or anything that introduces a new design token or pattern.
@@ -30,8 +31,8 @@ Do **not** use it for real features, logic changes, bugfixes with behavior impac
 Before editing, the command checks all gate criteria. If any fails, it **stops and escalates**:
 
 - Small but with logic, or a real bugfix → `/akili-specify <spec-path>` (Lite).
-- A **bug** whose fix touches logic/behavior → `/akili-propose <name>` (Bug Track: diagnose the root cause first), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick`.
-- Edits a **video** composition (a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
+- A **bug** whose fix touches logic/behavior → `/akili-propose <name>` (Bug Track: diagnose the root cause first), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick` when it passes every gate criterion, including *Not a video composition*.
+- Fails *Not a video composition* (edits a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
 - Non-trivial, risky, cross-cutting, or uncertain → `/akili-propose <change-name>`.
 - Needs a new design token/pattern → `/akili-propose` or `/akili-specify` so the token is designed, not improvised.
 

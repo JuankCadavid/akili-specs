@@ -42,6 +42,7 @@ Before making any edit, confirm the change qualifies as trivial. A change is eli
 - **No behavior change:** no new or modified logic, control flow, conditionals, state, or side effects.
 - **No data / API / auth / contract change:** no schema, endpoint, request/response shape, permission, or shared-package surface change.
 - **Small and local:** roughly **≤ ~20 LOC** and confined to **one component/file** (or a couple of tightly related files).
+- **Not a video composition:** the change does not edit a HyperFrames composition or a file that renders to a video deliverable, however small or cosmetic the edit.
 - **Design-token safe:** any color/spacing/typography change uses an existing approved token from `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`) — not a new hardcoded value.
 
 ### Automatic Escalation
@@ -49,10 +50,10 @@ Before making any edit, confirm the change qualifies as trivial. A change is eli
 If the change fails **any** gate criterion, do **not** fast-track it. Stop and recommend the right entry point:
 
 - Small but with logic, or a real bugfix → `/akili-specify <spec-path>` in **Lite** depth.
-- A **bug** (something is broken, not just a cosmetic edit) whose fix touches logic or behavior → `/akili-propose <name>` so the root cause is diagnosed first (Bug Track), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick`.
+- A **bug** (something is broken, not just a cosmetic edit) whose fix touches logic or behavior → `/akili-propose <name>` so the root cause is diagnosed first (Bug Track), then `/akili-specify` (Lite) in Bug Mode with a mandatory regression test. A purely cosmetic bug (e.g. a visible typo) may stay in `/akili-quick` when it passes every gate criterion, including *Not a video composition*.
 - Non-trivial, risky, cross-cutting, or uncertain scope → `/akili-propose <change-name>` first.
 - Introduces a **new** design token or visual pattern not in `docs/ux-ui/design.md` → route through `/akili-propose` (Visual Reference) or `/akili-specify` so the token is designed, not improvised.
-- Edits a **video** composition (a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
+- Fails *Not a video composition* (edits a HyperFrames composition, or a file that renders to the video deliverable) → `/akili-propose <change-name>`; a video edit needs render evidence that `/akili-quick` cannot produce, so it is never fast-tracked.
 
 State clearly which criterion failed and which command to run instead. Never silently downgrade a real change into a quick edit.
 

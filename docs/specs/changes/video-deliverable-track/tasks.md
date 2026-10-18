@@ -219,6 +219,17 @@ in-scope file and read every hit before the Reviewer (KZ-changes--kaizen-loop-cl
 - **Review:** `checklist` — budget: at most 2 review rounds (tripwire 20)
 - **Skills:** `video-production`, `cognitive-doc-design`
 
+### A4 — Rework after `/akili-test` (F1 T9, F2 T7, F3 FR-6 amendment) (added 2026-10-18, user-approved)
+
+- **Status:** [x] · **Size:** S · **Depends on:** A3
+- **Requirements:** FR-1 Trivial × video (`AND` quick escalates, `BUT`) — F1; FR-3 `BUT` quiet tree — F2; FR-6 tolerance on both comparisons (amended, A4) — F3
+- **Scope:** `.claude/commands/akili-quick.md` Triviality Gate — "not a video composition" as a gate criterion (F1); `.claude/commands/akili-test.md` render-evidence suite line — runs alone, after every other Tester has reported (F2); `.claude/skills/video-production/references/render-evidence.md` duration comparison — the same tolerance (stated or ± 0.1 s default) applies to the `data-duration` row (F3); matching `docs/commands/akili-{quick,test}.md`, `docs/skills/video-production.md`, `CHANGELOG.md` only where they restate the changed text
+- **Tests / Verification:** re-walk `test-walkthrough.md` cases C6, C15, C24 against the new text (each must have one reading); `npm test` (test 11 still green); NFR-1 (quick line is the carve-out; test line conditional on `Deliverable: video`)
+- **Falsifier:** post-change, remove each new sentence in turn → its case regains the two-reading ambiguity; observe, quote, revert
+- **Consumers:** `test/video-production.test.js` (test 11), `test-walkthrough.md`, `test-report.md`
+- **Review:** `checklist` — rounds beyond the tripwire accepted by the user (recorded)
+- **Skills:** `cognitive-doc-design`
+
 ---
 
 ## Coverage Map (scenario / clause → task)

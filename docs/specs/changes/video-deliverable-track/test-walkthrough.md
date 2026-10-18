@@ -180,3 +180,13 @@ Legend: **P** = `akili-propose.md`, **S** = `akili-specify.md`, **T** = `akili-t
 - Line numbers are from the working tree at `e78d4c6` (clean). `test/` was not touched and `npm` was not run (a concurrent Tester owns that suite).
 - The text was judged by an agent reading only the shipped text (with the skill's `SKILL.md` loaded whenever the skill is loaded). Skill auto-triggering by description was **not** counted as a guarantee — see A2.
 - FR-5, FR-8, FR-9 and FR-10 are outside this slice.
+
+## Re-walk after A4 (2026-10-18, Leader inline — Deployment Rule: 3 trivial cases)
+
+| Case | New outcome (single reading) | Deciding shipped sentence | Result |
+|---|---|---|---|
+| C6 | Direct `/akili-quick` on a closing-card typo in a video composition → fails the gate → `/akili-propose` | `akili-quick.md:45` "**Not a video composition:** the change does not edit a HyperFrames composition or a file that renders to a video deliverable, however small or cosmetic the edit." + `:53` cosmetic line now limited to changes that pass "every gate criterion, including *Not a video composition*" + `:56` escalation | **PASS** (was FAIL F1) |
+| C15 | Video + software suites → render-evidence Tester runs alone, after every other Tester has reported | `akili-test.md:108` "The render evidence suite runs alone, after every other Tester has reported — it renders, so never beside an active agent, even when it is independent of the other suites." | **PASS** (was FAIL F2) |
+| C24 | Target 12 s, no tolerance, `data-duration` 12, ffprobe 12.08 → both comparisons within ± 0.1 s → PASS; C25 (12.15) still FAIL | `render-evidence.md:25` "The composition's root `data-duration`, within that same tolerance (stated, else default **± 0.1 s**)" — FR-6 amended (A4) | **PASS** (was FAIL F3) |
+
+Totals after A4: **32 cases, 32 PASS.**

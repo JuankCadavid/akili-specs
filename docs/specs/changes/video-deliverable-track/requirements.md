@@ -213,7 +213,8 @@ video tasks, collecting: `hyperframes check` exit status, snapshot stills at eac
 **draft render**, its `ffprobe` format/stream metadata — `format.duration` compared with both the
 requirement's target ± tolerance and the composition's root `data-duration`, fps when specified — and a
 non-empty output file. When the requirement states no tolerance, the default is **± 0.1 s** (amended
-2026-10-18, A3 — S5).
+2026-10-18, A3 — S5); the same tolerance (stated, or the ± 0.1 s default) applies to **both** comparisons —
+against the target and against `data-duration` (amended 2026-10-18, A4 — `/akili-test` finding F3).
 
 #### Scenario: Duration drift
 

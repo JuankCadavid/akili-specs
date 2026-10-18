@@ -105,7 +105,7 @@ per-developer availability note, the bridge owns the AKILI phase mapping.
 | DD-9 | Telemetry off by env var per command; outward actions consent-gated | User decision at proposal gate | FR-5 |
 | DD-10 | Live smoke run installs HyperFrames **project-scoped in a temp dir**, never globally. *Amended 2026-10-18 (A3):* "never globally" governs **skill installs**; HyperFrames' own runtime caches (`~/.hyperframes`, `~/.cache/hyperframes` — browser, fonts, history) are written regardless of scope (P-23) and are consent-gated before the first render, not prevented | The user's global copy is stale (`hyperframes-media`) and must not be touched without consent | FR-4 |
 | DD-11 | Evidence uses a **draft** render at test time; only the delivery render waits for approval | Resolves FR-3/FR-6/FR-7 timing; upstream allows `--quality draft` while iterating and forbids rendering the deliverable "merely because checks pass" (P-8) | FR-3, FR-6, FR-7 |
-| DD-12 | `ffprobe` `format.duration` is compared with the requirement's target ± tolerance **and** the root `data-duration` | The first catches a wrong composition, the second a render defect | FR-6 |
+| DD-12 | `ffprobe` `format.duration` is compared with the requirement's target ± tolerance **and** the root `data-duration`, both within the same tolerance (default ± 0.1 s — A4) | The first catches a wrong composition, the second a render defect | FR-6 |
 
 **Reversion challenge (Step 2.3):** DD-7 narrows a delivered guarantee ("every command must still work
 without it"). Challenge — *what does narrowing this break?* A teammate without HyperFrames opening a video
