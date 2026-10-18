@@ -29,7 +29,7 @@
 | Path | Change |
 |---|---|
 | `bin/akili.js` | helper + two call sites (DD-1, DD-2) |
-| `test/init-pty.test.js` | **new**: three pty cases (DD-3) |
+| `test/init-pty.test.js` | **new**: three pty cases (DD-3), plus non-pty case (d) for end-of-input (DD-6, T2; *amended 2026-10-18 at archive, V-4*) |
 | `test/fixtures/init/pty-init.exp` | **new**: `expect` driver; mode `q1` \| `q2` \| `answer` |
 | `test/fixtures/init/no-network.js` | **new**: `--require` preload that appends a line to a marker file whenever `https.get`/`https.request` is called (DD-4) |
 | `docs/cli.md`, `CHANGELOG.md` | one line each (DD-5) |

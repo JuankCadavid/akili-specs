@@ -17,7 +17,7 @@
 
 | Item | Value |
 |---|---|
-| Suites | 1 (pty regression/integration). No backend unit, frontend or E2E suite applies |
+| Suites | 1 (`test/init-pty.test.js`: three pty cases + non-pty case (d) for FR-4 after Pivot V-1). No backend unit, frontend or E2E suite applies |
 | Testers spawned | 0. **Run inline by the Leader** per the Deployment Rule (Lite depth, single bugfix suite) |
 | Author TDD coverage | `test/init-pty.test.js` (T1, red → green in `execution.md`): **cited, not rewritten** |
 | Added by this run | 2 strict checks in the same file: `exactlyOneNewline` (FR-1) and `promptLinesExact` (FR-2 `BUT`). Both close the Reviewer's advisories (1) and (2) from T1 |

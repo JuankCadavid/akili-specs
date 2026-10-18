@@ -18,9 +18,10 @@
 
 ```
 T1 (regression test first → red · questionOrAbort + init catch → green · docs/changelog)
+ └─ T2 (Pivot V-1: pin end-of-input → exit 130 · CHANGELOG + cli.md)
 ```
 
-One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a function `akili routing` shares and adds the harness its own verdict rests on.
+Two tasks: T1, then T2 (added by Pivot V-1, depends on T1; *graph amended 2026-10-18 at archive, V-4 — it read "One task, no dependencies"*). **`skip-eligible` tasks: none.** T1 changes a function `akili routing` shares and adds the harness its own verdict rests on.
 
 **Skills:** `tdd` (test first, red quoted below) · `systematic-debugging` if a real pty disagrees with a baseline reading · `cognitive-doc-design` (CHANGELOG entry, `docs/cli.md` line). No UI skill applies.
 
@@ -119,4 +120,3 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes a functio
 - [x] Falsifier (7) observed red on (d) and restored green.
 - [x] `npm test` green on both versions; `verify:cli`, `pack:dry-run`, `git diff --check` clean; no `bin/` or `package.json` diff.
 - [x] CHANGELOG clause and `docs/cli.md` line quote-checked.
-

@@ -1,12 +1,14 @@
 "use strict";
 
-// bugfix/init-ctrlc-abort T1 — the regression gate for `akili init` Ctrl-C
-// (requirements FR-1, FR-2, NFR-1..3; design DD-3, DD-4). `akili init` runs
-// inside /bin/sh on a real pty driven by `expect`
-// (test/fixtures/init/pty-init.exp); `$?` is read on that same pty after the
-// CLI exits. The scratch HOME is seeded with a fresh update cache and every
-// node process loads test/fixtures/init/no-network.js, so no case goes online.
-// Skips with a printed reason on win32 or when `expect` is not on PATH.
+// bugfix/init-ctrlc-abort T1 + T2 — the regression gate for `akili init`
+// Ctrl-C and end-of-input (requirements FR-1, FR-2, FR-4, NFR-1..3; design
+// DD-3, DD-4, DD-6). Cases (a)–(c) run `akili init` inside /bin/sh on a real
+// pty driven by `expect` (test/fixtures/init/pty-init.exp); `$?` is read on
+// that same pty after the CLI exits. Case (d) needs no pty: stdin is the null
+// device. The scratch HOME is seeded with a fresh update cache and every node
+// process loads test/fixtures/init/no-network.js, so no case goes online.
+// The pty cases skip with a printed reason on win32 or when `expect` is not
+// on PATH; case (d) runs on every OS.
 
 const test = require("node:test");
 const assert = require("node:assert/strict");

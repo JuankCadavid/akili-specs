@@ -2332,10 +2332,12 @@ function keySelect(out) {
 // and `akili init` (runInteractiveInit). Asks `prompt` on `rl`; the caller owns
 // the interface and closes it.
 async function questionOrAbort(rl, prompt, out) {
-  // FR-5 / DD-5 (Pivot B): Ctrl-C closes the interface. Node >= 22.23
-  // rejects the pending question with an AbortError; Node <= 22.12 / 18
-  // never settles it — so a close before the answer rejects too. Both end
-  // as the tagged abort that the caller turns into exit 130.
+  // From routing-keyboard-select FR-5 / DD-5 (Pivot B); here FR-1 / DD-1:
+  // Ctrl-C closes the interface. Node >= 22.23 rejects the pending question
+  // with an AbortError; Node <= 22.12 / 18 never settles it — so a close
+  // before the answer rejects too. Both end as the tagged abort that the
+  // caller turns into exit 130; so does end-of-input, which also closes the
+  // interface (FR-4 / DD-6).
   const abort = () => {
     out.write("\n");
     return Object.assign(new Error("question aborted"), { code: "AKILI_SELECT_ABORT" });

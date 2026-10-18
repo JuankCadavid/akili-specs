@@ -80,8 +80,8 @@
 | Tasks | 2/2 `[x]` (T1 PASS attempt 1; T2 PASS attempt 2 — added by Pivot V-1) |
 | Review rounds | 3 (budget 2; round 3 user-approved) |
 | LOC | ≈+433 / −47 at T2 close, including the /akili-test +18 (budget ~180, tripwire ~230 — T1 overrun accepted by the user before review) |
-| Open | P-4 (Node 18) settles on the CI leg at the first push (Juan Carlos). Follow-ups already recorded in `proposal.md`: stdin EOF before an answer, top-level `main().catch` |
-| Next | Re-test (test-report case (d)) → re-validate → `/akili-archive`. No push, no release from this worktree |
+| Open | P-4 (Node 18) settles on the CI leg at the first push (Juan Carlos). Follow-ups already recorded in `proposal.md`: non-interactive `init` as a usage error (exit 2, Follow-up 1 — EOF's exit code itself moved to 130 under Pivot V-1), top-level `main().catch` |
+| Next | Archived 2026-10-18 (re-tested `3568dd4`, re-validated archive-ready `1a0dda7`). No push, no release from this worktree |
 
 ## Pivot Record: V-1 (raised at `/akili-validate`, after T1)
 
