@@ -69,14 +69,15 @@ The figure (`assets/akili-flow.svg` and `assets/akili-flow.png`) SHALL show: `/a
 
 ### FR-2 — Figure text alternatives match the figure
 
-README's `<img alt>`, the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1.
+Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no script, no external resource.
 
 #### Scenario: Screen-reader user
 
-- GIVEN `README.md:46`
+- GIVEN `README.md:46` or `docs/flow.md:7`
 - WHEN the alt text is read
 - THEN it names the constitution, the loop, Kaizen, the five anytime commands with `/akili-security`, the video track and diagram slots
 - BUT it must NOT claim anything the figure does not show
+- AND IT MUST be the same text at both sites
 
 ### FR-3 — README states the three capabilities
 
