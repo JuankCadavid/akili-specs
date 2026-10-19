@@ -231,7 +231,9 @@ function failEof(t, r, reasons) {
 test("init FR-4 (d): init with stdin at EOF exits 130, nothing installed", (t) => {
   t.diagnostic(`process.version ${process.version} (${process.execPath})`);
   withScratch((ctx) => {
-    const preload = path.join(__dirname, "fixtures", "init", "no-network.js");
+    // NODE_OPTIONS treats a backslash as an escape, so a Windows path must use
+    // forward slashes or the preload is "not found" (CI run 39189811088).
+    const preload = path.join(__dirname, "fixtures", "init", "no-network.js").replace(/\\/g, "/");
     const r = spawnSync(process.execPath, [AKILI_BIN, "init"], {
       cwd: ctx.cwd,
       stdio: ["ignore", "pipe", "pipe"],
