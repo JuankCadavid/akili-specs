@@ -59,7 +59,7 @@ Recurrence (`digest-update`, not a new lesson): T2 attempt 1 inserted a CHANGELO
 | Target | methodology |
 | Edit | `/akili-specify` Premise Ledger (Step 2.x): "Every path the proposal declares **unchanged** (Proposed Outcome or Non-Goals), when the change touches a function that path reaches, is a premise of class `live-path`. Its citation is a probe executed at baseline and re-run after the change, and the probe joins the task's Verification." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-10-18, docs/specs/kaizen/upstream-2026-10-18.md) |
 
 ### P2
 
@@ -69,7 +69,7 @@ Recurrence (`digest-update`, not a new lesson): T2 attempt 1 inserted a CHANGELO
 | Target | methodology |
 | Edit | `/akili-specify` Budget (Step 2.4): "Size a pty/`expect` harness task from the nearest shipped harness's LOC (`git show --stat` of its commit), not from its assertion count. A harness carries fault detection, failure-evidence plumbing, transcript copying and offline seeding, which assertions do not show." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-10-18, docs/specs/kaizen/upstream-2026-10-18.md) |
 
 ### P3
 
@@ -79,6 +79,6 @@ Recurrence (`digest-update`, not a new lesson): T2 attempt 1 inserted a CHANGELO
 | Target | KZ-002 |
 | Edit | Add `bugfix/init-ctrlc-abort` as a source. Recurrence note: "**recurred (bugfix/init-ctrlc-abort T2, recurrence 7): a clause inserted into an existing CHANGELOG entry left the next, pre-existing sentence's unscoped subject reading as covering the new case, for which it was false. Quote-check the sentences around an insertion, not only the inserted clause.**" Severity stays High |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 No `guide-sync` item: no `## Constitution Impact` block, no module created or reshaped (an internal helper in `bin/akili.js`). No `factual-sweep` item: root `CLAUDE.md` / `AGENTS.md` were swept and no factual claim was falsified (see Noted). No `trd-adr` item: no TRD in this repository, and no recorded architecture decision was overturned.

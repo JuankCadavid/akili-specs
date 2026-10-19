@@ -65,7 +65,7 @@
 | Target | `.claude/commands/akili-specify.md` — `## Correction Closure (every Adjust round)`, append one line |
 | Edit | "A gate adjustment applied without re-judgment is still a correction: when it adds a forbidden field, a fixed form, or a new constraint, walk every clause that produces or consumes that field (another FR, a task's scope, another adjustment) before the gate closes — two adjustments approved together can contradict each other." |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P2
 
@@ -75,7 +75,7 @@
 | Target | `KZ-002` |
 | Edit | Add `changes/akili-security` as a source. Recurrence note: "recurred (changes/akili-security, recurrence 7: the command's own overstated gate sentence propagated to four summary surfaces — quote-checking at HEAD passes when the source itself overstates; T5b failed on three default-branch-only clauses; CHANGELOG figures went stale before release)". Severity stays High |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P3
 
@@ -85,4 +85,4 @@
 | Target | `.claude/templates/leader.md` — Primary Instructions item 4, append after the *Finalize per Step 3* bullet |
 | Edit | "A HITL behavioural-evidence record (a run's command log, an observation table a task demands) is derived from the session transcript, never composed from memory — cite the transcript range it was built from." |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) |

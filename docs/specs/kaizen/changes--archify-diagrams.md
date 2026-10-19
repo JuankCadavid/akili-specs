@@ -62,7 +62,7 @@
 | Target | `AGENTS.md` — `## Skill Usage` list, after the `software-architect` bullet |
 | Edit | `- Use \`diagram-design\` when a baseline doc (PRD, UX/UI design, TRD) or an architecturally significant \`design.md\` carries diagram slots: inline Mermaid is canonical, and an Archify interactive view is linked only when the \`archify\` skill is installed; \`/akili-constitution\` Steps 3–5, \`/akili-specify\` Step 2.1, and \`/akili-archive\` Step 2 load it.` |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P2
 
@@ -72,7 +72,7 @@
 | Target | `.claude/templates/tester.md` — append one line to the Tester's test-authoring rules (append-only) |
 | Edit | `A test you add to the shipped suite never reads \`docs/specs/<active spec path>\` at runtime — \`/akili-archive\` moves that folder; inline the expected values as literals and cite the spec commit they were copied from (\`changes/archify-diagrams\` F-1).` |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P3
 
@@ -82,7 +82,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 2.2 *Premise Ledger* → *Blast-radius triggers*, `consumer` row, append one sentence to "The row must contain" |
 | Edit | `When the change adds or removes a member of an enumerated set (a packaged skill, a command, a host), the search keys on an existing member's name as well as on the set's count, because a fixture or listing that enumerates the members pins the set without ever stating its size (\`changes/archify-diagrams\` P-5).` |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) — without the trailing `(changes/archify-diagrams P-5)` provenance citation: the FR-8 test forbids any command file from naming `archify` |
 
 ### P4
 
@@ -92,7 +92,7 @@
 | Target | KZ-002 |
 | Severity | High (unchanged) |
 | Edit | Add `changes/archify-diagrams` as a source; recurrence note: "**recurred (changes/archify-diagrams, recurrence 7: a T6 CHANGELOG clause claimed `install-cursor.test.js` pins '25 skill directories' — only the file count is asserted; validation W-3 found 'Every diagram slot … is filled' against the skill's 'Every filled slot'. Both caught only by quote-checking at HEAD)**" |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P5
 
@@ -102,4 +102,4 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Severity | High (unchanged) |
 | Edit | Add `changes/archify-diagrams` as a source; recurrence note: "**recurred (changes/archify-diagrams T2: the Step 5 wiring line shipped without design §6's 'whose condition holds' clause; the Reviewer walked the cell term by term and failed it, so one round was lost)**" |
-| Status | pending |
+| Status | applied (2026-10-18) |

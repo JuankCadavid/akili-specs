@@ -57,7 +57,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 2.2 guidelines, after the "A design table that restates a requirement's table keeps every cell's obligations." bullet |
 | Edit | `- **A sentence that covers two role or value sets names each set where it applies.** A trailing qualifier or parenthetical attaches to the clause just before it; when it describes the *other* set, name that set ("the Leader and Reviewer are skipped; only the Implementer and Tester are written"), because Implementers copy design wording verbatim (\`changes/antigravity-argon-registry\` T5).` |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P2
 
@@ -67,7 +67,7 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add source `changes/antigravity-argon-registry`. Recurrence note: "**recurred twice (changes/antigravity-argon-registry: the design-time consumer sweep P-7 keyed on a backticked `` `pro` `` missed the Step 8E example's bare `model: pro` — Pivot A4; and A1's code fix to the `/agents` claim left the same claim in Step 8E prose — validation W1, Pivot A5). A code change that retires a claim sweeps the rules text that restates it, keyed on the claim, not on the code identifier**" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P3
 
@@ -77,7 +77,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/antigravity-argon-registry`. Recurrence note: "**recurred (changes/antigravity-argon-registry: T1 attempt 1 called 16 mixed candidate values '16 Argon spellings' — a Reviewer FAIL; validation W4 found the same figures restated differently across spec documents: 14 vs 16 candidates, 'all 16 given' vs 19, 9 vs 10 grep hits)**" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P4
 
@@ -87,7 +87,7 @@
 | Target | KZ-changes--leader-brief-contract-2 |
 | Edit | Add source `changes/antigravity-argon-registry`. Recurrence note: "**recurred (changes/antigravity-argon-registry T3: Falsifier 2, 'remove `wrapperModel` from the clone → the `tools:` assertion red', was written at specify before the clone existed. Executed, it went red on an earlier Leader-render assertion and never reached its target. The Reviewer ran the right mutation (`const tools = []`). A falsifier for an assertion mutates the behaviour that assertion checks, not a setup step before it; no attempt lost)**" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P5
 
@@ -97,4 +97,4 @@
 | Target | `AGENTS.md` — Development Rules › **Model Routing** bullet |
 | Edit | The sentence "Enforced bindings live only in the **Step 8E tool-native agent wrappers** (…), which pin each persona to its tier's model;" should read "… which pin each persona to its tier's model where the host has a wrapper value for that pick (an Antigravity Gemini 4 Argon pick has none, so that role is skipped and reported);" |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-10-18) |

@@ -56,7 +56,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Premise Ledger: a `data-env` row about a third-party CLI command the spec will instruct must also record the command's side effects — write locations (project vs home/global), downloads, network use, and what state it reads — verified at source or by a sandboxed probe before the tasks gate. |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-10-18, docs/specs/kaizen/upstream-2026-10-18.md) |
 
 ### P2
 
@@ -66,7 +66,7 @@
 | Target | methodology |
 | Edit | `/akili-execute` Brief contract: when a task forbids side effects outside a sandbox (live third-party runs), contain them environmentally — redirect `HOME`/`XDG_CACHE_HOME`/the tool's cache variables into the sandbox, or ask the user before the first run — never rely on a "stop if it happens" instruction the worker can only observe after the fact. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-10-18, docs/specs/kaizen/upstream-2026-10-18.md) |
 
 ### P3
 
@@ -76,7 +76,7 @@
 | Target | KZ-changes--persona-upgrade-3 |
 | Edit | Add source `changes/video-deliverable-track`; recurrence note: "recurred — a T9 Reviewer observation that the quick escalation bullet is unreachable under a strict reading was carried as information because the design said 'one line'; it became `/akili-test` FAIL F1 and rework A4." Severity stays Medium. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### P4
 
@@ -86,7 +86,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/video-deliverable-track`; recurrence note: "recurred ×2 — T11 CHANGELOG 'package gains only `.claude/skills/video-production/`' (dropped scope; `docs/skills/video-production.md` also new) and T12 evidence claims refuted by `stat`/`render.log`; each cost a rework attempt." Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-10-18) |
 
 ### Step 3 (Constitution & Graph Sync) — no pending items
 
