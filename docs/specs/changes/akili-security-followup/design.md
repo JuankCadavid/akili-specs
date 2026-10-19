@@ -128,6 +128,8 @@ Three DDs take away delivered behaviour. The question "what does removing this b
 
 Depth check: five tasks at ~270 LOC matches Standard (compact); no level change.
 
+**Budget revision (execute, 2026-10-19 — approved by the user at the T2 continue gate).** The LOC tripwire fired after T2: ~395 authored (T1 +186/−21, T2 +158/−28, design +1/−1) against ~350. Cause: tests ran far past the ~100 estimate (~340 of the ~395, one assertion per THEN/BUT/AND IT MUST clause), plus T2's rework; the command text stayed near plan (174 → 187 lines). Revised: LOC estimate ~510 (T3–T5 unchanged at ~115), escalate past **~520**. Tasks (6) and review rounds (14) tripwires unchanged. The two T1 safety/conformance ADVISORY items (`--out` with `..` not normalised; restore's `--claude-target` without `--tool claude`) stay recorded in `execution.md` for a separate proposal — not tasks here.
+
 ## 12. Premise Ledger
 
 Count: 18 verified · 0 `UNVERIFIED`.

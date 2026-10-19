@@ -56,3 +56,13 @@
 | Decisions made | Skills per task list — no deviation. Implementer `sonnet` xhigh; attempt 2 kept `sonnet` at xhigh (the bump would be `max` → tier escalation to `opus`, which would put author and auditor on one model) and steered "think harder" in-brief. **Execute-time spec edit:** `design.md` §7 row 4 amended 2026-10-19 — branch suffix from Step 0.3's branch via `$SAFE_NAME`, never `/akili-audit`'s `git rev-parse` source or the kaizen chain; default branch only from the pin; `not determined` (detached) → no suffix, `-N`; trace column + FR-6. Reason: the site was missing from row 4, and the imported rule ran git in Step 4 against approved FR-6; no requirement's meaning changed (confirmed by the attempt-2 Reviewer as a named conformance check). Carry into T3/T4 Reviewer briefs. Attempt 2 reviewed by one Reviewer on both lenses over the whole diff (conformance had PASSed attempt 1). New checklist item titled "No git before Run" (Implementer assumption, accepted) |
 | spawns | Implementer (attempt 1) 20 calls, 137,397 tokens, ended complete; Reviewer conformance 12 calls, 87,297 tokens, ended complete; Reviewer safety 7 calls, 81,090 tokens, ended fail; Implementer (attempt 2, resumed) 6 calls, 145,849 tokens cumulative, ended complete; Reviewer (attempt 2) 6 calls, 63,722 tokens, ended complete |
 | Running totals | tasks 2/5 · LOC ~395 (T1 +186/−21, T2 +158/−28, design +1/−1) · review rounds 5 — **budget tripwire: LOC past ~350** (escalated at this gate, below) |
+
+### Budget gate — after T2 (2026-10-19)
+
+| Field | Value |
+|---|---|
+| Trigger | LOC tripwire: ~395 authored vs escalate-past ~350 (design §11) |
+| Cause | Tests ~340 of ~395 (estimate ~100 for the whole spec); T2 rework; command text near plan (174 → 187 lines) |
+| Projection | T3–T5 ~115 → spec ~510 LOC; review rounds 5/12 |
+| User decision (verbatim intent) | Option 1 — continue T3–T5 under a revised budget of ~520 LOC; record the revision and its cause in the spec before T3 in a local commit; the two advisories (`--out` with `..` normalisation; `--claude-target` without `--tool claude`) stay recorded for a separate proposal, not tasks of this spec; local commits only, no push/merge/release/tag/publish; continue to the next gate |
+| Spec edit | `design.md` §11 — budget revision paragraph (LOC escalate past ~520; tasks and rounds unchanged) |
