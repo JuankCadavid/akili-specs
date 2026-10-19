@@ -25,7 +25,7 @@ Loading the skill never authorizes the complete workflow or file creation.
 | AKILI moment | How the skill is used |
 |---|---|
 | `/akili-security` Steps 0-5 | Required skill; the command runs the complete audit workflow |
-| A `confirmed` finding | Routed to the Bug Track via `/akili-propose bugfix/security-<date>-s<n>` at the command's Step 5 routing gate; never fixed silently |
+| A `confirmed` finding | Routed to the Bug Track via `/akili-propose bugfix/security-<date>-r<N>-s<n>` at the command's Step 5 routing gate; never fixed silently |
 | Guidance mode | Applied as written, outside the command |
 
 AKILI gates wrap the upstream workflow and never relax its scope, authorization, or safe-reproduction rules. The tracked index under `docs/specs/audits/` is redacted: identifiers, severity, and status only.
@@ -54,7 +54,7 @@ Only `SKILL.md` is edited (frontmatter plus an `## AKILI-SPECS Integration` sect
 
 ## Platform support
 
-`validate-findings.cjs` and `validate-coverage-ledger.cjs` open their input with `O_NOFOLLOW | O_NONBLOCK` and refuse to run when either `fs.constants` entry is missing (`OS no-follow and nonblocking input protection is unavailable`, exit 1). Neither entry exists on native Windows, so on Windows both validators always fail closed and no finding can be validated. `/akili-security` therefore stops in its preflight on native Windows (`process.platform` `win32`, or either constant `undefined`) and tells the user to run it from WSL, Linux or macOS. The validators are vendored byte-for-byte at the pinned commit and are deliberately not patched; `test/security-audit-skill.test.js` pins the fail-closed behaviour on Windows (CI evidence: run 39160826587, both Windows legs).
+`validate-findings.cjs` and `validate-coverage-ledger.cjs` open their input with `O_NOFOLLOW | O_NONBLOCK` and refuse to run when either `fs.constants` entry is missing (`OS no-follow and nonblocking input protection is unavailable`, exit 1). Neither entry exists on native Windows, so on Windows both validators always fail closed and no finding can be validated. `/akili-security` therefore stops in its preflight on native Windows (`process.platform` `win32`, or either constant `undefined`) and tells the user to run it from WSL, Linux or macOS. The validators are vendored byte-for-byte at the pinned commit and are deliberately not patched; `test/security-audit-skill.test.js` pins the fail-closed behaviour on Windows (CI evidence: run 39160826587, both Windows legs). The stop is lifted only through the *Windows gate* step of the re-sync procedure below; no wrapper, shim or patch to a vendored file ever substitutes for it. An upstream request is drafted in `docs/specs/changes/akili-security-followup/upstream-request.md` for the maintainer to file; it is not filed.
 
 ## Why the two upstream tests are excluded
 
@@ -71,8 +71,11 @@ AKILI-owned smoke cases in `test/security-audit-skill.test.js` replace them (DD-
 1. Clone `cloudflare/security-audit-skill` at the new commit into an **empty** directory.
 2. Diff `skills/security-audit/` against `.claude/skills/security-audit/`, and the upstream **repo-root** `LICENSE` against `.claude/skills/security-audit/LICENSE` (`skills/security-audit/` holds no `LICENSE`).
 3. Copy every changed or new file **except** the `*.test.cjs` files, **plus the upstream repo-root `LICENSE`** (copied to `.claude/skills/security-audit/LICENSE`). Keep our `SKILL.md` frontmatter and `## AKILI-SPECS Integration` section; merge only upstream body changes into it.
-4. Update the pin everywhere it appears: `SKILL.md` frontmatter (`source`, `version`), `UPSTREAM_SHA` and the file list in `test/security-audit-skill.test.js`, this page, and `CHANGELOG.md`.
-5. Run `npm test`.
+4. Update the pin everywhere it appears: `SKILL.md` frontmatter (`source`, `version`), the command's Step 0.1 pin (the commit literal in `.claude/commands/akili-security.md`), `UPSTREAM_SHA` and the file list in `test/security-audit-skill.test.js`, this page, and `CHANGELOG.md`. The pin-sync test fails when the command, `SKILL.md` and `UPSTREAM_SHA` name different commits.
+5. **Windows gate.** If the validators at the new pin still require `O_NOFOLLOW` and `O_NONBLOCK`, keep the preflight stop and the Windows test branch as they are. To lift the stop, push a candidate branch that removes the `win32` short-circuit from `NO_FOLLOW_UNAVAILABLE` in `test/security-audit-skill.test.js`. Remove the preflight stop only when that branch passes the non-fallback cases on both Windows CI legs (Node 18 and 22), and do it in the change that merges the branch. Never add a wrapper, shim or patch to a vendored file.
+6. Run `npm test`.
+
+The provenance check is necessary but not sufficient. The pin and frontmatter check catches a stale or unadapted copy, not a hostile one: a hostile copy can forge `adapted-for` and `source`, so a matching pin does not prove the loaded body is the vendored one. The command's own gates (no `git` in the target before Run, untrusted ref reading, run directory outside the target) are separate controls, and a matching pin never waives them.
 
 ## Acceptance checklist (governance)
 

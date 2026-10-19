@@ -89,7 +89,7 @@ No task is `skip-eligible`.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T2 |
 | Requirements | FR-1 (re-sync pin-update step names "the command's Step 0.1 pin"), FR-8 (restatements `SKILL.md:207`, `docs/skills/security-audit.md:28`), FR-9 (scenario incl. `AND IT MUST lift … candidate branch`, `BUT no AKILI wrapper …`, `AND IT MUST NOT be filed upstream by the agent`), FR-10 (these files; R-B note), NFR-2 |
 | Design refs | §4, §9 re-sync row, DD-8; P-7, P-8, P-10, P-14, P-16 |

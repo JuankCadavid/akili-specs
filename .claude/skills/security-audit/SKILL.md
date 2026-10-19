@@ -204,7 +204,7 @@ Do not end the run before one of exactly two terminal states: (a) all Phase 6 ar
 | AKILI moment | How to use this skill |
 |---|---|
 | `/akili-security` Steps 0-5 | Required skill. The command loads it and runs the complete audit workflow above for a full repository audit; the command's steps map to the skill's setup, planning, hunting, validation, and reporting phases |
-| A `confirmed` finding | Routed to the Bug Track through `/akili-propose bugfix/security-<date>-s<n>` at the command's Step 5 routing gate; never fixed silently during the audit |
+| A `confirmed` finding | Routed to the Bug Track through `/akili-propose bugfix/security-<date>-r<N>-s<n>` at the command's Step 5 routing gate; never fixed silently during the audit |
 | Guidance mode (any security question or focused review outside `/akili-security`) | Apply the skill's guidance mode as written; loading it never authorizes the complete workflow or file creation |
 
 Adaptation rules:
