@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.34.0] - 2026-10-19
+
 > This release (classified **minor**: two new conditional skills, `diagram-design` and `video-production`) integrates three archived specs: `changes/antigravity-argon-registry`, `changes/archify-diagrams` and `changes/video-deliverable-track`.
 
 ### Added
@@ -32,7 +38,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Fixed
 
 - **`akili routing` no longer reports that `/agents` lists only `akili-leader` when no Leader wrapper is written.** `bin/routing.js` emits `Antigravity: in-session \`/agents\` lists only \`akili-leader\` — that is the success condition` only when the Leader wrapper is planned; on the packaged roster (Leader routed to Argon, no wrapper) the line is absent and the `Antigravity Leader: no wrapper` and `Antigravity Reviewer: no wrapper` lines stand alone.
-
 ## [2.33.1] - 2026-10-19
 
 ### Fixed
