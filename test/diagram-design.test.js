@@ -413,7 +413,7 @@ test("@akili-spec changes/archify-diagrams FR-9 (governance, skills docs, README
 
   const cli = read(path.join(REPO_ROOT, "docs", "cli.md"));
   assert.doesNotMatch(cli, /24 packaged/);
-  assert.match(cli, /26 packaged skills/);
+  assert.match(cli, /27 packaged skills/);
 
   const changelog = read(path.join(REPO_ROOT, "CHANGELOG.md"));
   const unreleased = changelog.split(/^## \[Unreleased\]$/m)[1].split(/^## \[/m)[0];
