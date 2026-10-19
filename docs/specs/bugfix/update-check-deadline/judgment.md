@@ -29,3 +29,18 @@ Both judges re-ran P-1–P-8 (confirmed; `gh pr diff` re-run by judge A only) an
 | J11 | suggestion | Timing margins / synchronous throw | B | no change needed |
 
 Counts: confirmed severe 1 · suspect 0 · contradictions 0 · info 13.
+
+## Scoped re-judgment (round 1 delta `31a4e04..3672bc5`)
+
+Both judges re-ran `gh pr view 43..55` (all `CLOSED`, unmerged) and `gh pr list --state open` (0): **F1/J1 resolved**. Fix-caused, non-severe (info):
+
+| ID | Finding | Disposition |
+|---|---|---|
+| B-N1 | Kill cap still measured from spawn: a > 3 s cold start could kill the drip case before the deadline | Amended: cap 6000 ms from first request, 20000 ms spawn allowance; FR-1 BUT wording. Prototype re-executed: baseline red (6005/6004/6004 ms), fix 4/4 on all three versions |
+| A-N1 / B-N2 | §13 said 9 info rows; ledger has 13 | Amended |
+| B-N3 | NFR-3 stated "no skip" as fact while P-10 is `UNVERIFIED` | Amended |
+| A-N2 | Re-judge row was a placeholder | Amended (this section) |
+| A-N3 | Missing period in DD-5 | Amended |
+| A-N4 / B-N4 | P-9 timestamp not reproducible | No change (FR-4 re-runs `gh` at write time) |
+
+**JUDGMENT: APPROVED ✅** — confirmed severe 1 (fixed) · suspect 0 · contradictions 0 · rounds used 1 of 2.

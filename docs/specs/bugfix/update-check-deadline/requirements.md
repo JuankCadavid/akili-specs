@@ -56,7 +56,7 @@ The system SHALL settle the update check with "no version" no later than the dea
 - WHEN `akili check-update` runs with no fresh cache
 - THEN the process exits `0` between 2500 ms and 5000 ms after the request reaches the registry
 - AND IT MUST write no update cache
-- BUT it must NOT still be running at 6000 ms (today it is)
+- BUT it must NOT still be running 6000 ms after the request reaches the registry (today it is)
 
 ### FR-2: Cut responses still settle at once, without a crash
 
@@ -98,7 +98,7 @@ The system's maintainers SHALL find the fix in `CHANGELOG.md` `[Unreleased]` and
 |---|---|
 | NFR-1 | The tests MUST make no outside network call: every registry request reaches a local server, proven by a hit counter and the healthy control (FR-3). |
 | NFR-2 | The test seam is a `--require` preload under `test/fixtures/`; `bin/akili.js` gains no export and no test-only branch. |
-| NFR-3 | The default deadline is 3000 ms. No new dependency (`package.json` keeps no `dependencies`). Supported: the CI matrix `os: [ubuntu-latest, macos-latest, windows-latest]` × `node: [18, 22]` (`.github/workflows/ci.yml:30–31`); the new tests run on all six cells, with no skip. |
+| NFR-3 | The default deadline is 3000 ms. No new dependency (`package.json` keeps no `dependencies`). Supported: the CI matrix `os: [ubuntu-latest, macos-latest, windows-latest]` × `node: [18, 22]` (`.github/workflows/ci.yml:30–31`); the new tests are written to run on all six cells with no skip; Windows is unverified until CI runs (design P-10), and a red there is handled as P-10's *If false* says. |
 
 ### Defect classes → gate
 
