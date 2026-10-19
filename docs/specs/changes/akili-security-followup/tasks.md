@@ -45,7 +45,7 @@ No task is `skip-eligible`.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | none |
 | Requirements | FR-1 (stale copy: foreign-copy treatment, `BUT … a commit`, `AND IT MUST … 40-character literal`; pin sites agree — the test), FR-2 (all three scenarios: restore offered incl. `BUT … --force, an npx command …`, `AND IT MUST NOT move …`; after restore incl. `BUT … NOT run the audit in the session that loaded the foreign copy`; copy inside the target — entry **or** resolved path — incl. `BUT … NOT move anything inside the target`), FR-3 (plan half: *Skill copy* field, `pinned`), FR-4 (scenario incl. both `AND IT MUST` clauses and `BUT … paraphrase`), FR-6 (both scenarios' preflight halves: program never runs, *Target* field, dirty asked, `BUT … any other git command`; hostile content incl. directory symlinks, `.git` symlink or `gitdir:` file → `not determined`, `BUT no content … whose real path is outside … .git … reaches the plan`, `AND IT MUST admit … hex … safe charset`), FR-7 (both scenarios' refusal halves incl. `BUT … ignore rule`; contains-target; HOME inside target), NFR-1 |
 | Design refs | §5.1, §7 rows 0.1, 0.3, 1 table, 1 run dir, 1 exec gate; DD-1, DD-2, DD-4, DD-5, DD-6; P-1–P-5, P-11–P-13, P-15 |

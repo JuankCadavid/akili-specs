@@ -82,6 +82,23 @@ test("SKILL.md frontmatter carries upstream attribution and AKILI binding", () =
   assert.match(fm, /^ {2}binding: core$/m);
 });
 
+// The pin sites agree: expected is the UPSTREAM_SHA literal above (written from the
+// requirement, not derived from either file under test); the command's Step 0.1
+// literal and SKILL.md `source` are each compared against it.
+test("pin sites agree: the command's Step 0.1 literal, SKILL.md source and UPSTREAM_SHA name one commit", () => {
+  const norm = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), "utf8").replace(/\r\n/g, "\n");
+  const command = norm(".claude/commands/akili-security.md");
+  const item = command.match(/^1\. \*\*Load the `security-audit` skill\.\*\*[\s\S]*?(?=\n2\. \*\*)/m);
+  assert.ok(item, "command Step 0.1 (Load the `security-audit` skill) not found");
+  const literals = [...new Set(item[0].match(/\b[0-9a-f]{40}\b/g) || [])];
+  assert.deepEqual(literals, [UPSTREAM_SHA], "the command's Step 0.1 pin literal differs from UPSTREAM_SHA (or is absent)");
+  const fm = norm(".claude/skills/security-audit/SKILL.md").match(/^---\n([\s\S]*?)\n---\n/);
+  assert.ok(fm, "SKILL.md frontmatter missing");
+  const source = fm[1].match(/^ {2}source: (.*)$/m);
+  assert.ok(source, "SKILL.md frontmatter has no source");
+  assert.deepEqual([...new Set(source[1].match(/\b[0-9a-f]{40}\b/g) || [])], [UPSTREAM_SHA], "SKILL.md source names a commit other than UPSTREAM_SHA");
+});
+
 test("LICENSE keeps the upstream copyright notice", () => {
   const licence = fs.readFileSync(path.join(SKILL_DIR, "LICENSE"), "utf8");
   assert.ok(licence.includes("Copyright (c) 2025-2026 Cloudflare, Inc."));

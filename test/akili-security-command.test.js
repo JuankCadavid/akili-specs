@@ -67,16 +67,82 @@ function has(text, re, msg) {
   assert.match(text, re, msg);
 }
 
+// One numbered item of a step (e.g. Step 0 item 1), up to the next numbered item.
+function stepItem(n, k) {
+  const m = step(n).match(new RegExp(`^${k}\\. \\*\\*[\\s\\S]*?(?=\\n\\d\\. \\*\\*|(?![\\s\\S]))`, "m"));
+  assert.ok(m, `Step ${n} item ${k} not found`);
+  return m[0];
+}
+
+// Written from requirements.md FR-1 (the pin) and FR-4 (upstream's lead clause,
+// four bullets and exposure rule, byte for byte) -- never read from the command
+// under test.
+const PIN = "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8";
+const UPSTREAM_BULLETS = [
+  "no external network; use only an isolated loopback namespace when the check needs local client/server traffic;",
+  "an empty environment populated from an explicit allowlist with safe values, with scratch-local `HOME`, temporary directories, and caches;",
+  "a read-only target and toolchain, with the target-controlled process able to write only inside its assigned `scratch/` directory; and",
+  "explicit low CPU, memory, process, file-size, disk, and wall-clock limits.",
+];
+const UPSTREAM_LEAD = "an OS-enforced sandbox that provides all of these controls";
+const UPSTREAM_EXPOSURE =
+  "Never expose a retained output directory (other than the agent's own assigned `scratch/`), another agent's directory, the host home directory, credentials, sockets, or shared services to target code.";
+
 // ---------------------------------------------------------------- FR-2
 
 test("FR-2 Foreign copy: preflight checks adapted-for AKILI-SPECS and the pinned source commit", () => {
-  has(step(0), /Check that the loaded copy's frontmatter carries `adapted-for: "AKILI-SPECS"` and a `source` naming the pinned commit/,
-    "Step 0 lost the adapted-for + pinned-commit provenance check");
+  has(step(0), new RegExp("Check that the loaded copy's frontmatter carries `adapted-for: \"AKILI-SPECS\"` and a `source` naming the pinned commit `" + PIN + "`"),
+    "Step 0 lost the adapted-for + pinned-commit provenance check, or no longer states the 40-character pin literal");
 });
 
-test("FR-2 Foreign copy: a mismatch names the path and offers continue or `akili install --force`", () => {
-  has(step(0), /name the resolved path and the mismatch and offer: \*\*continue with that copy\*\*, or \*\*reinstall with `akili install --force`\*\*/,
-    "Step 0 no longer names the mismatch with both options");
+test("FR-1 Stale AKILI copy: the pin is the full 40-character literal in Step 0.1, and a commit mismatch is a foreign copy", () => {
+  const item = stepItem(0, 1);
+  const found = item.match(/\b[0-9a-f]{40}\b/g) || [];
+  assert.deepEqual([...new Set(found)], [PIN], "Step 0.1 does not state exactly the pinned 40-character commit literal");
+  has(item, /A `source` naming \*a\* commit does not pass/, "Step 0.1 lost the 'must NOT pass because source names a commit' clause");
+  has(item, /name the resolved path, the commit found and the pin/, "Step 0.1 offer no longer names the path, the commit found and the pin");
+});
+
+test("FR-2 Foreign copy: the offer is continue, restore the pinned copy, or stop", () => {
+  has(stepItem(0, 1), /offer: \*\*continue with that copy\*\*, \*\*restore the pinned copy\*\*, or \*\*stop\*\*/,
+    "Step 0.1 no longer offers continue / restore the pinned copy / stop");
+});
+
+test("FR-2 Restore offered BUT: never --force, an npx command, or any overwrite or network command", () => {
+  const item = stepItem(0, 1);
+  has(item, /Never offer `--force`, an `npx` command, or any command that overwrites installed files or fetches from the network/,
+    "Step 0.1 lost the no --force / no npx / no overwrite prohibition");
+  has(item, /with `--skills-only` and without `--force`/, "restore install is no longer skills-only without --force");
+  assert.doesNotMatch(cmd, /install --force/, "the command offers `install --force` again");
+  for (const l of cmd.split("\n").filter((x) => x.includes("npx"))) {
+    assert.ok(/`npx skills add`/.test(l) || /an `npx` command/.test(l), `unexpected npx text in the command: ${l.slice(0, 120)}`);
+  }
+});
+
+test("FR-2 Restore offered: the entry moves, the link itself and never its target, to a fresh foreign-copy directory", () => {
+  const item = stepItem(0, 1);
+  has(item, /the symlink itself when it is one, never its target/, "restore no longer moves the link itself rather than its target");
+  has(item, /fresh `~\/security-audit-skill\/foreign-copy-<YYYY-MM-DD>-<n>\/`/, "restore destination lost the fresh foreign-copy-<date>-<n> directory");
+  has(item, /Move or delete nothing unless the user chose \*\*restore\*\*/, "restore lost the 'no move without choosing restore' rule");
+});
+
+test("FR-2 After restore: the command ends before the plan gate, in a fresh session; non-zero install reports and ends", () => {
+  const item = stepItem(0, 1);
+  has(item, /end the command before the plan gate and tell the user to re-run `\/akili-security` in a fresh session/,
+    "command no longer ends after restore with a fresh-session instruction");
+  has(item, /never run the audit in the session that loaded the foreign copy/, "after-restore BUT (no audit in the loading session) missing");
+  has(item, /when the install exits non-zero, report the exit code and where the moved entry now is, then end/,
+    "non-zero install outcome (exit code + moved entry location) missing");
+});
+
+test("FR-2 Copy inside the target: entry or resolved path inside or above the target offers only continue or stop; destination too", () => {
+  const item = stepItem(0, 1);
+  has(item, /the skills-root entry or its resolved path[^.;]*neither inside the target nor an ancestor of it/,
+    "restore containment lost the 'entry or its resolved path' two-way rule");
+  has(item, /and the restore destination, are each neither inside the target nor an ancestor of it/,
+    "restore containment lost the destination (HOME inside the target)");
+  has(item, /otherwise offer only \*\*continue with that copy\*\* and \*\*stop\*\*, and move nothing inside the target/,
+    "inside-target copy no longer reduces the offer to continue / stop with no move");
 });
 
 test("FR-2 Foreign copy BUT: never continues silently as if the copy were pinned", () => {
@@ -120,6 +186,11 @@ test("FR-3: the plan gate offers Run, Adjust and Stop", () => {
   has(s1, /^3\. \*\*Stop\*\* — end the command; nothing was written/m, "Stop option missing");
 });
 
+test("FR-3 Foreign copy continued: the plan's Skill copy field reads foreign with path and commit, or pinned", () => {
+  has(step(1), /^\| Skill copy \| `pinned`, or `foreign — <resolved path>, commit <found>` \(Step 0\.1\) \|$/m,
+    "plan lost the Skill copy field (pinned | foreign — path, commit)");
+});
+
 test("Pivot T7a: the routing gate stops whenever it is reached", () => {
   has(preamble, /the routing gate \(Step 5\) stops whenever it is reached — only a run that writes an index reaches it/,
     "T7a routing-gate wording missing");
@@ -142,9 +213,29 @@ test("FR-4 Default run: an execution-needing lead is recorded needs_validation w
     "addendum lost the needs_validation-with-blocker rule");
 });
 
-test("FR-4: sandboxed execution only for this run, explicitly selected, with all four controls", () => {
-  has(step(1), /applies to \*\*this run\*\* only, and only when the user explicitly selects it at this gate \*\*and\*\* confirms a sandbox mechanism that enforces all four upstream controls: \(1\) no external network; \(2\) an allowlisted, empty environment; \(3\) a read-only target with writes only to the agent's `scratch\/`; \(4\) CPU, memory, process, file, disk and time limits/,
-    "four-control sandbox approval sentence missing or weakened");
+test("FR-4: sandboxed execution only for this run, explicitly selected, with every upstream control confirmed", () => {
+  has(step(1), /Sandboxed execution applies to \*\*this run\*\* only, and only when the user explicitly selects it at this gate \*\*and\*\* confirms /,
+    "sandbox approval sentence (this run only, explicit selection, confirmation) missing or weakened");
+  has(step(1), /treat each of these as a control the user must confirm/i, "gate no longer treats each upstream control as one the user must confirm");
+});
+
+test("FR-4 AND IT MUST: the gate quotes upstream's lead clause (SKILL.md:41) verbatim", () => {
+  assert.ok(read(".claude/skills/security-audit/SKILL.md").includes(UPSTREAM_LEAD), "the expected lead clause is no longer in SKILL.md (test literal drifted)");
+  has(step(1), new RegExp('"' + UPSTREAM_LEAD + '"'), "execution gate lost upstream's lead clause 'an OS-enforced sandbox that provides all of these controls'");
+});
+
+test("FR-4 AND IT MUST: the gate quotes all four upstream bullets (SKILL.md:43-46) byte for byte", () => {
+  const skill = read(".claude/skills/security-audit/SKILL.md");
+  const lines = step(1).split("\n");
+  for (const b of UPSTREAM_BULLETS) {
+    assert.ok(skill.includes("- " + b), `the expected bullet is no longer in SKILL.md (test literal drifted): ${b.slice(0, 40)}`);
+    assert.ok(lines.includes("- " + b), `execution gate dropped or paraphrased an upstream control: ${b.slice(0, 60)}`);
+  }
+});
+
+test("FR-4 AND IT MUST: the gate requires upstream's exposure rule (SKILL.md:48)", () => {
+  assert.ok(read(".claude/skills/security-audit/SKILL.md").includes(UPSTREAM_EXPOSURE), "the expected exposure rule is no longer in SKILL.md (test literal drifted)");
+  assert.ok(step(1).includes(UPSTREAM_EXPOSURE), "execution gate lost upstream's exposure rule (retained output, other agents, HOME, credentials, sockets, shared services)");
 });
 
 test("FR-4 Control unconfirmed: plan re-shown as static-only naming the missing control", () => {
@@ -196,20 +287,66 @@ test("FR-5 AND IT MUST: AI-addressed target text is eligible as a finding", () =
 
 // ---------------------------------------------------------------- FR-6
 
-test("FR-6: the run directory defaults to outside the target", () => {
-  has(step(1), /\*\*Run directory rules\.\*\* The default is outside the target\./, "outside-target default missing");
+test("FR-6: the run directory defaults to outside the target; the plan row says outside the target only", () => {
+  has(tableRow(step(1), "Run directory"), /The skill's default \(`~\/security-audit-skill\/<repo-name>\/run-<N>`\) or `--out`/, "Run directory plan row changed");
+  has(tableRow(step(1), "Disclosure"), /^\| Disclosure \| Full findings stay in the run directory, outside the target; only a redacted index is written under `docs\/specs\/audits\/` \|$/,
+    "Disclosure row no longer says findings stay outside the target (or still names an ignored in-target directory)");
 });
 
-test("FR-6 In-repo output not ignored: in-target only if user-picked and git check-ignore confirms, else refuse", () => {
-  has(step(1), /accepted only when the user picked it \*\*and\*\* `git check-ignore -q <dir>` confirms the whole directory is ignored[^.]*; otherwise refuse it and ask for an external or ignored path/,
-    "check-ignore acceptance / refusal rule missing");
+test("FR-7 --out inside the target: accepted only when outside the target, never on the strength of an ignore rule", () => {
+  const rules = step(1).split("\n").find((l) => l.startsWith("**Run directory rules.**"));
+  assert.ok(rules, "Run directory rules paragraph missing");
+  has(rules, /real path[^.]*neither inside the target's real path nor an ancestor of it/, "run directory is no longer required to be outside the target and not contain it");
+  has(rules, /An ignore rule never makes an in-target directory acceptable/, "run-directory rule lost the 'no acceptance on an ignore rule' clause");
+  assert.doesNotMatch(rules, /or ignored path|ignored directory|check-ignore|is ignored/, "run-directory rule still accepts an ignored in-target path");
+  has(rules, /otherwise refuse it and ask for an external path that does not contain the target/i, "refusal no longer asks for an external path that does not contain the target");
+});
+
+test("FR-7 Run directory contains the target, or HOME is inside it: refused (two-way containment, symlinks resolved)", () => {
+  const rules = step(1).split("\n").find((l) => l.startsWith("**Run directory rules.**"));
+  has(rules, /nearest existing ancestor, symlinks resolved/, "run-directory check no longer resolves symlinks of the nearest existing ancestor");
+  has(rules, /`--out \/`, a parent of the target, or a default[^.]*inside the target because HOME does/, "run-directory rule lost the containing-the-target / HOME-inside-target refusals");
 });
 
 test("FR-6 BUT: nothing is written under docs/specs/ except the index", () => {
-  has(step(1), /An in-target run directory is never under `docs\/specs\/`; nothing under `docs\/specs\/` is written except the index/,
-    "docs/specs/ write prohibition missing");
+  has(step(1), /Nothing under `docs\/specs\/` is written except the index/, "docs/specs/ write prohibition missing");
   has(tableRow(cmd, "`--out` inside the target and not ignored, or under `docs/specs/`"), /Refuse; ask for an external or ignored path/,
     "error-handling refusal row missing");
+});
+
+test("FR-6 Hostile .git/config: no git command runs in the target in any step of the command", () => {
+  assert.doesNotMatch(cmd, /`git [a-z-]+|git (status|check-ignore|rev-parse)/, "the command invokes git (status, check-ignore, rev-parse or another subcommand) again");
+  has(stepItem(0, 3), /Never run git in the target before \*\*Run\*\*, and never in Steps 4 and 5/, "the no-git-before-Run prohibition is missing from Step 0.3");
+});
+
+test("FR-6 Hostile .git/config: the Target field shows branch and commit from HEAD and asks the user for the dirty state", () => {
+  const row = tableRow(step(1), "Target");
+  has(row, /branch from `HEAD` \(the commit itself when detached\)/, "Target field no longer reads the branch from HEAD");
+  has(row, /commit when it resolves, else `not determined`/, "Target field lost the 'not determined' commit fallback");
+  has(row, /dirty state asked of the user at this gate, `not determined` when declined/, "Target field lost the ask-the-user dirty state rule");
+  has(stepItem(0, 3), /never as clean/, "an undetermined commit or declined dirty state may be recorded as clean");
+  has(stepItem(0, 3), /`not determined` in `run-metadata\.json` and the index/, "undetermined values are no longer recorded as `not determined` in metadata and the index");
+});
+
+test("FR-6 Hostile .git content: a .git symlink or gitdir file, or a symlink on the path, reads `not determined`", () => {
+  const item = stepItem(0, 3);
+  has(item, /`\.git` must be a real directory[^.]*a symlink, or a file \(`gitdir:`[^.]*reads `not determined` for branch and commit/,
+    "a .git symlink or gitdir: file is no longer `not determined`");
+  has(item, /a symlink anywhere on the path \(the file, or any directory on it\)/, "symlinks on the path to the ref files no longer read `not determined`");
+  has(item, /regular file within the cap \(64 KiB; `packed-refs` 1 MiB\)/, "regular-file and size-cap rule missing");
+});
+
+test("FR-6 Hostile .git content BUT: no file whose real path is outside .git is read (every component resolved)", () => {
+  const item = stepItem(0, 3);
+  has(item, /its real path, every component resolved, is inside the real path of `<target>\/\.git`/, "real-path containment in the target's .git (every component resolved) missing");
+  has(item, /no content of any file whose real path is outside `<target>\/\.git` reaches the plan, `run-metadata\.json` or the index/,
+    "no-outside-content guarantee missing");
+});
+
+test("FR-6 Hostile .git content AND IT MUST: a commit only as 40 or 64 lower-case hex; a branch only in a safe charset with no `..`", () => {
+  const item = stepItem(0, 3);
+  has(item, /Admit a commit only when it is 40 or 64 lower-case hex characters, and a branch name only when it uses the safe character set `\[A-Za-z0-9\._\/-\]` with no `\.\.` component/,
+    "hex / safe-charset admission rule missing");
 });
 
 // ---------------------------------------------------------------- FR-7
