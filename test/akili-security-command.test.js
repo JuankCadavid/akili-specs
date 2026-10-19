@@ -285,6 +285,15 @@ test("FR-5 AND IT MUST: AI-addressed target text is eligible as a finding", () =
     "addendum lost the 'eligible as a finding' clause");
 });
 
+test("FR-5 Sandboxed run: the addendum names the policy and the approved mechanism; static-only names none", () => {
+  has(addendum(), /Execution policy for this run: `<static-only \| sandboxed-approved via <mechanism>>`\./,
+    "addendum has no mechanism slot: under sandboxed-approved it does not name the approved mechanism");
+  const fill = step(2).split("\n").find((l) => l.startsWith("Fill that placeholder from the gate"));
+  assert.ok(fill, "Step 2 no longer says how the addendum's policy placeholder is filled");
+  has(fill, /`sandboxed-approved via` followed by the mechanism the user named at the gate/, "fill rule lost the sandboxed-approved via <mechanism> case");
+  has(fill, /`static-only` with no mechanism named/, "fill rule lost 'static-only names no mechanism'");
+});
+
 // ---------------------------------------------------------------- FR-6
 
 test("FR-6: the run directory defaults to outside the target; the plan row says outside the target only", () => {
@@ -310,8 +319,17 @@ test("FR-7 Run directory contains the target, or HOME is inside it: refused (two
 
 test("FR-6 BUT: nothing is written under docs/specs/ except the index", () => {
   has(step(1), /Nothing under `docs\/specs\/` is written except the index/, "docs/specs/ write prohibition missing");
-  has(tableRow(cmd, "`--out` inside the target and not ignored, or under `docs/specs/`"), /Refuse; ask for an external or ignored path/,
-    "error-handling refusal row missing");
+  const row = cmd.split("\n").find((l) => l.startsWith("| `--out`"));
+  assert.ok(row, "Error Handling lost its --out row");
+  has(row, /^\| `--out` inside the target or containing it \(ignored or not\), or under `docs\/specs\/` \| Refuse; ask for an external path that does not contain the target \|$/,
+    "Error Handling --out row still accepts an ignored in-target path, or no longer covers a run directory containing the target");
+});
+
+test("FR-2 Error Handling: the foreign-copy row names the restore offer and stays never-silent", () => {
+  const row = cmd.split("\n").find((l) => l.startsWith("| Foreign or unpinned skill copy |"));
+  assert.ok(row, "Error Handling lost its foreign-copy row");
+  has(row, /continue, restore the pinned copy \(never `--force`\), or stop/, "Error Handling foreign-copy row does not name the restore offer without --force");
+  has(row, /never silent/, "Error Handling foreign-copy row lost 'never silent'");
 });
 
 test("FR-6 Hostile .git/config: no git command runs in the target in any step of the command", () => {
@@ -373,9 +391,19 @@ test("FR-7 BUT: no index on validator failure; an unvalidated run is never descr
 test("FR-8: the index name follows /akili-audit Step 3 with the security- prefix", () => {
   const s4 = step(4);
   has(s4, /^docs\/specs\/audits\/security-<YYYY-MM-DD>\[-<safe-branch>\]\[-N\]\.md$/m, "index file name pattern missing");
-  has(s4, /Name the date, branch-suffix and collision rules by `\/akili-audit` Step 3 \("Write Drift Report"\)[^.]*with `security-` as the prefix/,
-    "naming rule no longer delegated to /akili-audit Step 3");
+  has(s4, /Take the date and collision rules from `\/akili-audit` Step 3 \("Write Drift Report"\), with `security-` as the prefix/,
+    "date and collision rules no longer delegated to /akili-audit Step 3");
   has(read(".claude/commands/akili-audit.md"), /^### Step 3: Write Drift Report$/m, "the referenced /akili-audit Step 3 heading no longer exists");
+});
+
+test("FR-6 Step 4: the index filename's branch suffix comes from the branch Step 0.3 read, never from /akili-audit's git resolution", () => {
+  const s4 = step(4);
+  assert.doesNotMatch(s4, /Name the date, branch-suffix and collision rules by/, "Step 4 still defers the branch-suffix rule to /akili-audit Step 3, whose branch source launches git in the target");
+  has(s4, /`<safe-branch>` is the branch Step 0\.3 read from `HEAD`, through the `\$SAFE_NAME` rule/, "Step 4 does not name Step 0.3 as the branch source for the suffix");
+  has(s4, /never a git command or the kaizen resolution chain/, "Step 4 does not forbid a git command or the kaizen chain for the suffix");
+  has(s4, /the default branch, which is read only from the `Default Branch:` pin/, "Step 4 does not restrict the default-branch lookup to the pin");
+  has(s4, /when the branch reads `not determined` \(detached `HEAD` included\) add no branch suffix and let `-N` prevent collisions/, "Step 4 does not drop the suffix when the branch is not determined");
+  assert.doesNotMatch(s4, /`git [a-z-]+|git (status|check-ignore|rev-parse)/, "Step 4 invokes git");
 });
 
 test("FR-8 AND IT MUST: the index header carries Date of Audit", () => {
@@ -406,12 +434,49 @@ test("FR-8 BUT: default mode forbids title and fingerprint; detailed only after 
     "detailed-index opt-in gate missing");
 });
 
-test("FR-8: the run path is written in one of three location forms, the real external path only in conversation", () => {
+test("FR-8 / FR-7 AND IT MUST: the run path is written in one of two location forms; the repo-relative form is gone", () => {
   const s4 = step(4);
+  has(s4, /write it in exactly one of these two forms/, "Step 4 no longer says the run path takes exactly one of two forms");
   has(tableRow(s4, "Under HOME"), /\| `~\/…` \|$/, "home-relative form missing");
-  has(tableRow(s4, "An ignored directory inside the target (Step 1)"), /\| Repo-relative \|$/, "repo-relative form missing");
   has(tableRow(s4, "Anywhere else (e.g. `/private/tmp/…`)"), /\| `<external>\/run-<N>`; the real path is given only in conversation, never in the index \|$/,
     "<external>/run-<N> form missing");
+  const lines = s4.split("\n");
+  const at = lines.findIndex((l) => l.startsWith("**Run path, by location**"));
+  assert.ok(at >= 0, "location table lead-in missing");
+  const rows = [];
+  for (const l of lines.slice(at + 1)) {
+    if (l.startsWith("|")) rows.push(l);
+    else if (rows.length) break;
+  }
+  const data = rows.filter((l) => !l.startsWith("| Run directory is |") && !l.startsWith("|---"));
+  assert.equal(data.length, 2, `location table has ${data.length} forms, expected 2 (~/\u2026 and <external>/run-<N>): ${data.join(" // ")}`);
+  assert.doesNotMatch(cmd, /Repo-relative|repo-relative|ignored directory inside/, "the repo-relative / in-target ignored run-path form is back");
+});
+
+test("FR-3 Foreign copy continued: the index header records pinned or `foreign — continued by <approver>`, never the path", () => {
+  const s4 = step(4);
+  const row = tableRow(s4, "Header");
+  has(row, /skill copy \(`pinned`, or `foreign — continued by <approver>`, approver as named at the gate, default "the user"\)/,
+    "index header does not record the skill copy as `pinned` or `foreign — continued by <approver>`");
+  assert.doesNotMatch(s4, /<resolved path>/, "Step 4 puts the skill copy's <resolved path> into the index");
+  const forbidden = s4.split("\n").find((l) => l.startsWith("**Forbidden in every mode:**"));
+  has(forbidden, /the skill copy's resolved path/, "the forbidden list no longer names the skill copy's resolved path");
+});
+
+test("FR-6 AND IT MUST: the index header records an undetermined commit or dirty state as `not determined`, never as clean", () => {
+  has(tableRow(step(4), "Header"), /source ref \(commit and dirty state, each `not determined` when unresolved, never as clean\)/,
+    "index header may record an undetermined source ref as clean (or lost `not determined`)");
+  assert.doesNotMatch(cmd, /dirty flag/, "the superseded 'source ref + dirty flag' header wording is back");
+});
+
+test("FR-6 Hostile .git content BUT: no content from outside .git reaches run-metadata.json or the index", () => {
+  const meta = step(2).split("\n").find((l) => l.startsWith("Run the skill in **full audit mode**"));
+  assert.ok(meta, "Step 2 run paragraph missing");
+  has(meta, /`source_ref` carries the values the plan showed/, "run-metadata source_ref no longer carries the plan's values");
+  has(meta, /is recorded as `not determined`, never as clean/, "run-metadata may record an undetermined commit or declined dirty state as clean");
+  has(meta, /no content of any file whose real path is outside `<target>\/\.git`/, "run-metadata lost the outside-.git content guarantee");
+  const forbidden = step(4).split("\n").find((l) => l.startsWith("**Forbidden in every mode:**"));
+  has(forbidden, /content of any file whose real path is outside `<target>\/\.git`/, "the index forbidden list lost the outside-.git content guarantee");
 });
 
 test("FR-8: advise not committing the index while confirmed records are open on an unconfirmed-private repo", () => {
@@ -442,14 +507,27 @@ test("FR-10: lists confirmed (severity descending) and needs_validation with blo
     "routing list rule missing");
 });
 
-test("FR-10 Selection: prints `/akili-propose bugfix/security-<date>-s<n> <pointer>` and marks the row routed", () => {
+test("FR-10 Selection: prints `/akili-propose bugfix/security-<date>-r<N>-s<n> <pointer>` and marks the row routed", () => {
   const s5 = step(5);
-  has(s5, /^\/akili-propose bugfix\/security-<YYYY-MM-DD>-s<n> <pointer>$/m, "next-command line missing");
-  has(s5, /update the index row to `routed → bugfix\/security-<YYYY-MM-DD>-s<n>`/, "routed row update missing");
+  has(s5, /^\/akili-propose bugfix\/security-<YYYY-MM-DD>-r<N>-s<n> <pointer>$/m, "next-command line missing, or it lost the run number -r<N>");
+  has(s5, /update the index row to `routed → bugfix\/security-<YYYY-MM-DD>-r<N>-s<n>`/, "routed row update missing, or it lost the run number -r<N>");
 });
 
-test("FR-10 BUT: the slug is built only from date and S-n, charset [a-z0-9-]", () => {
-  has(step(5), /The slug is built \*\*only\*\* from the run date and the `S-n` id, charset `\[a-z0-9-\]`/, "slug construction rule missing");
+test("FR-8 Two runs on one date: both slug sites read -r<N>-s<n>, and no -s<n> anywhere lacks -r<N>", () => {
+  const sites = step(5).split("\n").filter((l) => l.includes("-s<n>"));
+  assert.equal(sites.length, 2, `Step 5 has ${sites.length} slug sites, expected the routed row and the printed command`);
+  for (const l of sites) {
+    assert.ok(l.includes("-r<N>-s<n>"), `slug site without the run number: ${l.slice(0, 100)}`);
+  }
+  const stale = cmd.split("\n").filter((l) => l.includes("-s<n>") && !l.includes("-r<N>-s<n>"));
+  assert.deepEqual(stale, [], "a slug site in the command still reads -s<n> without -r<N>");
+});
+
+test("FR-8 AND IT MUST: the slug is built only from the run date, the run number N and the S-n id, charset [a-z0-9-]", () => {
+  const s5 = step(5);
+  has(s5, /The slug is built \*\*only\*\* from the run date, the run number `N` \(the `N` of `run-<N>`\) and the `S-n` id, charset `\[a-z0-9-\]`/,
+    "slug construction rule does not name date, run number N and S-n as the only inputs");
+  has(s5, /two runs on one date print `-r1-s1` and `-r2-s1` for the same `S-1`/, "the two-runs-on-one-date example is missing");
 });
 
 test("FR-10 BUT: slug and pointer carry no finding-derived text", () => {
@@ -542,4 +620,54 @@ test("AGENTS.md Model Routing: the command frontmatter has no model: key", () =>
 test("FR-13: the command itself never reads drift reports", () => {
   assert.doesNotMatch(cmd, /drift-report/, "command references drift-report");
   assert.doesNotMatch(cmd, /most recent report/i, "command performs a most-recent-report read");
+});
+
+// ---------------------------------------------------------------- Verification Checklist
+
+const checklist = block(cmd, /^## Verification Checklist/m);
+const checkItem = (id) => {
+  const l = checklist.split("\n").find((x) => x.startsWith(`- [ ] **${id}**`));
+  assert.ok(l, `checklist item ${id} not found`);
+  return l;
+};
+
+test("Checklist FR-2: names the pin literal check, a restore without --force, and the command ending after restore", () => {
+  const l = checkItem("FR-2");
+  has(l, /pinned commit literal/, "checklist FR-2 does not name the pinned commit literal check");
+  has(l, /restore the pinned copy without `--force`/, "checklist FR-2 does not name the restore without --force");
+  has(l, /a restore ended the command before the plan gate/, "checklist FR-2 does not say the command ends after a restore");
+});
+
+test("Checklist FR-4: confirms every quoted upstream control, not 'all four controls'", () => {
+  const l = checkItem("FR-4");
+  has(l, /every quoted upstream control confirmed/, "checklist FR-4 does not name the quoted controls");
+  assert.doesNotMatch(l, /all four controls/, "checklist FR-4 still says 'all four controls'");
+});
+
+test("Checklist FR-6: full artifacts live outside the target only, no ignored directory", () => {
+  const l = checkItem("FR-6");
+  has(l, /outside the target \(neither inside it nor containing it\)/, "checklist FR-6 does not say outside the target, neither inside nor containing it");
+  assert.doesNotMatch(l, /ignored directory/, "checklist FR-6 still accepts an ignored directory");
+});
+
+test("Checklist FR-8: two location forms, skill copy and `not determined`, no repo-relative form", () => {
+  const l = checkItem("FR-8");
+  has(l, /two location forms \(`~\/…` or `<external>\/run-<N>`\)/, "checklist FR-8 does not name the two location forms");
+  has(l, /skill copy as `pinned` or `foreign — continued by <approver>`, never its path/, "checklist FR-8 does not cover the skill copy record");
+  has(l, /`not determined` where the source ref did not resolve/, "checklist FR-8 does not cover `not determined`");
+  assert.doesNotMatch(l, /repo-relative/i, "checklist FR-8 still names the repo-relative form");
+});
+
+test("Checklist FR-10: slugs hold the date, run number N and S-n; pointers the location form plus S-n", () => {
+  const l = checkItem("FR-10");
+  has(l, /printed slugs hold only the date, the run number `N` and `S-n`/, "checklist FR-10 does not name the run number in the slug");
+  has(l, /pointers hold only the run path in its location form plus `S-n`/, "checklist FR-10 does not name the pointer content");
+});
+
+test("Checklist: a no-git item exists (written without backticks, so the git grep stays at zero hits)", () => {
+  const l = checklist.split("\n").find((x) => x.startsWith("- [ ] **No git before Run**"));
+  assert.ok(l, "checklist lost its 'no git before Run' item");
+  has(l, /No git command ran in the target before Run or in Steps 4 and 5; the source ref was read from files as data and the dirty state was asked of the user/,
+    "checklist no-git item does not state the obligation");
+  assert.doesNotMatch(l, /`git |git (status|check-ignore|rev-parse)/, "checklist no-git item would match the shared git grep");
 });

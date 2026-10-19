@@ -67,7 +67,7 @@ No task is `skip-eligible`.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T1 |
 | Requirements | FR-2 (Error Handling row), FR-3 (index half: `foreign — continued by <approver>`, `BUT … NOT contain the resolved path`, `pinned`), FR-5 (scenario incl. `BUT under static-only …`), FR-6 (`AND IT MUST record … not determined … never as clean`; hostile-content `BUT` for `run-metadata.json` and the index), FR-7 (`AND IT MUST remove the repo-relative form`; Error Handling row incl. containing the target), FR-8 (scenario: two-run example, `AND IT MUST … charset … only`, `BUT … target content`), NFR-1 |
 | Design refs | §5.2, §5.3, §7 rows 2 addendum, 2 metadata, 4, 5, Error Handling, Checklist; DD-3, DD-5, DD-6, DD-7; P-6, P-9, P-15 |
