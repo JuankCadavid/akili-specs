@@ -43,7 +43,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 1. **Settle P-5 first.** In the scratchpad, `finalize` a minimal candidate, open it with `playwright-cli`, trigger `svg-light` and the PNG export with the theme forced light, and capture both downloads. If either cannot be captured: **stop and ask the user** (DD-4) — do not hand-author.
 2. Author `candidate.json` (`workflow`, `quality_profile: showcase`) with the five lanes of design §3; run `finalize workflow … --quality showcase --json` until it exits 0 (repair limit per Archify).
 3. Export `svg-light` and the light PNG; normalize the PNG to 1800 px wide with `magick` if needed.
-4. Post-process the SVG: add `role="img"`, `<title>AKILI-SPECS methodology lifecycle</title>` and a `<desc>` equal in content to the FR-2 alt text.
+4. Post-process the SVG: set `<title>AKILI-SPECS methodology lifecycle</title>` and replace the export's generic `<desc>` with the FR-2 alt text (`role="img"` is already present — corrected at T1).
 5. Replace `assets/akili-flow.svg` and `assets/akili-flow.png`; nothing else from Archify enters the repo.
 6. Visual review (tier-T6 substitute): view the PNG; record in `execution.md` each FR-1 element found, and any clipping or overlap.
 
@@ -51,7 +51,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 
 - Labels: `grep -o` of every `.claude/commands` name in the SVG text → 12 of 12; `grep -i -c "video"` ≥ 1; `grep -i -c "diagram"` ≥ 1; `grep -i -c "hyperframes\|archify"` hits only inside an "install"/"optional" note.
 - Standalone: `grep -c "<script"` → 0; `grep -o -E '(href|src)="https?://|url\(https?:' ` → 0; `grep -c "@import"` → 0 (`xmlns` and comments exempt, FR-2).
-- Font floor: smallest `font-size` × 900 / viewBox width ≥ 10.
+- Font floor *(amended at T1, user decision)*: smallest `font-size` × 900 / viewBox width ≥ 5.5, and node labels ≥ 8.
 - `magick identify assets/akili-flow.png` → width 1800; `stat -f %z` → PNG ≤ 409,600, SVG ≤ 153,600.
 - `git status --porcelain` shows only the two assets changed.
 
@@ -77,7 +77,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 | Review | `full`: public face of the package and inside the security restatement tests |
 | Skills | `cognitive-doc-design` |
 
-**Scope.** Alt text at `:46` (FR-2 content: constitution, loop, Kaizen, five anytime commands with `/akili-security` and its hand-off to the Bug Track, video track, diagram slots). One caveat line under the OS badges: `/akili-security` is not supported on native Windows (WSL, Linux or macOS). New section `## What AKILI Covers` between *Docs* and *Repository Structure*: a 3-row table (Capability · Where it fires · You install · Read more) for security audits (`docs/commands/akili-security.md`), video deliverables (`docs/skills/video-production.md`, HyperFrames), diagrams (`docs/skills/diagram-design.md`, Archify optional). *Contents*: `akili-quick.md` after `akili-propose.md`; `diagram-design`, `security-audit`, `tdd` in alphabetical position. *Start Here*: one paragraph naming the five anytime commands and `/akili-security`'s confirmed findings entering the Bug Track via `/akili-propose`. No `run directory`, slug, git command or control wording on any new line (P-9).
+**Scope.** Wrap the `:46` `<img>` in a link to the full-size PNG (FR-1 as amended at T1). Alt text at `:46` (FR-2 content: constitution, loop, Kaizen, five anytime commands with `/akili-security` and its hand-off to the Bug Track, video track, diagram slots). One caveat line under the OS badges: `/akili-security` is not supported on native Windows (WSL, Linux or macOS). New section `## What AKILI Covers` between *Docs* and *Repository Structure*: a 3-row table (Capability · Where it fires · You install · Read more) for security audits (`docs/commands/akili-security.md`), video deliverables (`docs/skills/video-production.md`, HyperFrames), diagrams (`docs/skills/diagram-design.md`, Archify optional). *Contents*: `akili-quick.md` after `akili-propose.md`; `diagram-design`, `security-audit`, `tdd` in alphabetical position. *Start Here*: one paragraph naming the five anytime commands and `/akili-security`'s confirmed findings entering the Bug Track via `/akili-propose`. No `run directory`, slug, git command or control wording on any new line (P-9).
 
 **Verification.**
 

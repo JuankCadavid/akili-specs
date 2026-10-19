@@ -14,7 +14,7 @@
 | Source | `proposal.md` (approved `c5d6c3d`: Option A for docs, Archify for the figure) |
 | Format precedent | `docs/specs/archive/2026-10-19-bugfix--update-check-deadline/requirements.md`. No `docs/specs/general-setup/`, `docs/prd.md` or `docs/trd/` in this repo (`ls docs docs/specs`, as run 2026-10-19) |
 | Verified at | `c5d6c3d`; re-stamped `729d39f` after judgment-day (only spec files changed between them: `git diff --stat c5d6c3d 729d39f`) |
-| Amended | 2026-10-19 after judgment-day (`judgment.md`): FR-1 scenario/qualifiers, FR-2 title/desc injection, FR-4 count rule, FR-6/FR-7 anchors and the archive condition, FR-8 wording, NFR-4 SVG cap, §7 tier wording |
+| Amended | 2026-10-19 at T1 (user decision): FR-1 font floor ≥ 5.5 px / labels ≥ 8 px at 900, README links the full-size PNG; FR-2 title/desc wording corrected. 2026-10-19 after judgment-day (`judgment.md`): FR-1 scenario/qualifiers, FR-2 title/desc injection, FR-4 count rule, FR-6/FR-7 anchors and the archive condition, FR-8 wording, NFR-4 SVG cap, §7 tier wording |
 | Deviations from proposal | PNG size: the proposal's success criterion said 1800×1200; the figure's aspect now comes from the Archify layout, so the PNG is **1800 px wide**, height per aspect (FR-1). README renders it at `width="900"` either way |
 
 ## 2. Executive Summary
@@ -65,12 +65,12 @@ The figure (`assets/akili-flow.svg` and `assets/akili-flow.png`) SHALL show: `/a
 - WHEN the figure is opened
 - THEN every command of `ls .claude/commands` appears in it by name
 - AND the labels `Deliverable: video` (or "video") and `diagram` appear
-- AND IT MUST be a PNG 1800 px wide, with every text element's font size ≥ 10 px when the figure is displayed 900 px wide (read from the SVG: font-size × 900 / viewBox width), and no text clipped or overlapped in the visual review
+- AND IT MUST be a PNG 1800 px wide, with every text element's font size ≥ 5.5 px and every node label ≥ 8 px when the figure is displayed 900 px wide (read from the SVG: font-size × 900 / viewBox width), and no text clipped or overlapped in the visual review; the README image links to the full-size PNG so the small text can be read at 1800 px *(amended 2026-10-19, user decision "Aceptar y ajustar spec": the original ≥ 10 px floor is unreachable with Archify, which caps sublabels at 8 px on a ≥ 1064 px canvas — `execution.md` T1)*
 - BUT it must NOT show any command or skill that is not packaged, and must NOT present HyperFrames or Archify as packaged
 
 ### FR-2 — Figure text alternatives match the figure
 
-Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no external resource fetch — no `<script>`, no `href`/`src`/`url(` pointing at `http(s)`, no `@import`; namespace declarations (`xmlns`) and comments are exempt; embedded `data:` fonts are allowed. Archify's export carries no `<title>`/`<desc>`, so they and `role="img"` are added after export.
+Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no external resource fetch — no `<script>`, no `href`/`src`/`url(` pointing at `http(s)`, no `@import`; namespace declarations (`xmlns`) and comments are exempt; embedded `data:` fonts are allowed. Archify's export carries `role="img"`, a `<title>` and a generic `<desc>`; the `<desc>` is replaced with the alt text and the `<title>` set to "AKILI-SPECS methodology lifecycle" after export *(corrected 2026-10-19, `execution.md` T1)*.
 
 #### Scenario: Screen-reader user
 
