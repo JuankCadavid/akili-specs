@@ -153,7 +153,7 @@ The README SHALL qualify "Windows supported" with a one-line note that `/akili-s
 | NFR-1 | `npm test` stays at 413 pass, 0 fail; `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` pass |
 | NFR-2 | No file under `.claude/`, `bin/`, `test/`, `package.json`, `docs/model-routing.md` changes; no Archify file or HTML enters the repo (`git diff --stat c5d6c3d`) |
 | NFR-3 | Local commits only, `[SPEC:changes/docs-refresh-2-34]` prefix; no push, tag, release or publish |
-| NFR-4 | `assets/akili-flow.png` ≤ 400 KB (current 187,727 B) and `assets/akili-flow.svg` ≤ 150 KB (current 6,449 B; Archify embeds ~95 KB of base64 fonts); `npm run pack:dry-run` still lists both |
+| NFR-4 | `assets/akili-flow.png` ≤ 400 KiB = 409,600 B (current 187,727 B) and `assets/akili-flow.svg` ≤ 150 KiB = 153,600 B (current 6,449 B; Archify embeds ~95 KB of base64 fonts); `npm run pack:dry-run` still lists both |
 
 ### Defect classes and their gates
 

@@ -29,7 +29,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (2 binary assets; ~0 LOC Markdown) |
 | Depends on | none |
 | Requirements | FR-1 (statement; scenario THEN every command by name; AND labels video + diagram; AND IT MUST 1800 px wide + font-size floor + no clip/overlap; BUT no unpackaged command/skill, HyperFrames/Archify not presented as packaged; archive/specify conditions; stop-and-ask if Archify fails) · FR-2 (SVG part: standalone rules, `role="img"`, `<title>`, `<desc>`) · NFR-2 (no Archify file in repo) · NFR-4 |
