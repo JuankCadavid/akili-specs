@@ -58,7 +58,7 @@
 | Target | `.claude/templates/reviewer.md` — append one line to the Reviewer's conformance checks (append-only) |
 | Edit | `When a requirement forbids an action in named steps ("never run X in Steps 4–5"), a grep for X is not the check: follow every cross-reference out of those steps ("as <command> Step N", "the same table applies") and confirm the referenced procedure does not perform X (changes/akili-security-followup T2).` |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-10-19) |
 
 ### P2
 
@@ -68,7 +68,7 @@
 | Target | KZ-002 |
 | Severity | High (unchanged) |
 | Edit | Add `changes/akili-security-followup` as a source; recurrence note: "**recurred (changes/akili-security-followup: six T5 CHANGELOG clauses overstated or misplaced the shipped text, caught only by the full Reviewer's quote-check; validation found the test count stale after `/akili-test` added a suite — re-run the counts a summary states after every phase that adds tests)**" |
-| Status | pending |
+| Status | applied (2026-10-19) |
 
 ### P3
 
@@ -78,7 +78,7 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Severity | Medium (unchanged) |
 | Edit | Add `changes/akili-security-followup` as a source; recurrence note: "**recurred (changes/akili-security-followup T4: a literal-keyed sweep passed three weakened restatements — control wording, naming source, containment term — over two rounds; an executable restatement contract test with mutation checks closed it at `/akili-test`: when an FR requires restatements to match a source, make the restatement check a test in the task)**" |
-| Status | pending |
+| Status | applied (2026-10-19) |
 
 ### P4
 
@@ -88,7 +88,7 @@
 | Target | KZ-changes--archify-diagrams-1 |
 | Severity | Medium (unchanged) |
 | Edit | Add `changes/akili-security-followup` as a source; recurrence note: "**recurred (changes/akili-security-followup: a shipped doc and the CHANGELOG pointed at `docs/specs/changes/<spec>/upstream-request.md`; the rule covers any shipped file, not only tests — cite the archive path or repoint in the archive commit)**" |
-| Status | pending |
+| Status | applied (2026-10-19) |
 
 ### P5
 
@@ -98,4 +98,4 @@
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Severity | Medium (unchanged) |
 | Edit | Add `changes/akili-security-followup` as a source; recurrence note: "**recurred (changes/akili-security-followup: text-contract tests estimated ~100 LOC, ~340 shipped — one assertion per THEN/BUT/AND IT MUST clause; budget test LOC per clause, not per task)**" |
-| Status | pending |
+| Status | applied (2026-10-19) |

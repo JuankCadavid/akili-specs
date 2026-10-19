@@ -52,7 +52,7 @@ Recurrence (`digest-update`): the proposal recorded the state of a set of extern
 | Target | KZ-002 |
 | Edit | Add `bugfix/update-check-deadline` to Source Spec and append: **recurred (bugfix/update-check-deadline: the requirements recorded "#52/#55 still open" from a proposal-time `gh pr list`; all 13 PRs closed an hour later and both judgment-day judges found it false at HEAD. A claim about mutable external state — PR, issue or ticket status — carries the time it was run and is re-run immediately before the shipped note is written)** |
 | Severity | High (unchanged; this recurrence was a severe judgment-day finding) |
-| Status | pending |
+| Status | applied (2026-10-19) |
 
 ### P2
 
@@ -62,4 +62,4 @@ Recurrence (`digest-update`): the proposal recorded the state of a set of extern
 | Target | methodology |
 | Edit | `/akili-specify` Premise Ledger citation rule (e), *Run before written*, append: "A row about **mutable external state** (a PR, issue or ticket status; a release or registry state) records the time it was run beside *Verified at*, and the task that ships text stating it re-runs the check immediately before writing — a commit SHA does not pin state outside the repository." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-10-19, docs/specs/kaizen/upstream-2026-10-19.md) |
