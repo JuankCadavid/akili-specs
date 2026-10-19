@@ -29,4 +29,13 @@ Contradictions: none on substance — the split is severity only (A: warning, B:
 
 ## Round 2 (scoped re-judgment)
 
-Recorded below after it runs.
+Scope: ledger L-1…L-13 plus the fix delta `729d39f..e361b6d`. Same two blind judges.
+
+| Judge | Result | New findings |
+|---|---|---|
+| A | 13/13 RESOLVED; count line matches; every P-5 citation reproduces | 3 suggestions: P-3 range, P-2 verified-at, P-10 end line |
+| B | 13/13 RESOLVED; no contradiction between requirements and design | warning: "no `http(s)` URL" unsatisfiable literally (`xmlns="http://www.w3.org/2000/svg"`); reminder that P-5 stays a hard gate at T1 step 1 |
+
+Applied (no further round needed — wording only): the self-containment rule now reads "no external resource fetch … `xmlns` and comments exempt" in FR-2, design §3 and T1; P-3 and P-10 ranges corrected. P-2's verified-at stays `c5d6c3d` (its result is unchanged; only the cited range text was aligned).
+
+**JUDGMENT: APPROVED ✅** — 0 severe open, 1 UNVERIFIED premise (P-5, High) owned by T1 step 1 with stop-and-ask.

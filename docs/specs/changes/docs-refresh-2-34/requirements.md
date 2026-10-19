@@ -70,7 +70,7 @@ The figure (`assets/akili-flow.svg` and `assets/akili-flow.png`) SHALL show: `/a
 
 ### FR-2 — Figure text alternatives match the figure
 
-Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no `<script>`, no `http(s)` URL, no `@import`; embedded `data:` fonts are allowed. Archify's export carries no `<title>`/`<desc>`, so they and `role="img"` are added after export.
+Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no external resource fetch — no `<script>`, no `href`/`src`/`url(` pointing at `http(s)`, no `@import`; namespace declarations (`xmlns`) and comments are exempt; embedded `data:` fonts are allowed. Archify's export carries no `<title>`/`<desc>`, so they and `role="img"` are added after export.
 
 #### Scenario: Screen-reader user
 
