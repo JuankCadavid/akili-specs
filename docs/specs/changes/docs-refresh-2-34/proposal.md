@@ -12,7 +12,7 @@
 | Out-of-bounds actions | No push, no release, no tag, no `npm publish` (user rule, verbatim: "solo commits locales, sin push, release, tag ni publish") |
 | Date | 2026-10-19 |
 | Author | AKILI session (proposer) |
-| Status | Draft — awaiting the one decision in *Answer first* |
+| Status | **Approved** — 2026-10-19 (Juan Carlos Cadavid): decision #1 answered **"Instalar Archify"**; #2 and #3 as recommended |
 | Depends on | none |
 | Parallel-safe | yes — touches only `README.md`, `docs/**/*.md` (outside `docs/specs/`), `assets/akili-flow.{svg,png}` and `CHANGELOG.md` |
 
@@ -20,7 +20,7 @@
 
 | # | Question | Recommendation | Why |
 |---|---|---|---|
-| 1 | How to regenerate `assets/akili-flow.svg`/`.png`? | **Hand-author the SVG in the existing style, render the PNG with `rsvg-convert` at 2× (1800×1200)** | Archify is **not installed** in this environment (absent from `~/.claude/skills` and `~/.agents/skills`, run 2026-10-19); installing it is a network install the docs call "the user's choice". The current SVG is already hand-authored (6,449 B, commit `039456c`) |
+| 1 | How to regenerate `assets/akili-flow.svg`/`.png`? | **Decided by the user: install Archify and generate the figure with it.** Author an Archify `workflow` candidate for the lifecycle, run `finalize`, export SVG from the delivered view, and rasterize the PNG at 1800×1200 with `rsvg-convert` | Archify was absent before (`~/.claude/skills`, `~/.agents/skills`, run 2026-10-19). `npx skills add tt-a1i/archify` (v3.2, MIT, tt-a1i) installed it **project-scoped into the session scratchpad** (`<scratchpad>/.agents/skills/archify`), not into the repo or the global config. The Archify HTML is a working file only: the repo ships the SVG and PNG, never Archify output HTML or Archify files |
 | 2 | Name HyperFrames and Archify as AKILI skills? | **No — present them as optional external tools reached through the packaged bridges `video-production` and `diagram-design`** | Neither is packaged: `ls .claude/skills` lists 27 directories, none `hyperframes*` or `archify`. Calling them AKILI skills would contradict `docs/skills/governance.md` (referenced, never vendored) |
 | 3 | Release? | **None.** CHANGELOG gets an `Unreleased` note only | User rule; the npm page shows the new README only after a future publish (stated in the report, not hidden) |
 
@@ -61,7 +61,7 @@ A reader of the README or docs hub learns, in the first screen of each, that AKI
 ## Non-Goals
 
 - No change to any command prompt, skill, template, `bin/`, `package.json` or test.
-- No install of Archify or any network tool; no new runtime dependency (`rsvg-convert` is already present at `/opt/homebrew/bin`).
+- No Archify file or HTML view enters the repo; no new runtime dependency (`rsvg-convert` is already present at `/opt/homebrew/bin`).
 - No rewrite of README sections unrelated to the three capabilities (install, release, routing, harness).
 - No release, version bump, tag, push or publish.
 - No change to the vendored `security-audit` files or to `docs/model-routing.md` (the `/akili-security` routing row stays deferred behind the template-evolution bug).
@@ -102,11 +102,13 @@ A reader of the README or docs hub learns, in the first screen of each, that AKI
 |---|---|---|
 | **A. Targeted refresh + hand-authored figure** (recommended) | Edit the named sections; add one compact capabilities section; redraw the SVG in its current style; PNG via `rsvg-convert` | Smallest diff that closes every gap; keeps the pinned strings stable; no new tool |
 | B. Full README restructure | Reorder the 935-line README around capabilities | Larger review surface, breaks pinned strings, out of proportion to the gaps found |
-| C. Install Archify and generate the figure from it | `npx skills add tt-a1i/archify`, export an HTML view, rasterize | Network install the docs reserve for the user; Archify outputs interactive HTML views of a slot, not a branded README raster — extra conversion step for no visual gain |
+| C. Install Archify and generate the figure from it (**chosen for the figure**) | `npx skills add tt-a1i/archify`, export an HTML view, rasterize | Network install the docs reserve for the user; Archify outputs interactive HTML views of a slot, not a branded README raster — extra conversion step for no visual gain |
 
 ## Recommended Approach
 
-**Option A.** It fixes the four requested items and the inventory gaps found above with edits confined to docs and one asset, keeps the figure consistent with the brand it already has, and needs no network tool.
+**Option A for the docs, with Option C for the figure (user decision, 2026-10-19).** The figure is authored as an Archify `workflow` candidate and exported; if Archify's export cannot produce a standalone SVG that `rsvg-convert` renders faithfully, that is reported and the fallback is the hand-authored SVG of Option A, recorded in `execution.md`.
+
+Option A fixes the four requested items and the inventory gaps found above with edits confined to docs and one asset, keeps the figure consistent with the brand it already has, and needs no network tool.
 
 ## Risks, Dependencies, And Open Questions
 
