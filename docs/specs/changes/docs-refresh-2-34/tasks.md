@@ -68,7 +68,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~90 LOC) |
 | Depends on | T1 |
 | Requirements | FR-2 (README site; same text as flow; no claim the figure lacks) · FR-3 (section before *Install*; three rows with lifecycle point, install need, link; native-Windows statement; BUT no new `/akili-security` rule wording; *Start Here* anytime line → Bug Track) · FR-4 (*Contents* sets equal; any new count with MC) · FR-5 (caveat in header; BUT keep the Windows badge) |

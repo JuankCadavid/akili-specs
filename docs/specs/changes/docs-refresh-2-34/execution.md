@@ -38,3 +38,15 @@
 - spawns: Implementer 27 calls, 122,404 tokens, ended partial (amended criterion); Reviewer not reported by host.
 - Running totals vs budget: tasks 1/4 · Markdown LOC 0/~180 · review rounds T1 = 1 (≤ 2). Within budget.
 - **Final status: PASS** — Phase gate: `auto-approved (pre-approved mode)` (after the user's T1 decision).
+
+### T2 — README.md — PASS (attempt 1)
+
+- Implementer `sonnet`, effort `medium`, skills `cognitive-doc-design` (as listed). Files changed: `README.md` (+19/−1): full-size link + FR-2 alt text at `:48`; Windows caveat line under the OS badges; new `## What AKILI Covers` (3-row table); *Contents* `akili-quick.md`, `diagram-design`, `security-audit`, `tdd`; *Start Here* anytime paragraph.
+- Implementer verification: MC empty (red at HEAD: `diagram-design`, `security-audit`, `tdd`, `akili-quick.md`); bullets 12 / 27; falsifier (remove `tdd`) → `missing skill tdd`, restored; `node --test test/akili-security-docs.test.js test/diagram-design.test.js` → pass 32 fail 0; added links exist; `Windows-supported` 1.
+- Not Done / Assumptions (verbatim gist, no owed item → no continuation): `grep -n "docs/specs/changes" README.md` → 2 hits, both pre-existing illustrative `add-remember-me` text in *Practical Example* (same at HEAD), 0 new; the caveat is wrapped in `<sub>`.
+- Evidence re-run (Leader-inline): VERIFIED — MC empty, 12 / 27, pass 32 fail 0, links resolve, diff README only (+19/−1).
+- Reviewer (`opus`, high, checklist): **STATUS: PASS** — every new claim checked at source (security `:42`, `:141-144`; specify `:61-67`, `:232`; test `:108`; validate `:141/143`; archive `:124`; constitution `:163/208/245`; `security-audit` metadata Cloudflare MIT; `video-production` availability gate); alt text byte-identical to the SVG `<desc>`; counts "Five anytime commands" and "Three capabilities" true; P-8/P-9 hold. Borderline noted, not a FAIL: FR-3's "what it does" carried by the Capability + Where-it-fires cells (design §3 layout).
+- Requirements covered: FR-1 (README link), FR-2 (README site), FR-3, FR-4, FR-5.
+- spawns: Implementer 9 calls, 66,945 tokens, ended complete; Reviewer not reported by host.
+- Running totals vs budget: tasks 2/4 · Markdown LOC 20/~180 · review rounds T2 = 1. Within budget.
+- Phase gate: `auto-approved (pre-approved mode)`.

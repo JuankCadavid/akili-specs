@@ -27,6 +27,8 @@
   <img alt="Windows supported" src="https://img.shields.io/badge/Windows-supported-1686c7?style=for-the-badge">
 </p>
 
+<p><sub><code>/akili-security</code> is not supported on native Windows — run it from WSL, Linux or macOS.</sub></p>
+
 <p>
   <img alt="Claude Code supported" src="https://img.shields.io/badge/Claude%20Code-supported-7c3aed?style=for-the-badge">
   <img alt="OpenCode supported" src="https://img.shields.io/badge/OpenCode-supported-7c3aed?style=for-the-badge">
@@ -43,7 +45,7 @@ Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
 <p align="center">
-  <img alt="AKILI-SPECS lifecycle: a one-time constitution establishes the baseline, then a per-spec loop runs propose, specify, execute, test, validate and archive, with a Kaizen retrospective feeding the next spec" src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900">
+  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png"><img alt="AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution, specify and archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose." src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900"></a>
 </p>
 
 ## Docs
@@ -56,6 +58,16 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 → **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>
 → **[OpenSpec Comparison](docs/openspec-comparison.md)**: what AKILI borrows and how it differs<br>
 → **[Release Checklist](docs/release-checklist.md)**: controlled npm release process
+
+## What AKILI Covers
+
+Three capabilities sit beside the core spec loop; each fires at a specific point and tells you what, if anything, to install.
+
+| Capability | Where it fires | You install | Read more |
+|---|---|---|---|
+| Security audits | `/akili-security`, an anytime command outside the per-spec loop; confirmed findings go to `/akili-propose` and follow the Bug Track | Nothing extra (packaged `security-audit` skill, Cloudflare, MIT); not on native Windows | [`/akili-security`](docs/commands/akili-security.md) |
+| Video deliverables | A spec whose Document Control says `Deliverable: video`: `/akili-specify` Video Mode, `/akili-test` render evidence, `/akili-validate` final look and delivery render | HyperFrames, yourself (the packaged `video-production` bridge stops at its availability gate and prints the install route) | [`video-production`](docs/skills/video-production.md) |
+| Diagrams | Diagram slots as inline Mermaid at `/akili-constitution` Steps 3-5, `/akili-specify` Step 2.1 (architecturally significant designs) and `/akili-archive` Step 2 (when the spec has slots), via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
 
 ## Repository Structure
 
@@ -74,6 +86,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 - `.claude/commands/`
   - `akili-constitution.md`
   - `akili-propose.md`
+  - `akili-quick.md`
   - `akili-specify.md`
   - `akili-execute.md`
   - `akili-test.md`
@@ -91,6 +104,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `brainstorming`
   - `caveman`
   - `cognitive-doc-design`
+  - `diagram-design`
   - `error-handling-patterns`
   - `frontend-design`
   - `gsap-animation`
@@ -99,12 +113,14 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `nestjs-expert`
   - `product-manager-toolkit`
   - `react-doctor`
+  - `security-audit`
   - `seo-audit`
   - `shadcn-ui`
   - `software-architect`
   - `stitch-design`
   - `systematic-debugging`
   - `tailwind-design-system`
+  - `tdd`
   - `ui-ux-pro-max`
   - `vercel-react-best-practices`
   - `video-production`
@@ -552,6 +568,8 @@ Use this flow for normal feature work:
 5. `/akili-test <spec-path>` - prove the behavior with tests and traceability.
 6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
 7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
+
+Five anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo` and `/akili-security`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 
