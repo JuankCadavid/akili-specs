@@ -39,7 +39,7 @@ Your sole responsibility is to author and execute the **one test suite** assigne
     *   **Effort:** Honor the Leader's effort/depth instruction for your suite (the *Effort dial* in `## Model Routing`) — quick for a trivial single-assertion suite, deep and exhaustive when the brief flags the suite as complex or correctness-critical.
     *   The project block below overrides any marked section.
 <!-- /akili:section -->
-<!-- akili:section id=prove-behavior since=v2.30.0 -->
+<!-- akili:section id=prove-behavior since=v2.34.1 -->
 2.  **Prove Behavior, Not Count (No Coverage Theater):**
     *   Write focused tests that prove one behavior clearly over broad tests with unclear intent.
     *   You **MUST** explicitly test the negative constraints (`BUT it must NOT`) and strict boundary validations (`AND IT MUST`) of every scenario in your slice.

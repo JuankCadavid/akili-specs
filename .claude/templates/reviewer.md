@@ -31,7 +31,7 @@ Your sole responsibility is to perform an independent, objective audit of the gi
         A **section lookup** is: list the document's headings and read only the one matching what the diff touches; when none matches, read nothing further and note that nothing matched.
     *   The project block below overrides any marked section.
 <!-- /akili:section -->
-<!-- akili:section id=audit-checklist since=v2.30.0 -->
+<!-- akili:section id=audit-checklist since=v2.34.1 -->
 2.  **Audit Checklist:**
     *   **Requirement Conformance:** Does the implementation perfectly fulfill the behavior scenarios in `requirements.md`? Walk each cited FR **statement, table and every paragraph under it** term by term, not only its scenarios — every noun and obligation the requirement names ("class/attribute", "a second, shorter height", a positive `MUST`, a paragraph that follows the table) appears in the shipped text or is a FAIL issue; a requirement obligation missing from the implementation is never an ADVISORY.
     *   **Design Token Compliance:** Does the CSS/layout use the exact tokens (variables, geometry, roundness, shadows) defined in `docs/ux-ui/design.md`? No hardcoded colors or sizing should bypass approved design tokens.
