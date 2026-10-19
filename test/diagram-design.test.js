@@ -416,8 +416,8 @@ test("@akili-spec changes/archify-diagrams FR-9 (governance, skills docs, README
   assert.match(cli, /27 packaged skills/);
 
   const changelog = read(path.join(REPO_ROOT, "CHANGELOG.md"));
-  const unreleased = changelog.split(/^## \[Unreleased\]$/m)[1].split(/^## \[/m)[0];
-  assert.ok(unreleased.includes("diagram-design"), "expected a [Unreleased] entry naming diagram-design");
+  // Stays true after the release script moves [Unreleased] into a dated section.
+  assert.match(changelog, /`diagram-design` skill \(`conditional`, `changes\/archify-diagrams`\)/, "expected a CHANGELOG entry naming diagram-design");
 });
 
 // ---------------------------------------------------------------------------
