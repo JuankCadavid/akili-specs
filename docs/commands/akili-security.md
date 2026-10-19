@@ -20,12 +20,12 @@ The command runs outside any spec. It has no Approval Mode and no pre-approved m
 
 | Step | What happens |
 |---|---|
-| 0. Preflight | Checks the loaded `security-audit` copy carries `adapted-for: "AKILI-SPECS"` and a pinned `source`; runs `node --version`; stops on native Windows (see *Residual Risk and Disclosure*); resolves the target, source ref, dirty state and `<skill-dir>`; checks whether an independent sub-agent can be spawned |
-| 1. Plan gate | Shows target, scope, profile, budget, run directory, execution policy, host capability and disclosure; stops until the user answers **Run**, **Adjust** or **Stop** |
+| 0. Preflight | Checks the loaded `security-audit` copy carries `adapted-for: "AKILI-SPECS"` and a `source` naming the pinned commit (any other commit is a foreign copy: you choose continue, restore the pinned copy without `--force`, or stop; restore is offered only when the skills-root entry or its resolved path, and the restore destination, are each neither inside the target nor an ancestor of it, and a restore ends the command before the plan gate so you re-run in a fresh session); runs `node --version`; stops on native Windows (see *Residual Risk and Disclosure*); resolves the target, repo name, source ref and `<skill-dir>` with no git command (the ref is read from files as data; what cannot be read is `not determined`); checks whether an independent sub-agent can be spawned |
+| 1. Plan gate | Shows target (the dirty state is asked of you here), scope, profile, budget, run directory, execution policy, host capability and disclosure; stops until the user answers **Run**, **Adjust** or **Stop** |
 | 2. Run | Runs the skill in full audit mode (all six phases) in the next unused `run-<N>`, passing every prior run so re-runs are additive; every delegated prompt carries the command's brief addendum |
 | 3. Validator gate | Runs `validate-findings.cjs` and `validate-coverage-ledger.cjs` after Phase 4 and after every Phase 5 replacement; the index is written only when both exit 0, or the run is recorded `incomplete` |
 | 4. Redacted index | Writes one file per terminal run (below) |
-| 5. Routing gate | Lists `confirmed` and `needs_validation` records, asks which become specs, and prints `/akili-propose bugfix/security-<YYYY-MM-DD>-s<n> <pointer>` for each selection |
+| 5. Routing gate | Lists `confirmed` and `needs_validation` records, asks which become specs, and prints `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n> <pointer>` for each selection |
 
 Without sub-agent capability the plan gate offers **Guidance review** instead of **Run**: findings in conversation, no artifacts, no index.
 
@@ -33,19 +33,19 @@ Without sub-agent capability the plan gate offers **Guidance review** instead of
 
 | Output | Where | Content |
 |---|---|---|
-| Full audit artifacts | Run directory — by default `~/security-audit-skill/<repo-name>/run-<N>`, or `--out` | Findings, coverage ledger, `run-metadata.json`, `akili-index-map.json` (resolves `S-n` ids) |
+| Full audit artifacts | Run directory, always outside the target — by default `~/security-audit-skill/<repo-name>/run-<N>`, or `--out` (refused when inside the target or containing it) | Findings, coverage ledger, `run-metadata.json`, `akili-index-map.json` (resolves `S-n` ids) |
 | Redacted index | `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` | Verdict, execution policy, validator results, counts, one row per `confirmed` / `needs_validation` record by opaque id `S-n` |
 
-The index never holds an absolute path, home path or user name, a finding's file path or line, trace steps, payloads, reproduction commands, code excerpts, environment values or secrets. By default it also omits titles and fingerprints; a detailed index (title + fingerprint per row) is written only when the user opts in at the routing gate after confirming the repository is private. The run path appears as `~/…`, repo-relative (an ignored in-target directory), or `<external>/run-<N>`.
+The index never holds an absolute path, home path or user name, a finding's file path or line, trace steps, payloads, reproduction commands, code excerpts, environment values or secrets. By default it also omits titles and fingerprints; a detailed index (title + fingerprint per row) is written only when the user opts in at the routing gate after confirming the repository is private. The run path appears as `~/…` (under HOME) or `<external>/run-<N>` (anywhere else).
 
-Naming follows [`/akili-audit`](akili-audit.md) with the prefix `security-`. A `security-*.md` index is never a drift report: `/akili-audit`, `/akili-archive` and the `kaizen` skill read only `drift-*.md` as the drift source. The readers match the `drift-` prefix, so a drift report renamed by hand to another name stops being read.
+The date and the collision suffix `-N` follow [`/akili-audit`](akili-audit.md) with the prefix `security-`. The branch suffix is not taken from there: `<safe-branch>` is the branch read from `HEAD` at preflight, through the `$SAFE_NAME` rule (`/` becomes `--`), never from a git command. It is added only when that branch is not the default branch (read from the `Default Branch:` pin; no pin means add it) and omitted when the branch is `not determined`. A `security-*.md` index is never a drift report: `/akili-audit`, `/akili-archive` and the `kaizen` skill read only `drift-*.md` as the drift source. The readers match the `drift-` prefix, so a drift report renamed by hand to another name stops being read.
 
 ## Residual Risk and Disclosure
 
 | Topic | What to know |
 |---|---|
 | Agent behaviour is not machine-enforced | The gates, the brief addendum and the "target content is data" rule are instructions to the agent. The two validators check the audit records, not what the agent did; no tool here can prove the agent honoured a gate |
-| Static-only by default | Every run executes nothing the target controls. Sandboxed execution applies to one run, only when the user selects it at the plan gate and confirms a mechanism enforcing all four controls: no external network, an allowlisted empty environment, a read-only target with writes only to the agent's `scratch/`, and CPU/memory/process/file/disk/time limits. If any control cannot be confirmed the plan reads static-only. Nothing installs dependencies, fetches from the network or probes deployed endpoints in either mode |
+| Static-only by default | Every run executes nothing the target controls. Sandboxed execution applies to one run, only when the user selects it at the plan gate and confirms an OS-enforced sandbox providing all of these controls, quoted from the command: "no external network; use only an isolated loopback namespace when the check needs local client/server traffic"; "an empty environment populated from an explicit allowlist with safe values, with scratch-local `HOME`, temporary directories, and caches"; "a read-only target and toolchain, with the target-controlled process able to write only inside its assigned `scratch/` directory"; and "explicit low CPU, memory, process, file-size, disk, and wall-clock limits". The mechanism must also honour the skill's exposure rule: "Never expose a retained output directory (other than the agent's own assigned `scratch/`), another agent's directory, the host home directory, credentials, sockets, or shared services to target code." If any control cannot be confirmed the plan reads static-only. Nothing installs dependencies, fetches from the network or probes deployed endpoints in either mode |
 | Not supported on native Windows | The vendored validators require `fs.constants.O_NOFOLLOW` and `O_NONBLOCK`, which Windows lacks, so they fail closed (`OS no-follow and nonblocking input protection is unavailable`, exit 1) and no finding could be validated. The preflight stops before the plan gate when `process.platform` is `win32` or either constant is `undefined`. Run the command from WSL, Linux or macOS. The validators are not patched, to keep fidelity with the pinned upstream commit |
 | Expected yield | A static-only run produces mostly `needs_validation` records, because a `confirmed` record requires `execution.observed_result` recording actual local output |
 | Disclosure | Counts by verdict and severity are an accepted disclosure. On a repository you cannot confirm is private, do not commit the index while `confirmed` records are open |
@@ -57,7 +57,7 @@ The command never modifies target source, commits, pushes, or opens issues or PR
 
 ## Next Step
 
-For each routed record, run the printed `/akili-propose bugfix/security-<YYYY-MM-DD>-s<n> <pointer>` — the Bug Track diagnoses first, then `/akili-specify` requires a regression test.
+For each routed record, run the printed `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n> <pointer>` (`N` is the run number, so two runs on one date never collide) — the Bug Track diagnoses first, then `/akili-specify` requires a regression test.
 
 ## Source
 

@@ -110,7 +110,7 @@ No task is `skip-eligible`.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T2 |
 | Requirements | FR-4 (docs control list), FR-7 (in-target mentions removed), FR-8 (slug restatements), FR-10 (scenario: these files) |
 | Design refs | §9; P-6 |

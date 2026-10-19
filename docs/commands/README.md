@@ -17,7 +17,7 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 | [`/akili-audit`](akili-audit.md) | Detecting drift between specs and codebase reality | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix |
 | [`/akili-resume`](akili-resume.md) | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | [`/akili-seo <site-domain>`](akili-seo.md) | Setting up GSC ownership and SEO audit evidence | `seo-setup-report.md`, `seo-audit-report.md` |
-| [`/akili-security [<path>…]`](akili-security.md) | Auditing a repository for security vulnerabilities behind a plan gate | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (outside the target by default) |
+| [`/akili-security [<path>…]`](akili-security.md) | Auditing a repository for security vulnerabilities behind a plan gate | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (always outside the target) |
 
 ## Normal Sequence
 
