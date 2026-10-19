@@ -45,7 +45,7 @@ Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png"><img alt="AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution, specify and archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose." src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900"></a>
+  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png"><img alt="AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution and specify and linked at archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose." src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900"></a>
 </p>
 
 ## Docs
@@ -67,7 +67,7 @@ Three capabilities sit beside the core spec loop; each fires at a specific point
 |---|---|---|---|
 | Security audits | `/akili-security`, an anytime command outside the per-spec loop; confirmed findings go to `/akili-propose` and follow the Bug Track | Nothing extra (packaged `security-audit` skill, Cloudflare, MIT); not on native Windows | [`/akili-security`](docs/commands/akili-security.md) |
 | Video deliverables | A spec whose Document Control says `Deliverable: video`: `/akili-specify` Video Mode, `/akili-test` render evidence, `/akili-validate` final look and delivery render | HyperFrames, yourself (the packaged `video-production` bridge stops at its availability gate and prints the install route) | [`video-production`](docs/skills/video-production.md) |
-| Diagrams | Diagram slots as inline Mermaid at `/akili-constitution` Steps 3-5, `/akili-specify` Step 2.1 (architecturally significant designs) and `/akili-archive` Step 2 (when the spec has slots), via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
+| Diagrams | Diagram slots whose condition holds, filled as inline Mermaid at `/akili-constitution` Steps 3-5 and `/akili-specify` Step 2.1 (architecturally significant designs); `/akili-archive` Step 2 links the spec's views when it has slots — all via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
 
 ## Repository Structure
 

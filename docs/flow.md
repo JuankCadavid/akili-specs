@@ -4,7 +4,7 @@ AKILI keeps durable product, design, implementation, test, and validation contex
 
 The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a project constitution step, Claude/OpenCode skills, and explicit validation evidence before archive.
 
-![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution, specify and archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
+![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution and specify and linked at archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
 
 ## Philosophy
 
@@ -491,6 +491,6 @@ A spec whose `Deliverable` is `video` runs the same lifecycle with video-specifi
 
 Baseline and design documents carry named diagram slots. The packaged `diagram-design` skill fills each as inline Mermaid (canonical) and, when Archify is installed, links an interactive view. Archify is optional and user-installed; without it the slot stands as Mermaid. Details: [diagram-design](skills/diagram-design.md).
 
-* `/akili-constitution` Steps 3-5 fill the PRD, UX/UI and TRD slots.
+* `/akili-constitution` Steps 3-5 fill the PRD, UX/UI and TRD slots whose condition holds (the TRD's C4 Context and C4 Container are always filled).
 * `/akili-specify` Step 2.1 fills `design.md` slots when the design is architecturally significant.
-* `/akili-archive` Step 2 loads the skill only when the spec has a `diagrams/` folder or slot.
+* `/akili-archive` Step 2 loads the skill only when the spec has a `diagrams/` folder or slot, to link the spec's views and list baseline slots the design made stale as follow-ups; it fills none.
