@@ -50,3 +50,15 @@
 - spawns: Implementer 9 calls, 66,945 tokens, ended complete; Reviewer not reported by host.
 - Running totals vs budget: tasks 2/4 · Markdown LOC 20/~180 · review rounds T2 = 1. Within budget.
 - Phase gate: `auto-approved (pre-approved mode)`.
+
+### T3 — docs/README.md and docs/flow.md — PASS (attempt 1)
+
+- Implementer `sonnet`, effort `medium`, skills `cognitive-doc-design`. Files changed: `docs/flow.md` (+21/−1: `:7` alt = README alt; `/akili-security` pair under *Independent Auditing*; new `### 10. Video Deliverables`, `### 11. Diagram Slots`), `docs/README.md` (+8: `/akili-quick`, `/akili-security` lines; video and diagram pointers).
+- Implementer verification: `akili-security-docs` pass 19 fail 0; command check empty (red at HEAD: `missing /akili-quick`, `missing /akili-security`); `diagram-design` in flow 1 line; `docs/specs/changes` → 2 pre-existing `add-remember-me` example paths (`flow.md:52`, `:208`), 0 new; alt identical; falsifier (one word) → diff non-empty, restored.
+- Issue raised by the Implementer: is "/akili-specify Step 2.1" accurate? **Refuted at source by the Leader:** `awk` heading trace → `.claude/commands/akili-specify.md:232` under `#### Step 2.1 — Explore`; constitution `:163/:208/:245` under Steps 3/4/5; archive `:124` under Step 2.
+- Evidence re-run (Leader-inline): VERIFIED (pass 19 fail 0, command check empty, `ALT_SAME`, diff 2 files +29/−1).
+- Reviewer (`opus`, medium, checklist): **STATUS: PASS** — hub lines and anchors (`10-video-deliverables`, `11-diagram-slots` resolve to `flow.md:481/:490`); `/akili-security` pair vs `akili-security.md:46`, `:105/:110`, `:139-144`, no run-directory or slug wording; §10 vs propose `:92`, specify `:61-66`, test `:108`, validate `:141-143`, `video-production` `:16-23`; §11 vs `diagram-design` `:22-26`, `:40`, `:56`; alt identity. Note: README's `<img>` is now at `:48` (T2 caveat shifted it), not `:46` as the spec cites.
+- Requirements covered: FR-2 (flow site, same text), FR-6.
+- spawns: Implementer 9 calls, 74,046 tokens, ended complete; Reviewer not reported by host.
+- Running totals vs budget: tasks 3/4 · Markdown LOC 50/~180 · review rounds T3 = 1. Within budget.
+- Phase gate: `auto-approved (pre-approved mode)`.

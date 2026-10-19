@@ -100,7 +100,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S–M (~60 LOC) |
 | Depends on | T2 (alt text reused verbatim) |
 | Requirements | FR-2 (flow site, identical to README's) · FR-6 (hub: `/akili-quick`, `/akili-security`, video and diagram pointers; flow: `/akili-security` in *Primary Lifecycle*, video section, diagram section with conditions; AND IT MUST link only to `docs/commands/`/`docs/skills/`) |
