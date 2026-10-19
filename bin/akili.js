@@ -1848,6 +1848,7 @@ const { version: currentVersion } = require("../package.json");
 // most a few times a week.
 const UPDATE_CACHE_PATH = path.join(os.homedir(), ".akili-specs-update.json");
 const UPDATE_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const UPDATE_CHECK_DEADLINE_MS = 3000;
 
 function readUpdateCache() {
   try {
@@ -1871,36 +1872,48 @@ function writeUpdateCache(latest) {
 
 function fetchLatestVersion() {
   return new Promise((resolve) => {
+    // The request `timeout` below is an idle timer that every received byte
+    // re-arms, so a registry that drips bytes never trips it; the deadline
+    // bounds the whole call.
+    let deadline;
+    const settle = (value) => {
+      clearTimeout(deadline);
+      resolve(value);
+    };
     const req = https.get("https://registry.npmjs.org/-/package/akili-specs/dist-tags", { timeout: 1500 }, (res) => {
-      if (res.statusCode !== 200) {
-        res.resume();
-        return resolve(null);
-      }
-      let data = "";
       // 🛡️ Sentinel: Handle stream errors to prevent unhandled exceptions and DoS
       res.on("error", () => {
         req.destroy();
-        resolve(null);
+        settle(null);
       });
+      if (res.statusCode !== 200) {
+        res.resume();
+        return settle(null);
+      }
+      let data = "";
       res.on("data", (chunk) => {
         data += chunk;
         if (data.length > 50000) {
           req.destroy();
-          resolve(null);
+          settle(null);
         }
       });
       res.on("end", () => {
         try {
-          resolve(JSON.parse(data).latest || null);
+          settle(JSON.parse(data).latest || null);
         } catch {
-          resolve(null);
+          settle(null);
         }
       });
     });
-    req.on("error", () => resolve(null));
+    deadline = setTimeout(() => {
+      req.destroy();
+      settle(null);
+    }, UPDATE_CHECK_DEADLINE_MS);
+    req.on("error", () => settle(null));
     req.on("timeout", () => {
       req.destroy();
-      resolve(null);
+      settle(null);
     });
   });
 }

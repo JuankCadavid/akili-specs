@@ -29,7 +29,7 @@ One task, no dependencies. **`skip-eligible` tasks: none.** T1 changes shipped n
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S–M (~150 LOC: `bin/akili.js` +23/−11 · `test/update-check.test.js` ~95 · `test/fixtures/update-check/registry-redirect.js` ~10 · `CHANGELOG.md` ~4 · `.jules/sentinel.md` ~5) |
 | Depends on | none |
 | Requirements | FR-1 (statement: settle "no version" by the deadline **and** abort the request; scenario; `AND IT MUST` no cache; `BUT` not running at 6000 ms) · FR-2 (both scenarios; exit 0, empty stderr, `is up to date.`, < 2500 ms; `AND IT MUST` no cache; `BUT` not waiting for the deadline) · FR-3 (scenario: `Update available` + `999.0.0`, < 2500 ms; `AND IT MUST` cache `"latest":"999.0.0"`; statement: no linger until the deadline) · FR-4 (CHANGELOG + sentinel content; scenario quote-check; `BUT` no PR state `gh` does not show, no hook timeout value) · NFR-1 · NFR-2 · NFR-3 (3000 ms default, no dependency, no skip on any CI cell) |

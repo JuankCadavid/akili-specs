@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **The update check could hang on a registry that trickles bytes (`bugfix/update-check-deadline`).** `fetchLatestVersion` bounded only idle time (`timeout: 1500` is re-armed by every received byte), so a response of one byte per second never settled `akili check-update` (the SessionStart hook command) or the interactive startup check. It now gives up after an overall 3 s deadline (`UPDATE_CHECK_DEADLINE_MS`) that destroys the request, and `res.on("error")` is attached before the status check. The result, the 24 h cache and the output are unchanged; a failed check still writes no cache. Regression test: `test/update-check.test.js` (slow drip, 404 cut, 200 cut, healthy control) through the `test/fixtures/update-check/registry-redirect.js` preload.
 
 ## [2.34.0] - 2026-10-19
 
