@@ -13,7 +13,8 @@
 | Date | 2026-10-19 |
 | Source | `proposal.md` (approved `c5d6c3d`: Option A for docs, Archify for the figure) |
 | Format precedent | `docs/specs/archive/2026-10-19-bugfix--update-check-deadline/requirements.md`. No `docs/specs/general-setup/`, `docs/prd.md` or `docs/trd/` in this repo (`ls docs docs/specs`, as run 2026-10-19) |
-| Verified at | `c5d6c3d` |
+| Verified at | `c5d6c3d`; re-stamped `729d39f` after judgment-day (only spec files changed between them: `git diff --stat c5d6c3d 729d39f`) |
+| Amended | 2026-10-19 after judgment-day (`judgment.md`): FR-1 scenario/qualifiers, FR-2 title/desc injection, FR-4 count rule, FR-6/FR-7 anchors and the archive condition, FR-8 wording, NFR-4 SVG cap, §7 tier wording |
 | Deviations from proposal | PNG size: the proposal's success criterion said 1800×1200; the figure's aspect now comes from the Archify layout, so the PNG is **1800 px wide**, height per aspect (FR-1). README renders it at `width="900"` either way |
 
 ## 2. Executive Summary
@@ -56,20 +57,20 @@ Out of scope: everything else (see `proposal.md` → *Non-Goals*).
 
 ### FR-1 — Lifecycle figure shows the 2.34.1 surface
 
-The figure (`assets/akili-flow.svg` and `assets/akili-flow.png`) SHALL show: `/akili-constitution` once per project; the per-spec loop propose → specify → execute → test → validate → archive with Kaizen feeding back; the five anytime commands, with `/akili-security`'s hand-off of a confirmed finding to `/akili-propose` (Bug Track); the video track (specify Video Mode → test render evidence → validate final look); the diagram slots (constitution, specify, archive). It SHALL be generated with Archify (user decision).
+The figure (`assets/akili-flow.svg` and `assets/akili-flow.png`) SHALL show: `/akili-constitution` once per project; the per-spec loop propose → specify → execute → test → validate → archive with Kaizen feeding back; the five anytime commands, with `/akili-security`'s hand-off of a confirmed finding to `/akili-propose` (Bug Track); the video track (specify Video Mode → test render evidence → validate final look); the diagram slots (constitution Steps 3–5, specify Step 2.1 for architecturally significant designs, archive Step 2 when the spec has diagram slots). It SHALL be generated with Archify (user decision); if Archify cannot produce it, execution stops and asks the user — no silent fallback.
 
 #### Scenario: Reader opens the README figure
 
-- GIVEN the README at this branch
-- WHEN the figure renders
+- GIVEN `assets/akili-flow.png` and `assets/akili-flow.svg` in the working tree (the README `<img>` points at the `master` raw URL, so the branch figure is not visible through it)
+- WHEN the figure is opened
 - THEN every command of `ls .claude/commands` appears in it by name
 - AND the labels `Deliverable: video` (or "video") and `diagram` appear
-- AND IT MUST be a PNG 1800 px wide with no clipped text
+- AND IT MUST be a PNG 1800 px wide, with every text element's font size ≥ 10 px when the figure is displayed 900 px wide (read from the SVG: font-size × 900 / viewBox width), and no text clipped or overlapped in the visual review
 - BUT it must NOT show any command or skill that is not packaged, and must NOT present HyperFrames or Archify as packaged
 
 ### FR-2 — Figure text alternatives match the figure
 
-Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no script, no external resource.
+Both figure sites — README's `<img alt>` (`README.md:46`, PNG) and `docs/flow.md:7`'s image alt (SVG) — and the SVG `<title>`/`<desc>` (where the export allows them) SHALL describe the same elements as FR-1. The SVG SHALL render standalone as an image: no `<script>`, no `http(s)` URL, no `@import`; embedded `data:` fonts are allowed. Archify's export carries no `<title>`/`<desc>`, so they and `role="img"` are added after export.
 
 #### Scenario: Screen-reader user
 
@@ -100,7 +101,7 @@ README *Contents* SHALL list exactly the 12 files of `.claude/commands/` and the
 - GIVEN the *Contents* section
 - WHEN it is compared with `ls .claude/commands` and `ls .claude/skills`
 - THEN the sets are equal (no missing, no extra)
-- AND IT MUST hold for every count claim on the in-scope surfaces (KZ-002)
+- AND IT MUST hold for any count of commands or skills written on an in-scope surface: none exists today, and a new one is written only with the membership check run beside it (KZ-002)
 
 ### FR-5 — Windows caveat next to the badge
 
@@ -121,23 +122,23 @@ The README SHALL qualify "Windows supported" with a one-line note that `/akili-s
 
 - GIVEN `docs/flow.md`
 - WHEN the adopter looks for diagrams
-- THEN a section names `diagram-design`, `/akili-constitution` Steps 3–5, `/akili-specify` Step 2.1, `/akili-archive` Step 2, and Archify as optional
+- THEN a section names `diagram-design`, `/akili-constitution` Steps 3–5, `/akili-specify` Step 2.1 (architecturally significant designs), `/akili-archive` Step 2 (when the spec has a `diagrams/` folder or slot), and Archify as optional
 - AND IT MUST link only to `docs/commands/` or `docs/skills/` pages, never to `docs/specs/changes/…` (KZ-changes--archify-diagrams-1)
 
 ### FR-7 — Command pages name the diagram load points
 
-`docs/commands/akili-constitution.md`, `akili-specify.md` and `akili-archive.md` SHALL each name `diagram-design` at the step that loads it.
+`docs/commands/akili-constitution.md` (*Skill Map Scaffolding* skill list), `akili-specify.md` (*Key Rules*) and `akili-archive.md` (*Archive Summary*) SHALL each name `diagram-design` and the step that loads it, with its condition.
 
 #### Scenario: Reader of the specify page
 
 - GIVEN `docs/commands/akili-specify.md`
-- WHEN the reader looks at Step 2.1 behavior
-- THEN it says architecturally significant designs load `diagram-design`
+- WHEN the reader reads *Key Rules*
+- THEN one rule says architecturally significant designs load `diagram-design` at Step 2.1
 - BUT it must NOT say diagrams are mandatory or that Archify is required
 
 ### FR-8 — Skills index order and CHANGELOG
 
-`docs/skills/README.md`'s inventory SHALL be alphabetical (the `tdd` row moved). `CHANGELOG.md` `[Unreleased]` SHALL carry one *Changed* note describing the refresh and saying npm shows the new README only after the next publish.
+`docs/skills/README.md`'s inventory SHALL be alphabetical (the `tdd` row moved). `CHANGELOG.md` `[Unreleased]` SHALL replace the `### Notes` placeholder with one `### Changed` note describing the refresh, saying the README text on npm updates at the next publish while the figure (loaded from the `master` raw URL) updates when `master` does.
 
 #### Scenario: Release preparer
 
@@ -152,18 +153,18 @@ The README SHALL qualify "Windows supported" with a one-line note that `/akili-s
 | NFR-1 | `npm test` stays at 413 pass, 0 fail; `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` pass |
 | NFR-2 | No file under `.claude/`, `bin/`, `test/`, `package.json`, `docs/model-routing.md` changes; no Archify file or HTML enters the repo (`git diff --stat c5d6c3d`) |
 | NFR-3 | Local commits only, `[SPEC:changes/docs-refresh-2-34]` prefix; no push, tag, release or publish |
-| NFR-4 | `assets/akili-flow.png` ≤ 400 KB (current 187,727 B) so the npm tarball does not grow materially |
+| NFR-4 | `assets/akili-flow.png` ≤ 400 KB (current 187,727 B) and `assets/akili-flow.svg` ≤ 150 KB (current 6,449 B; Archify embeds ~95 KB of base64 fonts); `npm run pack:dry-run` still lists both |
 
 ### Defect classes and their gates
 
 | Defect class | Gate |
 |---|---|
 | Inventory/count mismatch | Membership script over `ls .claude/commands`, `ls .claude/skills` vs each surface (task verification), plus `npm run verify:cli` |
-| Restatement drift on `/akili-security` | `test/akili-security-docs.test.js` (automated) |
+| Restatement drift on `/akili-security` | `node --test test/akili-security-docs.test.js` after every task that adds a line matching `/akili-security\|security-audit\|audits\/security-/` (alt text, caveat, table row, Start Here, flow) |
 | Broken relative link | Link check: every `](docs/…)`/`](…md)` target in changed lines exists (task verification) |
 | Stale-path link to an active spec | `grep -n "docs/specs/changes" ` over changed shipped docs → 0 |
-| Figure content wrong or missing a node | Label grep over the exported SVG text **plus** a visual review of the PNG (no automated check reads a raster: substitute = T6 multimodal review of the rendered PNG by the session model, recorded in `execution.md`) |
-| Figure legibility (clipped, overlapping, too small at 900 px) | No automated check — substitute: visual review of the PNG at 900 px width; Archify's `finalize` browser-check covers overlap in its own HTML only |
+| Figure content wrong or missing a node | Label grep over the exported SVG text **plus** a visual review of the PNG (no automated check reads a raster: substitute = tier-T6 multimodal review of the rendered PNG by the session model, recorded in `execution.md`) |
+| Figure legibility (clipped, overlapping, too small at 900 px) | Font-size floor computed from the SVG (FR-1) plus the visual review of the PNG at 900 px width for clipping/overlap; Archify's `finalize` browser-check covers overlap in its own HTML only |
 | Alt text plausible but false | No automated check — substitute: alt text compared node-by-node with the figure during the visual review |
 | Markdown table broken | Render check: column count per row equal (task verification) |
 
