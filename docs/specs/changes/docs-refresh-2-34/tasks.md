@@ -114,15 +114,15 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 **Verification.**
 
 - `node --test test/akili-security-docs.test.js` → 0 fail.
-- MC (commands only) over `docs/README.md` → empty.
+- Command check over `docs/README.md` (it names commands as `/akili-<name>`, not files): `for c in $(ls .claude/commands | sed 's/\.md$//'); do grep -q "/$c\b" docs/README.md || echo "missing /$c"; done` → empty.
 - `grep -c "diagram-design" docs/flow.md` ≥ 1; `grep -n "docs/specs/changes" docs/flow.md docs/README.md` → 0.
 - Alt-text identity: the alt string extracted from `README.md:46` equals the one at `docs/flow.md:7` (`diff`).
 - Link check on the diff as in T2.
 
 | Verification field | Value |
 |---|---|
-| Falsifier | Change one word of the flow alt text → `diff` non-empty; drop `/akili-quick` from the hub → MC prints `missing akili-quick.md` |
-| Red run | MC (commands) on current `docs/README.md` → `akili-quick.md`, `akili-security.md` missing (executed at `729d39f`) |
+| Falsifier | Change one word of the flow alt text → `diff` non-empty; drop `/akili-quick` from the hub → the command check prints `missing /akili-quick` |
+| Red run | Command check on current `docs/README.md` → `missing /akili-quick`, `missing /akili-security` (executed at `03b7cb0`) |
 | Disqualifier | A green restatement test proves only the pinned phrases; it says nothing about the new sections' accuracy — the Reviewer compares them against `.claude/commands/akili-{specify,test,validate,archive,constitution}.md` |
 | Consumers | as above |
 
