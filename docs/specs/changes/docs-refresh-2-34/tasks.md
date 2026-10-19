@@ -132,7 +132,7 @@ T2 and T3 depend on T1 because both alt texts describe the finished figure. T4 d
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~25 LOC) |
 | Depends on | T3 |
 | Requirements | FR-7 (three anchors; specify *Key Rules* scenario; BUT not mandatory, Archify not required) · FR-8 (alphabetical index; CHANGELOG `### Changed` replaces the placeholder; npm/raw-URL wording) · NFR-1 · NFR-2 · NFR-3 |

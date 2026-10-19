@@ -62,3 +62,40 @@
 - spawns: Implementer 9 calls, 74,046 tokens, ended complete; Reviewer not reported by host.
 - Running totals vs budget: tasks 3/4 · Markdown LOC 50/~180 · review rounds T3 = 1. Within budget.
 - Phase gate: `auto-approved (pre-approved mode)`.
+
+### T4 — Command pages, skills index order, CHANGELOG
+
+#### Attempt 1 — FAIL
+
+- Implementer `sonnet`, effort `medium`. Files changed: `CHANGELOG.md`, `docs/commands/akili-archive.md`, `docs/commands/akili-constitution.md`, `docs/commands/akili-specify.md`, `docs/skills/README.md` (+7/−3).
+- Implementer verification: `npm test` 413/413; `verify:cli` 12 | 27 | 8; pack lists both assets; `git diff --check` clean; order OK (red at HEAD differs at `tdd`); placeholder 0; NFR-2 empty. Not Done / Assumptions: consumers not run separately (full suite passed); constitution `:163/208/245` not re-opened by the worker — no owed item.
+- Evidence re-run (Leader-inline): VERIFIED (same outputs).
+- Reviewer (`opus`, medium): **STATUS: FAIL**, verbatim:
+  > 1. **Discovered Issue:** The new line in `docs/commands/akili-constitution.md` (*Skill Map Scaffolding* list) names `diagram-design` and Steps 3–5, but no condition. The source makes the load conditional per slot, with one fixed exception. `.claude/commands/akili-constitution.md:163` and `:208` say "fill the PRD/UX/UI slots whose condition holds". `:245` says "fill the TRD slots whose condition holds; C4 Context and C4 Container are always filled". The shipped text says only "diagram slots in the PRD, UX/UI design and TRD". A reader would take that as every slot, always. The line also leaves out that the two C4 TRD slots are always filled.
+  > * **Violated Rule:** requirements.md FR-7: "… SHALL each name `diagram-design` and the step that loads it, **with its condition**." design.md §3 row: "One line each naming `diagram-design`, its step and condition."
+  > * **Remediation Suggestion:** Rewrite the bullet so it states the condition from the source, e.g. "`diagram-design` (Steps 3–5 — fills the PRD, UX/UI design and TRD diagram slots whose condition holds, as inline Mermaid; the TRD's C4 Context and C4 Container are always filled; an Archify interactive view is optional)". Keep it to one line.
+  The other four surfaces conformed (specify `:232`, archive `:124`, index row byte-identical, CHANGELOG claims checked against `1937974`, `4a7aa8d`, `637cb7a`; `release.js` compatible).
+- Leader note (observation, not a task): README's *What AKILI Covers* and `docs/flow.md` §11 also name constitution Steps 3–5 without the "whose condition holds" clause; FR-7's condition obligation binds only the command pages, and T2/T3 passed review — recorded for `/akili-validate`, not widened into T4 (Advisory Never Becomes A Task).
+- spawns: Implementer 6 calls, 60,988 tokens, ended complete; Reviewer not reported by host.
+
+#### Attempt 2 — PASS
+
+- Implementer `sonnet`, effort `high` (bumped after the FAIL). Feedback: attempt-1 Reviewer report verbatim + attempt history. File changed: `docs/commands/akili-constitution.md` (the one bullet, `:122`): "`diagram-design` (Steps 3–5 — fills the PRD, UX/UI design and TRD diagram slots whose condition holds, as inline Mermaid; the TRD's C4 Context and C4 Container are always filled; an Archify interactive view is optional)".
+- Implementer verification: source `:163/:208/:245` confirmed; falsifier `grep -c "whose condition holds"` 0 → 1; `npm test` 413/413; `git diff --check` clean.
+- Evidence re-run (Leader-inline): VERIFIED (1; pass 413 fail 0; CHECK_OK).
+- Reviewer (`opus`, high): **STATUS: PASS** — attempt-1 issue resolved against `:163/:208/:245`; FR-7 BUT holds on all three pages; no regression (index `sort -c` passes, CHANGELOG unchanged, NFR-2 empty).
+- Requirements covered: FR-7, FR-8, NFR-1, NFR-2, NFR-3.
+- spawns: Implementer 6 calls, 56,160 tokens, ended complete; Reviewer not reported by host.
+- Running totals vs budget: tasks 4/4 · Markdown LOC 58/~180 · review rounds T4 = 2 (≤ 2; tripwire 3). Within budget.
+- **Final status: PASS** — Phase gate: `auto-approved (pre-approved mode)`.
+
+## 3. Summary
+
+| Task | Result | Attempts | Reviewer |
+|---|---|---|---|
+| T1 Figure (Archify) | PASS | 1 (+ user decision on the font floor) | PASS |
+| T2 README | PASS | 1 | PASS |
+| T3 Docs hub + flow | PASS | 1 | PASS |
+| T4 Command pages, index, CHANGELOG | PASS | 2 | FAIL → PASS |
+
+Budget: 4/4 tasks · 58/~180 Markdown LOC (+2 assets within NFR-4 caps) · max 2 review rounds per task. No HALT, no Pivot, no tripwire. One spec amendment (FR-1 font floor, user decision) and two wording corrections (FR-2 title/desc, NFR-4 byte caps).

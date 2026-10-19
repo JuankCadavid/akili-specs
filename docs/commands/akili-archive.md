@@ -49,6 +49,8 @@ docs/specs/<spec-path>/archive-summary.md
 
 The summary captures delivered requirements, files changed, test evidence, validation summary, accepted warnings, follow-ups, and historical notes.
 
+The summary's Diagrams item loads `diagram-design` only when the spec has a `diagrams/` folder or slot: it links the spec's views, and any baseline diagram slot the design made stale becomes a follow-up.
+
 ## Constitution & Graph Sync
 
 Before moving the folder, the command syncs the project constitution with what the spec actually changed, starting from the `## Constitution Impact` notes recorded in `execution.md` during `/akili-execute`.
