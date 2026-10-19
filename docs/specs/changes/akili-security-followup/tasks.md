@@ -131,7 +131,7 @@ No task is `skip-eligible`.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T3, T4 |
 | Requirements | FR-10 (`CHANGELOG.md` `[Unreleased]` describes only what ships), NFR-2, NFR-3, NFR-4 |
 | Design refs | §4, §11 |

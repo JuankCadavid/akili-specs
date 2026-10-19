@@ -107,3 +107,35 @@
 | Decisions made | `:24` clause beyond the 10 sites accepted (Reviewer: in scope — carries the dirty-state rule moved off `:23`). Implementer did not record loading `cognitive-doc-design`. Implementer `sonnet` high → xhigh at attempt 2 |
 | spawns | Implementer 14 + 3 + 3 calls, ~82,699 tokens cumulative, ended complete; Reviewer 10 + 2 + 4 calls, ~82,469 tokens cumulative, ended complete |
 | Running totals | tasks 4/5 · LOC ~481 (+ T4 +13/−13) · review rounds 11 — within the revised budget (~520 / 14) |
+
+### T5 — CHANGELOG, full verification, final sweep — **PASS** (attempt 2)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** — 2026-10-19 |
+| Attempts | 2 |
+| Files changed | `CHANGELOG.md` `[Unreleased]` only (`### Changed` 8 bullets, `### Notes` 3 bullets; "No unreleased changes yet." replaced; hunks `@@ -8,0 +9,11 @@`, `@@ -11 +22,3 @@`; no released entry touched, P-7) |
+| Red run | `[Unreleased]` read `### Notes` / `- No unreleased changes yet.` |
+| Falsifier | Clause "No `git` runs during an audit." inserted → quote-check grep over the shipped files (`no `?git`? (command )?(runs?|ran) during an audit|never run git .*(during|throughout) (an|the) audit|git .*during an audit`) → no output, exit 1 → rejected; shipped scope is command `:43` "Never run git in the target before **Run**, and never in Steps 4 and 5"; replaced with the scoped clause (narrower than "no git during an audit"; R-A) |
+| Verification (Implementer, final tree) | `npm test` 389/389/0 · `verify:cli` "12 commands \| 27 skills \| 8 resources (akili-specs v2.34.0)" · `pack:dry-run` 309 files, `grep -c docs/specs` → 0 · `git diff --check` rc 0 · NFR-3 `git diff --stat 5c944d0 -- bin package.json docs/model-routing.md .claude/templates` → empty · NFR-2 gate rc 0, single `SKILL.md` hunk `@@ -207 +207 @@` · shared git grep 0 hits · repo-wide phrase-family sweep (T4 pattern over `README.md docs .claude test`, `--exclude-dir=specs`) 98 hits judged by group: command and doc hits = the new text; other "by default" hits = installer / routing / other skills / vendored upstream (byte-identical, NFR-2); test hits = `doesNotMatch` guards and positive pins; extra checks `s<n>` without `-r<N>` → 0, `ignored in-target|ignored directory|outside the target by default|ignored path|repo-relative|all four controls|four upstream|akili install --force` → 0 · Consumers `grep -rn "CHANGELOG" test/*.js` → `test/diagram-design.test.js:418-420` asserts the 2.34.0 diagram-design entry (still holds; `[Unreleased]` heading kept) |
+| Evidence re-run (Leader-inline, after T3/T4 committed — Disqualifier met) | **VERIFIED** — `npm test` 389/389/0; command test file runner `# tests 89` (5c944d0 file: `# tests 61`); `verify:cli` clean; `npm pack --dry-run \| grep -c docs/specs` 0; `git diff --check` clean; NFR-3 empty; NFR-2 rc 0; shared git grep exit 1 (0 hits). Flagged to the Reviewer: CHANGELOG "52 to 80 cases" (`^test(` count) vs runner 61 → 89 |
+| **Attempt 1** | Reviewer (`opus`, full): **FAIL** — six clauses claim something different from what ships (FR-10), verbatim summary: "1. … "The `run-metadata.json` addendum has a mechanism slot" … The slot is in the **brief addendum** for delegated prompts … 2. "the four upstream bullets listed in the command's own words" … contradicts itself and the shipped text … 3. "The plan's Disclosure row … say 'always outside the target'" … The Disclosure row … without "always" … 4. "goes from 52 to 80 cases" counts `^test(` call sites. The runner reports `# tests 61` … and `# tests 89` … the bullet mixes two units … 5. … leaves out the stricter rule at :43: "a symlink anywhere on the path (the file, or any directory on it) reads `not determined`" … 6. "What cannot be read or confirmed is recorded as `not determined` in the plan, `run-metadata.json` and the index" … For the index, :45 and :102 cover only the commit and the dirty state" — Leader adjudication: verified by grep (command `:88-90` brief addendum; `:60` Disclosure row; `:43` symlink rule); consumes attempt 1 |
+| **Attempt 2** | Resume-by-message, effort xhigh: the six clauses + ADVISORY neither/nor wording. Evidence re-run: **VERIFIED** (old phrasings 0, new 3, `git diff --check` clean). Reviewer: **PASS** — six issues closed; "the plan" in item 6 supported by the Step 1 Target row; no other clause regressed |
+| Review intensity | Not met — `full` review owed (summary surface, KZ-002) |
+| ADVISORY (recorded, not tasks) | Item 6 "a dirty state that cannot be read or confirmed" is looser than the shipped "a dirty state the user declines to state" (the dirty state is asked, never read); accurate as written. R-A clause rests on `requirements.md:243`, a spec document outside the package — acceptable for a scope note |
+| Gap recorded | The task's prescribed checks (sweep, falsifier) caught none of the six clause defects; the full Reviewer's per-clause quote-check did — recurrence of KZ-002 on the summary surface |
+| Requirements covered | FR-10 (`[Unreleased]` describes only what ships), NFR-2, NFR-3, NFR-4 |
+| Decisions made | Skills per task list (`cognitive-doc-design`). Implementer `sonnet` high → xhigh. Release class not stated in the CHANGELOG (release-step call) |
+| spawns | Implementer 26 + 4 calls, ~118,500 tokens cumulative, ended complete; Reviewer 10 + n calls, ~83,499+ tokens, ended complete |
+| Running totals | tasks 5/5 · LOC ~496 (+ T5 +14/−1) · review rounds 13 — within the revised budget (~520 / 14) |
+
+## Execution Summary — 2026-10-19
+
+| Field | Value |
+|---|---|
+| Tasks | 5/5 `[x]` — T1 PASS (1 attempt), T2 PASS (2), T3 PASS (3), T4 PASS (3), T5 PASS (2) |
+| Budget | LOC ~496 vs revised ~520 (original ~270, tripwire fired after T2 and revised with user approval); review rounds 13/14; tasks 5/6 |
+| Spec edits at execute | `design.md` §7 row 4 (T2, git-free branch suffix); `design.md` §11 budget revision |
+| Constitution Impact | None — no module created or reshaped |
+| Not done (by instruction) | No push, merge, release, tag or publish. Upstream request drafted, not filed (maintainer files it) |
+| Next | `/akili-test changes/akili-security-followup` |
