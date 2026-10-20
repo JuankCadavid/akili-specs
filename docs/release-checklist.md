@@ -2,6 +2,16 @@
 
 Use this checklist before publishing `akili-specs`.
 
+## Branch Flow
+
+`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly.
+
+1. Change notes land under `CHANGELOG.md` > `Unreleased` through feature PRs into `dev`.
+2. Cut `release/vX.Y.Z` from an up-to-date `dev`, run `npm run release:*`, verify, commit, and open a PR into `dev`.
+3. Open a PR `dev` → `master`; merge with a **merge commit**.
+4. On an up-to-date `master`: tag, push the tag, publish, verify dist-tags, GitHub Release, smoke test.
+5. Resync `dev` (see *Resync*).
+
 ## Preflight
 
 - [ ] Confirm this update should be published now, not only committed to the repository.
@@ -22,15 +32,27 @@ Use this checklist before publishing `akili-specs`.
 - Repository updates and npm updates are controlled separately.
 - Package-affecting repository changes require changelog notes before release preparation.
 - `npm run release:status` checks local release files, npm versions, remote tags, and GitHub Releases for drift.
-- The `Release Status` GitHub Actions workflow runs the same drift check on pushes, pull requests, and manual dispatches.
+- The `Release Status` GitHub Actions workflow runs the same drift check on pushes to `master` and `dev`, pull requests, and manual dispatches.
+- `release:status` lists prereleases (`-` versions, `next` dist-tag) separately from stable versions.
 - npm updates require a version bump, release notes, verification, release commit, publish, and smoke test.
 - Never publish from uncommitted changes.
 - Never claim npm is updated until publish and post-publish smoke test both succeed.
 - If publish fails, keep the release commit and fix the blocker. Do not create a replacement version unless the failed version was actually published.
 
+## Prerelease (`next`)
+
+From an up-to-date `dev` (on `dev`, clean working tree, `HEAD` equal to `origin/dev`):
+
+```bash
+npm run release:next -- <patch|minor|major> --dry-run
+npm run release:next -- <patch|minor|major> [--otp=<code>]
+```
+
+The guards check the branch, a clean tree, sync with `origin/dev`, a stable source version, that the source version is published, and that the bumped base version is ahead of every published stable version (so a stale `dev` refuses). The `X.Y.Z-next.N` version is written to `package.json` only for the publish and is never committed. Confirm with `npm view akili-specs dist-tags` that `next` shows the new version. Prereleases get no `CHANGELOG.md` section, no `releases/` notes, no tag and no GitHub Release.
+
 ## Verify Locally
 
-Prepare a version bump from committed changes:
+Start on `release/vX.Y.Z`, cut from an up-to-date `dev`. Prepare a version bump from committed changes:
 
 ```bash
 npm run release:patch
@@ -49,6 +71,8 @@ npm run release:status
 git diff --check
 ```
 
+When verification passes, commit the release changes (the script's `git add` hint lists the files) and open a PR into `dev`. Once it merges, open a PR `dev` → `master` and merge it with a **merge commit**.
+
 ## Verify Packed Tarball
 
 ```bash
@@ -61,6 +85,8 @@ akili doctor --tool claude
 Remove the generated tarball after testing unless it is being attached to a release.
 
 ## Publish
+
+Only after the `dev` → `master` merge, on an up-to-date `master`, tag and push the tag first (`git tag vX.Y.Z`, then `git push origin vX.Y.Z`), then publish.
 
 For public npm publishing:
 
@@ -88,7 +114,8 @@ npm run release:status
 
 ## GitHub Release
 
-- [ ] Tag the release, for example `v0.2.0`.
+- [ ] Verify `npm view akili-specs dist-tags` in its own command before `gh release create`.
+- [ ] Tag the release, for example `v0.2.0` (already pushed in *Publish*).
 - [ ] Create a GitHub release using `releases/v0.2.0.md`.
 - [ ] Include publish/install instructions in the release body.
 
@@ -115,3 +142,7 @@ npm run notify:slack -- --dry-run
 
 - [ ] `SLACK_WEBHOOK_URL` secret is configured (first release only — `gh secret list` to confirm).
 - [ ] After publishing the GitHub Release, confirm the message actually arrived in the channel. A green workflow run is **not** proof: the script exits `0` when the secret is missing, by design.
+
+## Resync
+
+After the stable release, bring `master`'s merge commit back into `dev`: branch `sync/master-into-dev` from `dev`, run `git merge origin/master`, open a PR into `dev`, and merge it with a **merge commit**. Squash or rebase would leave `master`'s merge commit outside `dev`, so the next `dev` → `master` PR would not be up to date.

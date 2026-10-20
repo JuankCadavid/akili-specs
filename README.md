@@ -27,6 +27,8 @@
   <img alt="Windows supported" src="https://img.shields.io/badge/Windows-supported-1686c7?style=for-the-badge">
 </p>
 
+<p><sub><code>/akili-security</code> is not supported on native Windows — run it from WSL, Linux or macOS.</sub></p>
+
 <p>
   <img alt="Claude Code supported" src="https://img.shields.io/badge/Claude%20Code-supported-7c3aed?style=for-the-badge">
   <img alt="OpenCode supported" src="https://img.shields.io/badge/OpenCode-supported-7c3aed?style=for-the-badge">
@@ -43,7 +45,7 @@ Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
 <p align="center">
-  <img alt="AKILI-SPECS lifecycle: a one-time constitution establishes the baseline, then a per-spec loop runs propose, specify, execute, test, validate and archive, with a Kaizen retrospective feeding the next spec" src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900">
+  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png"><img alt="AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose." src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900"></a>
 </p>
 
 ## Docs
@@ -56,6 +58,16 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 → **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>
 → **[OpenSpec Comparison](docs/openspec-comparison.md)**: what AKILI borrows and how it differs<br>
 → **[Release Checklist](docs/release-checklist.md)**: controlled npm release process
+
+## What AKILI Covers
+
+Three capabilities sit beside the core spec loop; each fires at a specific point and tells you what, if anything, to install.
+
+| Capability | Where it fires | You install | Read more |
+|---|---|---|---|
+| Security audits | `/akili-security`, an anytime command outside the per-spec loop; confirmed findings go to `/akili-propose` and follow the Bug Track | Nothing extra (packaged `security-audit` skill, Cloudflare, MIT); not on native Windows | [`/akili-security`](docs/commands/akili-security.md) |
+| Video deliverables | A spec whose Document Control says `Deliverable: video`: `/akili-specify` Video Mode, `/akili-test` render evidence, `/akili-validate` final look and delivery render | HyperFrames, yourself (the packaged `video-production` bridge stops at its availability gate and prints the install route) | [`video-production`](docs/skills/video-production.md) |
+| Diagrams | Diagram slots whose condition holds, filled as inline Mermaid at `/akili-constitution` Steps 3-5 and `/akili-specify` Step 2.1 (architecturally significant designs); `/akili-archive` Step 2 links the spec's views when it has slots — all via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
 
 ## Repository Structure
 
@@ -74,6 +86,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 - `.claude/commands/`
   - `akili-constitution.md`
   - `akili-propose.md`
+  - `akili-quick.md`
   - `akili-specify.md`
   - `akili-execute.md`
   - `akili-test.md`
@@ -91,6 +104,7 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `brainstorming`
   - `caveman`
   - `cognitive-doc-design`
+  - `diagram-design`
   - `error-handling-patterns`
   - `frontend-design`
   - `gsap-animation`
@@ -99,12 +113,14 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
   - `nestjs-expert`
   - `product-manager-toolkit`
   - `react-doctor`
+  - `security-audit`
   - `seo-audit`
   - `shadcn-ui`
   - `software-architect`
   - `stitch-design`
   - `systematic-debugging`
   - `tailwind-design-system`
+  - `tdd`
   - `ui-ux-pro-max`
   - `vercel-react-best-practices`
   - `video-production`
@@ -153,7 +169,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Archify skill (`npx skills add tt-a1i/archify`) | Interactive HTML views of diagram slots (optional) | Your own install; without it, diagrams stay Mermaid (see below) |
 | Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command still runs without them, except that a spec whose `Deliverable` selects one (`Deliverable: video` and `hyperframes`, through `video-production`) stops at that skill's availability gate (see `docs/skills/governance.md`) |
 
-`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every push.
+`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every pull request and on every push to `dev` and `master`.
 
 ```bash
 npm install -g @colbymchenry/codegraph
@@ -377,7 +393,7 @@ Release policy:
 - Commit repository changes separately from release version changes.
 - Add `CHANGELOG.md` notes before preparing a release.
 - Use `npm run release:status` to detect drift between local release files, npm, tags, and GitHub Releases.
-- The `Release Status` GitHub Actions workflow runs the same drift check on pushes, pull requests, and manual dispatches.
+- The `Release Status` GitHub Actions workflow runs the same drift check on pushes to `master` and `dev`, pull requests, and manual dispatches.
 - Publish only from a clean working tree after verification passes.
 - Confirm npm authentication before publishing.
 - Do not claim npm is updated until publish and smoke tests succeed.
@@ -391,34 +407,15 @@ Use semantic versioning:
 | Minor | New commands, new install targets, meaningful workflow additions | `0.2.0` to `0.3.0` |
 | Major | Breaking command behavior or package install changes | `0.2.0` to `1.0.0` |
 
-Controlled release flow:
+Controlled release flow (`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly):
 
-1. Make repo changes.
-2. Add notes under `CHANGELOG.md` > `Unreleased`.
-3. Commit the changes.
-4. Prepare the next version:
+1. Add notes under `CHANGELOG.md` > `Unreleased`; they land on `dev` through feature PRs.
+2. Cut `release/vX.Y.Z` from an up-to-date `dev`, run `npm run release:patch` (or `release:minor` / `release:major`), verify, commit the release, and open a PR into `dev`.
+3. Open a PR `dev` → `master` and merge it with a merge commit.
+4. On an up-to-date `master`: tag and push the tag, `npm publish`, verify `npm view akili-specs dist-tags`, then `gh release create`.
+5. Resync `dev` from `master` through a `sync/master-into-dev` PR, merged with a merge commit.
 
-```bash
-npm run release:patch
-```
-
-Or use `release:minor` / `release:major` when appropriate.
-
-The release script updates `package.json`, moves the `Unreleased` changelog notes into a dated version section, and creates `releases/vX.Y.Z.md`.
-
-Then verify and publish:
-
-```bash
-npm run verify:cli
-npm run pack:dry-run
-npm run release:status
-git diff --check
-git add package.json CHANGELOG.md releases/vX.Y.Z.md
-git commit -m "chore(release): vX.Y.Z"
-git tag vX.Y.Z
-npm whoami --registry=https://registry.npmjs.org/
-npm publish --access public --registry=https://registry.npmjs.org/
-```
+To preview `dev` before a stable release, a maintainer runs `npm run release:next -- <patch|minor|major>`; users try it with `npm i akili-specs@next`. See [docs/release-checklist.md](docs/release-checklist.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 After publish, smoke test:
 
@@ -552,6 +549,8 @@ Use this flow for normal feature work:
 5. `/akili-test <spec-path>` - prove the behavior with tests and traceability.
 6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
 7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
+
+Five anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo` and `/akili-security`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 

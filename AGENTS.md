@@ -15,12 +15,14 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
 - `README.md` documents installation and methodology usage.
 - Default Branch: master
+- Integration Branch: dev
 
 ## Development Rules
 
 - Keep command prompts readable and tool-agnostic where possible.
 - Do not add project-specific assumptions to reusable commands.
 - Keep installer behavior safe: skip existing files by default and require `--force` to overwrite.
+- **Branch model:** `master` and `dev` are protected: changes land only through a pull request with 0 approvals, the six `CLI on <os> / Node <18|22>` checks green and the branch up to date, enforced for admins too. `feat/<name>` and `fix/<name>` branch from `dev` and open their PR into `dev`. Agents never commit to or push `dev` or `master` directly.
 - Do not commit generated `.tgz` files or `node_modules/`.
 - Do not commit service account keys, npm tokens, `.npmrc`, or local MCP config containing secrets.
 - **Spec-to-Code Traceability:** Every commit made during `/akili-execute` must be prefixed with `[SPEC:<spec-path>]` (e.g. `[SPEC:changes/add-remember-me] message`). Trivial fast-tracked changes made via `/akili-quick` use the `[SPEC:quick/<name>]` prefix plus a one-line entry in `docs/specs/quick/quick-log.md`.
@@ -31,7 +33,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - **CodeGraph Re-indexing:** Remind or execute the re-indexing command during `/akili-archive` to keep CodeGraph databases healthy.
 - **Agent Guide Inheritance:** Root `CLAUDE.md`/`AGENTS.md` are the parent; modules with divergent conventions carry thin child guides referenced from a `## Module Guides` index in the parent. `/akili-execute` records `## Constitution Impact` notes when tasks create or reshape modules; `/akili-archive` syncs the guides and the CodeGraph; `/akili-audit` flags guide drift.
 - **Multi-Agent Harness:** `/akili-execute` runs each task through a Leader → Implementer → Reviewer loop with a hard 3-attempt rework ceiling; the Reviewer is owed unless the task clears the *Review intensity* predicate (`/akili-execute` Step 2.3), and the non-author evidence re-run is never waived. `/akili-test` runs a Leader → Tester(s) harness where the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise), each with a bounded self-correction inner loop and a `PASS`/`FAIL`/`PRODUCT_BUG` output contract. Personas live in `.claude/templates/` (source) and project `.agents/` (deployed by `/akili-constitution`). Do not collapse these loops back into a single-agent flow.
-- **Kaizen Loop (two-phase, branch-safe):** `/akili-archive` runs a bounded retrospective (measure → learn → standardize → record) on every archive via the packaged `kaizen` skill. The **retrospective phase** runs on any branch and writes one entry file per spec at the target project's `docs/specs/kaizen/<safe-spec-slug>.md`, recording each proposed standardization as a pending item. The **apply phase** runs only on the apply-capable branch (the default branch, or the pinned integration branch when one exists — never both) — reached through the skill's **Apply Mode** ("apply pending kaizen standardizations"), offered automatically by `/akili-archive` when it already runs there, and surfaced by `/akili-resume` — where the HITL menu fires, each approved item is re-verified before writing (a refuted one closes as `superseded` instead), approved edits to shared files are made, and the `## Active Lessons` digest in `docs/specs/kaizen-log.md` is refreshed; that apply phase is the digest's single writer, and the log's legacy `## Entries` section is frozen. Lessons require a root cause + cited evidence; no shared file is ever edited from a spec branch, or from the default branch while an integration pin exists, approved or not; `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume` read only the `## Active Lessons` digest. Lessons whose root cause is AKILI itself are recorded as a `Kind: upstream` pending item and collected into an upstream report at apply time, flipping to `upstreamed` — apply the same loop when iterating this repo (dogfooding). Do not add a separate kaizen command: Apply Mode is an activation of the existing skill.
+- **Kaizen Loop (two-phase, branch-safe):** `/akili-archive` runs a bounded retrospective (measure → learn → standardize → record) on every archive via the packaged `kaizen` skill. The **retrospective phase** runs on any branch and writes one entry file per spec at the target project's `docs/specs/kaizen/<safe-spec-slug>.md`, recording each proposed standardization as a pending item. The **apply phase** runs only on the apply-capable branch (the default branch, or the pinned integration branch when one exists — never both) — reached through the skill's **Apply Mode** ("apply pending kaizen standardizations"), offered automatically by `/akili-archive` when it already runs there, and surfaced by `/akili-resume` — where the HITL menu fires, each approved item is re-verified before writing (a refuted one closes as `superseded` instead), approved edits to shared files are made, and the `## Active Lessons` digest in `docs/specs/kaizen-log.md` is refreshed; that apply phase is the digest's single writer, and the log's legacy `## Entries` section is frozen. Lessons require a root cause + cited evidence; no shared file is ever edited from a spec branch, or from the default branch while an integration pin exists, approved or not; `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume` read only the `## Active Lessons` digest. Lessons whose root cause is AKILI itself are recorded as a `Kind: upstream` pending item and collected into an upstream report at apply time, flipping to `upstreamed` — apply the same loop when iterating this repo (dogfooding), where Apply Mode runs on an up-to-date `dev` checkout, its uncommitted edits move to a `kaizen/apply-<YYYY-MM-DD>` branch with `git switch -c` before the commit, and they land through a PR into `dev`. Do not add a separate kaizen command: Apply Mode is an activation of the existing skill.
 - **Concurrency: one AKILI session per checkout.** Additional sessions run on `git worktree` — this is the conflict case the *Delegation Thresholds* isolation rule names, and the only one that earns a separate checkout. Two sessions in one tree interleave commits, overwrite each other's `tasks.md` transitions, and append to the same `execution.md` until the audit trail stops being an account of what happened. Separately: **never run a measurement command — build, benchmark, Lighthouse, E2E — while a delegated agent is active.** Measuring feels passive and is not: it competes for `node_modules`, ports, lockfiles, and build output, so a measurement taken beside a running Implementer is not slow but **wrong**, and it surfaces as an inexplicable worker error rather than as your own action. Measure in the window after the completion report, when the tree is quiet. Under parallel sessions, commit-message discipline also stops being cosmetic — the message becomes the only surviving record of which session did what, so never let reasoning narration land as a commit message.
 - **Scope only grows through approval.** An `ADVISORY` finding is recorded and dies there: it may never become a new task in the running spec, and no existing task may be widened to absorb it. Advisories are the least-vetted output of a run, so that path grows scope fastest from the weakest evidence — and a task absent from the approved `tasks.md` carries no requirement, no design decision, and no budget line. An advisory that genuinely cannot wait is a **spec gap**: escalate via the Pivot Protocol so the user reopens the spec, rather than routing around the approval gate.
 - **Skill Governance:** the packaged skill set is curated, not accumulated. Every skill under `.claude/skills/` declares original author + license and a `metadata.binding` level — `core` (hard-wired to a command step), `conditional` (loaded when the work touches its domain, e.g. UI or animation), or `stack` (never referenced in command text; reaches agents via the project `## Skill Map` scaffolded by `/akili-constitution` Step 8D and per-task skill lists in `tasks.md`). New skills must pass the acceptance checklist in `docs/skills/governance.md` (need + binding + attribution + size + docs/CHANGELOG); a skill referenced by no command and no Skill Map is dead weight and must be removed or re-bound. Adaptation preserves original authorship (`adapted-by`, never replacing `author`).
@@ -79,30 +81,46 @@ Release governance:
 
 - Do not publish directly from uncommitted changes.
 - Every package-affecting repo change must have `CHANGELOG.md` notes before release preparation.
-- Every npm update must use `scripts/release.js` through `npm run release:patch`, `npm run release:minor`, or `npm run release:major`.
+- Every stable npm update must use `scripts/release.js` through `npm run release:patch`, `npm run release:minor`, or `npm run release:major`. Prereleases use `npm run release:next` only (see *Prereleases (`next`)*).
 - Publish only after verification passes and npm authentication is confirmed for a package maintainer.
 - Do not claim npm is updated until `npm publish` succeeds and a post-publish smoke test confirms the published version.
 - If publish fails, keep the release commit, document the blocker, and do not create a replacement version unless the failed version was actually published.
 - Use `npm run release:status` before and after publishing to detect drift between npm, tags, GitHub Releases, and local release files.
 - Keep the `Release Status` GitHub Actions workflow aligned with `npm run release:status`.
 
-Use this flow:
+Use this flow (`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly, admins included):
 
-1. Add change notes under `CHANGELOG.md` > `Unreleased`.
-2. Commit feature, documentation, or fix changes.
-3. Run one of:
+1. Add change notes under `CHANGELOG.md` > `Unreleased`; they land on `dev` through feature PRs.
+2. Prepare the release: cut `release/vX.Y.Z` from an up-to-date `dev`, then run one of:
    - `npm run release:patch`
    - `npm run release:minor`
    - `npm run release:major`
-4. Run verification:
+
+   Run verification:
    - `npm run verify:cli`
    - `npm run pack:dry-run`
    - `npm run release:status`
    - `git diff --check`
-5. Commit the release version update — the script's `git add` hint now also names `.claude/templates/digests.json` (the new dense `releases` entry) and any template whose `since=` marker it rewrote.
-6. Confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`.
-7. Publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`.
-8. Smoke test the published version with `npx akili-specs@<version> list`.
+
+   Commit the release version update on that branch — the script's `git add` hint also names `.claude/templates/digests.json` (the new dense `releases` entry) and any template whose `since=` marker it rewrote — and open a PR into `dev`.
+3. Open a PR `dev` → `master` and merge it with a **merge commit**.
+4. After it merges, on an up-to-date `master`, in this order:
+   - `git tag vX.Y.Z`, then `git push origin vX.Y.Z`
+   - confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`
+   - publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`
+   - verify `npm view akili-specs dist-tags` in its own command
+   - `gh release create`
+   - smoke test the published version with `npx akili-specs@<version> list`
+5. Resync `dev`: branch `sync/master-into-dev` from `dev`, run `git merge origin/master`, open a PR into `dev`, and merge it with a **merge commit**. Squash or rebase here would leave `master`'s merge commit outside `dev`, so the next `dev` → `master` PR would not be up to date.
+
+### Prereleases (`next`)
+
+To let users try `dev` before a stable release, start from an up-to-date `dev` (on `dev`, clean working tree, `HEAD` equal to `origin/dev`):
+
+1. `npm run release:next -- <patch|minor|major> --dry-run` and read the plan.
+2. Run the same command without `--dry-run` (optional `--otp=<code>`).
+
+It publishes `X.Y.Z-next.N` with `--tag next` and never touches `latest`. The version is written to `package.json` only for the duration of the publish and is never committed. Try it with `npm i akili-specs@next`.
 
 Use patch for small docs/fixes, minor for new commands or install targets, and major for breaking changes.
 
