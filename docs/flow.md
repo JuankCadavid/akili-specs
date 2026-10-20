@@ -4,7 +4,7 @@ AKILI keeps durable product, design, implementation, test, and validation contex
 
 The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a project constitution step, Claude/OpenCode skills, and explicit validation evidence before archive.
 
-![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. A spec whose deliverable is a video adds Video Mode, render evidence and a final-look review; diagram slots are filled at constitution and specify and linked at archive. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
+![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
 
 ## Philosophy
 

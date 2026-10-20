@@ -68,3 +68,17 @@ Markdown total vs base: **+55/−5 (60 lines)**, measured with `git diff --numst
 ## 8. Diagrams
 
 n/a — the spec has no `diagrams/` folder or diagram slot (the figure is a README asset, design §1); `diagram-design` not loaded. No baseline diagram slot made stale.
+
+## 9. Post-archive fix (2026-10-19)
+
+**Decision (Juan Carlos Cadavid):** remove the video (HyperFrames) and diagram (Archify) lanes from the lifecycle figure; keep `/akili-constitution`, the per-spec loop with Kaizen, and the anytime commands with `/akili-security`'s hand-off to the Bug Track. README *What AKILI Covers* is deliberately unchanged — it still documents both capabilities.
+
+| Item | Change |
+|---|---|
+| `assets/akili-flow.svg` | Re-generated from the T1 Archify candidate minus the `video` and `diagram` lanes (3 lanes, 13 nodes, 9 edges); `finalize` → validate/deliver/check/browser-check pass; `svg-light` export, latin subset only, `<title>`/`<desc>` set, trailing spaces stripped; 121,568 B; viewBox 1005 → min font 6.6 px = 5.91 px at 900 (FR-1 amended floor ≥ 5.5 holds); Chromium decodes `1005x654` |
+| `assets/akili-flow.png` | 1800×1311, 285,229 B |
+| Alt text | New text at `README.md:48`, `docs/flow.md:7` and the SVG `<desc>` (byte-identical): the video and diagram sentence removed |
+| `CHANGELOG.md` `[Unreleased]` | Figure clause now reads "three lanes: `/akili-constitution`, the per-spec loop with Kaizen, and the anytime commands with `/akili-security`'s hand-off to the Bug Track" |
+| `acceptance-check.py` | FR-1 video/diagram-label check replaced by "no video or diagram lane drawn" + "three lanes"; FR-2 alt check no longer requires video/diagram terms |
+
+Supersedes, for the figure only: FR-1's video-track and diagram-slot elements, design §3 *Figure content* rows for those lanes, and the related validation/Reviewer statements above (kept as history). Verification: acceptance `TOTAL 36 FAIL 0`; `npm test` 413/413; `verify:cli` 12 | 27 | 8; `git diff --check` clean. No test under `test/` depends on the figure (`grep -rln akili-flow test bin scripts .github` → none).

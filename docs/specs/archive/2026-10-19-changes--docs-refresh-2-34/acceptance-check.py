@@ -12,7 +12,9 @@ svg=R('assets/akili-flow.svg'); readme=R('README.md'); flow=R('docs/flow.md'); h
 drawn=' '.join(re.sub(r'<[^>]+>','',t) for t in re.findall(r'<text\b[^>]*>(.*?)</text>',svg,re.S))
 w=float(re.search(r'viewBox="[\d.]+ [\d.]+ ([\d.]+)',svg).group(1))
 ck('FR-1','every packaged command drawn in the figure',all(('/'+c) in drawn for c in cmds),f"{sum(('/'+c) in drawn for c in cmds)}/{len(cmds)}")
-ck('FR-1','video + diagram labels drawn','video' in drawn.lower() and 'diagram' in drawn.lower())
+# Post-archive fix (2026-10-19, user decision): the video and diagram lanes were removed from the figure.
+ck('FR-1 (post-archive)','no video or diagram lane drawn',not any(k in drawn for k in ['Video track','Diagram slots','Video Mode','HyperFrames','Archify']))
+ck('FR-1 (post-archive)','three lanes: once / loop / anytime',all(k in drawn for k in ['Once per project','Per-spec loop','Anytime','Kaizen','Bug Track']))
 ck('FR-1 BUT','no unpackaged akili command drawn',not (set(re.findall(r'/akili-[a-z]+',drawn))-set('/'+c for c in cmds)),str(sorted(set(re.findall(r'/akili-[a-z]+',drawn)))))
 ck('FR-1 BUT','HyperFrames/Archify only as user-installed/optional notes',all(('install' in s.lower() or 'optional' in s.lower()) for s in re.findall(r'[^<>]*(?:HyperFrames|Archify)[^<>]*',drawn)))
 fs=[float(x) for x in re.findall(r'font-size="([\d.]+)"',svg)]
@@ -26,7 +28,7 @@ alt_r=re.search(r'<img alt="([^"]*)" src="https://raw[^"]*akili-flow',readme).gr
 alt_f=re.search(r'!\[([^\]]*)\]\(\.\./assets/akili-flow\.svg\)',flow).group(1)
 desc=re.search(r'<desc[^>]*>(.*?)</desc>',svg,re.S).group(1).replace('&amp;','&')
 ck('FR-2 AND IT MUST','alt identical at both sites and = SVG desc',alt_r==alt_f==desc)
-ck('FR-2','alt names /akili-security, video, diagram, Kaizen',all(k in alt_r for k in ['/akili-security','video','diagram','Kaizen']))
+ck('FR-2','alt names /akili-security, Bug Track, Kaizen; no video/diagram lanes (post-archive)',all(k in alt_r for k in ['/akili-security','Bug Track','Kaizen']) and not any(k in alt_r for k in ['video','diagram slots']))
 ck('FR-2','SVG role=img + title',"role=\"img\"" in svg and 'AKILI-SPECS methodology lifecycle' in svg)
 ck('FR-2','SVG standalone: no script/external fetch/@import',svg.count('<script')==0 and not re.search(r'(href|src)="https?://|url\(https?:',svg) and '@import' not in svg)
 sec=seg(readme,'## What AKILI Covers','## Repository Structure')
