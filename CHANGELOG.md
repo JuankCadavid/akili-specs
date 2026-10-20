@@ -6,7 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **`npm run release:next` publishes a prerelease from `dev`.** `npm run release:next -- <patch|minor|major> [--dry-run] [--otp=<code>]` publishes `X.Y.Z-next.N` under the `next` dist-tag from an up-to-date `dev` checkout, after guards for the branch, a clean tree, sync with `origin/dev`, a stable source version, that the source version is published, and that the bumped base version is ahead of every published stable version (so a stale `dev` refuses). The version is written to `package.json` only for the duration of the publish and is never committed, tagged or pushed, and `latest` is never touched; try it with `npm i akili-specs@next`.
+
 ### Changed
+
+- **CI and `Release Status` now run on pushes to `master` and `dev`; `release:status` reports prereleases.** `npm run release:status` prints `npm next:` and `npm prereleases:`, never checks prereleases as stable versions, and treats a prerelease version left in `package.json` as drift. `scripts/release.js` end-of-run hints now say to commit on a `release/vX.Y.Z` branch, open a PR into `dev`, then a PR `dev` → `master` (merge commit), and to tag, push the tag, publish and run `gh release create` on `master`.
+- **Contributor, release and agent docs describe the `dev` flow.** `CONTRIBUTING.md`, `docs/release-checklist.md` and the README release section describe `feat/<name>` / `fix/<name>` → `dev` → `master` with PR-only protected branches, the `next` prerelease channel and the `sync/master-into-dev` resync. `AGENTS.md` pins `Integration Branch: dev`, and Kaizen Apply Mode edits land through a `kaizen/apply-<YYYY-MM-DD>` branch and a PR into `dev`.
 
 - **Public docs refreshed for 2.34.1 (`changes/docs-refresh-2-34`).** `README.md` gains a *What AKILI Covers* section (security audits, video deliverables, diagrams), a native-Windows caveat for `/akili-security`, a complete *Contents* list (12 commands, 27 skills), and a full-size link and new alt text for the lifecycle figure; `docs/README.md` and `docs/flow.md` name `/akili-quick`, `/akili-security`, video deliverables and diagram slots (new flow §10 and §11); the constitution, specify and archive command pages name their `diagram-design` load points; `docs/skills/README.md` is alphabetical again; `assets/akili-flow.svg` and `assets/akili-flow.png` are regenerated with Archify (three lanes: `/akili-constitution`, the per-spec loop with Kaizen, and the anytime commands with `/akili-security`'s hand-off to the Bug Track; Archify is not shipped). The README text on npm updates at the next publish, while the figure, loaded from the `master` raw URL, updates when `master` does.
 

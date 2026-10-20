@@ -94,3 +94,12 @@ for (const s of ["release:next", "--tag next", "sync/master-into-dev", "merge co
     assert.ok(releaseRules(agents()).includes(s), `Release Rules missing ${s}`);
   });
 }
+
+test("AGENTS.md Kaizen Loop bullet lands Apply Mode edits via kaizen/apply-* and a PR into dev", () => {
+  const bullet = agents()
+    .split(/\r?\n/)
+    .find((l) => l.startsWith("- **Kaizen Loop"));
+  assert.ok(bullet, "no Kaizen Loop bullet");
+  assert.ok(bullet.includes("kaizen/apply-"), "Kaizen Loop bullet missing kaizen/apply-");
+  assert.ok(bullet.includes("PR into `dev`"), "Kaizen Loop bullet missing PR into `dev`");
+});

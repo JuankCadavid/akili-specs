@@ -142,7 +142,7 @@ T1 ─────────────────────────�
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~130 lines) |
 | Depends on | T4 (same flow wording) |
 | Requirements | FR-7 (same flow in each file; no direct-to-`master` release instruction survives; *amended at the T4 gate:* the Kaizen `AND IT MUST` — one sentence in `AGENTS.md`'s *Kaizen Loop* bullet, DD-15) · R1 note (P-11): `@next` users install `@latest` to leave the channel; the update banner compares with `latest` only |

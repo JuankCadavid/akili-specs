@@ -115,3 +115,39 @@ Stopped for the user (spec tension + projected budget tripwire; neither auto-pas
 | Raise the LOC tripwire? | **~1200** (from ~1000) | `design.md` §12, `tasks.md` Document Control |
 
 Correction-closure sweep: `grep -n "needs no edit beyond\|~1000 LOC"` over the spec folder → only this log's Document Control (historical, kept).
+
+### T5 — `CONTRIBUTING.md`, `docs/release-checklist.md`, `README.md` release section, `CHANGELOG.md` (+ `AGENTS.md` Kaizen sentence)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-19 |
+| Attempts | 2 |
+| Requirements covered | FR-7 (three docs + amended Kaizen `AND IT MUST`), R1 note (P-11) |
+| Skills | `cognitive-doc-design` (as listed) |
+| Effort | attempt 1 `medium`, attempt 2 `high` |
+| spawns | Implementer 9 calls, 82071 tokens, ended complete; Reviewer 15 calls, 85219 tokens, ended complete (FAIL); Implementer 3 calls, 57753 tokens, ended complete; Reviewer 4 calls, 54221 tokens, ended complete (PASS) |
+
+**Attempt 1.** Files: `AGENTS.md` +1/−1 (Kaizen sentence), `CHANGELOG.md` +7, `CONTRIBUTING.md` +19/−3, `README.md` +9/−26, `docs/release-checklist.md` +34/−3, `test/branching-flow.test.js` +9. Protection re-run (KZ-002): `dev` 2026-10-19 21:38:52 -05, `master` 21:39:17 -05 → `strict: true`, six checks, 0 reviews, admins `true`. Kaizen test red: `'Kaizen Loop bullet missing kaizen/apply-'`. `npm test` 458/458; `git diff --check` clean; 0 citations of `docs/specs/changes/` in added lines. Sweep (`git tag|npm publish|push|directly|master`) — all three baseline hits rewritten; `git tag`/`npm publish` now only after "Only after the `dev` → `master` merge, on an up-to-date `master`". Evidence re-run (Leader inline): **VERIFIED** (458/458). Reviewer (opus, `full`): **FAIL** —
+
+> **Discovered Issue:** The CHANGELOG `### Added` bullet and `docs/release-checklist.md:51` say "…and that `dev` is ahead of the base." The guard (`scripts/release-next.js:141-148`, FR-3 table at requirements.md:95, DD-12) actually checks that `base`, the bumped stable version, is greater than every published stable version. Because `base` is derived from `dev`'s `package.json`, `dev`'s version is always *behind* `base`, so the docs invert the check. **Violated Rule:** KZ-002 and the T5 Disqualifier; FR-7. **Remediation:** replace with "…and that the bumped base version is ahead of every published stable version (so a stale `dev` refuses)."
+
+Conformance checks for the execute-time spec edits (FR-7 Kaizen `AND IT MUST`, DD-15, §10 item 1, T5 scope) passed in attempt 1. ADVISORY: README:172 "CI workflow on every push" is pre-existing looseness outside the release section; Preview/Work rows in README and checklist are thinner than CONTRIBUTING (link to the checklist); checklist:148 resync rationale mirrors FR-7 and P-10's ancestry reasoning; admins clause lives in `AGENTS.md`/CONTRIBUTING only.
+
+**Attempt 2.** Files: `CHANGELOG.md:11`, `docs/release-checklist.md:51` — "…and that the bumped base version is ahead of every published stable version (so a stale `dev` refuses)". `grep -i "ahead of"` over the five docs → only those two; the other five guard descriptions quote-checked against `evaluateGuards`. `npm test` 458/458; diff-check clean. Evidence re-run (Leader inline): **VERIFIED**. Reviewer (opus): **PASS** — `diff t5.diff t5b.diff` = the two lines; no regression.
+
+**Running totals (tripwire):** tasks 5/5 · LOC 1001 changed lines outside `docs/specs/` (946+/55−, `git diff --stat 3d8c123`) / tripwire ~1200 · review rounds 7 Reviewer verdicts (T1 2, T2 1, T3 1, T4 1, T5 2) / 11. Within budget.
+**Gate:** `auto-approved (pre-approved mode)`.
+
+## 3. Summary
+
+| Measure | Value |
+|---|---|
+| Tasks | 5/5 PASS (T1, T5 on attempt 2; T2, T3, T4 on attempt 1); no HALT, no checkpoint, no continuation, no `REVIEW_SKIPPED`/`REVIEW_WAIVED` |
+| Gates stopped for the user | 1 (T4 → T5: Kaizen tension → DD-15; LOC tripwire → ~1200) |
+| LOC | 1001 changed lines outside `docs/specs/` vs ~780 estimate (tests ~1.4× the estimate — KZ-bugfix--init-ctrlc-abort-2 recurrence) |
+| Review rounds | 7 / 8 estimated |
+| Tests | `npm test` 458/458 (451 after T1–T3, +6 in T4, +1 in T5) |
+| Commits | `2214b03` T1 · `96562b9` T2 · `8feb1a4` T3 · `b69f504` T4 · `8336c57` gate · T5 commit below |
+
+Note: the pre-spec suite count was not recorded at `3d8c123`; 451 is the first full run (after T1–T3).

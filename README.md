@@ -393,7 +393,7 @@ Release policy:
 - Commit repository changes separately from release version changes.
 - Add `CHANGELOG.md` notes before preparing a release.
 - Use `npm run release:status` to detect drift between local release files, npm, tags, and GitHub Releases.
-- The `Release Status` GitHub Actions workflow runs the same drift check on pushes, pull requests, and manual dispatches.
+- The `Release Status` GitHub Actions workflow runs the same drift check on pushes to `master` and `dev`, pull requests, and manual dispatches.
 - Publish only from a clean working tree after verification passes.
 - Confirm npm authentication before publishing.
 - Do not claim npm is updated until publish and smoke tests succeed.
@@ -407,34 +407,15 @@ Use semantic versioning:
 | Minor | New commands, new install targets, meaningful workflow additions | `0.2.0` to `0.3.0` |
 | Major | Breaking command behavior or package install changes | `0.2.0` to `1.0.0` |
 
-Controlled release flow:
+Controlled release flow (`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly):
 
-1. Make repo changes.
-2. Add notes under `CHANGELOG.md` > `Unreleased`.
-3. Commit the changes.
-4. Prepare the next version:
+1. Add notes under `CHANGELOG.md` > `Unreleased`; they land on `dev` through feature PRs.
+2. Cut `release/vX.Y.Z` from an up-to-date `dev`, run `npm run release:patch` (or `release:minor` / `release:major`), verify, commit the release, and open a PR into `dev`.
+3. Open a PR `dev` → `master` and merge it with a merge commit.
+4. On an up-to-date `master`: tag and push the tag, `npm publish`, verify `npm view akili-specs dist-tags`, then `gh release create`.
+5. Resync `dev` from `master` through a `sync/master-into-dev` PR, merged with a merge commit.
 
-```bash
-npm run release:patch
-```
-
-Or use `release:minor` / `release:major` when appropriate.
-
-The release script updates `package.json`, moves the `Unreleased` changelog notes into a dated version section, and creates `releases/vX.Y.Z.md`.
-
-Then verify and publish:
-
-```bash
-npm run verify:cli
-npm run pack:dry-run
-npm run release:status
-git diff --check
-git add package.json CHANGELOG.md releases/vX.Y.Z.md
-git commit -m "chore(release): vX.Y.Z"
-git tag vX.Y.Z
-npm whoami --registry=https://registry.npmjs.org/
-npm publish --access public --registry=https://registry.npmjs.org/
-```
+To preview `dev` before a stable release, a maintainer runs `npm run release:next -- <patch|minor|major>`; users try it with `npm i akili-specs@next`. See [docs/release-checklist.md](docs/release-checklist.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 After publish, smoke test:
 
