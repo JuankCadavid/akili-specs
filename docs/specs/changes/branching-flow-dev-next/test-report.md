@@ -17,8 +17,8 @@
 |---|---|
 | Suites | 2 delegated (A: CLI integration, B: FR-7 docs contract) + author unit suites cited, not rewritten |
 | Testers | 2 spawned **in parallel** (disjoint files: A new files only; B `test/branching-flow.test.js`); none inline |
-| New tests | A: 16 (`test/release-next-cli.test.js` 12, `test/release-status-cli.test.js` 4) + harness `test/release-cli-harness.js`; B: 31 added to `test/branching-flow.test.js` (42 total) |
-| Full suite | `npm test` → tests 505, pass 505, fail 0, skipped 0 (was 458 after execute) |
+| New tests | A: 16 (`test/release-next-cli.test.js` 12, `test/release-status-cli.test.js` 4) + harness `test/release-cli-harness.js`; B: 30 added to `test/branching-flow.test.js` (42 total) |
+| Full suite | `npm test` → tests 505, pass 505, fail 0, skipped 0 (was 458 after execute: +16 Suite A, +30 Suite B, +1 because `node --test` also loads `test/release-cli-harness.js` as a passing file — figures corrected at validation W-4) |
 | Node 18 | `node --test` of the five spec test files on v18.20.8 → 91/91 |
 | Flake check | Suite A run 3× by its Tester: 16/16 each (5296, 5205, 5318 ms); signal tests poll a "started" marker, no blind sleeps |
 | Other gates | `npm run verify:cli` OK; `npm run pack:dry-run` ships no `scripts/release-*.js` and no `test/`; `git diff --check` clean |
@@ -31,7 +31,7 @@
 |---|---|---|
 | `test/release-next.test.js` | 26 | FR-2 version math (numeric `N`, other bases/preids ignored, string `npm view`), `parseArgs` incl. `--otp`, FR-3 each guard alone and together + unreadable facts, FR-4 argv/restore/listener order/restore failure, FR-5 dry run — fake exec, temp root (T1, red→green in `execution.md`) |
 | `test/release-status.test.js` | 7 | FR-6 `partitionVersions`, `releaseFailures` (prerelease never checked, leftover prerelease is drift), FR-9 hint text (T2) |
-| `test/branching-flow.test.js` (T3/T4/T5 part) | 11 | FR-1 workflow triggers + job name + matrix + syntax step; FR-7 `AGENTS.md` pin, Release Rules phrases, Kaizen bullet |
+| `test/branching-flow.test.js` (T3/T4/T5 part) | 12 | FR-1 workflow triggers + job name + matrix + syntax step; FR-7 `AGENTS.md` pin, Release Rules phrases, Kaizen bullet |
 
 ## 4. Frontend Unit Tests
 

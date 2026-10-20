@@ -148,6 +148,19 @@ Conformance checks for the execute-time spec edits (FR-7 Kaizen `AND IT MUST`, D
 | LOC | 1001 changed lines outside `docs/specs/` vs ~780 estimate (tests ~1.4× the estimate — KZ-bugfix--init-ctrlc-abort-2 recurrence) |
 | Review rounds | 7 / 8 estimated |
 | Tests | `npm test` 458/458 (451 after T1–T3, +6 in T4, +1 in T5) |
-| Commits | `2214b03` T1 · `96562b9` T2 · `8feb1a4` T3 · `b69f504` T4 · `8336c57` gate · T5 commit below |
+| Commits | `2214b03` T1 · `96562b9` T2 · `8feb1a4` T3 · `b69f504` T4 · `8336c57` gate · `d64225a` T5 · `aa30ad7` test phase |
 
 Note: the pre-spec suite count was not recorded at `3d8c123`; 451 is the first full run (after T1–T3).
+
+## Post-validation fix: W-1 (2026-10-19)
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Requirement | FR-6 statement ("SHALL NOT require … for them") — validation W-1 |
+| Files | `scripts/release-status.js` (one line), `test/release-status-cli.test.js` (+1 test) |
+| Red → green | red on `/2\.35\.0-next\.1: missing/` (four artifact lines) → green; revert → red |
+| Evidence re-run | Leader inline **VERIFIED** — `npm test` 506/506 |
+| Reviewer | opus **PASS**; ADVISORY: current-version block still prints MISSING lines for a prerelease (display-only, pre-existing) |
+| spawns | Implementer 5 calls, 55745 tokens, ended complete; Reviewer 4 calls, 55386 tokens, ended complete (PASS) |
+| Decision | Fixed now rather than deferred: single-answer correction to an approved clause, no scope change (user feedback memory: factual corrections need no gate — apply and log) |

@@ -69,3 +69,11 @@ test("FR-6 a prerelease left in package.json is drift naming `git checkout -- pa
   assert.match(r.stdout, /package\.json version 2\.35\.0-next\.1 is a prerelease; restore it with `git checkout -- package\.json`/);
   assert.doesNotMatch(r.stdout, /2\.34\.1: missing/, "stable artifacts are fine, so the prerelease is the only drift");
 });
+
+test("FR-6 a prerelease in package.json that IS published on npm demands no artifacts, only the leftover drift line", opts, (t) => {
+  const p = releasedProject(t, { pkgVersion: "2.35.0-next.1" });
+  const r = p.run("release-status.js", [], NPM_ENV);
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stdout, /package\.json version 2\.35\.0-next\.1 is a prerelease; restore it with `git checkout -- package\.json`/);
+  assert.doesNotMatch(r.stdout, /2\.35\.0-next\.1: missing/);
+});

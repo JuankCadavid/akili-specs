@@ -217,7 +217,7 @@ function main() {
     check: (version) => checkVersion(version, true),
   });
   // Current version is always reported; it counts as a failure source only once published.
-  failures.unshift(...checkVersion(pkg.version, currentPublished));
+  failures.unshift(...checkVersion(pkg.version, currentPublished && !isPrerelease(pkg.version)));
 
   const digestsDrift = checkDigestsDrift(pkg.version);
   console.log(`\ndigests.json: ${digestsDrift ? "DRIFT" : "OK"}`);
