@@ -33,6 +33,7 @@
     "pack:dry-run": "npm pack --dry-run",
     "release:major": "node scripts/release.js major",
     "release:minor": "node scripts/release.js minor",
+    "release:next": "node scripts/release-next.js",
     "release:patch": "node scripts/release.js patch",
     "release:status": "node scripts/release-status.js",
     "test": "node --test",

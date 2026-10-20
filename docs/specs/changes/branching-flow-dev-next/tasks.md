@@ -30,7 +30,7 @@ T1 ─────────────────────────�
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~220 script + ~220 tests + 1 `package.json` line) |
 | Depends on | none |
 | Requirements | FR-2 (both scenarios; numeric `N`; ignore other bases/preids; `BUT` missing/unknown bump → exit 1 usage) · FR-3 (statement incl. unreadable facts fail their guard; six guards; scenario: exit 1 naming Branch, `AND IT MUST` bytes identical, `BUT` no publish) · FR-4 (statement: argv, `--otp` 6–8 digits, restore on success/failure/signal, restore failure → `git checkout -- package.json` + exit ≠ 0; success scenario: bytes identical, `AND IT MUST --tag next`, `BUT` no commit/tag/push/`latest` change; failure scenario) · FR-5 (statement + scenario: prints version and failed Branch guard, exit 1, `BUT` no write, no publish) · FR-8 · NFR-1, NFR-2, NFR-4 |
