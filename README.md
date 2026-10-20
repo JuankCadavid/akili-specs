@@ -169,7 +169,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Archify skill (`npx skills add tt-a1i/archify`) | Interactive HTML views of diagram slots (optional) | Your own install; without it, diagrams stay Mermaid (see below) |
 | Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command still runs without them, except that a spec whose `Deliverable` selects one (`Deliverable: video` and `hyperframes`, through `video-production`) stops at that skill's availability gate (see `docs/skills/governance.md`) |
 
-`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every push.
+`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every pull request and on every push to `dev` and `master`.
 
 ```bash
 npm install -g @colbymchenry/codegraph
