@@ -53,11 +53,34 @@ ADVISORY (attempt 1): Windows `defaultExec` appended `.cmd` to `git` too (design
 | Requirements covered | FR-1, NFR-1, NFR-3 |
 | Skills | `tdd` (as listed) |
 | Effort | `low` (mechanical) |
-| spawns | Implementer 7 calls, 59790 tokens, ended complete; Reviewer not reported by host at write time, ended complete (PASS) |
+| spawns | Implementer 7 calls, 59790 tokens, ended complete; Reviewer 5 calls, 56273 tokens, ended complete (PASS) |
 
 **Attempt 1.** Files: `.github/workflows/ci.yml` (`branches: [master, dev]`; `+ node --check scripts/release-next.js`), `.github/workflows/release-status.yml` (`+ - dev`), `test/branching-flow.test.js` (new, 5 tests). Red run before the workflow edits: `not ok 1 … actual: '    branches: [master]'`, `not ok 2` (dev), `not ok 5` (release-next syntax check). Green 5/5. Falsifiers executed red: (1) `[master]` → `not ok 1 … actual: '    branches: [master]'`; (2) job renamed → `not ok 3 … 'job name line changed'`. Evidence re-run (Leader inline): **VERIFIED** (5/5; `git diff .github/` = the three lines). Reviewer (opus, `checklist`): **PASS** — scoping mutations (`dev` only under `pull_request` in each file) went red, so the push-block check is scoped.
 
 ADVISORY: the push-block match can be fooled by a comment or a `dev-old`/`branches-ignore` entry inside the push block itself; test 4 checks release-status triggers with whole-file `includes`.
 
 **Running totals (tripwire):** tasks 2/5 closed (T2 awaiting its `release:status` comparison) · LOC ~730 (T1 ~625 + T3 ~105) / ~780 · review rounds 3/8 (+ T2's 1 pending record). LOC will pass ~780 with T2, T4, T5 still to land; the tripwire is ~1000 — re-checked at each finalize.
+**Gate:** `auto-approved (pre-approved mode)`.
+
+### T2 — `release-status.js` prerelease partition + `release.js` next-step hints
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-19 |
+| Attempts | 1 |
+| Requirements covered | FR-6, FR-9, FR-8, NFR-1, NFR-2 |
+| Skills | `tdd` (as listed) |
+| Effort | `medium` |
+| spawns | Implementer 14 calls, 76353 tokens, ended complete; Reviewer 8 calls, 64737 tokens, ended complete (PASS) |
+
+**Attempt 1.** Files: `scripts/release-status.js` (`isPrerelease`, `partitionVersions`, pure `releaseFailures`, exports, `require.main` guard, `npm next:` / `npm prereleases:` lines), `scripts/release.js` (next-step `console.log` lines only — `git diff` confirms), `test/release-status.test.js` (new, 7 tests). Red run at assertion level against stubs (test 3 `expected: 1, actual: 0`). Green 7/7; `node --check` both OK. Implementer falsifiers: (3) clean (standalone `git tag` line → tests 5, 6 red); (1), (2) **not clean** (run while `release.js` had a transient syntax slip) — re-executed by the Reviewer. Implementer's `release:status` before/after ran in parallel → inconclusive.
+
+Evidence re-run (Leader inline, tree quiet, sequential): `node --test test/release-status.test.js` 7/7; `release:status` with the HEAD script (temp copy `scripts/.rs-head.js`, removed) → `EXIT=1`, drift `2.1.1: missing GitHub Release; 2.17.5, 2.21.0, 2.27.0: missing remote tag`; with the new script → `EXIT=1`, same output shape plus `npm next: none`, `npm prereleases: none`, drift `2.34.1, 2.7.1, 2.13.1: missing remote tag; 2.31.0: missing GitHub Release`. The flagged versions differ run to run with **both** scripts (per-version `git ls-remote` / `gh release view` over 65 versions fail transiently) → **VERIFIED** for exit code and structure; drift content is pre-existing network noise, not this change.
+
+Reviewer (opus, `checklist`): **PASS** — falsifiers executed cleanly on a scratchpad copy: (1) all-stable partition → test 2 red at `test/release-status.test.js:29` (`+ [] - ['2.35.0-next.1']`); (2) `if (false)` → test 3 `expected: 1, actual: 0`; (3) standalone hint lines → test 6 red. FR-6 both `AND IT MUST`, FR-9, DD-8, DD-14 walked; current-version `checkVersion` still runs; `hintPaths` unchanged.
+
+ADVISORY: (1) a **published** prerelease left in `package.json` makes `checkVersion(pkg.version, true)` add four artifact failures for it — still drift, but the wording contradicts FR-6's "SHALL NOT require … for them" in that edge case (recorded for `/akili-validate`); (2) the `git commit` hint prints before "Commit on a release/vX.Y.Z branch"; FR-7's "verify dist-tags" is not in the hint (not required by FR-9); (3) `main`'s wiring of `stable` into `releaseFailures` is untested by design; (4) falsifier (1) reds on the partition precondition. Observation (pre-existing, out of scope): `release:status` is network-flaky across 65 versions.
+
+**Running totals (tripwire):** tasks 3/5 · LOC ~900 (T1 ~625 + T3 ~105 + T2 ~170) / ~780 estimate, tripwire ~1000 · review rounds 4/8. Under the tripwire; T4 (~70) + T5 (~130) project ~1100 — **the LOC tripwire is expected to fire during T4/T5**; recorded now so the stop is not a surprise.
 **Gate:** `auto-approved (pre-approved mode)`.

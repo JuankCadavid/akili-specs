@@ -61,7 +61,7 @@ T1 ─────────────────────────�
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S–M (~50 release-status + ~10 release.js + ~120 tests) |
 | Depends on | none |
 | Requirements | FR-6 (statement; scenario: prerelease line, no drift; `AND IT MUST` stable drift still reported; `AND IT MUST` prerelease in `package.json` is drift naming `git checkout -- package.json`) · FR-9 (statement: PR-flow hints; `SHALL NOT` print `git tag`/`npm publish` as immediate steps; bump/CHANGELOG/notes/digests unchanged) · FR-8 · NFR-1, NFR-2 |
