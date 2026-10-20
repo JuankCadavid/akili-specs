@@ -15,12 +15,14 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
 - `README.md` documents installation and methodology usage.
 - Default Branch: master
+- Integration Branch: dev
 
 ## Development Rules
 
 - Keep command prompts readable and tool-agnostic where possible.
 - Do not add project-specific assumptions to reusable commands.
 - Keep installer behavior safe: skip existing files by default and require `--force` to overwrite.
+- **Branch model:** `master` and `dev` are protected: changes land only through a pull request with 0 approvals, the six `CLI on <os> / Node <18|22>` checks green and the branch up to date, enforced for admins too. `feat/<name>` and `fix/<name>` branch from `dev` and open their PR into `dev`. Agents never commit to or push `dev` or `master` directly.
 - Do not commit generated `.tgz` files or `node_modules/`.
 - Do not commit service account keys, npm tokens, `.npmrc`, or local MCP config containing secrets.
 - **Spec-to-Code Traceability:** Every commit made during `/akili-execute` must be prefixed with `[SPEC:<spec-path>]` (e.g. `[SPEC:changes/add-remember-me] message`). Trivial fast-tracked changes made via `/akili-quick` use the `[SPEC:quick/<name>]` prefix plus a one-line entry in `docs/specs/quick/quick-log.md`.
@@ -79,30 +81,46 @@ Release governance:
 
 - Do not publish directly from uncommitted changes.
 - Every package-affecting repo change must have `CHANGELOG.md` notes before release preparation.
-- Every npm update must use `scripts/release.js` through `npm run release:patch`, `npm run release:minor`, or `npm run release:major`.
+- Every stable npm update must use `scripts/release.js` through `npm run release:patch`, `npm run release:minor`, or `npm run release:major`. Prereleases use `npm run release:next` only (see *Prereleases (`next`)*).
 - Publish only after verification passes and npm authentication is confirmed for a package maintainer.
 - Do not claim npm is updated until `npm publish` succeeds and a post-publish smoke test confirms the published version.
 - If publish fails, keep the release commit, document the blocker, and do not create a replacement version unless the failed version was actually published.
 - Use `npm run release:status` before and after publishing to detect drift between npm, tags, GitHub Releases, and local release files.
 - Keep the `Release Status` GitHub Actions workflow aligned with `npm run release:status`.
 
-Use this flow:
+Use this flow (`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly, admins included):
 
-1. Add change notes under `CHANGELOG.md` > `Unreleased`.
-2. Commit feature, documentation, or fix changes.
-3. Run one of:
+1. Add change notes under `CHANGELOG.md` > `Unreleased`; they land on `dev` through feature PRs.
+2. Prepare the release: cut `release/vX.Y.Z` from an up-to-date `dev`, then run one of:
    - `npm run release:patch`
    - `npm run release:minor`
    - `npm run release:major`
-4. Run verification:
+
+   Run verification:
    - `npm run verify:cli`
    - `npm run pack:dry-run`
    - `npm run release:status`
    - `git diff --check`
-5. Commit the release version update — the script's `git add` hint now also names `.claude/templates/digests.json` (the new dense `releases` entry) and any template whose `since=` marker it rewrote.
-6. Confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`.
-7. Publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`.
-8. Smoke test the published version with `npx akili-specs@<version> list`.
+
+   Commit the release version update on that branch — the script's `git add` hint also names `.claude/templates/digests.json` (the new dense `releases` entry) and any template whose `since=` marker it rewrote — and open a PR into `dev`.
+3. Open a PR `dev` → `master` and merge it with a **merge commit**.
+4. After it merges, on an up-to-date `master`, in this order:
+   - `git tag vX.Y.Z`, then `git push origin vX.Y.Z`
+   - confirm npm auth with `npm whoami --registry=https://registry.npmjs.org/`
+   - publish explicitly with `npm publish --access public --registry=https://registry.npmjs.org/`
+   - verify `npm view akili-specs dist-tags` in its own command
+   - `gh release create`
+   - smoke test the published version with `npx akili-specs@<version> list`
+5. Resync `dev`: branch `sync/master-into-dev` from `dev`, run `git merge origin/master`, open a PR into `dev`, and merge it with a **merge commit**. Squash or rebase here would leave `master`'s merge commit outside `dev`, so the next `dev` → `master` PR would not be up to date.
+
+### Prereleases (`next`)
+
+To let users try `dev` before a stable release, start from an up-to-date `dev` (on `dev`, clean working tree, `HEAD` equal to `origin/dev`):
+
+1. `npm run release:next -- <patch|minor|major> --dry-run` and read the plan.
+2. Run the same command without `--dry-run` (optional `--otp=<code>`).
+
+It publishes `X.Y.Z-next.N` with `--tag next` and never touches `latest`. The version is written to `package.json` only for the duration of the publish and is never committed. Try it with `npm i akili-specs@next`.
 
 Use patch for small docs/fixes, minor for new commands or install targets, and major for breaking changes.
 

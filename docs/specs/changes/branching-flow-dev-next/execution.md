@@ -84,3 +84,23 @@ ADVISORY: (1) a **published** prerelease left in `package.json` makes `checkVers
 
 **Running totals (tripwire):** tasks 3/5 · LOC ~900 (T1 ~625 + T3 ~105 + T2 ~170) / ~780 estimate, tripwire ~1000 · review rounds 4/8. Under the tripwire; T4 (~70) + T5 (~130) project ~1100 — **the LOC tripwire is expected to fire during T4/T5**; recorded now so the stop is not a surprise.
 **Gate:** `auto-approved (pre-approved mode)`.
+
+### T4 — `AGENTS.md`: branch model, release rules, `Integration Branch: dev`
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-19 |
+| Attempts | 1 |
+| Requirements covered | FR-7 (`AGENTS.md` half) |
+| Skills | `cognitive-doc-design`, `tdd` (`tdd` added by the Leader for the pin/phrase tests the task names) |
+| Effort | `medium` |
+| spawns | Implementer 9 calls, 74939 tokens, ended complete; Reviewer not reported by host at write time, ended complete (PASS) |
+
+**Attempt 1.** Files: `AGENTS.md` (+pin line 18; *Development Rules* "Branch model" bullet; *Release Rules* governance bullet scoped to stable releases; five-step flow; *Prereleases (`next`)* subsection), `test/branching-flow.test.js` (+6 tests). Red run: 5 pass / 6 fail — pin `expected: '- Integration Branch: dev' actual: ''`, five `Release Rules missing <phrase>`. Green 11/11; `npm test` 457/457; `git diff --check` 0. Falsifiers red: (1) pin moved → `not ok 6 … actual: ''`; (2) `sync/XX` → `not ok 9 … 'Release Rules missing sync/master-into-dev'`. Phrase-family sweep (`grep -n -i "commit the release\|git tag\|publish\|push\|directly\|master" AGENTS.md`) — every hit quoted with a verdict in the Implementer report: lines 15, 17, 76, 80–88 flow-agnostic/compatible; 25, 89–123 new flow; no direct-to-`master` release instruction survives. Evidence re-run (Leader inline): **VERIFIED** (11/11, 457/457, diff-check 0). Reviewer (opus, `full`): **PASS** — FR-7 rows Work, Preview, Stable prep, Stable ship, Resync and all three `AND IT MUST` + the `BUT` walked term by term against `release-next.js` usage and `release.js` hints.
+
+**Spec tension raised by the Reviewer (not counted against T4):** `AGENTS.md` *Kaizen Loop* bullet — Apply Mode "runs only on the apply-capable branch" (now `dev`, by the pin) where "approved edits to shared files are made" — versus the new *Branch model* bullet — "Agents never commit to or push `dev` or `master` directly". Followed literally, Apply Mode's edits cannot land. Design §10 reversion challenge item 1 said the Kaizen bullet "needs no edit beyond the pin itself" — that missed the protection rule. Handled as the lightest Pivot evidence (Loop Rules, *Pivot Detection*; KZ-changes--persona-upgrade-3): one-line amendment proposed to the user at this gate.
+
+ADVISORY: L114 resync rationale reads as a confirmed GitHub fact though P-10 is `UNVERIFIED` (FR-7 states it the same way); L25 omits conversation resolution (P-1; not required by FR-7); L14 names only `scripts/release.js`; Prereleases text names three of six guards.
+
+**Running totals (tripwire):** tasks 4/5 · LOC ~950 (T1 ~625 + T3 ~105 + T2 ~170 + T4 ~50) / tripwire ~1000 · review rounds 5/8. T5 (~130) will cross ~1000.

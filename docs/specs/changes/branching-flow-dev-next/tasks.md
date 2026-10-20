@@ -117,7 +117,7 @@ T1 ─────────────────────────�
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~40 lines + ~30 test) |
 | Depends on | T1, T2 (names `release:next`, `--dry-run`, the new `release.js` hints) |
 | Requirements | FR-7 (flow table rows Work, Preview, Stable prep, Stable ship, Resync; `AND IT MUST` pin line after `Default Branch: master` in `- Key: value` form; `AND IT MUST` no direct push to `dev`/`master`, admins included; `AND IT MUST` merge commit for `dev` → `master` and resync; `BUT` no surviving direct-to-`master` release instruction) |

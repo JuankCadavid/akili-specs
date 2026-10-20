@@ -66,3 +66,31 @@ test("ci.yml syntax step checks every script", () => {
     assert.ok(t.includes(`node --check ${s}`), `missing node --check ${s}`);
   }
 });
+
+// --- AGENTS.md: pin and release rules (FR-7) ---
+const agents = () => fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
+
+function releaseRules(text) {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((l) => l === "## Release Rules");
+  assert.notEqual(start, -1, "no ## Release Rules section");
+  const out = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^## /.test(lines[i])) break;
+    out.push(lines[i]);
+  }
+  return out.join("\n");
+}
+
+test("AGENTS.md pins Integration Branch: dev on the line after Default Branch: master", () => {
+  const lines = agents().split(/\r?\n/);
+  const i = lines.indexOf("- Default Branch: master");
+  assert.notEqual(i, -1, "no `- Default Branch: master` line");
+  assert.equal(lines[i + 1], "- Integration Branch: dev");
+});
+
+for (const s of ["release:next", "--tag next", "sync/master-into-dev", "merge commit", "--dry-run"]) {
+  test(`AGENTS.md Release Rules mention ${s}`, () => {
+    assert.ok(releaseRules(agents()).includes(s), `Release Rules missing ${s}`);
+  });
+}
