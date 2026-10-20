@@ -7,7 +7,7 @@
 | Spec Path | `changes/branching-flow-dev-next` |
 | Depth | **Standard** |
 | Status | **Approved** — Phase 3 gate: `auto-approved (pre-approved mode)`, 2026-10-19 |
-| Budget (design §12) | **5 tasks · ~780 LOC · 8 review rounds**. `/akili-execute` stops and escalates past 6 tasks, ~1000 LOC, or 11 rounds |
+| Budget (design §12) | **5 tasks · ~780 LOC · 8 review rounds**. `/akili-execute` stops and escalates past 6 tasks, ~1200 LOC (raised from ~1000 by the user at the T4 gate, 2026-10-19), or 11 rounds |
 | Commit prefix | `[SPEC:changes/branching-flow-dev-next]`. Local commits only: no push, PR, tag, GitHub Release or `npm publish` — and **no test or verification may run the real `npm publish`, `git fetch`, or `npm run release:*` without `--dry-run`** |
 | Format precedent | `docs/specs/archive/2026-10-19-bugfix--update-check-deadline/tasks.md` |
 | Verified at | `15a3b61`. Baseline readings below were **executed** on 2026-10-19 and are quoted, not predicted |
@@ -145,12 +145,12 @@ T1 ─────────────────────────�
 | Status | `[ ]` |
 | Size | M (~130 lines) |
 | Depends on | T4 (same flow wording) |
-| Requirements | FR-7 (same flow in each file; no direct-to-`master` release instruction survives) · R1 note (P-11): `@next` users install `@latest` to leave the channel; the update banner compares with `latest` only |
+| Requirements | FR-7 (same flow in each file; no direct-to-`master` release instruction survives; *amended at the T4 gate:* the Kaizen `AND IT MUST` — one sentence in `AGENTS.md`'s *Kaizen Loop* bullet, DD-15) · R1 note (P-11): `@next` users install `@latest` to leave the channel; the update banner compares with `latest` only |
 | Design refs | DD-9, DD-10; P-1, P-10, P-11 |
 | Consumers | `test/akili-security-docs.test.js:34` and `test/diagram-design.test.js:409` read `README.md` (P-9) — both in `npm test` |
 | Review | `full`: user-facing docs + CHANGELOG (KZ-002: quote-check every clause at HEAD; re-run P-1 before writing protection facts) |
 
-**Scope.** `CONTRIBUTING.md` *Ground Rules* + *Development Workflow*: branch from `dev`, PR into `dev`, the six checks, up-to-date rule, admins included; new *Branches and Releases* section (FR-7 table, prerelease channel, resync). `docs/release-checklist.md`: *Release Policy* (Release Status runs on `master` and `dev` pushes), new *Prerelease (`next`)* section, *Verify Locally* starts on `release/vX.Y.Z` from `dev`, *Publish* after the `dev` → `master` merge on `master`, tag push, dist-tag verification before `gh release create` (existing Slack order kept), *Resync*. `README.md:410-446` "Controlled release flow" rewritten to the same flow (short, pointing at the checklist). `CHANGELOG.md` `Unreleased` → `### Added` `release:next` and `### Changed` CI on `dev`, `release:status` prereleases, `release.js` hints, docs, pin — every clause quote-checked against HEAD (KZ-002); no link to this spec's active path (KZ-changes--archify-diagrams-1).
+**Scope.** `CONTRIBUTING.md` *Ground Rules* + *Development Workflow*: branch from `dev`, PR into `dev`, the six checks, up-to-date rule, admins included; new *Branches and Releases* section (FR-7 table, prerelease channel, resync). `docs/release-checklist.md`: *Release Policy* (Release Status runs on `master` and `dev` pushes), new *Prerelease (`next`)* section, *Verify Locally* starts on `release/vX.Y.Z` from `dev`, *Publish* after the `dev` → `master` merge on `master`, tag push, dist-tag verification before `gh release create` (existing Slack order kept), *Resync*. `README.md:410-446` "Controlled release flow" rewritten to the same flow (short, pointing at the checklist). `AGENTS.md` *Kaizen Loop* bullet: one sentence per DD-15 (Apply Mode runs on an up-to-date `dev` checkout; `git switch -c kaizen/apply-<YYYY-MM-DD>` before committing; PR into `dev`), plus a `test/branching-flow.test.js` assertion that the bullet names `kaizen/apply-` and `PR into \`dev\``. `CHANGELOG.md` `Unreleased` → `### Added` `release:next` and `### Changed` CI on `dev`, `release:status` prereleases, `release.js` hints, docs, pin — every clause quote-checked against HEAD (KZ-002); no link to this spec's active path (KZ-changes--archify-diagrams-1).
 
 **Verification.** `npm test` · `git diff --check` · phrase-family sweep over the three docs: `grep -n -i "git tag\|npm publish\|push\|directly\|master" CONTRIBUTING.md docs/release-checklist.md README.md` — every hit read and quoted as new-flow or unrelated · `gh api repos/JuankCadavid/akili-specs/branches/dev/protection --jq …` re-run immediately before writing protection facts, time recorded (KZ-002).
 

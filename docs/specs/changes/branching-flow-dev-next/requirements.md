@@ -159,6 +159,7 @@ With all guards holding, the script SHALL write the prerelease version into `pac
 
 - AND IT MUST add `Integration Branch: dev` to `AGENTS.md`, on the line after `Default Branch: master`, in the same `- Key: value` form
 - AND IT MUST state that no one (admins included) pushes directly to `dev` or `master`
+- AND IT MUST say, in `AGENTS.md`'s *Kaizen Loop* rule, how Apply Mode's edits reach the protected integration branch: Apply Mode runs on an up-to-date `dev` checkout, the uncommitted edits move to a `kaizen/apply-<YYYY-MM-DD>` branch (`git switch -c`) before the commit, and land through a PR into `dev` *(amended 2026-10-19 at the T4 gate — user decision, spec tension raised by the T4 Reviewer)*
 - BUT no surviving sentence in those four files may instruct committing or pushing a release directly to `master`
 
 ### FR-8: Tests run the prerelease flow without publishing

@@ -114,13 +114,14 @@ n/a — no UI.
 | DD-11 | Static tests read the real workflow files, `AGENTS.md` and `release.js` | Real-artifact lock; a YAML parser would be a new dependency (NFR-1), so trigger lines are matched textually | FR-1, FR-7, FR-9 |
 | DD-12 | `Base ahead` (base > max published stable) replaces "base unpublished" | Also refuses a stale `dev` whose `package.json` is behind npm (both judges, suggestion) | FR-3 |
 | DD-13 | Windows-safe default runner + `--otp` digit validation | `npm` is `npm.cmd` on Windows (P-16); with `shell: true` an unvalidated argument would reach a shell | FR-4 |
+| DD-15 | Kaizen Apply Mode lands through `kaizen/apply-<YYYY-MM-DD>` + PR into `dev` (one sentence in `AGENTS.md`, owned by T5) | User decision 2026-10-19 at the T4 gate; the T4 Reviewer found the *Kaizen Loop* rule and the *Branch model* rule could not both be followed. Switching branches after the edits (not before) keeps the skill's apply-capable check on `dev` | FR-7 |
 | DD-14 | `release.js` hint lines follow the PR flow; behavior untouched | Its old hints (`git tag`, `npm publish` right after the bump) would tag a release-branch commit (both judges) | FR-9 |
 
 ### Reversion challenge (Step 2.3) — DD-10, DD-14
 
 *What does removing the direct-to-`master` flow / making `master` non-writing for Kaizen break?*
 
-1. **Kaizen pending items recorded "for master"** (several archived specs) are now applied on `dev` by Apply Mode — the skill resolves the pin, so the backlog is not lost and `/akili-resume` names `dev`. `AGENTS.md`'s *Kaizen Loop* bullet is already pin-generic ("the default branch, or the pinned integration branch when one exists"), so it needs no edit beyond the pin itself.
+1. **Kaizen pending items recorded "for master"** (several archived specs) are now applied on `dev` by Apply Mode — the skill resolves the pin, so the backlog is not lost and `/akili-resume` names `dev`. `AGENTS.md`'s *Kaizen Loop* bullet is pin-generic ("the default branch, or the pinned integration branch when one exists"). *Amended 2026-10-19 at the T4 gate:* it does need one sentence — with `dev` protected, Apply Mode's edits cannot be committed on `dev`; they move to a `kaizen/apply-<YYYY-MM-DD>` branch before the commit and land through a PR into `dev` (DD-15). The `kaizen` skill is unchanged: Apply Mode still runs on the `dev` checkout, so the Branch Context resolves it as apply-capable.
 2. **`doctor --agents --fix` branch guard** in this repo now resolves to `dev` (P-8); this repo has no `.agents/` (`ls -d .agents` → absent), so no current run changes.
 3. **`release-notify.yml`** fires on `release: published` — unchanged; the stable flow still ends with `gh release create`.
 4. **`release.js` hints** (DD-14) — nothing parses them (`grep -rn "Next steps" test/ scripts/ bin/` → `scripts/release.js:241` plus two unrelated `bin/akili.js` install/doctor hints; no test hit).
@@ -160,4 +161,4 @@ No unaddressed breakage.
 | LOC | ~780 (release-next ~220, tests ~340, release-status ~50, release.js hints ~10, workflows ~4, docs ~160) |
 | Review rounds | 8 (T1 2, T2 1, T3 1, T4 2 — rules doc, T5 2 — docs + CHANGELOG under KZ-002) |
 
-Matches Standard. `/akili-execute` stops and escalates past 6 tasks, ~1000 LOC, or 11 review rounds.
+Matches Standard. `/akili-execute` stops and escalates past 6 tasks, ~1000 LOC, or 11 review rounds. *Amended 2026-10-19 at the T4 gate (user): LOC tripwire raised to ~1200* — actuals ~950 after T4, T5 projected ~130; the overrun is test LOC (KZ-bugfix--init-ctrlc-abort-2), not scope.

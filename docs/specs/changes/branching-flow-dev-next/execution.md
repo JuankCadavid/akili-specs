@@ -95,7 +95,7 @@ ADVISORY: (1) a **published** prerelease left in `package.json` makes `checkVers
 | Requirements covered | FR-7 (`AGENTS.md` half) |
 | Skills | `cognitive-doc-design`, `tdd` (`tdd` added by the Leader for the pin/phrase tests the task names) |
 | Effort | `medium` |
-| spawns | Implementer 9 calls, 74939 tokens, ended complete; Reviewer not reported by host at write time, ended complete (PASS) |
+| spawns | Implementer 9 calls, 74939 tokens, ended complete; Reviewer 9 calls, 68158 tokens, ended complete (PASS) |
 
 **Attempt 1.** Files: `AGENTS.md` (+pin line 18; *Development Rules* "Branch model" bullet; *Release Rules* governance bullet scoped to stable releases; five-step flow; *Prereleases (`next`)* subsection), `test/branching-flow.test.js` (+6 tests). Red run: 5 pass / 6 fail — pin `expected: '- Integration Branch: dev' actual: ''`, five `Release Rules missing <phrase>`. Green 11/11; `npm test` 457/457; `git diff --check` 0. Falsifiers red: (1) pin moved → `not ok 6 … actual: ''`; (2) `sync/XX` → `not ok 9 … 'Release Rules missing sync/master-into-dev'`. Phrase-family sweep (`grep -n -i "commit the release\|git tag\|publish\|push\|directly\|master" AGENTS.md`) — every hit quoted with a verdict in the Implementer report: lines 15, 17, 76, 80–88 flow-agnostic/compatible; 25, 89–123 new flow; no direct-to-`master` release instruction survives. Evidence re-run (Leader inline): **VERIFIED** (11/11, 457/457, diff-check 0). Reviewer (opus, `full`): **PASS** — FR-7 rows Work, Preview, Stable prep, Stable ship, Resync and all three `AND IT MUST` + the `BUT` walked term by term against `release-next.js` usage and `release.js` hints.
 
@@ -104,3 +104,14 @@ ADVISORY: (1) a **published** prerelease left in `package.json` makes `checkVers
 ADVISORY: L114 resync rationale reads as a confirmed GitHub fact though P-10 is `UNVERIFIED` (FR-7 states it the same way); L25 omits conversation resolution (P-1; not required by FR-7); L14 names only `scripts/release.js`; Prereleases text names three of six guards.
 
 **Running totals (tripwire):** tasks 4/5 · LOC ~950 (T1 ~625 + T3 ~105 + T2 ~170 + T4 ~50) / tripwire ~1000 · review rounds 5/8. T5 (~130) will cross ~1000.
+
+## Gate record: T4 → T5 (2026-10-19)
+
+Stopped for the user (spec tension + projected budget tripwire; neither auto-passes under `pre-approved`). User answers via the session question tool:
+
+| Question | Answer | Spec edits (decisions made) |
+|---|---|---|
+| How do Kaizen Apply Mode edits reach protected `dev`? | **Branch + PR** — Apply Mode on an up-to-date `dev` checkout, `git switch -c kaizen/apply-<YYYY-MM-DD>` before committing, PR into `dev`; kaizen skill unchanged | `requirements.md` FR-7 new `AND IT MUST`; `design.md` DD-15 + §10 reversion item 1 amended; `tasks.md` T5 Requirements + Scope (one `AGENTS.md` sentence + one test assertion). Execute-time spec edits → named conformance checks in T5's Reviewer brief |
+| Raise the LOC tripwire? | **~1200** (from ~1000) | `design.md` §12, `tasks.md` Document Control |
+
+Correction-closure sweep: `grep -n "needs no edit beyond\|~1000 LOC"` over the spec folder → only this log's Document Control (historical, kept).
