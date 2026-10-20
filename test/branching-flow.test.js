@@ -223,9 +223,11 @@ test("release-checklist guard sentence matches the six release-next guards", () 
   assert.ok(!sentence.includes("dev is ahead of the base"), "attempt-1 defect: dev is ahead of the base");
 });
 
-test("CHANGELOG [Unreleased] names release:next, Integration Branch: dev and kaizen/apply-", () => {
-  const u = section(doc("CHANGELOG.md"), "## [Unreleased]", /^## /);
+test("CHANGELOG [Unreleased] (or the 2.34.2 section it was released into) names release:next, Integration Branch: dev and kaizen/apply-", () => {
+  // Stays true after the release script moves [Unreleased] into a dated section.
+  const log = doc("CHANGELOG.md");
+  const u = section(log, "## [Unreleased]", /^## /) + (log.includes("## [2.34.2] - 2026-10-20") ? section(log, "## [2.34.2] - 2026-10-20", /^## /) : "");
   for (const s of ["release:next", "Integration Branch: dev", "kaizen/apply-"]) {
-    assert.ok(u.includes(s), `[Unreleased] missing ${s}`);
+    assert.ok(u.includes(s), `[Unreleased]/[2.34.2] missing ${s}`);
   }
 });
