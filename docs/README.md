@@ -35,6 +35,14 @@ Use `/akili-audit` independently to detect drift between specs and codebase real
 
 Use `/akili-seo <site-domain>` independently when you need Google Search Console setup and SEO audit reports.
 
+Use `/akili-quick <change-name>` for a trivial, low-risk change with minimal traceability; it auto-escalates when the change is not trivial.
+
+Use `/akili-security` for a gated repository security audit outside the spec lifecycle; confirmed findings go to the Bug Track via `/akili-propose`. Not supported on native Windows.
+
+Video deliverables: see [video-production](skills/video-production.md) and [flow.md](flow.md#10-video-deliverables).
+
+Diagrams: see [diagram-design](skills/diagram-design.md) and [flow.md](flow.md#11-diagram-slots).
+
 ## Documentation Map
 
 | Topic | File | Use When |

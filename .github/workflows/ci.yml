@@ -7,7 +7,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, dev]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -42,6 +42,7 @@ jobs:
           node --check scripts/parse_tests.js
           node --check scripts/release.js
           node --check scripts/release-status.js
+          node --check scripts/release-next.js
           node --check scripts/notify-slack.js
 
       - name: verify:cli (list packaged commands, skills, resources)

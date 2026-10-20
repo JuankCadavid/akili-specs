@@ -4,7 +4,7 @@ Thank you for your interest in improving AKILI-SPECS. This project packages a sp
 
 ## Ground Rules
 
-- **All changes go through a pull request.** Direct pushes to `master` are not accepted. Open a PR from a fork (or a branch, for collaborators) and wait for maintainer review.
+- **All changes go through a pull request.** `master` and `dev` are protected: PR-only, the six `CLI on <os> / Node <18|22>` checks green and the branch up to date, enforced for admins too. Branch from `dev` and open your PR into `dev` (from a fork, or from a branch for collaborators).
 - **One focused change per PR.** Small, reviewable PRs are merged faster than large mixed ones.
 - **Every user-facing change updates `CHANGELOG.md`** under the `## [Unreleased]` section. This includes methodology changes (commands, skills, templates), installer behavior, and documentation that users rely on.
 - **Releases are maintainer-only.** Do not bump `version` in `package.json` or add release sections to the changelog — the maintainer runs the release process (`npm run release:*`) after merging.
@@ -36,7 +36,7 @@ Also, never include real secrets anywhere in the repository — no npm tokens, A
 
 ## Development Workflow
 
-1. Fork and clone the repository, then create a branch for your change.
+1. Fork and clone the repository, then create a `feat/<name>` or `fix/<name>` branch from `dev`.
 2. Make your edits and verify them:
 
    ```bash
@@ -46,7 +46,23 @@ Also, never include real secrets anywhere in the repository — no npm tokens, A
    ```
 
 3. Update `CHANGELOG.md` under `## [Unreleased]`.
-4. Open a PR describing **what** changed and **why**. For command/skill changes, explain the methodology reasoning, not just the edit.
+4. Open a PR into `dev` describing **what** changed and **why**. For command/skill changes, explain the methodology reasoning, not just the edit.
+
+## Branches and Releases
+
+Changes flow `feat/<name>` / `fix/<name>` → `dev` → `master`. Nothing is committed or pushed to `dev` or `master` directly.
+
+| Step | What happens |
+|---|---|
+| Work | Branch from `dev`, open a PR into `dev` |
+| Preview | A maintainer can publish `X.Y.Z-next.N` from `dev` with `npm run release:next` |
+| Stable prep | `release/vX.Y.Z` from `dev` runs `npm run release:*`; its release commit lands via PR into `dev`, then a PR `dev` → `master` merges with a merge commit |
+| Stable ship | On an up-to-date `master`: tag and push the tag, `npm publish`, verify `npm view akili-specs dist-tags`, then the GitHub Release |
+| Resync | `sync/master-into-dev` merges `origin/master` into `dev` through a PR, with a merge commit |
+
+Try the prerelease channel with `npm i akili-specs@next`. To leave it, run `npm i akili-specs@latest` (or `akili update`, which installs `@latest`); the update banner compares against `latest` only.
+
+Maintainers: see [docs/release-checklist.md](docs/release-checklist.md).
 
 ## Authorship and Licensing
 

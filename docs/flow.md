@@ -4,7 +4,7 @@ AKILI keeps durable product, design, implementation, test, and validation contex
 
 The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a project constitution step, Claude/OpenCode skills, and explicit validation evidence before archive.
 
-![AKILI-SPECS lifecycle: a one-time constitution establishes the baseline, then a per-spec loop runs propose, specify, execute, test, validate and archive, with a Kaizen retrospective feeding the next spec](../assets/akili-flow.svg)
+![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
 
 ## Philosophy
 
@@ -82,6 +82,9 @@ AI:  Runs the Kaizen retrospective (writes docs/specs/kaizen/<safe-spec-slug>.md
 Independent Auditing:
 You: /akili-audit
 AI:  Scans codebase and detects drift against baselines, generating docs/specs/audits/drift-<date>.md
+
+You: /akili-security
+AI:  Plans the audit behind a plan gate, writes a redacted index at docs/specs/audits/security-<date>.md, and routes each confirmed finding you select to /akili-propose (Bug Track)
 ```
 
 ## Fast-Track for Trivial Changes
@@ -474,3 +477,20 @@ which answers *when and how each skill loads*:
 
 Every skill preserves its original author and license; AKILI adaptation is recorded as `adapted-by`
 in the skill frontmatter. Curation by Juan Carlos Cadavid — jcadavid.com.
+
+### 10. Video Deliverables
+
+A spec whose `Deliverable` is `video` runs the same lifecycle with video-specific gates. The packaged `video-production` skill bridges AKILI phases to HyperFrames, which you install yourself; the skill stops at its availability gate when HyperFrames is missing. Details: [video-production](skills/video-production.md).
+
+* `/akili-propose` records `Deliverable: video` beside `Type`.
+* `/akili-specify` runs in Video Mode.
+* `/akili-test` plans a render evidence suite in place of unit and E2E suites.
+* `/akili-validate` requires a final look at the draft render, then the delivery render.
+
+### 11. Diagram Slots
+
+Baseline and design documents carry named diagram slots. The packaged `diagram-design` skill fills each as inline Mermaid (canonical) and, when Archify is installed, links an interactive view. Archify is optional and user-installed; without it the slot stands as Mermaid. Details: [diagram-design](skills/diagram-design.md).
+
+* `/akili-constitution` Steps 3-5 fill the PRD, UX/UI and TRD slots whose condition holds (the TRD's C4 Context and C4 Container are always filled).
+* `/akili-specify` Step 2.1 fills `design.md` slots when the design is architecturally significant.
+* `/akili-archive` Step 2 loads the skill only when the spec has a `diagrams/` folder or slot, to link the spec's views and list baseline slots the design made stale as follow-ups; it fills none.

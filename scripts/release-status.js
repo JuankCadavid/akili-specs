@@ -163,6 +163,32 @@ function checkVersion(version, published) {
   return failures;
 }
 
+function isPrerelease(version) {
+  return String(version).includes("-");
+}
+
+function partitionVersions(versions) {
+  return {
+    stable: versions.filter((version) => !isPrerelease(version)),
+    prerelease: versions.filter(isPrerelease),
+  };
+}
+
+// Pure failure collection: stable published versions are checked via `check`;
+// prereleases never are. A prerelease left in package.json is drift.
+function releaseFailures({ pkgVersion, stablePublished, check }) {
+  const failures = [];
+  if (isPrerelease(pkgVersion)) {
+    failures.push(
+      `package.json version ${pkgVersion} is a prerelease; restore it with \`git checkout -- package.json\``
+    );
+  }
+  for (const version of stablePublished) {
+    failures.push(...check(version));
+  }
+  return failures;
+}
+
 function main() {
   const pkg = JSON.parse(fs.readFileSync(PACKAGE_PATH, "utf8"));
   const npmMetadata = getNpmMetadata(pkg.name);
@@ -174,21 +200,24 @@ function main() {
 
   const gitStatus = tryRun("git", ["status", "--short"]);
   const currentPublished = npmMetadata.versions.includes(pkg.version);
-  const failures = [];
+  const { stable, prerelease } = partitionVersions(npmMetadata.versions);
 
   console.log(`Release status for ${pkg.name}`);
   console.log(`Local package version: ${pkg.version}`);
   console.log(`npm latest: ${npmMetadata.distTags.latest || npmMetadata.latest || "unknown"}`);
+  console.log(`npm next: ${npmMetadata.distTags.next || "none"}`);
+  console.log(`npm prereleases: ${prerelease.join(", ") || "none"}`);
   console.log(`npm versions: ${npmMetadata.versions.join(", ") || "none"}`);
   console.log(`npm auth: ${getNpmUser()}`);
   console.log(`Working tree: ${gitStatus.ok && !gitStatus.output ? "clean" : "dirty"}`);
 
-  failures.push(...checkVersion(pkg.version, currentPublished));
-
-  const publishedVersions = npmMetadata.versions.filter((version) => version !== pkg.version);
-  for (const version of publishedVersions) {
-    failures.push(...checkVersion(version, true));
-  }
+  const failures = releaseFailures({
+    pkgVersion: pkg.version,
+    stablePublished: stable.filter((version) => version !== pkg.version),
+    check: (version) => checkVersion(version, true),
+  });
+  // Current version is always reported; it counts as a failure source only once published.
+  failures.unshift(...checkVersion(pkg.version, currentPublished && !isPrerelease(pkg.version)));
 
   const digestsDrift = checkDigestsDrift(pkg.version);
   console.log(`\ndigests.json: ${digestsDrift ? "DRIFT" : "OK"}`);
@@ -208,4 +237,5 @@ function main() {
   console.log("\nNo published release drift detected.");
 }
 
-main();
+module.exports = { isPrerelease, partitionVersions, releaseFailures };
+if (require.main === module) main();

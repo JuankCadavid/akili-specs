@@ -247,8 +247,10 @@ function main() {
   const hintPaths = ["package.json", "CHANGELOG.md", `releases/v${nextVersion}.md`, ...digestWrittenFiles];
   console.log(`  git add ${hintPaths.join(" ")}`);
   console.log(`  git commit -m "chore(release): v${nextVersion}"`);
-  console.log(`  git tag v${nextVersion}`);
-  console.log("  npm publish --access public --registry=https://registry.npmjs.org/");
+  console.log(`  Commit on a release/v${nextVersion} branch, open a PR into \`dev\`, then a PR \`dev\` → \`master\` (merge commit).`);
+  console.log(
+    `  After it merges, on \`master\`: git tag v${nextVersion}, git push origin v${nextVersion}, npm publish --access public --registry=https://registry.npmjs.org/, gh release create — see docs/release-checklist.md.`
+  );
 }
 
 main();
