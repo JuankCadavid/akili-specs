@@ -23,7 +23,7 @@ Align the repository's CI, release tooling, and docs with the branch model that 
 | Today | Evidence |
 |---|---|
 | Both branches require a PR, 0 approvals, the six `CLI on <os> / Node <18\|22>` checks, an up-to-date branch (`strict`), and `enforce_admins` | `gh api repos/JuankCadavid/akili-specs/branches/{dev,master}/protection` run 2026-10-19 19:10 -05 → `strict: true`, six contexts, `required_approving_review_count: 0`, `enforce_admins: true` |
-| `CI` runs on `push` to `master` only (plus every `pull_request`) | `.github/workflows/ci.yml:12-14` |
+| `CI` runs on `push` to `master` only (plus every `pull_request`) | `.github/workflows/ci.yml:9-10` |
 | `Release Status` runs on `push` to `master` only (plus every `pull_request`) | `.github/workflows/release-status.yml:3-8` |
 | The only release scripts are `release:patch|minor|major`; there is no prerelease path | `package.json` `scripts` |
 | `release.js` bumps only `X.Y.Z`; a prerelease string fails its parser | `scripts/release.js` `bumpVersion` — `split(".")` must yield exactly 3 numeric parts |
@@ -78,13 +78,13 @@ Align the repository's CI, release tooling, and docs with the branch model that 
 
 ### ADDED Requirements
 
-- `release:next <patch|minor|major> [--dry-run]`: base = bump of the stable `package.json` version; `N` = 1 + highest published `base-next.*` on npm (else 1); publishes with `--tag next`; refuses unless on `dev`, clean tree, and `HEAD` equals `origin/dev`; refuses if `base` is already published as stable.
+- `release:next <patch|minor|major> [--dry-run]`: base = bump of the stable `package.json` version; `N` = 1 + highest published `base-next.*` on npm (else 1); publishes with `--tag next`; refuses unless on `dev`, clean tree, and `HEAD` equals `origin/dev`; refuses unless `base` is greater than every published stable *(amended at judgment-day J11)*.
 - `release:status` lists prerelease versions separately and does not require CHANGELOG/notes/tag/GitHub Release for them.
 - CI + Release Status trigger on `push` to `dev`.
 
 ### MODIFIED Requirements
 
-- Release flow: stable release prepared on a `release/vX.Y.Z` branch from `dev` → PR to `dev` → PR `dev` → `master` (merge commit) → tag on `master`, `npm publish`, `gh release create` → PR `master` → `dev` to resync.
+- Release flow: stable release prepared on a `release/vX.Y.Z` branch from `dev` → PR to `dev` → PR `dev` → `master` (merge commit) → tag on `master`, `npm publish`, `gh release create` → resync via a `sync/master-into-dev` branch from `dev` (merge `origin/master`) PR'd into `dev` with a merge commit *(amended at judgment-day, `judgment.md` J3)*.
 - Contribution flow: `feat/*` and `fix/*` branch from `dev` and PR into `dev`.
 
 ### REMOVED Requirements
@@ -122,7 +122,7 @@ Stable flow uses a merge commit for `dev` → `master` and a `master` → `dev` 
 ## Success Criteria
 
 - `ci.yml` and `release-status.yml` list `dev` under `push.branches`.
-- `npm run release:next -- minor --dry-run` on this repo prints `2.35.0-next.1` (with `next` dist-tag absent) and publishes nothing.
+- `npm run release:next -- minor --dry-run` on this repo prints `2.35.0-next.1` (no `2.35.0-next.*` published yet) and publishes nothing.
 - Tests prove: version computation, `N` increment, branch/clean/sync guards, stable-collision refusal, `--tag next` in the publish argv, `package.json` restored on success and on failure — all with a fake `exec`.
 - `release:status` reports `-next.N` versions as prereleases, not drift.
 - `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` pass.
