@@ -92,7 +92,7 @@ T1 ─────────────────────────�
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~4 YAML lines + ~40 test) |
 | Depends on | T1 (syntax step names `scripts/release-next.js`) |
 | Requirements | FR-1 (statement; scenario; `AND IT MUST` job name + matrix byte-identical; `BUT` keep `pull_request`, `workflow_dispatch`, inputs) · NFR-3 |
