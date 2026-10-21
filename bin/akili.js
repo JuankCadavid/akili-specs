@@ -736,17 +736,32 @@ function removeEntryNoFollow(entryPath) {
   }
 }
 
+// T2b (DD-11): step (1) of a takeover. One atomic rename of the entry itself
+// (a symlink moves as a link, never followed) into AKILI's own directory, so a
+// failure here (EACCES, EXDEV, ...) cannot leave a half-deleted foreign entry.
+function moveEntryAside(entryPath, takeoverDir, name) {
+  fs.mkdirSync(takeoverDir, { recursive: true });
+  const asidePath = path.join(takeoverDir, `${name}-${Date.now()}-${crypto.randomBytes(3).toString("hex")}`);
+  fs.renameSync(entryPath, asidePath);
+  return asidePath;
+}
+
 // The per-entry policy `copyDirectoryContents` and the command-skill loop call
 // before touching `<workflows root>/<name>`. It returns one of:
 //   "write"    absent: the name is recorded first (intent first, DD-10)
 //   "owned"    listed in the record: today's skip-or-overwrite rules apply
 //   "foreign"  exists and is not listed: skip, never write
-//   "takeover" foreign + `install --force`: removed, then recorded; the caller copies
+//   "takeover" foreign + `install --force`: moved aside, then recorded; the
+//              caller copies, then calls policy.finish() to delete the moved-
+//              aside entry (a failure there is a warning, never an error)
 //   "blocked"  the record is invalid: nothing may be written
-// Side effects (record write, removal) happen here, in that order, and never
-// under --dry-run. A throw leaves no name recorded that was not begun.
+// Side effects (move, record) happen here, in that order, and never under
+// --dry-run. A throw leaves no name recorded that was not begun, and a foreign
+// entry is never recorded while it still sits in the workflows root.
 function makeOwnershipPolicy(ownership, args) {
-  return (name, entryPath) => {
+  const takeoverDir = path.join(path.dirname(ownership.recordPath), ".takeover");
+  let pendingAside = null;
+  const policy = (name, entryPath) => {
     const state = classifyEntry(entryPath, ownership);
     if (ownership.state === "invalid") {
       if (state === "absent") return "blocked";
@@ -759,11 +774,45 @@ function makeOwnershipPolicy(ownership, args) {
     }
     if (!args.forceExplicit) return "foreign";
     if (!args.dryRun) {
-      removeEntryNoFollow(entryPath);
-      recordOwned(ownership, name);
+      const asidePath = moveEntryAside(entryPath, takeoverDir, name);
+      try {
+        recordOwned(ownership, name);
+      } catch (e) {
+        // Step (2) failed after the move: put the foreign entry back so the
+        // run leaves it whole in place. The path is still empty, and a rename
+        // within one filesystem is atomic.
+        try {
+          fs.renameSync(asidePath, entryPath);
+        } catch (restoreError) {
+          throw new Error(
+            `${e.message}; and the foreign entry could not be put back (${(restoreError && restoreError.code) || restoreError}): it is at ${asidePath}`
+          );
+        }
+        throw e;
+      }
+      pendingAside = asidePath;
     }
     return "takeover";
   };
+  policy.finish = () => {
+    if (!pendingAside) return;
+    const asidePath = pendingAside;
+    pendingAside = null;
+    try {
+      removeEntryNoFollow(asidePath);
+    } catch (e) {
+      console.log(
+        `  ${colors.red}warning${colors.reset} could not delete the replaced foreign entry (${(e && e.code) || e}); it may be partly removed and is kept at ${asidePath}`
+      );
+      return;
+    }
+    try {
+      fs.rmdirSync(takeoverDir); // only succeeds when empty
+    } catch (e) {
+      // Other moved-aside entries remain
+    }
+  };
+  return policy;
 }
 
 function logForeignSkip(entryPath) {
@@ -868,6 +917,7 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
       copyTreeSync(sourcePath, targetPath);
+      if (takeover) policy.finish();
     }
     if (exists || takeover) overwritten += 1;
     else installed += 1;
@@ -1032,6 +1082,7 @@ function installTool(tool, args) {
             }
           }
           add(copySingleFile(path.join(SOURCE_COMMANDS, cmdFile), path.join(entryDir, "SKILL.md"), args));
+          if (policy) policy.finish();
         }
       }
     }

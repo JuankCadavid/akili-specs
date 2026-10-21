@@ -541,6 +541,12 @@ test("@akili-spec changes/grokbot-target FR-4 (Explicit takeover): install --for
   }
   const names = readRecord(home).folders;
   for (const n of ["tdd", cmd, ...(linked ? [linkSkill] : [])]) assert.ok(names.includes(n), `${n} must be recorded after the takeover`);
+
+  // Safe takeover (T2b): nothing is left behind, in the workflows root or in
+  // the resources root, once the moved-aside entries are deleted.
+  assert.deepEqual(fs.readdirSync(p.workflows).sort(), sortedNames(ALL_NAMES), "something bot-visible was left in the workflows root");
+  const aside = path.join(p.resources, ".takeover");
+  assert.deepEqual(fs.existsSync(aside) ? fs.readdirSync(aside) : [], [], "moved-aside entries must be deleted on success");
 });
 
 test("@akili-spec changes/grokbot-target FR-4 (Owned entries): a second install skips them and leaves the record alone; --force overwrites", (t) => {
@@ -625,28 +631,108 @@ test("@akili-spec changes/grokbot-target FR-4 (Interrupted install): a write tha
   assert.deepEqual(readRecord(home).folders, sortedNames(ALL_NAMES));
 });
 
-test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover): a takeover whose removal fails records nothing for that name", (t) => {
-  if (skipUnlessPermissionsEnforced(t)) return;
-  const home = mkHome(t, "akili-grokbot-takeover-fail-");
+// Installs everything, then turns `tdd` into a foreign entry: unrecorded, with
+// the given fixture built at its path. Returns the foreign folder.
+function installThenMakeTddForeign(home, buildForeign) {
   const p = boxPaths(home);
-  const foreignTdd = path.join(p.workflows, "tdd");
-  makeForeignFolder(foreignTdd);
-  const locked = path.join(foreignTdd, "locked");
-  fs.mkdirSync(locked);
-  fs.writeFileSync(path.join(locked, "inside.txt"), "x\n");
-  fs.chmodSync(locked, 0o555);
+  assert.equal(installGrokbot(home).status, 0);
+  const rec = readRecord(home);
+  fs.writeFileSync(p.record, JSON.stringify({ version: 1, folders: rec.folders.filter((n) => n !== "tdd") }, null, 2) + "\n");
+  const dir = path.join(p.workflows, "tdd");
+  fs.rmSync(dir, { recursive: true });
+  buildForeign(dir);
+  return dir;
+}
+
+test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover, move-aside fails): the foreign entry stays whole in place and the name is not recorded", (t) => {
+  if (skipUnlessPermissionsEnforced(t)) return;
+  const home = mkHome(t, "akili-grokbot-takeover-move-fail-");
+  const p = boxPaths(home);
+  const foreignTdd = installThenMakeTddForeign(home, makeForeignFolder);
+  const before = snapshotFiles(foreignTdd);
+  const recordBefore = fs.readFileSync(p.record);
+
+  // A read-only workflows root: owned entries still overwrite in place, but
+  // renaming the foreign entry out of the root is refused.
+  fs.chmodSync(p.workflows, 0o555);
   let run;
   try {
     run = installGrokbot(home, ["--force"]);
   } finally {
-    fs.chmodSync(locked, 0o755);
+    fs.chmodSync(p.workflows, 0o755);
   }
-  assert.notEqual(run.status, 0, `expected the failed removal to stop the run:\n${run.stdout}`);
+  assert.notEqual(run.status, 0, `expected the refused move-aside to stop the run:\n${run.stdout}`);
   assert.match(run.stderr, /EACCES|EPERM/);
-  assert.equal(
-    readRecord(home).folders.includes("tdd"),
-    false,
-    "a foreign entry that still exists must never be recorded as owned"
-  );
-  assert.ok(fs.existsSync(path.join(locked, "inside.txt")), "the locked file is still there");
+  assert.deepEqual(snapshotFiles(foreignTdd), before, "the foreign entry must be whole and byte-identical in place");
+  assert.equal(readRecord(home).folders.includes("tdd"), false, "a foreign entry that was not replaced must never be recorded as owned");
+  assert.ok(fs.readFileSync(p.record).equals(recordBefore), "the record must not change");
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover, record write fails after the move): the entry is put back whole, the name is not recorded", (t) => {
+  if (skipUnlessPermissionsEnforced(t)) return;
+  const home = mkHome(t, "akili-grokbot-takeover-record-fail-");
+  const p = boxPaths(home);
+  const foreignTdd = installThenMakeTddForeign(home, makeForeignFolder);
+  const before = snapshotFiles(foreignTdd);
+  const recordBefore = fs.readFileSync(p.record);
+
+  // .takeover/ exists and stays writable, so the move-aside succeeds; the
+  // resources root itself is read-only, so the record's temp file cannot be
+  // created and step (2) fails.
+  const takeoverRoot = path.join(p.resources, ".takeover");
+  fs.mkdirSync(takeoverRoot);
+  fs.chmodSync(p.resources, 0o555);
+  let run;
+  try {
+    run = installGrokbot(home, ["--force"]);
+  } finally {
+    fs.chmodSync(p.resources, 0o755);
+  }
+  assert.notEqual(run.status, 0, `expected the failed record write to stop the run:\n${run.stdout}`);
+  assert.match(run.stderr, /EACCES|EPERM/);
+  assert.deepEqual(snapshotFiles(foreignTdd), before, "the foreign entry must be back in place, whole and byte-identical");
+  assert.deepEqual(fs.readdirSync(takeoverRoot), [], "the restored entry must not also remain under .takeover/");
+  assert.ok(fs.readFileSync(p.record).equals(recordBefore), "the record must not change");
+  assert.equal(readRecord(home).folders.includes("tdd"), false);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover, delete-after-move fails): the takeover stands, a warning names the leftover, and the foreign files stay intact outside the workflows root", (t) => {
+  if (skipUnlessPermissionsEnforced(t)) return;
+  const home = mkHome(t, "akili-grokbot-takeover-delete-fail-");
+  const p = boxPaths(home);
+  const takeoverRoot = path.join(p.resources, ".takeover");
+  // Flat files inside one read-only folder: deleting any of them is refused, so
+  // the moved-aside copy cannot be partly deleted either.
+  const fixture = {
+    "locked/SKILL.md": Buffer.from("---\nname: x\n---\r\nforeign\r\n"),
+    "locked/blob.bin": Buffer.from([0, 1, 2, 255]),
+  };
+  const lockedDirs = () =>
+    fs.existsSync(takeoverRoot) ? fs.readdirSync(takeoverRoot).map((e) => path.join(takeoverRoot, e, "locked")) : [];
+  const foreignTdd = path.join(p.workflows, "tdd");
+  fs.mkdirSync(path.join(foreignTdd, "locked"), { recursive: true });
+  for (const [rel, bytes] of Object.entries(fixture)) fs.writeFileSync(path.join(foreignTdd, ...rel.split("/")), bytes);
+  fs.chmodSync(path.join(foreignTdd, "locked"), 0o555);
+
+  let run;
+  try {
+    run = installGrokbot(home, ["--force"]);
+    assert.equal(run.status, 0, `a failed delete-after-move is a warning, not an error:\n${run.stdout}\n${run.stderr}`);
+
+    // AKILI's tdd is installed whole and recorded.
+    const srcTdd = path.join(SOURCE_SKILLS, "tdd");
+    assert.deepEqual(listAllFiles(foreignTdd), listAllFiles(srcTdd));
+    assert.ok(readRecord(home).folders.includes("tdd"));
+
+    // The warning names a path under <resources root>/.takeover/, and every
+    // foreign file is byte-identical there.
+    const m = /warning.*kept at (.+)$/m.exec(run.stdout);
+    assert.notEqual(m, null, `expected a warning naming the leftover path:\n${run.stdout}`);
+    const leftover = m[1].trim();
+    assert.ok(leftover.startsWith(takeoverRoot + path.sep), `${leftover} is not under ${takeoverRoot}`);
+    assert.deepEqual(snapshotFiles(leftover), Object.fromEntries(Object.entries(fixture).map(([k, v]) => [k, v.toString("base64")])));
+  } finally {
+    for (const d of lockedDirs()) fs.chmodSync(d, 0o755);
+    if (fs.existsSync(path.join(foreignTdd, "locked"))) fs.chmodSync(path.join(foreignTdd, "locked"), 0o755);
+  }
 });

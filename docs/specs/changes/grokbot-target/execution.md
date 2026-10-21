@@ -168,3 +168,31 @@
   - A copy failure after the record leaves the entry in `.takeover/` with no message.
   - A crash between rename and record leaves an orphan in `.takeover/`, which a future doctor line could list.
   - A resources root on another filesystem means every takeover fails (EXDEV). The Reviewer's report was cut off in this item.
+
+#### Attempt 2 — PASS
+- **Files changed:** `bin/akili.js` and `test/install-grokbot.test.js`.
+  - `recordOwned` is wrapped. When it throws, the entry is renamed back to its original path and the error is rethrown.
+  - `pendingAside` is set only after the record write succeeds.
+  - If the restore also fails, the error names the moved-aside path.
+  - New test: a pre-created writable `.takeover/` plus a 0555 resources root makes the record write fail at step (2).
+- **Implementer verification:**
+  - Red on the attempt-1 code: "the foreign entry must be back in place, whole and byte-identical" (actual `{}`).
+  - Falsifier (restore replaced by a throw): red on the same assertion.
+  - 4 suites: 99/99.
+  - `npm test`: 530/530.
+  - `git diff --check`: clean.
+  - Dry-run output: byte-identical.
+- **Gap:** no test covers the branch where the restore itself fails. It has no product seam, and the Reviewer checked it by reading the code.
+- **Evidence re-run (Leader inline):** VERIFIED. 99/99 with 0 skipped, `diff --check` clean, `/home/box` absent.
+- **Reviewer (opus):** PASS. Issue 1 is resolved, the code conforms to the amended FR-4 and design §5 (9820b41), the new test reaches step (2), and its red is behavioral.
+- **ADVISORY (recorded only):**
+  - RESILIENCE: the move-aside uses `rename`, so the resources root must share a filesystem with the workflows root. On another filesystem every takeover fails with EXDEV, safely. Two cheap in-scope options: a docs line, and naming EXDEV's cause in the error.
+  - RELIABILITY: the restore-failed error should be its own warning line.
+  - RELIABILITY (carried): a copy failure after the record write, or a crash between rename and record, leaves a silent `.takeover/` orphan.
+- **Forward pointer → T5 (docs):** state that `--force` takeover needs the resources root on the same filesystem as the workflows root (documenting existing behavior; `[advisory-grade]`).
+- **spawns:** Implementer (resumed) — not reported by host; Reviewer — not reported by host.
+
+**T2b final: PASS** (2 attempts) · 2026-10-21 · auto-continued per the user's instruction
+- **Requirements covered:** FR-4 *Explicit takeover* (move-aside AND IT MUST, as amended) and *Interrupted install* (failed move-aside MUST NOT).
+- **Decisions:** effort xhigh, bumped to max on rework. The spec edit is logged under Attempt 1.
+- **Running totals vs the user-raised budget:** tasks 3/6; LOC ≈ 962 + 136 ≈ 1,100 of ~1,300; review rounds 5/8 (2 T1 + 1 T2 + 2 T2b). T3 (~120), T4 (~70) and T5 (~90) project to about 1,380, roughly 6% over. Watching at T3's gate.

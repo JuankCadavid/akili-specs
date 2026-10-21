@@ -132,7 +132,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~25 LOC in `bin/akili.js`, ~70 LOC of tests) |
 | Depends on | T2 |
 | Requirements | FR-4 *Explicit takeover* (the move-aside AND IT MUST clause) and *Interrupted install* (the failed-move-aside MUST NOT clause) |
