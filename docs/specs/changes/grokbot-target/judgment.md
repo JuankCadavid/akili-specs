@@ -40,3 +40,45 @@ Counts re-run by both: 27 skills, 12 commands, 11 rows / 2 `UNVERIFIED`, resourc
 | J-20 | B-15, A-15 | SUGGESTION | Budget: enumerate T1–T5; ~180 LOC for `bin/akili.js` looks low; `update` runs the old loaded code (rules apply one version late) | info |
 
 Counts: confirmed severe 2 (both severity-split) · suspect severe 1 · confirmed warning 7 · suspect warning 4 · info 6.
+
+## Round 1 — scoped re-judgment (fix delta `f98ad57..4f628a9`)
+
+Both judges re-ran every changed citation: all reproduce (P-4's `:655` is the line before the `test(` title at `:656` — cited as `:655-656`). Counts 13 / 11 / 2 confirmed; budget sum is 810, not ~800.
+
+| J | A | B | Outcome |
+|---|---|---|---|
+| J-1, J-5 … J-7, J-9 … J-18 | resolved | resolved | closed |
+| J-2 | partial | resolved | reopened as R-3 |
+| J-3 | partial | **not resolved** | reopened as R-1 |
+| J-4 | partial | resolved (caveat) | reopened as R-2, R-4 |
+| J-8 | partial | partial | reopened as R-5 |
+| J-19 | resolved in intent | resolved | R-8 |
+| J-20 | resolved | partial | R-7 |
+
+New findings (fix-caused or residual):
+
+| ID | Judges | Severity | Finding | Status |
+|---|---|---|---|---|
+| R-1 | R-A-1, R-B-1 | **SEVERE / SEVERE** | `rsync --ignore-existing` skips per file: staged files still land inside a foreign folder, and a staged record claiming foreign names is delivered to a box without one → the next `update` there overwrites them | **confirmed** |
+| R-2 | R-A-4, R-B-2 | WARNING | Takeover records before removing: a failed/crashed removal leaves a foreign entry recorded owned | confirmed |
+| R-3 | R-A-2, R-B-3 | WARNING | Invalid-record policy incomplete: absent writes become unrecordable (foreign forever); takeover deletes but cannot record | confirmed |
+| R-4 | R-A-3, R-B-5 | WARNING | "Interrupted install" promises `doctor --fix` repair it cannot see (partial entry with `SKILL.md` reads OK) | confirmed |
+| R-5 | R-A-5, R-B-4 | WARNING | §9 claim family misses `Codex.*Cursor` enumerations and `--tool` value lists (README, docs/cli.md, docs/README.md, docs/flow.md) | confirmed |
+| R-6 | R-A-4, R-B-7 | SUGGESTION | FR-3 "actually written" vs intent-first recording | confirmed |
+| R-7 | R-A-8, R-B-6 | SUGGESTION | Budget ~800 should be ~810 | confirmed |
+| R-8 | R-A-6 | SUGGESTION | Update `Files:` foreign count has no data path | suspect → applied |
+| R-9 | R-A-7 | SUGGESTION | `test/agents-doctor-io.test.js` resolves tools (`doctor --agents`, `bin/akili.js:1635-1639`) — pin `AKILI_GROKBOT_TARGET` there too | suspect → applied |
+
+## Round 2 — fix (final bounded round)
+
+| ID | Fix |
+|---|---|
+| R-1 | DD-12 / FR-7: staging prints one command — an `ssh` precondition that both box roots are absent or empty, `&&` `rsync -a` of both staged roots; failed check copies nothing and says to install on the box. P-14 added (rsync `--ignore-existing` semantics) |
+| R-2 | Takeover order remove → record → copy; removal failure stops the run, records nothing |
+| R-3 | Invalid record blocks every workflows-root write (absent and takeover); install/update exit 1; `doctor --fix` writes nothing there |
+| R-4 | Scenario scoped to `update` / `install --force`; `doctor --fix` limit stated as accepted |
+| R-5 | §9: the grep rule is authoritative (76 hits at `4f628a9`), every hit classified in `execution.md`; known sites added incl. `--tool` value lists |
+| R-6 | FR-3: "wrote or began writing" |
+| R-7 | Budget ~810 |
+| R-8 | `runInstall` stashes `args.foreignSkipped`; `runUpdate` reads it |
+| R-9 | NFR-3, §4, P-4 add `test/agents-doctor-io.test.js` |

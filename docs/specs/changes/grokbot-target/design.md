@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type | Change · Deliverable: software |
 | Approval Mode | `gated` |
-| Status | Draft — Phase 2, **amended after Judgment Day round 1** (Fix and Re-judge; J-1 … J-20, see `judgment.md`) |
+| Status | Draft — Phase 2, **amended after Judgment Day rounds 1 and 2** (J-1 … J-20, R-1 … R-9, see `judgment.md`) |
 | Date | 2026-10-21 |
 | Verified at | `f98ad57` (all `bin/akili.js` line numbers; file unchanged since `b5f5160`) |
 | Requirements | `requirements.md` FR-1 … FR-8, NFR-1 … NFR-6 |
@@ -16,7 +16,7 @@
 
 ## 2. Executive Summary
 
-Grokbot is a sixth `TOOL_REGISTRY` entry in the Cursor shape (`commands: []`, commands installed as skills, shared skills root, resources-only detection), plus **one new registry flag, `ownershipRecord`**, set only by grokbot. That flag switches on a per-entry policy at the three write sites (install, update, `doctor --fix`), a FOREIGN state in `doctor`, and grokbot-specific next steps. Every other target's code path and output stay the same. `ALL_TOOLS` keeps its meaning (the `--tool all` set); auto-detection reads a new, wider `DETECTABLE_TOOLS` list. The FR-4 protection is guaranteed when the CLI runs on the box; the staging mode copies with `rsync --ignore-existing`, so it never overwrites anything on the box (DD-11).
+Grokbot is a sixth `TOOL_REGISTRY` entry in the Cursor shape (`commands: []`, commands installed as skills, shared skills root, resources-only detection), plus **one new registry flag, `ownershipRecord`**, set only by grokbot. That flag switches on a per-entry policy at the three write sites (install, update, `doctor --fix`), a FOREIGN state in `doctor`, and grokbot-specific next steps. Every other target's code path and output stay the same. `ALL_TOOLS` keeps its meaning (the `--tool all` set); auto-detection reads a new, wider `DETECTABLE_TOOLS` list. The FR-4 protection is guaranteed when the CLI runs on the box. The staging mode is offered only for a box whose AKILI roots are absent or empty: the printed copy command checks that precondition on the box first and copies nothing when it fails (DD-12).
 
 ## 3. Architecture Overview
 
@@ -27,10 +27,10 @@ Grokbot is a sixth `TOOL_REGISTRY` entry in the Cursor shape (`commands: []`, co
 | Root resolution | Workflows root: `--target <p>` (tool grokbot) → `<p>/workflows`; explicit `--grokbot-target` → it; else the base (local or default). Resources root: explicit `--grokbot-resources-target`, else `dirname(workflows root)/akili` | FR-2 |
 | Registry | `TOOL_REGISTRY.grokbot` and `TOOL_ROOT_ARGS.grokbot` (roots: `root` = resources root, `skillsRoot` = workflows root). Header and summary therefore print `<resources root> (skills → <workflows root>)` through the existing `toolTargetLabel` | FR-3 |
 | Tool sets | `ALL_TOOLS` unchanged (five). New `DETECTABLE_TOOLS = ALL_TOOLS + grokbot`, used by `detectInstalledTools` and the sibling scan in `isToolInstalled` | FR-1, FR-6 |
-| Ownership | Record read (three states, §5), entry classifier on `lstat`, record add-name write (atomic) | FR-4 |
-| Install / update | When `ownershipRecord`: classify each skill and command-skill entry before writing; apply the FR-4 table; record each name **before** its entry is written; takeover replaces the entry whole | FR-3, FR-4 |
+| Ownership | Record read (three states, §5), entry classifier on `lstat`, record add-name write (atomic); an invalid record blocks every workflows-root write | FR-4 |
+| Install / update | When `ownershipRecord`: classify each skill and command-skill entry before writing; apply the FR-4 table; record each name **before** its entry is written (takeover: remove, then record, then copy); takeover replaces the entry whole | FR-3, FR-4 |
 | Doctor | When `ownershipRecord`: FOREIGN state, `foreign` count, row status INCOMPLETE on `missing + foreign > 0`, grokbot next-step lines with root flags | FR-5 |
-| Next steps | Grokbot block in install and update: where Grok Bot reads skills; foreign-skip count and takeover command; off-default roots → `rsync --ignore-existing` lines and a `doctor` hint carrying the same root flags, replacing the generic grokbot verify hint | FR-7 |
+| Next steps | Grokbot block in install and update: where Grok Bot reads skills; foreign-skip count and takeover command; off-default roots → one precondition-guarded copy command (DD-12) and a `doctor` hint carrying the same root flags, replacing the generic grokbot verify hint | FR-7 |
 | Help / docs | Help lines; README, `docs/cli.md`, CHANGELOG, and every site of the target-count claim family (§9) | FR-8 |
 
 ## 4. Extended Directory Structure
@@ -46,7 +46,7 @@ Installed layout on the box (defaults):
 | `/home/box/agent-data/akili/.mcp.json.example` | as for other targets |
 | `/home/box/agent-data/akili/grokbot-owned.json` | ownership record (§5) |
 
-Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), env pinning added to `test/install-cursor.test.js` and `scripts/ci/install-layout-regression.js` spawn helpers (NFR-3), `README.md`, `docs/cli.md`, `CHANGELOG.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md`.
+Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), env pinning added to the `test/install-cursor.test.js`, `test/agents-doctor-io.test.js` and `scripts/ci/install-layout-regression.js` spawn helpers (NFR-3), `README.md`, `docs/cli.md`, `CHANGELOG.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md`.
 
 ## 5. Data Model
 
@@ -56,7 +56,7 @@ Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), env
 |---|---|---|
 | Absent | Empty set | Yes — created on the first recorded name |
 | Present, valid | The set of owned names | Yes |
-| Present, unparsable or wrong shape | Empty set, plus a warning naming the file and the recovery (restore it, or delete it and run `install --force`) | **No** — no run writes the record while it is invalid; it is left byte-identical (J-2) |
+| Present, unparsable or wrong shape | Empty set, plus a warning naming the file and the recovery (restore it, or delete it and run `install --force`) | **No** — the record is left byte-identical, and **no run writes anything into the workflows root** while it is invalid: absent entries are not written (they would be unrecordable, so foreign forever) and takeover is refused. Install and update report the block and exit 1; `doctor --fix` fixes nothing there (J-2, R-3) |
 
 **Entry classification** — one AKILI skill or command name against the workflows root, using `lstat` (never `existsSync`, which follows links — J-7):
 
@@ -68,9 +68,9 @@ Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), env
 
 Classification keys on the entry's existence, not on `SKILL.md`: the current `doctor --fix` writes a skill whenever `<folder>/SKILL.md` is missing (`bin/akili.js:1199-1206`).
 
-**Record writes (J-4, J-16):** the name is added to the record **before** its entry is written (intent first): a run that dies mid-entry leaves a partial **owned** entry, which the next `update` or `doctor --fix` repairs, instead of an unrecorded entry that would read foreign forever. Each add is an atomic rewrite of the whole record. The write is independent of `shouldInclude("resources")` and creates the resources root when needed, so `--skills-only` / `--commands-only` still record. No write under `--dry-run`. `doctor --fix` records the names it restores.
+**Record writes (J-4, J-16):** for an `absent` entry the name is added to the record **before** the entry is written (intent first): a run that dies mid-entry leaves a partial **owned** entry, which the next `update` (or `install --force`) repairs, instead of an unrecorded entry that would read foreign forever. `doctor --fix` repairs such an entry only when its `SKILL.md` is missing; a partial entry that already has its `SKILL.md` reads OK — accepted limit, `update` is the repair (R-4). The record may therefore list a name whose write failed; it lists every name AKILI wrote **or began writing**. Each add is an atomic rewrite of the whole record. The write is independent of `shouldInclude("resources")` and creates the resources root when needed, so `--skills-only` / `--commands-only` still record. No write under `--dry-run`. `doctor --fix` records the names it restores.
 
-**Takeover (J-1, J-7):** an explicit `install --force` on a `foreign` entry removes the entry itself first — `rmSync` recursive for a real directory, unlink for a symlink or file, never following a link — then copies AKILI's folder into the empty path and records the name. No file of the foreign entry remains. Overwriting an `owned` entry keeps today's per-file merge (same as the other targets).
+**Takeover (J-1, J-7, R-2):** an explicit `install --force` on a `foreign` entry, with a valid or absent record, runs in this order: (1) remove the entry itself — `rmSync` recursive for a real directory, unlink for a symlink or file, never following a link; (2) record the name; (3) copy AKILI's folder into the empty path. A failure in (1) stops the run with the error and records nothing, so the foreign entry is never marked owned while it still exists. No file of the foreign entry remains. Overwriting an `owned` entry keeps today's per-file merge (same as the other targets).
 
 **Accepted limit (J-18):** ownership is by name. If another author deletes AKILI's folder and recreates one with the same name while the record still lists it, `update` overwrites it. Documented in `docs/cli.md`.
 
@@ -83,11 +83,11 @@ Classification keys on the entry's existence, not on `SKILL.md`: the current `do
 | `--grokbot-resources-target <dir>` | Resources root override |
 | `AKILI_GROKBOT_TARGET` | Global default for the workflows root (below `--local`, DD-2) |
 | `--target <p>` + `--tool grokbot` | Sandbox: `<p>/workflows` + `<p>/akili` |
-| Install output | Per-entry lines as today; `skip foreign <path>` for a protected entry; `replace foreign <path>` for a takeover |
+| Install output | Per-entry lines as today; `skip foreign <path>` for a protected entry; `replace foreign <path>` for a takeover; `blocked (invalid ownership record) <path>` plus the recovery text, and exit 1, while the record is invalid |
 | Install next steps | The generic "N existing file(s) were preserved. Re-run with `--force`" line counts only non-foreign skips; a separate grokbot line reports foreign skips and names `akili install --tool grokbot --force` (plus root flags) as the explicit takeover |
 | Doctor output | `OK` / `MISSING` / `FOREIGN` per command and skill; grokbot summary row adds `foreign N` and reads INCOMPLETE when `missing + foreign > 0`; other tools' rows unchanged |
 | Doctor exit / final line | Exit 1 when `missing + foreign > 0` over all rows; "All checks passed" / "All issues repaired" only when both are 0 |
-| Update summary | The `Files:` line appends `(<n> foreign skipped for grokbot)` when `n > 0` |
+| Update summary | The `Files:` line appends `(<n> foreign skipped for grokbot)` when `n > 0`; `runInstall` stashes the total on `args.foreignSkipped`, which `runUpdate` reads (R-8) |
 
 ## 7. Backend Module Design (`bin/akili.js`)
 
@@ -95,15 +95,15 @@ Classification keys on the entry's existence, not on `SKILL.md`: the current `do
 |---|---|
 | `defaultPaths.grokbot` | Env-or-literal default |
 | `getArgs` | Two flags; whitelist; `grokbotTarget`, `grokbotResourcesTarget`; `forceExplicit` = `values.force && command === "install"` (so `akili update --force` never takes over — J-13) |
-| `runUpdate` | Unchanged: sets `force = true` (`bin/akili.js:1013`) and leaves `forceExplicit` as parsed (false for `update`); `Files:` line gains the foreign count |
+| `runUpdate` | Unchanged: sets `force = true` (`bin/akili.js:1013`) and leaves `forceExplicit` as parsed (false for `update`); `Files:` line gains the foreign count from `args.foreignSkipped` |
 | `TOOL_REGISTRY.grokbot` / `TOOL_ROOT_ARGS.grokbot` | Data only; `resources` = `roots.root` |
 | `DETECTABLE_TOOLS` | Detection list; `toolFlagFor`, `selectedTools` keep `ALL_TOOLS` |
-| Ownership helpers | `readOwnership` (absent / valid / invalid), `classifyEntry` (`lstat`), `recordOwned` (refuses when invalid), `removeEntryNoFollow` |
+| Ownership helpers | `readOwnership` (absent / valid / invalid), `classifyEntry` (`lstat`), `recordOwned` (never called while invalid), `removeEntryNoFollow` |
 | Copy helper contract (J-15) | `copyDirectoryContents` gains an optional per-entry policy callback (entry name → write / skip-owned / skip-foreign / takeover) and its result gains `foreignSkipped` and the list of written names; without the callback it behaves byte-identically. Command-skills call the same policy before `copySingleFile` |
-| `installTool` | When `paths.ownershipRecord`: pass the policy (FR-4 table, takeover only with `forceExplicit`), record-before-write; result carries `foreignSkipped` |
+| `installTool` | When `paths.ownershipRecord`: an invalid record blocks every workflows-root write (resources still install); otherwise pass the policy (FR-4 table, takeover only with `forceExplicit`, order remove → record → copy; absent: record → write); result carries `foreignSkipped` and `blocked` |
 | `doctorTool` | When `paths.ownershipRecord`: classify before the OK/MISSING check; FOREIGN counted in `foreign`; `--fix` acts only on `absent` and on owned entries missing their `SKILL.md`. Every tool's result carries `foreign` (0 for the other five — J-5) |
 | `runDoctor` | Row status, exit and final line use `missing + foreign`; the existing generic `--fix` line keeps its text and counts `missing` only; a grokbot line with the resolved roots names the takeover and the record recovery (J-6) |
-| `runInstall` next steps | Grokbot block (FR-7, J-14); the verify hint for grokbot carries root flags when either root is not the default |
+| `runInstall` next steps | Grokbot block (FR-7, J-14); the verify hint for grokbot carries root flags when either root is not the default; stashes `foreignSkipped` on `args`; exit 1 when `blocked` |
 | `printHelp` | New flag lines and examples; `all` line reads "all five desktop targets (not grokbot)" |
 
 Hints are built from the resolved tool and its roots, never from `args.tool` (`bin/akili.js:1830` uses `args.tool`, which is `claude` on an auto-detected run). The generic line keeps that behavior for the five existing tools (NFR-1); fixing it for them is out of scope.
@@ -115,13 +115,15 @@ n/a — CLI only. Output wording is in §6.
 ## 9. Shared Contracts or Package Extensions
 
 - `package.json` `files` already ships `bin/` and `.claude/`; no new packaged file. `grokbot-owned.json` is created at install time, never shipped. `package.json` `description` names no target count (`package.json:4`) — no edit.
-- **Target-count claim family (J-8)** — swept by claim, not by one string. Sites at `f98ad57` and their treatment:
+- **Target-count claim family (J-8, R-5)** — swept by claim, not by one string. **The rule is authoritative, the table below is the known starting set:** T5 runs `grep -n -i "codex.*cursor\|cursor.*codex\|\bfive\b" README.md docs/*.md AGENTS.md CONTRIBUTING.md .claude/README.md bin/akili.js` (76 hits at `4f628a9`) and classifies **every** hit as (a) an install-target list or count → add Grok Bot; (b) a `--tool` value list → add `grokbot`; (c) scoped to `--tool all` / the five desktop tools → keep, scope stated; (d) a routing-host list, or unrelated → no edit. The classification table goes into `execution.md`. Known sites:
 
   | Site | Treatment |
   |---|---|
   | `AGENTS.md:3`, `:7`, `:11`; `README.md:74`; `CONTRIBUTING.md:14`; `.claude/README.md:3` and its target table (`:5-11`) | Add Grok Bot (six targets) |
   | `README.md:192` ("All five paths"), `docs/cli.md:21`, `:23`, `:243` | True for `--tool all`; keep, scoped explicitly to `all` / the five desktop tools |
   | `bin/akili.js:217` help | Reword to "all five desktop targets (not grokbot)" |
+  | `README.md:14`, `:43`, `:154`, `:269`, `:273`, `:565`, `:882`; `docs/cli.md:3`, `:42`, `:108`, `:205-219`; `docs/README.md:3`; `docs/flow.md:357` | Classify per the rule — install-target lists gain Grok Bot; routing-host lists unchanged |
+  | `README.md:473-474`, `docs/cli.md:605-606` (`--tool` value lists) | Add `grokbot` |
   | `bin/akili.js:559` comment, `:2073` init menu "All five", `:2176` (routing hosts) | Still true — `all` stays five, init excludes grokbot, routing hosts unchanged. No edit |
 
 - Not in scope: `bin/routing.js` hosts, `bin/persona.js`, `.claude/templates/*`, `akili init` menu, `scripts/ci/install-layout-regression.js` `SHIPPING_TARGETS` (only its env pinning changes).
@@ -139,15 +141,15 @@ n/a — CLI only. Output wording is in §6.
 | DD-7 | Classify by `lstat` existence, not `SKILL.md` or `existsSync` | Reuse `hasInstalledSkill` | Closes the `doctor --fix` write-into-foreign path (P-6) and the dangling-symlink path (P-13) | FR-4, FR-5 |
 | DD-8 | `ownershipRecord` registry flag, set only by grokbot | Apply to Codex/Cursor's shared root too | NFR-1: no behavior change for the five targets | NFR-1 |
 | DD-9 | Doctor `foreign` is a separate count; only grokbot rows print it | Fold into `missing` | The generic "run `--fix` to repair N missing" line would be false for foreign; other rows stay byte-identical (Codex baseline fixture) | FR-5, NFR-1 |
-| DD-10 | Record name **before** writing; an invalid record is never written | Write at end; overwrite an invalid record with the merge | End-write loses names on a throw (J-4); merging over an invalid record destroys the owned set (J-2) | FR-4 |
+| DD-10 | Record name **before** writing an absent entry; for takeover remove → record → copy; an invalid record is never written and blocks every workflows-root write | Write at end; overwrite an invalid record with the merge; write absent entries unrecorded | End-write loses names on a throw (J-4); merging over an invalid record destroys the owned set (J-2); an unrecordable write is foreign forever, and recording before a failed removal marks a foreign entry owned (R-2, R-3) | FR-4 |
 | DD-11 | Takeover replaces the entry whole (remove, no-follow, then copy) | Merge into the foreign folder | `copyTreeSync` never deletes extra files (P-12), so a merge keeps foreign files inside a folder recorded as owned (J-1) | FR-4 |
-| DD-12 | No transport. Staging prints `rsync -a --ignore-existing` for both roots and states it is for a box with no prior AKILI install; later updates run the CLI on the box | Plain `rsync`; `--grokbot-host` | Plain `rsync` overwrites foreign entries and the box's record (J-3). `--ignore-existing` never overwrites on the box: worst case a staged name lands nowhere, never on someone else's folder | FR-7 |
+| DD-12 | No transport. Staging prints **one** command for the user to run: a check over `ssh` that `/home/box/agent-data/workflows` and `/home/box/agent-data/akili` are absent or empty, chained with `&&` to `rsync -a` of both staged roots. On a box that fails the check nothing is copied, and the output says to run `npx akili-specs install --tool grokbot` on the box instead. Later updates always run on the box | Plain `rsync`; `rsync --ignore-existing`; `--grokbot-host` | Plain `rsync` overwrites foreign entries and the box's record (J-3). `--ignore-existing` skips per file, still adds staged files into a foreign folder, and delivers a staged record claiming foreign names (R-1). On an empty box every name in the staged record is AKILI's by construction, so FR-4 holds | FR-7 |
 
 **Reversion challenge (Step 2.3):** no DD removes, disables or inverts shipped behavior for the five existing targets. DD-6 and DD-11 change what `force` does only for the new `ownershipRecord` target. No challenge triggered.
 
 ## 11. Premise Ledger
 
-Count: 13 rows — 11 verified, 2 `UNVERIFIED` (2 High, 0 Low).
+Count: 14 rows — 12 verified, 2 `UNVERIFIED` (2 High, 0 Low).
 Blast-radius triggers: `shared-state` (the detection scan reads every tool's registry entry; the doctor summary/exit is shared by all tools), `consumer` (the `--tool` whitelist, `ALL_TOOLS`, the copy-helper return shape and the doctor result shape are read elsewhere). `live-path`: none applies — no branch point beyond the `--tool` value, which P-3/P-5 trace.
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -155,7 +157,8 @@ Blast-radius triggers: `shared-state` (the detection scan reads every tool's reg
 | P-1 | `--local` replaces the env-fed default for every target; `resolveToolTarget` returns `--target`, then an explicit flag, then the base | location | `bin/akili.js:113-139`, `:294-297`, `:363-369` | `f98ad57` | DD-2 order changes (Low) | — |
 | P-2 | No existing code, test or doc outside `docs/specs/` names `grokbot` or `AKILI_GROKBOT_TARGET` | existence | `git grep -n -i grokbot -- . ':!docs/specs'` → 0 hits; `grep -o 'AKILI_[A-Z_]*' bin/akili.js` → only `AKILI_SELECT_ABORT` | `f98ad57` | Rename (Low) | — |
 | P-3 | `isToolInstalled`'s sibling scan calls `getToolRegistryInfo` for every tool in its list before testing `sharedSkillsRoot`, so every `args` reaching detection must carry grokbot roots. Detection runs only from `resolveTools` when `--tool` is not explicit (`:542-554`); the two `args` producers are `getArgs` (`:299-428`) and `runInteractiveInit` (`:2108`, `toolExplicit: true`, never detects) | shared-state | `bin/akili.js:502-516`, `:532-533`, `:547`; `grep -n 'detectInstalledTools\|isToolInstalled(' bin/akili.js` → `:479`, `:532-533`, `:547` | `f98ad57` | Init would need grokbot roots, or the scan would crash (High) | — |
-| P-4 | Consumers of `ALL_TOOLS`: sibling scan `:502`, detection `:533`, `toolFlagFor` `:566`; `selectedTools("all")` is a separate literal `:462`. Tests and scripts that enumerate install targets or run bare-`doctor` detection: `test/install-cursor.test.js` (spawn env pins `HOME`, `USERPROFILE`, `CODEX_HOME`, `CURSOR_CONFIG_DIR`; detection test at `:655`), `scripts/ci/install-layout-regression.js:510-536` (detection fixture env), `.github/workflows/ci.yml` (`--tool all`). `test/routing.test.js:34,69,117` and `test/registry-drift.test.js:27,131` pin the **routing host** list, a different set | consumer | `grep -n 'ALL_TOOLS\|selectedTools\|toolFlagFor' bin/akili.js`; `grep -rn '"cursor"' test scripts .github` (non-routing hits listed); `grep -rln 'must be one of: claude' test scripts` → 0 | `f98ad57` | A pinned five-tool list would break; an unpinned grokbot default would leak into detection tests run on the box (Low) | — |
+| P-4 | Consumers of `ALL_TOOLS`: sibling scan `:502`, detection `:533`, `toolFlagFor` `:566`; `selectedTools("all")` is a separate literal `:462`. Tests and scripts that enumerate install targets or run bare-`doctor` detection: `test/install-cursor.test.js` (spawn env pins `HOME`, `USERPROFILE`, `CODEX_HOME`, `CURSOR_CONFIG_DIR`; detection test at `:655-656`), `scripts/ci/install-layout-regression.js:510-536` (detection fixture env), `test/agents-doctor-io.test.js` (`doctor --agents` prints one `Tool root` line per resolved tool via `resolveTools`, `bin/akili.js:1635-1639`), `.github/workflows/ci.yml` (`--tool all`). `test/routing.test.js:34,69,117` and `test/registry-drift.test.js:27,131` pin the **routing host** list, a different set | consumer | `grep -n 'ALL_TOOLS\|selectedTools\|toolFlagFor' bin/akili.js`; `grep -rn '"cursor"' test scripts .github` (non-routing hits listed); `grep -rln 'must be one of: claude' test scripts` → 0 | `f98ad57` | A pinned five-tool list would break; an unpinned grokbot default would leak into detection tests run on the box (Low) | — |
+| P-14 | `rsync --ignore-existing` skips only files that already exist at the receiver; it still creates missing files inside an existing directory | data-env | `man rsync | col -b | grep -A2 -- --ignore-existing` on rsync 3.2.6 (macOS) → "skip updating files that exist on receiver"; the option filters files, not directories | `4f628a9` | DD-12 would not need the empty-box precondition (Low) | — |
 | P-5 | `runUpdate` sets `args.force = true` then calls `runInstall(args)`; `update` runs the code already loaded, so new install rules take effect one version late | location | `bin/akili.js:1013-1014`; comment `:1016-1018` (`:1017`: "the running process still has the old code loaded") | `f98ad57` | DD-6 unneeded (Low) | — |
 | P-6 | `doctor --fix` restores a skill by copying into `<root>/<skill>` whenever `<root>/<skill>/SKILL.md` is absent | location | `bin/akili.js:1146-1153` (`hasInstalledSkill`), `:1199-1206` | `f98ad57` | DD-7 unneeded (Low) | — |
 | P-7 | Doctor's row status (`missing>0 ? INCOMPLETE : fixed>0 ? REPAIRED : HEALTHY`), exit status, "run `--fix`" next step (built from `args.tool`) and final "All checks passed" line key on `missing` only; `doctorTool` returns `{rootPath, ok, missing, fixed}` | consumer | `bin/akili.js:1302`, `:1812-1837` | `f98ad57` | DD-9 shape changes (Low) | — |
@@ -171,7 +174,7 @@ Blast-radius triggers: `shared-state` (the detection scan reads every tool's reg
 | Measure | Estimate |
 |---|---|
 | Tasks | 5 — T1 target, flags, roots, detection, help · T2 ownership record + install/update policy · T3 doctor FOREIGN, summary, exit · T4 next steps (install, update, staging `rsync`) · T5 docs, claim-family sweep, CHANGELOG |
-| LOC | ~800 (`bin/akili.js` ~260, `test/install-grokbot.test.js` ~450 plus ~10 of env pinning in two existing files, docs ~90). Test LOC budgeted per scenario clause (KZ-bugfix--init-ctrlc-abort-2) |
+| LOC | ~810 (`bin/akili.js` ~260, `test/install-grokbot.test.js` ~450 plus ~10 of env pinning in three existing files, docs ~90). Test LOC budgeted per scenario clause (KZ-bugfix--init-ctrlc-abort-2) |
 | Review rounds | 8 (T1–T4 1–2 each; T5 2, per the rules-text guidance) |
 
 The estimate fits Standard depth.
