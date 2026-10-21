@@ -11,7 +11,7 @@
 | Branch | `feat/grokbot-target` → PR into `dev` |
 | Depends on | none |
 | Parallel-safe | yes — touches `bin/akili.js` install paths, docs and a new test file; no routing or persona code |
-| Status | Draft — awaiting answers to Open Questions Q1–Q6 |
+| Status | Draft — Q1–Q4/Q6 answered 2026-10-21 (all recommended defaults); Q5 takes its default; awaiting proposal approval |
 | Date | 2026-10-21 |
 
 ## Intent
@@ -93,14 +93,14 @@
 
 ## Risks, Dependencies, And Open Questions
 
-| # | Question | Default if unanswered |
+| # | Question | Decision |
 |---|---|---|
-| Q1 | Remote install: only on the box, also staged-on-Mac + `rsync`, or built-in SSH? | Box or staging, documented; no SSH |
-| Q2 | Does `--tool all` include grokbot? | No — the default path cannot exist on a Mac/Windows desktop |
-| Q3 | Generic names (`tdd`, `kaizen`, …) in a dir shared by all bots: keep names + collision report, or prefix `akili-`? | Keep names + `doctor` collision report |
-| Q4 | Does Grok Bot accept extra frontmatter keys (`license`, nested `metadata`, `allowed-tools`)? | Assume yes, verbatim; Option B if not |
-| Q5 | Resources location: sibling `/home/box/agent-data/akili`, or inside the workflows dir? | Sibling, overridable via `--grokbot-resources-target` |
-| Q6 | Can Grok Bot run the commands as written (file edits, shell/git, subagents)? Install all 12, a subset, or skills only? | All 12, documented as best-effort |
+| Q1 | Remote install: only on the box, also staged-on-Mac + `rsync`, or built-in SSH? | **Answered:** box or staging + rsync, documented; no SSH |
+| Q2 | Does `--tool all` include grokbot? | **Answered:** no — `all` stays five tools |
+| Q3 | Generic names (`tdd`, `kaizen`, …) in a dir shared by all bots: keep names + collision report, or prefix `akili-`? | **Answered:** keep names; install skips, `doctor` reports collisions |
+| Q4 | Does Grok Bot accept extra frontmatter keys (`license`, nested `metadata`, `allowed-tools`)? | **Answered:** unknown — verbatim; live box check at validate; Option B only if it fails |
+| Q5 | Resources location: sibling `/home/box/agent-data/akili`, or inside the workflows dir? | Default taken: sibling, overridable via `--grokbot-resources-target` |
+| Q6 | Can Grok Bot run the commands as written (file edits, shell/git, subagents)? Install all 12, a subset, or skills only? | **Answered:** all 12, documented as best-effort |
 
 - **Risk:** every Grok Bot fact above is unverified in this session; a live check on the box (`ls /home/box/agent-data/workflows`, one installed skill loaded by a bot) is the validation gate.
 - **Risk:** a shared directory means `--force` overwrites a folder another bot owner may rely on — `doctor` must name collisions before anyone forces.
