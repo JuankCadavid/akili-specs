@@ -9,15 +9,15 @@
 | Type | Change |
 | Deliverable | software |
 | Approval Mode | `gated` (inherited from `proposal.md`) |
-| Status | Draft — Phase 1 approved; **amended after Judgment Day rounds 1 and 2** (FR-3, FR-4, FR-5, FR-7, FR-8, NFR-3 — see `judgment.md`) |
+| Status | Draft — Phase 1 approved; **amended after Judgment Day rounds 1 and 2** (FR-3, FR-4, FR-5, FR-7, FR-8, NFR-3 — see `judgment.md`); **Adjust 2026-10-21 (user): Q1 changed to "box only"** — staging flow removed (FR-2 scenario, FR-4 intro, FR-7 rewritten, FR-8, glossary, stakeholders) |
 | Date | 2026-10-21 |
-| Source | `proposal.md` (approved 2026-10-21; Q1–Q6 answered; Release classification: **minor** — a new install target) |
+| Source | `proposal.md` (approved 2026-10-21; Q1–Q6 answered; Release classification: **minor** — a new install target; Q1 later changed to "box only", see Status) |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/requirements.md` — this repo has no `docs/specs/general-setup/` |
-| Deviations from proposal | (1) **Precedence of `--local` vs the env var.** The proposal ordered `AKILI_GROKBOT_TARGET` above `--local`. Every existing target does the opposite: the env var feeds the global default and `--local` replaces that default (`bin/akili.js:113-139` `defaultPaths`, `:294-297` `resolveToolTarget`, `:363-369` `base*`). FR-2 follows the existing convention. (2) **Resources root follows the skills root.** The proposal fixed the sibling at `/home/box/agent-data/akili`; FR-2 derives it as `<parent of the workflows root>/akili`, so a staged `./staging/workflows` puts resources at `./staging/akili` and one `rsync` of `./staging` covers both. The default resolves to the same `/home/box/agent-data/akili`. (3) **Ownership record (FR-4)** is new: it is what makes "skip and report a foreign folder" hold under `akili update`, which forces every write (`bin/akili.js:1013`) |
+| Deviations from proposal | (1) **Precedence of `--local` vs the env var.** The proposal ordered `AKILI_GROKBOT_TARGET` above `--local`. Every existing target does the opposite: the env var feeds the global default and `--local` replaces that default (`bin/akili.js:113-139` `defaultPaths`, `:294-297` `resolveToolTarget`, `:363-369` `base*`). FR-2 follows the existing convention. (2) **Resources root follows the skills root.** The proposal fixed the sibling at `/home/box/agent-data/akili`; FR-2 derives it as `<parent of the workflows root>/akili`, so one `--grokbot-target` override on the box relocates both roots together. The default resolves to the same `/home/box/agent-data/akili`. (3) **Ownership record (FR-4)** is new: it is what makes "skip and report a foreign folder" hold under `akili update`, which forces every write (`bin/akili.js:1013`) |
 
 ## 2. Executive Summary
 
-On the Grok Bot box, `akili install --tool grokbot` writes the 27 packaged skills and the 12 AKILI commands, each as `<workflows>/<slug>/SKILL.md`, byte-identical to the source, into the workflows directory every bot shares (default `/home/box/agent-data/workflows`, created if missing). Helper resources go to a sibling `akili/` folder, never into the workflows directory. Because the directory is shared, AKILI records which folders it wrote: a same-name folder it did not write is **foreign** — skipped by install and update, reported by `doctor`, never touched by `--fix`. From a Mac, the same command with `--grokbot-target ./staging/workflows` builds a staging tree the user copies with `rsync`; there is no built-in SSH. `--tool all` is unchanged.
+On the Grok Bot box, `akili install --tool grokbot` writes the 27 packaged skills and the 12 AKILI commands, each as `<workflows>/<slug>/SKILL.md`, byte-identical to the source, into the workflows directory every bot shares (default `/home/box/agent-data/workflows`, created if missing). Helper resources go to a sibling `akili/` folder, never into the workflows directory. Because the directory is shared, AKILI records which folders it wrote: a same-name folder it did not write is **foreign** — skipped by install and update, reported by `doctor`, never touched by `--fix`. The CLI is supported only when it runs on the box itself (proposal Q1, changed 2026-10-21): there is no staging tree, no copy step and no built-in SSH; `--grokbot-target` only overrides where on the box the skills go. `--tool all` is unchanged.
 
 ## 3. Glossary
 
@@ -30,7 +30,6 @@ On the Grok Bot box, `akili install --tool grokbot` writes the 27 packaged skill
 | **Owned folder** | A folder in the workflows root that AKILI wrote, as listed in the ownership record |
 | **Foreign folder** | A folder in the workflows root whose name matches an AKILI skill or command but is not in the ownership record |
 | **Ownership record** | A file in the resources root listing the owned folders |
-| **Staging tree** | A local directory, built off-box with an explicit target, that mirrors `/home/box/agent-data/` (`workflows/` + `akili/`) for copying to the box |
 
 ## 4. System Context & Scope
 
@@ -46,14 +45,13 @@ On the Grok Bot box, `akili install --tool grokbot` writes the 27 packaged skill
 | `all` / hints | `toolFlagFor` maps a set to `all` only when it equals `ALL_TOOLS` (`:562-567`) |
 | Grok Bot | Skills are `<kebab-slug>/SKILL.md` folders with YAML `name` + `description` under `/home/box/agent-data/workflows/`, shared by all bots; the directory does not exist yet on the box. `UNVERIFIED — confirm at source before relying on it` (user-stated, 2026-10-21) |
 | Grok Bot frontmatter tolerance | Whether Grok Bot accepts `license`, nested `metadata`, `allowed-tools` and the other extra keys, and runs the commands' `$ARGUMENTS` / `/akili-*` / subagent instructions. `UNVERIFIED — confirm at source before relying on it` |
-| Out of scope | Built-in SSH/SCP; `akili routing` hosts, model registry, agent wrappers; `doctor --agents`; rewriting command or skill content; `akili init` menu; changing the other five targets |
+| Out of scope | Running the CLI anywhere but the box: staging trees, copy commands, built-in SSH/SCP; `akili routing` hosts, model registry, agent wrappers; `doctor --agents`; rewriting command or skill content; `akili init` menu; changing the other five targets |
 
 ## 5. Stakeholders / Personas
 
 | Stakeholder | Interest |
 |---|---|
-| Box operator | One command on the box installs AKILI for every bot; a later `akili update` refreshes it |
-| Mac operator | Builds a staging tree locally and copies it to the box |
+| Box operator | One command on the box installs AKILI for every bot; a later `akili update` refreshes it; `--grokbot-target` relocates the install on the box when needed |
 | Other bots' skill authors | A folder they own is never overwritten by AKILI without an explicit `--force` |
 | Users of the five existing targets | No change in behavior or output |
 
@@ -95,12 +93,12 @@ The CLI SHALL resolve two grokbot roots.
 - WHEN the user runs `akili install --tool grokbot --dry-run`
 - THEN the planned writes land under `/home/box/agent-data/workflows/` and `/home/box/agent-data/akili/` (absolute form on the host OS)
 
-#### Scenario: Staging tree from the Mac
+#### Scenario: Override on the box
 
-- GIVEN `--grokbot-target ./staging/workflows`
+- GIVEN `--grokbot-target /srv/grok/workflows` on the box
 - WHEN the user installs
-- THEN skills land under `./staging/workflows/` and resources under `./staging/akili/`
-- AND IT MUST NOT write anywhere outside `./staging/`
+- THEN skills land under `/srv/grok/workflows/` and resources under `/srv/grok/akili/`
+- AND IT MUST NOT write anywhere outside those two roots
 
 #### Scenario: Env var, `--local`, `--target`, explicit resources
 
@@ -137,13 +135,15 @@ The CLI SHALL resolve two grokbot roots.
 
 ### FR-4: Foreign folders are protected
 
-AKILI SHALL record the entries it writes in the workflows root, and SHALL treat a same-name entry (directory, file or symlink, dangling included) absent from that record as foreign. The guarantee holds when the CLI runs on the box; the staging mode is limited by FR-7 to a box whose AKILI roots are absent or empty, where every staged name is AKILI's.
+AKILI SHALL record the entries it writes in the workflows root, and SHALL treat a same-name entry (directory, file or symlink, dangling included) absent from that record as foreign.
 
 | Situation | install | install `--force` | update | doctor | doctor `--fix` |
 |---|---|---|---|---|---|
 | Entry absent | record, write | record, write | record, write | MISSING | record, write |
 | Owned entry present | skip | overwrite | overwrite | OK (MISSING if its `SKILL.md` is gone) | restore a missing `SKILL.md` |
 | Foreign entry present | skip, labelled foreign | replace whole, record (explicit consent) | skip, labelled foreign — also with `update --force` | FOREIGN | leave untouched |
+
+*Invalid record:* while the ownership record is present but unreadable, every column writes nothing into the workflows root — absent entries are not written (they stay MISSING; `doctor --fix` reports them BLOCKED, never FIXED) and takeover is refused; `install` and `update` exit non-zero (scenario below).
 
 #### Scenario: Foreign `tdd` survives update
 
@@ -164,7 +164,7 @@ AKILI SHALL record the entries it writes in the workflows root, and SHALL treat 
 
 - GIVEN AKILI skill folders exist but the ownership record is absent or not valid
 - WHEN the user runs `doctor`, `install` or `update`
-- THEN those folders are treated as FOREIGN and the output says how to recover (restore the record, or delete it and run `install --force`)
+- THEN those folders are treated as FOREIGN and the output says how to recover: restore the record; or run `doctor` first to see which same-name entries belong to other authors, then delete the record and run `install --force` knowing that every AKILI-named entry will be replaced
 - AND IT MUST leave an invalid record byte-identical — no run writes over it
 - AND while the record is invalid, `install` (with or without `--force`), `update` and `doctor --fix` MUST write nothing into the workflows root, and `install`/`update` exit non-zero
 - BUT the run must NOT crash
@@ -213,22 +213,21 @@ A grokbot install SHALL be detected by a non-empty resources root only, so a bar
 - THEN `grokbot` is not detected, and the output for the other tools is unchanged
 - BUT a workflows root holding folders, without a resources root, must NOT count as an install
 
-### FR-7: Off-box guidance
+### FR-7: Grokbot next steps
 
-After a non-dry-run grokbot install, the next-steps block SHALL say where Grok Bot reads the skills and how many foreign entries were skipped, and, when a root is not the default, SHALL print one copy command for both roots that copies only after checking, on the box, that the AKILI roots there are absent or empty — so it never writes into anything already on the box.
+After a non-dry-run grokbot install or update, the next-steps block SHALL say where Grok Bot reads the skills and how many foreign entries were skipped (with the explicit takeover command), and SHALL give a `doctor` hint that reproduces the run's roots.
 
-#### Scenario: Staged install
+#### Scenario: Install with an override
 
-- GIVEN `--grokbot-target ./staging/workflows`
+- GIVEN `--grokbot-target /srv/grok/workflows` and one foreign entry
 - WHEN the install finishes
-- THEN the next steps print one command: an `ssh` check that `/home/box/agent-data/workflows` and `/home/box/agent-data/akili` are absent or empty, chained with `&&` to `rsync -a` copies of `./staging/workflows/` and `./staging/akili/` to those two paths
-- AND they say that when the check fails nothing is copied and the install must run on the box (`npx akili-specs install --tool grokbot`), and that later updates run `akili update` on the box
-- AND they print a `doctor` hint that reproduces the same roots, in place of the generic `akili doctor --tool grokbot`
-- BUT the CLI must NOT open any network connection or run `rsync`/`ssh` itself
+- THEN the next steps name `/srv/grok/workflows` as the directory Grok Bot must read, report `1` foreign entry skipped, and name `akili install --tool grokbot --grokbot-target /srv/grok/workflows --force` as the explicit takeover
+- AND they print `akili doctor --tool grokbot --grokbot-target /srv/grok/workflows` in place of the generic `akili doctor --tool grokbot`
+- BUT the CLI must NOT print or run any copy, `rsync` or `ssh` step, and must NOT open any network connection
 
 ### FR-8: Documentation
 
-`README.md`, `docs/cli.md`, the CLI help and `CHANGELOG.md` (Unreleased) SHALL document the grokbot target: roots and precedence, foreign-folder rule, the two remote modes (run on the box; stage + `rsync`), the exclusion from `all`, and that commands are installed verbatim and best-effort (Grok Bot has no slash commands; `$ARGUMENTS` and subagent steps may not apply). Every site of the target-count claim family SHALL be true after the change — the list and treatment are in `design.md` §9 (from `AGENTS.md:3,7,11`, `README.md:74,192`, `CONTRIBUTING.md:14`, `.claude/README.md:3,5-11`, `docs/cli.md:21,23,243`, `bin/akili.js:217`).
+`README.md`, `docs/cli.md`, the CLI help and `CHANGELOG.md` (Unreleased) SHALL document the grokbot target: roots and precedence, foreign-folder rule, that the CLI runs on the box only (from another machine, open a shell on the box and run it there), the exclusion from `all`, and that commands are installed verbatim and best-effort (Grok Bot has no slash commands; `$ARGUMENTS` and subagent steps may not apply). Every site of the target-count claim family SHALL be true after the change — the list and treatment are in `design.md` §9 (from `AGENTS.md:3,7,11`, `README.md:74,192`, `CONTRIBUTING.md:14`, `.claude/README.md:3,5-11`, `docs/cli.md:21,23,243`, `bin/akili.js:217`).
 
 #### Scenario: Count claims
 
@@ -242,7 +241,7 @@ After a non-dry-run grokbot install, the next-steps block SHALL say where Grok B
 |---|---|
 | NFR-1 | The five existing targets behave and print exactly as before: `install --tool all --dry-run`, the Codex doctor baseline (`test/fixtures/doctor-codex-baseline.txt`) and the existing suite pass unchanged |
 | NFR-2 | No content fork: no transformation of any `SKILL.md` or command body (proposal Q4) |
-| NFR-3 | Tests never touch `/home/box` or the real home: every spawn in the new suite pins `HOME`, `USERPROFILE`, `AKILI_GROKBOT_TARGET` to scratch dirs, and the existing spawns that resolve tools without `--tool` (`test/install-cursor.test.js`, `test/agents-doctor-io.test.js`, `scripts/ci/install-layout-regression.js`) gain the same `AKILI_GROKBOT_TARGET` pin; the suite passes on macOS, Linux and Windows CI legs |
+| NFR-3 | Tests never touch `/home/box` or the real home: every spawn in the new suite pins `HOME`, `USERPROFILE`, `AKILI_GROKBOT_TARGET` to scratch dirs, and the existing spawns that resolve tools without `--tool` (`test/install-cursor.test.js`, `test/agents-doctor-io.test.js`, `test/agents-doctor.test.js`, `scripts/ci/install-layout-regression.js`) gain the same `AKILI_GROKBOT_TARGET` pin; the suite passes on macOS, Linux and Windows CI legs |
 | NFR-4 | Installer safety holds: skip existing by default, overwrite only with `--force` (AGENTS.md *Development Rules*) |
 | NFR-5 | Gate: `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check`, plus `node bin/akili.js install --tool all --dry-run` and `node bin/akili.js doctor --tool all` |
 | NFR-6 | Live check on the box at `/akili-validate` (HITL): install into the real default, then confirm a Grok Bot lists and loads one AKILI skill and one command-skill. Settles both `UNVERIFIED` rows in §4 |
@@ -270,6 +269,6 @@ After a non-dry-run grokbot install, the next-steps block SHALL say where Grok B
 | FR-4 | Foreign folders are protected |
 | FR-5 | Doctor reports grokbot health |
 | FR-6 | Auto-detection and update |
-| FR-7 | Off-box guidance |
+| FR-7 | Grokbot next steps |
 | FR-8 | Documentation |
 | NFR-1 … NFR-6 | See §7 |

@@ -112,3 +112,7 @@ Residual findings. Neither judge rated any of them severe, so all are info under
 Round 1 had 2 confirmed severe findings (J-1, J-2) and 1 suspect severe (J-3). All were fixed and re-judged. Round 1's re-judgment found 1 confirmed severe (R-1), which round 2 fixed. Round 2's re-judgment found 0 severe, so I-1 to I-7 remain as info. Artifacts: `judgment.md`, commits `f98ad57`, `4f628a9`, `9935687`.
 
 **JUDGMENT: APPROVED ✅**
+
+## Post-judgment Adjust (user, 2026-10-21) — not re-judged
+
+The user changed proposal Q1 to **box only**. The staging flow is gone: DD-12 now reads "box only", FR-7 is now *Grokbot next steps* with no copy, `rsync` or `ssh` step, and P-14 is dropped. That also removes the whole failure class behind J-3, R-1, I-1 and I-2. I-7 goes with P-14. Applied: I-3 (pin `test/agents-doctor.test.js`), I-4 (`BLOCKED`, never `FIXED`), I-5 (FR-4 invalid-record footnote), I-6 (recovery text names `doctor` first). Under the two-round ceiling these edits are a user-directed Adjust, not a third fix round. The terminal receipt above stands.

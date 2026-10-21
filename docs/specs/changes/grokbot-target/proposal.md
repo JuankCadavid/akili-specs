@@ -95,7 +95,7 @@
 
 | # | Question | Decision |
 |---|---|---|
-| Q1 | Remote install: only on the box, also staged-on-Mac + `rsync`, or built-in SSH? | **Answered:** box or staging + rsync, documented; no SSH |
+| Q1 | Remote install: only on the box, also staged-on-Mac + `rsync`, or built-in SSH? | ~~box or staging + rsync~~ → **Changed 2026-10-21 (user): box only** — no staging, no copy step, no SSH; `--grokbot-target` is an on-box path override |
 | Q2 | Does `--tool all` include grokbot? | **Answered:** no — `all` stays five tools |
 | Q3 | Generic names (`tdd`, `kaizen`, …) in a dir shared by all bots: keep names + collision report, or prefix `akili-`? | **Answered:** keep names; install skips, `doctor` reports collisions |
 | Q4 | Does Grok Bot accept extra frontmatter keys (`license`, nested `metadata`, `allowed-tools`)? | **Answered:** unknown — verbatim; live box check at validate; Option B only if it fails |
