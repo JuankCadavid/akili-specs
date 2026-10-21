@@ -14,7 +14,7 @@
 // Expected paths come from path.resolve(), never a /home/box literal, because
 // Windows adds a drive letter.
 //
-// Expected values are inlined from docs/specs/changes/grokbot-target/
+// Expected values are inlined from docs/specs/archive/2026-10-21-changes--grokbot-target/
 // requirements.md §6 at commit 46dcdcb; nothing here reads the spec folder.
 
 const test = require("node:test");
