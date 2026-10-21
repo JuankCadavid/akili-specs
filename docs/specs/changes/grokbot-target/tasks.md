@@ -247,7 +247,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~90 LOC of prose) |
 | Depends on | T4 |
 | Requirements | FR-8 (statement + *Count claims* scenario) |

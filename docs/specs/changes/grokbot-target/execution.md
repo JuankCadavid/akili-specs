@@ -268,3 +268,147 @@
 **T4 final: PASS** (1 attempt) · 2026-10-21
 - **Requirements covered:** FR-7 (amended), FR-4 "skipped as foreign" message, NFR-1.
 - **Running totals:** tasks 5/6; LOC ≈ 1,381 + 86 ≈ 1,467 of ~1,600; review rounds 7/10.
+
+### T5 — Documentation, claim-family sweep, CHANGELOG
+
+#### Attempt 1 — FAIL
+- **Files changed:** `README.md`, `docs/cli.md`, `docs/README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md`, `CHANGELOG.md` (+107/−29).
+  - Classification of all 77 baseline hits: (a) 26, (b) 6, (c) 10, (d) 35.
+  - It also fixed `.claude/README.md:16` "The other four targets", which the grep missed.
+- **Implementer verification:**
+  - `npm test`: 539/539.
+  - `verify:cli`: 0.
+  - `pack:dry-run`: 309 files.
+  - `diff --check`: clean.
+  - Red→green counts for `grokbot|Grok Bot`: 0 → 32 / 3 / 13.
+  - Count checks: 27 skills, 12 commands, whitelist 6, `ALL_TOOLS` 5.
+- **Evidence re-run (Leader inline):** VERIFIED (same numbers; grep 78 hits).
+- **Reviewer (opus):** FAIL.
+  1. The CHANGELOG says `doctor --fix` prints `skip foreign`. In fact it prints `FOREIGN` and "--fix leaves them untouched".
+  2. The `docs/cli.md:146-154` "Default targets" list is missing Grok Bot. It is class (a), and the grep missed it because the list spans several lines.
+  3. `.claude/README.md` says "never touched", which ignores the `--force` takeover.
+- **ADVISORY:**
+  - "run on the box only" should read "are supported only on the box".
+  - The invalid-record sentence needs more precision.
+  - The `--grokbot-target` row's default omits `--local`.
+  - The (d) classing of `README.md:565` and `docs/flow.md:357/365` rests on an assumption: that Grok Bot reads `CLAUDE.md`/`AGENTS.md` is unverified, so no claim was added.
+- **Side effect outside the sandbox (reported to the user).** While gathering evidence, the T5 Reviewer ran `node bin/akili.js update` with a scratch HOME. `update` ran a real `npm install -g akili-specs@latest` on this Mac ("changed 1 package").
+  - The global package was already at 2.34.2 and stays at 2.34.2 (`npm ls -g` and `npm view akili-specs version` both report 2.34.2). The file reinstall went to the scratch roots.
+  - No lasting change, but a read-only role ran a global npm command.
+  - **Incidental evidence:** the same run is the first live check of the update path. It printed `skip foreign …/tdd`, then `Files: reinstalled with --force for grokbot (1 foreign skipped for grokbot)`. That confirms FR-4's update column and T4's `Files:` line. Evidence: `scratchpad/rev5/u.out`.
+
+#### Attempt 2 — PASS
+- **Files changed:** the same 7 files, plus the `README.md` badge row, `:141` and `:209`, found by a per-name sweep (`antigravity`, `opencode`, `cursor`). Total diff: 8 files, +139/−31.
+- **What changed:**
+  - Reviewer issues 1–3 are fixed.
+  - Advisories (a) and (b) are applied: the box-only wording is now "supported only on the box", and the invalid-record sentence is precise.
+- **Implementer verification:** `npm test` 539/539; `verify:cli` 0; `pack:dry-run` 309 files; `diff --check` clean; no `.tgz` files.
+- **Evidence re-run (Leader inline):** VERIFIED. Same numbers. In a scratch HOME, `install --tool all --dry-run` and `doctor --tool all` print no "grok" text.
+- **Reviewer (opus):** PASS. All three issues are resolved, and every changed sentence was quote-checked against HEAD and the saved scratch evidence. The Reviewer did not run `update` this time.
+- **ADVISORY (recorded only):**
+  - `README.md:209` omits Codex's second detection signal, the command skill.
+  - The Grok Bot default line in `docs/cli.md` doesn't say that a blank env var counts as unset. The precedence table below it does.
+- **spawns:** Implementer — not reported by host; Reviewer — not reported by host.
+
+**T5 final: PASS** (2 attempts) · 2026-10-21
+- **Requirements covered:** FR-8 (statement and *Count claims*), NFR-5.
+- **Assumption (recorded):** `README.md:578` (formerly `:565`) and `docs/flow.md:357/365` are kept as class (d). There is no evidence that Grok Bot reads `CLAUDE.md`/`AGENTS.md`.
+- **Running totals:** tasks 6/6; LOC ≈ 1,467 + 170 ≈ **1,637** against ~1,600 (**~2% over** the user-raised budget, at the final task); review rounds 9/10.
+
+#### T5 claim-family classification (copied from the Implementer's file)
+
+# T5 claim-family sweep: classification (baseline grep at 7f2ca10, 77 hits; line numbers are baseline)
+
+Counts: {'a': 26, 'b': 6, 'c': 10, 'd': 35}
+
+| file:line | hit (first 90 chars) | class | action |
+|---|---|---|---|
+| README.md:14 | `### Supercharge Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor wi` | a | edited: Grok Bot added |
+| README.md:43 | `Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor configura` | a | edited: Grok Bot added |
+| README.md:55 | `→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SP` | d | routing-host list; no edit |
+| README.md:74 | `> **Note for contributors:** `.claude/` is the canonical source for **all five install tar` | a | edited: Grok Bot added (six) |
+| README.md:154 | `\| A host tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and/or Cursor` | a | edited: Grok Bot added |
+| README.md:192 | `\| All \| You use Claude, OpenCode, Google Antigravity, Codex, and Cursor \| All five path` | c | kept; scoped to the five desktop-tool paths, not Grok Bot; Grok Bot row added above it |
+| README.md:269 | `Restart Claude Code, OpenCode, Antigravity, Codex, or Cursor (or open a new chat) after in` | a | edited: Grok Bot added |
+| README.md:273 | `In your tool of choice, confirm AKILI commands are available (as slash commands, workflows` | d | invocation-style note (Codex/Cursor prompts), not a target list; no edit |
+| README.md:473 | `- run `akili doctor --tool <claude\|opencode\|antigravity\|codex\|cursor\|both\|all>`` | b | edited: grokbot added to --tool value list |
+| README.md:474 | `- restart Claude Code, OpenCode, Antigravity, Codex, or Cursor` | a | edited: Grok Bot added |
+| README.md:553 | `Five anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`,` | d | "Five anytime commands": unrelated; no edit |
+| README.md:565 | `For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `` | d | hosts reading CLAUDE.md/AGENTS.md project guidance; Grok Bot reading them is unverified, so not claimed; no edit (flagged in report) |
+| README.md:882 | `- **Cross-tool.** `.agents/` is pure Markdown + YAML frontmatter and is resolved relative ` | d | subagent-harness host list (routing-style); no edit |
+| docs/cli.md:3 | `The `akili` CLI installs the AKILI command prompts, skills, and helper resources into Clau` | a | edited: Grok Bot added |
+| docs/cli.md:21 | ``5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five`. Inputs `5` and `6` cha` | c | kept; init menu "All five" scoped to the five desktop tools, Grok Bot not offered by init, stated |
+| docs/cli.md:23 | `All (now five hosts) is `7`. Choosing local for Codex maps to `./.agents/skills` (commands` | c | kept; "All (now five hosts)" = init menu entry 7; scope stated at :21 |
+| docs/cli.md:24 | `skills) plus `./.codex/akili` (resources); choosing local for Cursor maps to `./.agents/sk` | d | local-path mapping for Codex/Cursor; no edit |
+| docs/cli.md:42 | `targets** on disk (`~/.claude`, `~/.config/opencode`, `~/.gemini`, and — for Codex and Cur` | a | edited: Grok Bot detection sentence added after the auto-detect paragraph (the Codex/Cursor sentences are detection mechanics, unchanged) |
+| docs/cli.md:43 | `non-empty `akili` resources directory under `$CODEX_HOME` (default `~/.codex`) / `$CURSOR_` | a | edited: Grok Bot detection sentence added after the auto-detect paragraph (the Codex/Cursor sentences are detection mechanics, unchanged) |
+| docs/cli.md:44 | `(default `~/.cursor`), or, for Codex only, an `akili-<cmd>/SKILL.md` command skill under` | a | edited: Grok Bot detection sentence added after the auto-detect paragraph (the Codex/Cursor sentences are detection mechanics, unchanged) |
+| docs/cli.md:50 | `only** — a command skill in the shared root never counts for Cursor. **Codex** detects by ` | a | edited: Grok Bot detection sentence added after the auto-detect paragraph (the Codex/Cursor sentences are detection mechanics, unchanged) |
+| docs/cli.md:54 | `populated Cursor resources is not auto-detected this way (`--tool codex` still works expli` | a | edited: Grok Bot detection sentence added after the auto-detect paragraph (the Codex/Cursor sentences are detection mechanics, unchanged) |
+| docs/cli.md:108 | `\| `--tool all` \| install, update, doctor \| Target Claude, OpenCode, Antigravity, Codex,` | c | edited: --tool all row says "the five desktop tools; never Grok Bot"; --tool grokbot row added |
+| docs/cli.md:109 | `\| `--target <path>` \| single-tool install/update/doctor \| Override the selected tool ta` | a | edited: --target row gains the grokbot sandbox layout |
+| docs/cli.md:117 | `\| `--local`, `-l` \| install, update, doctor \| Target the current project directory (e.g` | a | edited: --local row gains grokbot paths |
+| docs/cli.md:120 | `\| `--commands-only` \| install, update, doctor \| Only install or check commands (on Code` | a | edited: --commands-only row now names Grok Bot |
+| docs/cli.md:123 | `\| `--hosts <a,b>` \| routing \| Hosts to configure: `claude`, `opencode`, `antigravity`, ` | d | routing host list; no edit |
+| docs/cli.md:205 | `Codex and Cursor are the only targets whose skills live outside their own config home: eac` | a | edited: sentence scoped ("root shared with other tools", Grok Bot has no config home) |
+| docs/cli.md:207 | `them) and its own resources root (`~/.codex/akili` or `~/.cursor/akili`, or the `--local`` | d | Codex/Cursor root mechanics; no edit |
+| docs/cli.md:210 | ``/akili-constitution` (`.codex/agents/akili-*.toml`, `.codex/hooks.json`, `.cursor/agents/` | d | Codex/Cursor root mechanics; no edit |
+| docs/cli.md:214 | `Restart Claude Code, OpenCode, Google Antigravity, Codex, or Cursor (or open a new chat) a` | a | edited: Grok Bot added |
+| docs/cli.md:217 | `## Shared and compatibility skill roots (Codex, Cursor, Claude Code)` | d | shared-root / Cursor compatibility mechanics for Codex/Cursor; counts (12 commands, 27 skills) true at HEAD; no edit |
+| docs/cli.md:219 | `Codex and Cursor write their 12 command skills and 27 packaged skills into one shared root` | d | shared-root / Cursor compatibility mechanics for Codex/Cursor; counts (12 commands, 27 skills) true at HEAD; no edit |
+| docs/cli.md:226 | `Cursor also reads `~/.claude/skills` and `~/.codex/skills` for compatibility ("For compati` | d | shared-root / Cursor compatibility mechanics for Codex/Cursor; counts (12 commands, 27 skills) true at HEAD; no edit |
+| docs/cli.md:227 | `Cursor also loads skills from Claude and Codex directories", <https://cursor.com/docs/cont` | d | shared-root / Cursor compatibility mechanics for Codex/Cursor; counts (12 commands, 27 skills) true at HEAD; no edit |
+| docs/cli.md:243 | `Preview a five-tool install:` | c | edited: "five-tool install" now "the five desktop tools (all, without Grok Bot)" |
+| docs/cli.md:299 | `## Doctor: Environment Row and Legacy Copies (Codex, Cursor)` | d | heading of a Codex/Cursor-only section; no edit |
+| docs/cli.md:599 | ``scripts/ci/install-layout-regression.js` runs on every CI matrix leg (ubuntu/macos/window` | d | CI regression description, unrelated; no edit |
+| docs/cli.md:605 | `- Run `akili doctor --tool <claude\|opencode\|antigravity\|codex\|cursor\|both\|all>`.` | b | edited: grokbot added to the --tool value list |
+| docs/cli.md:606 | `- Restart Claude Code, OpenCode, Google Antigravity, Codex, or Cursor (or open a new chat)` | a | edited: Grok Bot added |
+| docs/flow.md:258 | `**Per-host launch:** in Claude Code, start each child with `claude -p "/goal <condition>"`` | d | routing / harness-host or --local repo-scope skills list; no edit |
+| docs/flow.md:357 | `The `.agents/` directory is pure Markdown + YAML frontmatter and is resolved relative to t` | d | routing / harness-host or --local repo-scope skills list; no edit |
+| docs/flow.md:365 | `\| `.agents/skills/<name>/SKILL.md` \| Codex and Cursor repo-scope skills \| `akili instal` | d | routing / harness-host or --local repo-scope skills list; no edit |
+| docs/flow.md:399 | `A single editable registry binds each tier to a model **per tool** (Claude Code, OpenCode,` | d | routing / harness-host or --local repo-scope skills list; no edit |
+| docs/model-routing.md:121 | `\| Tier \| Claude Code \| OpenCode Go (requests/month @ that model's own limit — plan page` | d | routing host/registry column or unrelated; no edit |
+| docs/model-routing.md:292 | `choice as the Antigravity/Codex columns above. Every Cursor cell in the tier table carries` | d | routing host/registry column or unrelated; no edit |
+| docs/model-routing.md:539 | `\| Cursor \| `.cursor/agents/akili-{leader,implementer,reviewer,tester}.md` (project-level` | d | routing host/registry column or unrelated; no edit |
+| docs/model-routing.md:586 | `<https://learn.chatgpt.com/docs/models>) is confirmed accurate; AKILI's five-rung dial map` | d | routing host/registry column or unrelated; no edit |
+| docs/model-routing.md:832 | `Antigravity, Codex, and Cursor. The one writer of models is `akili routing`: it writes the` | d | routing host/registry column or unrelated; no edit |
+| docs/README.md:3 | `AKILI is the documented form of the AKILI-SPECS methodology: a constitution-first, self-im` | a | edited: Grok Bot added |
+| docs/README.md:10 | `- [Model Routing](model-routing.md) - capability-tier model selection per AKILI-SPECS phas` | d | routing-host list; no edit |
+| docs/README.md:51 | `\| Model Routing \| [model-routing.md](model-routing.md) \| You need to choose which model` | d | routing-host list; no edit |
+| .claude/README.md:3 | `If you landed here to contribute: **this directory is the methodology's single source of t` | a | edited: "six tools" |
+| .claude/README.md:11 | `\| Cursor \| `~/.agents/skills/` (commands and skills, shared with Codex) + `~/.cursor/` (` | a | edited: Grok Bot table row added |
+| CONTRIBUTING.md:14 | `Despite the name, `.claude/` is **not Claude-only configuration** — it is the canonical so` | a | edited: Grok Bot added (six; users clause too) |
+| AGENTS.md:3 | `This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, Google Ant` | a | edited: Grok Bot added |
+| AGENTS.md:7 | `- `.claude/` is the **canonical source for all five install targets** (Claude Code, OpenCo` | a | edited: Grok Bot added |
+| AGENTS.md:11 | `- `bin/akili.js` installs commands, skills, and helper resources (including the agent temp` | a | edited: Grok Bot added |
+| AGENTS.md:12 | `- `bin/routing.js` is the pure module behind `akili routing` (flag grammar, tier derivatio` | d | "five host wrapper shapes" = routing hosts; no edit |
+| AGENTS.md:40 | `- **Model Routing: enforced for subagents, guided for the main loop.** Model selection per` | d | routing wrapper list; no edit |
+| bin/akili.js:130 | `// default ~/.cursor"), same shape as CODEX_HOME above. Global default only —` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+| bin/akili.js:132 | `// cursorSkills shares the same path as codexSkills (DD-3, DD-1): one shared` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+| bin/akili.js:194 | `// @akili-spec changes/cursor-install-target — Cursor: same shape as Codex,` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+| bin/akili.js:240 | `--tool <name>        Install target: claude, opencode, antigravity, codex, cursor, grokbot` | b | already done by T4: help names grokbot, "all" = five desktop targets (not grokbot) |
+| bin/akili.js:241 | `"both" = Claude Code + OpenCode. "all" = all five desktop targets (not grokbot).` | b | already done by T4: help names grokbot, "all" = five desktop targets (not grokbot) |
+| bin/akili.js:245 | `For --tool codex or --tool cursor this selects a single-root` | a | already done by T4: --target help names the grokbot layout at :247 |
+| bin/akili.js:265 | `--hosts <a,b>        Hosts to configure: claude, opencode, antigravity, codex, cursor` | d | routing hosts; no edit |
+| bin/akili.js:385 | `if (!["claude", "opencode", "antigravity", "codex", "cursor", "grokbot", "both", "all"].in` | b | already done by T4 (grokbot in whitelist and error) |
+| bin/akili.js:386 | `fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, grokbot, both, ` | b | already done by T4 (grokbot in whitelist and error) |
+| bin/akili.js:513 | `if (args.tool === "all") return ["claude", "opencode", "antigravity", "codex", "cursor"];` | c | code/comment scoped to --tool all = five desktop tools; true; no edit |
+| bin/akili.js:517 | `const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex", "cursor"];` | c | code/comment scoped to --tool all = five desktop tools; true; no edit |
+| bin/akili.js:521 | `// five desktop targets.` | c | code/comment scoped to --tool all = five desktop tools; true; no edit |
+| bin/akili.js:528 | `// Codex's and Cursor's skills root (`sharedSkillsRoot`) is the exception: it is` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+| bin/akili.js:548 | `// below, so a Codex-only machine's akili-* skill files never make Cursor` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+| bin/akili.js:615 | `// null when the set is neither the full five-tool "all" set nor the Claude+` | c | code/comment scoped to --tool all = five desktop tools; true; no edit |
+| bin/akili.js:2489 | ``  7) All five\n` +` | c | init menu "All five": true, init excludes grokbot; no edit |
+| bin/akili.js:2592 | `// CLAUDE.md, existing wrapper contents at the five hosts' locations (the` | d | code comment on Codex/Cursor mechanics or routing hosts; no edit |
+
+## Attempt 2: claim-keyed additions (found by per-name greps: antigravity, opencode, cursor; the baseline grep could not see them)
+
+| file:line (post-edit) | site | class | action |
+|---|---|---|---|
+| docs/cli.md:146-155 | "Default targets" block (one line per target) | a | edited: Grok Bot line added |
+| README.md:35 | supported-tool badge row | a | edited: Grok Bot badge added |
+| README.md:141 | "installer can target Claude, OpenCode, Google Antigravity, or multiple tools" | a | edited: full six-target list |
+| README.md:209 | auto-detect list (`~/.claude`, `~/.config/opencode`, `~/.gemini`) | a | edited: Codex, Cursor and Grok Bot by resources root added |
+| README.md:353, :476-478 | "Default targets" (Claude/OpenCode) and `--tool claude/opencode/both` bullets in the legacy Claude/OpenCode sections | d | no edit: scoped to those two tools by their section, not a list of all targets |
+| .claude/README.md:9 | Antigravity table row | a | already covered by the Grok Bot row added in attempt 1 |
+| docs/cli.md:34,106,115,176,332 | per-tool examples and option rows | d | no edit: one tool each |

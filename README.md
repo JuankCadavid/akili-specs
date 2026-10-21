@@ -11,7 +11,7 @@
 
 # AKILI
 
-### Supercharge Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor with constitution-first, self-improving spec intelligence
+### Supercharge Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot with constitution-first, self-improving spec intelligence
 
 **Durable product context · traceable requirements · governed releases · a methodology that learns from every spec · 100% local methodology files**
 
@@ -35,12 +35,13 @@
   <img alt="Google Antigravity supported" src="https://img.shields.io/badge/Google%20Antigravity-supported-7c3aed?style=for-the-badge">
   <img alt="OpenAI Codex CLI supported" src="https://img.shields.io/badge/OpenAI%20Codex%20CLI-supported-7c3aed?style=for-the-badge">
   <img alt="Cursor supported" src="https://img.shields.io/badge/Cursor-supported-7c3aed?style=for-the-badge">
+  <img alt="Grok Bot supported" src="https://img.shields.io/badge/Grok%20Bot-supported-7c3aed?style=for-the-badge">
   <img alt="CodeGraph aware" src="https://img.shields.io/badge/CodeGraph-aware-7c3aed?style=for-the-badge">
 </p>
 
 </div>
 
-Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor configuration for the AKILI-SPECS methodology.
+Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot configuration for the AKILI-SPECS methodology.
 
 AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
 
@@ -71,7 +72,7 @@ Three capabilities sit beside the core spec loop; each fires at a specific point
 
 ## Repository Structure
 
-> **Note for contributors:** `.claude/` is the canonical source for **all five install targets** (Claude Code, OpenCode, Antigravity, Codex, Cursor) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
+> **Note for contributors:** `.claude/` is the canonical source for **all six install targets** (Claude Code, OpenCode, Antigravity, Codex, Cursor, Grok Bot) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
 
 - `.claude/commands/` — custom AKILI-SPECS command prompts
 - `.claude/skills/` — required and preferred skills used by the methodology
@@ -138,7 +139,7 @@ Three capabilities sit beside the core spec loop; each fires at a specific point
 
 ## Install
 
-Install the methodology with the bundled CLI. The installer can target Claude, OpenCode, Google Antigravity, or multiple tools.
+Install the methodology with the bundled CLI. The installer can target Claude, OpenCode, Google Antigravity, Codex, Cursor, Grok Bot, or multiple tools.
 
 ### Prerequisites
 
@@ -151,7 +152,7 @@ Two layers: the **CLI** (installing/updating the package) and the **methodology*
 | Node.js ≥ 18 | CLI | `akili install/update/doctor` cannot run (`engines` enforced) |
 | `npm` or `pnpm` | CLI | No install/update path; the CLI probes both to detect how it was installed |
 | Git | Methodology | Commits per task, worktree concurrency, HALT rollback, the tasks.md evidence gate, and `/akili-archive` all assume a git repo — the methodology is not designed for untracked folders |
-| A host tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and/or Cursor | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
+| A host tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and/or Grok Bot | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
 
 **Recommended (degrades gracefully):**
 
@@ -189,7 +190,8 @@ codegraph init -i
 | Codex | You use OpenAI Codex CLI and its Agent Skills | `~/.agents/skills` (commands and skills) + `~/.codex` (resources) |
 | Cursor | You use Cursor (IDE agent) and its Agent Skills | `~/.agents/skills` (commands and skills) + `~/.cursor` (resources) |
 | Both | You switch between Claude Code and OpenCode | Claude + OpenCode paths |
-| All | You use Claude, OpenCode, Google Antigravity, Codex, and Cursor | All five paths |
+| Grok Bot | You run the AKILI CLI on the Grok Bot box (see [Grok Bot](docs/cli.md#grok-bot-grokbot)) | `/home/box/agent-data/workflows` (commands and skills) + `/home/box/agent-data/akili` (resources) |
+| All | You use Claude, OpenCode, Google Antigravity, Codex, and Cursor | The five desktop-tool paths above — **not** Grok Bot, which you select explicitly with `--tool grokbot` |
 
 ### Step 2: Install
 
@@ -205,7 +207,7 @@ npx akili-specs init
 **Manual Installation via Flags:**
 
 Install without `--tool` — the installer **auto-detects targets already installed on disk**
-(`~/.claude`, `~/.config/opencode`, `~/.gemini`) and acts on all of them; on a first-time run with
+(`~/.claude`, `~/.config/opencode`, `~/.gemini`, and Codex, Cursor and Grok Bot by their own resources roots) and acts on all of them; on a first-time run with
 nothing installed it defaults to Claude:
 
 ```bash
@@ -222,6 +224,12 @@ Install locally to the current project workspace:
 
 ```bash
 npx akili-specs install --tool both --local
+```
+
+Install for Grok Bot — run this **in a shell on the Grok Bot box** (the CLI never copies files to another machine). It is never part of `--tool all`, and it skips any folder in the workflows root that AKILI did not write, unless you pass `--force`; see [Grok Bot](docs/cli.md#grok-bot-grokbot) before the first run:
+
+```bash
+npx akili-specs install --tool grokbot
 ```
 
 ### Step 3: Verify The Installation
@@ -256,6 +264,12 @@ Check Cursor installation:
 npx akili-specs doctor --tool cursor
 ```
 
+Check Grok Bot installation (on the box):
+
+```bash
+npx akili-specs doctor --tool grokbot
+```
+
 Check all:
 
 ```bash
@@ -266,7 +280,7 @@ Expected result: every command, skill, and helper resource shows `OK`.
 
 ### Step 4: Restart Your Tool
 
-Restart Claude Code, OpenCode, Antigravity, Codex, or Cursor (or open a new chat) after installation. Running sessions may not pick up new commands or skills until the tool restarts.
+Restart Claude Code, OpenCode, Antigravity, Codex, Cursor, or Grok Bot (or open a new chat) after installation. Running sessions may not pick up new commands or skills until the tool restarts.
 
 ### Step 5: Confirm Commands Are Available
 
@@ -470,8 +484,8 @@ The helper resources under the target `akili/` folder support commands such as `
 
 If commands do not appear:
 
-- run `akili doctor --tool <claude|opencode|antigravity|codex|cursor|both|all>`
-- restart Claude Code, OpenCode, Antigravity, Codex, or Cursor
+- run `akili doctor --tool <claude|opencode|antigravity|codex|cursor|grokbot|both|all>`
+- restart Claude Code, OpenCode, Antigravity, Codex, Cursor, or Grok Bot
 - confirm you installed into the expected target path
 - rerun install with `--force` if old files should be replaced
 
