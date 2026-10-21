@@ -74,7 +74,7 @@ The CLI SHALL accept `--tool grokbot` for `install`, `update` and `doctor`, and 
 - WHEN the user runs `akili install --tool all --dry-run`
 - THEN the tools acted on are exactly `claude, opencode, antigravity, codex, cursor`
 - BUT it must NOT include `grokbot`, and `both` must NOT change
-- AND IT MUST print `akili doctor --tool all` as its verify hint, as today
+- AND IT MUST print `akili doctor --tool all` as its verify hint after a real (non-dry-run) install, as today (a dry run prints no verify hint — amended 2026-10-21 at validation)
 
 ### FR-2: Path resolution
 

@@ -10,7 +10,7 @@
 | Approval Mode | `gated`. The user asked up front to continue from `tasks.md` straight into `/akili-execute` (2026-10-21, "sigue a tasks.md y a /akili-execute"); the tasks gate is logged as **approved in advance by the user** |
 | Status | Phase 3 |
 | Date | 2026-10-21 |
-| Budget (design §12) | **6 tasks · ~1,600 LOC · 10 review rounds (raised again by the user 2026-10-21 after the T3 tripwire)**; previously 6 tasks · ~1,300 LOC (raised by the user 2026-10-21 after the T2 tripwire; T2b added)** · was 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
+| Budget (design §12) | **7 tasks (T6 added after `/akili-test`) · ~1,600 LOC · 10 review rounds (raised again by the user 2026-10-21 after the T3 tripwire)**; previously 6 tasks · ~1,300 LOC (raised by the user 2026-10-21 after the T2 tripwire; T2b added)** · was 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
 | Design review | Judgment Day: **APPROVED** after two rounds, followed by a user Adjust to Q1 "box only" (`judgment.md`) |
 | Commit prefix | `[SPEC:changes/grokbot-target]` |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/tasks.md` |
@@ -24,6 +24,7 @@ T1 (target, flags, roots, registry, detection, help, env pins)
               └─→ T3 (doctor FOREIGN / BLOCKED / summary / exit)
               └─→ T4 (next steps: install + update)
                     └─→ T5 (docs, claim-family sweep, CHANGELOG)
+                          └─→ T6 (BUG-1, added after /akili-test)
 ```
 
 The tasks run in a strict sequence because all four code tasks edit `bin/akili.js` and `test/install-grokbot.test.js`. No cycles.
@@ -78,7 +79,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 | Disqualifier | Any test expectation written as a literal `/home/box/...` instead of `path.resolve(...)` (P-9: Windows adds a drive). Any spawn without the `AKILI_GROKBOT_TARGET` pin. A byte-identity check that normalizes line endings or reads through a string transform. |
 | Consumers | Existing tests and scripts listed in P-4 (`test/install-cursor.test.js`, `test/agents-doctor-io.test.js`, `test/agents-doctor.test.js`, `scripts/ci/install-layout-regression.js`, `.github/workflows/ci.yml` `--tool all` steps); `test/fixtures/doctor-codex-baseline.txt` must still match. |
 
-**Done when:** all four falsifiers have been executed and observed red, and the existing suite and the Codex baseline are unchanged and green.
+**Done when:** all three falsifiers have been executed and observed red, and the existing suite and the Codex baseline are unchanged and green.
 
 ---
 

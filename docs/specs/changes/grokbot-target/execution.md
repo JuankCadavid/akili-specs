@@ -10,7 +10,7 @@
 | Leader | Claude Code session, `opus` (T1) |
 | Workers | No Step 8E wrappers in this repo (`.claude/agents/` absent). Fallback sub-prompt workers read their persona from `.agents/`. Implementer: `sonnet` (T2). Reviewer: `opus` (a different model from the Implementer) |
 | Personas | `.agents/` is gitignored and was absent from this worktree. It was copied from the main checkout, then `akili doctor --agents --fix --allow-branch` was run on that local, ignored copy: leader `primary-instructions`, reviewer `audit-checklist` and tester `prove-behavior` were fixed (backups under `.agents/.backup/`); custom-edited/unlocated sections were left as the maintainer's call. `--allow-branch` was needed because the branch guard refuses on `feat/*`; the files are untracked, so nothing lands in a commit |
-| Budget (design §12) | 5 tasks · ~790 LOC · 8 review rounds |
+| Budget (design §12) | Planned: 5 tasks · ~790 LOC · 8 review rounds. Final (user-approved raises): 7 tasks · ~1,600 LOC · 10 rounds. Actual: 7 tasks · ≈1,628 LOC · 11 rounds |
 
 ## 2. Task Execution History
 
@@ -302,7 +302,7 @@
 - **What changed:**
   - Reviewer issues 1–3 are fixed.
   - Advisories (a) and (b) are applied: the box-only wording is now "supported only on the box", and the invalid-record sentence is precise.
-- **Implementer verification:** `npm test` 539/539; `verify:cli` 0; `pack:dry-run` 309 files; `diff --check` clean; no `.tgz` files.
+- **Implementer verification:** `npm test` 553/553 (after T6; 539 before `/akili-test`); `verify:cli` 0; `pack:dry-run` 309 files; `diff --check` clean; no `.tgz` files.
 - **Evidence re-run (Leader inline):** VERIFIED. Same numbers. In a scratch HOME, `install --tool all --dry-run` and `doctor --tool all` print no "grok" text.
 - **Reviewer (opus):** PASS. All three issues are resolved, and every changed sentence was quote-checked against HEAD and the saved scratch evidence. The Reviewer did not run `update` this time.
 - **ADVISORY (recorded only):**
@@ -417,14 +417,14 @@ Counts: {'a': 26, 'b': 6, 'c': 10, 'd': 35}
 
 | Item | Result |
 |---|---|
-| Tasks | 6/6 PASS (T1, T2, T2b, T3, T4, T5). Attempts: T1 2, T2 1, T2b 2, T3 1, T4 1, T5 2. No HALT, no FATAL_FAIL |
+| Tasks | 7/7 PASS (T1, T2, T2b, T3, T4, T5, T6). Attempts: T1 2, T2 1, T2b 2, T3 1, T4 1, T5 2, T6 2. No HALT, no FATAL_FAIL |
 | Review rounds | 9 of the 10 the user approved |
 | LOC | ≈1,637 against the ~1,600 the user approved (raised twice: 790 → 1,300 → 1,600). Tests ran about 2× their estimates |
 | Scope changes (user-approved) | T2b safe takeover; budget raises |
 | Spec amendments (Leader, applied under "stop only for product/risk decisions") | FR-4: a delete-failure leaves "whatever remains" of the foreign copy (T2b). FR-7: the network clause is narrowed to copy/transfer steps, and the npm update check is unaffected (T4) |
 | Gaps (no automated check) | Spawning `update` (it runs a real npm install). The T5 Reviewer's accidental live `update` run confirmed the update column, see `rev5/u.out`. The restore-also-fails branch of takeover. P-10/P-11 (whether Grok Bot loads the files) are owed to `/akili-validate` on the box (NFR-6) |
 | Incident | The T5 Reviewer ran `akili update`, which ran a real `npm install -g akili-specs@latest`. The global version is unchanged at 2.34.2 |
-| Final verification (Leader) | `npm test` 539/539; `verify:cli` 0; `pack:dry-run` 309 files; `git diff --check` clean; `install --tool all --dry-run` and `doctor --tool all` unchanged for the five desktop tools |
+| Final verification (Leader) | `npm test` 553/553 (after T6; 539 before `/akili-test`); `verify:cli` 0; `pack:dry-run` 309 files; `git diff --check` clean; `install --tool all --dry-run` and `doctor --tool all` unchanged for the five desktop tools |
 | Next | `/akili-test changes/grokbot-target`, then `/akili-validate` with the live box check (NFR-6) |
 
 ## Scope change: T6 (BUG-1 from `/akili-test`), user-approved 2026-10-21

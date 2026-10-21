@@ -46,7 +46,7 @@ Installed layout on the box (defaults):
 | `/home/box/agent-data/akili/.mcp.json.example` | as for other targets |
 | `/home/box/agent-data/akili/grokbot-owned.json` | ownership record (§5) |
 
-Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), env pinning added to the `test/install-cursor.test.js`, `test/agents-doctor-io.test.js`, `test/agents-doctor.test.js` and `scripts/ci/install-layout-regression.js` spawn helpers (NFR-3, I-3), `README.md`, `docs/cli.md`, `CHANGELOG.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md`.
+Repository: `bin/akili.js` (all code), `test/install-grokbot.test.js` (new), `test/install-grokbot-edge.test.js` (new, written in `/akili-test`), env pinning added to the `test/install-cursor.test.js`, `test/agents-doctor-io.test.js`, `test/agents-doctor.test.js` and `scripts/ci/install-layout-regression.js` spawn helpers (NFR-3, I-3), `README.md`, `docs/cli.md`, `CHANGELOG.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md`.
 
 ## 5. Data Model
 
@@ -149,7 +149,7 @@ n/a — CLI only. Output wording is in §6.
 
 ## 11. Premise Ledger
 
-Count: 13 rows — 11 verified, 2 `UNVERIFIED` (2 High, 0 Low).
+Count: 13 rows — 13 verified, 0 `UNVERIFIED` (P-10 and P-11 settled at `/akili-validate` by the live box run, 2026-10-21).
 Blast-radius triggers: `shared-state` (the detection scan reads every tool's registry entry; the doctor summary/exit is shared by all tools), `consumer` (the `--tool` whitelist, `ALL_TOOLS`, the copy-helper return shape and the doctor result shape are read elsewhere). `live-path`: none applies — no branch point beyond the `--tool` value, which P-3/P-5 trace.
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -163,8 +163,8 @@ Blast-radius triggers: `shared-state` (the detection scan reads every tool's reg
 | P-7 | Doctor's row status (`missing>0 ? INCOMPLETE : fixed>0 ? REPAIRED : HEALTHY`), exit status, "run `--fix`" next step (built from `args.tool`) and final "All checks passed" line key on `missing` only; `doctorTool` returns `{rootPath, ok, missing, fixed}` | consumer | `bin/akili.js:1302`, `:1812-1837` | `f98ad57` | DD-9 shape changes (Low) | — |
 | P-8 | Skip-by-default is per top-level entry for skills and per file for command-skills; both helpers return counts only | location | `bin/akili.js:608-636` (`copySingleFile`, returns at `:633-635`), `:638-676` (`copyDirectoryContents`), `:786-801` | `f98ad57` | Helper contract changes (Low) | — |
 | P-9 | On Windows, `/home/box/agent-data/workflows` resolves to a drive-rooted path, so tests compute expectations with `path.resolve`, never a literal | data-env | `node -e 'path.win32.resolve(...)'` on Node v22.12.0 (macOS) → `\home\box\agent-data\workflows`; the property (resolve adds the current drive) is version-invariant | `f98ad57` | Windows CI leg red (Low) | — |
-| P-10 | Grok Bot loads skills from `/home/box/agent-data/workflows/<kebab-slug>/SKILL.md` with YAML `name` + `description`, shared by all bots; the directory does not exist yet | data-env | `UNVERIFIED — confirm at source before relying on it` | — | Default path or layout wrong → DD-3 / FR-2 default change (High) | user-stated; NFR-6 live check at the `/akili-validate` HITL pause, owner: the user |
-| P-11 | Grok Bot tolerates AKILI's extra frontmatter keys and loads the command-skills | data-env | `UNVERIFIED — confirm at source before relying on it` | — | NFR-2 verbatim copy fails → proposal Option B as a follow-up spec (High) | NFR-6 live check at `/akili-validate`, owner: the user |
+| P-10 | Grok Bot loads skills from `/home/box/agent-data/workflows/<kebab-slug>/SKILL.md` with YAML `name` + `description`, shared by all bots; the directory does not exist yet | data-env | Live run on the box, 2026-10-21 12:22 (Bogotá), reported by the user: tarball from `c8df012` installed with default paths (`install` 47, `doctor` HEALTHY ok 47); Grok Bot loaded `tdd` and `akili-propose` by name from `/home/box/agent-data/workflows/<slug>/SKILL.md`, returned the full body, resolved the skill directory, and listed the auxiliary files (`tests.md`, `mocking.md`) | box run 2026-10-21 | Default path or layout wrong → DD-3 / FR-2 default change (High) | settled at `/akili-validate` (NFR-6) |
+| P-11 | Grok Bot tolerates AKILI's extra frontmatter keys and loads the command-skills | data-env | Same live run: the extra frontmatter (`license`, `metadata`) caused no error; the command-skill `akili-propose` loaded | box run 2026-10-21 | NFR-2 verbatim copy fails → proposal Option B as a follow-up spec (High) | settled at `/akili-validate` (NFR-6) |
 | P-12 | `copyTreeSync` merges: it replaces a non-directory squatting at a directory path and writes files, but never deletes extra files already inside a destination directory | location | `bin/akili.js:50-66` | `f98ad57` | DD-11 unneeded (Low) | — |
 | P-13 | `hasInstalledSkill` / `hasInstalledCommand` use `fs.existsSync` (follows links: a dangling link reads absent); the copy helpers use `lstatSync` | location | `bin/akili.js:1131-1153`; `:613`, `:652` | `f98ad57` | DD-7 classifier choice changes (Low) | — |
 
@@ -172,9 +172,9 @@ Blast-radius triggers: `shared-state` (the detection scan reads every tool's reg
 
 | Measure | Estimate |
 |---|---|
-| Tasks | 6 — T1 target, flags, roots, detection, help · T2 ownership record + install/update policy · T2b safe takeover (move aside, then delete) · T3 doctor FOREIGN, summary, exit · T4 next steps (install, update) · T5 docs, claim-family sweep, CHANGELOG |
+| Tasks | 7 — T6 BUG-1 owned non-directory entries (added after `/akili-test`) · T1 target, flags, roots, detection, help · T2 ownership record + install/update policy · T2b safe takeover (move aside, then delete) · T3 doctor FOREIGN, summary, exit · T4 next steps (install, update) · T5 docs, claim-family sweep, CHANGELOG |
 | LOC | **~1,600 and 10 review rounds (raised by the user after the T3 tripwire; earlier ~1,300, raised from ~790 by the user on 2026-10-21 after the T2 budget tripwire; see `execution.md`)**; original estimate ~790 (`bin/akili.js` ~240, `test/install-grokbot.test.js` ~450 plus ~10 of env pinning in four existing files, docs ~90). Test LOC budgeted per scenario clause (KZ-bugfix--init-ctrlc-abort-2) |
-| Review rounds | 8 (T1–T4 1–2 each; T5 2, per the rules-text guidance) |
+| Review rounds | 10 approved by the user (originally 8); **11 actual** — T6, added after `/akili-test`, needed 2 rounds (reported to the user at validation) |
 
 The estimate fits Standard depth.
 

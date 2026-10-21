@@ -11,7 +11,7 @@
 | Branch | `feat/grokbot-target` → PR into `dev` |
 | Depends on | none |
 | Parallel-safe | yes — touches `bin/akili.js` install paths, docs and a new test file; no routing or persona code |
-| Status | **Approved** 2026-10-21 by the user (Q5 sibling, configurable, confirmed) |
+| Status | **Approved** 2026-10-21 by the user (Q5 sibling, configurable, confirmed). **Later change (user, 2026-10-21): Q1 → box only** — staging, `rsync` and copy steps removed; see the Q1 row and `design.md` DD-12 |
 | Date | 2026-10-21 |
 
 ## Intent
@@ -32,7 +32,7 @@
 | Command | Behavior |
 |---|---|
 | `akili install --tool grokbot` | 27 skills + 12 command-skills land in `<grokbot-target>/<slug>/SKILL.md`; resources (personas, `digests.json`, scripts, `.mcp.json.example`) land outside the workflows dir (Q5) |
-| `akili install --tool grokbot --grokbot-target <dir>` / `AKILI_GROKBOT_TARGET=<dir>` | Same, into `<dir>` — also the staging path for a remote box (Q1) |
+| `akili install --tool grokbot --grokbot-target <dir>` / `AKILI_GROKBOT_TARGET=<dir>` | Same, into `<dir>` — an on-box path override (Q1 changed to box only; the staging path was dropped) |
 | `akili doctor --tool grokbot [--fix]` | OK / MISSING per skill and command, and reports a same-name folder that is not AKILI's as a collision (Q3) |
 | `akili update` | Refreshes grokbot when it is auto-detected (resources root populated, Cursor rule) |
 | `akili install --tool all` | Unchanged — still the five desktop tools (Q2) |
@@ -89,7 +89,7 @@
 
 ## Recommended Approach
 
-**Option A**, with two guards decided in specify: a collision report in `doctor` (and a `skip existing` on install, the installer default) for foreign same-name folders, and resources placed **beside** the workflows dir (`/home/box/agent-data/akili`) so no non-skill folder appears in the directory every bot scans. Remote installs are "run the CLI on the box" (`npx akili-specs install --tool grokbot`) or "stage with `--grokbot-target ./staging` and `rsync` it" — documented, not built in. Escalate to B only if Q4 shows Grok Bot rejects AKILI frontmatter.
+**Option A**, with two guards decided in specify: a collision report in `doctor` (and a `skip existing` on install, the installer default) for foreign same-name folders, and resources placed **beside** the workflows dir (`/home/box/agent-data/akili`) so no non-skill folder appears in the directory every bot scans. Remote installs are "run the CLI on the box" (`npx akili-specs install --tool grokbot`) or "stage with `--grokbot-target ./staging` and `rsync` it" — documented, not built in. Escalate to B only if Q4 shows Grok Bot rejects AKILI frontmatter. *(Superseded in part, 2026-10-21: the "stage + `rsync`" remote mode was dropped when Q1 changed to box only — DD-12.)*
 
 ## Risks, Dependencies, And Open Questions
 
