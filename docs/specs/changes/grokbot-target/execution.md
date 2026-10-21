@@ -412,3 +412,17 @@ Counts: {'a': 26, 'b': 6, 'c': 10, 'd': 35}
 | README.md:353, :476-478 | "Default targets" (Claude/OpenCode) and `--tool claude/opencode/both` bullets in the legacy Claude/OpenCode sections | d | no edit: scoped to those two tools by their section, not a list of all targets |
 | .claude/README.md:9 | Antigravity table row | a | already covered by the Grok Bot row added in attempt 1 |
 | docs/cli.md:34,106,115,176,332 | per-tool examples and option rows | d | no edit: one tool each |
+
+## 3. Summary
+
+| Item | Result |
+|---|---|
+| Tasks | 6/6 PASS (T1, T2, T2b, T3, T4, T5). Attempts: T1 2, T2 1, T2b 2, T3 1, T4 1, T5 2. No HALT, no FATAL_FAIL |
+| Review rounds | 9 of the 10 the user approved |
+| LOC | ≈1,637 against the ~1,600 the user approved (raised twice: 790 → 1,300 → 1,600). Tests ran about 2× their estimates |
+| Scope changes (user-approved) | T2b safe takeover; budget raises |
+| Spec amendments (Leader, applied under "stop only for product/risk decisions") | FR-4: a delete-failure leaves "whatever remains" of the foreign copy (T2b). FR-7: the network clause is narrowed to copy/transfer steps, and the npm update check is unaffected (T4) |
+| Gaps (no automated check) | Spawning `update` (it runs a real npm install). The T5 Reviewer's accidental live `update` run confirmed the update column, see `rev5/u.out`. The restore-also-fails branch of takeover. P-10/P-11 (whether Grok Bot loads the files) are owed to `/akili-validate` on the box (NFR-6) |
+| Incident | The T5 Reviewer ran `akili update`, which ran a real `npm install -g akili-specs@latest`. The global version is unchanged at 2.34.2 |
+| Final verification (Leader) | `npm test` 539/539; `verify:cli` 0; `pack:dry-run` 309 files; `git diff --check` clean; `install --tool all --dry-run` and `doctor --tool all` unchanged for the five desktop tools |
+| Next | `/akili-test changes/grokbot-target`, then `/akili-validate` with the live box check (NFR-6) |
