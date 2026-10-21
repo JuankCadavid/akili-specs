@@ -313,3 +313,340 @@ test("@akili-spec changes/grokbot-target FR-6 (Detection): populated resources r
   fs.writeFileSync(path.join(e, "akili", "marker.txt"), "x\n");
   assert.equal(detect().includes("grokbot"), true, "a populated resources root must be detected");
 });
+
+// ---------------------------------------------------------------------------
+// T2: ownership record and install policy (FR-3 record clause, FR-4, NFR-4)
+// ---------------------------------------------------------------------------
+// @akili-spec changes/grokbot-target
+//
+// Gap, stated rather than papered over: `update` cannot be spawned safely here
+// (it runs `npm install -g akili-specs@latest` first), so the update column of
+// the FR-4 table is exercised only through `install`. The one line that tells
+// the two apart (`forceExplicit` = `--force` on `install` only) is covered by
+// no CLI test.
+
+const RECORD_NAME = "grokbot-owned.json";
+const ALL_NAMES = [...SKILL_NAMES, ...COMMAND_NAMES];
+
+function sortedNames(names) {
+  return [...new Set(names)].sort();
+}
+
+function boxPaths(home) {
+  const box = path.join(home, "box");
+  return {
+    workflows: path.join(box, "workflows"),
+    resources: path.join(box, "akili"),
+    record: path.join(box, "akili", RECORD_NAME),
+  };
+}
+
+function installGrokbot(home, extraArgs) {
+  const p = boxPaths(home);
+  return runAkili(["install", "--tool", "grokbot", "--grokbot-target", p.workflows, ...(extraArgs || [])], {
+    cwd: home,
+    env: scratchEnv(home),
+  });
+}
+
+function readRecord(home) {
+  return JSON.parse(fs.readFileSync(boxPaths(home).record, "utf8"));
+}
+
+// Every file under dir with its bytes, so a comparison covers the whole fixture
+// and not just SKILL.md.
+function snapshotFiles(dir) {
+  const out = {};
+  for (const rel of listAllFiles(dir)) out[rel] = fs.readFileSync(path.join(dir, ...rel.split("/"))).toString("base64");
+  return out;
+}
+
+// A foreign skill folder: CRLF SKILL.md, a binary file, and a nested file.
+function makeForeignFolder(dir) {
+  fs.mkdirSync(path.join(dir, "sub"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "SKILL.md"), Buffer.from("---\nname: x\ndescription: not ours\n---\r\nbody\r\n"));
+  fs.writeFileSync(path.join(dir, "notes.md"), "foreign notes\n");
+  fs.writeFileSync(path.join(dir, "blob.bin"), Buffer.from([0, 1, 2, 255]));
+  fs.writeFileSync(path.join(dir, "sub", "deep.txt"), "deep\n");
+}
+
+function skipUnlessPermissionsEnforced(t) {
+  if (process.platform === "win32") {
+    t.skip("POSIX permission bits are not enforced on Windows");
+    return true;
+  }
+  if (typeof process.getuid === "function" && process.getuid() === 0) {
+    t.skip("running as root: chmod does not stop root, so a pass here would prove nothing");
+    return true;
+  }
+  return false;
+}
+
+test("@akili-spec changes/grokbot-target FR-3 (First install, record clause): the record lists every skill and command name", (t) => {
+  const home = mkHome(t, "akili-grokbot-rec-first-");
+  const p = boxPaths(home);
+  const run = installGrokbot(home);
+  assert.equal(run.status, 0, `stdout:\n${run.stdout}\nstderr:\n${run.stderr}`);
+  assert.ok(fs.existsSync(p.record), `expected the ownership record at ${p.record}`);
+  assert.deepEqual(readRecord(home), { version: 1, folders: sortedNames(ALL_NAMES) });
+  assert.deepEqual(
+    listAllFiles(p.resources).filter((f) => f.endsWith(".tmp")),
+    [],
+    "no temp file may be left behind by the atomic record write"
+  );
+});
+
+test("@akili-spec changes/grokbot-target FR-3 (Dry run): nothing is written, the record included, and a dry-run takeover removes nothing", (t) => {
+  const home = mkHome(t, "akili-grokbot-rec-dry-");
+  const p = boxPaths(home);
+  const fresh = installGrokbot(home, ["--dry-run"]);
+  assert.equal(fresh.status, 0, fresh.stderr);
+  assert.equal(fs.existsSync(path.join(home, "box")), false, "a dry run must create neither root nor the record");
+
+  const foreignTdd = path.join(p.workflows, "tdd");
+  makeForeignFolder(foreignTdd);
+  const before = snapshotFiles(home);
+  const forced = installGrokbot(home, ["--dry-run", "--force"]);
+  assert.equal(forced.status, 0, forced.stderr);
+  assert.deepEqual(snapshotFiles(home), before, "--dry-run --force changed the tree");
+  assert.equal(fs.existsSync(p.record), false);
+});
+
+test("@akili-spec changes/grokbot-target FR-3 (Partial installs): --skills-only and --commands-only record only their own set, created even though resources are skipped", (t) => {
+  const home = mkHome(t, "akili-grokbot-rec-partial-");
+  const p = boxPaths(home);
+  const skills = installGrokbot(home, ["--skills-only"]);
+  assert.equal(skills.status, 0, skills.stderr);
+  assert.deepEqual(readRecord(home), { version: 1, folders: sortedNames(SKILL_NAMES) });
+  assert.deepEqual(listAllFiles(p.resources), [RECORD_NAME], "resources are skipped, the record is not");
+
+  const cmds = installGrokbot(home, ["--commands-only"]);
+  assert.equal(cmds.status, 0, cmds.stderr);
+  assert.deepEqual(readRecord(home), { version: 1, folders: sortedNames(ALL_NAMES) }, "the record keeps what it listed and adds the new set");
+
+  const other = mkHome(t, "akili-grokbot-rec-partial2-");
+  const only = installGrokbot(other, ["--commands-only"]);
+  assert.equal(only.status, 0, only.stderr);
+  assert.deepEqual(readRecord(other), { version: 1, folders: sortedNames(COMMAND_NAMES) });
+  assert.deepEqual(
+    fs.readdirSync(boxPaths(other).workflows).sort(),
+    sortedNames(COMMAND_NAMES),
+    "--commands-only wrote a skill folder"
+  );
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Foreign tdd survives update): a foreign skill folder stays byte-identical across repeated installs and is not recorded", (t) => {
+  const home = mkHome(t, "akili-grokbot-foreign-dir-");
+  const p = boxPaths(home);
+  assert.ok(SKILL_NAMES.includes("tdd"), "precondition: tdd is a packaged skill");
+  const foreignTdd = path.join(p.workflows, "tdd");
+  makeForeignFolder(foreignTdd);
+  const before = snapshotFiles(foreignTdd);
+
+  for (const attempt of [1, 2]) {
+    const run = installGrokbot(home);
+    assert.equal(run.status, 0, `run ${attempt}: ${run.stdout}\n${run.stderr}`);
+    assert.deepEqual(snapshotFiles(foreignTdd), before, `run ${attempt}: the foreign tdd folder changed`);
+    assert.match(run.stdout, /skip foreign .*tdd/, `run ${attempt}: expected tdd to be reported as skipped foreign`);
+    assert.equal(readRecord(home).folders.includes("tdd"), false, `run ${attempt}: tdd must not be recorded`);
+  }
+  assert.ok(
+    readRecord(home).folders.includes(SKILL_NAMES.find((n) => n !== "tdd")),
+    "the other skills are still installed and recorded"
+  );
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Foreign plain file named like a command): left untouched, reported foreign, not recorded", (t) => {
+  const home = mkHome(t, "akili-grokbot-foreign-file-");
+  const p = boxPaths(home);
+  const cmd = COMMAND_NAMES[0];
+  fs.mkdirSync(p.workflows, { recursive: true });
+  const file = path.join(p.workflows, cmd);
+  fs.writeFileSync(file, Buffer.from("not a folder\r\n"));
+
+  const run = installGrokbot(home);
+  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+  assert.ok(fs.lstatSync(file).isFile());
+  assert.ok(fs.readFileSync(file).equals(Buffer.from("not a folder\r\n")));
+  assert.match(run.stdout, new RegExp(`skip foreign .*${cmd}`));
+  assert.equal(readRecord(home).folders.includes(cmd), false);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Foreign dangling symlink): classified by lstat as foreign, left untouched, not recorded", (t) => {
+  const home = mkHome(t, "akili-grokbot-foreign-dangling-");
+  const p = boxPaths(home);
+  fs.mkdirSync(p.workflows, { recursive: true });
+  const link = path.join(p.workflows, "tdd");
+  const missingTarget = path.join(home, "does-not-exist");
+  try {
+    fs.symlinkSync(missingTarget, link);
+  } catch (e) {
+    t.skip(`cannot create symlinks here (${e.code})`);
+    return;
+  }
+  const run = installGrokbot(home);
+  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+  assert.ok(fs.lstatSync(link).isSymbolicLink(), "the dangling symlink was replaced");
+  assert.equal(fs.readlinkSync(link), missingTarget);
+  assert.equal(fs.existsSync(missingTarget), false, "nothing may be written through the link");
+  assert.match(run.stdout, /skip foreign .*tdd/);
+  assert.equal(readRecord(home).folders.includes("tdd"), false);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Explicit takeover): install --force replaces a foreign entry whole, never follows a symlink, and records the names", (t) => {
+  const home = mkHome(t, "akili-grokbot-takeover-");
+  const p = boxPaths(home);
+  const cmd = COMMAND_NAMES[0];
+  const linkSkill = SKILL_NAMES.find((n) => n !== "tdd");
+  const foreignTdd = path.join(p.workflows, "tdd");
+  const foreignCmd = path.join(p.workflows, cmd);
+  makeForeignFolder(foreignTdd);
+  makeForeignFolder(foreignCmd);
+
+  const outside = path.join(home, "outside");
+  fs.mkdirSync(outside, { recursive: true });
+  fs.writeFileSync(path.join(outside, "keep.txt"), "keep\n");
+  const link = path.join(p.workflows, linkSkill);
+  let linked = true;
+  try {
+    fs.symlinkSync(outside, link, "dir");
+  } catch (e) {
+    linked = false;
+  }
+
+  const run = installGrokbot(home, ["--force"]);
+  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+  assert.match(run.stdout, /replace foreign .*tdd/);
+
+  // Whole replacement: the installed file list equals the source file list, so
+  // notes.md, blob.bin and sub/ are gone, and every byte matches the source.
+  const srcTdd = path.join(SOURCE_SKILLS, "tdd");
+  assert.deepEqual(listAllFiles(foreignTdd), listAllFiles(srcTdd), "files of the foreign tdd survived the takeover");
+  for (const rel of listAllFiles(srcTdd)) {
+    assert.ok(
+      fs.readFileSync(path.join(foreignTdd, ...rel.split("/"))).equals(fs.readFileSync(path.join(srcTdd, ...rel.split("/")))),
+      `tdd/${rel} differs from source`
+    );
+  }
+  assert.deepEqual(listAllFiles(foreignCmd), ["SKILL.md"], "files of the foreign command folder survived");
+  assert.ok(
+    fs.readFileSync(path.join(foreignCmd, "SKILL.md")).equals(fs.readFileSync(path.join(SOURCE_COMMANDS, `${cmd}.md`)))
+  );
+
+  if (linked) {
+    assert.ok(!fs.lstatSync(link).isSymbolicLink(), "the symlink must be replaced by a real folder");
+    assert.deepEqual(listAllFiles(outside), ["keep.txt"], "the symlink target was written through or removed");
+    assert.equal(fs.readFileSync(path.join(outside, "keep.txt"), "utf8"), "keep\n");
+    assert.deepEqual(listAllFiles(link), listAllFiles(path.join(SOURCE_SKILLS, linkSkill)));
+  }
+  const names = readRecord(home).folders;
+  for (const n of ["tdd", cmd, ...(linked ? [linkSkill] : [])]) assert.ok(names.includes(n), `${n} must be recorded after the takeover`);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Owned entries): a second install skips them and leaves the record alone; --force overwrites", (t) => {
+  const home = mkHome(t, "akili-grokbot-owned-");
+  const p = boxPaths(home);
+  assert.equal(installGrokbot(home).status, 0);
+  const recordBefore = fs.readFileSync(p.record);
+
+  const skillMd = path.join(p.workflows, "tdd", "SKILL.md");
+  fs.writeFileSync(skillMd, "locally edited\n");
+  const again = installGrokbot(home);
+  assert.equal(again.status, 0, again.stderr);
+  assert.doesNotMatch(again.stdout, /foreign/, "owned entries are not foreign");
+  assert.equal(fs.readFileSync(skillMd, "utf8"), "locally edited\n", "install without --force must not overwrite an owned entry");
+  assert.ok(fs.readFileSync(p.record).equals(recordBefore));
+
+  const forced = installGrokbot(home, ["--force"]);
+  assert.equal(forced.status, 0, forced.stderr);
+  assert.ok(fs.readFileSync(skillMd).equals(fs.readFileSync(path.join(SOURCE_SKILLS, "tdd", "SKILL.md"))));
+  assert.ok(fs.readFileSync(p.record).equals(recordBefore));
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Ownership record missing or unreadable): an invalid record stays byte-identical, nothing is written into the workflows root, exit 1, resources still install", (t) => {
+  const variants = {
+    unparsable: "{ not json",
+    "wrong shape": '{"version":1,"folders":"tdd"}',
+    "wrong version": '{"version":2,"folders":[]}',
+  };
+  for (const [label, content] of Object.entries(variants)) {
+    for (const extra of [[], ["--force"]]) {
+      const home = mkHome(t, "akili-grokbot-invalid-");
+      const p = boxPaths(home);
+      makeForeignFolder(path.join(p.workflows, "tdd"));
+      fs.mkdirSync(p.resources, { recursive: true });
+      fs.writeFileSync(p.record, content);
+      const workflowsBefore = snapshotFiles(p.workflows);
+
+      const run = installGrokbot(home, extra);
+      const where = `${label} ${extra.join(" ")}`;
+      assert.equal(run.status, 1, `${where}: expected exit 1; stdout:\n${run.stdout}\nstderr:\n${run.stderr}`);
+      assert.equal(fs.readFileSync(p.record, "utf8"), content, `${where}: the invalid record was rewritten`);
+      assert.deepEqual(snapshotFiles(p.workflows), workflowsBefore, `${where}: something was written into the workflows root`);
+      assert.match(run.stdout, /blocked \(invalid ownership record\)/, where);
+      assert.match(run.stdout, /delete the record/, `${where}: recovery text missing`);
+      assert.ok(fs.existsSync(path.join(p.resources, "templates", "digests.json")), `${where}: resources must still install`);
+    }
+  }
+
+  // A workflows root that does not exist yet is not created either.
+  const home = mkHome(t, "akili-grokbot-invalid-noroot-");
+  const p = boxPaths(home);
+  fs.mkdirSync(p.resources, { recursive: true });
+  fs.writeFileSync(p.record, "garbage");
+  const run = installGrokbot(home);
+  assert.equal(run.status, 1);
+  assert.equal(fs.existsSync(p.workflows), false, "an invalid record must not even create the workflows root");
+  assert.equal(fs.readFileSync(p.record, "utf8"), "garbage");
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Interrupted install): a write that dies part-way leaves the name begun in the record, and a re-run treats it as owned", (t) => {
+  if (skipUnlessPermissionsEnforced(t)) return;
+  const home = mkHome(t, "akili-grokbot-interrupted-");
+  const p = boxPaths(home);
+  fs.mkdirSync(p.workflows, { recursive: true });
+  fs.chmodSync(p.workflows, 0o555);
+  let first;
+  try {
+    first = installGrokbot(home);
+  } finally {
+    fs.chmodSync(p.workflows, 0o755);
+  }
+  assert.notEqual(first.status, 0, `expected the read-only workflows root to fail the install:\n${first.stdout}`);
+  assert.match(first.stderr, /EACCES/);
+  const begun = readRecord(home).folders;
+  assert.deepEqual(begun, [COMMAND_NAMES[0]], "the record lists exactly the name begun");
+  assert.deepEqual(fs.readdirSync(p.workflows), [], "nothing was written into the read-only root");
+
+  const second = installGrokbot(home);
+  assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
+  assert.doesNotMatch(second.stdout, /foreign/, "a name the record lists must never read as foreign");
+  assert.ok(fs.existsSync(path.join(p.workflows, COMMAND_NAMES[0], "SKILL.md")));
+  assert.deepEqual(readRecord(home).folders, sortedNames(ALL_NAMES));
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover): a takeover whose removal fails records nothing for that name", (t) => {
+  if (skipUnlessPermissionsEnforced(t)) return;
+  const home = mkHome(t, "akili-grokbot-takeover-fail-");
+  const p = boxPaths(home);
+  const foreignTdd = path.join(p.workflows, "tdd");
+  makeForeignFolder(foreignTdd);
+  const locked = path.join(foreignTdd, "locked");
+  fs.mkdirSync(locked);
+  fs.writeFileSync(path.join(locked, "inside.txt"), "x\n");
+  fs.chmodSync(locked, 0o555);
+  let run;
+  try {
+    run = installGrokbot(home, ["--force"]);
+  } finally {
+    fs.chmodSync(locked, 0o755);
+  }
+  assert.notEqual(run.status, 0, `expected the failed removal to stop the run:\n${run.stdout}`);
+  assert.match(run.stderr, /EACCES|EPERM/);
+  assert.equal(
+    readRecord(home).folders.includes("tdd"),
+    false,
+    "a foreign entry that still exists must never be recorded as owned"
+  );
+  assert.ok(fs.existsSync(path.join(locked, "inside.txt")), "the locked file is still there");
+});

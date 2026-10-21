@@ -85,7 +85,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | L (~90 LOC in `bin/akili.js`, ~170 LOC of tests) |
 | Depends on | T1 |
 | Requirements | FR-3 *First install* (the record clause), FR-3 *Dry run and partial installs*, FR-4 (table rows for install, install `--force` and update; scenarios *Foreign `tdd` survives update*, *Explicit takeover*, *Ownership record missing or unreadable* for install/update, *Interrupted install*; the invalid-record footnote), NFR-4 |

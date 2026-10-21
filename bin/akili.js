@@ -661,6 +661,119 @@ function removeTargetSymlinks(sourcePath, targetPath) {
   }
 }
 
+// @akili-spec changes/grokbot-target — T2 (FR-4, DD-5..DD-7, DD-10, DD-11):
+// ownership of entries in a shared workflows root. The record lists entry
+// NAMES (never paths) that AKILI wrote or began writing; a same-name entry
+// that is not listed is foreign and is never written, unless the operator
+// explicitly takes it over with `install --force`.
+const OWNERSHIP_RECORD_FILE = "grokbot-owned.json";
+
+function ownershipRecordPath(paths) {
+  return path.join(paths.resources, OWNERSHIP_RECORD_FILE);
+}
+
+// Three states: absent (empty set, writes allowed), valid, invalid (empty set,
+// `reason` set, writes refused). Never throws and never writes.
+function readOwnership(recordPath) {
+  const result = (state, names, reason) => ({ state, names, recordPath, reason });
+  let raw;
+  try {
+    raw = fs.readFileSync(recordPath, "utf8");
+  } catch (e) {
+    if (e && e.code === "ENOENT") return result("absent", new Set());
+    return result("invalid", new Set(), `unreadable (${(e && e.code) || e})`);
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    return result("invalid", new Set(), "not valid JSON");
+  }
+  const shapeOk =
+    data !== null &&
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    data.version === 1 &&
+    Array.isArray(data.folders) &&
+    data.folders.every((name) => typeof name === "string" && name !== "");
+  if (!shapeOk) return result("invalid", new Set(), "unexpected shape (expected {version: 1, folders: [names]})");
+  return result("valid", new Set(data.folders));
+}
+
+// lstat, never existsSync: a dangling symlink is an entry, not an absence (DD-7).
+function classifyEntry(entryPath, ownership) {
+  try {
+    fs.lstatSync(entryPath);
+  } catch (e) {
+    if (e && (e.code === "ENOENT" || e.code === "ENOTDIR")) return "absent";
+    throw e;
+  }
+  return ownership.state === "valid" && ownership.names.has(path.basename(entryPath)) ? "owned" : "foreign";
+}
+
+// Atomic rewrite of the whole record with `name` added. The caller holds the
+// invariant that this is never reached while the record is invalid.
+function recordOwned(ownership, name) {
+  if (ownership.state === "invalid") {
+    throw new Error(`refusing to write over the invalid ownership record ${ownership.recordPath}`);
+  }
+  if (ownership.names.has(name)) return;
+  const names = new Set(ownership.names).add(name);
+  const body = JSON.stringify({ version: 1, folders: [...names].sort() }, null, 2) + "\n";
+  fs.mkdirSync(path.dirname(ownership.recordPath), { recursive: true });
+  atomicWriteFileSync(ownership.recordPath, body);
+  ownership.names = names;
+  ownership.state = "valid";
+}
+
+// Removes the entry itself: recursive for a real directory, unlink for a
+// symlink or file. Never follows a link, so a symlink's target is untouched.
+function removeEntryNoFollow(entryPath) {
+  if (fs.lstatSync(entryPath).isDirectory()) {
+    fs.rmSync(entryPath, { recursive: true });
+  } else {
+    fs.unlinkSync(entryPath);
+  }
+}
+
+// The per-entry policy `copyDirectoryContents` and the command-skill loop call
+// before touching `<workflows root>/<name>`. It returns one of:
+//   "write"    absent: the name is recorded first (intent first, DD-10)
+//   "owned"    listed in the record: today's skip-or-overwrite rules apply
+//   "foreign"  exists and is not listed: skip, never write
+//   "takeover" foreign + `install --force`: removed, then recorded; the caller copies
+//   "blocked"  the record is invalid: nothing may be written
+// Side effects (record write, removal) happen here, in that order, and never
+// under --dry-run. A throw leaves no name recorded that was not begun.
+function makeOwnershipPolicy(ownership, args) {
+  return (name, entryPath) => {
+    const state = classifyEntry(entryPath, ownership);
+    if (ownership.state === "invalid") {
+      if (state === "absent") return "blocked";
+      return args.forceExplicit ? "blocked" : "foreign";
+    }
+    if (state === "owned") return "owned";
+    if (state === "absent") {
+      if (!args.dryRun) recordOwned(ownership, name);
+      return "write";
+    }
+    if (!args.forceExplicit) return "foreign";
+    if (!args.dryRun) {
+      removeEntryNoFollow(entryPath);
+      recordOwned(ownership, name);
+    }
+    return "takeover";
+  };
+}
+
+function logForeignSkip(entryPath) {
+  console.log(`  ${colors.yellow}skip foreign${colors.reset} ${entryPath}`);
+}
+
+function logBlocked(entryPath) {
+  console.log(`  ${colors.red}blocked (invalid ownership record)${colors.reset} ${entryPath}`);
+}
+
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
@@ -691,17 +804,42 @@ function copySingleFile(sourcePath, targetPath, args) {
     : { installed: 1, overwritten: 0, skipped: 0 };
 }
 
-function copyDirectoryContents(sourceDir, targetDir, args) {
-  ensureDirectory(targetDir, args.dryRun);
+// `policy` is optional (T2). Without it this behaves exactly as before and
+// returns the same three counts. With it, each top-level entry is first put
+// through policy(name, targetPath), and the result also carries `foreignSkipped`,
+// `blocked` and `written` (the entry names written or begun).
+function copyDirectoryContents(sourceDir, targetDir, args, policy) {
+  // With a policy the directory is created lazily: a run that writes nothing
+  // (everything foreign or blocked) must not create the workflows root.
+  let ensured = !policy;
+  if (!policy) ensureDirectory(targetDir, args.dryRun);
 
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let foreignSkipped = 0;
+  let blocked = 0;
+  const written = [];
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
+
+    let decision = null;
+    if (policy) {
+      decision = policy(entry.name, targetPath);
+      if (decision === "foreign") {
+        logForeignSkip(targetPath);
+        foreignSkipped += 1;
+        continue;
+      }
+      if (decision === "blocked") {
+        logBlocked(targetPath);
+        blocked += 1;
+        continue;
+      }
+    }
 
     let targetStat = null;
     try {
@@ -711,25 +849,34 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     }
 
     const exists = targetStat !== null;
+    const takeover = decision === "takeover";
 
-    if (exists && !args.force) {
+    if (exists && !takeover && !args.force) {
       console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
       skipped += 1;
       continue;
     }
 
-    const action = exists ? "overwrite" : "install";
+    if (!ensured) {
+      ensureDirectory(targetDir, args.dryRun);
+      ensured = true;
+    }
+
+    const action = takeover ? "replace foreign" : exists ? "overwrite" : "install";
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
       copyTreeSync(sourcePath, targetPath);
     }
-    if (exists) overwritten += 1;
+    if (exists || takeover) overwritten += 1;
     else installed += 1;
+    written.push(entry.name);
   }
 
-  return { installed, overwritten, skipped };
+  return policy
+    ? { installed, overwritten, skipped, foreignSkipped, blocked, written }
+    : { installed, overwritten, skipped };
 }
 
 // Which parsed `args` fields feed each tool's `roots` object — data, not a
@@ -823,6 +970,8 @@ function installTool(tool, args) {
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let foreignSkipped = 0;
+  let blocked = 0;
 
   console.log(`\n${colors.cyan}${tool.toUpperCase()} target: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
 
@@ -831,10 +980,29 @@ function installTool(tool, args) {
     console.log(`  ${colors.green}Legacy cleanup complete.${colors.reset}`);
   }
 
+  // @akili-spec changes/grokbot-target — T2: a tool with an ownership record
+  // gets a per-entry policy for every skill and command-skill it writes.
+  let ownership = null;
+  let policy = null;
+  if (paths.ownershipRecord) {
+    ownership = readOwnership(ownershipRecordPath(paths));
+    policy = makeOwnershipPolicy(ownership, args);
+    if (ownership.state === "invalid") {
+      console.log(
+        `  ${colors.red}warning${colors.reset} ownership record ${ownership.recordPath} is ${ownership.reason}; it is left untouched and nothing is written into ${roots.skillsRoot}.`
+      );
+      console.log(
+        `  To recover: restore the record; or run ${colors.cyan}akili doctor --tool ${tool}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}akili install --tool ${tool} --force${colors.reset}, knowing that every AKILI-named entry will be replaced.`
+      );
+    }
+  }
+
   const add = (result) => {
     installed += result.installed;
     overwritten += result.overwritten;
     skipped += result.skipped;
+    foreignSkipped += result.foreignSkipped || 0;
+    blocked += result.blocked || 0;
   };
 
   if (shouldInclude("commands", args)) {
@@ -846,13 +1014,24 @@ function installTool(tool, args) {
       for (const cmdFile of listCommands()) {
         const cmdName = cmdFile.replace(/\.md$/, "");
         for (const targetSkills of skillDirs) {
-          add(
-            copySingleFile(
-              path.join(SOURCE_COMMANDS, cmdFile),
-              path.join(targetSkills, cmdName, "SKILL.md"),
-              args
-            )
-          );
+          const entryDir = path.join(targetSkills, cmdName);
+          if (policy) {
+            const decision = policy(cmdName, entryDir);
+            if (decision === "foreign") {
+              logForeignSkip(entryDir);
+              foreignSkipped += 1;
+              continue;
+            }
+            if (decision === "blocked") {
+              logBlocked(entryDir);
+              blocked += 1;
+              continue;
+            }
+            if (decision === "takeover") {
+              console.log(`  ${colors.green}${args.dryRun ? "would " : ""}replace foreign${colors.reset} ${entryDir}`);
+            }
+          }
+          add(copySingleFile(path.join(SOURCE_COMMANDS, cmdFile), path.join(entryDir, "SKILL.md"), args));
         }
       }
     }
@@ -861,7 +1040,7 @@ function installTool(tool, args) {
   if (shouldInclude("skills", args)) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args));
+      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, policy));
     }
   }
 
@@ -899,7 +1078,16 @@ function installTool(tool, args) {
     add(copySingleFile(SOURCE_MCP_EXAMPLE, path.join(paths.resources, ".mcp.json.example"), args));
   }
 
-  return { rootPath, installed, overwritten, skipped, cleaned };
+  return {
+    rootPath,
+    installed,
+    overwritten,
+    skipped,
+    cleaned,
+    foreignSkipped,
+    blocked,
+    recordInvalid: ownership !== null && ownership.state === "invalid",
+  };
 }
 
 // Package managers to probe, preferring the one that invoked this process
@@ -1124,9 +1312,13 @@ function runInstall(args) {
       overwritten: acc.overwritten + r.overwritten,
       skipped: acc.skipped + r.skipped,
       cleaned: acc.cleaned + r.cleaned,
+      foreignSkipped: acc.foreignSkipped + r.foreignSkipped,
     }),
-    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0 }
+    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0, foreignSkipped: 0 }
   );
+  // @akili-spec changes/grokbot-target — T2: runUpdate and the next-steps
+  // block (T4) read the total of foreign entries left alone.
+  args.foreignSkipped = totals.foreignSkipped;
 
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
   console.log(`${colors.cyan}Install Summary${colors.reset} — akili-specs v${currentVersion}${args.dryRun ? ` ${colors.yellow}(dry-run: no files were written)${colors.reset}` : ""}`);
@@ -1164,6 +1356,12 @@ function runInstall(args) {
       }
     }
     console.log(`  - Optional: ${colors.cyan}akili notifications enable${colors.reset} to hear about new versions at Claude Code session start.`);
+  }
+
+  // @akili-spec changes/grokbot-target — T2 (FR-4 *Invalid record*): a blocked
+  // run is reported and exits non-zero, after its output is complete.
+  if (results.some((r) => r.recordInvalid)) {
+    process.exitCode = 1;
   }
 }
 

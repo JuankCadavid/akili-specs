@@ -75,3 +75,49 @@
   - LOC: ~395/~790 (`bin/akili.js` +70/−10 against ~90 budgeted; new test file 315 lines against ~150 budgeted for T1; pins 10).
   - Review rounds: 2/8.
   - The test LOC is running ahead of the T1 estimate. The total stays within budget, and I'm watching it at each gate.
+
+> **Gate decision (2026-10-21, user):** "Continúa con T2 y las siguientes tareas sin pausar entre tareas salvo que haya una decisión de producto/riesgo." From here on, continue/pause gates after a PASS are auto-approved (logged per task). A HALT, Pivot, budget tripwire, `FATAL_FAIL`, or a product/risk decision still stops for the user.
+
+### T2 — Ownership record and install/update policy
+
+#### Attempt 1 — PASS
+- **Files changed:** `bin/akili.js` (+230/−16), `test/install-grokbot.test.js` (+337; 10 tests, 22 total).
+- **Implementer verification:**
+  - 4 suites: 97/97.
+  - Regression: exit 0.
+  - `install --tool all --dry-run`: byte-identical to HEAD.
+  - `git diff --check`: clean.
+  - `npm test`: 528/528.
+- **Red run at HEAD 2d10e29:**
+  - Record-exists test: red on "expected the ownership record at …/box/akili/grokbot-owned.json".
+  - Foreign-`tdd` test: red on the label assertion "run 1: expected tdd to be reported as skipped foreign". **Deviation from the brief:** it was not red on byte identity, because HEAD's plain install already skipped existing entries.
+- **Falsifiers (executed, reverted):**
+  1. `existsSync` classifier: red on `/skip foreign .*tdd/` and on the not-recorded assertion. **Deviation:** the symlink is not overwritten, because a plain install skips existing entries.
+  2. Merge on takeover: red on "files of the foreign tdd survived the takeover".
+  3. Record before removal: red on "a foreign entry that still exists must never be recorded as owned".
+  4. Write while invalid: red on "unparsable : the invalid record was rewritten".
+  5. **GAP:** `force` treated as `forceExplicit` cannot be seen by a CLI test, because `update` cannot be spawned. The Reviewer verified it by static trace: `getArgs:433` `forceExplicit = force && command==="install"`; `runUpdate:1259` sets only `force`; the policy at `:753` and `:760` reads only `forceExplicit`.
+- **Implementer assumptions (verbatim summary):**
+  - The recovery text carries no root flags (T4).
+  - With an invalid record, an existing entry prints `skip foreign` under a plain install and `blocked` under `--force`; absent entries are always `blocked`.
+  - Exit 1 is set through `process.exitCode`, so `update` finishes its output first, and `--dry-run` with an invalid record also exits 1.
+- **Evidence re-run (Leader inline):** VERIFIED. 97/97 with 0 skipped, regression exit 0, `diff --check` clean, dry-run byte-identical to HEAD, `/home/box` absent.
+- **Reviewer (opus, xhigh, full 4R):** PASS. Every clause of FR-3 (record and partial installs), FR-4 (table, footnote, four scenarios), NFR-4, design §5/§6/§7, DD-5/6/7/10/11 and P-5/6/8/12/13 conforms. The invalid-record output line was judged conforming. The Reviewer's own run: `npm test` 528/528.
+- **ADVISORY (recorded only):**
+  - RISK: a takeover whose `rmSync` fails partway may already have deleted some foreign files. Nothing is recorded, as specified, but the foreign data is partly lost. Suggestion: rename to a sibling temp name first, then remove.
+  - RELIABILITY: an interrupted install ends with an uncaught stack trace; a one-line error would read better.
+  - READABILITY: a command-skill takeover prints both `replace foreign` and `would overwrite` under `--dry-run`.
+  - READABILITY: an invalid record with every entry present prints only `skip foreign` lines; the docs should mention this.
+  - RISK: the update column is verified by static trace only, and the EACCES/EISDIR unreadable-record states are untested.
+- **spawns:** Implementer — not reported by host; Reviewer — not reported by host.
+
+**T2 final: PASS** (1 attempt) · 2026-10-21
+- **Requirements covered:** FR-3 (record, dry run, partial installs); FR-4 install, install `--force` and update columns, invalid-record footnote, and the four scenarios (install/update side); NFR-4.
+- **Decisions:** skill `tdd` (as listed); effort xhigh.
+- **Running totals vs budget — BUDGET TRIPWIRE:**
+  - Tasks: 2/5.
+  - LOC: ~965 against ~790 for the whole spec (`bin/akili.js` ≈ +300 against 240 budgeted for all tasks; tests ≈ +652 against ~460; pins 10).
+  - Review rounds: 3/8.
+  - **Cause:** test LOC runs about 2× the estimate (fixtures with full-tree snapshots, permission-test guards and skips), and the policy/ownership code is about 2.5× T2's line.
+  - Remaining T3–T5 estimate: ~60 bin + ~130 tests + ~90 docs. Projected final ≈ 1,250 LOC (~1.6× budget).
+  - Per Step 2.4: stop and escalate to the user.
