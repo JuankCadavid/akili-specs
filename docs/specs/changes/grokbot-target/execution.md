@@ -143,3 +143,28 @@
     - T2's scope line is marked superseded for step 1.
     - The coverage row is added.
 - **Placement decision (Leader):** the moved-aside copy goes into AKILI's resources root, never into the bot-visible workflows root. A hidden folder there that still holds a `SKILL.md` could be loaded by a bot.
+
+### T2b — Safe takeover: move aside, then delete
+
+#### Attempt 1 — FAIL
+- **Files changed:** `bin/akili.js`, `test/install-grokbot.test.js` (+115/−21).
+- **Implementer verification:**
+  - 4 suites: 98/98.
+  - `npm test`: 529/529.
+  - `git diff --check`: clean.
+  - Dry run: byte-identical.
+- **Red run at HEAD:**
+  - The delete-after-move test went red on the exit assertion.
+  - The move-aside-failure test PASSED at HEAD on macOS, because `rmSync` inside a read-only parent deletes nothing. It discriminates only via falsifier 2.
+- **Falsifiers:** 1, 2 and 3 all went red, quoted in the report.
+- **Evidence re-run (Leader inline):** VERIFIED (98/98, dry-run byte-identical, `/home/box` absent).
+- **Reviewer (opus):** FAIL.
+  - Issue 1: a takeover that fails at step (2), the record write after the move-aside, does not restore the foreign entry to its place. That violates FR-4 *Explicit takeover*: "a takeover that fails before the copy leaves the foreign entry whole in place".
+  - Remediation: wrap `recordOwned`, rename back on throw, and name `asidePath` if the restore also fails.
+- **Spec tension (Reviewer, Pivot evidence), settled as a one-line amendment.** Recursive delete is not atomic. So "a failure to delete the moved-aside copy leaves it intact" cannot hold for every case.
+  - **Amended:** requirements FR-4 now reads "leaves whatever remains of it outside the workflows root, with a warning naming its path". Design §5 is amended the same way, plus the step-(2) restore.
+  - **Leader judgment:** the data in question is what the user's explicit `--force` already consented to delete. The protected property — nothing partial is left where bots read — still holds. Under the user's "stop only for product/risk decisions" instruction, this is applied and reported, not paused on. Recorded here for the user's review.
+- **ADVISORY:**
+  - A copy failure after the record leaves the entry in `.takeover/` with no message.
+  - A crash between rename and record leaves an orphan in `.takeover/`, which a future doctor line could list.
+  - A resources root on another filesystem means every takeover fails (EXDEV). The Reviewer's report was cut off in this item.

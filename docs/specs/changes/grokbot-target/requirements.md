@@ -159,7 +159,7 @@ AKILI SHALL record the entries it writes in the workflows root, and SHALL treat 
 - WHEN the user runs `akili install --tool grokbot --force`
 - THEN `tdd` is replaced whole by AKILI's copy and recorded as owned
 - AND IT MUST leave no file of the foreign `tdd` behind in the workflows root, and remove a foreign symlink without touching its target
-- AND IT MUST move the foreign entry aside before deleting anything: a takeover that fails before the copy leaves the foreign entry whole in place, and a failure to delete the moved-aside copy leaves it intact outside the workflows root, with a warning naming its path
+- AND IT MUST move the foreign entry aside before deleting anything: a takeover that fails before the copy leaves the foreign entry whole in place, and a failure to delete the moved-aside copy leaves whatever remains of it outside the workflows root, with a warning naming its path
 
 #### Scenario: Ownership record missing or unreadable
 
