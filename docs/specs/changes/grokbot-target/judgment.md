@@ -82,3 +82,33 @@ New findings (fix-caused or residual):
 | R-7 | Budget ~810 |
 | R-8 | `runInstall` stashes `args.foreignSkipped`; `runUpdate` reads it |
 | R-9 | NFR-3, §4, P-4 add `test/agents-doctor-io.test.js` |
+
+## Round 2 — final scoped re-judgment (fix delta `4f628a9..9935687`)
+
+Both judges re-ran P-4, P-14 and the §9 grep (76 hits), and confirmed the counts: 14 / 12 / 2 and ~810.
+
+| R | A | B |
+|---|---|---|
+| R-1 | resolved (with R2-A-1) | partial (R2-B-1) |
+| R-2 … R-8 | resolved | resolved (R-5 unverifiable until `execution.md`) |
+| R-9 | partial (R2-A-4) | partial (R2-B-2) |
+
+Answers to the focus questions (both judges): the DD-12 precondition guarantees FR-4 on the box, and it delivers onto an empty box. The takeover order is sound. The invalid-record block fits FR-4 and the doctor exit.
+
+Residual findings. Neither judge rated any of them severe, so all are info under the two-round ceiling:
+
+| ID | Judges | Severity | Finding |
+|---|---|---|---|
+| I-1 | R2-B-1 | WARNING | `rsync` creates only the leaf directory. If `/home/box/agent-data/` is missing, the copy fails. Add `mkdir -p` to the `ssh` step |
+| I-2 | R2-A-1 | WARNING | The copy order is workflows, then `akili/`. A partial copy leaves AKILI entries with no record, and they read foreign. Copy `akili/` first, then name the recovery (box `install`) |
+| I-3 | R2-A-4, R2-B-2 | WARNING / SUGGESTION | `test/agents-doctor.test.js` (`doctor --agents` without `--tool`) also needs the `AKILI_GROKBOT_TARGET` pin. It is inert today because no test asserts the `Tool root` line |
+| I-4 | R2-A-3, R2-B-4 | SUGGESTION | While the record is invalid, `doctor --fix` must print BLOCKED, not FIXED, and absent entries stay MISSING |
+| I-5 | R2-B-3 | SUGGESTION | The FR-4 table needs an invalid-record footnote |
+| I-6 | R2-A-2 | SUGGESTION | The recovery text should say to run `doctor` before deleting the record and running `install --force` |
+| I-7 | R2-A-5, R2-B-5 | SUGGESTION | Fix P-14's citation (second `--ignore-existing` occurrence), mark it as rejected-alternative rationale, and move the row after P-13 |
+
+## Terminal receipt
+
+Round 1 had 2 confirmed severe findings (J-1, J-2) and 1 suspect severe (J-3). All were fixed and re-judged. Round 1's re-judgment found 1 confirmed severe (R-1), which round 2 fixed. Round 2's re-judgment found 0 severe, so I-1 to I-7 remain as info. Artifacts: `judgment.md`, commits `f98ad57`, `4f628a9`, `9935687`.
+
+**JUDGMENT: APPROVED ✅**
