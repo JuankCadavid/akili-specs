@@ -11,7 +11,7 @@
 | Branch | `feat/grokbot-target` → PR into `dev` |
 | Depends on | none |
 | Parallel-safe | yes — touches `bin/akili.js` install paths, docs and a new test file; no routing or persona code |
-| Status | Draft — Q1–Q4/Q6 answered 2026-10-21 (all recommended defaults); Q5 takes its default; awaiting proposal approval |
+| Status | **Approved** 2026-10-21 by the user (Q5 sibling, configurable, confirmed) |
 | Date | 2026-10-21 |
 
 ## Intent
@@ -103,6 +103,7 @@
 | Q6 | Can Grok Bot run the commands as written (file edits, shell/git, subagents)? Install all 12, a subset, or skills only? | **Answered:** all 12, documented as best-effort |
 
 - **Risk:** every Grok Bot fact above is unverified in this session; a live check on the box (`ls /home/box/agent-data/workflows`, one installed skill loaded by a bot) is the validation gate.
+- **User context (2026-10-21):** `/home/box/agent-data/workflows/` does not exist on the box yet (no user skills created) — the path is a configurable default, verified at `/akili-validate`; the installer must create it (no collision expected on first install).
 - **Risk:** a shared directory means `--force` overwrites a folder another bot owner may rely on — `doctor` must name collisions before anyone forces.
 
 ## Success Criteria
