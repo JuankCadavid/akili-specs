@@ -234,3 +234,37 @@
   - Stopped per Step 2.4.
 
 > **Budget decision (2026-10-21, user):** "Aprobado subir a ~1,600 LOC y 2 rondas de review extra si hacen falta; termina T4 y T5." New tripwire: ~1,600 LOC, 10 review rounds.
+
+### T4 — Next steps: install and update
+
+#### Attempt 1 — PASS
+- **Files changed:** `bin/akili.js`, `test/install-grokbot.test.js` (+79/−7, 3 new tests).
+  - New helpers: `grokbotRootFlags`, `grokbotCommand`, `doctorHintFor`.
+  - T3's doctor hints now use the same rule: root flags only when a root is not the default, and plain `"${p}"` quoting. This was T3's `[advisory-grade]` forward pointer.
+- **Implementer verification:**
+  - 4 suites: 108/108; `npm test`: 539/539.
+  - `diff --check`: clean; `rsync|ssh` in `bin/akili.js`: 0.
+  - `install --tool all --dry-run`: byte-identical.
+  - Red run at HEAD: "directory line missing:".
+  - Falsifier 1: red with "a foreign skip is not a preserved file". Falsifier 2: red with "doctor hint missing:".
+  - The update `Files:` line is checked by reading the code (update cannot be spawned).
+- **Evidence re-run (Leader inline):** VERIFIED.
+  - Same counts, plus a live probe: override install with one foreign `tdd`. Next steps printed the read directory, "1 foreign entry skipped … akili install --tool grokbot --grokbot-target <w> --force", and "akili doctor --tool grokbot --grokbot-target <w>".
+- **Reviewer (opus):** PASS.
+  - Every FR-7 scenario string matches exactly.
+  - The preserved count excludes foreign entries (`:905-908`, `:1094-1097`).
+  - Update path: the grokbot block prints through `runInstall`, and the `Files:` suffix matches §6.
+  - T3 conformance (FR-4 recovery text, FR-5 hint) holds.
+- **Spec gap (Reviewer escalation):**
+  - FR-7's BUT clause said "must NOT open any network connection".
+  - The existing `checkForUpdates()` (`bin/akili.js:2863`, an `https.get` to the npm registry on a TTY, for every command) contradicts that literal text.
+  - **Settled as a one-line amendment (option a):** "no copy or transfer step may open a network connection (the existing npm update check is unaffected)".
+  - **Leader judgment:** the clause came from removing the staging/`ssh` flow (DD-12) and never meant to change the global update check, which NFR-1 protects. Applied under the user's "stop only for product/risk decisions" instruction and reported to the user. The `tasks.md` coverage row is updated.
+- **ADVISORY:**
+  - `grokbotCommand` hardcodes `--tool grokbot`, which would mislabel a future second `ownershipRecord` tool.
+  - `"${p}"` quoting does not escape `"` or `$` in paths.
+- **spawns:** Implementer — not reported by host; Reviewer — not reported by host.
+
+**T4 final: PASS** (1 attempt) · 2026-10-21
+- **Requirements covered:** FR-7 (amended), FR-4 "skipped as foreign" message, NFR-1.
+- **Running totals:** tasks 5/6; LOC ≈ 1,381 + 86 ≈ 1,467 of ~1,600; review rounds 7/10.

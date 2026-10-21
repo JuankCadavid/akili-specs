@@ -631,6 +631,30 @@ function verifyHints(tools) {
   return flag ? [flag] : tools;
 }
 
+// @akili-spec changes/grokbot-target — T4 (FR-7): the root flags that reproduce
+// a grokbot run, each present only when its root differs from what the run
+// would resolve without it (the default workflows root; the `akili` sibling of
+// the workflows root). Empty when both roots are the defaults.
+function grokbotRootFlags(workflows, resources) {
+  const quote = (p) => (/\s/.test(p) ? `"${p}"` : p);
+  const flags = [];
+  if (workflows !== resolveUserPath(defaultPaths.grokbot)) flags.push(`--grokbot-target ${quote(workflows)}`);
+  if (resources !== path.join(path.dirname(workflows), "akili")) flags.push(`--grokbot-resources-target ${quote(resources)}`);
+  return flags.join(" ");
+}
+
+// `akili <verb> --tool grokbot [root flags] [tail]`, without double spaces.
+function grokbotCommand(verb, workflows, resources, tail) {
+  return ["akili", verb, "--tool grokbot", grokbotRootFlags(workflows, resources), tail].filter(Boolean).join(" ");
+}
+
+// The text after `akili doctor --tool ` for a verify hint: grokbot carries its
+// root flags when a root is not the default.
+function doctorHintFor(h, args) {
+  if (h !== "grokbot") return h;
+  return grokbotCommand("doctor", args.grokbotTarget, args.grokbotResourcesTarget).replace(/^akili doctor --tool /, "");
+}
+
 function shouldInclude(type, args) {
   if (args.commandsOnly) return type === "commands";
   if (args.skillsOnly) return type === "skills";
@@ -1328,8 +1352,8 @@ function runUpdate(args) {
     console.log(`  Package: updated from v${versionBefore} (${installLabel}; new version could not be read)`);
   }
   const updatedTools = args.resolvedTools || selectedTools(args);
-  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""} (see Install Summary above)`);
-  const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${h}`);
+  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""}${args.foreignSkipped > 0 ? ` (${args.foreignSkipped} foreign skipped for grokbot)` : ""} (see Install Summary above)`);
+  const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${doctorHintFor(h, args)}`);
   if (updateHints.length === 1) {
     console.log(`  Verify: ${colors.cyan}${updateHints[0]}${colors.reset}`);
   } else {
@@ -1394,10 +1418,18 @@ function runInstall(args) {
   if (tools.includes("cursor") && !args.dryRun) {
     console.log(`  - Restart ${colors.cyan}Cursor${colors.reset} or open a new chat for installed commands and skills to be loaded.`);
   }
+  // @akili-spec changes/grokbot-target — T4 (FR-7): where Grok Bot reads, the
+  // foreign skips, and the explicit takeover command with this run's roots.
+  if (tools.includes("grokbot") && !args.dryRun) {
+    console.log(`  - Grok Bot reads skills from ${colors.cyan}${args.grokbotTarget}${colors.reset}; it must be configured to read that directory.`);
+    if (totals.foreignSkipped > 0) {
+      console.log(`  - ${totals.foreignSkipped} foreign ${totals.foreignSkipped === 1 ? "entry" : "entries"} skipped (not AKILI's, left untouched). To replace ${totals.foreignSkipped === 1 ? "it" : "them"} with AKILI's copies, run ${colors.cyan}${grokbotCommand("install", args.grokbotTarget, args.grokbotResourcesTarget, "--force")}${colors.reset}.`);
+    }
+  }
   if (args.dryRun) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
-    const installHints = verifyHints(tools).map((h) => `akili doctor --tool ${h}`);
+    const installHints = verifyHints(tools).map((h) => `akili doctor --tool ${doctorHintFor(h, args)}`);
     if (installHints.length === 1) {
       console.log(`  - Verify the installation with ${colors.cyan}${installHints[0]}${colors.reset}.`);
     } else {
@@ -2201,17 +2233,16 @@ function runDoctor(args) {
     for (const r of results) {
       if (!r.recordState || (r.foreign === 0 && r.recordState === "valid")) continue;
       const { roots, paths } = getToolRegistryInfo(r.tool, args);
-      const quote = (p) => (/\s/.test(p) ? JSON.stringify(p) : p);
-      const rootFlags = `--${r.tool}-target ${quote(roots.skillsRoot)} --${r.tool}-resources-target ${quote(paths.resources)}`;
+      const installCmd = grokbotCommand("install", roots.skillsRoot, paths.resources, "--force");
       if (r.foreign > 0 && r.recordState !== "invalid") {
         console.log(
-          `  - ${r.foreign} ${r.tool} entr${r.foreign === 1 ? "y is" : "ies are"} not recorded as AKILI's; --fix leaves them untouched. To replace them with AKILI's copies, run ${colors.cyan}akili install --tool ${r.tool} ${rootFlags} --force${colors.reset}.`
+          `  - ${r.foreign} ${r.tool} entr${r.foreign === 1 ? "y is" : "ies are"} not recorded as AKILI's; --fix leaves them untouched. To replace them with AKILI's copies, run ${colors.cyan}${installCmd}${colors.reset}.`
         );
       }
       if (r.recordState === "valid") continue;
       if (r.recordState === "absent" && r.foreign === 0) continue;
       console.log(
-        `  - Ownership record (${ownershipRecordPath(paths)}): restore the record; or run ${colors.cyan}akili doctor --tool ${r.tool}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}akili install --tool ${r.tool} ${rootFlags} --force${colors.reset}, knowing that every AKILI-named entry will be replaced.`
+        `  - Ownership record (${ownershipRecordPath(paths)}): restore the record; or run ${colors.cyan}${grokbotCommand("doctor", roots.skillsRoot, paths.resources)}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}${installCmd}${colors.reset}, knowing that every AKILI-named entry will be replaced.`
       );
     }
     process.exitCode = 1;

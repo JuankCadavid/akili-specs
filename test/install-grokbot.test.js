@@ -884,3 +884,44 @@ test("@akili-spec changes/grokbot-target NFR-1 (Codex doctor unchanged): doctor 
   assert.equal(normalize(doc.stdout.split(home).join("<HOME>")), fixture);
   assert.doesNotMatch(doc.stdout, /foreign/i);
 });
+
+// @akili-spec changes/grokbot-target — T4 (FR-7): the next-steps block. Every
+// spawn uses the pinned scratchEnv.
+test("@akili-spec changes/grokbot-target FR-7 (Install with an override): names the directory, the foreign count, the takeover and the doctor hint with the run's root flag; no copy/rsync/ssh", (t) => {
+  const home = mkHome(t, "akili-grokbot-next-override-");
+  const workflows = path.join(home, "srv", "grok", "workflows");
+  makeForeignFolder(path.join(workflows, "tdd"));
+  const run = runAkili(["install", "--tool", "grokbot", "--grokbot-target", workflows], { cwd: home, env: scratchEnv(home) });
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  const next = run.stdout.slice(run.stdout.indexOf("Next steps:"));
+  assert.ok(next.includes(`Grok Bot reads skills from ${workflows};`), `directory line missing:\n${next}`);
+  assert.ok(next.includes("1 foreign entry skipped"), `foreign count missing:\n${next}`);
+  assert.ok(next.includes(`run akili install --tool grokbot --grokbot-target ${workflows} --force.`), `takeover missing:\n${next}`);
+  assert.ok(next.includes(`Verify the installation with akili doctor --tool grokbot --grokbot-target ${workflows}.`), `doctor hint missing:\n${next}`);
+  assert.ok(!next.includes("akili doctor --tool grokbot."), "the generic doctor hint must not appear");
+  assert.doesNotMatch(next, /preserved/, "a foreign skip is not a preserved file");
+  assert.doesNotMatch(run.stdout, /rsync|ssh|scp/);
+});
+
+test("@akili-spec changes/grokbot-target FR-7 (default root): a dry run prints no grokbot next-steps block, and a default-root install keeps the generic doctor hint", (t) => {
+  const home = mkHome(t, "akili-grokbot-next-default-");
+  const defaultRoot = path.join(home, "default-box", "workflows");
+  const env = scratchEnv(home, defaultRoot);
+  const dry = runAkili(["install", "--tool", "grokbot", "--dry-run"], { cwd: home, env });
+  assert.equal(dry.status, 0, dry.stdout + dry.stderr);
+  assert.doesNotMatch(dry.stdout, /Grok Bot reads skills from|foreign entr/);
+  const real = runAkili(["install", "--tool", "grokbot"], { cwd: home, env });
+  assert.equal(real.status, 0, real.stdout + real.stderr);
+  assert.ok(real.stdout.includes("Verify the installation with akili doctor --tool grokbot."), real.stdout);
+  assert.ok(real.stdout.includes(`Grok Bot reads skills from ${defaultRoot};`), real.stdout);
+  assert.doesNotMatch(real.stdout, /foreign entr/);
+});
+
+test("@akili-spec changes/grokbot-target FR-7 (--tool all --dry-run): no grokbot text in the next steps", (t) => {
+  const home = mkHome(t, "akili-grokbot-next-all-");
+  const run = runAkili(["install", "--tool", "all", "--dry-run"], { cwd: home, env: scratchEnv(home) });
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  const next = run.stdout.slice(run.stdout.indexOf("Next steps:"));
+  assert.doesNotMatch(next, /grok/i);
+  assert.match(next, /Re-run without --dry-run/);
+});

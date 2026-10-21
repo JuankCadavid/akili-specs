@@ -224,7 +224,7 @@ After a non-dry-run grokbot install or update, the next-steps block SHALL say wh
 - WHEN the install finishes
 - THEN the next steps name `/srv/grok/workflows` as the directory Grok Bot must read, report `1` foreign entry skipped, and name `akili install --tool grokbot --grokbot-target /srv/grok/workflows --force` as the explicit takeover
 - AND they print `akili doctor --tool grokbot --grokbot-target /srv/grok/workflows` in place of the generic `akili doctor --tool grokbot`
-- BUT the CLI must NOT print or run any copy, `rsync` or `ssh` step, and must NOT open any network connection
+- BUT the CLI must NOT print or run any copy, `rsync` or `ssh` step, and no copy or transfer step may open a network connection (the existing npm update check is unaffected — amended 2026-10-21, T4 review)
 
 ### FR-8: Documentation
 

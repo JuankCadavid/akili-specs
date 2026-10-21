@@ -209,7 +209,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~20 LOC in `bin/akili.js`, ~50 LOC of tests) |
 | Depends on | T3 |
 | Requirements | FR-7 (*Install with an override*, including its BUT clause), FR-4 *Foreign `tdd` survives update* ("both runs say `tdd` was skipped as foreign"; the update half is gapped per §2), NFR-1 |
@@ -299,7 +299,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 | FR-5 *Healthy install* (OK, exit 0, no env row) | T3 |
 | FR-5 *Foreign folder* (FOREIGN, hint, INCOMPLETE, exit, BUT `--fix` untouched) | T3 |
 | FR-6 *Detected on the box* / *Not detected elsewhere*, BUT workflows-only not an install | T1 |
-| FR-7 *Install with an override*, BUT no copy/rsync/ssh, no network | T4 |
+| FR-7 *Install with an override*, BUT no copy/rsync/ssh, no transfer connection (amended) | T4 |
 | FR-8 statement and *Count claims* | T5 |
 | NFR-1 | T1–T4 (existing suite + Codex baseline), T5 (full set) |
 | NFR-2 | T1 (byte identity) |
