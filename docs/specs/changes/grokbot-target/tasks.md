@@ -45,7 +45,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~90 LOC in `bin/akili.js`, ~150 LOC of tests, ~10 LOC of env pins) |
 | Depends on | — |
 | Requirements | FR-1 (both scenarios), FR-2 (all scenarios), FR-3 *First install on an empty box* except the record clause, FR-3 *Shared directory hygiene*, FR-6 (both scenarios), NFR-1, NFR-2, NFR-3 |

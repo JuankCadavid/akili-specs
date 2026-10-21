@@ -137,6 +137,15 @@ const defaultPaths = {
       ? resolveUserPath(process.env.CURSOR_CONFIG_DIR.trim())
       : path.join(os.homedir(), ".cursor"),
   cursorSkills: path.join(os.homedir(), ".agents", "skills"),
+  // @akili-spec changes/grokbot-target — T1 (FR-2, DD-2): Grok Bot's workflows
+  // root follows $AKILI_GROKBOT_TARGET when set and non-blank (global default
+  // only — --local keeps ./.grokbot/workflows, and --grokbot-target/--target
+  // still override it), else the box path. Resources default to its sibling
+  // `akili` directory (see getArgs).
+  grokbot:
+    process.env.AKILI_GROKBOT_TARGET && process.env.AKILI_GROKBOT_TARGET.trim() !== ""
+      ? resolveUserPath(process.env.AKILI_GROKBOT_TARGET.trim())
+      : "/home/box/agent-data/workflows",
 };
 
 // Tool Registry defining target directories mapping per tool. Each entry is a
@@ -194,6 +203,21 @@ const TOOL_REGISTRY = {
     sharedSkillsRoot: true,
     detectByResourcesOnly: true,
   }),
+  // @akili-spec changes/grokbot-target — Grok Bot: the Cursor shape (DD-1).
+  // `roots.root` is the resources root itself (not <root>/akili): the two
+  // roots are siblings the operator can relocate independently (FR-2).
+  // ownershipRecord (DD-8) only flags the entry here; the write policy that
+  // reads it lands in a later task.
+  grokbot: (roots) => ({
+    commands: [],
+    skills: [roots.skillsRoot],
+    resources: roots.root,
+    legacyResources: null,
+    commandsAsSkills: true,
+    sharedSkillsRoot: true,
+    detectByResourcesOnly: true,
+    ownershipRecord: true,
+  }),
 };
 
 function printHelp() {
@@ -213,13 +237,14 @@ Commands:
   help      Show this help
 
 Options:
-  --tool <name>        Install target: claude, opencode, antigravity, codex, cursor, both, or all.
-                       "both" = Claude Code + OpenCode. "all" = all five targets.
+  --tool <name>        Install target: claude, opencode, antigravity, codex, cursor, grokbot, both, or all.
+                       "both" = Claude Code + OpenCode. "all" = all five desktop targets (not grokbot).
                        When omitted, install/update/doctor auto-detect already-installed
                        targets; if none are found they default to claude.
   --target <path>      Target config directory for selected single tool.
                        For --tool codex or --tool cursor this selects a single-root
                        sandbox layout: <path>/akili (resources) and <path>/skills (skills).
+                       For --tool grokbot: <path>/workflows (skills) and <path>/akili (resources).
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
   --antigravity-target Antigravity config directory. Default: ~/.gemini
@@ -227,6 +252,8 @@ Options:
   --codex-skills-target Codex Agent Skills root (shared with other tools). Default: ~/.agents/skills
   --cursor-target       Cursor config home (resources land at <path>/akili). Default: $CURSOR_CONFIG_DIR if set, else ~/.cursor
   --cursor-skills-target Cursor Agent Skills root (shared with other tools). Default: ~/.agents/skills
+  --grokbot-target      Grok Bot workflows root (skills and commands). Default: $AKILI_GROKBOT_TARGET if set, else /home/box/agent-data/workflows
+  --grokbot-resources-target Grok Bot resources root. Default: <parent of the workflows root>/akili
   --force              Overwrite existing files
   --dry-run            Show what would happen without writing files
   --commands-only      Install or check only commands
@@ -259,10 +286,12 @@ Examples:
   akili install --tool claude --target ./.claude
   akili install --tool codex --codex-target ~/.codex --codex-skills-target ~/.agents/skills
   akili install --tool cursor
+  akili install --tool grokbot
   akili update --tool both --force
   akili doctor --tool all --fix
   akili doctor --tool codex
   akili doctor --tool cursor
+  akili doctor --tool grokbot
   akili list
   akili notifications enable
   akili routing
@@ -307,6 +336,8 @@ function getArgs() {
     "codex-skills-target": { type: "string", default: defaultPaths.codexSkills },
     "cursor-target": { type: "string", default: defaultPaths.cursor },
     "cursor-skills-target": { type: "string", default: defaultPaths.cursorSkills },
+    "grokbot-target": { type: "string", default: defaultPaths.grokbot },
+    "grokbot-resources-target": { type: "string" },
     force: { type: "boolean", default: false },
     "dry-run": { type: "boolean", default: false },
     "commands-only": { type: "boolean", default: false },
@@ -351,8 +382,8 @@ function getArgs() {
       fail("Use only one of --commands-only or --skills-only");
     }
 
-    if (!["claude", "opencode", "antigravity", "codex", "cursor", "both", "all"].includes(values.tool)) {
-      fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, both, all");
+    if (!["claude", "opencode", "antigravity", "codex", "cursor", "grokbot", "both", "all"].includes(values.tool)) {
+      fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, grokbot, both, all");
     }
 
     if (values.target && (values.tool === "both" || values.tool === "all")) {
@@ -367,6 +398,20 @@ function getArgs() {
     const baseCodexSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.codexSkills;
     const baseCursor = values.local ? path.join(process.cwd(), ".cursor") : defaultPaths.cursor;
     const baseCursorSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.cursorSkills;
+    const baseGrokbot = values.local ? path.join(process.cwd(), ".grokbot", "workflows") : defaultPaths.grokbot;
+
+    // @akili-spec changes/grokbot-target — FR-2 root table: --target with
+    // --tool grokbot → <p>/workflows, else an explicit --grokbot-target, else
+    // the base (local or default). Resources: explicit flag, else the
+    // workflows root's sibling `akili` (DD-3).
+    const grokbotWorkflows = resolveUserPath(
+      values.target && values.tool === "grokbot"
+        ? path.join(values.target, "workflows")
+        : (values["grokbot-target"] !== defaultPaths.grokbot ? values["grokbot-target"] : baseGrokbot)
+    );
+    const grokbotResources = values["grokbot-resources-target"]
+      ? resolveUserPath(values["grokbot-resources-target"])
+      : path.join(path.dirname(grokbotWorkflows), "akili");
 
     // Whether the user explicitly passed --tool. When they did not, install/
     // update/doctor auto-detect already-installed targets instead of assuming
@@ -382,6 +427,10 @@ function getArgs() {
       toolExplicit,
       quiet: values.quiet,
       force: values.force,
+      // @akili-spec changes/grokbot-target — DD-6: `--force` given on the
+      // `install` command only; `update` forces writes without consent to take
+      // over foreign folders. Consumed by the ownership policy (later task).
+      forceExplicit: values.force && command === "install",
       dryRun: values["dry-run"],
       commandsOnly: values["commands-only"],
       skillsOnly: values["skills-only"],
@@ -423,6 +472,8 @@ function getArgs() {
           ? path.join(values.target, "skills")
           : (values["cursor-skills-target"] !== defaultPaths.cursorSkills ? values["cursor-skills-target"] : baseCursorSkills)
       ),
+      grokbotTarget: grokbotWorkflows,
+      grokbotResourcesTarget: grokbotResources,
     };
 
     return args;
@@ -465,6 +516,11 @@ function selectedTools(args) {
 
 const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex", "cursor"];
 
+// @akili-spec changes/grokbot-target — DD-4: auto-detection reads a wider list
+// than `--tool all` acts on. ALL_TOOLS (and selectedTools/toolFlagFor) stay the
+// five desktop targets.
+const DETECTABLE_TOOLS = [...ALL_TOOLS, "grokbot"];
+
 // A tool counts as installed when any of its target directories exists and is
 // non-empty. Checking commands / skills / resources covers --commands-only and
 // --skills-only installs too, not just full ones.
@@ -499,7 +555,7 @@ function isToolInstalled(tool, args) {
     // root has a populated resources dir of its own — otherwise a Cursor-only
     // machine's command-skill files (written by the Cursor install itself)
     // would make `akili update` auto-detect Codex too.
-    const siblingResourcesPopulated = ALL_TOOLS.some((otherTool) => {
+    const siblingResourcesPopulated = DETECTABLE_TOOLS.some((otherTool) => {
       if (otherTool === tool) return false;
       const { paths: otherPaths } = getToolRegistryInfo(otherTool, args);
       if (!otherPaths.sharedSkillsRoot) return false;
@@ -530,7 +586,7 @@ function isToolInstalled(tool, args) {
 }
 
 function detectInstalledTools(args) {
-  return ALL_TOOLS.filter((tool) => isToolInstalled(tool, args));
+  return DETECTABLE_TOOLS.filter((tool) => isToolInstalled(tool, args));
 }
 
 // Resolve which tools an install/update/doctor run should act on. An explicit
@@ -685,6 +741,8 @@ const TOOL_ROOT_ARGS = {
   antigravity: (args) => ({ root: args.antigravityTarget }),
   codex: (args) => ({ root: args.codexTarget, skillsRoot: args.codexSkillsTarget }),
   cursor: (args) => ({ root: args.cursorTarget, skillsRoot: args.cursorSkillsTarget }),
+  // @akili-spec changes/grokbot-target — root = resources root, skillsRoot = workflows root
+  grokbot: (args) => ({ root: args.grokbotResourcesTarget, skillsRoot: args.grokbotTarget }),
 };
 
 function getToolRegistryInfo(tool, args) {
