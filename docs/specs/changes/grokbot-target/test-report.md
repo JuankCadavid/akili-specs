@@ -6,12 +6,14 @@
 |---|---|
 | Spec Path | `changes/grokbot-target` |
 | Date | 2026-10-21 |
-| HEAD under test | `46dcdcb` (T1–T5 committed) plus the new, uncommitted `test/install-grokbot-edge.test.js` |
+| HEAD under test | Run 1: `46dcdcb` plus the uncommitted edge suite. **Run 2 (after the BUG-1 fix, T6): `a6b4f1c`** |
 | Leader | Claude Code session, `opus` |
 | Tester | 1 Tester, `opus`. The Implementers ran on `sonnet`, so author ≠ tester |
-| Overall status | **PRODUCT_BUG — 3 red tests, plus 1 sibling confirmed by a Leader probe** |
+| Overall status | **PASS (run 2).** Run 1 found PRODUCT_BUG BUG-1, which T6 fixed (user-approved, 2 attempts, Reviewer PASS) |
 
 ## 2. Summary
+
+**Run 2 (2026-10-21, after T6):** `npm test` **553/553 pass**, 0 fail, 0 skipped. The two grokbot suites: 47/47. Also: `npm run verify:cli` exit 0; `npm run pack:dry-run` 309 files; `git diff --check` clean; `/home/box` absent. BUG-1 is fixed (§8). The table below is run 1, kept as history.
 
 | Measure | Result |
 |---|---|
@@ -69,7 +71,7 @@ n/a. The end-to-end journey (Grok Bot loading the installed skills) runs only on
 | FR-3 | Record clause; dry run; partial installs | Integration | author | PASS | — |
 | FR-3 | *Shared directory hygiene* | Integration | author | PASS | — |
 | FR-4 | Table: install, install `--force`, doctor, doctor `--fix` (foreign and absent rows) | Integration | author | PASS | — |
-| FR-4 | Table: **owned entry present** (doctor `--fix` restore; overwrite under `--force`) | Integration | edge (gap 6) + Leader probe | **FAIL — PRODUCT_BUG** | See §8 |
+| FR-4 | Table: **owned entry present** (doctor `--fix` restore; overwrite under `--force`; plain install skips) | Integration | edge (gap 6, plus two T6 tests) + a 32-cell Reviewer matrix | **PASS (run 2)** | Run 1 PRODUCT_BUG BUG-1, fixed by T6 |
 | FR-4 | Table: update column | — | — | Not automatable | Accepted gap (§9). Live evidence: `scratchpad/rev5/u.out` |
 | FR-4 | *Invalid record* footnote: unparsable | Integration | author | PASS | — |
 | FR-4 | *Invalid record*: EISDIR / EACCES, with and without `--force` | Integration | edge (gap 5) | PASS | EACCES skips on root and on Windows |
@@ -91,7 +93,7 @@ n/a. The end-to-end journey (Grok Bot loading the installed skills) runs only on
 
 ## 8. Remediation
 
-### BUG-1 — an owned entry that is not a real directory is mishandled (FR-4 table, row *Owned entry present*; DD-7 "never follow a link")
+### BUG-1 — **FIXED in T6 (`a6b4f1c`)** — an owned entry that is not a real directory is mishandled (FR-4 table, row *Owned entry present*; DD-7 "never follow a link")
 
 Setup: `akili install --tool grokbot --grokbot-target <w>`, so every name is recorded as owned, then replace one owned entry.
 
@@ -110,6 +112,7 @@ Setup: `akili install --tool grokbot --grokbot-target <w>`, so every name is rec
   - The install policy's owned-overwrite path for **command-skills** has the same flaw.
 - **Fix direction:** before any restore or overwrite of an *owned* entry, `lstat` it. If it is not a real directory, remove it with the existing `removeEntryNoFollow` and then write. That covers `doctor --fix` and the owned-overwrite path of install and update.
 - **Regression tests:** the 3 red tests in `test/install-grokbot-edge.test.js`, plus one test for the `install --force` command-symlink sibling, which is not yet written.
+- **Resolution (T6):** `clearNonDirectoryEntry` (lstat, then no-follow removal) runs before `doctor --fix` restores an owned entry, and on the install/update owned-overwrite path for command-skills under `force` only. A plain install skips (FR-4). The 3 red tests now pass unchanged, and T6 added 2 tests (`install --force` command symlink; plain install leaves an owned link). The Reviewer's 32-cell live matrix (command and skill × file, dangling link, live link with `SKILL.md`, empty link × install, install `--force`, doctor, doctor `--fix`) showed no crash and no write outside the root. Accepted limit: doctor reads an owned symlink to a folder that has `SKILL.md` as OK, and nothing writes through it.
 - **Severity:** the write-through can drop AKILI files into another bot's folder when an owned name is re-pointed by a symlink. The scenario is uncommon, but it is the data-safety property this spec exists to protect.
 
 ## 9. Accepted Gaps
