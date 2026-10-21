@@ -10,7 +10,7 @@
 | Approval Mode | `gated`. The user asked up front to continue from `tasks.md` straight into `/akili-execute` (2026-10-21, "sigue a tasks.md y a /akili-execute"); the tasks gate is logged as **approved in advance by the user** |
 | Status | Phase 3 |
 | Date | 2026-10-21 |
-| Budget (design §12) | **6 tasks · ~1,300 LOC (raised by the user 2026-10-21 after the T2 tripwire; T2b added)** · was 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
+| Budget (design §12) | **6 tasks · ~1,600 LOC · 10 review rounds (raised again by the user 2026-10-21 after the T3 tripwire)**; previously 6 tasks · ~1,300 LOC (raised by the user 2026-10-21 after the T2 tripwire; T2b added)** · was 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
 | Design review | Judgment Day: **APPROVED** after two rounds, followed by a user Adjust to Q1 "box only" (`judgment.md`) |
 | Commit prefix | `[SPEC:changes/grokbot-target]` |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/tasks.md` |

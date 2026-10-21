@@ -173,7 +173,7 @@ Blast-radius triggers: `shared-state` (the detection scan reads every tool's reg
 | Measure | Estimate |
 |---|---|
 | Tasks | 6 — T1 target, flags, roots, detection, help · T2 ownership record + install/update policy · T2b safe takeover (move aside, then delete) · T3 doctor FOREIGN, summary, exit · T4 next steps (install, update) · T5 docs, claim-family sweep, CHANGELOG |
-| LOC | **~1,300 (raised from ~790 by the user on 2026-10-21 after the T2 budget tripwire; see `execution.md`)**; original estimate ~790 (`bin/akili.js` ~240, `test/install-grokbot.test.js` ~450 plus ~10 of env pinning in four existing files, docs ~90). Test LOC budgeted per scenario clause (KZ-bugfix--init-ctrlc-abort-2) |
+| LOC | **~1,600 and 10 review rounds (raised by the user after the T3 tripwire; earlier ~1,300, raised from ~790 by the user on 2026-10-21 after the T2 budget tripwire; see `execution.md`)**; original estimate ~790 (`bin/akili.js` ~240, `test/install-grokbot.test.js` ~450 plus ~10 of env pinning in four existing files, docs ~90). Test LOC budgeted per scenario clause (KZ-bugfix--init-ctrlc-abort-2) |
 | Review rounds | 8 (T1–T4 1–2 each; T5 2, per the rules-text guidance) |
 
 The estimate fits Standard depth.

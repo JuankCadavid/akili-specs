@@ -232,3 +232,5 @@
   - Projection: T4 (~70) and T5 (~90) bring the total to about 1,540 (~18% over 1,300).
   - **Cause:** the test suites again run about 2× their estimates. Each doctor state needs its own install fixture plus stderr and crash guards.
   - Stopped per Step 2.4.
+
+> **Budget decision (2026-10-21, user):** "Aprobado subir a ~1,600 LOC y 2 rondas de review extra si hacen falta; termina T4 y T5." New tripwire: ~1,600 LOC, 10 review rounds.
