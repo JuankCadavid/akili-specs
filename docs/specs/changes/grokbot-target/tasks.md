@@ -167,7 +167,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~40 LOC in `bin/akili.js`, ~80 LOC of tests) |
 | Depends on | T2 |
 | Requirements | FR-4 (doctor and doctor `--fix` columns, the invalid-record footnote for doctor, and the *Ownership record missing or unreadable* scenario for doctor), FR-5 (both scenarios), NFR-1 |

@@ -736,3 +736,151 @@ test("@akili-spec changes/grokbot-target FR-4 (Interrupted takeover, delete-afte
     if (fs.existsSync(path.join(foreignTdd, "locked"))) fs.chmodSync(path.join(foreignTdd, "locked"), 0o755);
   }
 });
+
+// @akili-spec changes/grokbot-target — T3 (FR-5, FR-4 doctor columns, NFR-1):
+// doctor classifies each entry as OK / MISSING / FOREIGN, counts FOREIGN
+// separately, and exits non-zero on missing + foreign. Every spawn uses the
+// pinned scratchEnv, and every run is checked for a crash before any exit code
+// is read.
+function doctorGrokbot(home, extraArgs) {
+  const p = boxPaths(home);
+  const run = runAkili(["doctor", "--tool", "grokbot", "--grokbot-target", p.workflows, ...(extraArgs || [])], {
+    cwd: home,
+    env: scratchEnv(home),
+  });
+  assert.doesNotMatch(run.stderr, /TypeError|ReferenceError/, `doctor crashed:\n${run.stderr}`);
+  assert.match(run.stdout, /Doctor Summary/, `the summary line was not printed:\n${run.stdout}\n${run.stderr}`);
+  return run;
+}
+
+function grokbotSummaryRow(output) {
+  const m = /^\s*GROKBOT\s+(.*)$/m.exec(output);
+  assert.notEqual(m, null, `expected a GROKBOT summary row in:\n${output}`);
+  return m[1];
+}
+
+test("@akili-spec changes/grokbot-target FR-5 (Healthy install): every item is OK, exit 0, no environment binary row applies to grokbot", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-healthy-");
+  assert.equal(installGrokbot(home).status, 0);
+  const run = doctorGrokbot(home);
+  assert.equal(run.status, 0, `stdout:\n${run.stdout}`);
+  assert.doesNotMatch(run.stdout, /MISSING|FOREIGN|BLOCKED|STALE/);
+  assert.match(run.stdout, /All checks passed/);
+  assert.match(grokbotSummaryRow(run.stdout), /^HEALTHY\b.*\bforeign 0\b/);
+  for (const name of [...SKILL_NAMES, ...COMMAND_NAMES]) {
+    assert.match(run.stdout, new RegExp(`^\\s+OK ${name}(\\.md)?$`, "m"), `${name} should read OK`);
+  }
+  assert.doesNotMatch(run.stdout, /\bcodex\b.*(OK|NOT FOUND)|cursor-agent/, "no Codex/Cursor binary row applies to grokbot");
+});
+
+test("@akili-spec changes/grokbot-target FR-5 (Foreign folder): FOREIGN, INCOMPLETE, no all-clear, exit 1, a takeover hint with the run's roots, --fix leaves it byte-identical", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-foreign-");
+  const p = boxPaths(home);
+  assert.equal(installGrokbot(home).status, 0);
+  // Replace the owned tdd with a foreign folder: drop it from the record and swap its content.
+  const record = readRecord(home);
+  record.folders = record.folders.filter((n) => n !== "tdd");
+  fs.writeFileSync(p.record, JSON.stringify(record));
+  fs.rmSync(path.join(p.workflows, "tdd"), { recursive: true });
+  makeForeignFolder(path.join(p.workflows, "tdd"));
+  const before = snapshotFiles(path.join(p.workflows, "tdd"));
+  const recordBefore = fs.readFileSync(p.record);
+
+  for (const extra of [[], ["--fix"]]) {
+    const run = doctorGrokbot(home, extra);
+    const where = `doctor ${extra.join(" ")}`;
+    assert.match(run.stdout, /^\s+FOREIGN tdd\b/m, `${where}: expected FOREIGN\n${run.stdout}`);
+    assert.match(grokbotSummaryRow(run.stdout), /^INCOMPLETE\b.*\bforeign 1\b/, where);
+    assert.doesNotMatch(run.stdout, /All checks passed/, where);
+    assert.equal(run.status, 1, where);
+    assert.ok(
+      run.stdout.includes(`akili install --tool grokbot --grokbot-target ${p.workflows}`) && /--force/.test(run.stdout),
+      `${where}: expected a takeover hint carrying --grokbot-target ${p.workflows}\n${run.stdout}`
+    );
+    assert.match(run.stdout, /akili install --tool grokbot .*--force/, where);
+    assert.deepEqual(snapshotFiles(path.join(p.workflows, "tdd")), before, `${where}: the foreign folder changed`);
+    assert.ok(fs.readFileSync(p.record).equals(recordBefore), `${where}: the record changed`);
+  }
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (doctor --fix, owned entry): an owned entry whose SKILL.md is gone reads MISSING and --fix restores it", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-owned-");
+  const p = boxPaths(home);
+  assert.equal(installGrokbot(home).status, 0);
+  const skillMd = path.join(p.workflows, "tdd", "SKILL.md");
+  fs.rmSync(skillMd);
+
+  const report = doctorGrokbot(home);
+  assert.match(report.stdout, /^\s+MISSING tdd$/m, report.stdout);
+  assert.equal(report.status, 1);
+  assert.match(grokbotSummaryRow(report.stdout), /^INCOMPLETE\b/);
+
+  const fix = doctorGrokbot(home, ["--fix"]);
+  assert.match(fix.stdout, /^\s+FIXED tdd$/m, fix.stdout);
+  assert.equal(fix.status, 0, fix.stdout);
+  assert.ok(fs.readFileSync(skillMd).equals(fs.readFileSync(path.join(SOURCE_SKILLS, "tdd", "SKILL.md"))));
+  assert.equal(doctorGrokbot(home).status, 0);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (doctor --fix, absent entry): an absent entry is recorded then restored", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-absent-");
+  const p = boxPaths(home);
+  assert.equal(installGrokbot(home).status, 0);
+  fs.rmSync(path.join(p.workflows, "tdd"), { recursive: true });
+  const record = readRecord(home);
+  record.folders = record.folders.filter((n) => n !== "tdd");
+  fs.writeFileSync(p.record, JSON.stringify(record));
+
+  assert.match(doctorGrokbot(home).stdout, /^\s+MISSING tdd$/m);
+  const fix = doctorGrokbot(home, ["--fix"]);
+  assert.match(fix.stdout, /^\s+FIXED tdd$/m, fix.stdout);
+  assert.ok(readRecord(home).folders.includes("tdd"), "--fix must record what it repairs");
+  assert.ok(fs.existsSync(path.join(p.workflows, "tdd", "SKILL.md")));
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Invalid record, doctor): existing AKILI folders read FOREIGN with the recovery text; --fix prints BLOCKED for an absent entry, never FIXED, and writes nothing", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-invalid-");
+  const p = boxPaths(home);
+  assert.equal(installGrokbot(home).status, 0);
+  fs.rmSync(path.join(p.workflows, "tdd"), { recursive: true });
+  fs.writeFileSync(p.record, "{ not json");
+  const workflowsBefore = snapshotFiles(p.workflows);
+  const resourcesBefore = snapshotFiles(p.resources);
+
+  for (const extra of [[], ["--fix"]]) {
+    const run = doctorGrokbot(home, extra);
+    const where = `doctor ${extra.join(" ")}`;
+    const other = SKILL_NAMES.find((n) => n !== "tdd");
+    assert.match(run.stdout, new RegExp(`^\\s+FOREIGN ${other}\\b`, "m"), `${where}: existing AKILI folders read FOREIGN\n${run.stdout}`);
+    assert.match(run.stdout, /delete the record/, `${where}: recovery text missing`);
+    assert.match(run.stdout, /restore the record/, where);
+    assert.equal(run.status, 1, where);
+    assert.match(grokbotSummaryRow(run.stdout), /^INCOMPLETE\b/, where);
+    if (extra.length) {
+      assert.match(run.stdout, /^\s+BLOCKED tdd\b/m, `${where}: expected BLOCKED\n${run.stdout}`);
+      assert.doesNotMatch(run.stdout, /\bFIXED tdd\b/, where);
+    } else {
+      assert.match(run.stdout, /^\s+MISSING tdd$/m, where);
+    }
+    assert.equal(fs.readFileSync(p.record, "utf8"), "{ not json", `${where}: the invalid record was rewritten`);
+    assert.deepEqual(snapshotFiles(p.workflows), workflowsBefore, `${where}: wrote into the workflows root`);
+    assert.deepEqual(snapshotFiles(p.resources), resourcesBefore, `${where}: wrote into the resources root`);
+  }
+});
+
+test("@akili-spec changes/grokbot-target NFR-1 (Codex doctor unchanged): doctor --tool codex output has no foreign column and still matches the pre-change baseline", (t) => {
+  const home = mkHome(t, "akili-grokbot-doc-codex-");
+  const env = Object.assign(scratchEnv(home), { CODEX_HOME: path.join(home, ".codex") });
+  const install = runAkili(["install", "--tool", "codex"], { cwd: home, env });
+  assert.equal(install.status, 0, install.stdout);
+  const doc = runAkili(["doctor", "--tool", "codex"], {
+    cwd: home,
+    env: Object.assign({}, env, { PATH: "/akili-empty-path-xyz", Path: "/akili-empty-path-xyz" }),
+  });
+  assert.equal(doc.status, 0, doc.stdout);
+  const normalize = (text) =>
+    text.replace(/\\/g, "/").replace(/\r\n/g, "\n").replace(/v\d+\.\d+\.\d+/g, "v<VERSION>");
+  const fixture = normalize(fs.readFileSync(path.join(__dirname, "fixtures", "doctor-codex-baseline.txt"), "utf8"));
+  assert.equal(normalize(doc.stdout.split(home).join("<HOME>")), fixture);
+  assert.doesNotMatch(doc.stdout, /foreign/i);
+});

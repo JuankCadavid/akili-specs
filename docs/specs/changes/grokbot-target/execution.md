@@ -196,3 +196,39 @@
 - **Requirements covered:** FR-4 *Explicit takeover* (move-aside AND IT MUST, as amended) and *Interrupted install* (failed move-aside MUST NOT).
 - **Decisions:** effort xhigh, bumped to max on rework. The spec edit is logged under Attempt 1.
 - **Running totals vs the user-raised budget:** tasks 3/6; LOC ≈ 962 + 136 ≈ 1,100 of ~1,300; review rounds 5/8 (2 T1 + 1 T2 + 2 T2b). T3 (~120), T4 (~70) and T5 (~90) project to about 1,380, roughly 6% over. Watching at T3's gate.
+
+### T3 — Doctor: FOREIGN, BLOCKED, summary and exit
+
+#### Attempt 1 — PASS
+- **Files changed:** `bin/akili.js` and `test/install-grokbot.test.js` (+232/−6, 6 new tests).
+- **Implementer verification:**
+  - 4 suites: 105/105.
+  - `npm test`: 536/536.
+  - `git diff --check`: clean.
+  - `doctor --tool all` (scratch HOME): byte-identical to HEAD.
+  - Red run at HEAD: the foreign test failed with "doctor : expected FOREIGN", because doctor printed OK.
+- **Falsifiers:** 1 through 4 all went red as specified. Mutation 3 failed both Codex baseline tests.
+- **Implementer addition:** a `recordState` result field. The tasks did not list it; it is internal and used to build hints. The Reviewer accepted it.
+- **Evidence re-run (Leader inline):** VERIFIED.
+  - 105/105 with 0 skipped; `diff --check` clean.
+  - `doctor --tool all` byte-identical to HEAD (306 lines).
+  - Extra probe: after a scratch grokbot install, a bare `doctor` auto-detected `GROKBOT HEALTHY ok 47 | missing 0 | fixed 0 | foreign 0` and exited 0.
+- **Reviewer (opus):** PASS. Every clause of FR-4 (doctor columns, footnote, recovery text), FR-5, NFR-1, design §5/§6/§7, DD-7/9 and P-6/7 conforms. The Reviewer's own run: 30/30 on the grokbot suite.
+- **ADVISORY (recorded only):**
+  - The takeover hint prints once under Next steps, not beside the FOREIGN line.
+  - `recordState` needs a comment.
+  - `quote()` doubles Windows backslashes inside JSON-quoted paths.
+  - Doctor hints always print both root flags, while FR-7's install hints print them only for a non-default root. T4 should align these.
+  - An owned entry that is a file or a dangling symlink is restored through copy, and no test covers that case.
+- **Forward pointer → T4:** make the doctor and install hints use the same rule (root flags only when non-default) and plain `"${p}"` quoting (`[advisory-grade]`; it is FR-7's own rule).
+- **spawns:** Implementer — not reported by host; Reviewer — not reported by host.
+
+**T3 final: PASS** (1 attempt) · 2026-10-21
+- **Requirements covered:** FR-4 (doctor and doctor `--fix` columns, invalid-record footnote, recovery-text scenario), FR-5, NFR-1.
+- **Running totals vs budget — BUDGET TRIPWIRE (second):**
+  - Tasks: 4/6.
+  - LOC: ≈ 1,381 against the user-raised ~1,300. Breakdown: T1 395, T2 567, T2b 181, T3 238.
+  - Review rounds: 6/8.
+  - Projection: T4 (~70) and T5 (~90) bring the total to about 1,540 (~18% over 1,300).
+  - **Cause:** the test suites again run about 2× their estimates. Each doctor state needs its own install fixture plus stderr and crash guards.
+  - Stopped per Step 2.4.

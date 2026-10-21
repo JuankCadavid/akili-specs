@@ -1465,12 +1465,60 @@ function doctorTool(tool, args) {
   let okCount = 0;
   let missing = 0;
   let fixed = 0;
+  let foreign = 0;
 
   console.log(`\n${colors.cyan}Checking ${tool.toUpperCase()}: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
+
+  // @akili-spec changes/grokbot-target — T3 (FR-4, FR-5, DD-7, DD-9): a tool
+  // with an ownership record classifies each entry (lstat, never existsSync)
+  // before the OK/MISSING check. FOREIGN is counted apart from `missing`, and
+  // `--fix` writes only absent entries and owned entries missing SKILL.md.
+  let ownership = null;
+  if (paths.ownershipRecord) {
+    ownership = readOwnership(ownershipRecordPath(paths));
+    if (ownership.state === "invalid") {
+      console.log(
+        `  ${colors.red}warning${colors.reset} ownership record ${ownership.recordPath} is ${ownership.reason}; nothing is written into ${roots.skillsRoot} while it is invalid.`
+      );
+    }
+  }
+  // Returns true when the entry was handled here (ownership-managed tools).
+  const checkOwnedEntry = (label, name, restore) => {
+    if (!ownership) return false;
+    const entryPath = path.join(skillDirs[0], name);
+    const state = classifyEntry(entryPath, ownership);
+    if (state === "foreign") {
+      console.log(`  ${colors.yellow}FOREIGN${colors.reset} ${label}`);
+      foreign += 1;
+    } else if (state === "owned" && fs.existsSync(path.join(entryPath, "SKILL.md"))) {
+      okCount += 1;
+      console.log(`  ${colors.green}OK${colors.reset} ${label}`);
+    } else if (!args.fix) {
+      console.log(`  ${colors.red}MISSING${colors.reset} ${label}`);
+      missing += 1;
+    } else if (ownership.state === "invalid") {
+      console.log(`  ${colors.red}BLOCKED${colors.reset} ${label} (invalid ownership record; nothing is written)`);
+      missing += 1;
+    } else {
+      recordOwned(ownership, name);
+      restore(entryPath);
+      console.log(`  ${colors.cyan}FIXED${colors.reset} ${label}`);
+      fixed += 1;
+    }
+    return true;
+  };
 
   if (shouldInclude("commands", args)) {
     console.log(`\n${colors.yellow}Commands:${colors.reset}`);
     for (const command of listCommands()) {
+      const cmdEntry = command.replace(/\.md$/, "");
+      if (
+        checkOwnedEntry(command, cmdEntry, (entryPath) =>
+          copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(entryPath, "SKILL.md"), { force: true, dryRun: false })
+        )
+      ) {
+        continue;
+      }
       const ok = hasInstalledCommand(paths.commands, skillDirs, command);
       if (ok) {
         okCount += 1;
@@ -1503,6 +1551,13 @@ function doctorTool(tool, args) {
   if (shouldInclude("skills", args)) {
     console.log(`\n${colors.yellow}Skills:${colors.reset}`);
     for (const skill of listSkills()) {
+      if (
+        checkOwnedEntry(skill, skill, (entryPath) =>
+          copyDirectoryContents(path.join(SOURCE_SKILLS, skill), entryPath, { force: true, dryRun: false })
+        )
+      ) {
+        continue;
+      }
       const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
         okCount += 1;
@@ -1606,7 +1661,7 @@ function doctorTool(tool, args) {
     }
   }
 
-  return { rootPath, ok: okCount, missing, fixed };
+  return { rootPath, ok: okCount, missing, fixed, foreign, recordState: ownership ? ownership.state : null };
 }
 
 // Environment dependencies the methodology recommends but never requires.
@@ -2118,24 +2173,47 @@ function runDoctor(args) {
 
   const missingTotal = results.reduce((acc, r) => acc + r.missing, 0);
   const fixedTotal = results.reduce((acc, r) => acc + r.fixed, 0);
+  // @akili-spec changes/grokbot-target — T3 (DD-9): foreign entries are not
+  // missing (--fix cannot repair them), but they fail the run all the same.
+  const foreignTotal = results.reduce((acc, r) => acc + r.foreign, 0);
 
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
   console.log(`${colors.cyan}Doctor Summary${colors.reset} — akili-specs v${currentVersion}`);
   for (const r of results) {
     const status =
-      r.missing > 0
+      r.missing + r.foreign > 0
         ? `${colors.red}INCOMPLETE${colors.reset}`
         : r.fixed > 0
         ? `${colors.cyan}REPAIRED${colors.reset}`
         : `${colors.green}HEALTHY${colors.reset}`;
-    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}`);
+    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}${r.recordState ? ` | foreign ${r.foreign}` : ""}`);
     console.log(`  ${"".padEnd(12)} → ${r.rootPath}`);
   }
 
-  if (missingTotal > 0) {
+  if (missingTotal + foreignTotal > 0) {
     console.log(`\n${colors.cyan}Next steps:${colors.reset}`);
-    console.log(`  - Run ${colors.cyan}akili doctor --tool ${args.tool} --fix${colors.reset} to auto-repair the ${missingTotal} missing file(s).`);
-    console.log(`  - Or run ${colors.cyan}akili update${colors.reset} to refresh the package and reinstall everything.`);
+    if (missingTotal > 0) {
+      console.log(`  - Run ${colors.cyan}akili doctor --tool ${args.tool} --fix${colors.reset} to auto-repair the ${missingTotal} missing file(s).`);
+      console.log(`  - Or run ${colors.cyan}akili update${colors.reset} to refresh the package and reinstall everything.`);
+    }
+    // Hints come from the resolved tool and its roots, never from args.tool
+    // (which is `claude` on an auto-detected run).
+    for (const r of results) {
+      if (!r.recordState || (r.foreign === 0 && r.recordState === "valid")) continue;
+      const { roots, paths } = getToolRegistryInfo(r.tool, args);
+      const quote = (p) => (/\s/.test(p) ? JSON.stringify(p) : p);
+      const rootFlags = `--${r.tool}-target ${quote(roots.skillsRoot)} --${r.tool}-resources-target ${quote(paths.resources)}`;
+      if (r.foreign > 0 && r.recordState !== "invalid") {
+        console.log(
+          `  - ${r.foreign} ${r.tool} entr${r.foreign === 1 ? "y is" : "ies are"} not recorded as AKILI's; --fix leaves them untouched. To replace them with AKILI's copies, run ${colors.cyan}akili install --tool ${r.tool} ${rootFlags} --force${colors.reset}.`
+        );
+      }
+      if (r.recordState === "valid") continue;
+      if (r.recordState === "absent" && r.foreign === 0) continue;
+      console.log(
+        `  - Ownership record (${ownershipRecordPath(paths)}): restore the record; or run ${colors.cyan}akili doctor --tool ${r.tool}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}akili install --tool ${r.tool} ${rootFlags} --force${colors.reset}, knowing that every AKILI-named entry will be replaced.`
+      );
+    }
     process.exitCode = 1;
   } else if (fixedTotal > 0) {
     console.log(`\nAll issues repaired: ${fixedTotal} file(s) restored.`);
