@@ -426,3 +426,7 @@ Counts: {'a': 26, 'b': 6, 'c': 10, 'd': 35}
 | Incident | The T5 Reviewer ran `akili update`, which ran a real `npm install -g akili-specs@latest`. The global version is unchanged at 2.34.2 |
 | Final verification (Leader) | `npm test` 539/539; `verify:cli` 0; `pack:dry-run` 309 files; `git diff --check` clean; `install --tool all --dry-run` and `doctor --tool all` unchanged for the five desktop tools |
 | Next | `/akili-test changes/grokbot-target`, then `/akili-validate` with the live box check (NFR-6) |
+
+## Scope change: T6 (BUG-1 from `/akili-test`), user-approved 2026-10-21
+- User decision: "1", fix BUG-1 now as an extra task (T6), then re-run the tests.
+- Budget note: the spec was already at ≈1,637 LOC against ~1,600. T6 adds about 55 LOC, for a projected ≈1,690 (about 6% over). The user approved this task knowing its size (15–25 LOC plus a test, as stated in the `/akili-test` report). Recorded here; no further stop.

@@ -312,3 +312,34 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 - P-10, P-11 (`UNVERIFIED`, High): settled at `/akili-validate` by the user on the box. No task builds on them beyond the default path constant.
 - P-4 (consumer) is copied into the `Consumers` fields of T1 and T3.
+
+---
+
+### T6 — BUG-1: owned entries that are not real directories (added after `/akili-test`, user-approved 2026-10-21)
+
+| Field | Value |
+|---|---|
+| Status | [ ] |
+| Size | S (~25 LOC in `bin/akili.js`, ~30 LOC of tests) |
+| Depends on | T5 |
+| Requirements | FR-4 table, row *Owned entry present* (doctor `--fix` restores a missing `SKILL.md`; overwrite under `--force`/update); NFR-4 |
+| Design | §5 classification (lstat), DD-7 (never follow a link), DD-11 no-follow removal helper |
+| Skills | `tdd`, `systematic-debugging` |
+| Review | `full` — data-safety (write-through outside the workflows root) |
+
+**Scope**
+- Before any restore or overwrite of an **owned** entry, `lstat` it. If it is not a real directory (a plain file, or a dangling or live symlink), remove it with the existing no-follow helper, then write.
+- Sites: `doctorTool --fix` (`checkOwnedEntry`, for commands and skills) and the install/update policy's owned-overwrite path for command-skills.
+- Make the 3 red tests in `test/install-grokbot-edge.test.js` pass, unchanged.
+- Add one test: `install --force` with an owned **command** entry re-pointed by a live symlink to an outside folder. Assert that nothing is written outside the workflows root, and that the entry becomes a real folder.
+
+**Verification:** `node --test test/install-grokbot.test.js test/install-grokbot-edge.test.js`; full `npm test` (551 + 1, all green); `git diff --check`; `install --tool all --dry-run` and `doctor --tool all` byte-identical to HEAD (scratch HOME).
+
+| Verification field | Value |
+|---|---|
+| Falsifier | Remove the `lstat` pre-check → the 3 edge tests and the new `install --force` test go red: ENOTDIR, ENOENT, and the outside folder gaining `SKILL.md`. |
+| Red run | Observed at `cad6fcb`: the 3 edge tests are red with `ENOTDIR`, `ENOENT … mkdir`, and `[ +'SKILL.md', 'keep.txt' ]`. Leader probe: `install --force` wrote `SKILL.md` into the outside folder (`scratchpad/probe/out`). |
+| Disqualifier | A fix that edits the red tests' assertions, or one that removes a foreign (not owned) entry. |
+| Consumers | `checkOwnedEntry`, the install policy, `copySingleFile`, `copyDirectoryContents` callers; the author suite; the Codex doctor baseline. |
+
+**Done when:** all 3 edge tests and the new test pass, the falsifier has been executed and observed red, and `npm test` is all green.
