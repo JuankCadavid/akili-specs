@@ -121,3 +121,25 @@
   - **Cause:** test LOC runs about 2× the estimate (fixtures with full-tree snapshots, permission-test guards and skips), and the policy/ownership code is about 2.5× T2's line.
   - Remaining T3–T5 estimate: ~60 bin + ~130 tests + ~90 docs. Projected final ≈ 1,250 LOC (~1.6× budget).
   - Per Step 2.4: stop and escalate to the user.
+
+## Scope change: safe takeover (T2b) and budget — approved by the user 2026-10-21
+
+- **Trigger:**
+  - The T2 budget tripwire fired: ~960 LOC against ~790.
+  - The T2 Reviewer's RISK advisory: a takeover whose `rmSync` fails partway may partly delete foreign data.
+- **User decision (verbatim):** "Aprobado ampliar presupuesto a ~1,300 LOC; agrega primero el safe-takeover (rename a temporal y luego borrar) y sigue con T3–T5."
+- **Amendments:** two-direction sweep run.
+  - **design:**
+    - §5 *Takeover*: move aside into `<resources root>/.takeover/`, then record, copy, and delete.
+    - DD-11, DD-10, §3 and §7 `installTool` changed to match.
+    - §12 budget is now ~1,300, with 6 tasks.
+  - **requirements:**
+    - FR-4 *Explicit takeover* gains the move-aside AND IT MUST.
+    - *Interrupted install*: a failed move-aside MUST NOT be recorded or partly deleted.
+    - The Status row records the change.
+  - **tasks:**
+    - New T2b.
+    - The graph and the Document Control budget are updated.
+    - T2's scope line is marked superseded for step 1.
+    - The coverage row is added.
+- **Placement decision (Leader):** the moved-aside copy goes into AKILI's resources root, never into the bot-visible workflows root. A hidden folder there that still holds a `SKILL.md` could be loaded by a bot.

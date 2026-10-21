@@ -10,7 +10,7 @@
 | Approval Mode | `gated`. The user asked up front to continue from `tasks.md` straight into `/akili-execute` (2026-10-21, "sigue a tasks.md y a /akili-execute"); the tasks gate is logged as **approved in advance by the user** |
 | Status | Phase 3 |
 | Date | 2026-10-21 |
-| Budget (design §12) | 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
+| Budget (design §12) | **6 tasks · ~1,300 LOC (raised by the user 2026-10-21 after the T2 tripwire; T2b added)** · was 5 tasks · ~790 LOC (`bin/akili.js` ~240, tests ~460, docs ~90) · 8 review rounds |
 | Design review | Judgment Day: **APPROVED** after two rounds, followed by a user Adjust to Q1 "box only" (`judgment.md`) |
 | Commit prefix | `[SPEC:changes/grokbot-target]` |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/tasks.md` |
@@ -20,7 +20,8 @@
 ```
 T1 (target, flags, roots, registry, detection, help, env pins)
   └─→ T2 (ownership record + install/update policy)
-        └─→ T3 (doctor FOREIGN / BLOCKED / summary / exit)
+        └─→ T2b (safe takeover: move aside, then delete)
+              └─→ T3 (doctor FOREIGN / BLOCKED / summary / exit)
               └─→ T4 (next steps: install + update)
                     └─→ T5 (docs, claim-family sweep, CHANGELOG)
 ```
@@ -99,7 +100,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 - `installTool` with `ownershipRecord`:
   - **absent:** record, then write;
   - **owned:** skip, or overwrite under `force`;
-  - **foreign:** skip and label it, or with `forceExplicit` remove, then record, then copy;
+  - **foreign:** skip and label it, or with `forceExplicit` remove, then record, then copy (step 1 superseded by T2b: move aside, then delete);
   - **invalid record:** no workflows-root writes, `blocked` lines plus recovery text, exit 1, resources still installed.
 - The record write is independent of `shouldInclude("resources")`, and nothing is written under `--dry-run`.
 - `runInstall` stashes `args.foreignSkipped` (T4 consumes it).
@@ -124,6 +125,41 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 | Consumers | `copyDirectoryContents` / `copySingleFile` callers in `bin/akili.js` (`installTool`, `doctorTool --fix`) must stay byte-identical without the callback. Covered by T1's existing-suite run and the Codex baseline. |
 
 **Done when:** falsifiers 1–4 have been executed and observed red, and gap 5 is recorded in `execution.md`.
+
+---
+
+### T2b — Safe takeover: move aside, then delete
+
+| Field | Value |
+|---|---|
+| Status | [ ] |
+| Size | S (~25 LOC in `bin/akili.js`, ~70 LOC of tests) |
+| Depends on | T2 |
+| Requirements | FR-4 *Explicit takeover* (the move-aside AND IT MUST clause) and *Interrupted install* (the failed-move-aside MUST NOT clause) |
+| Design | §5 *Takeover* (amended 2026-10-21), DD-11 (amended) |
+| Skills | `tdd` |
+| Review | `full` — data-loss surface; added by the user after the T2 Reviewer's RISK advisory |
+
+**Scope**
+- Replace takeover step (1) "remove" with a no-follow `rename` of the entry into `<resources root>/.takeover/<name>-<timestamp>`, creating that directory if needed.
+- Then record, then copy, then remove the moved-aside entry with no-follow.
+- If the move-aside fails (EACCES, EXDEV, …): stop with the error, record nothing, and leave the foreign entry whole in place.
+- If removing the moved-aside entry fails: print a warning naming its path, and let the takeover stand.
+- Tests:
+  - replace T2's "failed removal" test (locked subdirectory, which no longer fails a rename) with a **move-aside failure**: on Unix as non-root, make the workflows root read-only. Assert that every file of the foreign entry is byte-identical in place, that the name is not recorded, and that the exit is non-zero;
+  - add a **delete-after-move failure**: a foreign `tdd` with a chmod 0555 subdirectory. Assert that AKILI's `tdd` is installed and recorded, that the warning names a path under `<resources root>/.takeover/`, and that every foreign file is intact there;
+  - extend the existing takeover tests to assert that nothing is left under `.takeover/` on success.
+
+**Verification:** `node --test test/install-grokbot.test.js test/install-cursor.test.js test/agents-doctor-io.test.js test/agents-doctor.test.js`; full `npm test`; `git diff --check`; `install --tool all --dry-run` byte-identical to HEAD.
+
+| Verification field | Value |
+|---|---|
+| Falsifier | (1) Revert to remove-first (T2's code) → the delete-after-move test goes red: the foreign files are not intact under `.takeover/`. (2) Record before move-aside → the move-aside-failure test goes red: the name is recorded. (3) Move the entry aside into the workflows root instead of the resources root → the "nothing bot-visible left" assertion goes red. |
+| Red run | At HEAD `8d3da62`, the delete-after-move test must go red on its "foreign files intact under .takeover" assertion: T2's `rmSync` deletes part of the tree and then throws. |
+| Disqualifier | A permission test that runs as root or on Windows without skipping with a printed reason. A comparison that checks only `SKILL.md`. |
+| Consumers | T2's takeover tests in `test/install-grokbot.test.js` (updated in place); none outside. |
+
+**Done when:** all three falsifiers have been executed and observed red.
 
 ---
 
@@ -257,6 +293,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 | FR-4 invalid-record footnote | T2 (install/update), T3 (doctor, BLOCKED) |
 | FR-4 *Foreign `tdd` survives update* (install half, "skipped as foreign", MUST NOT record) | T2, T4 (message) |
 | FR-4 *Explicit takeover*, MUST leave no file, symlink target untouched | T2 |
+| FR-4 *Explicit takeover* move-aside MUST; *Interrupted install* failed move-aside MUST NOT | T2b |
 | FR-4 *Ownership record missing or unreadable*, MUST leave byte-identical, MUST write nothing, BUT no crash | T2, T3 |
 | FR-4 *Interrupted install*, MUST NOT record a failed-removal takeover, BUT `--fix` limit | T2 |
 | FR-5 *Healthy install* (OK, exit 0, no env row) | T3 |

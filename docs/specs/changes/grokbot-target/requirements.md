@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | software |
 | Approval Mode | `gated` (inherited from `proposal.md`) |
-| Status | Draft — Phase 1 approved; **amended after Judgment Day rounds 1 and 2** (FR-3, FR-4, FR-5, FR-7, FR-8, NFR-3 — see `judgment.md`); **Adjust 2026-10-21 (user): Q1 changed to "box only"** — staging flow removed (FR-2 scenario, FR-4 intro, FR-7 rewritten, FR-8, glossary, stakeholders) |
+| Status | Draft — Phase 1 approved; **scope change 2026-10-21 (user): safe takeover — FR-4 *Explicit takeover*, *Interrupted install*;** **amended after Judgment Day rounds 1 and 2** (FR-3, FR-4, FR-5, FR-7, FR-8, NFR-3 — see `judgment.md`); **Adjust 2026-10-21 (user): Q1 changed to "box only"** — staging flow removed (FR-2 scenario, FR-4 intro, FR-7 rewritten, FR-8, glossary, stakeholders) |
 | Date | 2026-10-21 |
 | Source | `proposal.md` (approved 2026-10-21; Q1–Q6 answered; Release classification: **minor** — a new install target; Q1 later changed to "box only", see Status) |
 | Format precedent | `docs/specs/archive/2026-10-01-changes--cursor-install-target/requirements.md` — this repo has no `docs/specs/general-setup/` |
@@ -158,7 +158,8 @@ AKILI SHALL record the entries it writes in the workflows root, and SHALL treat 
 - GIVEN the same foreign `tdd`
 - WHEN the user runs `akili install --tool grokbot --force`
 - THEN `tdd` is replaced whole by AKILI's copy and recorded as owned
-- AND IT MUST leave no file of the foreign `tdd` behind, and remove a foreign symlink without touching its target
+- AND IT MUST leave no file of the foreign `tdd` behind in the workflows root, and remove a foreign symlink without touching its target
+- AND IT MUST move the foreign entry aside before deleting anything: a takeover that fails before the copy leaves the foreign entry whole in place, and a failure to delete the moved-aside copy leaves it intact outside the workflows root, with a warning naming its path
 
 #### Scenario: Ownership record missing or unreadable
 
@@ -174,7 +175,7 @@ AKILI SHALL record the entries it writes in the workflows root, and SHALL treat 
 - GIVEN an install that stops with an error part-way through the workflows root
 - WHEN the user runs `akili update` (or `akili install --tool grokbot --force`) afterwards
 - THEN every entry AKILI started writing is treated as owned and repaired, never as foreign
-- AND a takeover whose removal failed MUST NOT leave the foreign entry recorded as owned
+- AND a takeover whose move-aside failed MUST NOT leave the foreign entry recorded as owned, nor partly deleted
 - BUT `doctor --fix` is only required to restore an owned entry whose `SKILL.md` is missing
 
 ### FR-5: Doctor reports grokbot health
