@@ -430,3 +430,44 @@ Counts: {'a': 26, 'b': 6, 'c': 10, 'd': 35}
 ## Scope change: T6 (BUG-1 from `/akili-test`), user-approved 2026-10-21
 - User decision: "1", fix BUG-1 now as an extra task (T6), then re-run the tests.
 - Budget note: the spec was already at ≈1,637 LOC against ~1,600. T6 adds about 55 LOC, for a projected ≈1,690 (about 6% over). The user approved this task knowing its size (15–25 LOC plus a test, as stated in the `/akili-test` report). Recorded here; no further stop.
+
+### T6 — BUG-1: owned entries that are not real directories
+
+#### Attempt 1 — FAIL
+- **Files changed:** `bin/akili.js` (+ the `clearNonDirectoryEntry` helper; called in `checkOwnedEntry` before restore, and in the install command-skill loop when the decision is `owned`), and `test/install-grokbot-edge.test.js` (+1 test).
+- **Implementer verification:**
+  - 46/46 on the grokbot suites; `npm test` 552/552.
+  - Red at HEAD: 4 tests, with ENOTDIR, ENOENT mkdir, and the outside directory gaining `SKILL.md` (×2).
+  - Falsifier: the same 4 went red.
+  - `--tool all` dry-run and doctor output byte-identical.
+- **Evidence re-run (Leader inline):** VERIFIED. 552/552; a live probe of `install --force` on an owned command symlink left a real directory and an empty outside directory.
+- **Reviewer (opus):** FAIL.
+  - The install-side pre-check ignores `args.force`. A plain `install` deletes an owned symlinked or plain-file **command** entry and rewrites it, including a healthy symlink that HEAD skipped and doctor reads OK.
+  - That violates the FR-4 table cell *Owned entry present × install = skip* and the task scope ("owned-overwrite path").
+  - It also makes the run inconsistent: skills still skip.
+  - Remediation: clear only under `force`; without `force`, skip and log `skip existing`. Add a test that a plain install leaves an owned command link alone.
+- **Reviewer on the Implementer's assumptions:**
+  - (A) doctor reads an owned symlink to a folder that has `SKILL.md` as OK. This conforms and is recorded as an accepted limit.
+  - (B) is the issue above. It is a code defect, not a spec tension, so no amendment.
+- **ADVISORY:** in `doctor --fix`, `clear` runs after `recordOwned`, which matches the intent-first rule (DD-10).
+
+#### Attempt 2 — PASS
+- **Files changed:** `bin/akili.js` (+ `isRealDirectory`; the command-skill loop clears a non-directory owned entry only under `force`, otherwise logs `skip existing`); `test/install-grokbot-edge.test.js` (+1 plain-install test).
+- **Implementer verification:** 47/47 on the grokbot suites; `npm test` 553/553; `diff --check` clean; dry-run and doctor output byte-identical.
+  - Falsifier: `if (!args.force)` → `if (false)` turns the new test red ("plain install replaced the owned symlink").
+- **Evidence re-run (Leader inline):** VERIFIED. 553/553, 0 skipped.
+  - Extra probe: an owned plain-file command plus a plain install gives exit 0, no ENOTDIR, and the file is left as is.
+- **Reviewer (opus):** PASS.
+  - Live matrix: 32 cells, covering a command and a skill × 4 shapes × install / install --force / doctor / doctor --fix. Every cell matches the FR-4 row *Owned entry present*: no crash, no write outside the root, and commands and skills behave identically.
+  - `update` was checked by static trace: it takes the `force` branch and never a takeover.
+- **ADVISORY:**
+  - `isRealDirectory` returns true on any lstat error; mirroring the ENOENT/ENOTDIR narrowing would be more consistent.
+  - The skip branch bypasses `policy.finish()`. This is safe, but deserves a comment.
+- **Accepted limit (Reviewer A, attempt 1):** doctor reads an owned symlink to a folder that has `SKILL.md` as OK, and nothing writes through it.
+- **spawns:** Implementer (resumed): not reported by host. Reviewer: not reported by host.
+
+**T6 final: PASS** (2 attempts) · 2026-10-21
+- **Requirements covered:** FR-4 *Owned entry present* (all columns), DD-7, NFR-4.
+- **Running totals:** tasks 7/7.
+  - LOC, measured with `git diff --numstat c265b03` over code, tests and docs (+1,921/−66 = 1,987), minus the 359-line Tester edge suite written during `/akili-test`: **≈1,628** against ~1,600 (≈2% over). The earlier per-task running totals were estimates; this is the measured figure. T6 added 71 lines. The user approved T6 knowing its size.
+  - Review rounds: 11, against the 10 approved (T6 needed 2).

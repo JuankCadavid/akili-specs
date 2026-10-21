@@ -760,6 +760,29 @@ function removeEntryNoFollow(entryPath) {
   }
 }
 
+// @akili-spec changes/grokbot-target (BUG-1): an owned entry is only ever
+// written into as a real directory. lstat it first; a plain file, or a dangling
+// or live symlink, is removed with the no-follow helper so the write that
+// follows creates a real folder and never goes through a link.
+function clearNonDirectoryEntry(entryPath) {
+  let st;
+  try {
+    st = fs.lstatSync(entryPath);
+  } catch (e) {
+    if (e && (e.code === "ENOENT" || e.code === "ENOTDIR")) return;
+    throw e;
+  }
+  if (!st.isDirectory()) removeEntryNoFollow(entryPath);
+}
+
+function isRealDirectory(entryPath) {
+  try {
+    return fs.lstatSync(entryPath).isDirectory();
+  } catch (e) {
+    return true; // absent: nothing to clear or skip
+  }
+}
+
 // T2b (DD-11): step (1) of a takeover. One atomic rename of the entry itself
 // (a symlink moves as a link, never followed) into AKILI's own directory, so a
 // failure here (EACCES, EXDEV, ...) cannot leave a half-deleted foreign entry.
@@ -1103,6 +1126,17 @@ function installTool(tool, args) {
             }
             if (decision === "takeover") {
               console.log(`  ${colors.green}${args.dryRun ? "would " : ""}replace foreign${colors.reset} ${entryDir}`);
+            }
+            // @akili-spec changes/grokbot-target (BUG-1): an owned entry that is not a
+            // real directory is overwritten only under --force/update (FR-4: install =
+            // skip); plain install leaves it alone, as the skill side does.
+            if (decision === "owned" && !isRealDirectory(entryDir)) {
+              if (!args.force) {
+                console.log(`  ${colors.yellow}skip existing${colors.reset} ${entryDir}`);
+                skipped += 1;
+                continue;
+              }
+              if (!args.dryRun) clearNonDirectoryEntry(entryDir);
             }
           }
           add(copySingleFile(path.join(SOURCE_COMMANDS, cmdFile), path.join(entryDir, "SKILL.md"), args));
@@ -1533,6 +1567,7 @@ function doctorTool(tool, args) {
       missing += 1;
     } else {
       recordOwned(ownership, name);
+      clearNonDirectoryEntry(entryPath); // @akili-spec changes/grokbot-target (BUG-1)
       restore(entryPath);
       console.log(`  ${colors.cyan}FIXED${colors.reset} ${label}`);
       fixed += 1;

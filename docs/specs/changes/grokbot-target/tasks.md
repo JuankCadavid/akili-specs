@@ -319,7 +319,7 @@ The tasks run in a strict sequence because all four code tasks edit `bin/akili.j
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~25 LOC in `bin/akili.js`, ~30 LOC of tests) |
 | Depends on | T5 |
 | Requirements | FR-4 table, row *Owned entry present* (doctor `--fix` restores a missing `SKILL.md`; overwrite under `--force`/update); NFR-4 |

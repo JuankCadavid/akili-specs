@@ -357,3 +357,39 @@ test("@akili-spec changes/grokbot-target FR-4 (Explicit takeover): install --for
   assert.deepEqual(fs.existsSync(aside) ? fs.readdirSync(aside) : [], [], "a .takeover leftover remains");
   assert.deepEqual(fs.readdirSync(p.workflows).sort(), ALL_NAMES, "something extra was left in the workflows root");
 });
+
+// --- BUG-1 (install side) ---------------------------------------------------
+
+test("@akili-spec changes/grokbot-target FR-4 (Owned entry, odd shape): install --force never writes through an owned command symlink to a folder outside the workflows root", (t) => {
+  const name = COMMAND_NAMES.find((n) => n === "akili-quick") || COMMAND_NAMES[0];
+  let outside;
+  const fx = installThenReshape(t, "akili-gbe-ownlinkinst-", name, (entry, home) => {
+    outside = path.join(home, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "keep.txt"), "keep\n");
+    return trySymlink(t, outside, entry);
+  });
+  if (!fx) return;
+  const run = grokbot(fx.home, "install", ["--force"]);
+  assert.doesNotMatch(run.stderr, /^\s+at /m, `install --force crashed:\n${run.stderr}`);
+  assert.deepEqual(listAllFiles(outside), ["keep.txt"], "install --force wrote through the symlink outside the workflows root");
+  assert.ok(fs.lstatSync(fx.entry).isDirectory(), `${name} must be a real folder after install --force`);
+  assert.deepEqual(listAllFiles(fx.entry), ["SKILL.md"]);
+});
+
+test("@akili-spec changes/grokbot-target FR-4 (Owned entry present, install = skip): plain install leaves an owned command symlink and its outside folder untouched", (t) => {
+  const name = COMMAND_NAMES.find((n) => n === "akili-quick") || COMMAND_NAMES[0];
+  let outside;
+  const fx = installThenReshape(t, "akili-gbe-ownlinkplain-", name, (entry, home) => {
+    outside = path.join(home, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "SKILL.md"), "healthy\n");
+    return trySymlink(t, outside, entry);
+  });
+  if (!fx) return;
+  const run = grokbot(fx.home, "install");
+  assert.doesNotMatch(run.stderr, /^\s+at /m, `plain install crashed:\n${run.stderr}`);
+  assert.ok(fs.lstatSync(fx.entry).isSymbolicLink(), "plain install replaced the owned symlink");
+  assert.deepEqual(listAllFiles(outside), ["SKILL.md"]);
+  assert.equal(fs.readFileSync(path.join(outside, "SKILL.md"), "utf8"), "healthy\n", "plain install wrote through the symlink");
+});
