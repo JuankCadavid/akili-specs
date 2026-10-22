@@ -9,11 +9,11 @@
 | Type | Change |
 | Deliverable | software |
 | Approval Mode | `gated`: one pause per specify phase (user, 2026-10-21: "Detente en los gates") |
-| Status | **Draft**, awaiting the Phase 1 gate |
+| Status | **Phase 1 approved** 2026-10-22 (Juan Carlos Cadavid): requirements as written, D-1 approved; the Clarity consent-enforcement fact stays a premise to confirm (design P-9) |
 | Date | 2026-10-21 |
 | Proposal | `proposal.md`, **Approved** 2026-10-21 (Juan Carlos Cadavid): option A, Q1–Q8 take the recommended answers |
 | Format source | `docs/specs/archive/2026-10-19-changes--akili-security-followup/`. This repo has no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, as run 2026-10-21 at `9f27fe2`) |
-| Deviation from proposal (needs approval at this gate) | **D-1:** the proposal said analytics findings "never outrank blocking crawl/index fixes". This spec puts them in their own **Measurement & Compliance** group in the Remediation Plan instead (FR-12). A consent violation is a legal exposure, not an SEO priority, so ranking it on the SEO scale would either bury it or let it displace a crawl fix |
+| Deviation from proposal (**approved** 2026-10-22) | **D-1:** the proposal said analytics findings "never outrank blocking crawl/index fixes". This spec puts them in their own **Measurement & Compliance** group in the Remediation Plan instead (FR-12). A consent violation is a legal exposure, not an SEO priority, so ranking it on the SEO scale would either bury it or let it displace a crawl fix |
 | Release | **Minor**: new optional behavior in an existing command. Recorded only; **no release, push or publish in this cycle** |
 
 ## 2. Executive Summary
@@ -61,6 +61,7 @@ Today (citations as run at `9f27fe2`):
 - `.claude/skills/seo-audit/evals/evals.json`
 - `docs/commands/akili-seo.md`
 - `docs/skills/seo-audit.md`
+- `README.md` (the `/akili-seo` summary at `:801`; added at design, P-3)
 - one new test file
 - `CHANGELOG.md` (`[Unreleased]`)
 
