@@ -6,9 +6,14 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **`akili install --tool grokbot` installs AKILI into Grok Bot, run on the Grok Bot box.** It writes the 12 commands and 27 packaged skills as `<name>/SKILL.md` folders under the workflows root (default `/home/box/agent-data/workflows`) and the persona templates, `digests.json`, scripts and `.mcp.json.example` under a sibling `akili` resources root. Roots are set with `--grokbot-target`, `--grokbot-resources-target`, `AKILI_GROKBOT_TARGET`, `--local` (`./.grokbot/`) or `--target <p>` (`<p>/workflows` + `<p>/akili`); `--local` wins over the env var. Commands are installed verbatim and best-effort: Grok Bot has no slash commands, so `$ARGUMENTS` and subagent steps may not apply. Grok Bot is the sixth target and is never part of `--tool all` or `--tool both`; `install`, `update` and `doctor` are supported only on the box and print no copy, `rsync` or `ssh` step.
+- **Folders AKILI did not write are protected.** AKILI records the names it writes in `<resources root>/grokbot-owned.json`; a same-name entry not in that record is foreign, so `install` and `update` skip it (`skip foreign`), `doctor --fix` leaves it untouched, and `doctor` reports it FOREIGN, with `INCOMPLETE` and a non-zero exit. Only `install --force` takes a foreign entry over, by moving it aside to `<resources root>/.takeover/`, recording the name, copying AKILI's folder in and then deleting the moved-aside copy. An invalid record is never overwritten and blocks every write into the workflows root (`install` and `update` exit 1, with the recovery steps printed). Accepted limits: ownership is by name, and `doctor --fix` restores a partial entry only when its `SKILL.md` is missing. See `docs/cli.md` > *Grok Bot*.
+
+### Changed
+
+- **Docs and help name six install targets.** `README.md`, `docs/cli.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.claude/README.md` and the `--tool` help now count Grok Bot, and the claims that hold only for `--tool all` say "the five desktop tools".
 
 ## [2.34.2] - 2026-10-20
 

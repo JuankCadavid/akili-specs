@@ -187,7 +187,7 @@ function stripAnsi(text) {
 
 function runDoctorAgents(tmpDir, extraArgs) {
   const akiliBin = path.join(__dirname, "..", "bin", "akili.js");
-  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir });
+  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir, AKILI_GROKBOT_TARGET: path.join(tmpDir, "grokbot-env-unused", "workflows") });
   const result = spawnSync(
     process.execPath,
     [akiliBin, "doctor", "--agents"].concat(extraArgs || []),
@@ -433,7 +433,7 @@ function initGitRepo(tmpDir, opts) {
 
 function runFix(tmpDir, extraArgs) {
   const akiliBin = path.join(__dirname, "..", "bin", "akili.js");
-  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir });
+  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir, AKILI_GROKBOT_TARGET: path.join(tmpDir, "grokbot-env-unused", "workflows") });
   const result = spawnSync(process.execPath, [akiliBin, "doctor", "--agents", "--fix"].concat(extraArgs || []), {
     cwd: tmpDir,
     env: env,
@@ -641,7 +641,7 @@ test("CLI --fix then doctor --agents again: exit 0, no section outdated or missi
     const first = runFix(tmpDir, []);
     assert.equal(first.exitCode, 0);
     const akiliBin = path.join(__dirname, "..", "bin", "akili.js");
-    const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir });
+    const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir, AKILI_GROKBOT_TARGET: path.join(tmpDir, "grokbot-env-unused", "workflows") });
     const second = spawnSync(process.execPath, [akiliBin, "doctor", "--agents"], { cwd: tmpDir, env, encoding: "utf8" });
     assert.equal(second.status, 0);
     const failingLines = stripAnsi(second.stdout).split("\n").filter((l) => /OUTDATED|MISSING|UNMARKED|UNREADABLE|ABSENT/.test(l));

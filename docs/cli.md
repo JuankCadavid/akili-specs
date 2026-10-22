@@ -1,6 +1,6 @@
 # CLI Reference
 
-The `akili` CLI installs the AKILI command prompts, skills, and helper resources into Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, or multiple tools.
+The `akili` CLI installs the AKILI command prompts, skills, and helper resources into Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, Grok Bot, or multiple tools.
 
 ## Install
 
@@ -18,7 +18,7 @@ Ctrl-C at either question exits with code 130; nothing is installed.
 With no input (stdin at end-of-input), `init` also exits 130; nothing is installed.
 
 The tool prompt lists `1) Claude Code`, `2) OpenCode`, `3) Google Antigravity`, `4) OpenAI Codex CLI`,
-`5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five`. Inputs `5` and `6` changed
+`5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five` (the five desktop tools; `init` does not offer Grok Bot — run `akili install --tool grokbot` on the box, see [Grok Bot](#grok-bot-grokbot)). Inputs `5` and `6` changed
 meaning from v2.31.0 — `5` used to mean Both and `6` used to mean All four; Both is now `6` and
 All (now five hosts) is `7`. Choosing local for Codex maps to `./.agents/skills` (commands and
 skills) plus `./.codex/akili` (resources); choosing local for Cursor maps to `./.agents/skills`
@@ -34,6 +34,7 @@ npx akili-specs install --tool opencode
 npx akili-specs install --tool antigravity
 npx akili-specs install --tool codex
 npx akili-specs install --tool cursor
+npx akili-specs install --tool grokbot   # on the Grok Bot box only; see Grok Bot below
 npx akili-specs install --tool both
 npx akili-specs install --tool all
 ```
@@ -43,7 +44,8 @@ targets** on disk (`~/.claude`, `~/.config/opencode`, `~/.gemini`, and — for C
 non-empty `akili` resources directory under `$CODEX_HOME` (default `~/.codex`) / `$CURSOR_CONFIG_DIR`
 (default `~/.cursor`), or, for Codex only, an `akili-<cmd>/SKILL.md` command skill under
 `~/.agents/skills`) and act on all of them — so a bare `akili update` refreshes every installed
-tool, not just Claude. A populated `~/.agents/skills` alone is **not** evidence of either a Codex or
+tool, not just Claude. Grok Bot is detected by a non-empty `akili` resources directory at its
+resolved resources root only (see [Grok Bot](#grok-bot-grokbot)); a workflows folder alone never counts. A populated `~/.agents/skills` alone is **not** evidence of either a Codex or
 a Cursor install: that root is shared with other tools honoring the Agent Skills standard, so the
 two tenants are evidenced by two different signals that together keep detection symmetric overall
 — neither tool misreads the other's install (design DD-2). **Cursor detects by its own resources root
@@ -105,8 +107,9 @@ Every command closes with a clear end-of-run summary:
 | `--tool codex` | install, update, doctor | Target OpenAI Codex CLI config |
 | `--tool cursor` | install, update, doctor | Target Cursor config |
 | `--tool both` | install, update, doctor | Target Claude and OpenCode |
-| `--tool all` | install, update, doctor | Target Claude, OpenCode, Antigravity, Codex, and Cursor |
-| `--target <path>` | single-tool install/update/doctor | Override the selected tool target directory. For `--tool codex` or `--tool cursor` this selects a **single-root sandbox layout** — resources at `<path>/akili` and skills at `<path>/skills`, both under the one path — instead of the split default (`~/.codex/akili` + `~/.agents/skills`, or `~/.cursor/akili` + `~/.agents/skills`). **Unverified:** whether Codex still reads `~/.codex/skills` as a legacy root (so `--target ~/.codex` would also produce a working legacy-style install) — the pinned skills page (`Last verified: 2026-09-16`, <https://learn.chatgpt.com/docs/build-skills>) documents only the `~/.agents/skills` Agent Skills root and does not state a legacy `~/.codex/skills` location; confirmed or retracted by the Codex install spec's live-validation task |
+| `--tool grokbot` | install, update, doctor | Target Grok Bot (run on the box; see [Grok Bot](#grok-bot-grokbot)) |
+| `--tool all` | install, update, doctor | Target Claude, OpenCode, Antigravity, Codex, and Cursor — the five desktop tools; **never** Grok Bot |
+| `--target <path>` | single-tool install/update/doctor | Override the selected tool target directory. For `--tool codex` or `--tool cursor` this selects a **single-root sandbox layout** — resources at `<path>/akili` and skills at `<path>/skills`, both under the one path — instead of the split default (`~/.codex/akili` + `~/.agents/skills`, or `~/.cursor/akili` + `~/.agents/skills`). For `--tool grokbot` it selects `<path>/workflows` (commands and skills) and `<path>/akili` (resources). **Unverified:** whether Codex still reads `~/.codex/skills` as a legacy root (so `--target ~/.codex` would also produce a working legacy-style install) — the pinned skills page (`Last verified: 2026-09-16`, <https://learn.chatgpt.com/docs/build-skills>) documents only the `~/.agents/skills` Agent Skills root and does not state a legacy `~/.codex/skills` location; confirmed or retracted by the Codex install spec's live-validation task |
 | `--claude-target <path>` | multiple tools | Override Claude target directory |
 | `--opencode-target <path>` | multiple tools | Override OpenCode target directory |
 | `--antigravity-target <path>` | multiple tools | Override Antigravity target directory |
@@ -114,10 +117,12 @@ Every command closes with a clear end-of-run summary:
 | `--codex-skills-target <path>` | multiple tools | Override the Codex skills root independently of `--codex-target` |
 | `--cursor-target <path>` | multiple tools | Override the Cursor config home (resources land at `<path>/akili`); does not move the skills root |
 | `--cursor-skills-target <path>` | multiple tools | Override the Cursor skills root independently of `--cursor-target` |
-| `--local`, `-l` | install, update, doctor | Target the current project directory (e.g., `./.claude`, or `./.agents/skills` + `./.codex/akili` for Codex, or `./.agents/skills` + `./.cursor/akili` for Cursor) instead of the global home directory |
+| `--grokbot-target <path>` | multiple tools | Override the Grok Bot workflows root (commands and skills); resources follow at `<path>/../akili` unless overridden. Default: `$AKILI_GROKBOT_TARGET`, else `/home/box/agent-data/workflows` |
+| `--grokbot-resources-target <path>` | multiple tools | Override the Grok Bot resources root independently of the workflows root |
+| `--local`, `-l` | install, update, doctor | Target the current project directory (e.g., `./.claude`, or `./.agents/skills` + `./.codex/akili` for Codex, or `./.agents/skills` + `./.cursor/akili` for Cursor, or `./.grokbot/workflows` + `./.grokbot/akili` for Grok Bot) instead of the global home directory |
 | `--force` | install, update | Overwrite existing files |
 | `--dry-run` | install, update | Show planned writes without writing files |
-| `--commands-only` | install, update, doctor | Only install or check commands (on Codex and Cursor, the 12 command skills — no `commands/` directory is ever written for either, in any mode) |
+| `--commands-only` | install, update, doctor | Only install or check commands (on Codex, Cursor, and Grok Bot, the 12 command skills — no `commands/` directory is ever written for any of them, in any mode) |
 | `--skills-only` | install, update, doctor | Only install or check skills |
 | `--fix` | doctor | Automatically repair and copy missing files |
 | `--hosts <a,b>` | routing | Hosts to configure: `claude`, `opencode`, `antigravity`, `codex`, `cursor` |
@@ -146,6 +151,7 @@ OpenCode:    ~/.config/opencode
 Antigravity: ~/.gemini
 Codex:       $CODEX_HOME if set, else ~/.codex (resources) + ~/.agents/skills (commands and skills)
 Cursor:      $CURSOR_CONFIG_DIR if set, else ~/.cursor (resources) + ~/.agents/skills (commands and skills)
+Grok Bot:    $AKILI_GROKBOT_TARGET if set, else /home/box/agent-data/workflows (commands and skills) + <parent of that>/akili (resources) — on the box; see Grok Bot below
 ```
 
 Claude install layout:
@@ -202,7 +208,7 @@ $CURSOR_CONFIG_DIR/akili/ (or ~/.cursor/akili/)  (resources root)
   .mcp.json.example
 ```
 
-Codex and Cursor are the only targets whose skills live outside their own config home: each
+Codex and Cursor are the only targets whose skills live in a root shared with other tools, outside their own config home (Grok Bot has no config home; its two roots are below): each
 tool's skills root (`~/.agents/skills`, or `./.agents/skills` under `--local` — shared between
 them) and its own resources root (`~/.codex/akili` or `~/.cursor/akili`, or the `--local`
 equivalents) move independently via `--codex-skills-target`/`--codex-target` and
@@ -211,7 +217,7 @@ equivalents) move independently via `--codex-skills-target`/`--codex-target` and
 `.cursor/hooks.json`) are not part of the CLI install and are documented in the
 [Command Reference](commands/akili-constitution.md).
 
-Restart Claude Code, OpenCode, Google Antigravity, Codex, or Cursor (or open a new chat) after
+Restart Claude Code, OpenCode, Google Antigravity, Codex, Cursor, or Grok Bot (or open a new chat) after
 install/update so running sessions load new commands and skills.
 
 ## Shared and compatibility skill roots (Codex, Cursor, Claude Code)
@@ -231,6 +237,60 @@ observed live 2026-10-01 (Cursor CLI, cursor-agent 2026.09.28–2026.10.01): a s
 listed **once**, from `~/.claude/skills` (one observation, this host — read as: the compatibility
 root wins); the IDE picker was not observed.
 
+## Grok Bot (`--tool grokbot`)
+
+**Run the CLI in a shell on the Grok Bot box.** `akili install --tool grokbot` writes the 12 commands and 27 packaged skills straight into the folder Grok Bot reads, and never touches a folder AKILI did not write. From another machine, open a shell on the box and run it there — the CLI prints and runs no `rsync`, `ssh` or copy step, and no copy or transfer step opens a network connection (the usual npm update check is unaffected).
+
+```bash
+akili install --tool grokbot            # on the box
+akili doctor --tool grokbot
+```
+
+### Roots and precedence
+
+| Root | Holds | First match wins |
+|---|---|---|
+| Workflows root | one `<name>/SKILL.md` folder per command and per skill | `--target <p>` with `--tool grokbot` → `<p>/workflows` · `--grokbot-target <p>` · `--local` → `./.grokbot/workflows` · `AKILI_GROKBOT_TARGET` (ignored when blank) · `/home/box/agent-data/workflows` |
+| Resources root | persona templates, `digests.json`, scripts, `.mcp.json.example`, the ownership record `grokbot-owned.json` | `--grokbot-resources-target <p>` · otherwise `<parent of the workflows root>/akili` |
+
+- `--local` wins over `AKILI_GROKBOT_TARGET`, as `CODEX_HOME` and `CURSOR_CONFIG_DIR` do. One quirk is shared with the other targets: an explicit `--grokbot-target` equal to the default reads as "not given", so together with `--local` the local path wins.
+- The workflows root and the resources root must be on the same filesystem (takeover, below, moves entries between them; a split filesystem stops the takeover safely with `EXDEV`).
+- `install`, `update` and `doctor` print the roots they used, and the next-steps block repeats your root flags in its `doctor` and takeover commands.
+
+### What it installs
+
+- Commands are installed **verbatim**, as skills (`<workflows root>/akili-<name>/SKILL.md`), and **best-effort**: Grok Bot has no slash commands, so `$ARGUMENTS` and subagent steps in a command may not apply.
+- Grok Bot is **never part of `--tool all`** or `--tool both`; select it with `--tool grokbot`. A bare `akili update` / `akili doctor` on the box includes it only when its resources root is populated.
+- `--dry-run` writes nothing, the ownership record included. `--skills-only` / `--commands-only` record only the entries they write.
+- No legacy cleanup and no STALE scan ever runs in the workflows root.
+
+### Foreign folders are protected
+
+AKILI records the names it writes in `<resources root>/grokbot-owned.json`. A same-name entry that is not in the record — directory, file or symlink, dangling included — is **foreign** and is left byte-identical.
+
+| Entry in the workflows root | `install` | `install --force` | `update` | `doctor` | `doctor --fix` |
+|---|---|---|---|---|---|
+| Absent | write, record | write, record | write, record | MISSING | write, record |
+| Owned, present | skip | overwrite | overwrite | OK (MISSING if its `SKILL.md` is gone) | restore a missing `SKILL.md` |
+| Foreign | skip, `skip foreign` | **take over**: replace whole, record | skip — also with `update --force` | FOREIGN | untouched |
+
+- **Takeover is explicit:** only `akili install --tool grokbot --force` replaces a foreign entry. It moves the entry aside to `<resources root>/.takeover/`, records the name, copies AKILI's folder in, then deletes the moved-aside copy. A failure before the copy leaves the foreign entry whole in place; if only the final delete fails, a warning names the leftover path (outside the workflows root).
+- `doctor` exits non-zero when any item is MISSING or FOREIGN, and its Grok Bot summary row reads INCOMPLETE with a `foreign N` count.
+- A plain install with an invalid record and every AKILI entry already present prints `skip foreign` (never `blocked`) for every workflows entry, the warning, and exits 1; resources still print `skip existing`.
+
+### Invalid or missing ownership record
+
+If `grokbot-owned.json` exists but is not valid, AKILI folders read as foreign, the record is **never overwritten**, and `install`, `update` and `doctor --fix` write nothing into the workflows root (`install` and `update` exit 1). Recover:
+
+1. Restore the record from a backup; **or**
+2. Run `akili doctor --tool grokbot` first. Its FOREIGN lines show which same-name entries belong to other authors. Then delete the record and run `akili install --tool grokbot --force`, knowing that **every AKILI-named entry is replaced**.
+
+### Accepted limits
+
+- **Ownership is by name (J-18).** If another author deletes an AKILI folder and recreates one with the same name while the record still lists it, `update` overwrites it.
+- **`doctor --fix` repairs a partial entry only when its `SKILL.md` is missing.** An install interrupted part-way leaves its entry recorded as owned (never foreign); a partial entry that already has its `SKILL.md` reads OK, so run `akili update` to repair it.
+- Other tools' skills sharing a root with Grok Bot (for example `--grokbot-target ~/.agents/skills`) read as foreign to it. This is documented, not prevented.
+
 ## Safety Rules
 
 - Existing files are skipped by default.
@@ -240,7 +300,7 @@ root wins); the IDE picker was not observed.
 
 ## Examples
 
-Preview a five-tool install:
+Preview an install of the five desktop tools (`all`, without Grok Bot):
 
 ```bash
 akili install --tool all --dry-run
@@ -602,8 +662,8 @@ the third has nothing to do.
 
 If commands do not appear in your AI tool:
 
-- Run `akili doctor --tool <claude|opencode|antigravity|codex|cursor|both|all>`.
-- Restart Claude Code, OpenCode, Google Antigravity, Codex, or Cursor (or open a new chat).
+- Run `akili doctor --tool <claude|opencode|antigravity|codex|cursor|grokbot|both|all>`.
+- Restart Claude Code, OpenCode, Google Antigravity, Codex, Cursor, or Grok Bot (or open a new chat).
 - Confirm the target directory is the one your tool reads.
 - Re-run with `--force` if older files should be replaced.
 

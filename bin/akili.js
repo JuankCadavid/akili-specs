@@ -137,6 +137,15 @@ const defaultPaths = {
       ? resolveUserPath(process.env.CURSOR_CONFIG_DIR.trim())
       : path.join(os.homedir(), ".cursor"),
   cursorSkills: path.join(os.homedir(), ".agents", "skills"),
+  // @akili-spec changes/grokbot-target — T1 (FR-2, DD-2): Grok Bot's workflows
+  // root follows $AKILI_GROKBOT_TARGET when set and non-blank (global default
+  // only — --local keeps ./.grokbot/workflows, and --grokbot-target/--target
+  // still override it), else the box path. Resources default to its sibling
+  // `akili` directory (see getArgs).
+  grokbot:
+    process.env.AKILI_GROKBOT_TARGET && process.env.AKILI_GROKBOT_TARGET.trim() !== ""
+      ? resolveUserPath(process.env.AKILI_GROKBOT_TARGET.trim())
+      : "/home/box/agent-data/workflows",
 };
 
 // Tool Registry defining target directories mapping per tool. Each entry is a
@@ -194,6 +203,21 @@ const TOOL_REGISTRY = {
     sharedSkillsRoot: true,
     detectByResourcesOnly: true,
   }),
+  // @akili-spec changes/grokbot-target — Grok Bot: the Cursor shape (DD-1).
+  // `roots.root` is the resources root itself (not <root>/akili): the two
+  // roots are siblings the operator can relocate independently (FR-2).
+  // ownershipRecord (DD-8) only flags the entry here; the write policy that
+  // reads it lands in a later task.
+  grokbot: (roots) => ({
+    commands: [],
+    skills: [roots.skillsRoot],
+    resources: roots.root,
+    legacyResources: null,
+    commandsAsSkills: true,
+    sharedSkillsRoot: true,
+    detectByResourcesOnly: true,
+    ownershipRecord: true,
+  }),
 };
 
 function printHelp() {
@@ -213,13 +237,14 @@ Commands:
   help      Show this help
 
 Options:
-  --tool <name>        Install target: claude, opencode, antigravity, codex, cursor, both, or all.
-                       "both" = Claude Code + OpenCode. "all" = all five targets.
+  --tool <name>        Install target: claude, opencode, antigravity, codex, cursor, grokbot, both, or all.
+                       "both" = Claude Code + OpenCode. "all" = all five desktop targets (not grokbot).
                        When omitted, install/update/doctor auto-detect already-installed
                        targets; if none are found they default to claude.
   --target <path>      Target config directory for selected single tool.
                        For --tool codex or --tool cursor this selects a single-root
                        sandbox layout: <path>/akili (resources) and <path>/skills (skills).
+                       For --tool grokbot: <path>/workflows (skills) and <path>/akili (resources).
   --claude-target      Claude config directory. Default: ~/.claude
   --opencode-target    OpenCode config directory. Default: ~/.config/opencode
   --antigravity-target Antigravity config directory. Default: ~/.gemini
@@ -227,6 +252,8 @@ Options:
   --codex-skills-target Codex Agent Skills root (shared with other tools). Default: ~/.agents/skills
   --cursor-target       Cursor config home (resources land at <path>/akili). Default: $CURSOR_CONFIG_DIR if set, else ~/.cursor
   --cursor-skills-target Cursor Agent Skills root (shared with other tools). Default: ~/.agents/skills
+  --grokbot-target      Grok Bot workflows root (skills and commands). Default: $AKILI_GROKBOT_TARGET if set, else /home/box/agent-data/workflows
+  --grokbot-resources-target Grok Bot resources root. Default: <parent of the workflows root>/akili
   --force              Overwrite existing files
   --dry-run            Show what would happen without writing files
   --commands-only      Install or check only commands
@@ -259,10 +286,12 @@ Examples:
   akili install --tool claude --target ./.claude
   akili install --tool codex --codex-target ~/.codex --codex-skills-target ~/.agents/skills
   akili install --tool cursor
+  akili install --tool grokbot
   akili update --tool both --force
   akili doctor --tool all --fix
   akili doctor --tool codex
   akili doctor --tool cursor
+  akili doctor --tool grokbot
   akili list
   akili notifications enable
   akili routing
@@ -307,6 +336,8 @@ function getArgs() {
     "codex-skills-target": { type: "string", default: defaultPaths.codexSkills },
     "cursor-target": { type: "string", default: defaultPaths.cursor },
     "cursor-skills-target": { type: "string", default: defaultPaths.cursorSkills },
+    "grokbot-target": { type: "string", default: defaultPaths.grokbot },
+    "grokbot-resources-target": { type: "string" },
     force: { type: "boolean", default: false },
     "dry-run": { type: "boolean", default: false },
     "commands-only": { type: "boolean", default: false },
@@ -351,8 +382,8 @@ function getArgs() {
       fail("Use only one of --commands-only or --skills-only");
     }
 
-    if (!["claude", "opencode", "antigravity", "codex", "cursor", "both", "all"].includes(values.tool)) {
-      fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, both, all");
+    if (!["claude", "opencode", "antigravity", "codex", "cursor", "grokbot", "both", "all"].includes(values.tool)) {
+      fail("--tool must be one of: claude, opencode, antigravity, codex, cursor, grokbot, both, all");
     }
 
     if (values.target && (values.tool === "both" || values.tool === "all")) {
@@ -367,6 +398,20 @@ function getArgs() {
     const baseCodexSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.codexSkills;
     const baseCursor = values.local ? path.join(process.cwd(), ".cursor") : defaultPaths.cursor;
     const baseCursorSkills = values.local ? path.join(process.cwd(), ".agents", "skills") : defaultPaths.cursorSkills;
+    const baseGrokbot = values.local ? path.join(process.cwd(), ".grokbot", "workflows") : defaultPaths.grokbot;
+
+    // @akili-spec changes/grokbot-target — FR-2 root table: --target with
+    // --tool grokbot → <p>/workflows, else an explicit --grokbot-target, else
+    // the base (local or default). Resources: explicit flag, else the
+    // workflows root's sibling `akili` (DD-3).
+    const grokbotWorkflows = resolveUserPath(
+      values.target && values.tool === "grokbot"
+        ? path.join(values.target, "workflows")
+        : (values["grokbot-target"] !== defaultPaths.grokbot ? values["grokbot-target"] : baseGrokbot)
+    );
+    const grokbotResources = values["grokbot-resources-target"]
+      ? resolveUserPath(values["grokbot-resources-target"])
+      : path.join(path.dirname(grokbotWorkflows), "akili");
 
     // Whether the user explicitly passed --tool. When they did not, install/
     // update/doctor auto-detect already-installed targets instead of assuming
@@ -382,6 +427,10 @@ function getArgs() {
       toolExplicit,
       quiet: values.quiet,
       force: values.force,
+      // @akili-spec changes/grokbot-target — DD-6: `--force` given on the
+      // `install` command only; `update` forces writes without consent to take
+      // over foreign folders. Consumed by the ownership policy (later task).
+      forceExplicit: values.force && command === "install",
       dryRun: values["dry-run"],
       commandsOnly: values["commands-only"],
       skillsOnly: values["skills-only"],
@@ -423,6 +472,8 @@ function getArgs() {
           ? path.join(values.target, "skills")
           : (values["cursor-skills-target"] !== defaultPaths.cursorSkills ? values["cursor-skills-target"] : baseCursorSkills)
       ),
+      grokbotTarget: grokbotWorkflows,
+      grokbotResourcesTarget: grokbotResources,
     };
 
     return args;
@@ -465,6 +516,11 @@ function selectedTools(args) {
 
 const ALL_TOOLS = ["claude", "opencode", "antigravity", "codex", "cursor"];
 
+// @akili-spec changes/grokbot-target — DD-4: auto-detection reads a wider list
+// than `--tool all` acts on. ALL_TOOLS (and selectedTools/toolFlagFor) stay the
+// five desktop targets.
+const DETECTABLE_TOOLS = [...ALL_TOOLS, "grokbot"];
+
 // A tool counts as installed when any of its target directories exists and is
 // non-empty. Checking commands / skills / resources covers --commands-only and
 // --skills-only installs too, not just full ones.
@@ -499,7 +555,7 @@ function isToolInstalled(tool, args) {
     // root has a populated resources dir of its own — otherwise a Cursor-only
     // machine's command-skill files (written by the Cursor install itself)
     // would make `akili update` auto-detect Codex too.
-    const siblingResourcesPopulated = ALL_TOOLS.some((otherTool) => {
+    const siblingResourcesPopulated = DETECTABLE_TOOLS.some((otherTool) => {
       if (otherTool === tool) return false;
       const { paths: otherPaths } = getToolRegistryInfo(otherTool, args);
       if (!otherPaths.sharedSkillsRoot) return false;
@@ -530,7 +586,7 @@ function isToolInstalled(tool, args) {
 }
 
 function detectInstalledTools(args) {
-  return ALL_TOOLS.filter((tool) => isToolInstalled(tool, args));
+  return DETECTABLE_TOOLS.filter((tool) => isToolInstalled(tool, args));
 }
 
 // Resolve which tools an install/update/doctor run should act on. An explicit
@@ -575,6 +631,30 @@ function verifyHints(tools) {
   return flag ? [flag] : tools;
 }
 
+// @akili-spec changes/grokbot-target — T4 (FR-7): the root flags that reproduce
+// a grokbot run, each present only when its root differs from what the run
+// would resolve without it (the default workflows root; the `akili` sibling of
+// the workflows root). Empty when both roots are the defaults.
+function grokbotRootFlags(workflows, resources) {
+  const quote = (p) => (/\s/.test(p) ? `"${p}"` : p);
+  const flags = [];
+  if (workflows !== resolveUserPath(defaultPaths.grokbot)) flags.push(`--grokbot-target ${quote(workflows)}`);
+  if (resources !== path.join(path.dirname(workflows), "akili")) flags.push(`--grokbot-resources-target ${quote(resources)}`);
+  return flags.join(" ");
+}
+
+// `akili <verb> --tool grokbot [root flags] [tail]`, without double spaces.
+function grokbotCommand(verb, workflows, resources, tail) {
+  return ["akili", verb, "--tool grokbot", grokbotRootFlags(workflows, resources), tail].filter(Boolean).join(" ");
+}
+
+// The text after `akili doctor --tool ` for a verify hint: grokbot carries its
+// root flags when a root is not the default.
+function doctorHintFor(h, args) {
+  if (h !== "grokbot") return h;
+  return grokbotCommand("doctor", args.grokbotTarget, args.grokbotResourcesTarget).replace(/^akili doctor --tool /, "");
+}
+
 function shouldInclude(type, args) {
   if (args.commandsOnly) return type === "commands";
   if (args.skillsOnly) return type === "skills";
@@ -603,6 +683,191 @@ function removeTargetSymlinks(sourcePath, targetPath) {
       removeTargetSymlinks(path.join(sourcePath, entry.name), path.join(targetPath, entry.name));
     }
   }
+}
+
+// @akili-spec changes/grokbot-target — T2 (FR-4, DD-5..DD-7, DD-10, DD-11):
+// ownership of entries in a shared workflows root. The record lists entry
+// NAMES (never paths) that AKILI wrote or began writing; a same-name entry
+// that is not listed is foreign and is never written, unless the operator
+// explicitly takes it over with `install --force`.
+const OWNERSHIP_RECORD_FILE = "grokbot-owned.json";
+
+function ownershipRecordPath(paths) {
+  return path.join(paths.resources, OWNERSHIP_RECORD_FILE);
+}
+
+// Three states: absent (empty set, writes allowed), valid, invalid (empty set,
+// `reason` set, writes refused). Never throws and never writes.
+function readOwnership(recordPath) {
+  const result = (state, names, reason) => ({ state, names, recordPath, reason });
+  let raw;
+  try {
+    raw = fs.readFileSync(recordPath, "utf8");
+  } catch (e) {
+    if (e && e.code === "ENOENT") return result("absent", new Set());
+    return result("invalid", new Set(), `unreadable (${(e && e.code) || e})`);
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    return result("invalid", new Set(), "not valid JSON");
+  }
+  const shapeOk =
+    data !== null &&
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    data.version === 1 &&
+    Array.isArray(data.folders) &&
+    data.folders.every((name) => typeof name === "string" && name !== "");
+  if (!shapeOk) return result("invalid", new Set(), "unexpected shape (expected {version: 1, folders: [names]})");
+  return result("valid", new Set(data.folders));
+}
+
+// lstat, never existsSync: a dangling symlink is an entry, not an absence (DD-7).
+function classifyEntry(entryPath, ownership) {
+  try {
+    fs.lstatSync(entryPath);
+  } catch (e) {
+    if (e && (e.code === "ENOENT" || e.code === "ENOTDIR")) return "absent";
+    throw e;
+  }
+  return ownership.state === "valid" && ownership.names.has(path.basename(entryPath)) ? "owned" : "foreign";
+}
+
+// Atomic rewrite of the whole record with `name` added. The caller holds the
+// invariant that this is never reached while the record is invalid.
+function recordOwned(ownership, name) {
+  if (ownership.state === "invalid") {
+    throw new Error(`refusing to write over the invalid ownership record ${ownership.recordPath}`);
+  }
+  if (ownership.names.has(name)) return;
+  const names = new Set(ownership.names).add(name);
+  const body = JSON.stringify({ version: 1, folders: [...names].sort() }, null, 2) + "\n";
+  fs.mkdirSync(path.dirname(ownership.recordPath), { recursive: true });
+  atomicWriteFileSync(ownership.recordPath, body);
+  ownership.names = names;
+  ownership.state = "valid";
+}
+
+// Removes the entry itself: recursive for a real directory, unlink for a
+// symlink or file. Never follows a link, so a symlink's target is untouched.
+function removeEntryNoFollow(entryPath) {
+  if (fs.lstatSync(entryPath).isDirectory()) {
+    fs.rmSync(entryPath, { recursive: true });
+  } else {
+    fs.unlinkSync(entryPath);
+  }
+}
+
+// @akili-spec changes/grokbot-target (BUG-1): an owned entry is only ever
+// written into as a real directory. lstat it first; a plain file, or a dangling
+// or live symlink, is removed with the no-follow helper so the write that
+// follows creates a real folder and never goes through a link.
+function clearNonDirectoryEntry(entryPath) {
+  let st;
+  try {
+    st = fs.lstatSync(entryPath);
+  } catch (e) {
+    if (e && (e.code === "ENOENT" || e.code === "ENOTDIR")) return;
+    throw e;
+  }
+  if (!st.isDirectory()) removeEntryNoFollow(entryPath);
+}
+
+function isRealDirectory(entryPath) {
+  try {
+    return fs.lstatSync(entryPath).isDirectory();
+  } catch (e) {
+    return true; // absent: nothing to clear or skip
+  }
+}
+
+// T2b (DD-11): step (1) of a takeover. One atomic rename of the entry itself
+// (a symlink moves as a link, never followed) into AKILI's own directory, so a
+// failure here (EACCES, EXDEV, ...) cannot leave a half-deleted foreign entry.
+function moveEntryAside(entryPath, takeoverDir, name) {
+  fs.mkdirSync(takeoverDir, { recursive: true });
+  const asidePath = path.join(takeoverDir, `${name}-${Date.now()}-${crypto.randomBytes(3).toString("hex")}`);
+  fs.renameSync(entryPath, asidePath);
+  return asidePath;
+}
+
+// The per-entry policy `copyDirectoryContents` and the command-skill loop call
+// before touching `<workflows root>/<name>`. It returns one of:
+//   "write"    absent: the name is recorded first (intent first, DD-10)
+//   "owned"    listed in the record: today's skip-or-overwrite rules apply
+//   "foreign"  exists and is not listed: skip, never write
+//   "takeover" foreign + `install --force`: moved aside, then recorded; the
+//              caller copies, then calls policy.finish() to delete the moved-
+//              aside entry (a failure there is a warning, never an error)
+//   "blocked"  the record is invalid: nothing may be written
+// Side effects (move, record) happen here, in that order, and never under
+// --dry-run. A throw leaves no name recorded that was not begun, and a foreign
+// entry is never recorded while it still sits in the workflows root.
+function makeOwnershipPolicy(ownership, args) {
+  const takeoverDir = path.join(path.dirname(ownership.recordPath), ".takeover");
+  let pendingAside = null;
+  const policy = (name, entryPath) => {
+    const state = classifyEntry(entryPath, ownership);
+    if (ownership.state === "invalid") {
+      if (state === "absent") return "blocked";
+      return args.forceExplicit ? "blocked" : "foreign";
+    }
+    if (state === "owned") return "owned";
+    if (state === "absent") {
+      if (!args.dryRun) recordOwned(ownership, name);
+      return "write";
+    }
+    if (!args.forceExplicit) return "foreign";
+    if (!args.dryRun) {
+      const asidePath = moveEntryAside(entryPath, takeoverDir, name);
+      try {
+        recordOwned(ownership, name);
+      } catch (e) {
+        // Step (2) failed after the move: put the foreign entry back so the
+        // run leaves it whole in place. The path is still empty, and a rename
+        // within one filesystem is atomic.
+        try {
+          fs.renameSync(asidePath, entryPath);
+        } catch (restoreError) {
+          throw new Error(
+            `${e.message}; and the foreign entry could not be put back (${(restoreError && restoreError.code) || restoreError}): it is at ${asidePath}`
+          );
+        }
+        throw e;
+      }
+      pendingAside = asidePath;
+    }
+    return "takeover";
+  };
+  policy.finish = () => {
+    if (!pendingAside) return;
+    const asidePath = pendingAside;
+    pendingAside = null;
+    try {
+      removeEntryNoFollow(asidePath);
+    } catch (e) {
+      console.log(
+        `  ${colors.red}warning${colors.reset} could not delete the replaced foreign entry (${(e && e.code) || e}); it may be partly removed and is kept at ${asidePath}`
+      );
+      return;
+    }
+    try {
+      fs.rmdirSync(takeoverDir); // only succeeds when empty
+    } catch (e) {
+      // Other moved-aside entries remain
+    }
+  };
+  return policy;
+}
+
+function logForeignSkip(entryPath) {
+  console.log(`  ${colors.yellow}skip foreign${colors.reset} ${entryPath}`);
+}
+
+function logBlocked(entryPath) {
+  console.log(`  ${colors.red}blocked (invalid ownership record)${colors.reset} ${entryPath}`);
 }
 
 function copySingleFile(sourcePath, targetPath, args) {
@@ -635,17 +900,42 @@ function copySingleFile(sourcePath, targetPath, args) {
     : { installed: 1, overwritten: 0, skipped: 0 };
 }
 
-function copyDirectoryContents(sourceDir, targetDir, args) {
-  ensureDirectory(targetDir, args.dryRun);
+// `policy` is optional (T2). Without it this behaves exactly as before and
+// returns the same three counts. With it, each top-level entry is first put
+// through policy(name, targetPath), and the result also carries `foreignSkipped`,
+// `blocked` and `written` (the entry names written or begun).
+function copyDirectoryContents(sourceDir, targetDir, args, policy) {
+  // With a policy the directory is created lazily: a run that writes nothing
+  // (everything foreign or blocked) must not create the workflows root.
+  let ensured = !policy;
+  if (!policy) ensureDirectory(targetDir, args.dryRun);
 
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let foreignSkipped = 0;
+  let blocked = 0;
+  const written = [];
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
+
+    let decision = null;
+    if (policy) {
+      decision = policy(entry.name, targetPath);
+      if (decision === "foreign") {
+        logForeignSkip(targetPath);
+        foreignSkipped += 1;
+        continue;
+      }
+      if (decision === "blocked") {
+        logBlocked(targetPath);
+        blocked += 1;
+        continue;
+      }
+    }
 
     let targetStat = null;
     try {
@@ -655,25 +945,35 @@ function copyDirectoryContents(sourceDir, targetDir, args) {
     }
 
     const exists = targetStat !== null;
+    const takeover = decision === "takeover";
 
-    if (exists && !args.force) {
+    if (exists && !takeover && !args.force) {
       console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
       skipped += 1;
       continue;
     }
 
-    const action = exists ? "overwrite" : "install";
+    if (!ensured) {
+      ensureDirectory(targetDir, args.dryRun);
+      ensured = true;
+    }
+
+    const action = takeover ? "replace foreign" : exists ? "overwrite" : "install";
     console.log(`  ${colors.green}${args.dryRun ? "would " : ""}${action}${colors.reset} ${targetPath}`);
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
       copyTreeSync(sourcePath, targetPath);
+      if (takeover) policy.finish();
     }
-    if (exists) overwritten += 1;
+    if (exists || takeover) overwritten += 1;
     else installed += 1;
+    written.push(entry.name);
   }
 
-  return { installed, overwritten, skipped };
+  return policy
+    ? { installed, overwritten, skipped, foreignSkipped, blocked, written }
+    : { installed, overwritten, skipped };
 }
 
 // Which parsed `args` fields feed each tool's `roots` object — data, not a
@@ -685,6 +985,8 @@ const TOOL_ROOT_ARGS = {
   antigravity: (args) => ({ root: args.antigravityTarget }),
   codex: (args) => ({ root: args.codexTarget, skillsRoot: args.codexSkillsTarget }),
   cursor: (args) => ({ root: args.cursorTarget, skillsRoot: args.cursorSkillsTarget }),
+  // @akili-spec changes/grokbot-target — root = resources root, skillsRoot = workflows root
+  grokbot: (args) => ({ root: args.grokbotResourcesTarget, skillsRoot: args.grokbotTarget }),
 };
 
 function getToolRegistryInfo(tool, args) {
@@ -765,6 +1067,8 @@ function installTool(tool, args) {
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let foreignSkipped = 0;
+  let blocked = 0;
 
   console.log(`\n${colors.cyan}${tool.toUpperCase()} target: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
 
@@ -773,10 +1077,29 @@ function installTool(tool, args) {
     console.log(`  ${colors.green}Legacy cleanup complete.${colors.reset}`);
   }
 
+  // @akili-spec changes/grokbot-target — T2: a tool with an ownership record
+  // gets a per-entry policy for every skill and command-skill it writes.
+  let ownership = null;
+  let policy = null;
+  if (paths.ownershipRecord) {
+    ownership = readOwnership(ownershipRecordPath(paths));
+    policy = makeOwnershipPolicy(ownership, args);
+    if (ownership.state === "invalid") {
+      console.log(
+        `  ${colors.red}warning${colors.reset} ownership record ${ownership.recordPath} is ${ownership.reason}; it is left untouched and nothing is written into ${roots.skillsRoot}.`
+      );
+      console.log(
+        `  To recover: restore the record; or run ${colors.cyan}akili doctor --tool ${tool}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}akili install --tool ${tool} --force${colors.reset}, knowing that every AKILI-named entry will be replaced.`
+      );
+    }
+  }
+
   const add = (result) => {
     installed += result.installed;
     overwritten += result.overwritten;
     skipped += result.skipped;
+    foreignSkipped += result.foreignSkipped || 0;
+    blocked += result.blocked || 0;
   };
 
   if (shouldInclude("commands", args)) {
@@ -788,13 +1111,36 @@ function installTool(tool, args) {
       for (const cmdFile of listCommands()) {
         const cmdName = cmdFile.replace(/\.md$/, "");
         for (const targetSkills of skillDirs) {
-          add(
-            copySingleFile(
-              path.join(SOURCE_COMMANDS, cmdFile),
-              path.join(targetSkills, cmdName, "SKILL.md"),
-              args
-            )
-          );
+          const entryDir = path.join(targetSkills, cmdName);
+          if (policy) {
+            const decision = policy(cmdName, entryDir);
+            if (decision === "foreign") {
+              logForeignSkip(entryDir);
+              foreignSkipped += 1;
+              continue;
+            }
+            if (decision === "blocked") {
+              logBlocked(entryDir);
+              blocked += 1;
+              continue;
+            }
+            if (decision === "takeover") {
+              console.log(`  ${colors.green}${args.dryRun ? "would " : ""}replace foreign${colors.reset} ${entryDir}`);
+            }
+            // @akili-spec changes/grokbot-target (BUG-1): an owned entry that is not a
+            // real directory is overwritten only under --force/update (FR-4: install =
+            // skip); plain install leaves it alone, as the skill side does.
+            if (decision === "owned" && !isRealDirectory(entryDir)) {
+              if (!args.force) {
+                console.log(`  ${colors.yellow}skip existing${colors.reset} ${entryDir}`);
+                skipped += 1;
+                continue;
+              }
+              if (!args.dryRun) clearNonDirectoryEntry(entryDir);
+            }
+          }
+          add(copySingleFile(path.join(SOURCE_COMMANDS, cmdFile), path.join(entryDir, "SKILL.md"), args));
+          if (policy) policy.finish();
         }
       }
     }
@@ -803,7 +1149,7 @@ function installTool(tool, args) {
   if (shouldInclude("skills", args)) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args));
+      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, policy));
     }
   }
 
@@ -841,7 +1187,16 @@ function installTool(tool, args) {
     add(copySingleFile(SOURCE_MCP_EXAMPLE, path.join(paths.resources, ".mcp.json.example"), args));
   }
 
-  return { rootPath, installed, overwritten, skipped, cleaned };
+  return {
+    rootPath,
+    installed,
+    overwritten,
+    skipped,
+    cleaned,
+    foreignSkipped,
+    blocked,
+    recordInvalid: ownership !== null && ownership.state === "invalid",
+  };
 }
 
 // Package managers to probe, preferring the one that invoked this process
@@ -1031,8 +1386,8 @@ function runUpdate(args) {
     console.log(`  Package: updated from v${versionBefore} (${installLabel}; new version could not be read)`);
   }
   const updatedTools = args.resolvedTools || selectedTools(args);
-  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""} (see Install Summary above)`);
-  const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${h}`);
+  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""}${args.foreignSkipped > 0 ? ` (${args.foreignSkipped} foreign skipped for grokbot)` : ""} (see Install Summary above)`);
+  const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${doctorHintFor(h, args)}`);
   if (updateHints.length === 1) {
     console.log(`  Verify: ${colors.cyan}${updateHints[0]}${colors.reset}`);
   } else {
@@ -1066,9 +1421,13 @@ function runInstall(args) {
       overwritten: acc.overwritten + r.overwritten,
       skipped: acc.skipped + r.skipped,
       cleaned: acc.cleaned + r.cleaned,
+      foreignSkipped: acc.foreignSkipped + r.foreignSkipped,
     }),
-    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0 }
+    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0, foreignSkipped: 0 }
   );
+  // @akili-spec changes/grokbot-target — T2: runUpdate and the next-steps
+  // block (T4) read the total of foreign entries left alone.
+  args.foreignSkipped = totals.foreignSkipped;
 
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
   console.log(`${colors.cyan}Install Summary${colors.reset} — akili-specs v${currentVersion}${args.dryRun ? ` ${colors.yellow}(dry-run: no files were written)${colors.reset}` : ""}`);
@@ -1093,10 +1452,18 @@ function runInstall(args) {
   if (tools.includes("cursor") && !args.dryRun) {
     console.log(`  - Restart ${colors.cyan}Cursor${colors.reset} or open a new chat for installed commands and skills to be loaded.`);
   }
+  // @akili-spec changes/grokbot-target — T4 (FR-7): where Grok Bot reads, the
+  // foreign skips, and the explicit takeover command with this run's roots.
+  if (tools.includes("grokbot") && !args.dryRun) {
+    console.log(`  - Grok Bot reads skills from ${colors.cyan}${args.grokbotTarget}${colors.reset}; it must be configured to read that directory.`);
+    if (totals.foreignSkipped > 0) {
+      console.log(`  - ${totals.foreignSkipped} foreign ${totals.foreignSkipped === 1 ? "entry" : "entries"} skipped (not AKILI's, left untouched). To replace ${totals.foreignSkipped === 1 ? "it" : "them"} with AKILI's copies, run ${colors.cyan}${grokbotCommand("install", args.grokbotTarget, args.grokbotResourcesTarget, "--force")}${colors.reset}.`);
+    }
+  }
   if (args.dryRun) {
     console.log(`  - Re-run without ${colors.yellow}--dry-run${colors.reset} to apply the changes above.`);
   } else {
-    const installHints = verifyHints(tools).map((h) => `akili doctor --tool ${h}`);
+    const installHints = verifyHints(tools).map((h) => `akili doctor --tool ${doctorHintFor(h, args)}`);
     if (installHints.length === 1) {
       console.log(`  - Verify the installation with ${colors.cyan}${installHints[0]}${colors.reset}.`);
     } else {
@@ -1106,6 +1473,12 @@ function runInstall(args) {
       }
     }
     console.log(`  - Optional: ${colors.cyan}akili notifications enable${colors.reset} to hear about new versions at Claude Code session start.`);
+  }
+
+  // @akili-spec changes/grokbot-target — T2 (FR-4 *Invalid record*): a blocked
+  // run is reported and exits non-zero, after its output is complete.
+  if (results.some((r) => r.recordInvalid)) {
+    process.exitCode = 1;
   }
 }
 
@@ -1158,12 +1531,61 @@ function doctorTool(tool, args) {
   let okCount = 0;
   let missing = 0;
   let fixed = 0;
+  let foreign = 0;
 
   console.log(`\n${colors.cyan}Checking ${tool.toUpperCase()}: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
+
+  // @akili-spec changes/grokbot-target — T3 (FR-4, FR-5, DD-7, DD-9): a tool
+  // with an ownership record classifies each entry (lstat, never existsSync)
+  // before the OK/MISSING check. FOREIGN is counted apart from `missing`, and
+  // `--fix` writes only absent entries and owned entries missing SKILL.md.
+  let ownership = null;
+  if (paths.ownershipRecord) {
+    ownership = readOwnership(ownershipRecordPath(paths));
+    if (ownership.state === "invalid") {
+      console.log(
+        `  ${colors.red}warning${colors.reset} ownership record ${ownership.recordPath} is ${ownership.reason}; nothing is written into ${roots.skillsRoot} while it is invalid.`
+      );
+    }
+  }
+  // Returns true when the entry was handled here (ownership-managed tools).
+  const checkOwnedEntry = (label, name, restore) => {
+    if (!ownership) return false;
+    const entryPath = path.join(skillDirs[0], name);
+    const state = classifyEntry(entryPath, ownership);
+    if (state === "foreign") {
+      console.log(`  ${colors.yellow}FOREIGN${colors.reset} ${label}`);
+      foreign += 1;
+    } else if (state === "owned" && fs.existsSync(path.join(entryPath, "SKILL.md"))) {
+      okCount += 1;
+      console.log(`  ${colors.green}OK${colors.reset} ${label}`);
+    } else if (!args.fix) {
+      console.log(`  ${colors.red}MISSING${colors.reset} ${label}`);
+      missing += 1;
+    } else if (ownership.state === "invalid") {
+      console.log(`  ${colors.red}BLOCKED${colors.reset} ${label} (invalid ownership record; nothing is written)`);
+      missing += 1;
+    } else {
+      recordOwned(ownership, name);
+      clearNonDirectoryEntry(entryPath); // @akili-spec changes/grokbot-target (BUG-1)
+      restore(entryPath);
+      console.log(`  ${colors.cyan}FIXED${colors.reset} ${label}`);
+      fixed += 1;
+    }
+    return true;
+  };
 
   if (shouldInclude("commands", args)) {
     console.log(`\n${colors.yellow}Commands:${colors.reset}`);
     for (const command of listCommands()) {
+      const cmdEntry = command.replace(/\.md$/, "");
+      if (
+        checkOwnedEntry(command, cmdEntry, (entryPath) =>
+          copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(entryPath, "SKILL.md"), { force: true, dryRun: false })
+        )
+      ) {
+        continue;
+      }
       const ok = hasInstalledCommand(paths.commands, skillDirs, command);
       if (ok) {
         okCount += 1;
@@ -1196,6 +1618,13 @@ function doctorTool(tool, args) {
   if (shouldInclude("skills", args)) {
     console.log(`\n${colors.yellow}Skills:${colors.reset}`);
     for (const skill of listSkills()) {
+      if (
+        checkOwnedEntry(skill, skill, (entryPath) =>
+          copyDirectoryContents(path.join(SOURCE_SKILLS, skill), entryPath, { force: true, dryRun: false })
+        )
+      ) {
+        continue;
+      }
       const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
         okCount += 1;
@@ -1299,7 +1728,7 @@ function doctorTool(tool, args) {
     }
   }
 
-  return { rootPath, ok: okCount, missing, fixed };
+  return { rootPath, ok: okCount, missing, fixed, foreign, recordState: ownership ? ownership.state : null };
 }
 
 // Environment dependencies the methodology recommends but never requires.
@@ -1811,24 +2240,46 @@ function runDoctor(args) {
 
   const missingTotal = results.reduce((acc, r) => acc + r.missing, 0);
   const fixedTotal = results.reduce((acc, r) => acc + r.fixed, 0);
+  // @akili-spec changes/grokbot-target — T3 (DD-9): foreign entries are not
+  // missing (--fix cannot repair them), but they fail the run all the same.
+  const foreignTotal = results.reduce((acc, r) => acc + r.foreign, 0);
 
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
   console.log(`${colors.cyan}Doctor Summary${colors.reset} — akili-specs v${currentVersion}`);
   for (const r of results) {
     const status =
-      r.missing > 0
+      r.missing + r.foreign > 0
         ? `${colors.red}INCOMPLETE${colors.reset}`
         : r.fixed > 0
         ? `${colors.cyan}REPAIRED${colors.reset}`
         : `${colors.green}HEALTHY${colors.reset}`;
-    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}`);
+    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}${r.recordState ? ` | foreign ${r.foreign}` : ""}`);
     console.log(`  ${"".padEnd(12)} → ${r.rootPath}`);
   }
 
-  if (missingTotal > 0) {
+  if (missingTotal + foreignTotal > 0) {
     console.log(`\n${colors.cyan}Next steps:${colors.reset}`);
-    console.log(`  - Run ${colors.cyan}akili doctor --tool ${args.tool} --fix${colors.reset} to auto-repair the ${missingTotal} missing file(s).`);
-    console.log(`  - Or run ${colors.cyan}akili update${colors.reset} to refresh the package and reinstall everything.`);
+    if (missingTotal > 0) {
+      console.log(`  - Run ${colors.cyan}akili doctor --tool ${args.tool} --fix${colors.reset} to auto-repair the ${missingTotal} missing file(s).`);
+      console.log(`  - Or run ${colors.cyan}akili update${colors.reset} to refresh the package and reinstall everything.`);
+    }
+    // Hints come from the resolved tool and its roots, never from args.tool
+    // (which is `claude` on an auto-detected run).
+    for (const r of results) {
+      if (!r.recordState || (r.foreign === 0 && r.recordState === "valid")) continue;
+      const { roots, paths } = getToolRegistryInfo(r.tool, args);
+      const installCmd = grokbotCommand("install", roots.skillsRoot, paths.resources, "--force");
+      if (r.foreign > 0 && r.recordState !== "invalid") {
+        console.log(
+          `  - ${r.foreign} ${r.tool} entr${r.foreign === 1 ? "y is" : "ies are"} not recorded as AKILI's; --fix leaves them untouched. To replace them with AKILI's copies, run ${colors.cyan}${installCmd}${colors.reset}.`
+        );
+      }
+      if (r.recordState === "valid") continue;
+      if (r.recordState === "absent" && r.foreign === 0) continue;
+      console.log(
+        `  - Ownership record (${ownershipRecordPath(paths)}): restore the record; or run ${colors.cyan}${grokbotCommand("doctor", roots.skillsRoot, paths.resources)}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}${installCmd}${colors.reset}, knowing that every AKILI-named entry will be replaced.`
+      );
+    }
     process.exitCode = 1;
   } else if (fixedTotal > 0) {
     console.log(`\nAll issues repaired: ${fixedTotal} file(s) restored.`);
