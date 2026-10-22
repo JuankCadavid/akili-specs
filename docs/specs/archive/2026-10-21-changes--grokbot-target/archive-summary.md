@@ -80,6 +80,7 @@ See `test-report.md` (run 1 found BUG-1; run 2, after T6, is all green).
   - FR-7: the network clause is narrowed to copy/transfer, with the update check unaffected;
   - FR-1 (at validation): the verify hint appears only after a real, not dry-run, install.
 - **Incident:** the T5 Reviewer ran `akili update`, which ran a real `npm install -g akili-specs@latest`. The global version stayed 2.34.2, with no lasting change.
+- **Post-archive CI fix (PR #60, Windows Node 18/22):** the two FR-2 *Default* tests built their expected path with `path.resolve("/home/box/…")` against the runner's cwd, which is on drive `D:`. The CLI resolves against its own cwd, the scratch home on `C:`. The expected path now uses `path.resolve(home, …)`. Test-only change; product behaviour is unchanged (the box is Linux, where both forms are identical). Premise P-9 had the drive point but not the cwd difference.
 
 ## 11. Diagrams
 

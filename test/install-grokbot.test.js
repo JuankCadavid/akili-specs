@@ -14,8 +14,10 @@
 // deliberate exception is the FR-2 *Default* test (a dry run), which passes a
 // blank value because FR-2 says blank counts as unset.
 //
-// Expected paths are always computed with path.resolve(), never a literal
-// /home/box/... string: on Windows the resolved default gains a drive letter.
+// Expected paths are always computed with path.resolve(home, ...), never a
+// literal /home/box/... string and never against the test runner's own cwd:
+// on Windows the CLI resolves the root-relative default against the drive of
+// its cwd (the scratch home), which can differ from the checkout's drive.
 //
 // Coverage by requirement:
 //   FR-1  whitelist + error text; `--tool all` acts on exactly five tools
@@ -163,8 +165,8 @@ test("@akili-spec changes/grokbot-target FR-2 (Default): blank env resolves /hom
   // The single deliberate exception to the scratch pin: a blank value counts as
   // unset (FR-2), which is the only way to reach the real default. Dry run only.
   const roots = dryRunRoots(home, [], scratchEnv(home, "   "));
-  assert.equal(roots.workflows, path.resolve("/home/box/agent-data/workflows"));
-  assert.equal(roots.resources, path.resolve("/home/box/agent-data/akili"));
+  assert.equal(roots.workflows, path.resolve(home, "/home/box/agent-data/workflows"));
+  assert.equal(roots.resources, path.resolve(home, "/home/box/agent-data/akili"));
 });
 
 test("@akili-spec changes/grokbot-target FR-2 (Override on the box): --grokbot-target relocates both roots", (t) => {

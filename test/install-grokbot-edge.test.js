@@ -11,8 +11,9 @@
 // USERPROFILE, CODEX_HOME, CURSOR_CONFIG_DIR, and AKILI_GROKBOT_TARGET to
 // scratch paths; the one deliberate exception is the FR-2 *Default* dry run,
 // which passes a blank AKILI_GROKBOT_TARGET because blank counts as unset.
-// Expected paths come from path.resolve(), never a /home/box literal, because
-// Windows adds a drive letter.
+// Expected paths come from path.resolve(home, ...) -- never a /home/box literal
+// and never the runner's own cwd: on Windows the CLI resolves the default
+// against the drive of its cwd (the scratch home), not the checkout's drive.
 //
 // Expected values are inlined from docs/specs/archive/2026-10-21-changes--grokbot-target/
 // requirements.md §6 at commit 46dcdcb; nothing here reads the spec folder.
@@ -154,8 +155,8 @@ test("@akili-spec changes/grokbot-target FR-2 (Default): every planned write of 
   // Blank pin: dry run only, so nothing can reach /home/box.
   const run = runAkili(["install", "--tool", "grokbot", "--dry-run"], { cwd: home, env: scratchEnv(home, "   ") });
   assert.equal(run.status, 0, run.stderr);
-  const workflows = path.resolve("/home/box/agent-data/workflows");
-  const resources = path.resolve("/home/box/agent-data/akili");
+  const workflows = path.resolve(home, "/home/box/agent-data/workflows");
+  const resources = path.resolve(home, "/home/box/agent-data/akili");
   const planned = [...run.stdout.matchAll(/^\s*would (?:install|overwrite|replace foreign) (.+?)\s*$/gm)].map((m) => m[1]);
   assert.ok(planned.length > 0, `no planned writes in:\n${run.stdout}`);
   const under = (root, p) => p.startsWith(root + path.sep);
