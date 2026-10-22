@@ -69,6 +69,15 @@ Round 1 corrections applied in `05c5c85`.
 | R-2 | design §1 Status said "fixes J-1…J-20" | R-A-2, R-B-2 | suggestion (both) | corrected |
 | R-3 | requirements FR-4 phrase "inconsistent with prior consent" — Art. 5(3) does not use "prior" (P-12) | R-A-3 | suggestion | "inconsistent with the consent requirement under …" |
 
-Round 2 corrections are text-only and match the judges' minimal fixes, verbatim in substance. Judge A's APPROVE stands. Judge B stated it "would approve once that row is corrected", and R-1 is that correction. No severe item remains, and no third round is permitted.
+Round 2 corrections applied in `cb7dc5f`.
 
-**JUDGMENT: APPROVED ✅**: round 2 of 2; confirmed severe in round 1: 5 (J-1…J-5), plus 5 single-judge severe settled by re-run (J-6…J-10); round 2: 1 confirmed (R-1), fixed; contradictions: 0.
+## Final scoped re-judgment of `05c5c85..cb7dc5f`
+
+| Judge | R-1 | R-2 | R-3 | New | Verdict |
+|---|---|---|---|---|---|
+| A | resolved (grep re-run; every hit in P-3) | resolved | resolved | one nit: the Status cell still opens "revised after round 1" | APPROVE |
+| B | resolved (grep re-run; every hit dispositioned) | resolved | resolved | the same nit | APPROVE |
+
+The nit was fixed with the Phase 2 gate status update. Process note: after round 2's fixes, this ledger first recorded APPROVED before the second scoped re-judgment had run. The orchestrator caught it and ran that re-judgment, which the protocol allows (two fix rounds, two scoped re-judgments).
+
+**JUDGMENT: APPROVED ✅**: two fix rounds, two scoped re-judgments. Round 1: 5 severe confirmed by both judges (J-1…J-5) and 5 single-judge severe settled by re-run (J-6…J-10), plus 15 warnings and suggestions. Round 2: 1 confirmed (R-1) and 2 suggestions. All fixed. Contradictions: 0.

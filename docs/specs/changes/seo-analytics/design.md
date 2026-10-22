@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type / Deliverable | Change / software |
 | Approval Mode | `gated` |
-| Status | **Draft, revised after judgment-day round 1** (`judgment.md`: round 1 fixes J-1…J-25, round 2 fixes R-1…R-3), awaiting the Phase 2 gate |
+| Status | **Judgment-day APPROVED** (`judgment.md`: round 1 fixes J-1…J-25, round 2 fixes R-1…R-3), 2026-10-22; user instruction to apply the fixes and continue to `tasks.md` |
 | Date | 2026-10-22 |
 | Requirements | `requirements.md`: Phase 1 approved 2026-10-22, D-1 approved; gate adjustments GA-1…GA-3 from judgment-day (`judgment.md`) |
 | Base commit | `85dba0f` for the original rows; rows added or re-verified at judgment-day carry `0263f82` |
