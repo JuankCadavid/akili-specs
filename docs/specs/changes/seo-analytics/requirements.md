@@ -167,7 +167,7 @@ The installation audit SHALL check observable consent signals and record each on
 - GIVEN a rendering fetch with no consent interaction
 - WHEN network requests show a GA4 or Clarity collection hit that sets storage before the banner is answered
 - THEN a finding is raised with the observed request as Evidence
-- BUT it must NOT assert that the site "violates" Ley 1581 or GDPR (phrase: "signal inconsistent with prior consent under …")
+- BUT it must NOT assert that the site "violates" Ley 1581 or GDPR (phrase: "signal inconsistent with the consent requirement under …")
 - AND IT MUST name which rule the signal relates to and cite it with its tier
 
 #### Scenario: Banner present, Consent Mode absent

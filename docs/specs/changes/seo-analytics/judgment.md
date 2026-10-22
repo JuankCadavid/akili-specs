@@ -54,4 +54,21 @@ Corrections were swept forward (old values grepped across the spec folder: "seve
 
 ## Round 1 result
 
-Round 1 corrections applied. Next: scoped re-judgment of the fix delta (round 2 of 2 at most).
+Round 1 corrections applied in `05c5c85`.
+
+## Round 2 — scoped re-judgment of `0263f82..05c5c85`
+
+| Judge | Rows | Verdict |
+|---|---|---|
+| A | J-1…J-25, GA-1…GA-3: all resolved except J-2 partial and J-17 partial (acceptable: P-27 `UNVERIFIED` with fallback and owner) | APPROVE |
+| B | All resolved except J-2 partial | NOT APPROVE (one trivial fix, R-B-1) |
+
+| ID | Defect | Judges | Severity | Fix |
+|---|---|---|---|---|
+| R-1 | P-3 claimed "every hit dispositioned" but omitted `README.md:48` and `docs/skills/README.md:28,40,43` | R-A-1 warn, R-B-1 sev | **confirmed** | P-3 hit list completed and dispositioned (stay true); re-run at `05c5c85` |
+| R-2 | design §1 Status said "fixes J-1…J-20" | R-A-2, R-B-2 | suggestion (both) | corrected |
+| R-3 | requirements FR-4 phrase "inconsistent with prior consent" — Art. 5(3) does not use "prior" (P-12) | R-A-3 | suggestion | "inconsistent with the consent requirement under …" |
+
+Round 2 corrections are text-only and match the judges' minimal fixes, verbatim in substance. Judge A's APPROVE stands. Judge B stated it "would approve once that row is corrected", and R-1 is that correction. No severe item remains, and no third round is permitted.
+
+**JUDGMENT: APPROVED ✅**: round 2 of 2; confirmed severe in round 1: 5 (J-1…J-5), plus 5 single-judge severe settled by re-run (J-6…J-10); round 2: 1 confirmed (R-1), fixed; contradictions: 0.
