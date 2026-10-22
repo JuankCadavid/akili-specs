@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | software |
 | Approval Mode | `gated`: one pause per specify phase (user, 2026-10-21: "Detente en los gates") |
-| Status | **Phase 1 approved** 2026-10-22 (Juan Carlos Cadavid): requirements as written, D-1 approved; the Clarity consent-enforcement fact stays a premise to confirm (design P-9) |
+| Status | **Phase 1 approved** 2026-10-22 (Juan Carlos Cadavid): requirements as written, D-1 approved. At the Phase 2 gate the user marked P-9 verified (Microsoft page). Judgment-day round 1 gate adjustments GA-1…GA-3 (`judgment.md`), applied under the user's instruction "Aplica los fixes que salgan" |
 | Date | 2026-10-21 |
 | Proposal | `proposal.md`, **Approved** 2026-10-21 (Juan Carlos Cadavid): option A, Q1–Q8 take the recommended answers |
 | Format source | `docs/specs/archive/2026-10-19-changes--akili-security-followup/`. This repo has no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, as run 2026-10-21 at `9f27fe2`) |
@@ -51,7 +51,7 @@ Today (citations as run at `9f27fe2`):
 - The skill states that the upstream `analytics` sibling is not packaged (`SKILL.md:618`).
 - Source tiers are defined only in `references/geo.md:6-9`.
 - No test pins `/akili-seo` or `seo-audit` text: `grep -rln 'akili-seo\|seo-audit' test/` returns only `test/fixtures/doctor-codex-baseline.txt` (a skill-name listing).
-- Vendor facts this spec depends on are recorded as design premises (Premise Ledger, design §11). Among them: the GA4 Admin API exposes **no** Search Console link resource, and the Clarity Data Export API is limited to the last 1–3 days and 10 requests per project per day.
+- Vendor facts this spec depends on are recorded as design premises (Premise Ledger, design §12). Among them: the GA4 Admin API exposes **no** Search Console link resource, and the Clarity Data Export API is limited to the last 1–3 days and 10 requests per project per day.
 
 **In scope:**
 
@@ -61,6 +61,7 @@ Today (citations as run at `9f27fe2`):
 - `.claude/skills/seo-audit/evals/evals.json`
 - `docs/commands/akili-seo.md`
 - `docs/skills/seo-audit.md`
+- `docs/skills/README.md` (the `seo-audit` row at `:36`; added at judgment-day, GA-3)
 - `README.md` (the `/akili-seo` summary at `:801`; added at design, P-3)
 - one new test file
 - `CHANGELOG.md` (`[Unreleased]`)
@@ -155,11 +156,11 @@ The installation audit SHALL check observable consent signals and record each on
 
 | Check | Basis (cited in `references/analytics.md`) |
 |---|---|
-| A consent mechanism is shown before analytics cookies are set or analytics hits are sent for visitors whose jurisdiction requires prior consent | GDPR/ePrivacy; Ley 1581 Art. 3(a) "consentimiento previo, expreso e informado" |
+| A consent mechanism is shown before analytics cookies are set or analytics hits are sent for visitors whose jurisdiction requires consent first | ePrivacy Art. 5(3) and GDPR Art. 4(11)/7; Ley 1581 Art. 3(a) "consentimiento previo, expreso e informado" **where the analytics processing involves datos personales** (Art. 3(c)). Ley 1581 is never cited as a cookie-banner mandate (GA-1) |
 | The consent notice informs purpose and rights | Ley 1581 Art. 12 (deber de informar) |
 | Consent is obtained by a means that "pueda ser objeto de consulta posterior" (a consultable record exists, e.g. a CMP log) | Ley 1581 Art. 9. Usually `not determined` from outside; recorded as owner-confirmed or `not determined` |
 | Consent Mode v2 default is set **before** any measurement command, with all four parameters `ad_storage`, `analytics_storage`, `ad_user_data`, `ad_personalization` | Google tag consent guide |
-| Clarity receives a consent signal (Consent API v2) for EEA/UK/CH visits | Microsoft Clarity consent enforcement since 2025-10-31 |
+| Clarity receives a consent signal (Consent API v2) for EEA/UK/CH visits, where the Clarity project is configured to require cookie consent | Microsoft Clarity consent enforcement since 2025-10-31 (GA-2) |
 
 #### Scenario: Tag fires before consent
 
@@ -322,7 +323,7 @@ Each holds findings, a skip note, or `not run — declined at Phase 0`.
 
 ### FR-14: Docs, evals and CHANGELOG follow the command
 
-`docs/commands/akili-seo.md`, `docs/skills/seo-audit.md`, `SKILL.md`'s *AKILI-SPECS Integration* and references list, and `evals.json` SHALL describe Phase 2B consistently. `SKILL.md:618`'s "`analytics` not packaged" line is updated to point at the in-skill Analytics section. `CHANGELOG.md` `[Unreleased]` SHALL describe only what ships.
+`docs/commands/akili-seo.md`, `docs/skills/seo-audit.md`, `docs/skills/README.md`, `README.md`, `SKILL.md`'s *AKILI-SPECS Integration* and references list, and `evals.json` (new cases, and case 9 widened to behavior metrics) SHALL describe Phase 2B consistently. `SKILL.md:618`'s "`analytics` not packaged" line is updated to point at the in-skill Analytics section. `CHANGELOG.md` `[Unreleased]` SHALL describe only what ships.
 
 #### Scenario: CHANGELOG quote-check
 
@@ -348,7 +349,7 @@ Each holds findings, a skip note, or `not run — declined at Phase 0`.
 | A requirement clause dropped from the command or reference | Clause walk in `execution.md` + text-contract assertions per clause (KZ-changes--gate-falsifiability-2) |
 | A restatement of the ranking rule loses a half or a metric | New text-contract test (FR-11) + phrase-family grep keyed on the obligation (KZ-changes--kaizen-loop-closure-2) |
 | A vendor fact wrong or stale (API limits, Consent Mode parameters, Clarity enforcement, key-events naming) | Premise Ledger rows with primary sources, re-checked before the CHANGELOG is written (KZ-002). **No automated check:** the vendor docs are external |
-| A legal statement misquoted | Quote-check against the official text (Función Pública for Ley 1581; EUR-Lex for GDPR/ePrivacy). Human check at the execute HITL pause |
+| A legal statement misquoted | Quote-check against the official text (Función Pública for Ley 1581 and Decreto 1074/2015; EUR-Lex for GDPR/ePrivacy, or the legislation.gov.uk reproduction when EUR-Lex is unreachable, as in design P-12). Human check at the execute HITL pause |
 | CHANGELOG overstates | Quote-check each clause against HEAD (KZ-002) |
 | A shipped file points at `docs/specs/changes/seo-analytics/` | Grep in the closing task (KZ-changes--archify-diagrams-1) |
 | The agent ignores a rule at run time (e.g. claims a ranking effect anyway) | **No automated check**: rules text cannot be machine-enforced. Partial substitute: the `evals.json` cases (not run by CI). Accepted risk, as for GEO |
