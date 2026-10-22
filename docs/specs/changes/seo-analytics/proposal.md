@@ -11,7 +11,7 @@
 | Approval Mode | gated (the user asked to stop at the proposal's questions) |
 | Date | 2026-10-21 |
 | Author | AKILI session (proposer) |
-| Status | **Draft** — awaiting answers to the open questions |
+| Status | **Approved** — 2026-10-21 (Juan Carlos Cadavid): option A; all eight open questions take the recommended answer (see *Decisions*) |
 | Related | `/akili-seo` (`.claude/commands/akili-seo.md`), `seo-audit` skill (`.claude/skills/seo-audit/`), `docs/commands/akili-seo.md`, `docs/skills/seo-audit.md` |
 | Depends on | none |
 | Parallel-safe | **yes** — touches only the `/akili-seo` command, the `seo-audit` skill, their docs pages and `CHANGELOG.md`; no installer, routing or command-count change (unless Q1 picks a new helper script, see Risks) |
@@ -154,6 +154,19 @@ Data access mechanics (to be fixed at `/akili-specify` via the Premise Ledger, a
 6. **Missing analytics.** When nothing is installed: skip with a note only, or also raise one Low "no conversion measurement" finding in the remediation plan? **Recommended: note + one Low finding when the site has a clear conversion action (form/WhatsApp).**
 7. **Source tiers.** Reuse GEO's two tiers (`[PRIMARY]` covers legal text and vendor docs) — recommended — or add a third `[LEGAL]` tier?
 8. **Chunking.** One spec (recommended), or split into (i) installation audit (no API access needed) and (ii) data audit + Search → Conversion?
+
+### Decisions (approved 2026-10-21, Juan Carlos Cadavid)
+
+| Q | Decision |
+|---|---|
+| 1 | **(c)** GA4/Clarity calls are described in the command, no shipped code; Google's official Analytics MCP is the preferred route when configured. No installer change |
+| 2 | Opt-in is **one question at Phase 0** (no flag) |
+| 3 | **Sections inside `seo-audit-report.md`** — no separate report |
+| 4 | **Inside `seo-audit`** — no new packaged skill |
+| 5 | **Ley 1581 + GDPR only**, plus one line "other jurisdictions: not audited" |
+| 6 | Nothing installed → **skip note + one Low finding** when the site has a form or a WhatsApp CTA |
+| 7 | **Reuse GEO's two tiers** (`[PRIMARY]` covers legal text and vendor docs) — no `[LEGAL]` tier |
+| 8 | **One spec** |
 
 ## Success Criteria
 
