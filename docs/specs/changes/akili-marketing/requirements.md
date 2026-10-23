@@ -268,18 +268,21 @@ The change SHALL add `docs/commands/akili-marketing.md`, `docs/skills/social-mar
 
 ## 9. Requirement ID Index
 
-| ID | Title | Tasks (see `tasks.md`) |
+Clause-level ownership: `tasks.md` §3.
+
+| ID | Title | Tasks |
 |---|---|---|
-| FR-1 | Skill with attribution | T1, T2, T3, T4 |
-| FR-2 | Invocation, modes, write boundary | T5, T7 |
-| FR-3 | Brand voice | T2, T5, T7 |
-| FR-4 | Campaign | T5, T7 |
-| FR-5 | Calendar | T2, T5, T7 |
-| FR-6 | Post drafting | T4, T5, T7 |
+| FR-1 | Skill with attribution | T1, T2, T3, T4, T9 |
+| FR-2 | Invocation, modes, write boundary | T5, T7, T10 |
+| FR-3 | Brand voice | T2, T5, T7, T10 |
+| FR-4 | Campaign | T5, T7, T10 |
+| FR-5 | Calendar | T5, T7, T10 |
+| FR-6 | Post drafting | T4, T5, T7, T10 |
 | FR-7 | Approval gate | T5, T7, T10 |
-| FR-8 | Never-publish | T2, T5, T7, T10 |
-| FR-9 | Published record | T5, T7 |
-| FR-10 | Review, repurpose | T2, T5, T7 |
+| FR-8 | Never-publish | T2, T3, T5, T7, T10 |
+| FR-9 | Published record | T5, T7, T10 |
+| FR-10 | Review, repurpose | T2, T5, T7, T10 |
 | FR-11 | Untrusted content | T2, T5, T7, T10 |
-| FR-12 | Governance, docs, counts | T6, T8, T9 |
-| NFR-1…6 | — | T6 (1–3), T9 (4), T5/T3/T4 (5), T4 (6) |
+| FR-12 | Governance, docs, counts | T6, T7, T8a, T8b, T8c, T9 |
+| NFR-1…5 | — | T9 (all), T2/T3/T4/T5 (NFR-5 measured) |
+| NFR-6 | Dated heuristics | T4, T3 |

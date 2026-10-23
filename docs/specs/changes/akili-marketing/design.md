@@ -217,11 +217,11 @@ No UI. The conversational surfaces are the plan gate (§5.2), the approval card 
 
 | Measure | Estimate | Basis |
 |---|---|---|
-| Tasks | **11** (T1, T2, T3, T4, T5, T6, T7, T8a, T8b, T9, T10) | planned; `tasks.md` is written from this design |
+| Tasks | **12** (T1, T2, T3, T4, T5, T6, T7, T8a, T8b, T8c, T9, T10) — amended at the tasks phase from 11: the docs task was split in three because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) | `tasks.md` |
 | LOC authored | **~2,600** — shared references ~650 · platform references ~450 · `SKILL.md` + `LICENSE` ~200 · command ~280 · skill test ~150 · command test ~520 (≈ 37 clauses — `grep -cE "^- (THEN|BUT|AND)" requirements.md` → 30 at `06d71a3`, plus the scenario added after re-judgment, 4 FR-7 table rows and the FR-9 host rule — × ~14 lines incl. anchoring and mutation checks; precedent `test/akili-security-command.test.js` = 673 lines for a 187-line command) · counts/fixture ~30 · docs ~300 · CHANGELOG ~20 | §4, §7; KZ-bugfix--init-ctrlc-abort-2 |
-| Review rounds | **16** — 2 × rules-text tasks (T2, T3, T4, T5, T8b — agent-read text) = 10 + 1 × others (T1, T6, T7, T8a, T9, T10) = 6 | Step 2.4 rules-document rule |
+| Review rounds | **17** — 2 × rules-text tasks (T2, T3, T4, T5, T8c — agent-read text) = 10 + 1 × others (T1, T6, T7, T8a, T8b, T9, T10) = 7 | Step 2.4 rules-document rule |
 
-Depth check: Standard fits (no code path, additive). The LOC is mostly Markdown content. References are sized at ~1,100 lines against the proposal's ~1,000 target (NFR-5 states ~1,200). `/akili-execute` stops and escalates past **12 tasks, ~3,100 LOC, or 19 rounds**.
+Depth check: Standard fits (no code path, additive). The LOC is mostly Markdown content. References are sized at ~1,100 lines against the proposal's ~1,000 target (NFR-5 states ~1,200). `/akili-execute` stops and escalates past **13 tasks, ~3,100 LOC, or 20 rounds**.
 
 ## 12. Premise Ledger
 
