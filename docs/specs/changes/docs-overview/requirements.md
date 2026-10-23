@@ -8,7 +8,7 @@
 | Type | Change |
 | Deliverable | software. The deliverable kind is **documentation** (Video Mode does not apply) |
 | Depth | **Standard**. Docs restructure plus tests; no runtime behavior |
-| Approval Mode | `gated`. The user's mandate for this command (2026-10-23): "sigue con /akili-specify changes/docs-overview … Detente antes de /akili-execute". The Phase 1–3 continue gates of `/akili-specify` are therefore logged as `auto-approved (user mandate for /akili-specify, 2026-10-23)`. judgment-day still runs on the design. The run stops before `/akili-execute` |
+| Approval Mode | `gated`. The user's mandate for this command (2026-10-23, quoted verbatim in Spanish: "sigue con /akili-specify changes/docs-overview … Detente antes de /akili-execute"; in English: "continue with /akili-specify changes/docs-overview … stop before /akili-execute"). The Phase 1–3 continue gates of `/akili-specify` are therefore logged as `auto-approved (user mandate for /akili-specify, 2026-10-23)`. judgment-day still runs on the design. The run stops before `/akili-execute` |
 | Phase 1 gate | `auto-approved (user mandate for /akili-specify, 2026-10-23)` |
 | Language rule | **All documentation this spec writes or edits is in English** (README, `docs/overview.md`, every other doc, and the spec documents). User rule, 2026-10-23 |
 | Out-of-bounds actions | Local commits only (`[SPEC:changes/docs-overview]`); no push, PR, tag, release or publish. The `akili-marketing` and `video-hardening` worktrees are not touched |
@@ -40,15 +40,17 @@ Today (all as run at `cdb4c5a`):
 
 | Fact | Evidence |
 |---|---|
-| README is 948 lines with 26 fence-aware `##` sections and 17 `###` | `wc -l README.md`; `awk '/^```/{f=!f} !f && /^#{2,3} /' README.md` → 43 lines |
+| README is 948 lines with 25 fence-aware `##` and 18 `###` headings (43 in total; the hero tagline at `:14` is one of the `###`). A raw `grep -c '^## '` gives 26 because it also counts the fenced example at `:698` | `wc -l README.md`; `awk '/^```/{f=!f} !f && /^## /' README.md \| wc -l` → 25; the same with `/^### /` → 18 |
 | The first install command is at `:202`, after 3 prerequisite tables | `grep -n 'npx akili-specs init' README.md` → `202` |
 | The hero has 13 badge images | `grep -c 'shields.io' README.md` → 13 |
-| The figure is `assets/akili-flow.png`, centered and linked at `:45-47` | `sed -n 45,47p README.md` |
+| The figure is `assets/akili-flow.png`, centered and linked at `:48-50` (the `<a>`/`<img>` are on `:49`) | `grep -n akili-flow README.md` → `49`; `sed -n 48,50p README.md` |
 | Package: 12 commands, 27 skills | `ls .claude/commands \| wc -l` → 12; `ls -d .claude/skills/*/ \| wc -l` → 27 |
 | `docs/overview.md` does not exist | `ls docs/overview.md` → No such file |
 | *Practical Example*, *Writing Good Requirements*, *Review Points*, *Core Concepts*, *Methodology Contract*, *Host Assumptions*, *Requirement Delta Preview*, *Spec Paths* appear in no `docs/flow.md` heading or text | `grep -c "<heading text>" docs/flow.md` → 0 for each (loop run 2026-10-23) |
 | `docs/cli.md` has no *Prerequisites* and no *Local Checkout* content | `grep -ci "prerequisites\|local checkout" docs/cli.md` → 0 |
-| Digit count claims exist only in `docs/cli.md` (`:191,192,203,204,225,242`), all totals (12 / 27) | `grep -noE "\b[0-9]+ (packaged \|slash \|AKILI )?(commands\|skills\|skill directories)\b" README.md docs/*.md docs/commands/*.md docs/skills/*.md CONTRIBUTING.md` |
+| Digit count claims exist only in `docs/cli.md`: 9 hits at `:125, 191, 192, 203, 204, 225 (×2), 242 (×2)`, all totals (`12 command skills`, `12 commands`, `27 packaged skills`) | `grep -noE "\b[0-9]+ (packaged \|slash \|AKILI )?(commands?\|command skills\|skills\|skill directories)\b" README.md docs/*.md docs/commands/*.md docs/skills/*.md CONTRIBUTING.md` → 9 |
+| `docs/cli.md` already links a dead anchor `#grok-bot-grokbot` at `:21, 48, 110` (and README `:193, 229`). The heading `## Grok Bot (`--tool grokbot`)` at `:240` slugs to `grok-bot---tool-grokbot` under GitHub's rule (lowercase; drop punctuation other than `-` and space; space → `-`) | `grep -rn "grok-bot-grokbot" README.md docs CONTRIBUTING.md`; `grep -n '^## Grok' docs/cli.md` → `240` |
+| `.claude/skills/diagram-design/SKILL.md:76` says Archify's install "is documented in the project README" | `sed -n 76p .claude/skills/diagram-design/SKILL.md` |
 | The audit's "duplicate `## Requirement Delta Preview` at `:693`/`:698`" is **false**: `:698` is inside a ` ```markdown ` example | `sed -n 697,698p README.md` |
 
 **In scope:** `README.md`, the new `docs/overview.md`, `docs/README.md`, `docs/flow.md`, `docs/cli.md`, `docs/model-routing.md`, `docs/openspec-comparison.md`, `CONTRIBUTING.md`, the new `dotfiles/README.md`, `CHANGELOG.md`, the new `test/docs-overview.test.js`, and pin re-targets in `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js`.
@@ -89,7 +91,8 @@ The README SHALL be at most **200 lines**. The first `npx akili-specs init` SHAL
 - WHEN its lines are counted
 - THEN the count is ≤ 200
 - AND the first line containing `npx akili-specs init` has a line number ≤ 90
-- BUT it must NOT meet the cap by putting more than one sentence on a single line or by folding content into `<details>` blocks (no `<details>` element in the README)
+- BUT it must NOT meet the cap by folding content into `<details>` blocks (no `<details>` element in the README, tested)
+- AND IT MUST NOT meet the cap by packing several sentences into one long line (Reviewer-gated: not machine-checked)
 
 ### FR-3: What is AKILI?
 
@@ -102,17 +105,19 @@ The README SHALL be at most **200 lines**. The first `npx akili-specs init` SHAL
 - THEN the opening paragraph has ≤ 3 sentences
 - AND the *What you get* list has 5 bullets, one of them linking `docs/overview.md`
 - AND the glossary table has rows for exactly those 4 terms
-- BUT it must NOT name a capability the package does not ship (e.g. marketing before `.claude/commands/akili-marketing.md` exists)
+- AND IT MUST name marketing: execution runs after the `akili-marketing` rebase (D2), so `/akili-marketing` is packaged when this text is written
+- BUT it must NOT name a capability the package does not ship
 
 ### FR-4: How it works
 
-`## How it works` SHALL show the existing `assets/akili-flow.png`, centered (`<p align="center">`), linked to its full-size raw URL, with the existing alt text or a shorter one that makes no claim the figure lacks. It SHALL add at most 4 lines of explanation and a link to `docs/flow.md`.
+`## How it works` SHALL show the existing `assets/akili-flow.png`, centered (`<p align="center">`), linked to its full-size raw URL, with a **new, shorter alt text** in plain words. The alt text makes no claim the figure lacks and uses no explained term (FR-10) other than the 4 README glossary terms, so the existing alt text (which says "Kaizen retrospective" and "Bug Track") is replaced. It SHALL add at most 4 lines of explanation and a link to `docs/flow.md`.
 
 #### Scenario: Figure kept
 
 - GIVEN the landing README
 - WHEN the section renders
 - THEN the image source is `https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png` inside a `<p align="center">`
+- AND the `alt` text passes the FR-10 check
 - BUT it must NOT modify `assets/akili-flow.png` or `assets/akili-flow.svg` (`git diff --stat -- assets/` empty)
 
 ### FR-5: Install
@@ -177,11 +182,11 @@ The hero SHALL keep the centered ASCII logo and `# AKILI`, replace the `###` tag
 
 ### FR-10: Jargon rule
 
-Each **explained term** (*spec, constitution, slash command, skill, Kaizen, harness, persona, model routing, tier, Bug Track, HITL, worktree, CodeGraph*) that appears in the README SHALL either be defined in the README glossary table (FR-3) or have a Markdown link on the line of its first occurrence. The **README-banned terms** (*fence, drift, Leader, Implementer, Reviewer, digest, Apply Mode*) SHALL NOT appear in the README outside code blocks and link URLs.
+Each **explained term** (*spec, constitution, slash command, skill, Kaizen, harness, persona, model routing, tier, Bug Track, HITL, worktree, CodeGraph*) that appears in README prose SHALL either be defined in the README glossary table (FR-3) or, at its first occurrence, sit inside the text of a Markdown link (`[… term …](…)`). For this check, *prose* excludes fenced code blocks, inline code spans and URLs (Markdown link targets, `href`/`src` values), and includes `alt` attribute text. The **README-banned terms** (*fence, drift, Leader, Implementer, Reviewer, digest, Apply Mode*) SHALL NOT appear in the README outside fenced code blocks and URLs. **Inline code is not exempt for banned terms.**
 
 #### Scenario: Unexplained term
 
-- GIVEN the landing README with `harness` used on a line without a link and absent from the glossary
+- GIVEN the landing README with `harness` used in prose, not inside a link text, and absent from the glossary
 - WHEN `npm test` runs
 - THEN the test fails, naming `harness` and its line
 - AND a README containing `Reviewer` in prose fails, naming the banned term
@@ -204,7 +209,7 @@ Each **explained term** (*spec, constitution, slash command, skill, Kaizen, harn
 
 - GIVEN the install-target table
 - WHEN the reader reads the Grok Bot row
-- THEN `init` and `--tool all` read "no", routing wrappers read "no", and the row links `docs/cli.md#grok-bot-grokbot`
+- THEN `init` and `--tool all` read "no", routing wrappers read "no", and the row links `docs/cli.md#grok-bot---tool-grokbot` (the anchor of `docs/cli.md:240`)
 - AND IT MUST match the code: `ALL_TOOLS` in `bin/akili.js` excludes `grokbot`, and `bin/routing.js` has no `grok` reference (the test checks both)
 
 ### FR-12: No content lost
@@ -259,18 +264,19 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 - THEN `test/akili-security-docs.test.js` fails, naming `README.md`
 - AND removing the slug from `docs/overview.md` fails the slug presence test, naming `docs/overview.md`
 - AND removing `never ships or installs it` from `docs/overview.md` fails the diagram-design test
-- BUT it must NOT change any regex, token list or message text of an existing assertion (only the file it reads and the site name)
+- BUT it must NOT change any regex, token list or message text of an existing assertion
+- AND IT MUST limit structural changes to the three that design §9 lists: which file a site reads; splitting a site map into presence and shape sets; and the README run-directory presence check becoming conditional (every README `run directory` line, if any, still says "always outside the target") because its positive pin moved to `docs/overview.md`
 
 ### FR-16: Derived inventory and structure test
 
-`test/docs-overview.test.js` SHALL read the package inventory at test time and assert: (a) overview membership (FR-11); (b) README command table membership (FR-7); (c) `docs/skills/README.md` has one inventory row per skill; (d) every digit claim `<N> [packaged |slash ]commands|skills` in `README.md`, `docs/*.md`, `docs/commands/*.md`, `docs/skills/*.md` equals the derived total, unless the same line contains a subset qualifier (`lifecycle`, `loop`, `anytime`, `core`, `conditional`, `stack`); (e) FR-1 heading order; (f) FR-2 length and install position; (g) FR-10 jargon rule; (h) FR-11 Grok Bot code check; (i) every relative link in `README.md` and `docs/overview.md` resolves to an existing file. It SHALL hard-code no count of commands or skills.
+`test/docs-overview.test.js` SHALL read the package inventory at test time and assert: (a) overview membership (FR-11); (b) README command table membership (FR-7); (c) `docs/skills/README.md` has one inventory row per skill; (d) every digit claim `<N> [packaged |slash |AKILI ](command|commands|command skills|skills|skill directories)` in `README.md`, `docs/*.md`, `docs/commands/*.md`, `docs/skills/*.md` and `CONTRIBUTING.md` equals the derived total (commands for `command`/`commands`/`command skills`, skills otherwise), unless the same line contains a subset qualifier (`lifecycle`, `loop`, `anytime`, `core`, `conditional`, `stack`, `group`); (e) FR-1 heading order; (f) FR-2 length, install position, no `<details>`; (g) FR-10 jargon rule; (h) FR-11 Grok Bot row (all three "no" cells, its link) and the code check; (i) every relative link in `README.md`, `docs/overview.md` and `docs/README.md` resolves to an existing file **and**, when it has a `#anchor`, to a heading of that file under the GitHub slug rule; (j) the countable README and hub clauses: exactly 3 `shields.io`; the hero line names the 6 tools and 3 OSes; 5 *What you get* bullets; 4 glossary rows; the figure `src` inside `<p align="center">`; no `doctor --tool` in the README; `docs/overview.md` first in *Learn more*; `docs/README.md` *Start Here* first link `overview.md`, a `skills/governance.md` link, and the anytime commands as table rows; the `docs/model-routing.md` Grok Bot line. It SHALL hard-code no count of commands or skills.
 
 #### Scenario: Marketing lands
 
 - GIVEN `akili-marketing` merged (13 commands, 28 skills) and the overview rows added
 - WHEN `npm test` runs
 - THEN the test passes without edits to `test/docs-overview.test.js`
-- AND a `docs/cli.md` line still saying `12 commands` fails, naming the file and line
+- AND a `docs/cli.md` line still saying `12 commands` or `12 command skills` fails, naming the file and line
 
 ### FR-17: Moved content, roadmap, dotfiles, CHANGELOG
 
@@ -278,9 +284,10 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 - `dotfiles/README.md` SHALL hold the Neovim and tmux restore steps.
 - `CONTRIBUTING.md` SHALL hold *Repository Structure*.
 - `docs/cli.md` SHALL hold the prerequisite tables and the local-checkout install.
-- Docs that point at moved README content SHALL point at its new home: `docs/skills/diagram-design.md:21` ("the command is in the root `README.md`") names `docs/overview.md` instead.
+- Docs that point at moved README content SHALL point at its new home: `docs/skills/diagram-design.md:21` ("the command is in the root `README.md`") names `docs/overview.md` instead. `.claude/skills/diagram-design/SKILL.md:76` ("documented in the project README") is out of scope (NFR-3). It stays reachable because the README *Learn more* table links the overview's *Optional tools*. This is recorded as an accepted Low risk with a `/akili-quick` follow-up.
+- The dead `#grok-bot-grokbot` anchors in `docs/cli.md` (`:21, 48, 110`) SHALL be corrected to `#grok-bot---tool-grokbot`.
 - `docs/skills/governance.md` acceptance checklist item 5 (*Docs + CHANGELOG*) SHALL also require the skill's row in `docs/overview.md`, so a new skill's author learns about the obligation from the checklist, not only from a failing test.
-- `CHANGELOG.md` `## [Unreleased]` SHALL gain one *Changed* entry describing the landing README, `docs/overview.md`, the new test and the re-targeted pins. Every clause SHALL be quote-checked at HEAD (KZ-002).
+- `CHANGELOG.md` `## [Unreleased]` SHALL replace its `### Notes` / "No unreleased changes yet." placeholder (or, after the rebase, join the entries marketing added) with one *Changed* entry describing the landing README, `docs/overview.md`, the new test and the re-targeted pins. Every clause SHALL be quote-checked at HEAD (KZ-002).
 
 #### Scenario: Contributor looks for the release flow
 
@@ -307,12 +314,15 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 |---|---|
 | Inventory or count mismatch | `test/docs-overview.test.js` (a)–(d), derived from the package |
 | README order, length or heading drift | `test/docs-overview.test.js` (e)–(f) |
-| Unexplained jargon or banned term | `test/docs-overview.test.js` (g). **Gap:** the test cannot judge whether a glossary definition is *clear* or whether prose is *plain*. Substitute: Reviewer reading of the README whole (T6 `full` review) and the user at the pre-execute HITL pause |
+| Unexplained jargon or banned term | `test/docs-overview.test.js` (g) |
+| Prose not plain, definitions unclear, FR-3 paragraph over 3 sentences, several sentences packed into one line (FR-2 AND IT MUST) | **No automated check.** Substitute: the `full` Reviewer reads the README whole at the README-rewrite task, and the user reviews it at the PR |
 | Unique README content lost in a move | Move ledger walk (FR-12): each row's destination quote checked at HEAD by the Reviewer. No automated check can prove semantic equivalence, so this is a human/agent check, recorded per row |
 | Re-targeted pin weakened | Mutation per pin (FR-15 scenario), executed and quoted in the task |
 | Restatement drift on `/akili-security` or Archify lines | `node --test test/akili-security-docs.test.js test/diagram-design.test.js` after every task that moves such a line |
 | Overstated claim in a "Use it to…" line, an overview line or the CHANGELOG (KZ-002) | Quote-check against the command/skill page or frontmatter at HEAD (Reviewer). No automated check |
-| Broken relative link | `test/docs-overview.test.js` (i) for README and overview; link check in task verification for the other edited docs |
+| Broken relative link or anchor | `test/docs-overview.test.js` (i) for README, overview and hub, slug-aware; link check in task verification for the other edited docs |
+| Countable layout clause regresses (badges, bullets, glossary rows, figure, hub order, routing line) | `test/docs-overview.test.js` (j) |
+| A shipped `.claude` text still points Archify readers to "the project README" | **Accepted risk (Low)**, out of scope (NFR-3). Follow-up: `/akili-quick` on `.claude/skills/diagram-design/SKILL.md:76` |
 | Non-English text | NFR-2 heuristic grep, plus the Reviewer. **Accepted risk:** the heuristic misses Spanish without those words; the Reviewer reading is the real gate |
 | Rendered README looks wrong on GitHub (centering, table width) | No automated check reads rendered GitHub Markdown. Substitute: the user previews the branch on GitHub at the PR (after this spec, user-owned push), recorded as an accepted risk for local execution |
 
