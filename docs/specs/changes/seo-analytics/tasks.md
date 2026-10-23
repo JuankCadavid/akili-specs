@@ -54,7 +54,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | none |
 | Requirements | FR-4: the legal table, all five rows of the requirements table, the not-legal-advice sentence, `Other jurisdictions: not audited`, and the "BUT must NOT assert … violates" phrase "inconsistent with the consent requirement under …"; the Consent Mode `AND IT MUST record which of the four parameters are missing`. FR-11 (a) and (b) in reference §2, and the metric coverage. FR-13 (reference half). NFR-4. NFR-6 (MCP read-only, reference §3). Reference halves of FR-2 (detection signals, static-fetch limitation, no-renderer `not determined`), FR-3 (ID consistency, no unmeasured ms claim, tier on magnitudes), FR-5 (WhatsApp patterns, intercepted click, no real submission, test-traffic disclosure), FR-6 (probe order, evidence suffix), FR-7 (unmask check, mode owner-confirmed, mask on personal-data pages, inputs masked in all modes), FR-9 (GA4 reads, Clarity window, quota, truncation), FR-10 (normalization, unmatched rows, caveats, no causal wording) |
 | Design refs | §9.1 items 1–9; §5.2; §6; DD-3…DD-7, DD-9, DD-11, DD-12; P-4…P-14, P-21…P-23, P-26, P-27 |
@@ -67,7 +67,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 | Red run | Baseline: the reference file does not exist (`ls` → `No such file or directory`). The Implementer quotes each new assertion failing on its `assert.match` message against an empty-stub reference, written and then replaced |
 | Falsifier | (1) Delete "never" from the §2 ranking sentence → the FR-11 (a) assertion goes red. (2) Delete `heatmap` from the §2 list → that metric-coverage assertion goes red. (3) Remove `ad_user_data` → the Consent Mode assertion goes red. (4) Remove `checked 2026` from one Sources line → the NFR-4 assertion goes red. (5) Remove "datos personales" from the Ley 1581 row → the qualifier assertion goes red. Each one is executed post-change, its red quoted, then reverted |
 | Disqualifier | A test that reads its expected literal from `analytics.md` is a tautology. A Sources check that passes on an empty Sources section is inert: assert ≥ 8 source lines first. A legal sentence checked only for presence proves nothing about its correctness. The source walk is the substitute, and the Reviewer re-checks Ley 1581 Art. 9 and ePrivacy Art. 5(3) against the source itself (author ≠ auditor) |
-| Consumers | none. New file (P-16: no test pins `seo-audit` text) |
+| Consumers | none. New file (P-16: no test pins `seo-audit` text). **Execute-time correction:** `test/install-cursor.test.js` pins the packaged skill-file count (223 → 224), updated in T1 |
 | Done | P-21, P-23 and P-27 settled and recorded. The test file is green. Falsifiers 1–5 executed and quoted. The source walk is in `execution.md`. No sentence says that a site "violates" a law, that Ley 1581 mandates a cookie banner, or that a behavior metric affects ranking |
 
 ---
