@@ -180,7 +180,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~450 LOC) |
 | Depends on | T1 |
 | Requirements | FR-6 (hard limits, fold, hashtags, formats), FR-1 (`Adapted from`), NFR-5, NFR-6 |
