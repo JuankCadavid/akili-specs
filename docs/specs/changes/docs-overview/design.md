@@ -7,7 +7,7 @@
 | Spec Path | `changes/docs-overview` |
 | Depth | Standard |
 | Requirements | `requirements.md` (FR-1…FR-17, NFR-1…NFR-6) |
-| Status | Draft rev. 2 after judgment-day round 1 (`judgment.md`). The Phase 2 gate is pending the scoped re-judgment |
+| Status | **Approved**. Phase 2 gate: `auto-approved (user mandate for /akili-specify, 2026-10-23)` after judgment-day `APPROVED ✅` (round 1 fix `ce8fbb5`, round 2 both APPROVE; `judgment.md`) |
 | Verified at | `dfa1be2` (premises run at `cdb4c5a`/`dfa1be2`; only spec files changed between them) |
 | Architecturally significant | **No**. No module, integration, data flow, persistence or NFR change, so `software-architect` and `diagram-design` slot filling do not apply |
 | Language | English (user rule, 2026-10-23) |

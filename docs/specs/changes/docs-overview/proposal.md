@@ -38,7 +38,7 @@
 | D3 | Inventory and structure test | **Add a new `test/docs-overview.test.js`, derived from the package:** (a) each `.claude/commands/*.md` and `.claude/skills/*/` appears exactly once in `docs/overview.md` under one purpose group; (b) each command appears in the README *Commands at a glance* table; (c) `docs/skills/README.md` has one row per skill; (d) every "N commands" / "N skills" claim in `README.md` and `docs/*.md` equals the derived count; (e) the README `##` headings equal the D1 list in order; (f) README ≤ 200 lines; (g) each [jargon term](#jargon-rule-u4) in the README is explained at its first use or linked to the glossary | Counts and structure stay correct after marketing (13/28) and after any later skill, without hard-coded numbers (KZ-002). (e)–(g) keep U1–U6 from eroding in later specs |
 | D4 | Roadmap and "Auxiliary commands" | **Move *Planned Improvements Inspired By OpenSpec* into `docs/openspec-comparison.md` under a *Roadmap* heading. The long auxiliary paragraphs become one-line rows in *Commands at a glance*, each linking to its `docs/commands/*.md` page** | Roadmap is not reference, and a new user needs neither |
 | D5 | Dotfiles (Neovim/tmux) | **Move them to a new `dotfiles/README.md`. The root README drops them entirely** | `dotfiles/` is not in `package.json` `files`, so it is not product content |
-| D6 | Grok Bot gaps (`init`, routing) | **Docs only, no code change.** The overview's install-target table has one row per target (6) with init / `--tool all` / routing wrappers / doctor columns. Grok Bot: init and `--tool all` "no" by design (`bin/akili.js:517`, comment `:519-522`, DD-4 of `changes/grokbot-target`), routing "no" (`grep -ci grok bin/routing.js` → 0). One line in `docs/model-routing.md`. The README only names Grok Bot as a supported tool and links to the table | The behavior is intentional; the finding is a visibility gap |
+| D6 | Grok Bot gaps (`init`, routing) | **Docs only, no code change.** The overview's install-target table has one row per target (6) with init / `--tool all` / routing wrappers / doctor columns. Grok Bot: init and `--tool all` "no" by design (`bin/akili.js:517`, comment `:519-521`, DD-4 of `changes/grokbot-target`), routing "no" (`grep -ci grok bin/routing.js` → 0). One line in `docs/model-routing.md`. The README only names Grok Bot as a supported tool and links to the table | The behavior is intentional; the finding is a visibility gap |
 | D7 (new) | Tests that pin maintainer text in the README | **Move each README pin to the doc that receives the content, with the same assertions.** (1) `test/branching-flow.test.js`: drop the `README.md (Releasing Package Updates)` site. `CONTRIBUTING.md` and `docs/release-checklist.md` already carry the same tokens and stay pinned, and the README keeps the negative "no direct commit-then-tag block" guard. (2) `test/akili-security-docs.test.js`: the README positive sites (slug, "run directory (always outside the target)") move to `docs/overview.md`, and the README keeps the negative "no in-target run directory" guard. (3) `test/diagram-design.test.js:409-412`: the Archify install, attribution and "never ships or installs it" assertions move to `docs/overview.md` (*Optional tools*) | U1/U4 rule out the release procedure and the security run-directory rules on a new user's page. Keeping them would cost about 60 lines of maintainer text. Moving the pins keeps every guarantee, and the negative guards still stop a weakened restatement from appearing in the README |
 | D8 (new) | Hero (top of README) | **Keep the ASCII logo and title, centered. Swap the 2-line marketing tagline for one plain sentence. Cut the 13 badges to 3 (npm version, license, Node 18+). The 7 tool badges (6 hosts + CodeGraph) and 3 OS badges become one text line: "Works with Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor and Grok Bot · macOS, Linux, Windows".** The `/akili-security` Windows caveat moves to that command's row | 13 badges are the first "overwhelming" screen (U1). The text line says the same thing and is searchable |
 
@@ -86,7 +86,7 @@ A new user who opens the README understands what AKILI is, sees the flow, instal
 
 | # | Today | Evidence (as run 2026-10-23, `dev` 8679e25) |
 |---|---|---|
-| 1 | The README is 948 lines with 25 fence-aware `##` and 18 `###` headings (43 in total; corrected at specify from "26 `##`"). "What it is" is 2 paragraphs at `:45` and `:47`, and the install command first appears at `:202`, after a 3-table prerequisites block | `wc -l README.md`; `grep -c '^## ' README.md`; `grep -n 'npx akili-specs init' README.md` |
+| 1 | The README is 948 lines with 25 fence-aware `##` and 18 `###` headings (43 in total; corrected at specify from "26 `##`"). "What it is" is 2 paragraphs at `:43` and `:45` (`sed -n 43,45p README.md`), and the install command first appears at `:202`, after a 3-table prerequisites block | `wc -l README.md`; `grep -c '^## ' README.md`; `grep -n 'npx akili-specs init' README.md` |
 | 2 | The order mixes audiences: install (`:140`), then maintainer release steps (`:401`), then dotfiles (`:527`), and only then *Start Here* (`:553`), concepts, and roadmap (`:797`) | `grep -n '^#' README.md` |
 | 3 | `## What AKILI Covers` lists only security, video and diagrams ("Three capabilities sit beside the core spec loop"). The 3-row cut comes from archived `changes/docs-refresh-2-34` FR-3; no test pins it (`grep -rn "What AKILI Covers" test/` → 0) | `sed -n 63,71p README.md`; `docs/specs/archive/2026-10-19-changes--docs-refresh-2-34/requirements.md:83-93` |
 | 4 | The hero has 13 badges in 3 rows before any prose | `sed -n 16,38p README.md` |
@@ -134,6 +134,8 @@ A new user who opens the README understands what AKILI is, sees the flow, instal
 7. **T7: `test/docs-overview.test.js`** (D3 a–g).
 8. **T8: sweep and verification.** Restatement sweep for moved `/akili-security`, Archify and release lines (KZ-changes--kaizen-loop-closure-2); quote-check every aggregate claim at HEAD (KZ-002); link check; full verification set.
 9. **T9: CHANGELOG** entry.
+
+*Task numbers here are provisional; `design.md` §2 owns the numbering (corrected at specify).*
 
 ## Non-Goals
 
@@ -209,7 +211,7 @@ Test LOC is budgeted per clause (KZ-bugfix--init-ctrlc-abort-2).
 | T4 Re-target pins in 3 tests (D7) | ~50 changed | 2 |
 | T5 README rewrite | +190 / −948 | 4 |
 | T6 Hub, roadmap, `dotfiles/README.md`, routing line | ~100 | 2 |
-| T7 `test/docs-overview.test.js`, 7 clauses × ~40 | ~300 | 3 |
+| T7 `test/docs-overview.test.js`, 7 clauses × ~40 (FR-16 now has clauses a–j; see design) | ~300 | 3 |
 | T8 Sweep, link check, verification | — | 3 |
 | T9 CHANGELOG | ~6 | 1 |
 | **Total** | **~1,250 added / ~950 removed, 9 tasks** | **~22 rounds** (tripwire at 28). Superseded by design §13 (20 rounds, tripwire 26) |
