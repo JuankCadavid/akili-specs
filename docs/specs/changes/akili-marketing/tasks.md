@@ -149,7 +149,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~200 LOC skill + ~150 LOC test) |
 | Depends on | T2, T4 |
 | Requirements | FR-1 (all clauses, both scenarios), FR-8 (skill standalone line), NFR-5, NFR-6 (presence of `lastVerified`) |
