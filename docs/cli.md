@@ -122,7 +122,7 @@ Every command closes with a clear end-of-run summary:
 | `--local`, `-l` | install, update, doctor | Target the current project directory (e.g., `./.claude`, or `./.agents/skills` + `./.codex/akili` for Codex, or `./.agents/skills` + `./.cursor/akili` for Cursor, or `./.grokbot/workflows` + `./.grokbot/akili` for Grok Bot) instead of the global home directory |
 | `--force` | install, update | Overwrite existing files |
 | `--dry-run` | install, update | Show planned writes without writing files |
-| `--commands-only` | install, update, doctor | Only install or check commands (on Codex, Cursor, and Grok Bot, the 12 command skills — no `commands/` directory is ever written for any of them, in any mode) |
+| `--commands-only` | install, update, doctor | Only install or check commands (on Codex, Cursor, and Grok Bot, the 13 command skills — no `commands/` directory is ever written for any of them, in any mode) |
 | `--skills-only` | install, update, doctor | Only install or check skills |
 | `--fix` | doctor | Automatically repair and copy missing files |
 | `--hosts <a,b>` | routing | Hosts to configure: `claude`, `opencode`, `antigravity`, `codex`, `cursor` |
@@ -188,8 +188,8 @@ Codex install layout (global; `--local` maps both roots under `./`):
 
 ```text
 ~/.agents/skills/                 (Agent Skills root, shared with other tools honoring the standard)
-  akili-archive/SKILL.md … akili-validate/SKILL.md   (the 12 commands, installed as skills — never a commands/ dir)
-  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 27 packaged skills, with their references/ trees)
+  akili-archive/SKILL.md … akili-validate/SKILL.md   (the 13 commands, installed as skills — never a commands/ dir)
+  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 28 packaged skills, with their references/ trees)
 ~/.codex/akili/                   (resources root)
   scripts/
   templates/                      (leader, implementer, reviewer, tester personas)
@@ -200,8 +200,8 @@ Cursor install layout (global; `--local` maps both roots under `./`):
 
 ```text
 ~/.agents/skills/                 (Agent Skills root, shared with Codex and other tools honoring the standard)
-  akili-archive/SKILL.md … akili-validate/SKILL.md   (the 12 commands, installed as skills — never a commands/ dir)
-  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 27 packaged skills, with their references/ trees)
+  akili-archive/SKILL.md … akili-validate/SKILL.md   (the 13 commands, installed as skills — never a commands/ dir)
+  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 28 packaged skills, with their references/ trees)
 $CURSOR_CONFIG_DIR/akili/ (or ~/.cursor/akili/)  (resources root)
   scripts/
   templates/                      (leader, implementer, reviewer, tester personas)
@@ -222,7 +222,7 @@ install/update so running sessions load new commands and skills.
 
 ## Shared and compatibility skill roots (Codex, Cursor, Claude Code)
 
-Codex and Cursor write their 12 command skills and 27 packaged skills into one shared root,
+Codex and Cursor write their 13 command skills and 28 packaged skills into one shared root,
 `~/.agents/skills` (or `./.agents/skills` under `--local`) — `--tool all` writes it once; a second
 install from either tool sees it already populated and skips. Because both tenants write into the
 same root, detecting *which* of them is installed cannot key on that root alone — see design DD-2
@@ -239,7 +239,7 @@ root wins); the IDE picker was not observed.
 
 ## Grok Bot (`--tool grokbot`)
 
-**Run the CLI in a shell on the Grok Bot box.** `akili install --tool grokbot` writes the 12 commands and 27 packaged skills straight into the folder Grok Bot reads, and never touches a folder AKILI did not write. From another machine, open a shell on the box and run it there — the CLI prints and runs no `rsync`, `ssh` or copy step, and no copy or transfer step opens a network connection (the usual npm update check is unaffected).
+**Run the CLI in a shell on the Grok Bot box.** `akili install --tool grokbot` writes the 13 commands and 28 packaged skills straight into the folder Grok Bot reads, and never touches a folder AKILI did not write. From another machine, open a shell on the box and run it there — the CLI prints and runs no `rsync`, `ssh` or copy step, and no copy or transfer step opens a network connection (the usual npm update check is unaffected).
 
 ```bash
 akili install --tool grokbot            # on the box

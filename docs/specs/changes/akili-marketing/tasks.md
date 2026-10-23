@@ -331,7 +331,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Command | `grep -c "akili-marketing" README.md docs/README.md docs/commands/README.md` (each ≥ 1, README ≥ 7); `grep -n "Five anytime" README.md` → 0; `git diff -- README.md \| grep -c "akili-flow"` → 0 |
+| Command | `grep -c "akili-marketing" README.md docs/README.md docs/commands/README.md` (each ≥ 1, README ≥ 6 — amended at execute 2026-10-23: the eight README sites yield 6 matching lines, since `:65` and `:118` never contain the string; the original ≥ 7 was a specify-time prediction, see `execution.md` T8b); `grep -n "Five anytime" README.md` → 0; `git diff -- README.md \| grep -c "akili-flow"` → 0 |
 | Red run (executed at baseline) | `grep -n "Five anytime" README.md` → `567:Five anytime commands run outside th…` |
 | Falsifier | Leave `:567` unedited → the "Five anytime" grep returns 1 |
 | Disqualifier | A site list re-derived from memory instead of re-running P-8's grep at HEAD can miss a site added since `9a92092` — re-run it first |
@@ -345,7 +345,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~60 LOC) |
 | Depends on | T5 |
 | Requirements | FR-12 (anytime-command sections, totals, core binding list, Skill Usage) |
