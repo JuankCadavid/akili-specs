@@ -64,7 +64,7 @@ Not applicable: no user journey; the rules are read by agents, and their wording
 | FR-3 | *Route per host*, *Lock mismatch* (incl. "still pass on a found router"), *No stale names* | contract | `video-production.test.js` | PASS | |
 | FR-4 | *Film artifacts* (owner and storage of `story.md`, `SPEC.md`, `snapshot --review`, `REVIEW.md`); *Music bed* | contract | `video-production.test.js` | PASS | |
 | FR-5 | *Bundled is not local*; *Brand source* | contract | `video-production.test.js` | PASS | |
-| FR-6 | *Deferred*, *Default*, *Recorded downstream* | contract | `command-contracts.test.js` | PASS | skill side also in `video-production.test.js` |
+| FR-6 | *Deferred*, *Default*, *Recorded downstream* | contract | `command-contracts.test.js` | PASS | skill side (render-evidence final-look step 4, SKILL.md delivery row, phase-map delivery row) has **no pin** — text present, verified by validation (W-4); pin deferred |
 | FR-7 | *Outline replaces the delta*; *Specify converts it* | contract | `command-contracts.test.js` | PASS | |
 | FR-8 | *No n/a software sections* (THEN with section contents, BUT, AND mixed) | contract | `command-contracts.test.js` | PASS | |
 | FR-9 | *Greenfield* (THEN, AND IT MUST, BUT) | contract | `command-contracts.test.js` | PASS | |

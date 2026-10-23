@@ -376,7 +376,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
   - restore "Prefer" in `akili-test.md:15`;
   - drop "not under `gated`" in propose.
   - Each must go red on its assertion. Quote each.
-- **Red run:** predicted — greenfield artifact (observed in T14). Against 34afbff the first-token contract reads 6/5/6/11 `$ARGUMENTS` occurrences (specify/execute/test/validate).
+- **Red run:** predicted — greenfield artifact (observed in T14). Against 34afbff the first-token contract reads 6/5/6/11 `$ARGUMENTS` lines (`grep -c`; validate has 12 occurrences on those 11 lines — corrected at validation) (specify/execute/test/validate).
 - **Disqualifier:** an "anywhere in the file" presence assertion. A test that reads `docs/specs/changes/...`.
 - **Consumers:** `npm test` count.
 - **Review:** `full`

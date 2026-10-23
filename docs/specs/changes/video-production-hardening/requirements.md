@@ -312,7 +312,7 @@ When a rework retry would raise the Implementer's effort past its tier's ceiling
 #### Scenario: Ceiling with a distinct Reviewer model available
 
 - GIVEN attempt 2 failed with the Implementer at `xhigh` on T2
-- WHEN attempt 3 starts and a Reviewer model distinct from the next-tier Implementer model exists (registry T3 fallback or cross-host dispatch)
+- WHEN attempt 3 starts and a Reviewer model distinct from the next-tier Implementer model exists (the registry's frontier escalation pin when the host has one, or cross-host dispatch; never weaker than the escalated Implementer, so Claude Code's T3 fallback `sonnet` does not qualify — design §8.4 *Ceiling rung*, judgment A J-12 / B J-17; wording corrected at validation, 2026-10-23)
 - THEN the Implementer moves one tier up at `xhigh`, the Reviewer moves to that distinct model, and both are recorded
 - BUT it must NOT run `max` on T2
 
