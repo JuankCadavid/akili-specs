@@ -136,7 +136,7 @@
     {
       "id": 9,
       "prompt": "We rank on page one for our main keywords but we never show up in Google AI Overviews or ChatGPT. What should we fix?",
-      "expected_output": "Should apply the GEO section. Should lead with the evidence-density findings, which carry the largest measured gains (verifiable statistics with named sources, credible quotations, outbound citations to reliable sources), and cite the KDD 2024 GEO study as the source with its magnitudes labelled as peer-reviewed. Should apply the self-containment test to target passages and flag anaphora that depends on surrounding context. Should check definitional sentences, entity resolution, freshness / dateModified, and structured data. Should audit robots.txt for a blanket AI-bot block that also excludes the retrieval agents (OAI-SearchBot, Claude-SearchBot, PerplexityBot) as distinct from the training agents. Should NOT recommend creating llms.txt as a visibility tactic. Should NOT claim engagement metrics affect rankings. Should note GEO layers on ranking rather than replacing it.",
+      "expected_output": "Should apply the GEO section. Should lead with the evidence-density findings, which carry the largest measured gains (verifiable statistics with named sources, credible quotations, outbound citations to reliable sources), and cite the KDD 2024 GEO study as the source with its magnitudes labelled as peer-reviewed. Should apply the self-containment test to target passages and flag anaphora that depends on surrounding context. Should check definitional sentences, entity resolution, freshness / dateModified, and structured data. Should audit robots.txt for a blanket AI-bot block that also excludes the retrieval agents (OAI-SearchBot, Claude-SearchBot, PerplexityBot) as distinct from the training agents. Should NOT recommend creating llms.txt as a visibility tactic. Should NOT claim any behavior metric (bounce or engagement rate, session duration, scroll depth, heatmaps, recordings) affects rankings. Should note GEO layers on ranking rather than replacing it.",
       "assertions": [
         "Prioritizes evidence density (statistics, quotations, citations) as the highest-yield fix",
         "Applies the self-containment test to passages",
@@ -144,6 +144,33 @@
         "Does not recommend llms.txt as a visibility tactic",
         "Labels industry figures separately from peer-reviewed figures",
         "States that GEO layers on top of ranking"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "/akili-seo example.com — yes, run the analytics phase. The site has GA4 and Microsoft Clarity installed, a cookie banner, and a WhatsApp button on the landing page. Clarity shows lots of rage clicks and a low engagement rate on that page. Does this hurt our Google rankings?",
+      "expected_output": "Should run Phase 2B, detecting GA4 and Clarity with a rendering fetch, read-only. Should check consent signals (Consent Mode defaults before the first measurement command, Clarity consent signal) and record each as a finding or a pass, never as a 'compliant' verdict and never writing that the site 'violates' a law. A GA4 or Clarity hit sent, or storage set, before the banner is answered is written 'signal inconsistent with the consent requirement under <rule>', naming the rule and its tier. Should state these are compliance signals, not legal advice, and write 'Other jurisdictions: not audited'. Should check the WhatsApp conversion event and whether it is a key event. Should read the rage clicks and low engagement rate as conversion and UX diagnostics whose fix is the page, and should NOT claim that any behavior metric affects Google or Bing ranking. Should list analytics findings in a separate Measurement & Compliance group of the remediation plan.",
+      "assertions": [
+        "Detects GA4 and Clarity with a rendering fetch, not a static fetch alone",
+        "Never writes that the site 'violates' a law",
+        "If it reports a hit sent, or storage set, before the banner is answered, words it 'signal inconsistent with the consent requirement under <rule>'",
+        "States that consent checks are compliance signals, not legal advice, and 'Other jurisdictions: not audited'",
+        "Does not claim that rage clicks, engagement rate or any behavior metric affects Google or Bing ranking",
+        "Uses behavior metrics for conversion and UX findings only",
+        "Lists analytics findings in a separate Measurement & Compliance group"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "/akili-seo example.com — yes, run the analytics phase. The sampled pages have a contact form but no GA4, Clarity or tag manager anywhere.",
+      "expected_output": "Should detect with a rendering fetch that neither GA4 nor Clarity is present, skip the installation, data and Search → Conversion steps, and record 'Analytics: skipped — no GA4 or Clarity detected'. Because the sampled pages carry a conversion action (a form), should raise exactly one finding, Priority Low: 'conversions are not measured', and no other finding for the absence. Should NOT ask the analytics question again and should NOT claim that missing analytics affects rankings.",
+      "assertions": [
+        "Records 'Analytics: skipped — no GA4 or Clarity detected'",
+        "Raises exactly one Low finding, 'conversions are not measured'",
+        "Raises no further finding for the absence of analytics",
+        "Does not claim that missing analytics affects rankings"
       ],
       "files": []
     }

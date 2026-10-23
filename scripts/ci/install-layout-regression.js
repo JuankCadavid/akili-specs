@@ -534,6 +534,7 @@ function runDetectionFixture() {
       USERPROFILE: tmpHome,
       CODEX_HOME: codexHome,
       CURSOR_CONFIG_DIR: cursorHome,
+      AKILI_GROKBOT_TARGET: path.join(tmpHome, ".grokbot-env-unused", "workflows"),
     };
 
     // S1 — foreign-only shared root: neither Codex nor Cursor detected.

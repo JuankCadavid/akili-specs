@@ -1,6 +1,6 @@
 # AKILI Documentation
 
-AKILI is the documented form of the AKILI-SPECS methodology: a constitution-first, self-improving spec-driven workflow for Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, and Cursor.
+AKILI is the documented form of the AKILI-SPECS methodology: a constitution-first, self-improving spec-driven workflow for Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot.
 
 Use this documentation when you want the human-facing reference. The installable source prompts and skills remain under `.claude/commands/` and `.claude/skills/`.
 

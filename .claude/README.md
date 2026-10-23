@@ -1,6 +1,6 @@
 # `.claude/` is the canonical source for ALL install targets — not Claude-only config
 
-If you landed here to contribute: **this directory is the methodology's single source of truth**, consumed by five tools, not one. The `bin/akili.js` installer maps it into each target's own config layout:
+If you landed here to contribute: **this directory is the methodology's single source of truth**, consumed by six tools, not one. The `bin/akili.js` installer maps it into each target's own config layout:
 
 | Target | Installed to | From |
 |---|---|---|
@@ -9,10 +9,11 @@ If you landed here to contribute: **this directory is the methodology's single s
 | Google Antigravity | `~/.gemini/` | same sources, commands wrapped as workflows/skills |
 | OpenAI Codex CLI | `~/.agents/skills/` (commands and skills) + `~/.codex/` (resources) | same sources, commands installed as skills (`akili-<name>/SKILL.md`) — no `commands/` directory |
 | Cursor | `~/.agents/skills/` (commands and skills, shared with Codex) + `~/.cursor/` (resources) | same sources, commands installed as skills (`akili-<name>/SKILL.md`) — no `commands/` directory |
+| Grok Bot | `/home/box/agent-data/workflows/` (commands and skills) + `/home/box/agent-data/akili/` (resources), on the box only | same sources, commands installed verbatim as skills (`<name>/SKILL.md`) — no `commands/` directory; folders AKILI did not write are never touched unless `akili install --tool grokbot --force` takes them over |
 
 ## Why it lives under `.claude/` and not `src/` or `methodology/`
 
-This repository **dogfoods its own methodology**: Claude Code sessions working on this repo discover the `/akili-*` commands and the packaged skills directly from this directory — that only works at the literal path `.claude/`. Renaming it would leave the repo unable to run the very methodology it packages. The other four targets never see this path; they receive installed copies.
+This repository **dogfoods its own methodology**: Claude Code sessions working on this repo discover the `/akili-*` commands and the packaged skills directly from this directory — that only works at the literal path `.claude/`. Renaming it would leave the repo unable to run the very methodology it packages. The other five targets never see this path; they receive installed copies.
 
 ## What's inside
 
