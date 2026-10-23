@@ -72,7 +72,7 @@ The full section-by-section ledger is task T1. Nothing is deleted without a dest
 | *Prerequisites* tables, *Steps 1–5*, *Local Checkout / Global Install*, *Install Paths*, *Updating*, *Manual Install*, *Troubleshooting*, *CLI Commands* options and safety rules | `docs/cli.md` (most already there; merge only the differences) |
 | *Releasing Package Updates* | Already in `CONTRIBUTING.md` and `docs/release-checklist.md`, so it is dropped from the README (D7) |
 | *Repository Structure* | `CONTRIBUTING.md` (contributor content) |
-| *Start Here* detail (project modes, brand-new projects, CodeGraph), *How To Choose The Right Depth*, *Core Concepts*, *The Kaizen Loop*, *Spec Folder Shape*, *Requirement Delta Preview* (×2), *Writing Good Requirements*, *Review Points*, *Practical Example*, *Spec Paths*, *Methodology Contract*, *Multi-Agent Harness Engineering*, *Host Assumptions*, *Notes* | `docs/flow.md` where it is not already there; one-line entries in `docs/overview.md` |
+| *Start Here* detail (project modes, brand-new projects, CodeGraph), *How To Choose The Right Depth*, *Core Concepts*, *The Kaizen Loop*, *Spec Folder Shape*, *Requirement Delta Preview*, *Writing Good Requirements*, *Review Points*, *Practical Example*, *Spec Paths*, *Methodology Contract*, *Multi-Agent Harness Engineering*, *Host Assumptions*, *Notes* | `docs/flow.md` where it is not already there; one-line entries in `docs/overview.md` |
 | *Capability-Tier Model Routing* | `docs/model-routing.md` (already there) |
 | *Planned Improvements Inspired By OpenSpec* / *Auxiliary commands* | `docs/openspec-comparison.md` *Roadmap* / *Commands at a glance* rows (D4) |
 | *Dotfiles* | `dotfiles/README.md` (D5) |
@@ -95,7 +95,7 @@ A new user who opens the README understands what AKILI is, sees the flow, instal
 | 7 | `docs/skills/governance.md` is linked from neither the README nor the hub | `cat docs/README.md`; `sed -n 52,61p README.md` |
 | 8 | Some shipped capabilities live only in long prose: `/akili-seo` Phase 2B (GA4/Clarity), constitution's 3 modes, Kaizen, the harness and `.agents/` personas, `akili routing`, `doctor --agents`, CodeGraph, the Bug Track, fleet execution, Context Discipline | `README.md:807-827`; `docs/flow.md` §6–§9, `:225`, `:242` |
 | 9 | There is no install-target comparison. Grok Bot is outside `init` and `--tool all` (only `docs/cli.md:21,111` says so) and absent from `docs/model-routing.md` | `grep -n -i grok docs/model-routing.md` → 0 |
-| 10 | The README repeats `flow.md`, and `## Requirement Delta Preview` appears twice in a row (`:693`, `:698`) | `grep -n '^#' README.md` |
+| 10 | The README repeats `flow.md` (*Spec Folder Shape*, *Review Gates*-style lists). **Correction (specify, 2026-10-23):** the audit's "`## Requirement Delta Preview` twice (`:693`, `:698`)" is false — `:698` sits inside a ` ```markdown ` example block that starts at `:697`; a fence-aware heading scan lists one | `awk '/^```/{f=!f} !f && /^## /{print NR": "$0}' README.md` → one `693: ## Requirement Delta Preview`; `sed -n 697,698p README.md` |
 | 11 | Roadmap and reference are mixed (*Planned Improvements* contains *Auxiliary commands*) | `sed -n 797,828p README.md` |
 | 12 | The Dotfiles section ships in the README, but `dotfiles/` is not in `package.json` `files` | `README.md:527-552`; `package.json:16-28` |
 | 13 | In the hub, *Quick Flow* lists the anytime commands as loose sentences | `docs/README.md` |
