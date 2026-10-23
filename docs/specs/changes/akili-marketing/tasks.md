@@ -122,7 +122,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~650 LOC) |
 | Depends on | T1 |
 | Requirements | FR-1 (`Adapted from` lines; *Vendor paths stripped*), FR-3 (template fields), FR-10 (humanizer audit checklist; repurposing), FR-11 (untrusted rules), NFR-5 |
