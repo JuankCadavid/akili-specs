@@ -19,7 +19,7 @@ The gate passes when the router skill is loadable under either name: `hyperframe
 
 | Result | Action |
 |---|---|
-| Router found | Load it first; it picks the workflow and points to its domain skills. Continue |
+| Router found | Load it first; it picks the workflow and points to its domain skills. If the project has `skills-lock.json`, list the skills it lists that are not installed under the host's project skill directory, and the installed skills it does not list; report both as a warning and record it in `execution.md`. Never pass silently on the router alone when a lock file exists. Continue |
 | Router missing | **STOP.** Print the install routes below and wait. Do not hand-write a video pipeline, do not copy HyperFrames text into the repo, do not install anything without the user's consent |
 
 Install routes (print all; the user picks):
@@ -27,16 +27,19 @@ Install routes (print all; the user picks):
 | Route | Command / action |
 |---|---|
 | Host plugin | the host's HyperFrames plugin (namespaced router afterwards) |
-| Core set, non-interactive (the route for agents) | From the project root, **without `-g`** (project-scoped): `npx skills add heygen-com/hyperframes --yes --skill hyperframes --skill hyperframes-animation --skill hyperframes-audio --skill hyperframes-cli --skill hyperframes-core --skill hyperframes-creative --skill hyperframes-keyframes --skill hyperframes-registry --skill hyperframes-studio --skill media-use` (the upstream pinned core list, `FALLBACK_CORE_SKILLS` in `packages/cli/src/utils/skillsManifest.ts`) |
+| Core set, non-interactive (the route for agents) | From the project root, **without `-g`** (project-scoped), with `<id>` from the host table: `npx skills add heygen-com/hyperframes --yes --agent <id> --skill hyperframes --skill hyperframes-cli --skill hyperframes-registry --skill media-use` (the eager core set, per the installed `hyperframes` skill's skill-lifecycle reference). Other skills are installed on demand by name |
 | Interactive picker | `npx skills add heygen-com/hyperframes` — pick the core group, choose project scope |
 | Global install (consent-gated) | `npx hyperframes skills update` always installs **globally**: it writes the user's home skill directories and mirrors into other agents' global directories. Run only with the user's explicit consent |
 
 Project-scoped skill directories by host (never suggest a global directory, except the consent-gated global route above):
 
-| Host | Directory |
-|---|---|
-| Claude Code | `.claude/skills` |
-| OpenCode, Codex, Cursor, Antigravity | `.agents/skills` |
+| Host | `--agent` id | Directory |
+|---|---|---|
+| Claude Code | `claude-code` | `.claude/skills` |
+| OpenCode | `opencode` | `.agents/skills` |
+| Codex | `codex` | `.agents/skills` |
+| Cursor | `cursor` | `.agents/skills` |
+| Antigravity | `antigravity` | `.agents/skills` |
 
 A project `## Skill Map` row for `hyperframes` stays a per-developer availability note; this skill still owns the AKILI phase mapping.
 
@@ -95,15 +98,13 @@ Only these. Everything else (flags, scaffolding, catalog, audio, captions, regis
 | Question | Owner (installed skill) |
 |---|---|
 | Which workflow, which skill next | `hyperframes` |
-| Composition authoring rules | `hyperframes-core` |
+| Composition rules, motion, visual direction, storyboard format, captions | `hyperframes` (router) and its references |
 | CLI flags, render options, troubleshooting | `hyperframes-cli` |
-| Motion and animation adapters | `hyperframes-animation` |
-| Visual direction, storyboard format | `hyperframes-creative` |
 | Sourcing images, audio, voice, media treatments | `media-use` |
-| Burned-in captions | `embedded-captions` |
+| Registry and catalog | `hyperframes-registry` |
 | Anything not listed here | The router `hyperframes` decides |
 
-If an installed skill contradicts this file on a HyperFrames fact, the installed skill wins; on an AKILI rule (gates, consent, quiet tree), this file wins.
+If an installed skill contradicts this file on a HyperFrames fact, the installed skill wins; on an AKILI rule (gates, consent, quiet tree), this file wins. Known open upstream doc conflicts (#6136 clip window, #6139 multi-mount host id): follow the router's contract and record the choice in `execution.md`.
 
 ## Attribution
 
