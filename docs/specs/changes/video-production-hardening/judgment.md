@@ -9,7 +9,7 @@
 | Judges | A and B, both `sonnet`, read-only Explore agents, identical prompt. The design was authored on `opus` (author ≠ auditor) |
 | Round | 2 (scoped re-judgment 1 done; fix round 2 applied; scoped re-judgment 2 below) |
 | Reversion challenge (Step 2.3) | One `sonnet` reviewer, one question per reverting DD; results in §4 |
-| Status | **round 1 complete. Confirmed severe findings → stop for the user** (`akili-specify.md` *Approval Mode*: severe judgment-day findings are an escalation even under `pre-approved`; judgment-day: "Ask before round-one correction") |
+| Status | **APPROVED** after 2 fix rounds and 2 scoped re-judgments (§7). Round 1 stopped for the user on confirmed severe findings, and the user chose **Fix and Re-judge** |
 
 ## 1. Counts
 
@@ -93,6 +93,24 @@ New findings from the fix delta:
 | R2-6 | A R-4 (suspect, adopted) | No task map; T-ids not checkable | §15 Task map; every T-reference re-pointed; budget re-split (13 rules + 8 other → ~38 rounds) |
 | R2-7 | A R-5 (suspect, adopted) | Daemon and `--output` resolution rows claimed but absent | P-28 and P-29 added (`UNVERIFIED`, Low); count 29 / 24 / 5 |
 
-## 7. Round 2 — scoped re-judgment 2
+## 7. Round 2 — scoped re-judgment 2 (target 4c97c05, delta from 66aaa91)
 
-*Pending.*
+| Item | Judge A | Judge B |
+|---|---|---|
+| C-5, C-6, R2-1 … R2-7 | 9/9 RESOLVED | 9/9 RESOLVED |
+| New severe | 0 | 0 |
+| F-1 (warning, both judges): §9 omits `bin/routing.js:603,849`, which T15 already owns via §7.1 row 6 and the §6 Tester line | info | info |
+| F-2 (suggestion, both judges): trailing space in Document Control | info | info |
+
+Both judges also re-counted the Premise Ledger (29 / 24 verified / 5 `UNVERIFIED`, Low 5), the budget (13 + 8 = 21 tasks; 13×2 + 8×1.5 = 38 rounds) and every task ID against §15, and all three agree.
+
+F-1 and F-2 are info rows. They were applied after the terminal state as factual corrections (one §9 row; whitespace) and change no decision, task or scope item.
+
+## Terminal
+
+- Rounds: 2 fix rounds, 2 scoped re-judgments. The ceiling is reached and not exceeded.
+- Confirmed: 9 in round 1 (8 severe), all resolved. 2 reopened in round 2 and resolved in r3.
+- Contradictions: 0.
+- Skill resolution: `judgment-day` (packaged); `systematic-debugging` and `software-architect` were not loaded (not a bug; no architectural-style decision).
+
+**`JUDGMENT: APPROVED ✅`**

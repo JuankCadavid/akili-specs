@@ -12,7 +12,7 @@
 | Base commit | 8679e25 (`dev`). Citations marked b3d3df1 or 66aaa91 are equivalent: those commits differ from 8679e25 only under `docs/specs/` |
 | Revision | r2 — judgment-day round-1 corrections C-1–C-9 and S-1 applied, plus the adopted info items (`judgment.md` §2–§3). The user chose **Fix and Re-judge** on 2026-10-23 | 
 | Revision r3 | judgment-day round-2 corrections (judgment.md §6): the FR-2 prefix scope, the §9 sweep, the P-24 owner, one base commit, the ceiling-rung trigger, the task map, P-28 and P-29 |
-| Phase 2 gate | see §14 |
+| Phase 2 gate | auto-approved (pre-approved mode), 2026-10-23, after `JUDGMENT: APPROVED` (`judgment.md` §7) |
 
 ## 2. Executive Summary
 
@@ -275,6 +275,7 @@ Run as `grep -rn -i -E "author ≠ tester|prefer.*tester|tester.*prefer|Tester.*
 | `docs/flow.md:379` | "Ideally a Tester runs on a different model" → MUST | T19 |
 | `docs/commands/akili-test.md:23,32` | MUST; "Step 8E wrapper (role T2, model distinct)" | T18 |
 | **True as is:** `akili-constitution.md:666`, `docs/model-routing.md:402`, `model-routing.section.md:86` (effort `medium` for the role); `akili-constitution.md:726`, `docs/flow.md:476` (skill loading) | Not a model claim | — |
+| `bin/routing.js:603` (`ROLE_TIER` comment), `:849` ("Rule 1 allows it" report line) | Code: §7.1 row 6 and the §6 "Tester line, written" row | T15 |
 | **Not a Tester-model claim** (hits of the sweep pattern, opened and classified): `docs/skills/tdd.md:27`, `.claude/skills/tdd/SKILL.md:59` (author ≠ tester as a principle, true); `akili-test.md:62` (pointer slices); `akili-specify.md:280` (role-set wording rule); `akili-constitution.md:372` (lean commands), `:912` (Reviewer sandbox); `docs/commands/akili-constitution.md:100,114`; `docs/skills/governance.md:15` | None | — |
 | **Kept (debt):** `.claude/templates/model-routing.section.md:30,36` and its description `akili-constitution.md:576-578` | Editing the section template refuses existing fences (P-3, verified). "Prefer" is weaker than MUST but not false, and the T2 row describes the role. Recorded as debt in CHANGELOG | T21 |
 
@@ -365,7 +366,7 @@ The skill byte figure is a drafted measurement owed by T1 and T2 together (DD-6)
 
 - Step 2.3 reversion challenge: done (`judgment.md` §4).
 - Judgment-day round 1: 9 confirmed findings (8 severe), corrected in r2 after the user chose **Fix and Re-judge**.
-- Round-2 scoped re-judgment: see `judgment.md`.
+- Round 2: fix round 2 (r3), then scoped re-judgment 2 → **`JUDGMENT: APPROVED ✅`** (`judgment.md` §7). F-1 and F-2 (info) applied after approval as factual corrections.
 
 ## 15. Task map (binding for `tasks.md`)
 
