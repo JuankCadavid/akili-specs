@@ -120,7 +120,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T1 |
 | Requirements | **FR-11**: three skill surfaces (User Engagement Signals, Do not raise these, the new Analytics section), both halves each, and the full Glossary metric list in User Engagement Signals. **FR-14**: `:618` rewritten (`analytics` points at the new section; `programmatic-seo`, `cro` stay not packaged), References list, Tools Referenced, a Phase 2B row in AKILI-SPECS Integration. **FR-4**: the Analytics section says "not legal advice". **NFR-3** |
 | Design refs | §9.2; P-2 |

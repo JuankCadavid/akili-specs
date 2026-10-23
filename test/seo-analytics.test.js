@@ -1,6 +1,6 @@
 "use strict";
 
-// @akili-spec changes/seo-analytics (T1: references/analytics.md group; T2: command part A group; T3: command part B group)
+// @akili-spec changes/seo-analytics (T1: references/analytics.md group; T2: command part A group; T3: command part B group; T4: SKILL.md group)
 //
 // Text-contract guard for the optional analytics phase of `/akili-seo`. This
 // group pins `.claude/skills/seo-audit/references/analytics.md`. Expected
@@ -336,4 +336,50 @@ test("FR-11 (b) checklist: behavior metrics are used for conversion and UX findi
 test("NFR-2 (T3) the command still stays at or under 440 lines after part B", () => {
   const lines = COMMAND.replace(/\n$/, "").split("\n").length;
   assert.ok(lines <= 440, `command is ${lines} lines after T3; NFR-2 caps it at 440`);
+});
+
+// ---------------------------------------------------------------- T4: SKILL.md surfaces (FR-11, NFR-3)
+
+const SKILL = read(".claude/skills/seo-audit/SKILL.md");
+
+// A heading line (by prefix) up to the next `##` or `###` heading, so one surface never reads into its neighbour.
+function skillBlock(prefix) {
+  const lines = SKILL.split("\n");
+  const from = lines.findIndex((l) => l.startsWith(prefix));
+  assert.ok(from >= 0, `SKILL.md has no heading starting "${prefix}"`);
+  let to = lines.findIndex((l, i) => i > from && /^#{2,3} /.test(l));
+  if (to < 0) to = lines.length;
+  return lines.slice(from, to).join("\n");
+}
+
+const SKILL_SURFACES = {
+  "User Engagement Signals": () => skillBlock("### User Engagement Signals"),
+  "Do not raise these": () => skillBlock("### Do not raise these"),
+  "Analytics section": () => skillBlock("## Analytics & Conversion Measurement"),
+};
+
+for (const [name, get] of Object.entries(SKILL_SURFACES)) {
+  test(`FR-11 (a) SKILL.md ${name}: never claim a behavior metric affects Google or Bing ranking`, () => {
+    assert.match(get(), /never claim[^.\n]*\baffects? Google or Bing ranking/i,
+      `SKILL.md ${name} lost the prohibition (a): never claim they affect Google or Bing ranking`);
+  });
+  test(`FR-11 (b) SKILL.md ${name}: behavior metrics are used for conversion and UX findings`, () => {
+    assert.match(get(), /conversion and UX findings/i, `SKILL.md ${name} lost the positive use (b): conversion and UX findings`);
+  });
+}
+
+test("SKILL.md User Engagement Signals extraction stops before the GEO section", () => {
+  assert.ok(!SKILL_SURFACES["User Engagement Signals"]().includes("## Generative"), "section extractor read into GEO");
+});
+
+for (const term of METRIC_TERMS) {
+  test(`FR-11 metric coverage SKILL.md User Engagement Signals names "${term}"`, () => {
+    assert.ok(SKILL_SURFACES["User Engagement Signals"]().toLowerCase().includes(term),
+      `SKILL.md User Engagement Signals no longer names the behavior metric "${term}"`);
+  });
+}
+
+test("NFR-3 SKILL.md stays at or under 658 lines", () => {
+  const lines = SKILL.replace(/\n$/, "").split("\n").length;
+  assert.ok(lines <= 658, `SKILL.md is ${lines} lines; NFR-3 caps it at 658`);
 });

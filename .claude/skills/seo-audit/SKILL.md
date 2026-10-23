@@ -411,21 +411,24 @@ Structured data also has a measurable association with citation in generative an
 
 ### User Engagement Signals — diagnostic only, not ranking factors
 
-**Google does not use analytics engagement metrics as ranking factors.** John Mueller: *"We don't use
+**Google has said it does not use analytics engagement metrics as ranking factors (`[INDUSTRY]`, as reported); this skill extends the rule to all behavior data.** John Mueller: *"We don't use
 bounce rate in search rankings."* Gary Illyes: *"we don't use analytics/bounce rate in search
 ranking."* Google has denied this for roughly a decade.
 
-Never write a finding that says "improve bounce rate to improve rankings" — it is a causal claim
-Google has explicitly denied, and it damages the credibility of the correct findings next to it.
+Never claim that any behavior metric affects Google or Bing ranking, and never write "improve bounce rate
+to improve rankings" — Google has explicitly denied it, and the claim damages the correct findings next to it.
+Behavior metrics: bounce rate, engagement rate, session duration, engagement time, scroll depth, heatmaps,
+recordings, dead clicks, rage clicks, quickback clicks, error clicks.
 
-Use these metrics the other way round: as **diagnostics that localize a content problem**, whose fix
-is the content itself.
+Use them for conversion and UX findings, as **diagnostics that localize a page problem**, whose fix is
+the page itself.
 
 | Metric | Read it as |
 |---|---|
 | High exit rate on a ranking page | Possible intent mismatch — the page ranks for a query it does not answer |
 | Very low time on page for long-form content | Content may be unscannable, or the answer is buried |
 | Pages per session | Internal linking and topical-cluster coverage signal |
+| Rage or dead clicks on a CTA | A conversion blocker: visitors try and fail to reach the action |
 | Return visits | Brand and content-quality signal (correlates with, does not cause, ranking) |
 
 - Sources and exact quotes: [SEJ: Is bounce rate a Google ranking factor?](https://www.searchenginejournal.com/ranking-factors/bounce-rate/)
@@ -488,7 +491,20 @@ first sentence.
   retrieval agents skip it, and in one citation model removing the variable *improved* accuracy. It
   has a legitimate use as business-to-agent context for IDE agents and MCP servers — recommend it on
   developer-experience grounds or not at all, never as a visibility tactic.
-- **"Improve bounce rate to rank better."** See User Engagement Signals above.
+- **"Improve a behavior metric to rank better."**
+  Never claim a behavior metric affects Google or Bing ranking; behavior metrics serve conversion and UX findings. See User Engagement Signals above.
+
+---
+
+## Analytics & Conversion Measurement (optional)
+
+GA4 and Microsoft Clarity show what visitors do after search sends them; `/akili-seo` Phase 2B audits
+that setup when the user opts in. Method, checklists and sources: [Analytics reference](references/analytics.md).
+
+- **Covers:** GA4 and Clarity installation, consent, data quality, and the Search Console → conversion join. Other tools are named `not audited`.
+- **Hard rule:** never claim that any behavior metric affects Google or Bing ranking; use behavior metrics for conversion and UX findings, and fix the page, never "improve the metric to rank".
+- **Tiers:** label each vendor or legal fact `[PRIMARY]` or `[INDUSTRY]`, as for GEO; never present `[INDUSTRY]` as measured fact.
+- **Consent findings are not legal advice.** Other jurisdictions: not audited.
 
 ---
 
@@ -570,6 +586,7 @@ Same format as above
 - [AI Writing Detection](references/ai-writing-detection.md): Common AI writing patterns to avoid (em dashes, overused phrases, filler words)
 - [International SEO](references/international-seo.md): Evidence and sources for hreflang, canonical + i18n, sitemaps, URL structure, and content quality across locales
 - [GEO](references/geo.md): Evidence and sources for generative-engine visibility — the KDD 2024 measurement of what works, passage-level extraction, freshness, structured-data correlation, the AI-crawler agent table (training vs retrieval), and why `llms.txt` is not a visibility tactic
+- [Analytics](references/analytics.md): GA4 and Clarity method for `/akili-seo` Phase 2B — installation, consent, data checks, the Search → Conversion join, and sources by tier
 
 ---
 
@@ -582,6 +599,7 @@ Same format as above
 - Rich Results Test (**use this for schema validation — it renders JavaScript**)
 - Mobile-Friendly Test
 - Schema Validator
+- GA4 and Microsoft Clarity (optional, read-only; `/akili-seo` Phase 2B)
 
 > **Note on schema detection:** `web_fetch` strips `<script>` tags (including JSON-LD) and cannot detect JS-injected schema. Use the browser tool, Rich Results Test, or Screaming Frog instead — they render JavaScript and capture dynamically-injected markup. See the Schema Markup Detection Limitation section above.
 
@@ -608,6 +626,7 @@ Same format as above
 | AKILI moment | How to use this skill |
 |---|---|
 | `/akili-seo` audit phase | Required skill — load before starting and apply throughout; the Audit Report Structure above is the finding format |
+| `/akili-seo` Phase 2B (optional) | Apply the Analytics & Conversion Measurement section and `references/analytics.md`; behavior metrics feed conversion and UX findings only |
 | `/akili-validate` | When validating pages with search-visibility requirements, apply the On-Page checklist to the affected routes |
 
 Adaptation rules:
@@ -615,4 +634,4 @@ Adaptation rules:
 - Findings land in the AKILI report artifacts (`/akili-seo` output), using the Issue / Impact / Evidence / Fix / Priority shape.
 - Fixes that exceed the trivial gate are routed through `/akili-propose` — never applied silently during the audit.
 - GEO findings use the same Issue / Impact / Evidence / Fix / Priority shape. Label the source tier when citing a magnitude: the KDD 2024 figures are peer-reviewed, the AI Overview and crawler-behaviour figures are industry analyses. Never present an `[INDUSTRY]` number to a client as measured fact.
-- Sibling skills mentioned by upstream versions of this skill (programmatic-seo, cro, analytics) are **not packaged** with AKILI-SPECS; when a finding needs them, note the gap in the report instead of loading them. The upstream `schema` and `ai-seo` gaps are now covered in-skill by the **Structured Data** and **GEO** sections.
+- Sibling skills mentioned by upstream versions of this skill (programmatic-seo, cro) are **not packaged** with AKILI-SPECS; when a finding needs them, note the gap in the report instead of loading them. The upstream `schema` and `ai-seo` gaps are now covered in-skill by the **Structured Data** and **GEO** sections, and `analytics` by the **Analytics & Conversion Measurement** section.
