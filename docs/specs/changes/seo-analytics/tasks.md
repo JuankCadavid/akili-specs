@@ -142,7 +142,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T2, T3, T4 |
 | Requirements | **FR-14**: `docs/commands/akili-seo.md` (prerequisites, outputs, audit areas, skills: Phase 2B described), `docs/skills/seo-audit.md` (`:26` Core Rules widened with both halves; purpose and references mention analytics), `docs/skills/README.md:36`, `README.md:801`, `evals.json` (ids 10 and 11 added; case 9 at `:139` widened from "engagement metrics" to behavior metrics). **FR-11**: the docs surface, both halves |
 | Design refs | §2; §4; P-2; P-3 |

@@ -383,3 +383,23 @@ test("NFR-3 SKILL.md stays at or under 658 lines", () => {
   const lines = SKILL.replace(/\n$/, "").split("\n").length;
   assert.ok(lines <= 658, `SKILL.md is ${lines} lines; NFR-3 caps it at 658`);
 });
+
+// ---- T5: docs surface (FR-11 both halves on docs/skills/seo-audit.md; evals shape) ----
+
+const DOC_SKILL_CORE_RULES = () => section(read("docs/skills/seo-audit.md"), "Core Rules");
+
+test("FR-11 (a) docs/skills/seo-audit.md Core Rules: never claim a behavior metric affects Google or Bing ranking", () => {
+  assert.match(DOC_SKILL_CORE_RULES(), /never claim[^.\n]*\baffects? Google or Bing ranking/i,
+    "docs/skills/seo-audit.md Core Rules lost the prohibition (a)");
+});
+
+test("FR-11 (b) docs/skills/seo-audit.md Core Rules: behavior metrics are used for conversion and UX findings", () => {
+  assert.match(DOC_SKILL_CORE_RULES(), /conversion and UX findings/i,
+    "docs/skills/seo-audit.md Core Rules lost the positive use (b)");
+});
+
+test("FR-14 evals.json parses and holds unique ids 1-11", () => {
+  const evals = JSON.parse(read(".claude/skills/seo-audit/evals/evals.json")).evals;
+  const ids = evals.map((e) => e.id);
+  assert.deepEqual([...ids].sort((a, b) => a - b), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+});
