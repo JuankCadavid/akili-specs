@@ -83,7 +83,7 @@ It no longer relies on the `spawns:` line, which names no model.
 | `akili --version`, `akili -v` | stdout `<package.json version>\n`, exit 0. `getArgs` returns `{ command: "version" }` **before** its `--tool`/`--commands-only` validations (`bin/akili.js:381-388`), so `akili --version --tool bogus` also prints the version. `main` handles it before `checkForUpdates` (`:2898`), so no network call is made. It takes precedence over `--help` and over any command positional |
 | Tester line, written | `<Host> Tester: \`<bound model>\` ≠ Implementer \`<bound model>\` (author ≠ tester)`. The bound model is the wrapper's `model` value without a Cursor `[effort=…]` bracket; on Antigravity it is `flash`/`pro`. Replaces the line at `bin/routing.js:848-850` |
 | Tester line, no candidate | `<Host> Tester: no wrapper — no model distinct from the Implementer's \`<m>\` has a wrapper value; /akili-test picks one per spawn` |
-| Tester line, Implementer unwritten | `<Host> Tester: no wrapper — the Implementer has no wrapper, so author ≠ tester cannot be checked`. This changes Cursor on its packaged roster: today it reports `Tester: no wrapper — T2 resolves to <CONFIRM SLUG>…` |
+| Tester line, Implementer unwritten | `<Host> Tester: no wrapper — the Implementer has no wrapper, so author ≠ tester cannot be checked`. Reached when a host's author ≠ auditor check passes but its Implementer plan is skipped (e.g. an Antigravity Implementer id without `wrapperModel`). Cursor's packaged roster never reaches it: that roster is `unsatisfiable`, so the last row below applies (corrected at execute, T15, 2026-10-23) |
 | Tester write token, belt and braces | `skipped (author ≠ tester unsatisfiable)` — mirrors the Reviewer token |
 | Stale Tester file | When the Tester is not planned and a Tester wrapper file exists that declares the Implementer's model: `<Host> Tester: existing <relPath> binds the Implementer's model \`<m>\` — remove it by hand`. Never deleted (installer safety rule) |
 | Drifted Tester file | A planned Tester whose existing file differs keeps today's `skipped (exists; --force to replace) — model drift: file says <old>, mapping says <new>`. The MUST takes effect on `--force`. `docs/cli.md` and CHANGELOG state this |
@@ -111,7 +111,7 @@ It no longer relies on the `spawns:` line, which names no model.
 | OpenCode | `opencode-go/deepseek-v4.1-flash` | same | `opencode-go/deepseek-v4-pro` (T3 primary) |
 | Antigravity | `flash` | `flash` | not written. T3 `gemini-4-argon-high` and `claude-sonnet-5-5-high`, and T1 `gemini-4-argon-high`, carry no `wrapperModel` |
 | Codex | `gpt-5.6-luna` | `gpt-5.6-luna` | `gpt-5.6-terra` (T3 primary) |
-| Cursor | placeholders | `no wrapper — T2 resolves to <CONFIRM SLUG>…` | *Implementer unwritten* line |
+| Cursor | placeholders | every wrapper `skipped (author ≠ auditor unsatisfiable)`, no Tester line | unchanged (§6 last row; corrected at execute, T15: the earlier cells were never observed — `test/routing.test.js` pins Cursor's packaged `authorAuditor` as `unsatisfiable`) |
 
 On Antigravity the unwrapped Tester is a generic subagent that inherits the session model. The documented Argon session mitigation (CHANGELOG `changes/antigravity-argon-registry`) keeps author ≠ tester, and the `/akili-test` runtime rule (§8.4) checks it per spawn.
 

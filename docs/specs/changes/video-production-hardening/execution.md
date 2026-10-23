@@ -304,3 +304,53 @@
 | spawns | attempt 3 Implementer `opus` not reported by host, ended complete; Reviewer `fable` not reported by host, ended complete |
 | Running totals | tasks 13/21 · LOC (tests) +229 · review rounds 19/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T14 — `test/command-contracts.test.js`: contracts for T6–T13 — PASS on attempt 3 (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 3 of 3 |
+| Requirements | every clause T6–T13 own (FR-6, FR-7, FR-8, FR-9, FR-11 *Runtime spawn*, FR-12, FR-13, FR-15, FR-16, FR-17); NFR-1; NFR-6 |
+| Files changed | `test/command-contracts.test.js` (new, 350 lines, 52 tests) |
+| Attempts | 1 FAIL and 2 FAIL (entries above). Attempt 3: Implementer `opus` (T3, escalated by the ceiling rung), effort `xhigh`, skill `tdd`. Closed FR-11 *Runtime spawn* THEN, FR-6 *Default* THEN, FR-12 multiplier parenthetical; pinned the FR-13 WHEN sources and specify's `(render \| deferred)` (attempt-2 advisories); replaced every wildcard spanning requirement terms (one `[^\n]*?` survives in `mandateIn`, justified: callers assert the full sentence); added four FR-15 absence checks (no `docs/specs/$X` unless `SPEC_PATH`). Walk built from `requirements.md`: 15 GREEN before the fix, 117/117 RED after (`t14-a3/after.txt` in the session scratchpad) |
+| Red run (greenfield, observed in T14) | attempt 1, 34afbff files in a scratch root: all 48 then-tests red; `$ARGUMENTS` 6/5/6/12 occurrences (task text predicted 11 for validate: 11 lines, 12 occurrences) |
+| Evidence re-run | Leader inline: VERIFIED — tests 52, pass 52, fail 0; no `docs/specs/changes` string; walk file 117 RED / 0 GREEN. Run beside the T15 Implementer: the suite reads only `.claude/commands`, the two templates and `judgment-day`; T15 wrote only `bin/` and `test/routing*` — disjoint inputs, no shared build output |
+| Reviewer | `fable` (distinct auditor, ceiling rung), PASS: "now pins one assertion per THEN/BUT/AND term of every '(T14)' coverage row … No term missing." 12 independent spot mutations, 11/11 RED + one GREEN control. Disqualifier ruling: the FR-15 file-wide checks are absence/once checks FR-15 requires — permitted |
+| ADVISORY | the pseudo-code locator keys on a 4-space indent; `section()` prefix matches could retarget on a future `#### 2.4a`; R1–R4 pin FR-11 *Rule text* (assigned to T11–T13 — tests of shipped text, no scope growth, recorded as T14 extras); requirement FR-13 names "registry T3 fallback or cross-host dispatch" while design §8.4 and the shipped execute text name "the registry's frontier escalation pin when the host has one, or cross-host dispatch" — a requirement/design wording gap owned by T8's source, carried to validation |
+| runtime events | none |
+| spawns | attempt 3 Implementer `opus` not reported by host, ended complete; Reviewer `fable` not reported by host, ended complete |
+| Running totals | tasks 14/21 · review rounds 21/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+## Execute-time spec edit (2026-10-23, during T15)
+
+| Field | Value |
+|---|---|
+| File / sections | `design.md` §6 row *Tester line, Implementer unwritten*; §7.1 packaged-roster table row *Cursor* |
+| Change | Removed the claim that Cursor's packaged roster reports `Tester: no wrapper — T2 resolves to <CONFIRM SLUG>…` today and the *Implementer unwritten* line after. Both cells now state that the roster is `unsatisfiable`, so every Cursor wrapper is `skipped (author ≠ auditor unsatisfiable)` with no Tester line, unchanged (§6 last row) |
+| Reason | Factual correction, single answer: the original cells were never observed (P-14's dry run omits Cursor); the 34afbff `test/routing.test.js` pins Cursor's packaged `authorAuditor` as `unsatisfiable`, and `buildPlan` skips before any Tester report. Surfaced by the T15 Implementer. No requirement meaning changed (not a Pivot) |
+| Sweep | `grep -rn -E "T2 resolves to\|Implementer unwritten\|Cursor.*(Tester\|packaged)"` over the spec folder (excluding this log): only the two amended design rows and §7.1 step 1 (still true) |
+
+## Scope cut (owner decision, 2026-10-23)
+
+Owner message (Juan Carlos Cadavid, verbatim): "Decisión del owner (Juan Carlos): cortar alcance. Termina solo las tareas que están en curso ahora (T5 rework y T14 review), sin arrancar tareas nuevas. Registra en execution.md las tareas no hechas como diferidas a un spec futuro e incluye la fricción nueva: run.sh trata el mensaje de session limit como fase exitosa porque Claude sale con exit 0. Luego corre /akili-test, /akili-validate y /akili-archive sobre el alcance reducido. Documentación en inglés. Commits locales, sin push. Detente y avísame al archivar."
+
+**Delivered scope:** PR 1 (T1–T5, video skill + pins) and PR 2 (T6–T14, commands, personas, judgment-day, contracts).
+
+**Deferred to a future spec (not done here):**
+
+| Task | Scope | State at the cut | Why deferred |
+|---|---|---|---|
+| T15 | `bin/routing.js` Tester derivation + routing tests (FR-11 *Wrapper derivation*, *No distinct model on a host*) | Implementer finished (`node --test test/routing*.test.js` 163/163; P-14 dry run printed the four expected Tester lines; Reviewer byte-identity asserted). Reviewer was mid-audit and was **stopped**; no verdict | It was in flight but not named by the owner, and its doc consumers (T16–T19) are cut: landing the code alone would leave `docs/cli.md`, `docs/model-routing.md` and the constitution's Step 8E examples describing a same-model Tester the code no longer writes. The working-tree change was saved as `deferred-T15-tester-derivation.patch` (313 lines, this folder) and the two files were restored by explicit pathspec (`git restore -- bin/routing.js test/routing.test.js`); `git status --porcelain` afterwards showed only this spec's own files and the T14 test file. Open questions for the future spec: whether the belt-and-braces token needs a permanent test (no derivation path reaches it); the falsifier did not go red on the OpenCode user roster as the task predicted |
+| T16 | `akili-constitution.md` Step 8B/8E/9 Tester restatements (FR-11 *Rule text*) | not started | depends on T15 |
+| T17 | `docs/model-routing.md` Tester restatements | not started | depends on T15 |
+| T18 | docs mirrors: `docs/commands/akili-{propose,specify,execute,test,validate}.md`, `docs/skills/video-production.md`, `docs/skills/judgment-day.md` | not started | cut |
+| T19 | `README.md`, `docs/cli.md`, `docs/flow.md` (Tester, video) | not started | depends on T15 |
+| T20 | `akili --version` (FR-18) + `test/cli-version.test.js` | not started | cut |
+| T21 | `CHANGELOG.md` `Unreleased` + closing phrase-family sweep (FR-19) | not started | cut |
+
+**Requirements left unmet by the cut:** FR-11 *Wrapper derivation* and *No distinct model on a host* (code); FR-11 *Rule text* outside `akili-test.md` and the two personas (constitution, `docs/model-routing.md`, `docs/cli.md`, `README.md`, `docs/flow.md`, `docs/commands/akili-test.md`); FR-18; FR-19 (CHANGELOG, docs mirrors, closing sweep). Known consequence: the packaged docs still state the Tester model as a preference while `/akili-test`, `leader.md` and `tester.md` now state a MUST — the runtime rule in `/akili-test` governs. `CHANGELOG.md` has no entry for the delivered scope; one is owed before any release that ships it (AGENTS.md *Release Rules*).
+
+**New friction (owner-reported, 2026-10-23):** the owner's `run.sh` phase runner treats a Claude session-limit message as a successful phase, because Claude exits with status 0 when it stops at the limit. A phase that ended on the limit is therefore recorded as passed. Root cause and fix belong outside this spec (runner and/or host exit status); recorded here so `/akili-archive`'s Kaizen step can carry it.
+
+**Budget at the cut (design §12):** tasks 14 of 21 delivered · review rounds 21 of ~38 (T5 and T14 took three rounds each; the ceiling rung fired on both) · LOC: rules text and skill ≈ +300, tests +579 (`video-production.test.js` +229 −6, new `command-contracts.test.js` 350). No tripwire crossed.

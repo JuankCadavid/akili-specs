@@ -361,7 +361,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T14 — `test/command-contracts.test.js`: contracts for T6–T13
 
-- **Status:** [~] · **Size:** M (~250 LOC) · **Depends on:** T6–T13
+- **Status:** [x] · **Size:** M (~250 LOC) · **Depends on:** T6–T13
 - **Requirements:** every clause T6–T13 own (coverage table); FR-15 BUT (no `$ARGUMENTS` in any path in the four commands); NFR-1; NFR-6
 - **Design:** §8.4, §8.5; DD-4, DD-11
 - **Scope:** new `test/command-contracts.test.js`, with the same root-override hook as `video-production.test.js` (`COMMAND_CONTRACTS_TEST_ROOT`). Contents:
@@ -387,7 +387,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T15 — `bin/routing.js` Tester derivation + routing tests
 
-- **Status:** [ ] · **Size:** M (~60 code + ~150 test LOC) · **Depends on:** none
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** M (~60 code + ~150 test LOC) · **Depends on:** none
 - **Requirements:**
   - FR-11 *Wrapper derivation*: THEN, AND report line, BUT any host and any mode.
   - FR-11 *No distinct model on a host*: THEN, AND others unaffected.
@@ -418,7 +418,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T16 — `akili-constitution.md` Step 8B/8E/9 restatements
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T15 (observed models)
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S · **Depends on:** T15 (observed models)
 - **Requirements:** FR-11 *Rule text*
 - **Design:** §9 rows for `akili-constitution.md`; the Kept row (`:576-578` unchanged)
 - **Scope:** about 7 sites — `:459`, `:791-793`, `:827-832`, `:844-846`, `:864`, `:1020-1022`, `:1429`.
@@ -433,7 +433,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T17 — `docs/model-routing.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T15
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S · **Depends on:** T15
 - **Requirements:** FR-11 *Rule text*; FR-19
 - **Design:** §9 row `docs/model-routing.md`; DD-9 (the section template is not edited; P-3)
 - **Scope:** `:71-72`, `:87`, `:189`, `:252`, `:795`.
@@ -451,7 +451,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T18 — Docs mirrors
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1–T4, T6–T10, T13
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S · **Depends on:** T1–T4, T6–T10, T13
 - **Requirements:** FR-19; FR-11 *Rule text* (`docs/commands/akili-test.md:23,32`)
 - **Design:** §4 Docs row; §9 rows
 - **Scope:**
@@ -469,7 +469,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T19 — `README.md`, `docs/cli.md`, `docs/flow.md` (Tester and video)
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T15, T10
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S · **Depends on:** T15, T10
 - **Requirements:** FR-11 *Rule text*; FR-6 (`docs/flow.md:489`); FR-19
 - **Design:** §9 rows `docs/cli.md:504`, `README.md:898`, `docs/flow.md:379,394`; §6 drifted-file row (the `--force` statement in `docs/cli.md`)
 - **Scope:**
@@ -487,7 +487,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T20 — `akili --version`
 
-- **Status:** [ ] · **Size:** S (~25 code + ~60 test LOC) · **Depends on:** T19 (same docs files)
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S (~25 code + ~60 test LOC) · **Depends on:** T19 (same docs files)
 - **Requirements:** FR-18 (THEN, BUT); FR-19 (docs)
 - **Design:** §6 `--version` row; §7.2; DD-10; P-9–P-12
 - **Scope:**
@@ -505,7 +505,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T21 — CHANGELOG + closing sweep
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1–T20
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** S · **Depends on:** T1–T20
 - **Requirements:** FR-19 (all clauses, including *Summary surfaces match HEAD*); NFR-4
 - **Design:** §9 Kept (debt) row; §6 drifted-file row; §8.5 persona churn
 - **Scope:** `CHANGELOG.md` `Unreleased`. Entries cover:
