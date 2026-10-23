@@ -47,6 +47,29 @@
 
 No contradiction between the judges.
 
-## Round 1 — scoped re-judgment
+## Round 1 — scoped re-judgment (fix delta `dc4e2e1..06d71a3`)
 
-Pending (see below).
+| Judge | Verdict | Severe rows | Notes |
+|---|---|---|---|
+| A | **APPROVE** | J-1…J-5 resolved; J-6 partially (wrong `:204` cite) | RA-1…RA-9 (0 severe) |
+| B | **APPROVE** | J-1…J-6 resolved (J-6 cite RB-1) | RB-1…RB-10 (0 severe) |
+
+Both judges found J-17 and J-19 partially resolved (wording, not substance); no fix-caused severe defect. Info rows applied as cleanup, no further round:
+
+| Row(s) | Fix |
+|---|---|
+| RA-1 / RB-1 | P-1 cites `commandsAsSkills` at `bin/akili.js:183, 191, 202, 216` (Antigravity added) |
+| RA-2 / RB-2 | P-13 quotes the full LinkedIn `3,?000` grep result (11 hits, 7 files, none adapted) |
+| RA-3 / RB-3 | §11 clause basis re-run: 30 THEN/BUT/AND lines at `06d71a3` + 1 added scenario + 5 = ≈ 37 clauses × ~14 lines (estimate unchanged) |
+| RA-5 / RB-6 | §5.4 orphan table header removed |
+| RB-4 | Glossary *Approval card* lists every card field |
+| RB-5 | `repurpose` refuses on an unapproved plan (§3) |
+| RA-4 | §5.4: writing modes record the read-time reset; calendar shows `approved — invalid`; FR-5 flag |
+| RA-6 | §2 test-edit count matches §4 |
+| RA-7 | `post --revise` named as the only in-place edit (FR-6, FR-10, §3) |
+| RA-8 / RB-10 | FR-9 host list keyed to the named platform |
+| RA-9 / RB-9 | Plan approval resets on edit (FR-4, §5.2) |
+| RB-7 | §1 header names P-1's not-re-run half and the `UNVERIFIED` rows |
+| RB-8 | Calendar argument precedence stays in FR-5; the design does not restate it — no change |
+
+**JUDGMENT: APPROVED ✅** — round 1 of 2, terminal state `approved`.

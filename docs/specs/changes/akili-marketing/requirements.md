@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated` (proposal). **This specify run:** at the user's instruction ("sigue con /akili-specify … requirements, design con judgment-day y tasks … Detente cuando tasks.md esté commiteado", Juan Carlos Cadavid, 2026-10-23) the requirements and tasks gates are passed and logged `auto-approved (user mandate, 2026-10-23)`; the design gate is resolved as **Review Design** (judgment-day). Escalations (severe findings, budget misfit, proposal invalidation) still stop |
-| Status | Phase 1 gate: `auto-approved (user mandate, 2026-10-23)` |
+| Status | Phase 1 gate: `auto-approved (user mandate, 2026-10-23)`; amended by judgment-day round 1 + cleanup (`judgment.md`) |
 | Date | 2026-10-23 |
 | Proposal | `proposal.md` — **Approved** 2026-10-23 (D1–D9 as recommended; Q1 yes, Q2 no, Q3 yes, Q4 no) |
 | Format source | `docs/specs/archive/2026-10-18-changes--akili-security/` — this repo has no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, as run 2026-10-23) |
@@ -29,7 +29,7 @@ AKILI gains `/akili-marketing`, an anytime command (outside the spec lifecycle) 
 | Brand voice | `docs/marketing/brand-voice.md` — voice fingerprint, audience, pillars, rules, CTA, language, timezone, per-platform tone |
 | Campaign | `docs/marketing/campaigns/<slug>/` holding `brief.md`, `plan.md`, `calendar.md` |
 | Post file | `docs/marketing/posts/<YYYY-MM-DD>-<slug>.md` — one requested post, one section per target platform |
-| Approval card | The block the command shows before asking for approval: file, platform(s), the exact final copy per platform, counts against platform limits, media brief |
+| Approval card | The block the command shows before asking for approval: file, platform(s), and per platform every field that reaches the copy-paste block (copy, hashtags, CTA, alt text, media brief), plus counts against platform limits |
 | Explicit approval | A message from the user, in this conversation, written after the approval card for that text, that grants approval and identifies the post(s) shown |
 | Untrusted content | Any text the user did not author for this request: competitor posts, comments, pasted third-party captions, fetched pages |
 
@@ -114,7 +114,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-4: Campaign
 
-`campaign <slug> [brief]` SHALL write `campaigns/<slug>/brief.md` (goal, audience, platforms among the three, KPIs, start/end dates, offer, UTM scheme) and `plan.md` (pillars, format mix per platform, numbered post list with working titles and target dates), then stop for the user to approve or adjust the plan. Plan approval follows the same rules as FR-7's approval (explicit, the user's own words, after the plan was shown; never auto-passed) and is recorded in `brief.md` as `approved — <who>, <date>`. When the campaign folder already exists, the command MUST show what will change and ask before writing — never overwrite silently. `post` and `repurpose` for a campaign whose plan is not approved MUST refuse and name the missing approval.
+`campaign <slug> [brief]` SHALL write `campaigns/<slug>/brief.md` (goal, audience, platforms among the three, KPIs, start/end dates, offer, UTM scheme) and `plan.md` (pillars, format mix per platform, numbered post list with working titles and target dates), then stop for the user to approve or adjust the plan. Plan approval follows the same rules as FR-7's approval (explicit, the user's own words, after the plan was shown; never auto-passed) and is recorded in `brief.md` as `approved — <who>, <date>`; editing the brief's goal, platforms or dates, or the plan, after approval returns the plan to `draft`. When the campaign folder already exists, the command MUST show what will change and ask before writing — never overwrite silently. `post` and `repurpose` for a campaign whose plan is not approved MUST refuse and name the missing approval.
 
 #### Scenario: Plan stops for review
 
@@ -131,7 +131,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-5: Calendar
 
-`calendar <slug>` SHALL write or update `campaigns/<slug>/calendar.md`; `calendar [<YYYY-MM>]` (no argument: the current month) SHALL write the derived, regenerated month view `docs/marketing/calendar-<YYYY-MM>.md` across all campaigns and campaign-less posts. An argument naming an existing campaign folder is a slug, otherwise a `YYYY-MM` is a month, otherwise the command asks. Each file has one row per slot: date, time (brand-voice timezone; `UTC`, flagged, when none is on file), platform, format, post file, status (read from that platform's section of the post file; `missing` when the post file does not exist). It MUST flag two posts on the same platform in the same slot, a missing post file and an unrecognized status, and MUST NOT change any post's status.
+`calendar <slug>` SHALL write or update `campaigns/<slug>/calendar.md`; `calendar [<YYYY-MM>]` (no argument: the current month) SHALL write the derived, regenerated month view `docs/marketing/calendar-<YYYY-MM>.md` across all campaigns and campaign-less posts. An argument naming an existing campaign folder is a slug, otherwise a `YYYY-MM` is a month, otherwise the command asks. Each file has one row per slot: date, time (brand-voice timezone; `UTC`, flagged, when none is on file), platform, format, post file, status (read from that platform's section of the post file; `missing` when the post file does not exist). It MUST flag two posts on the same platform in the same slot, a missing post file, an unrecognized status, and an `approved` section that FR-7 treats as `draft` (shown `approved — invalid`), and MUST NOT change any post's status.
 
 #### Scenario: Status is read, never set
 
@@ -142,7 +142,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-6: Post drafting
 
-`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign and target slot, and each section records `Status: draft` and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track. `post` MUST NOT overwrite an existing post file; a name collision gets a `-2`, `-3` … suffix.
+`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign and target slot, and each section records `Status: draft` and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track. `post` MUST NOT overwrite an existing post file; a name collision gets a `-2`, `-3` … suffix. `post --revise <file> [<platform>] <change>` is the only in-place edit of a post section; revising an `approved` section returns it to `draft` (FR-7); a `published` section is never revised.
 
 #### Scenario: Limits enforced before the card
 
@@ -203,7 +203,7 @@ The command and skill SHALL contain no step that publishes, schedules, or queues
 
 ### FR-9: Published record
 
-`post --published <file> <platform> <url>` SHALL record, for that platform's section, `published` with the URL and date, only when that section is `approved`. The URL MUST come from the user's own message invoking it; it MUST use `https`, and its parsed host MUST equal the platform domain (`linkedin.com`, `instagram.com`, `facebook.com`, `fb.com`) or end with `.` + that domain — `linkedin.com.example.org` and `evillinkedin.com` fail. The command MUST NOT fetch the URL. Running it again on a `published` section replaces the URL and keeps the previous one in the record (correction path).
+`post --published <file> <platform> <url>` SHALL record, for that platform's section, `published` with the URL and date, only when that section is `approved`. The URL MUST come from the user's own message invoking it; it MUST use `https`, and its parsed host MUST equal the named platform's domain — LinkedIn `linkedin.com`, Instagram `instagram.com`, Facebook `facebook.com` or `fb.com` — or end with `.` + that domain — `linkedin.com.example.org` and `evillinkedin.com` fail. The command MUST NOT fetch the URL. Running it again on a `published` section replaces the URL and keeps the previous one in the record (correction path).
 
 #### Scenario: Recording a draft as published
 
@@ -219,7 +219,7 @@ The command and skill SHALL contain no step that publishes, schedules, or queues
 
 ### FR-10: Review and repurpose
 
-`review <file|pasted text>` SHALL audit copy for AI tells, fold placement, hard limits, hashtag sizing and brand-voice violations, and report findings without editing (an edit is a new `post` draft). `repurpose <source>` SHALL turn a blog post, release note, page, or other owned content — pasted or a local file path, never fetched — into new `draft` post files, re-hooked per platform. The source is data under FR-11, whoever wrote it.
+`review <file|pasted text>` SHALL audit copy for AI tells, fold placement, hard limits, hashtag sizing and brand-voice violations, and report findings without editing (edits go through `post --revise`, FR-6). `repurpose <source>` SHALL turn a blog post, release note, page, or other owned content — pasted or a local file path, never fetched — into new `draft` post files, re-hooked per platform. The source is data under FR-11, whoever wrote it.
 
 #### Scenario: Review edits nothing
 
