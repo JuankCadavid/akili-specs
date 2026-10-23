@@ -27,13 +27,14 @@ Validation is the final conformance audit. It checks whether the implementation 
 
 ## Arguments
 
-- `$ARGUMENTS` — Relative path under `docs/specs/` containing `requirements.md`, `design.md`, `tasks.md`, and optionally `execution.md`.
+- `$ARGUMENTS` — The first whitespace- or newline-delimited token is the spec path, written `$SPEC_PATH` below; everything after it is context and is never interpolated into a path or a command line.
+- `$SPEC_PATH` — Relative path under `docs/specs/` containing `requirements.md`, `design.md`, `tasks.md`, and optionally `execution.md`.
 
 ## Output
 
-Create or update `docs/specs/$ARGUMENTS/validation-report.md`.
+Create or update `docs/specs/$SPEC_PATH/validation-report.md`.
 
-Validation should produce a clear recommendation for whether the spec can be archived with `/akili-archive $ARGUMENTS`.
+Validation should produce a clear recommendation for whether the spec can be archived with `/akili-archive $SPEC_PATH`.
 
 Use these result levels consistently:
 
@@ -63,13 +64,13 @@ Use these result levels consistently:
    - `docs/specs/general-setup/`
    - package-level `CLAUDE.md` files if they exist
 2. Read spec context:
-   - `docs/specs/$ARGUMENTS/proposal.md` if present. If it has a **Visual Reference** section, note the design source (Figma, an agent-generated mockup under `docs/specs/$ARGUMENTS/mockup/`, or a `.stitch/DESIGN.md` reference) so UI conformance can be audited against it, not only `docs/ux-ui/design.md`.
-   - `docs/specs/$ARGUMENTS/requirements.md`
+   - `docs/specs/$SPEC_PATH/proposal.md` if present. If it has a **Visual Reference** section, note the design source (Figma, an agent-generated mockup under `docs/specs/$SPEC_PATH/mockup/`, or a `.stitch/DESIGN.md` reference) so UI conformance can be audited against it, not only `docs/ux-ui/design.md`.
+   - `docs/specs/$SPEC_PATH/requirements.md`
    - When `requirements.md` records `Deliverable: video` (an absent row means software), load the `video-production` skill now so its availability gate fires here too; if the gate stops, validation is BLOCKED.
-   - `docs/specs/$ARGUMENTS/design.md`
-   - `docs/specs/$ARGUMENTS/tasks.md`
-   - `docs/specs/$ARGUMENTS/execution.md` if present (including any `## Constitution Impact` notes)
-   - `docs/specs/$ARGUMENTS/test-report.md` if present. **Reuse its evidence** — the requirement-to-test matrix and each suite's `PASS` / `FAIL` / `PRODUCT_BUG` status — instead of re-deriving coverage from scratch. This is a deliberate token saving: validate audits and cross-checks the recorded evidence rather than re-running the whole test analysis.
+   - `docs/specs/$SPEC_PATH/design.md`
+   - `docs/specs/$SPEC_PATH/tasks.md`
+   - `docs/specs/$SPEC_PATH/execution.md` if present (including any `## Constitution Impact` notes)
+   - `docs/specs/$SPEC_PATH/test-report.md` if present. **Reuse its evidence** — the requirement-to-test matrix and each suite's `PASS` / `FAIL` / `PRODUCT_BUG` status — instead of re-deriving coverage from scratch. This is a deliberate token saving: validate audits and cross-checks the recorded evidence rather than re-running the whole test analysis.
 
 ### Phase 1: Task Completion Check
 
@@ -140,7 +141,7 @@ If the implementation intentionally differs from the design, verify that the des
 
 **Final look (when `Deliverable: video`):** validate MUST NOT report PASS for the spec without a final look, whatever else is green. Review decoded frames of the draft render against every acceptance criterion and the storyboard in `design.md`, as `video-production` `references/render-evidence.md` describes. The reviewer is a human at the HITL pause, or a tier-T6 Multimodal review routed per the registry's *Cross-host dispatch* (see `/akili-specify`, the defect-class rule's substitute for classes with no automated check). Record the look and its verdict in the report; until it is recorded and approved, the video requirements are at best BLOCKED.
 
-**Delivery render (when `Deliverable: video`):** only after the final look is approved, run the local `render --quality delivery` as `video-production` instructs, in the window after any delegated agent's completion report, never while one is active.
+**Delivery render (when `Deliverable: video`):** only after the final look is approved, run the local `render --quality delivery` as `video-production` instructs, in the window after any delegated agent's completion report, never while one is active. When `requirements.md` records `Delivery: deferred`, skip the delivery render but keep the final look in full: it still runs on the draft render and still gates PASS. Record `Delivery: deferred — final look on draft render <path>` in the report, which never states the delivery render ran. A `Delivery` value other than `render` or `deferred` is read as `render` and reported in the validation report as an unrecognized value; an absent row means `render`. `Delivery` on a software spec is ignored.
 
 If `proposal.md` exists, also verify that final behavior remains aligned with the approved intent, scope, non-goals, and success criteria. When the proposal has a **Visual Reference** (Figma or a generated mockup), confirm the delivered UI is consistent with it.
 
@@ -148,7 +149,7 @@ If `proposal.md` exists, also verify that final behavior remains aligned with th
 
 ### Phase 7: Generate Validation Report
 
-Create `docs/specs/$ARGUMENTS/validation-report.md`. Write it following `cognitive-doc-design`: lead with the verdict, progressive disclosure, tables over prose.
+Create `docs/specs/$SPEC_PATH/validation-report.md`. Write it following `cognitive-doc-design`: lead with the verdict, progressive disclosure, tables over prose.
 
 The report must include:
 
@@ -172,7 +173,7 @@ The report title must be `# Validation Report — {Spec Name}`.
 Generate a short, easy-to-understand summary (summary facil de entender de lo que se hizo) of the overall status, key findings, remediation count, and archive readiness. If issues exist, ask whether to fix all, fix critical only, or keep only the report. If the work is archive-ready, show the exact next command:
 
 ```text
-/akili-archive $ARGUMENTS
+/akili-archive $SPEC_PATH
 ```
 
 ---
