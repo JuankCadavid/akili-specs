@@ -307,8 +307,13 @@ Required sections:
 8. Internal Linking Findings
 9. On-Page SEO Findings — Step 2.7 results, each in the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
 10. GEO Findings — Step 2.8 results, same format. State the source tier next to any magnitude cited, and keep GEO items ranked below blocking classic-SEO fixes in the remediation plan (GEO layers on ranking, it does not substitute for it).
-11. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery.
-12. Re-audit Schedule — when to run `/akili-seo <domain>` again.
+11. Analytics Installation Findings — Phase 2B.2 findings, one sub-table per tool, or the skip note. When the run generated hits in the client's property (page views, the WhatsApp click), carry the one-line test-traffic disclosure (date, time, pages) here.
+12. Analytics Data Findings — Phase 2B.3 findings with the data window beside every figure (and, for Clarity, the number of requests used), or the skip reason per tool.
+13. Search → Conversion — the Phase 2B.4 table with its caveats and unmatched rows, and the statement that pages beyond the 250-page cap were counted, not joined; or the skip reason.
+14. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery. List analytics findings in a separate **Measurement & Compliance** group; never merge them into the SEO priority list, so a High crawl finding and a High consent finding each keep their own position.
+15. Re-audit Schedule — when to run `/akili-seo <domain>` again.
+
+Sections 11–13 each hold findings, a skip note, or `Analytics: not run — declined at Phase 0`. Use only the Phase 2B state strings; a state outside that set is `not determined`.
 
 The report title must be `# SEO Audit Report — <domain>`.
 
@@ -318,7 +323,7 @@ The report title must be `# SEO Audit Report — <domain>`.
 
 Append to the audit report a section titled `## Implementation Prompt` containing a fenced, copy-paste prompt that can be handed to Claude Code (or any engineer) inside the site's codebase to fix every High-severity finding. The prompt must:
 
-- Reference each finding by ID from the remediation plan.
+- Reference each finding by ID from the remediation plan, including the High findings in the Measurement & Compliance group.
 - Include exact JSON-LD before/after snippets where structured data is broken.
 - Include exact URL pairs for hreflang corrections.
 - End with "Show me a diff of every change before applying. Do not deploy until I approve."
@@ -341,6 +346,7 @@ Present a short summary of:
 
 - Setup status (Phase 1 outcome).
 - Audit headline findings and counts per bucket.
+- The analytics state (run, skipped with its reason, or `Analytics: not run — declined at Phase 0`) and, when run, the count of Measurement & Compliance findings.
 - The number of High / Medium / Low remediation items.
 - Paths to the two generated reports.
 
@@ -359,7 +365,11 @@ After the command completes, verify:
 - [ ] Every structured-data warning is reproduced with the exact bad value and the exact fix.
 - [ ] On-page findings from Step 2.7 use the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
 - [ ] GEO findings from Step 2.8 are present, carry their source tier where a magnitude is cited, and rank below blocking classic-SEO fixes in the remediation plan.
-- [ ] No finding claims engagement metrics (bounce rate, time on page) affect rankings, and none flags a missing `llms.txt`.
+- [ ] No finding claims any behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking, behavior metrics are used for conversion and UX findings only, and none flags a missing `llms.txt`.
+- [ ] The analytics state is named in the report (run, `Analytics: skipped — no GA4 or Clarity detected`, or `Analytics: not run — declined at Phase 0`).
+- [ ] Consent findings carry Basis, the not-legal-advice sentence and `Other jurisdictions: not audited`.
+- [ ] No Clarity token, service-account key contents, OAuth credential or personal data (user IDs, client IDs, IP addresses, session-recording URLs, raw event payloads) appears in any written file.
+- [ ] Search → Conversion carries its caveats (GSC clicks are not GA4 sessions; consent and data thresholds reduce GA4 counts; date ranges and time zones differ) and says "landing pages reached from these queries".
 - [ ] The implementation prompt is self-contained and would not require this conversation to execute.
 - [ ] The Growth Strategy addendum was **offered when the audit surfaced content/visibility gaps** and its state is named in the report (included / offered and declined / not applicable for a purely technical audit). When included, every recommendation cites audit evidence and none prescribes keyword densities or word counts.
 
@@ -372,6 +382,9 @@ After the command completes, verify:
 - If `sites_list` returns empty after a successful `sites_add`, the MCP cached an old session — instruct the user to restart Claude Code or the `gsc` MCP and retry.
 - If `search_analytics_query` returns no rows for a newly verified property, this is expected. Do not mark as failure.
 - If the Indexing API is suggested as a fix, decline it for non-`JobPosting`/`BroadcastEvent` content and explain why.
+- If a GA4 Data API or Admin API call returns 403, the Viewer grant is missing for the service account: record the GA4 data audit as skipped with that reason and do not retry blindly.
+- If a Clarity request returns 400, the parameters are invalid: fix the request and do not spend the quota retrying. 401: the token is missing, invalid or expired. 403: the token is not authorized for the project. 429: the daily quota is spent; skip the Clarity data audit for the day.
+- If a Search Console metric request to the Data API errors, the probe settles nothing: fall back to owner confirmation, else record `GSC link: not determined`.
 - If a skill is unavailable, fall back to the next documented skill and note it in the report.
 
 ---

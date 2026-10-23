@@ -135,7 +135,7 @@ Call budget, stated in the report. Clarity: at most **3** requests per run (URL 
 | Phase 4 | The Implementation Prompt also covers High findings in Measurement & Compliance | FR-12 | +1 |
 | Phase 5 | The summary adds the analytics state and counts | FR-12 | +1 |
 | Verification Checklist | `:303` is **rewritten** to carry both halves and the behavior-metric list. Four new items: declined/skip state named; consent findings carry Basis, the not-legal-advice sentence and the other-jurisdictions line; no token or personal data in the report; Search → Conversion carries its caveats | FR-1, FR-4, FR-10, FR-11, FR-13 | +4 |
-| Error Handling | GA4 403 → the Viewer grant is missing (data audit skipped, never retried blindly). Clarity 400 → invalid parameters (fix the request, do not spend the quota retrying); 401 → token missing, invalid or expired; 403 → token not authorized; 429 → daily quota spent, data audit skipped for the day. A Search Console metric request that errors → link `not determined` | FR-2, FR-6, FR-9 | +5 |
+| Error Handling | GA4 403 → the Viewer grant is missing (data audit skipped, never retried blindly). Clarity 400 → invalid parameters (fix the request, do not spend the quota retrying); 401 → token missing, invalid or expired; 403 → token not authorized; 429 → daily quota spent, data audit skipped for the day. A Search Console metric request that errors → the probe settles nothing: fall back to owner confirmation (FR-6 order), else link `not determined` (amended at execute time 2026-10-22, T3: the shorthand skipped FR-6 step 2) | FR-2, FR-6, FR-9 | +5 |
 | **Total** | | | **≤ 105 → ≤ 427 lines** (NFR-2 cap 440) |
 
 ## 8. Frontend / UX Component Architecture

@@ -98,7 +98,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T2 |
 | Requirements | **FR-12**: sections 11–13 and their contents (findings, skip note, or `not run — declined at Phase 0`); the Measurement & Compliance group; the Implementation Prompt covering High analytics findings; scenario "BUT neither displaces the other's position". **FR-11**: checklist surface, both halves, `:303` rewritten with the behavior-metric list. FR-1, FR-4, FR-10 and FR-13 checklist items. FR-2, FR-6 and FR-9 Error Handling rows (GA4 403; Clarity 400/401/403/429; probe error → `not determined`). Phase 5 summary (FR-12). NFR-2 |
 | Design refs | §5.1; §7 rows Phase 3, Phase 4, Phase 5, Verification Checklist, Error Handling; DD-8 |

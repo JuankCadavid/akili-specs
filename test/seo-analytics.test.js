@@ -1,6 +1,6 @@
 "use strict";
 
-// @akili-spec changes/seo-analytics (T1: references/analytics.md group; T2: command part A group)
+// @akili-spec changes/seo-analytics (T1: references/analytics.md group; T2: command part A group; T3: command part B group)
 //
 // Text-contract guard for the optional analytics phase of `/akili-seo`. This
 // group pins `.claude/skills/seo-audit/references/analytics.md`. Expected
@@ -268,4 +268,72 @@ test("NFR-2 the command stays at or under 440 lines", () => {
 
 test("NFR-6 Prerequisites start the Analytics MCP without --allow-write", () => {
   assert.match(PREREQ(), /without `--allow-write`/, "Prerequisites lost the rule: start the Analytics MCP without `--allow-write`");
+});
+
+// ================================================================ T3: command part B
+//
+// Pins the report list (Phase 3), Phase 4, the Verification Checklist and the
+// NFR-2 cap after T3. Literals are copied from requirements.md FR-11/FR-12 and
+// design.md section 5.1; none is read from the file under test. Order is asserted
+// on `N. Title` pairs, so a renumbering error cannot pass on titles alone.
+
+const P3 = () => block(COMMAND, "### Phase 3");
+const P4 = () => block(COMMAND, "### Phase 4");
+const CHECKLIST = () => block(COMMAND, "## Verification Checklist");
+
+// ---------------------------------------------------------------- FR-12
+
+test("FR-12 Phase 3 lists items 11-15 as numbered pairs, in order", () => {
+  const p3 = P3();
+  const pairs = [
+    "11. Analytics Installation Findings",
+    "12. Analytics Data Findings",
+    "13. Search \u2192 Conversion",
+    "14. Remediation Plan",
+    "15. Re-audit Schedule",
+  ];
+  let at = -1;
+  for (const pair of pairs) {
+    const i = p3.indexOf(`\n${pair}`);
+    assert.ok(i >= 0, `Phase 3 report list lost the numbered item "${pair}"`);
+    assert.ok(i > at, `Phase 3 report list has "${pair}" out of order`);
+    at = i;
+  }
+});
+
+test("FR-12 Measurement & Compliance is a group inside item 14 (Remediation Plan)", () => {
+  const item = P3().split("\n").find((l) => l.startsWith("14. "));
+  assert.ok(item, "Phase 3 report list has no item 14");
+  assert.ok(item.includes("Measurement & Compliance"), "item 14 no longer names the Measurement & Compliance group");
+});
+
+test("FR-12 Phase 4 Implementation Prompt covers the High Measurement & Compliance findings", () => {
+  assert.ok(P4().includes("Measurement & Compliance"), "Phase 4 no longer covers the High Measurement & Compliance findings");
+});
+
+// ---------------------------------------------------------------- FR-11 (command checklist)
+
+function checklistRankingItem() {
+  const item = CHECKLIST().split("\n").find((l) => /^- \[ \]/.test(l) && /behavior metric/i.test(l));
+  assert.ok(item, "checklist has no item about behavior metrics");
+  return item;
+}
+
+test("FR-11 (a) checklist: no finding claims any behavior metric affects Google or Bing ranking, with the full metric list", () => {
+  const item = checklistRankingItem();
+  assert.match(item, /\baffects? Google or Bing ranking/i, "checklist item lost the prohibition (a): affects Google or Bing ranking");
+  for (const term of ["bounce", "engagement rate", "session duration", "scroll", "heatmap", "recording", "rage", "dead", "quickback"]) {
+    assert.ok(item.toLowerCase().includes(term), `checklist item no longer names the behavior metric "${term}"`);
+  }
+});
+
+test("FR-11 (b) checklist: behavior metrics are used for conversion and UX findings", () => {
+  assert.match(checklistRankingItem(), /conversion and UX findings/i, "checklist item lost the positive use (b): conversion and UX findings");
+});
+
+// ---------------------------------------------------------------- NFR-2 (after T3)
+
+test("NFR-2 (T3) the command still stays at or under 440 lines after part B", () => {
+  const lines = COMMAND.replace(/\n$/, "").split("\n").length;
+  assert.ok(lines <= 440, `command is ${lines} lines after T3; NFR-2 caps it at 440`);
 });
