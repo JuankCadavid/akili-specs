@@ -264,7 +264,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T9 — `akili-test.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:**
   - FR-8: THEN, BUT no n/a, AND mixed keep.
   - FR-11 *Runtime spawn*: THEN, AND IT MUST stop as an exception, BUT inline.
@@ -294,7 +294,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T10 — `akili-validate.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:** FR-6 *Deferred* (THEN, AND IT MUST, BUT) and *Default*; FR-15 (validate)
 - **Design:** §8.4 `akili-validate.md` (a), (b); §5 fall-through for unknown `Delivery` values
 - **Scope:** 2 sites:

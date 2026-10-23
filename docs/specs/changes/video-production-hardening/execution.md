@@ -146,3 +146,38 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
 | Running totals | tasks 7/21 · review rounds 7/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T9 — `akili-test.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-8; FR-11 *Runtime spawn*, *Rule text*; FR-15 (test) |
+| Files changed | `.claude/commands/akili-test.md` |
+| Skills / effort | `cognitive-doc-design`; effort `medium` |
+| Verification | (1) `grep -c '\$ARGUMENTS'` → 1 (:30; baseline 6). (2) `prefer.*tester\|ideally` → one hit, :70 "Prefer pointers over copies inside the slice" (design §9: not a Tester-model claim) → 0 model-preference hits. (3) "Final-look pending" once, Phase 4 (:169). (4) `spawns:` 0; Implementer models = "registry's T2 pick or the `akili-implementer` wrapper's `model` binding, plus every model escalation recorded in `execution.md`". `Deliverable: video` 4 |
+| Falsifier | restored "Prefer a Tester model that differs from the Implementer (author ≠ tester)" in the tier note → check (2) also hit :15; reverted |
+| Evidence re-run | Leader inline: VERIFIED; Arguments bullet byte-identical to `akili-execute.md`'s |
+| Reviewer | `opus`, lens checklist, PASS: "meets FR-8, FR-11 *Runtime spawn* and *Rule text*, and FR-15 … step 4 says **stop** … 'never auto-passed under `pre-approved`, joining the HALT, Pivot, budget tripwire, `FATAL_FAIL`, and `PRODUCT_BUG` exceptions'"; §9 sweep hits all classified |
+| Decisions | Implementer added a clause to the Antigravity delegation bullet (outside the briefed site list) pointing to the every-host *Tester model rule*; Reviewer: "a conformant restatement, not widening … adds no new obligation or task" |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 8/21 · review rounds 8/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+### T10 — `akili-validate.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-6 *Deferred*, *Default*; FR-15 (validate) |
+| Files changed | `.claude/commands/akili-validate.md` |
+| Skills / effort | `cognitive-doc-design`; effort `low`–`medium` |
+| Verification | (1) `grep -c '\$ARGUMENTS'` → 1 (:30; baseline 11). (2) `Delivery: deferred` at :144, delivery-render paragraph. (3) `/akili-archive $SPEC_PATH` at :176. `Deliverable: video` 4 |
+| Falsifier | deleted "which never states the delivery render ran" → phrase count 1 → 0; restored from backup → 1 |
+| Evidence re-run | Leader inline: VERIFIED; Arguments bullet byte-identical to `akili-execute.md`'s |
+| Reviewer | `opus`, lens checklist, PASS: "Record `Delivery: deferred — final look on draft render <path>` in the report. This matches the §8.4(b) string byte for byte … Disqualifier not triggered: the final look is not skipped … §5 fall-through: met" |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 9/21 · review rounds 9/~38 |
+| Approval | auto-approved (pre-approved mode) |
