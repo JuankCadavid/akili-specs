@@ -260,3 +260,16 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
 | Running totals | review rounds 15/~38 |
 | Decision — attempt 3 | Effort already sat at the T2 ceiling (`xhigh`) before this retry, so `/akili-execute`'s ceiling rung fires (Loop Rules *Effort Ceiling*). A Reviewer model distinct from the T3 pick (`opus`) and at least as strong exists on this host — `fable` (the frontier escalation above Opus named in `docs/model-routing.md`) — so: **escalate with a distinct auditor**. Implementer escalated to T3 `opus` at effort `xhigh` (reason: two consecutive FAILs on unpinned clauses at the T2 ceiling); Reviewer `fable`. Attempt ceiling stays 3 |
+
+### T14 — `test/command-contracts.test.js` — attempt 1 FAIL (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Attempt 1 | Implementer `sonnet`, effort `high`, skill `tdd`. New file, 338 lines (the worker reported "482 LOC"; `wc -l` reads 338), 48 tests, green. Red at 34afbff: all 48 red; `$ARGUMENTS` 6/5/6/12 (task text predicted 11 for validate — Leader: 11 lines, 12 occurrences at 34afbff; both figures true, the task counted lines). Mutations: validate path → 10, 11; owner-mandate copy → 15; "Prefer" beside MUST in tier note → 22; drop "under `gated`" → 45; 15 more, one per contract, each red only on its own test |
+| Evidence re-run | Leader inline (quiet tree): VERIFIED — tests 48, pass 48, fail 0; no `docs/specs/changes` string in the file |
+| Reviewer verdict | `opus`, FAIL — (1) FR-7 THEN partly pinned: beat columns (time, content, intent) and asset columns (source, license/owner) unpinned — removing `Intent`, or cutting the assets header to `\| Asset \|`, stays 48/48; (2) FR-8 THEN partly pinned: section contents unpinned — deleting "each with timestamp and still path" or "(the evidence-set table)" stays 48/48. Nine Reviewer spot mutations elsewhere each went red on their own test |
+| ADVISORY | `section()` fence detection at column 0 only; `line()` anchors on the first matching line in the file; nothing pins "`Delivery` on a software spec is ignored" (not assigned to T14 — recorded only) |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
+| Next | attempt 2, effort `xhigh`, Reviewer report verbatim |
+| Running totals | review rounds 16/~38 |

@@ -361,7 +361,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T14 — `test/command-contracts.test.js`: contracts for T6–T13
 
-- **Status:** [ ] · **Size:** M (~250 LOC) · **Depends on:** T6–T13
+- **Status:** [~] · **Size:** M (~250 LOC) · **Depends on:** T6–T13
 - **Requirements:** every clause T6–T13 own (coverage table); FR-15 BUT (no `$ARGUMENTS` in any path in the four commands); NFR-1; NFR-6
 - **Design:** §8.4, §8.5; DD-4, DD-11
 - **Scope:** new `test/command-contracts.test.js`, with the same root-override hook as `video-production.test.js` (`COMMAND_CONTRACTS_TEST_ROOT`). Contents:
