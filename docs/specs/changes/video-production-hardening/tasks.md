@@ -69,7 +69,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T2 — `SKILL.md` part B: commands, privacy, phase map, render rules
 
-- **Status:** [ ] · **Size:** M · **Depends on:** T1 (same file)
+- **Status:** [x] · **Size:** M · **Depends on:** T1 (same file)
 - **Requirements:**
   - FR-1: both scenarios; consent-line MUST; per-use consent.
   - FR-2: output flag and per-run subfolder; *Skill refresh* scenario THEN/BUT/AND.
@@ -239,7 +239,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T8 — `akili-execute.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:**
   - FR-12 *Owner mandate*: THEN stop, AND quotes, BUT not `auto-approved`.
   - FR-13: both scenarios, every clause.

@@ -89,3 +89,41 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
 | Running totals | tasks 4/21 · review rounds 4/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T2 — `SKILL.md` part B: commands, privacy, phase map, render rules — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-1; FR-2 *Output flag*, *Skill refresh*; FR-4 *Film artifacts*; FR-5 *Bundled is not local*; FR-6 skill side; FR-10; FR-19 (#6137, #6138); NFR-2, NFR-3 |
+| Files changed | `.claude/skills/video-production/SKILL.md` |
+| Skills / effort | `cognitive-doc-design`; effort `medium` |
+| Verification | (1) snapshot lines without `--describe false`: prose only — SKILL.md:53, :99, render-evidence.md:21, :56, acceptance-criteria.md:37. (2) `SKIP_SKILLS` only at Privacy 1 (:79). (3) **Byte measure (DD-6): 17,306** for the 3 files (cap 20,000; SKILL.md 11,043). (4) P-6 "reported in #6138 to send frames to a third-party model when `GEMINI_API_KEY` is set"; P-7 "#6137 reports they may be fetched from Google Fonts at compile time"; P-28 "a HyperFrames warm-check process was observed in the source run" |
+| Falsifiers | dropped `--describe false` from the `snapshot --at` row → check (1) listed `SKILL.md:69`; added a `HYPERFRAMES_SKIP_SKILLS=1 … skills update` row → check (2) listed `:74`; both reverted |
+| Evidence re-run | Leader inline: VERIFIED (same grep output; 17,306 bytes) |
+| Tests | `node --test test/video-production.test.js` 15 pass / 1 fail (test 10, NFR-4 host rows — T5). No `npx hyperframes init` command line added, so T5's allowed-subcommand set needs no `init` |
+| Reviewer | `opus`, lens checklist, PASS: "meets FR-1, FR-2 *Output flag* and *Skill refresh*, FR-4 *Film artifacts*, FR-5 *Bundled is not local*, the skill side of FR-6, both FR-10 scenarios, the FR-19 citations #6137 and #6138, and NFR-2/NFR-3, DD-6 and DD-7" (re-ran the byte and grep checks) |
+| ADVISORY | Readability: the `story.md` phase-map row implies rather than states where it is stored. Readability: commands-table rows omit the env prefixes, which Privacy 1 carries by rule (prior style) |
+| Decisions | Added a `snapshot --review --describe false --output <spec>/evidence/review/<task>/` commands-table row (design §8.1 Phase map row names this invocation) |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 5/21 · review rounds 5/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+### T8 — `akili-execute.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-12 *Owner mandate*; FR-13 both scenarios; FR-15 (execute) |
+| Files changed | `.claude/commands/akili-execute.md` |
+| Skills / effort | `cognitive-doc-design`; effort `medium` |
+| Verification | (1) `grep -c '\$ARGUMENTS'` → 1 (Arguments, line 28; baseline 5); `$SPEC_PATH` bullet at 29, paths at 104–107. (2) hits at 167 (loop comment), 295 (Loop Rules *Effort Ceiling* bullet), 300 (Budget Tripwire), 360 (Approval Mode); exact owner-mandate sentence `grep -F` → 2 lines |
+| Falsifier | on a throwaway copy, removing "never route the Reviewer to a weaker model than the escalated Implementer; " → "weaker model" count 1 → 0; real file untouched |
+| Evidence re-run | Leader inline: VERIFIED |
+| Reviewer | `opus`, lens checklist, PASS: "The Arguments bullet at line 28 matches the design's *First-token wording* blockquote character for character … The *Owner-mandate sentence* matches the design blockquote exactly at both execute sites … Disqualifier. Not triggered" |
+| Decisions | Bullet titled "Effort Ceiling" (body carries "ceiling rung", the name T11 cites); each owner-mandate site adds "never logged `auto-approved`" (FR-12 BUT) |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 6/21 · review rounds 6/~38 |
+| Approval | auto-approved (pre-approved mode) |
