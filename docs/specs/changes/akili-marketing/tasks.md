@@ -91,7 +91,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (0 shipped LOC; ~80 lines in `execution.md`) |
 | Depends on | none |
 | Requirements | FR-1 (*Vendor paths stripped* — what is dropped), design P-17 |
