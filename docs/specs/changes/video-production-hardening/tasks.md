@@ -139,7 +139,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T4 — `acceptance-criteria.md`
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** none
+- **Status:** [x] · **Size:** XS · **Depends on:** none
 - **Requirements:** FR-4 *Music bed*; FR-5 *Brand source names files*; FR-6 (row 10); FR-14 (THEN)
 - **Design:** §8.3; P-16, P-18
 - **Scope:** `references/acceptance-criteria.md`: rows 8, 9 and 10, plus the new *Motion* defect row (4 sites).
