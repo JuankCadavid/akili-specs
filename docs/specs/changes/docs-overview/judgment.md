@@ -5,7 +5,7 @@
 | Target | `requirements.md` + `design.md` at `f54efaf` (intent: `proposal.md`) |
 | Mode | judgment_day, blind dual review; two read-only judges on `sonnet` (author ≠ auditor: the design was authored on Opus) |
 | Round 1 | Judge A (12 findings: 2 severe, 9 warning, 1 suggestion) · Judge B (15 findings: 3 severe, 11 warning, 1 suggestion). Both: **FIX-REQUIRED** |
-| Correction | Round 1 fix applied by the architect at `<fix commit>`. The confirmed findings are single-answer factual corrections, logged, not gated (user feedback rule: a factual correction is applied and logged; a stop is owed only when scope, design or risk changes, and none did). The warnings that both judges agreed on were folded in as design strengthening, inside the approved scope |
+| Correction | Round 1 fix applied by the architect at `ce8fbb5`. The confirmed findings are single-answer factual corrections, logged, not gated (user feedback rule: a factual correction is applied and logged; a stop is owed only when scope, design or risk changes, and none did). The warnings that both judges agreed on were folded in as design strengthening, inside the approved scope |
 | Status | Round 1 closed; scoped re-judgment pending |
 
 ## Frozen ledger (round 1)
