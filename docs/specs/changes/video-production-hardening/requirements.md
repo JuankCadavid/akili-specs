@@ -40,7 +40,7 @@ The first video run logged its friction in the source log the proposal cites. Th
 
 ## 4. System Context & Scope
 
-Current behavior is cited in `proposal.md` §2 (P1–P21, citations as run at 8679e25); this document does not restate it. In scope: proposal S1–S17. Out of scope: proposal §5, plus the `$ARGUMENTS` interpolation in `akili-archive.md` (6 occurrences), `akili-seo.md` (2) and `akili-quick.md` (1). These counts come from `grep -c '\$ARGUMENTS' .claude/commands/*.md` at 8679e25. The owner's Quick 1 scope names specify, execute, test, validate and propose only, so those files are a recorded residual for a follow-up.
+Current behavior is cited in `proposal.md` §2 (P1–P21, citations as run at 8679e25); this document does not restate it. In scope: proposal S1–S17. Out of scope: proposal §5, plus the `$ARGUMENTS` interpolation in `akili-archive.md` (6 occurrences), `akili-seo.md` (2) and `akili-quick.md` (1). These counts come from `grep -c '\$ARGUMENTS' .claude/commands/*.md` at 8679e25. The owner's Quick 1 scope names specify, execute, test, validate and propose only, so those files are a recorded residual for a follow-up. Two friction items are also out of scope (judgment-day B J-13): vendoring GSAP instead of loading it from a CDN (the font rule FR-5 is the only determinism rule added), and the source project's `docs/ux-ui/design.md` D-3 baseline conflict (owner's project).
 
 ## 5. Stakeholders / Personas
 
@@ -80,7 +80,7 @@ Every committed video evidence artifact SHALL live under the evidence folder, be
 
 - GIVEN a `render` or `snapshot` command in the evidence set
 - WHEN it is written into the skill or its references
-- THEN it carries an output flag pointing under `<spec>/evidence/`
+- THEN it carries an output flag pointing under `<spec>/evidence/`, and every `snapshot` writes to its own per-run subfolder, because each run clears its output folder (installed `hyperframes/references/storyboard.md:12`)
 - BUT it must NOT rely on the tool's default (`renders/` in the project, `.hyperframes/artifacts/`)
 
 #### Scenario: Sanitize before commit
@@ -88,7 +88,7 @@ Every committed video evidence artifact SHALL live under the evidence folder, be
 - GIVEN a captured `check --json` report or compiler stderr that embeds absolute paths
 - WHEN it is committed as evidence
 - THEN every absolute path (the home directory, `~/.cache/...`, temp dirs) is replaced by a relative path or a placeholder
-- AND IT MUST state the check that proves it: a grep for the home-directory prefix over the evidence folder returns no hit
+- AND IT MUST state the check that proves it: a grep for the home-directory prefix and a grep for the temp-directory prefixes over the evidence folder both return no hit
 - BUT it must NOT commit a file before that grep runs
 
 #### Scenario: Logs are `.txt`
@@ -130,6 +130,7 @@ The install route SHALL name exactly the upstream eager core set (`hyperframes`,
 - WHEN it names an owner skill
 - THEN every named skill is one of the core four, or the table states it is installed on demand
 - BUT it must NOT name `hyperframes-core`, `hyperframes-animation`, or `hyperframes-creative` as a required owner
+- AND captions route to the router `hyperframes` (its captions reference), not to a separate captions skill
 
 ### FR-4: Phase map covers HyperFrames' film artifacts (S4)
 
@@ -228,7 +229,7 @@ Falsifiability item 8 SHALL allow, for a greenfield artifact only, a falsifier w
 
 - GIVEN a falsifier whose target file does not exist at specify time
 - WHEN tasks are written
-- THEN the falsifier carries `predicted — greenfield artifact` and names the task that will observe it
+- THEN the falsifier carries `predicted — greenfield artifact` and names the task that will observe it; that task's `Red run` field and Done criteria carry the obligation, so `/akili-execute` enforces it and the Reviewer audits the quoted red
 - AND IT MUST be observed and quoted in that task's `execution.md` entry before the task closes; a red that differs from the prediction is recorded as the observed value
 - BUT it must NOT apply to any falsifier whose target exists at specify time
 
@@ -271,7 +272,7 @@ The Tester SHALL run on a model different from the Implementer's model, both in 
 #### Scenario: Runtime spawn
 
 - GIVEN `/akili-test` spawning a Tester
-- WHEN the Implementer models that wrote the code under test are known (`execution.md` spawn lines, or the registry T2 plus any recorded escalation)
+- WHEN the Implementer models that wrote the code under test are known (the registry T2 pick or the Implementer wrapper's binding, plus every model escalation recorded in `execution.md`)
 - THEN the Tester runs on a model that is none of them; when the host offers none, the registry's cross-host dispatch is used
 - AND IT MUST stop for the user when neither is possible; this is an exception, not auto-passed under `pre-approved`
 - BUT it must NOT run a Leader-inline suite when the Leader's own model wrote code under test
@@ -361,13 +362,13 @@ The defect-class table SHALL map motion defects (a missing or wrong entry/exit t
 
 ### FR-17: Judgment-day under pre-approved (S16d)
 
-Under `pre-approved`, judgment-day SHALL run at the design gate. A design corrected with **Fix only** (no re-judgment) SHALL NOT be recorded as `JUDGMENT: APPROVED`.
+Under `pre-approved`, judgment-day SHALL run at the design gate. A design corrected with **Fix only** (no re-judgment) SHALL NOT be recorded as `JUDGMENT: APPROVED`. The annotation is an AKILI-layer record in `judgment.md`; judgment-day's own terminal states (`approved | escalated`) are unchanged (judgment-day C-4).
 
 #### Scenario: Fix only
 
 - GIVEN confirmed findings and the **Fix only** choice
 - WHEN `judgment.md` is closed
-- THEN its terminal reads `fixed, not re-judged` with the fixed IDs
+- THEN `judgment.md` closes with the AKILI annotation `fixed, not re-judged` and the fixed IDs, outside the skill's terminal set
 - BUT it must NOT read `APPROVED`
 
 ### FR-18: `akili --version` (S17)
