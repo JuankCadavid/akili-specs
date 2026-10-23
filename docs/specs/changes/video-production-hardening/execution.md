@@ -247,3 +247,16 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
 | Next | attempt 2, effort `xhigh` (one level up; T2 ceiling), Reviewer report verbatim |
 | Running totals | review rounds 13/~38 |
+
+### T5 — attempt 2 FAIL (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Attempt 2 | Implementer `sonnet`, effort `xhigh`, skill `tdd`, fresh spawn with the attempt-1 Reviewer report verbatim. #22 pins the SKIP_SKILLS reason; #26 pins `story.md` and `SPEC.md` storage; #23 asserts the route match first (advisory). Mutations: reason deleted → #22 `expected the stated reason for SKIP_SKILLS`; `stored anywhere` → #26 `expected SPEC.md storage`; `; then requirements.md` removed → #26 `expected story.md storage` |
+| Evidence re-run | Leader inline (quiet tree): VERIFIED — tests 33, pass 33, fail 0 |
+| Reviewer verdict | `opus`, FAIL — attempt-1 issues closed (mutations re-run red), two more unpinned: (1) FR-3 *Lock mismatch* "AND IT MUST still pass on a found router" — `Continue` → `Stop` in the router-found row leaves 33/33; (2) FR-4 *Film artifacts* storage of `REVIEW.md` — deleting "with `REVIEW.md` copied there" leaves 33/33. Other spot mutations red as expected (Codex `--agent` id → #10; "the `skills` commands are included" → #22; SKIP_SKILLS on `skills check` → #22; "creates no approval of its own" → #26) |
+| ADVISORY | NFR-6 self-check shape (stands); two row parsers; telemetry-on-every-command pinned through the rule sentence only (acceptable as written) |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
+| Running totals | review rounds 15/~38 |
+| Decision — attempt 3 | Effort already sat at the T2 ceiling (`xhigh`) before this retry, so `/akili-execute`'s ceiling rung fires (Loop Rules *Effort Ceiling*). A Reviewer model distinct from the T3 pick (`opus`) and at least as strong exists on this host — `fable` (the frontier escalation above Opus named in `docs/model-routing.md`) — so: **escalate with a distinct auditor**. Implementer escalated to T3 `opus` at effort `xhigh` (reason: two consecutive FAILs on unpinned clauses at the T2 ceiling); Reviewer `fable`. Attempt ceiling stays 3 |
