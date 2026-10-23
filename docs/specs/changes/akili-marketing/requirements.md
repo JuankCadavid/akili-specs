@@ -131,18 +131,18 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-5: Calendar
 
-`calendar [<slug>|<YYYY-MM>]` SHALL write or update `calendar.md` with one row per slot: date, time (brand-voice timezone), platform, format, post file, status (read from the post file). It MUST flag two posts on the same platform in the same slot and a slot whose post file is missing, and MUST NOT change any post's status.
+`calendar [<slug>|<YYYY-MM>]` SHALL write or update `calendar.md` with one row per slot: date, time (brand-voice timezone), platform, format, post file, status (read from that platform's section of the post file). It MUST flag two posts on the same platform in the same slot and a slot whose post file is missing, and MUST NOT change any post's status.
 
 #### Scenario: Status is read, never set
 
-- GIVEN a post file with `Status: draft`
+- GIVEN a post file whose LinkedIn section holds `Status: draft`
 - WHEN the calendar is regenerated
-- THEN its row shows `draft`
-- AND IT MUST show each status exactly as the post file holds it, an unrecognized value flagged
+- THEN that slot's row shows `draft`
+- AND IT MUST show each status exactly as the section holds it, an unrecognized value flagged
 
 ### FR-6: Post drafting
 
-`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign, target slot, `Status: draft`, and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track.
+`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign and target slot, and each section records `Status: draft` and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track.
 
 #### Scenario: Limits enforced before the card
 
@@ -153,7 +153,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-7: Approval gate
 
-A post file's `Status` SHALL be one of `draft`, `approved`, `published`. Transitions:
+Each platform section of a post file SHALL carry its own `Status`, one of `draft`, `approved`, `published` (a post for two platforms is approved, and published, per platform). Transitions:
 
 | From | Event | To |
 |---|---|---|
@@ -179,9 +179,9 @@ The command MUST present the approval card and stop before any `approved` write.
 
 #### Scenario: Edit after approval
 
-- GIVEN an `approved` post
+- GIVEN an `approved` platform section
 - WHEN its copy is edited by any mode or by request
-- THEN its status returns to `draft` with the reset noted
+- THEN that section's status returns to `draft` with the reset noted
 - AND IT MUST show a new card before it can be approved again
 
 ### FR-8: Never-publish invariant
