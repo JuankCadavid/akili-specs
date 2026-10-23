@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provides an expert SEO audit framework: crawlability and indexation, technical foundations (Core Web Vitals, mobile, HTTPS), on-page optimization (titles, metas, headings, images, internal linking), structured data, international SEO (hreflang, locale canonicals, locale sitemaps), content quality (E-E-A-T), **generative-engine visibility (GEO)**, and a standard finding format.
+Provides an expert SEO audit framework: crawlability and indexation, technical foundations (Core Web Vitals, mobile, HTTPS), on-page optimization (titles, metas, headings, images, internal linking), structured data, international SEO (hreflang, locale canonicals, locale sitemaps), content quality (E-E-A-T), **generative-engine visibility (GEO)**, optional GA4 and Microsoft Clarity measurement for `/akili-seo` Phase 2B, and a standard finding format.
 
 AKILI-adapted: findings use the Issue/Impact/Evidence/Fix/Priority shape inside `/akili-seo` artifacts, non-trivial fixes escalate to `/akili-propose`, and dangling references to unpackaged sibling skills were removed. Binding: `core`.
 
@@ -23,7 +23,7 @@ AKILI-original additions (not in the upstream skill): the **GEO** section and `r
 - **GEO is a layer, not a sixth priority** — ~3/4 of AI Overview citations come from pages already in the top 10, so a GEO fix never displaces a classic-SEO fix.
 - **Source tiers are carried into findings.** Peer-reviewed magnitudes (KDD 2024 GEO study) and industry analyses are labelled differently; an industry figure is never presented to a client as measured fact.
 - Static fetches (`curl`, `web_fetch`) cannot detect JS-injected JSON-LD; structured data must be validated with a rendering tool or Search Console URL inspection.
-- **Two findings are explicitly banned:** "missing `llms.txt`" (no measured visibility effect) and any claim that engagement metrics such as bounce rate affect rankings (Google has denied this for a decade).
+- **Two findings are explicitly banned:** "missing `llms.txt`" (no measured visibility effect) and any claim that a behavior metric affects ranking. Never claim that a behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking; use them for conversion and UX findings.
 
 ## Best Paired Commands
 
@@ -34,6 +34,7 @@ AKILI-original additions (not in the upstream skill): the **GEO** section and `r
 
 - `references/geo.md` — generative-engine visibility: the KDD 2024 measurement of what works, passage-level extraction, freshness, structured-data correlation, the AI-crawler agent table (training vs retrieval), and the negative evidence on `llms.txt`. Claims carry `[PRIMARY]` / `[INDUSTRY]` source tiers.
 - `references/international-seo.md` — hreflang, canonical + i18n, locale sitemaps, URL structure, cross-locale content quality.
+- `references/analytics.md` — GA4 and Clarity method for `/akili-seo` Phase 2B: installation, consent, data checks, the Search → Conversion join, and sources by tier.
 - `references/ai-writing-detection.md` — AI writing patterns to avoid.
 
 ## Source

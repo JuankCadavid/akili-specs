@@ -8,7 +8,7 @@ metadata:
 
 # SEO Setup & Audit via Google Search Console
 
-Provision Google Search Console access for a domain via a Google Cloud service account, then run a full SEO audit (index coverage, sitemaps, structured data, search analytics) and generate an audit report under the spec path. Produces `seo-setup-report.md` and `seo-audit-report.md`.
+Provision Google Search Console access for a domain via a Google Cloud service account, then run a full SEO audit (index coverage, sitemaps, structured data, search analytics) and generate an audit report under the spec path, with an optional analytics phase (GA4, Microsoft Clarity) when the user opts in. Produces `seo-setup-report.md` and `seo-audit-report.md`.
 
 ## Usage
 
@@ -54,7 +54,12 @@ The user must provide (or confirm) once per Google Cloud project:
    GSC_KEY_PATH=/abs/path/to/key.json python3 scripts/gsc_verify.py verify <domain>
    ```
 
-If any prerequisite is missing, stop and report exactly what is missing and how to obtain it.
+**Optional: analytics phase** (needed only when the user answers yes at Phase 0):
+
+6. GA4: the Data API and Admin API enabled in the same GCP project, and the service-account email added as **Viewer** on the GA4 property. Or the official Google Analytics MCP, started **without `--allow-write`** (read-only: never call its write tools).
+7. Clarity: a Data Export API token from a project admin, supplied at run time and never stored.
+
+If any of prerequisites 1–5 is missing, stop and report exactly what is missing and how to obtain it. Items 6–7 never stop the run: a missing one skips only its part of Phase 2B.
 
 ## Tool Inventory
 
@@ -68,6 +73,10 @@ If any prerequisite is missing, stop and report exactly what is missing and how 
 | 2.2 Index coverage | `url_inspection_inspect` | `gsc` MCP |
 | 2.4 Analytics | `search_analytics_query` | `gsc` MCP |
 | 2.5 Render | raw `curl -A Googlebot/2.1` | shell |
+| 2B.1 Detect | rendering fetch with network observation | browser tool or Playwright |
+| 2B.2 Installation audit | rendering fetch; `properties.keyEvents.list` | browser tool or Playwright; Admin API |
+| 2B.3 Data audit | `run_report` / `runReport`; Clarity `project-live-insights` | Analytics MCP or Data API; Clarity Data Export API |
+| 2B.4 Search → Conversion | `search_analytics_query`; `run_report` / `runReport` | `gsc` MCP; Analytics MCP or Data API |
 
 ---
 
@@ -86,6 +95,7 @@ If any prerequisite is missing, stop and report exactly what is missing and how 
    - `docs/trd/trd.md` (legacy: `docs/detailed-design/detailed-design.md` or `docs/detailed-design.md`)
    - Root `CLAUDE.md`
 4. Confirm the GSC MCP is reachable. If not, stop and report.
+5. Ask once whether to run the optional analytics phase (GA4 and/or Microsoft Clarity). The question is asked once and never repeated in the run. No answer or no: record `Analytics: not run — declined at Phase 0`, skip Phase 2B, and complete Phases 1–5 as without it. Yes: list the analytics prerequisites (items 6–7) and ask only for those not already present; a missing one never blocks Phase 1 or Phase 2.
 
 ---
 
@@ -139,6 +149,7 @@ Produce `docs/specs/$SPEC_PATH/seo-setup-report.md` documenting:
 - Respect its schema-detection limitation: static fetches (`curl`, `web_fetch`) cannot see JS-injected JSON-LD. Validate structured data via `url_inspection_inspect.richResultsResult` or a rendering tool, never via static HTML alone.
 - Apply its International SEO checklist (hreflang reciprocity, self-reference, `x-default`, cross-locale canonicals, locale sitemaps) whenever the site serves multiple languages or regions.
 - Apply its **GEO** section (Step 2.8) for generative-engine visibility. GEO is a layer on top of ranking, never a substitute — run the priority order first. When citing a magnitude, carry the skill's source tier: the KDD 2024 figures are peer-reviewed; AI Overview and crawler-behaviour figures are industry analyses and must not be presented as measured fact.
+- Apply its **Analytics** section in Phase 2B, only when the user opted in at Phase 0.
 
 Use `systematic-debugging` when results are inconsistent with site reality.
 
@@ -225,10 +236,58 @@ For the same sampled pages, apply the `seo-audit` skill's **GEO** section (evide
 - **AI crawler directives:** `robots.txt` separates training agents (`GPTBot`, `ClaudeBot`, `Google-Extended`) from retrieval agents (`OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`). A blanket AI-bot block removes the site from AI answers too — confirm the owner's intent before calling either state correct.
 - **Unverifiable claims:** flag numeric or superlative claims in `<title>`, meta description, or JSON-LD that no source supports.
 
-**Do not raise:** a missing `llms.txt` (no measured visibility effect — see the skill), or any finding
-that asserts engagement metrics such as bounce rate affect rankings.
+**Do not raise:** a missing `llms.txt` (no measured visibility effect — see the skill), or any finding that asserts a behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects rankings; behavior metrics serve conversion and UX findings.
 
 Record each failure in the same Issue / Impact / Evidence / Fix / Priority format.
+
+---
+
+### Phase 2B: Analytics & Conversion (optional)
+
+**Role:** Measurement Auditor: how GA4 and Microsoft Clarity are installed, what their data shows, and how Search Console traffic converts. Runs only when the user opted in at Phase 0; when declined, skip this phase and do not ask again. Read-only toward GA4, GTM and Clarity. This phase holds the steps and skip rules; checklists and sources are in the `seo-audit` skill's `references/analytics.md`.
+
+#### 2B.1 — Detect and check access
+
+Detect GA4 and Clarity separately with a **rendering fetch** (browser tool or Playwright observing DOM and network requests): GA4 collection requests, the measurement ID, a GTM container, the Clarity tag. Never report a tool absent from a static fetch alone (`curl`, `web_fetch`): GTM-injected tags are invisible to it, as with JS-injected JSON-LD. With no rendering tool, record each installation check as `not determined`.
+
+Then check access: GA4 through the official Google Analytics MCP when configured (preferred), else Data API and Admin API calls with the service account; Clarity through the Data Export token supplied at run time. Run only what the evidence supports:
+
+| State | Installation audit (2B.2) | Data audit (2B.3) | Cross (2B.4) |
+|---|---|---|---|
+| Installed, access OK | runs | runs | runs when GA4 and GSC data exist |
+| Installed, no access | runs | skipped, with the reason | skipped, with the reason |
+| Not detected | skipped | skipped | skipped |
+| Detection impossible | `not determined` | per access | per access |
+
+For each skipped part, name the missing prerequisite and how to obtain it: `<Tool>: data audit skipped — <missing prerequisite>; obtain: <action>`. Use only these states: a check the evidence cannot settle is `not determined`, one that does not apply is `n/a — <reason>`, and neither is ever a pass.
+
+**Nothing detected:** skip 2B.2–2B.4 with `Analytics: skipped — no GA4 or Clarity detected`. When the sampled pages carry a conversion action (a form, or a WhatsApp link `wa.me/…`, `api.whatsapp.com/…`, `whatsapp://…`), raise exactly one finding, Priority Low: "conversions are not measured". Never raise more than one for the absence, and none when no conversion action exists (note only).
+
+#### 2B.2 — Installation audit
+
+On the pages sampled in Step 2.5, per detected tool (detail in the reference's installation checklist). Findings use the Issue / Impact / Evidence / Fix / Priority format, plus **Basis** (rule or vendor document, with its tier) on consent findings.
+
+- **Tag and IDs.** One tag per measurement ID (no duplicate hits, such as gtag.js and a GTM tag both sending to one ID). Measurement ID consistency with the GA4 property audited, when access exists.
+- **Loading.** Scripts async or deferred, not blocking render. Describe the pattern observed and recommend deferred loading; never state a millisecond or score impact without a PageSpeed, Lighthouse or Search Console CWV measurement taken in this run, and label any magnitude cited with its source tier.
+- **Consent.** These are compliance signals, not legal advice. `Other jurisdictions: not audited`. Record each consent check as a finding or a pass, never as a "compliant" verdict. A GA4 or Clarity hit sent, or storage set, before the banner is answered, for visitors whose jurisdiction requires consent first, is a finding written "signal inconsistent with the consent requirement under <rule>", naming the rule and its tier; never write that a site "violates" a law. Ley 1581 applies only where the analytics processing involves datos personales (Art. 3(c)) and is never a cookie-banner mandate. Also check: no `gtag('consent','default', …)` before the first measurement command means GA4 does not receive the consent state, and the finding names which of the four Consent Mode parameters are missing when a default is incomplete; the notice informs purpose and rights; the consultable record is owner-confirmed or `not determined`; Clarity receives a consent signal (Consent API v2) where the project requires cookie consent.
+- **Conversion events.** For each form or WhatsApp action, check that an event is sent when it happens and, with Admin API access, that `properties.keyEvents` lists it. A click with no event hit is one finding; an event that is not a key event is a separate one. Click the WhatsApp link in the rendering fetch and intercept it before the external navigation completes. Never submit a form with real data: use the page's own validation path or record `not determined`. With neither: `Conversion events: n/a — no form or WhatsApp CTA found on sampled pages`. The hits this audit generates in the client's property get a one-line **test-traffic disclosure** (date, time, pages) in the installation findings so the owner can filter them.
+- **GSC link.** No Admin API Search Console link resource exists; never call one. Probe in order: a Data API request for a Search Console metric such as `organicGoogleSearchClicks` that returns data, then owner confirmation, then `not determined`. Record the evidence that settled the state: `GSC link: linked (Data API probe)`, `linked (owner-confirmed)`, `not linked (owner-confirmed)` or `not determined`.
+- **Clarity masking.** `data-clarity-unmask` on an element containing a form or personal data is a finding with the element as Evidence; input values are masked in all modes, surrounding text is not. The masking mode (Strict, Balanced, Relaxed) is a project setting no API used here exposes: owner-confirmed Strict or Balanced passes, owner-confirmed Relaxed is a finding, otherwise `not determined`. Pages that display personal data as text (confirmation, account) must carry `data-clarity-mask` or a mask-by-element rule, or the mode is Strict.
+
+#### 2B.3 — Data audit
+
+With access, read aggregate data only and record findings in the same format.
+
+- **GA4, last 28 days:** organic sessions by landing page; share of `(not set)` landing pages; key events by event name, and those with zero count; self-referral or payment-gateway sources.
+- **Clarity:** dead, rage and quickback clicks, script errors and scroll depth on the landing pages that carry a conversion action. The window is the last 1–3 days and the quota is 10 requests per project per day: use at most 3 requests, state the number used in the report, state the data window next to every figure, and report a 1,000-row response as truncated.
+
+State each Impact in conversion or UX terms ("visitors fail to reach WhatsApp").
+
+#### 2B.4 — Search → Conversion
+
+When GSC data and GA4 access both exist, issue this step's own `gsc` calls (Step 2.4 never groups by `query,page`): `search_analytics_query` grouped by `page` (limit 250) and by `query,page` (limit 1,000), over GA4's date range; pages beyond 250 are counted, not joined. Join per landing page: GSC clicks, impressions and top queries, with GA4 organic sessions (`sessionDefaultChannelGroup` = Organic Search) and key events. Normalize URLs (host, trailing slash, query string stripped) before joining and list unmatched rows. Print the caveats: GSC clicks are not GA4 sessions; consent choices and data thresholds reduce GA4 counts; date ranges and time zones differ. Say "landing pages reached from these queries"; never describe a query as "causing" conversions.
+
+**Hard rule.** Never claim that any behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking; use behavior metrics for conversion and UX findings only. **Privacy.** The Clarity token is used only in request headers and is never written to the report or the repository, nor are service-account key contents or OAuth credentials; data stays aggregate: no user IDs, client IDs, IP addresses, session-recording URLs or raw event payloads.
 
 ---
 
@@ -248,8 +307,13 @@ Required sections:
 8. Internal Linking Findings
 9. On-Page SEO Findings — Step 2.7 results, each in the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
 10. GEO Findings — Step 2.8 results, same format. State the source tier next to any magnitude cited, and keep GEO items ranked below blocking classic-SEO fixes in the remediation plan (GEO layers on ranking, it does not substitute for it).
-11. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery.
-12. Re-audit Schedule — when to run `/akili-seo <domain>` again.
+11. Analytics Installation Findings — Phase 2B.2 findings, one sub-table per tool, or the skip note. When the run generated hits in the client's property (page views, the WhatsApp click), carry the one-line test-traffic disclosure (date, time, pages) here.
+12. Analytics Data Findings — Phase 2B.3 findings with the data window beside every figure (and, for Clarity, the number of requests used), or the skip reason per tool.
+13. Search → Conversion — the Phase 2B.4 table with its caveats and unmatched rows, and the statement that pages beyond the 250-page cap were counted, not joined; or the skip reason.
+14. Remediation Plan — prioritized (High / Medium / Low) actionable items, each scoped enough that an implementer can execute it without further discovery. List analytics findings in a separate **Measurement & Compliance** group; never merge them into the SEO priority list, so a High crawl finding and a High consent finding each keep their own position.
+15. Re-audit Schedule — when to run `/akili-seo <domain>` again.
+
+Sections 11–13 each hold findings, a skip note, or `Analytics: not run — declined at Phase 0`. Use only the Phase 0 and Phase 2B state strings; a state outside that set is `not determined`.
 
 The report title must be `# SEO Audit Report — <domain>`.
 
@@ -259,7 +323,7 @@ The report title must be `# SEO Audit Report — <domain>`.
 
 Append to the audit report a section titled `## Implementation Prompt` containing a fenced, copy-paste prompt that can be handed to Claude Code (or any engineer) inside the site's codebase to fix every High-severity finding. The prompt must:
 
-- Reference each finding by ID from the remediation plan.
+- Reference each finding by ID from the remediation plan, including the High findings in the Measurement & Compliance group.
 - Include exact JSON-LD before/after snippets where structured data is broken.
 - Include exact URL pairs for hreflang corrections.
 - End with "Show me a diff of every change before applying. Do not deploy until I approve."
@@ -282,6 +346,7 @@ Present a short summary of:
 
 - Setup status (Phase 1 outcome).
 - Audit headline findings and counts per bucket.
+- The analytics state (run, skipped with its reason, or `Analytics: not run — declined at Phase 0`) and, when run, the count of Measurement & Compliance findings.
 - The number of High / Medium / Low remediation items.
 - Paths to the two generated reports.
 
@@ -300,7 +365,11 @@ After the command completes, verify:
 - [ ] Every structured-data warning is reproduced with the exact bad value and the exact fix.
 - [ ] On-page findings from Step 2.7 use the `seo-audit` Issue / Impact / Evidence / Fix / Priority format.
 - [ ] GEO findings from Step 2.8 are present, carry their source tier where a magnitude is cited, and rank below blocking classic-SEO fixes in the remediation plan.
-- [ ] No finding claims engagement metrics (bounce rate, time on page) affect rankings, and none flags a missing `llms.txt`.
+- [ ] No finding claims any behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking, behavior metrics are used for conversion and UX findings only, and none flags a missing `llms.txt`.
+- [ ] The analytics state is named in the report (run, `Analytics: skipped — no GA4 or Clarity detected`, or `Analytics: not run — declined at Phase 0`).
+- [ ] Consent findings carry Basis, the not-legal-advice sentence and `Other jurisdictions: not audited`.
+- [ ] No Clarity token, service-account key contents, OAuth credential or personal data (user IDs, client IDs, IP addresses, session-recording URLs, raw event payloads) appears in any written file.
+- [ ] Search → Conversion carries its caveats (GSC clicks are not GA4 sessions; consent and data thresholds reduce GA4 counts; date ranges and time zones differ) and says "landing pages reached from these queries".
 - [ ] The implementation prompt is self-contained and would not require this conversation to execute.
 - [ ] The Growth Strategy addendum was **offered when the audit surfaced content/visibility gaps** and its state is named in the report (included / offered and declined / not applicable for a purely technical audit). When included, every recommendation cites audit evidence and none prescribes keyword densities or word counts.
 
@@ -313,6 +382,9 @@ After the command completes, verify:
 - If `sites_list` returns empty after a successful `sites_add`, the MCP cached an old session — instruct the user to restart Claude Code or the `gsc` MCP and retry.
 - If `search_analytics_query` returns no rows for a newly verified property, this is expected. Do not mark as failure.
 - If the Indexing API is suggested as a fix, decline it for non-`JobPosting`/`BroadcastEvent` content and explain why.
+- If a GA4 Data API or Admin API call returns 403, the Viewer grant is missing for the service account: record `GA4: data audit skipped — Viewer grant missing; obtain: add the service-account email as Viewer on the property` and do not retry blindly.
+- If a Clarity request returns 400, the parameters are invalid: fix the request and do not spend the quota retrying. 401: the token is missing, invalid or expired. 403: the token is not authorized for the project; for 401 or 403 record `Clarity: data audit skipped — token missing, invalid or not authorized; obtain: create a data-export token for the project in Clarity settings` and do not retry. 429: the daily quota is spent; skip the Clarity data audit for the day.
+- If a Search Console metric request to the Data API errors, the probe settles nothing: fall back to owner confirmation, else record `GSC link: not determined`.
 - If a skill is unavailable, fall back to the next documented skill and note it in the report.
 
 ---
