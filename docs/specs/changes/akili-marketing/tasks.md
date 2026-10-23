@@ -264,7 +264,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~520 LOC) |
 | Depends on | T5, T8a |
 | Requirements | Every §3 row whose *Pins* column names T7 (FR-2…FR-11), plus DD-3 restatement: the docs page's gate sentence and `SKILL.md`'s standalone line agree with `## Invariants` |
