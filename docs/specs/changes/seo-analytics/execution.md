@@ -128,3 +128,36 @@
 | spawns | Implementer 19 calls, 99,590 tokens, ended complete; Reviewer (checklist) 10 calls, 84,664 tokens, ended fail; Implementer (rework by message) 2 calls, 104,557 tokens (cumulative context), ended complete; Reviewer (scoped) 3 calls, 56,097 tokens, ended complete |
 | Running totals | tasks 5/6 · LOC ~794 (T1 ~316 + T2 238 + T3 91 + T4 81 + T5 68: 61+, 7−) · review rounds 12 — within the tripwire (7 / ~900 / 14). T6 has 2 rounds left before the cap |
 | Continue gate | Passed under the user's instruction of 2026-10-22 |
+
+### T6 — CHANGELOG, full verification, sweeps, falsification — **PASS** (attempt 2)
+
+| Field | Value |
+|---|---|
+| Status | **PASS** — 2026-10-22 |
+| Attempts | 2 (attempt 1 FAIL, full Reviewer; attempt 2 PASS on scoped re-review) |
+| Files changed | `CHANGELOG.md` `[Unreleased]`: Added ×5, Changed ×2, Notes ×3 incl. "Release class: minor" · `docs/skills/seo-audit.md:26` one phrase ("session duration" → "session duration or engagement time"; T5-owned rework run inside the T6 loop) |
+| Verification (Implementer, session scratchpad `T6-evidence.md`) | `npm test` 572/572/0 · `npm run verify:cli` exit 0 (12 commands, 27 skills, 8 resources) · `npm run pack:dry-run` exit 0, lists `.claude/skills/seo-audit/references/analytics.md` (17.4kB), 310 files · `git diff --check` exit 0 · NFR-1 `git diff --stat 84765ff -- bin package.json scripts docs/model-routing.md .claude/templates` empty · spec-path grep outside `docs/specs/` → 0 · phrase-family sweep: 80 hits read, none asserts a ranking effect (`sweep.txt`) |
+| FR-11 falsification (8 surfaces) | Each surface's (a) deleted in turn → exactly one red, its own assertion: reference §2 · command Step 2.8 · command Phase 2B · checklist · SKILL User Engagement Signals · SKILL Do not raise these · SKILL Analytics section · docs Core Rules. Messages "<surface> lost the prohibition (a)…" (`falsify-out.txt`). Restored, `cmp` identical, 66/66. Attempt 2 re-ran the docs surface on a scratch copy → 65/1, same assertion. The Reviewer independently re-ran three on scratch copies (Do not raise (a), Phase 2B (a), docs (b)), each red on its own target only |
+| Assertion total | 66 tests in `test/seo-analytics.test.js`, against the tasks plan of 65 + 1 (T4's GEO-stop guard from its Disqualifier) and design §9.3's ~67 |
+| Evidence re-run (Leader-inline, non-author) | **VERIFIED**: `npm test` 572/572/0 · `verify:cli` exit 0 · `pack:dry-run` lists `analytics.md` · `git diff --check` 0 · NFR-1 diff 0 lines · spec-path grep 0 · attempt 2 `npm test` 572/572/0 and diff of `:26` read |
+| Attempt 1 — Reviewer (full, `opus`) | **FAIL**, 1 issue. The `### Changed` bullet claimed the full metric list on every named surface, but `docs/skills/seo-audit.md:26` omitted "engagement time" (FR-14 quote-check; FR-11 full Glossary per surface). Every other clause quote-checked at HEAD: counts 572/66/12/27/11 evals, caps, 223→224, Phase 0, 2B.1–2B.4, prerequisites, quota, consent, Ley 1581, GSC order, 11–15, no CI claim, no spec path |
+| Attempt 2 — Reviewer (scoped re-review, `opus`) | **PASS**. `:26` carries all 11 terms. The rewritten bullet is accurate surface by surface: six carry the full list, and *Do not raise these* and *Analytics & Conversion Measurement* state both halves without the list. No new overstatement |
+| Review intensity | Not met (`full`; override (c), summary surface; override (e)). Reviewer owed and run |
+| ADVISORY (recorded, not tasks) | The Changed bullet's single shared sentence paraphrases surfaces worded differently · the Cutts/Illyes/Mueller clause omits SERoundtable and the conflicting Mueller dates · the attempt-1 falsifications mutated repo files in place and restored them (tree verified clean; scratch copies preferred) · metric-coverage tests run on only two surfaces, which is why the `:26` gap passed the tests |
+| Requirements covered | FR-14 (CHANGELOG), FR-11 (falsification, 8 surfaces; docs surface completed), NFR-1, NFR-5, requirements §8 sweeps |
+| Decisions made | Implementer `sonnet` at effort high, raised to xhigh on rework; single full Reviewer. The `:26` fix is a T5-owned file edited inside T6's rework, routed by the Leader per T6 Scope ("a failure goes back to its owning task as rework"). Done in the T6 loop because a separate T5 reopen would have cost an extra review round beyond the cap |
+| spawns | Implementer 19 calls, 105,362 tokens, ended complete; Reviewer (full) 16 calls, 86,801 tokens, ended fail; Implementer (rework by message) 4 calls, 112,444 tokens (cumulative context), ended complete; Reviewer (scoped) 4 calls, 58,429 tokens, ended complete |
+| Running totals | tasks 6/6 · LOC **811** (`git diff --shortstat 84765ff -- . ':(exclude)docs/specs'` → 11 files, 784+, 27−) · review rounds **14**. At the tripwire's round cap, not over it (7 / ~900 / 14) |
+| Continue gate | Passed under the user's instruction of 2026-10-22 |
+
+## 3. Summary
+
+| Item | Result |
+|---|---|
+| Tasks | 6/6 `[x]`, each closed by a Reviewer `PASS` (no waiver, no skip) |
+| Attempts | Every task took 2: a FAIL then a PASS. 6 FAIL verdicts, all spec-conformance or source findings, all fixed in one rework |
+| Budget | 6 of 7 tasks · 811 of ~900 LOC · 14 of 14 review rounds. Within the tripwire, at its round ceiling. Cause: every task's first Reviewer found one or two clause-level gaps (KZ-changes--gate-falsifiability-2 and KZ-002 classes) |
+| Suite | `npm test` 572/572/0 on Node v25.2.1 (baseline 506; +66 in `test/seo-analytics.test.js`). CI Node 18/22 legs `UNVERIFIED` (no push) |
+| Execute-time spec edits | design §12 P-16 / T1 *Consumers* (install-cursor file-count pin) · design §7 Error Handling (GSC probe error → owner confirmation, then `not determined`) · design §9.2 (the extension to all behavior data is the skill's rule; the Google statement is tiered `[INDUSTRY]`). None changes a requirement's meaning |
+| Open `UNVERIFIED` premises | none. P-21 settled `[INDUSTRY]`; P-23 and P-27 settled in T1 |
+| Not done | nothing owed. Advisories recorded per task; none became a task |

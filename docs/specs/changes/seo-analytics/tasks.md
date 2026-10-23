@@ -164,7 +164,7 @@ Every task edits `test/seo-analytics.test.js`, so tasks run **sequentially**: T1
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Depends on | T5 |
 | Requirements | **FR-14** (CHANGELOG scenario: every clause quote-checked against HEAD). **FR-11** scenario: "falsified by deleting the clause from one surface (red), then restoring it (green)". **NFR-1**, **NFR-5**. Requirements §8: phrase-family sweep, spec-path grep |
 | Design refs | §9.3 falsification; §11 |

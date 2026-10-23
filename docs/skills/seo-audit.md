@@ -23,7 +23,7 @@ AKILI-original additions (not in the upstream skill): the **GEO** section and `r
 - **GEO is a layer, not a sixth priority** — ~3/4 of AI Overview citations come from pages already in the top 10, so a GEO fix never displaces a classic-SEO fix.
 - **Source tiers are carried into findings.** Peer-reviewed magnitudes (KDD 2024 GEO study) and industry analyses are labelled differently; an industry figure is never presented to a client as measured fact.
 - Static fetches (`curl`, `web_fetch`) cannot detect JS-injected JSON-LD; structured data must be validated with a rendering tool or Search Console URL inspection.
-- **Two findings are explicitly banned:** "missing `llms.txt`" (no measured visibility effect) and any claim that a behavior metric affects ranking. Never claim that a behavior metric (bounce or engagement rate, session duration, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking; use them for conversion and UX findings.
+- **Two findings are explicitly banned:** "missing `llms.txt`" (no measured visibility effect) and any claim that a behavior metric affects ranking. Never claim that a behavior metric (bounce or engagement rate, session duration or engagement time, scroll depth, heatmaps, recordings, dead/rage/quickback/error clicks) affects Google or Bing ranking; use them for conversion and UX findings.
 
 ## Best Paired Commands
 
