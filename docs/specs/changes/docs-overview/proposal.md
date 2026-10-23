@@ -12,7 +12,7 @@
 | Out-of-bounds actions | Local commits only: no push, PR, tag, release or publish. The `akili-marketing` and `video-hardening` worktrees are not touched |
 | Date | 2026-10-23 (rev. 2, same day) |
 | Author | AKILI session (proposer), from Juan Carlos Cadavid's audit at `dev` 8679e25 |
-| Status | **Draft rev. 2**, awaiting decisions D1–D8 |
+| Status | **Approved** — 2026-10-23 (Juan Carlos Cadavid): D1–D8 as recommended; open question answered as recommended (no sample `proposal.md` in the README, link to `docs/flow.md` → *Practical Example*). Rule added at approval: all documentation (README, `docs/overview.md` and every other doc) is written in English |
 | Revision log | rev. 1 `35e9d4b`: capability overview + derived test. **rev. 2**: Juan Carlos Cadavid's new requirements (2026-10-23). The README must be simple for a new user, with a fixed section order, no unexplained jargon, and a substantially shorter length. Detail moves to `docs/`. This adds D7 (re-target the README pins) and D8 (hero). D1 now holds the exact section list and target length. The budget is re-estimated |
 | Depends on | `changes/akili-marketing` (merge order only, see D2) |
 | Parallel-safe | **no**. `akili-marketing` edits 8 of the same files (`README.md`, `docs/README.md`, `docs/cli.md`, `docs/flow.md`, `docs/commands/README.md`, `docs/skills/README.md`, `docs/skills/governance.md`, `test/diagram-design.test.js`), per `git diff --stat 8679e25...JuankCadavid/akili-marketing` run 2026-10-23 |
