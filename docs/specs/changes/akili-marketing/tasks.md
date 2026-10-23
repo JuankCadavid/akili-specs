@@ -237,7 +237,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC) |
 | Depends on | T3, T5 |
 | Requirements | FR-12 (counts, fixture) |
