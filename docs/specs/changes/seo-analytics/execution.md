@@ -161,3 +161,16 @@
 | Execute-time spec edits | design §12 P-16 / T1 *Consumers* (install-cursor file-count pin) · design §7 Error Handling (GSC probe error → owner confirmation, then `not determined`) · design §9.2 (the extension to all behavior data is the skill's rule; the Google statement is tiered `[INDUSTRY]`). None changes a requirement's meaning |
 | Open `UNVERIFIED` premises | none. P-21 settled `[INDUSTRY]`; P-23 and P-27 settled in T1 |
 | Not done | nothing owed. Advisories recorded per task; none became a task |
+
+## Post-validation rework — V-1, V-2, V-3, V-6 — **PASS**
+
+| Field | Value |
+|---|---|
+| Authority | User, 2026-10-22: "Arregla V-1, V-2, V-3 y V-6 con un retrabajo más una revisión, y luego corre /akili-archive". This explicitly extends the review budget past the 14-round tripwire by one round |
+| Files changed | `.claude/commands/akili-seo.md` (`:272` "hit sent, or storage set, before the banner is answered"; `:316` "Phase 0 and Phase 2B state strings"; `:385` `GA4: data audit skipped — Viewer grant missing; obtain: …`; `:386` `Clarity: data audit skipped — token missing, invalid or not authorized; obtain: …`) · `references/analytics.md:119` (same trigger + jurisdiction qualifier) · `SKILL.md:416` (`[INDUSTRY]`), `:419` (denial scoped to the bounce-rate claim, `[INDUSTRY]`) · `evals.json` eval 10 and `CHANGELOG.md:13` (trigger aligned) · `README.md:801`, `docs/commands/akili-seo.md:70` ("e.g.") — 7 files, 12+/12− |
+| Implementer verification | `node --test` seo-analytics suites 102/102 · `npm test` 608/608 · `git diff --check` clean · command 394 lines, SKILL 637 · phrase sweep: remaining hits are history (`CHANGELOG.md:561`), the spec text and the audit trail |
+| Evidence re-run (Leader-inline) | **VERIFIED**: `npm test` 608/608/0 · `git diff --check` 0 · evals JSON parses · diffstat 7 files 12+/12− |
+| Reviewer (`opus`) | **PASS**. The four fixes match FR-4 row 1, FR-11 and design §5.2; eval 10 and CHANGELOG quote-check holds; no new contradiction |
+| ADVISORY | The Clarity `obtain:` text omits that a project admin creates the token · eval 10 and CHANGELOG:13 omit the jurisdiction qualifier · `CHANGELOG.md:561` (an earlier release) still says "explicitly denied" |
+| spawns | Implementer 7 calls, 67,262 tokens, ended complete; Reviewer 5 calls, 70,218 tokens, ended complete |
+| Running totals | review rounds 15 (14 + 1 user-authorized) |

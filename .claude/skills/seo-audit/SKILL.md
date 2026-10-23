@@ -413,10 +413,10 @@ Structured data also has a measurable association with citation in generative an
 
 **Google has said it does not use analytics engagement metrics as ranking factors (`[INDUSTRY]`, as reported); this skill extends the rule to all behavior data.** John Mueller: *"We don't use
 bounce rate in search rankings."* Gary Illyes: *"we don't use analytics/bounce rate in search
-ranking."* Google has denied this for roughly a decade.
+ranking."* Google has denied this for roughly a decade (`[INDUSTRY]`).
 
 Never claim that any behavior metric affects Google or Bing ranking, and never write "improve bounce rate
-to improve rankings" — Google has explicitly denied it, and the claim damages the correct findings next to it.
+to improve rankings" — that is the bounce-rate claim, which Google has said it does not use (`[INDUSTRY]`), and it damages the correct findings next to it.
 Behavior metrics: bounce rate, engagement rate, session duration, engagement time, scroll depth, heatmaps,
 recordings, dead clicks, rage clicks, quickback clicks, error clicks.
 

@@ -116,7 +116,7 @@ check is a signal with a **Basis**; the audit never issues a "compliant" verdict
 
 Checks and their wording:
 
-- **Consent before storage.** A GA4 or Clarity hit that sets storage before the banner is answered is a finding with the observed request as Evidence. Write it as "signal inconsistent with the consent requirement under <rule>", name the rule and its tier. Never write a verdict that the site is unlawful.
+- **Consent before storage.** A GA4 or Clarity hit sent, or storage set, before the banner is answered, for visitors whose jurisdiction requires consent first, is a finding with the observed request as Evidence. Write it as "signal inconsistent with the consent requirement under <rule>", name the rule and its tier. Never write a verdict that the site is unlawful.
 - **Notice content.** The notice informs purpose and rights (Ley 1581 Art. 12).
 - **Consultable record** (Ley 1581 Art. 9). Owner-confirmed or `not determined`.
 - **Consent Mode v2.** `gtag('consent','default', …)` runs on every page "before any commands that send measurement data", with all four parameters: `ad_storage`, `analytics_storage`, `ad_user_data`, `ad_personalization`. Google lists the last two as sent "in addition to" the first pair. A banner with no default means GA4 does not receive the consent state. **The finding records which of the four parameters are missing** when a default exists but is incomplete. A missing parameter is a signal, not a verdict; the `ad_*` pair matters for advertising features. `wait_for_update` holds data for an asynchronous banner.

@@ -12,7 +12,7 @@
 
 ## 2. Summary
 
-**Verdict: PASS with WARN.** There is no FAIL. Every FR-1…FR-14 and NFR-1…NFR-6 clause has an owning task, shipped text and test or review evidence. Six WARNs remain: one narrowed clause (V-1), wording drift (V-2, V-3, V-6) and stale spec figures (V-4, V-5). None is a dropped obligation that changes run-time safety.
+**Verdict: PASS with WARN.** *Update 2026-10-22:* the user approved fixing V-1, V-2, V-3 and V-6. The post-validation rework passed review (`execution.md` *Post-validation rework*), so they are **resolved**. V-4 and V-5 (stale spec figures) are synced at archive. There is no FAIL. Every FR-1…FR-14 and NFR-1…NFR-6 clause has an owning task, shipped text and test or review evidence. Six WARNs remain: one narrowed clause (V-1), wording drift (V-2, V-3, V-6) and stale spec figures (V-4, V-5). None is a dropped obligation that changes run-time safety.
 
 | Area | Result |
 |---|---|

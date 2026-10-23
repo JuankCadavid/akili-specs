@@ -67,7 +67,7 @@ docs/specs/<spec-path>/seo-audit-report.md
 
 ## Skills
 
-The audit phase loads the packaged [`seo-audit`](../skills/seo-audit.md) skill: findings follow its Issue / Impact / Evidence / Fix / Priority format and are weighted by its priority order (crawlability → technical → on-page → content → authority). In Phase 2B the skill's Analytics & Conversion Measurement section and `references/analytics.md` apply: behavior metrics (bounce or engagement rate, heatmaps, recordings) feed conversion and UX findings and are never claimed to affect Google or Bing ranking; consent checks are compliance signals, not legal advice, and `Other jurisdictions: not audited`. `systematic-debugging` applies when index data is inconsistent with site reality.
+The audit phase loads the packaged [`seo-audit`](../skills/seo-audit.md) skill: findings follow its Issue / Impact / Evidence / Fix / Priority format and are weighted by its priority order (crawlability → technical → on-page → content → authority). In Phase 2B the skill's Analytics & Conversion Measurement section and `references/analytics.md` apply: behavior metrics (e.g. bounce or engagement rate, heatmaps, recordings) feed conversion and UX findings and are never claimed to affect Google or Bing ranking; consent checks are compliance signals, not legal advice, and `Other jurisdictions: not audited`. `systematic-debugging` applies when index data is inconsistent with site reality.
 
 ## Helper Resources
 
