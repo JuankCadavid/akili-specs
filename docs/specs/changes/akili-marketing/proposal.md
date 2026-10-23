@@ -11,7 +11,7 @@
 | Approval Mode | gated (the user asked to stop at the propose gate) |
 | Date | 2026-10-23 |
 | Author | AKILI session (proposer) |
-| Status | **Draft — awaiting decision** (Juan Carlos Cadavid) |
+| Status | **Approved** — 2026-10-23 (Juan Carlos Cadavid): D1–D9 as recommended (option A, draft-only); Q1 yes (`docs/marketing/` fixed), Q2 no in v1, Q3 yes, Q4 no in v1 |
 | Related | `/akili-seo` (domain-command precedent, GA4 Phase 2B), `/akili-security` (vendored-skill precedent), `docs/skills/governance.md` |
 | Upstream sources (reviewed) | `sergebulaev/instagram-skills` @ `6a124481d0ebe9b6d3ac1323ed2a2abc40c7e1d7` (2026-10-15, cloned and read); `sergebulaev/linkedin-skills` @ `c4447ead7723aa0b65bbfb5d9281784b20dce75a` (2026-10-22) and `sergebulaev/facebook-skills` @ `f3fb266c0b984cf5e9e9e3a6a57021373f3ced68` (2026-10-15) — license and skill list read via `gh api`, contents **not yet read** (specify Phase 1 reads them) |
 | Depends on | none |
