@@ -318,7 +318,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~70 LOC) |
 | Depends on | T5 |
 | Requirements | FR-12 (lists that enumerate anytime commands and command files; upstream credit in README) |
