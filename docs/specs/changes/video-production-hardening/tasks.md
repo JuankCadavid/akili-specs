@@ -492,7 +492,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 - **Design:** §6 `--version` row; §7.2; DD-10; P-9–P-12
 - **Scope:**
   - `bin/akili.js`: option `version` with short `v`; early return in `getArgs` before the validations; `main` branch before `checkForUpdates`; one `printHelp` line.
-  - New `test/cli-version.test.js`: spawns `--version`, `-v`, `--version install`, `--version --help`, and `--version --tool bogus`. Each asserts stdout `== <package.json version>\n`, exit 0, empty stderr, and no `Unknown option`. The no-network property is asserted by running with `AKILI_*` update-check env so that a network attempt would be visible; if the repo has no such seam, the test records that gap.
+  - New `test/cli-version.test.js`: spawns `--version`, `-v`, `--version install`, `--version --help`, and `--version --tool bogus`. Each asserts stdout `== <package.json version>\n`, exit 0, empty stderr, and no `Unknown option`. For no-network, the test preloads `test/fixtures/update-check/registry-redirect.js` (the `update-check.test.js` seam) and asserts 0 registry hits. That assertion is **inert** in a spawned non-TTY process, because `checkForUpdates` returns early without a TTY (`bin/akili.js:2392`). So the property rests on code order (the `main` branch runs before `checkForUpdates`): the Reviewer checks that order, and a comment in the test records the gap.
   - `docs/cli.md` *Commands* table row and `README.md` usage line.
 - **Tests / Verification:** `node --test test/cli-version.test.js` green; `node bin/akili.js --version` prints `2.35.0`.
 - **Falsifier:** post-change, move the version branch after the validations → `--version --tool bogus` exits 1. Observe, quote, revert.
