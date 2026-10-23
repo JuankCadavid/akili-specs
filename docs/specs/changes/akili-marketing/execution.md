@@ -268,3 +268,10 @@ Quote-check corrections made while drafting: a clause placing "Six anytime comma
 - spawns: Implementer 29 calls, 118,850 tokens, ended complete; Reviewer not reported by host, ended complete (PASS).
 - **Final status: PASS** (2026-10-23). Requirements: FR-12 (CHANGELOG, no active-spec-path reference), NFR-1…NFR-5. Windows legs (NFR-3) `UNVERIFIED` until the user pushes.
 - Running totals: tasks 11/12 · shipped LOC ~2,017 (2,001 + 16 CHANGELOG) vs ~2,600 budget · review rounds **20** = tripwire limit (stop past 20). T10's observation round would be the 21st → **budget tripwire**: escalated to the user together with the T10 HITL stop.
+
+---
+
+### T10 — Dogfood run (HITL) (Leader entry)
+
+- **Status: stopped for the user** (2026-10-23) — HITL by task definition and by the user's mandate ("En T10 (HITL) detente"). Also a **budget tripwire**: review rounds stand at 20 (the stop limit); T10's observation round would be the 21st and needs the user's go-ahead.
+- Prepared (Leader, setup only — the command was not run): scratch project `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-akili-marketing/5c67b285-11fa-433e-8262-039c9697624a/scratchpad/dogfood` — `node bin/akili.js install --tool claude --claude-target <scratch>/.claude` (command + skill present; `adapted-for: "AKILI-SPECS"` ×1), `git init` + baseline commit + `.dogfood-marker` commit; `git status --porcelain` → 0 lines. Per the Disqualifier, the 12-step expectations stay out of the session that runs the command: the user runs it in a **fresh** Claude Code session opened in that folder and pastes the transcript back here for recording.
