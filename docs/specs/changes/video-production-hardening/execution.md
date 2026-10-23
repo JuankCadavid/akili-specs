@@ -286,3 +286,21 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
 | Running totals | review rounds 18/~38 (T5 attempt 3 verdict pending) |
 | Decision — attempt 3 | Effort at the T2 ceiling (`xhigh`) before this retry → ceiling rung: escalate with a distinct auditor. Implementer escalated to T3 `opus`, effort `xhigh` (reason: two consecutive FAILs on unpinned THEN terms at the T2 ceiling); Reviewer `fable`. Attempt ceiling stays 3 |
+
+### T5 — `test/video-production.test.js`: pins for T1–T4 — PASS on attempt 3 (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 3 of 3 |
+| Requirements | FR-1, FR-2, FR-3, FR-4, FR-5, FR-10, FR-14 (every clause T1–T4 own); NFR-1, NFR-2, NFR-6 |
+| Files changed | `test/video-production.test.js` (+229 −6); tests 16 → 33 |
+| Attempts | 1 FAIL and 2 FAIL (entries above). Attempt 3: Implementer `opus` (T3, escalated by the ceiling rung), effort `xhigh`, skill `tdd`. #24 pins the router-found outcome cell ending `. Continue`; #26 pins exact owner cells and storage for `story.md`, `SPEC.md`, `snapshot --review`/`REVIEW.md`, `--describe false` on the review line, the storyboard rule; #28 extended to "fetched from Google Fonts at compile time" (found by its own walk). Term walk built from the requirement text: 91 single-term mutations on scratch roots, RED 91 / green 0 (`a3/walk.js`, `a3/walk.out` in the session scratchpad) |
+| Red run (greenfield, observed in T5) | attempt 1, 34afbff skill files in a scratch root: 17 red (amended host-rows test + 16 new pins), e.g. `SKILL.md:63 snapshot line has no --output`, `expected heading "## Evidence files"`, `deferral owner "hyperframes-core" is not in the core set` |
+| Evidence re-run | Leader inline (quiet tree): VERIFIED — tests 33, pass 33, fail 0 |
+| Reviewer | `fable` (distinct auditor, ceiling rung), PASS: "Every THEN/BUT/AND clause in the T5 coverage rows … now has a row/line/item-located assertion … both prior FAIL terms are closed". Read the 91-mutation walk critically and ran 13 independent spot mutations, all red on the intended assertion |
+| ADVISORY | #26 storyboard lookup lacks an `assert.ok` guard (type error instead of named message on a renamed row); #25 is stricter than FR-3 *No stale names* (an on-demand owner row would need the pin relaxed); NFR-6 self-check regex catches only `join(…"specs"` |
+| Decisions | Ceiling rung exercised for the first time (the rule T8 shipped in this spec): attempt 3 escalated the Implementer to `opus` `xhigh` and the Reviewer to `fable` |
+| runtime events | none |
+| spawns | attempt 3 Implementer `opus` not reported by host, ended complete; Reviewer `fable` not reported by host, ended complete |
+| Running totals | tasks 13/21 · LOC (tests) +229 · review rounds 19/~38 |
+| Approval | auto-approved (pre-approved mode) |

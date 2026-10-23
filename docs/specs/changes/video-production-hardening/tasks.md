@@ -154,7 +154,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T5 — `test/video-production.test.js`: pins for T1–T4
 
-- **Status:** [~] · **Size:** M (~200 LOC) · **Depends on:** T1, T2, T3, T4
+- **Status:** [x] · **Size:** M (~200 LOC) · **Depends on:** T1, T2, T3, T4
 - **Requirements:** every clause T1–T4 own (coverage table below); NFR-1 (counts stay ≥ the bounds); NFR-2; NFR-6
 - **Design:** §8.1–§8.3; P-1; DD-6, DD-11
 - **Scope:** extend `test/video-production.test.js`:
