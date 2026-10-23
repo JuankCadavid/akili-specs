@@ -273,3 +273,16 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
 | Next | attempt 2, effort `xhigh`, Reviewer report verbatim |
 | Running totals | review rounds 16/~38 |
+
+### T14 — attempt 2 FAIL (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Attempt 2 | Implementer `sonnet`, effort `xhigh`, skill `tdd`, Reviewer report verbatim. Test 35 pins the beats/assets table headers and the full constraints line; test 28 pins each section's parenthesised content. Walk: 47 single-term removals, all red |
+| Evidence re-run | Leader inline (quiet tree): VERIFIED — tests 48, pass 48, fail 0 |
+| Reviewer verdict | `opus`, FAIL — attempt-1 issues closed (mutations re-run red); three THEN terms unpinned, each mutation 48/48 green: (1) FR-11 *Runtime spawn* THEN — "the Tester's model MUST be none of the Implementer models that wrote the code under test." replaced by "the Tester should ideally differ."; (2) FR-6 *Default* THEN — "only after the final look is approved, " deleted; (3) FR-12 *Video multiplier* THEN — ", parity tools" deleted (swallowed by `.*` in test 40) |
+| ADVISORY | FR-13 WHEN sources (frontier pin / cross-host dispatch) unpinned (WHEN, not THEN); specify Copy-Delivery `(render \| deferred)` unpinned (not required by FR-6 *Recorded* THEN); attempt-1 advisories stand |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
+| Running totals | review rounds 18/~38 (T5 attempt 3 verdict pending) |
+| Decision — attempt 3 | Effort at the T2 ceiling (`xhigh`) before this retry → ceiling rung: escalate with a distinct auditor. Implementer escalated to T3 `opus`, effort `xhigh` (reason: two consecutive FAILs on unpinned THEN terms at the T2 ceiling); Reviewer `fable`. Attempt ceiling stays 3 |
