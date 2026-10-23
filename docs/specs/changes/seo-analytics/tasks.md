@@ -8,7 +8,7 @@
 | Depth | Standard |
 | Type / Deliverable | Change / software |
 | Approval Mode | `gated` |
-| Status | **Draft**, awaiting the Phase 3 gate |
+| Status | **Approved** 2026-10-22 (Phase 3 gate; user: "tasks.md aprobado (commit ee28a03). Sigue con /akili-execute") |
 | Date | 2026-10-22 |
 | Budget (design §11, the tripwire) | **7 tasks · ~790 LOC · 14 review rounds**. This plan uses 6 tasks. `/akili-execute` stops and escalates past 7 tasks, ~900 LOC or 14 rounds |
 | Commit prefix | `[SPEC:changes/seo-analytics]`, local commits only; **no push, tag, release or publish** |
