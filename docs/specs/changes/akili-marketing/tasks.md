@@ -210,7 +210,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~280 lines) |
 | Depends on | T3 |
 | Requirements | FR-2…FR-11 — every clause in §3 whose *Writes* column names T5 |
