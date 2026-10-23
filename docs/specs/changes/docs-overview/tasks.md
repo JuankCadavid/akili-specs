@@ -318,7 +318,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 | Depends on | T8 |
 | Requirements | FR-17 (one *Changed* entry replacing the placeholder or joining the marketing entries; each clause quote-checked); NFR-1, NFR-3, NFR-4, NFR-5, NFR-6; KZ-002; KZ-changes--kaizen-loop-closure-2 |
 | Design refs | §3 CHANGELOG row; P-15 |
-| Consumers | `test/diagram-design.test.js:419` (a CHANGELOG `diagram-design` entry must survive) |
+| Consumers | `test/diagram-design.test.js:420` (a CHANGELOG `diagram-design` entry must survive) |
 | Review | `full`: CHANGELOG clauses are the KZ-002 hot spot |
 | Skills | `cognitive-doc-design` |
 
