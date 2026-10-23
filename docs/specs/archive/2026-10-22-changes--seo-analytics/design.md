@@ -16,7 +16,7 @@
 
 ## 2. Executive Summary
 
-Eight files change and two are new. **No code ships except one test.**
+Eight files change and two are new. **No code ships except one test.** *(Archive sync 2026-10-22: as shipped, 12 files: 9 changed and 3 new. `test/install-cursor.test.js` was added by the T1 P-16 amendment and `test/seo-analytics-contract.test.js` by `/akili-test`.)*
 
 | File | Change |
 |---|---|
@@ -232,7 +232,7 @@ Standard depth still fits. Test LOC is budgeted per clause: ~67 assertions × ~5
 
 ## 12. Premise Ledger
 
-Count: 24 verified · 3 `UNVERIFIED` (0 High, 3 Low).
+Count: 24 verified · 3 `UNVERIFIED` (0 High, 3 Low). *(Archive sync 2026-10-22: T1 settled all three. P-21: no primary Google record was found, so the statements are cited `[INDUSTRY]` as reported by SEJ and SERoundtable. P-23: Decreto 1377 Arts. 5, 7 and 8 were quoted at Función Pública `i=53646` and compiled as Decreto 1074 Arts. 2.2.2.25.2.2/.4/.5. P-27: `hostName` and `sessionSource` are present in the Data API schema. Final count: 27 verified · 0 `UNVERIFIED`. See `execution.md` T1. The rows below keep their specify-time text.)*
 
 Blast-radius triggers:
 - `consumer` fires: the ranking-rule wording, report numbering and `/akili-seo` and `seo-audit` descriptions are read by docs, evals and a CI fixture (P-2, P-3, P-16).

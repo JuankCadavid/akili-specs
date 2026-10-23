@@ -63,7 +63,7 @@ Today (citations as run at `9f27fe2`):
 - `docs/skills/seo-audit.md`
 - `docs/skills/README.md` (the `seo-audit` row at `:36`; added at judgment-day, GA-3)
 - `README.md` (the `/akili-seo` summary at `:801`; added at design, P-3)
-- one new test file
+- one new test file *(archive sync: two shipped, `test/seo-analytics.test.js` and `test/seo-analytics-contract.test.js` from `/akili-test`, plus the count-pin update in `test/install-cursor.test.js`)*
 - `CHANGELOG.md` (`[Unreleased]`)
 
 **Out of scope:**
