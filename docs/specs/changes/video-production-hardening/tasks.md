@@ -154,7 +154,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T5 — `test/video-production.test.js`: pins for T1–T4
 
-- **Status:** [ ] · **Size:** M (~200 LOC) · **Depends on:** T1, T2, T3, T4
+- **Status:** [~] · **Size:** M (~200 LOC) · **Depends on:** T1, T2, T3, T4
 - **Requirements:** every clause T1–T4 own (coverage table below); NFR-1 (counts stay ≥ the bounds); NFR-2; NFR-6
 - **Design:** §8.1–§8.3; P-1; DD-6, DD-11
 - **Scope:** extend `test/video-production.test.js`:
@@ -314,7 +314,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T11 — `.claude/templates/leader.md`
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T8 (the rung's name), T9 (the Tester rule's wording)
+- **Status:** [x] · **Size:** XS · **Depends on:** T8 (the rung's name), T9 (the Tester rule's wording)
 - **Requirements:** FR-11 *Rule text* (`:333`); FR-13 (Leader restatement)
 - **Design:** §8.5; DD-9; P-26
 - **Scope:** 3 sites — `:27`, `:35`, `:333` ("A preference, not a hard rule" removed).
@@ -331,7 +331,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T12 — `.claude/templates/tester.md`
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T9
+- **Status:** [x] · **Size:** XS · **Depends on:** T9
 - **Requirements:** FR-11 *Rule text* (`:7`)
 - **Design:** §8.5; DD-9; P-26
 - **Scope:** 1 site, `:7`.
@@ -346,7 +346,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T13 — `.claude/skills/judgment-day/SKILL.md`
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T7 (annotation wording)
+- **Status:** [x] · **Size:** XS · **Depends on:** T7 (annotation wording)
 - **Requirements:** FR-17 (THEN, BUT); the skill's terminal set stays unchanged
 - **Design:** §8.5 `judgment-day`; C-4
 - **Scope:** 1 site — one adaptation-rule bullet. The Hard Rules are untouched.

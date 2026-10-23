@@ -181,3 +181,69 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
 | Running totals | tasks 9/21 · review rounds 9/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T13 — `judgment-day/SKILL.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-17 (THEN, BUT); terminal set unchanged |
+| Files changed | `.claude/skills/judgment-day/SKILL.md` (+1, *AKILI-SPECS Integration* adaptation rules, :86) |
+| Skills / effort | `cognitive-doc-design`; effort `low` |
+| Verification | `grep -c "approved \| escalated"` 1 before / 1 after (Hard Rules :42, untouched); `fixed, not re-judged` 0 → 1, only :86 (section starts :75) |
+| Falsifier | appended the annotation to the Hard Rules terminal line (:42) → check (1) stayed 1, check (2) showed :42 outside the integration section; restored. The task's predicted outcome ("check (1) changes") was wrong — check (2) is the one that trips; the verification still catches the move (Implementer and Reviewer concur) |
+| Evidence re-run | Leader inline: VERIFIED |
+| Reviewer | `opus`, lens checklist, PASS: "meets every term of FR-17 … `approved \| escalated`: HEAD 1, working tree 1, both at Hard Rules :42 … `fixed, not re-judged`: appears only at :86" |
+| Issues | Second specify-time falsifier prediction that did not hold when executed (after T6) — KZ-changes--leader-brief-contract-2 recurrence, kaizen candidate |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 10/21 · review rounds 10/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+### T11 — `.claude/templates/leader.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-11 *Rule text* (test-harness item 2); FR-13 (Leader restatement) |
+| Files changed | `.claude/templates/leader.md` (3 lines: Instruction 3 "On a rework retry, take `/akili-execute`'s ceiling rung."; Instruction 4 "effort bumped one level per retry, up to the tier's ceiling"; test-harness item 2 "the Tester's model MUST differ from every Implementer model (`/akili-test` names the sources and the stop)") |
+| Skills / effort | `cognitive-doc-design`; effort `low` |
+| Verification | `grep -c "not a hard rule"` 1 → 0; `akili:section` markers 10 before / 10 after; suites on a quiet tree (Leader, no Implementer active): `node --test test/agents-doctor*.test.js test/persona-digests.test.js test/install*.test.js` → tests 128, pass 128, fail 0 |
+| Falsifier | restored "A preference, not a hard rule —" → 1; restored from backup → 0 |
+| Evidence re-run | Leader inline: VERIFIED |
+| Reviewer | `opus`, lens checklist, PASS: "matches design §8.5 line by line … 'Ceiling rung' is the shipped name in `akili-execute.md` … Fences: 10 `akili:section` markers at HEAD and 10 in the working tree". ADVISORY: none |
+| Notes | Deployed `.agents/leader.md` copies now read `outdated` in `akili doctor --agents` until `--fix` (design §8.5; CHANGELOG in T21) |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` (shared with T12) not reported by host, ended complete |
+| Running totals | tasks 11/21 · review rounds 11/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+### T12 — `.claude/templates/tester.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-11 *Rule text* (tier note) |
+| Files changed | `.claude/templates/tester.md` (:7 now "The Tester runs on a **model different from the Implementer's**, which the Leader guarantees (author ≠ tester reduces confirmation bias)."; T2 role tier kept) |
+| Skills / effort | `cognitive-doc-design`; effort `low` |
+| Verification | `grep -n -i "prefer running"` 1 → 0; markers 10/10; same 128/128 suite run as T11 |
+| Falsifier | restored the "prefer running" wording → 1; restored → 0 |
+| Evidence re-run | Leader inline: VERIFIED |
+| Reviewer | `opus`, lens checklist, PASS: "This is the exact §8.5 replacement … the two personas state one rule, as DD-9 requires". ADVISORY: none |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer shared with T11 |
+| Running totals | tasks 12/21 · review rounds 12/~38 |
+| Approval | auto-approved (pre-approved mode) |
+
+### T5 — `test/video-production.test.js` — attempt 1 FAIL (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Attempt 1 | Implementer `sonnet`, effort `high`, skill `tdd`. 16 → 33 tests (+219 −6), 33/33 green. Red at 34afbff: 17 red (amended host-rows test + 16 new pins). Mutations: consent → #17; `--describe false` on `snapshot --review` → #17; `skills update` in SKIP_SKILLS list → #22 (first run stayed green; regex fixed); one sanitize grep → #20; Motion gate `check` → #32; Cursor `--agent` cleared → #10 |
+| Evidence re-run | Leader inline: VERIFIED (tests 33, pass 33, fail 0) |
+| Reviewer verdict | `opus`, FAIL — two THEN terms unpinned (removing them keeps the suite green): (1) FR-2 *Skill refresh* THEN reason ": without it `init` checks GitHub and refreshes skills" — deleted, suite 33/33; (2) FR-4 *Film artifacts* THEN "where each artifact is stored" — `SPEC.md` "stored at the composition root" → "stored anywhere", suite 33/33; `story.md` storage unpinned. Reviewer mutations that went red as expected: FR-2 *Logs* BUT → #21, FR-10 *One render* → #31, FR-3 *Lock* BUT → #24, beat-stills flag → #17 |
+| ADVISORY | NFR-6 self-check only catches a `join(…"specs")` shape; `cells()` duplicates the host-rows test's split; #23 `route.match(...)[1]` throws a TypeError instead of a named assertion |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended fail |
+| Next | attempt 2, effort `xhigh` (one level up; T2 ceiling), Reviewer report verbatim |
+| Running totals | review rounds 13/~38 |
