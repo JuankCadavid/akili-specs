@@ -10,7 +10,7 @@
 | Approval Mode | pre-approved (Juan Carlos Cadavid, 2026-10-23) |
 | Requirements | `requirements.md` (amended in judgment round 1: FR-2, FR-3, FR-9, FR-11, FR-17, §4) |
 | Base commit | 8679e25 (`dev`). Citations marked b3d3df1 or 66aaa91 are equivalent: those commits differ from 8679e25 only under `docs/specs/` |
-| Revision | r2 — judgment-day round-1 corrections C-1–C-9 and S-1 applied, plus the adopted info items (`judgment.md` §2–§3). The user chose **Fix and Re-judge** on 2026-10-23 | 
+| Revision | r2 — judgment-day round-1 corrections C-1–C-9 and S-1 applied, plus the adopted info items (`judgment.md` §2–§3). The user chose **Fix and Re-judge** on 2026-10-23 |
 | Revision r3 | judgment-day round-2 corrections (judgment.md §6): the FR-2 prefix scope, the §9 sweep, the P-24 owner, one base commit, the ceiling-rung trigger, the task map, P-28 and P-29 |
 | Phase 2 gate | auto-approved (pre-approved mode), 2026-10-23, after `JUDGMENT: APPROVED` (`judgment.md` §7) |
 
