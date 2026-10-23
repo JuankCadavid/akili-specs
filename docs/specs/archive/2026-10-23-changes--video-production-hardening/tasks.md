@@ -549,7 +549,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 | FR-4 *Music bed* | THEN | T4 (T5) |
 | FR-5 *Bundled is not local* | THEN · AND note #6137 · BUT no warm cache | T2 · T2 · T3 (T5) |
 | FR-5 *Brand source* | THEN | T4 (T5) |
-| FR-6 *Deferred* | THEN · AND IT MUST final look · BUT not reported done | T10, T3 (T14) |
+| FR-6 *Deferred* | THEN · AND IT MUST final look · BUT not reported done | T10, T3 (T14 pins the validate side only; the skill side written by T2/T3 has no pin — validation W-4) |
 | FR-6 *Default* | THEN | T10 (T14) |
 | FR-6 *Recorded downstream* | THEN | T6, T7 (T14) |
 | FR-7 *Outline replaces delta* | THEN · BUT · AND Bug unchanged | T6 (T14) |
