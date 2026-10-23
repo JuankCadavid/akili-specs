@@ -70,3 +70,22 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
 | Running totals | tasks 3/21 · LOC +33 −18 · review rounds 3/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T6 — `akili-propose.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-6 *Recorded where downstream reads it* (propose); FR-7 *Outline replaces the delta*; FR-12 *Owner mandate*; FR-16 both scenarios |
+| Files changed | `.claude/commands/akili-propose.md` |
+| Skills / effort | `cognitive-doc-design`; effort `medium` |
+| Verification | grep hits: :37 path rules (`literal path mandated by the brief`), :107 Approval Mode (`No mandate widens`), :126 Step 1.1 (`source questions skipped`), :168 item 1 (`Delivery: render \| deferred`), :176 item 9 and :238–254 new *Deliverable Outline* block; :240, :305 prose and checklist. Baseline 0/0/0 |
+| Falsifier | Executed on a copy: removing "Never skip them under `gated`, or when the brief is silent on either source." leaves the gated and silent-brief cases **unstated**, not the skip unconditional (the remaining rule is still conditioned on `pre-approved` and on both sources named). The task's predicted outcome did not occur as worded; Reviewer concurs: "a task-text issue, not a defect in the diff" |
+| Evidence re-run | Leader inline: VERIFIED (same hits; owner-mandate sentence matches design §8.4 blockquote verbatim, followed by the separate quote-instruction sentence) |
+| Reviewer | `opus`, lens checklist, PASS: added checklist items "are in scope. Neither adds an obligation"; "The identical-at-three-sites contract holds"; FR-16 and FR-7 "pass term by term" |
+| ADVISORY | A1 (Readability, Risk): the path-rules example `docs/specs/<slug>/` is a full path while `$SPEC_PATH` is relative to `docs/specs/`; FR-16 uses the same example, so not a FAIL — follow-up candidate. A2: the Trivial track with video does not say whether its section 9 is the Outline; FR-7 scopes the Outline to the Change track — noted only |
+| Issues | Falsifier prediction written at specify time and never executed (KZ-changes--leader-brief-contract-2 recurrence) — kaizen candidate |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 4/21 · review rounds 4/~38 |
+| Approval | auto-approved (pre-approved mode) |

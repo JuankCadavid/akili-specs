@@ -185,7 +185,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T6 — `akili-propose.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:** FR-6 *Recorded where downstream reads it* (propose side); FR-7 *Outline replaces the delta* (THEN/BUT/AND); FR-12 *Owner mandate* (sentence, quote instruction); FR-16 both scenarios (THEN, BUT not under gated)
 - **Design:** §8.4 `akili-propose.md` (a)–(e); owner-mandate sentence
 - **Scope:** five sites:
