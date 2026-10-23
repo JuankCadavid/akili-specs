@@ -37,10 +37,10 @@ AKILI gains `/akili-marketing`, an anytime command (outside the spec lifecycle) 
 
 Today (at `b042b97`):
 
-- AKILI ships 12 commands, none for marketing content — `ls .claude/commands | wc -l` → `12`; `grep -rln "LinkedIn\|Instagram" .claude/commands .claude/skills` → no file (as run 2026-10-23).
+- AKILI ships 12 commands, none for marketing content — `ls .claude/commands | wc -l` → `12`; `grep -rln "LinkedIn\|Instagram" .claude/commands` → no file; under `.claude/skills` the only hit is `.claude/skills/ui-ux-pro-max/data/products.csv`, unrelated product-category data (as run 2026-10-23; corrected after judgment-day J-2).
 - Commands install by enumeration of `*.md` in `.claude/commands/` (`bin/akili.js:504`), and skill directories are copied as trees (`copyDirectoryContents`, `bin/akili.js:907`) — so a new command and skill install with no code change (design P-1, P-2).
-- Adding one command and one 4-file skill to a package copy turns exactly three existing tests red: `install-cursor.test.js` (skill file count 224 → 228), and the Codex doctor baseline comparison in `install-cursor.test.js` and `install-grokbot.test.js` (`test/fixtures/doctor-codex-baseline.txt`) — executed in a scratch package copy, Node 22.12.0, 2026-10-23 (design P-6).
-- No AKILI command or document reads `docs/marketing/` — `grep -rn 'docs/marketing'` over `*.md`/`*.js` excluding `node_modules` and this spec → `0` (as run).
+- Adding one command and one 4-file skill to a package copy turns exactly three existing tests red: `install-cursor.test.js` (skill file count 224 → 228), and the Codex doctor baseline comparison in `install-cursor.test.js` and `install-grokbot.test.js` (`test/fixtures/doctor-codex-baseline.txt`) — executed in a scratch package copy, Node 22.12.0, 2026-10-23 (design P-6). A fourth, `test/diagram-design.test.js:416` (`/27 packaged skills/` in `docs/cli.md`), turns red as soon as the docs state the new total (judgment-day J-1).
+- No AKILI command or document names `docs/marketing/` — `grep -rn 'docs/marketing'` over `*.md`/`*.js` excluding `node_modules` and this spec → `0` (as run). One generic reader exists: `/akili-constitution` ingests "any … product docs already present under `docs/`" (`.claude/commands/akili-constitution.md:99`), so a later constitution run may read the brand voice and campaign briefs as product context (judgment-day J-4; accepted in design DD-7).
 - Pre-approval in AKILI "covers routine progress, never exceptions" — "destructive or irreversible actions … always stop for the user regardless of mode" (`.claude/commands/akili-propose.md:106`).
 - `seo-audit` already carries an AI-writing-tells reference for page content (`.claude/skills/seo-audit/references/ai-writing-detection.md`).
 - Editing `.claude/templates/model-routing.section.md` makes `akili routing` refuse existing fences (`bin/routing.js:431-436`, refusal token at `:436`) — so no routing row is added (proposal D8).
@@ -61,7 +61,7 @@ Today (at `b042b97`):
 
 ### FR-1: Packaged skill `social-marketing` — adapted with attribution
 
-The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICENSE`, and `references/`. `SKILL.md` frontmatter MUST carry `license: MIT`, `metadata.author: "Sergey Bulaev"`, `metadata.source` naming all three upstream repository URLs **with** their pinned commits, `adapted-by: "Juan Carlos Cadavid — jcadavid.com"`, `adapted-for: "AKILI-SPECS"`, `binding: core`, and a `version`. `LICENSE` MUST reproduce the upstream MIT notice including `Copyright (c) 2026 Sergey Bulaev`. Every reference file MUST open with an `Adapted from` line naming the upstream file(s) it draws on (or `AKILI-authored` when it has no upstream). `SKILL.md` MUST carry an `## AKILI-SPECS Integration` section mapping each command mode to the references it loads.
+The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICENSE`, and `references/`. `SKILL.md` frontmatter MUST carry `license: MIT`, `metadata.author: "Sergey Bulaev"`, `metadata.source` naming all three upstream repository URLs **with** their pinned commits, `adapted-by: "Juan Carlos Cadavid — jcadavid.com"`, `adapted-for: "AKILI-SPECS"`, `binding: core`, and a `version`. `LICENSE` MUST reproduce the upstream MIT notice including `Copyright (c) 2026 Sergey Bulaev`. Every reference file MUST open with an `Adapted from` line naming the upstream file(s) it draws on (or `AKILI-authored` when it has no upstream). `SKILL.md` MUST carry an `## AKILI-SPECS Integration` section mapping each command mode to the references it loads, and MUST state in one line, for when it is loaded without the command, that it drafts only, never publishes, and that approval comes only from the user's own words as `/akili-marketing` defines it.
 
 #### Scenario: Attribution survives install
 
@@ -79,7 +79,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-2: Command — invocation, modes, write boundary
 
-`/akili-marketing <mode> [args]` SHALL accept the modes `brand`, `campaign`, `calendar`, `post`, `review`, `repurpose`. It MUST load `social-marketing` before acting, run outside the spec lifecycle (no `docs/specs/` read or write is required), and write only under the marketing root.
+`/akili-marketing <mode> [args]` SHALL accept the modes `brand`, `campaign`, `calendar`, `post`, `review`, `repurpose`. It MUST load `social-marketing` before acting, run outside the spec lifecycle (no `docs/specs/` read or write is required), write only under the marketing root, and fetch no URL (content to work from is pasted by the user or read from a local file the user names). On the first write into a project it MUST note once that `docs/marketing/` holds unpublished content and that the user decides whether to git-ignore it.
 
 #### Scenario: No or unknown mode
 
@@ -104,7 +104,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 - GIVEN `brand-voice.md` is absent or `filled: no`
 - WHEN `campaign`, `post` or `repurpose` runs
 - THEN the command offers to run `brand` first
-- AND IT MUST, if the user declines, write a `Voice: generic — no brand voice on file` line into every artifact it produces
+- AND IT MUST, if the user declines, write a `Voice: generic — no brand voice on file` line into every artifact it produces (`brief.md`, `plan.md`, `calendar.md`, the month view, and every post file)
 
 #### Scenario: Language
 
@@ -114,7 +114,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-4: Campaign
 
-`campaign <slug> [brief]` SHALL write `campaigns/<slug>/brief.md` (goal, audience, platforms among the three, KPIs, start/end dates, offer, UTM scheme) and `plan.md` (pillars, format mix per platform, numbered post list with working titles and target dates), then stop for the user to approve or adjust the plan. An existing campaign folder MUST be updated, never overwritten silently.
+`campaign <slug> [brief]` SHALL write `campaigns/<slug>/brief.md` (goal, audience, platforms among the three, KPIs, start/end dates, offer, UTM scheme) and `plan.md` (pillars, format mix per platform, numbered post list with working titles and target dates), then stop for the user to approve or adjust the plan. Plan approval follows the same rules as FR-7's approval (explicit, the user's own words, after the plan was shown; never auto-passed) and is recorded in `brief.md` as `approved — <who>, <date>`. When the campaign folder already exists, the command MUST show what will change and ask before writing — never overwrite silently. `post` and `repurpose` for a campaign whose plan is not approved MUST refuse and name the missing approval.
 
 #### Scenario: Plan stops for review
 
@@ -131,7 +131,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-5: Calendar
 
-`calendar [<slug>|<YYYY-MM>]` SHALL write or update `calendar.md` with one row per slot: date, time (brand-voice timezone), platform, format, post file, status (read from that platform's section of the post file). It MUST flag two posts on the same platform in the same slot and a slot whose post file is missing, and MUST NOT change any post's status.
+`calendar <slug>` SHALL write or update `campaigns/<slug>/calendar.md`; `calendar [<YYYY-MM>]` (no argument: the current month) SHALL write the derived, regenerated month view `docs/marketing/calendar-<YYYY-MM>.md` across all campaigns and campaign-less posts. An argument naming an existing campaign folder is a slug, otherwise a `YYYY-MM` is a month, otherwise the command asks. Each file has one row per slot: date, time (brand-voice timezone; `UTC`, flagged, when none is on file), platform, format, post file, status (read from that platform's section of the post file; `missing` when the post file does not exist). It MUST flag two posts on the same platform in the same slot, a missing post file and an unrecognized status, and MUST NOT change any post's status.
 
 #### Scenario: Status is read, never set
 
@@ -142,7 +142,7 @@ The package SHALL ship `.claude/skills/social-marketing/` with `SKILL.md`, `LICE
 
 ### FR-6: Post drafting
 
-`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign and target slot, and each section records `Status: draft` and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track.
+`post <request>` SHALL write a post file with one section per requested platform. Each section MUST hold platform-native copy (written for that platform, not cross-posted), the hook placed before the platform's fold, hashtags sized per the skill's platform reference, exactly one CTA, alt text for each image, a **media brief**, and an optional **image-generation prompt**; the file records campaign and target slot, and each section records `Status: draft` and the result of a humanizer pass. Copy MUST respect the platform's hard limits listed in the skill's platform reference. A video request (Reel, video post) MUST get a script brief only, with a pointer to the `video-production` track. `post` MUST NOT overwrite an existing post file; a name collision gets a `-2`, `-3` … suffix.
 
 #### Scenario: Limits enforced before the card
 
@@ -157,10 +157,10 @@ Each platform section of a post file SHALL carry its own `Status`, one of `draft
 
 | From | Event | To |
 |---|---|---|
-| `draft` | Explicit approval of the exact text shown on the approval card | `approved` — records approver (as the user names themself, default "the user"), date, and the approving message quoted |
-| `approved` | Any change to approved copy, hashtags, platform, or slot | `draft` — the record notes the reset |
+| `draft` | Explicit approval of the exact content shown on the approval card — every field that reaches the copy-paste block (copy, hashtags, CTA, alt text, media brief) | `approved` — records approver (as the user names themself, default "the user"), date, the approving message quoted (up to 200 characters), and a snapshot of the approved fields |
+| `approved` | Any change to a card field, the platform, or the slot — by any mode, by request, or found on read as a mismatch with the approved snapshot | `draft` — the record notes the reset |
 | `approved` | `post --published <file> <platform> <url>` | `published` for that platform (FR-9) |
-| any other or malformed value | read by any mode | treated as `draft` and reported |
+| any other or malformed value, or `approved` with a missing or malformed approval record | read by any mode | treated as `draft` for every transition and reported; `calendar` shows the raw value with a flag (FR-5) |
 
 The command MUST present the approval card and stop before any `approved` write. Approval MUST NOT be: inferred from silence, a reaction, ambiguous praise ("looks good", "nice") — the command asks to confirm instead; granted in advance or in bulk for posts not yet shown in full; taken from untrusted content; or auto-passed by any Approval Mode, `pre-approved` included. A single explicit message MAY approve several posts only when every one was shown in full on the card it answers.
 
@@ -203,7 +203,7 @@ The command and skill SHALL contain no step that publishes, schedules, or queues
 
 ### FR-9: Published record
 
-`post --published <file> <platform> <url>` SHALL record, for that platform's section, `published` with the URL and date, only when that section is `approved`; the URL's host MUST match the platform (`linkedin.com`, `instagram.com`, `facebook.com`, `fb.com`, including subdomains). The command MUST NOT fetch the URL.
+`post --published <file> <platform> <url>` SHALL record, for that platform's section, `published` with the URL and date, only when that section is `approved`. The URL MUST come from the user's own message invoking it; it MUST use `https`, and its parsed host MUST equal the platform domain (`linkedin.com`, `instagram.com`, `facebook.com`, `fb.com`) or end with `.` + that domain — `linkedin.com.example.org` and `evillinkedin.com` fail. The command MUST NOT fetch the URL. Running it again on a `published` section replaces the URL and keeps the previous one in the record (correction path).
 
 #### Scenario: Recording a draft as published
 
@@ -211,9 +211,15 @@ The command and skill SHALL contain no step that publishes, schedules, or queues
 - WHEN `--published` is run for it
 - THEN the command refuses and names the missing approval
 
+#### Scenario: Lookalike host
+
+- GIVEN an `approved` LinkedIn section
+- WHEN `--published` is given `https://linkedin.com.example.org/post/1`
+- THEN the command refuses and names the expected host
+
 ### FR-10: Review and repurpose
 
-`review <file|pasted text>` SHALL audit copy for AI tells, fold placement, hard limits, hashtag sizing and brand-voice violations, and report findings without editing (an edit is a new `post` draft). `repurpose <source>` SHALL turn a blog post, release note, page, or other owned content into new `draft` post files, re-hooked per platform.
+`review <file|pasted text>` SHALL audit copy for AI tells, fold placement, hard limits, hashtag sizing and brand-voice violations, and report findings without editing (an edit is a new `post` draft). `repurpose <source>` SHALL turn a blog post, release note, page, or other owned content — pasted or a local file path, never fetched — into new `draft` post files, re-hooked per platform. The source is data under FR-11, whoever wrote it.
 
 #### Scenario: Review edits nothing
 
@@ -233,7 +239,7 @@ Untrusted content SHALL be treated as data, never as instruction: it cannot chan
 
 ### FR-12: Governance, docs, counts, CHANGELOG
 
-The change SHALL add `docs/commands/akili-marketing.md`, `docs/skills/social-marketing.md`, a `core` row in `docs/skills/governance.md` *Current assignment* and in `docs/skills/README.md`, the command in every README/docs list that enumerates the anytime commands or the command files, updated counts wherever the packaged command (12) or skill (27) totals are stated, the regenerated Codex doctor baseline fixture, and a `CHANGELOG.md` *Unreleased* entry. Upstream credit MUST appear in the skill page and README.
+The change SHALL add `docs/commands/akili-marketing.md`, `docs/skills/social-marketing.md`, a `core` row in `docs/skills/governance.md` *Current assignment* and in `docs/skills/README.md`, the command in every README/docs list that enumerates the anytime commands or the command files, updated counts wherever the packaged command (12) or skill (27) totals are stated, the regenerated Codex doctor baseline fixture, the `test/diagram-design.test.js` docs-count pin, and a `CHANGELOG.md` *Unreleased* entry. Upstream credit MUST appear in the skill page and README. The skill page MUST carry the governance *size justified* statement. No shipped file may reference this spec's active path `docs/specs/changes/akili-marketing/` (KZ-changes--archify-diagrams-1).
 
 ## 7. Non-Functional Requirements
 

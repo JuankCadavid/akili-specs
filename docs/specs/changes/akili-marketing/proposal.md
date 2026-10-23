@@ -40,7 +40,7 @@ Give AKILI projects a disciplined way to **operate a company's social marketing*
 
 ## Problem / Current Behavior
 
-- AKILI ships 12 commands and none covers marketing content — `ls .claude/commands | wc -l` → `12` (as run 2026-10-23); `grep -rln "LinkedIn\|Instagram\|Meta" .claude/commands .claude/skills` returns no file (as run 2026-10-23).
+- AKILI ships 12 commands and none covers marketing content — `ls .claude/commands | wc -l` → `12` (as run 2026-10-23); `grep -rln "LinkedIn\|Instagram" .claude/commands` returns no file; under `.claude/skills` the only hit is `.claude/skills/ui-ux-pro-max/data/products.csv`, unrelated product-category data (as run 2026-10-23; corrected after judgment-day J-2 — the first draft said "no file" for both roots and included `Meta`, which matches unrelated words).
 - The nearest command, `/akili-seo`, audits and fixes **pages** for search; its optional Phase 2B reads GA4/Clarity (`.claude/commands/akili-seo.md`, `### Phase 2B: Analytics & Conversion (optional)`). It produces no social copy, plan or calendar.
 - `product-manager-toolkit` covers go-to-market strategy at PRD level (its description: "…discovery frameworks, and go-to-market strategies"), not post-level copy or scheduling.
 - Today a user asking an AKILI agent for "a week of LinkedIn posts" gets free-form output: no stored voice, no platform constraints (IG 125-char fold, 3–5 sized hashtags, LinkedIn's "see more" fold), no AI-tell scrub, no approval record, no calendar artifact.
@@ -158,7 +158,7 @@ What we take: the voice/hook/humanizer/planning **knowledge** and two **patterns
 1. **Adapt, do not vendor.** Merge the platform-agnostic knowledge (voice rules, hook formulas, humanizer, untrusted content, planning) into shared references; put platform limits/formats/heuristics into `instagram.md`, `linkedin.md`, `facebook.md`. Strip all Publora/Pixfaro/Apify paths, Python, the DIY subprocess hook, star nudges and acknowledgments. Size target: `SKILL.md` ≤ ~200 lines, references ≤ ~1,000 lines total (governance *size* check).
 2. **Attribution.** Skill frontmatter `license: MIT`, `metadata.author: "Sergey Bulaev"`, `metadata.source:` the three repo URLs @ SHA, `adapted-by: "Juan Carlos Cadavid — jcadavid.com"`, `adapted-for: "AKILI-SPECS"`, `binding: core`; `LICENSE` in the skill directory carrying the upstream copyright and permission notice; a per-reference "Adapted from …" line; credit in `docs/skills/social-marketing.md` and README. MIT → MIT, compatible with akili-specs (MIT); the only obligation is preserving the notice, which the `LICENSE` copy satisfies.
 3. **Gate wording** borrows upstream's approval card, but the agent's own approval prompt names the exact file and platform, and the command states the gate is outside pre-approved mode (matches the AKILI rule "pre-approval covers routine progress, never exceptions": publication is outward-facing and irreversible).
-4. **Hand-off for B/C later:** each per-platform reference ends with a short "Publishing notes" section (account type needed, API family, review requirement) marked `lastVerified`, so a future spec starts from recorded facts.
+4. **Hand-off for B/C later:** each per-platform reference ends with a short "Publishing notes" section (account type needed, API family, review requirement) marked `lastVerified`, so a future spec starts from recorded facts. *(Superseded at specify: dropped — design §7.2, judgment-day J-16.)*
 
 ### Relationship to existing skills
 
