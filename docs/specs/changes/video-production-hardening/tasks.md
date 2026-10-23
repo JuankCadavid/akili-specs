@@ -43,7 +43,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T1 — `SKILL.md` part A: gate, install route, host table, deferral table
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:** FR-3 (all three scenarios, every THEN/BUT/AND); FR-19 (cite #6136, #6139); NFR-2, NFR-3, NFR-5
 - **Design:** §8.1 rows *Step 0 gate*, *Install route*, *Host table*, *Deferral table*; DD-7; P-4, P-5, P-19, P-27
 - **Scope:** `.claude/skills/video-production/SKILL.md`, about 6 sites:
@@ -112,7 +112,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T3 — `render-evidence.md`
 
-- **Status:** [ ] · **Size:** S · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** none
 - **Requirements:**
   - FR-1: evidence-set snapshot carries the flag.
   - FR-2: output flag; sanitize THEN/AND IT MUST/BUT; `.txt` THEN/BUT.
