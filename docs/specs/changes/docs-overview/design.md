@@ -88,7 +88,9 @@ n/a. There is no data, API, backend or runtime contract. The only "contract" is 
 | `/akili-audit` | "spec-to-code drift auditing" | "check that the code still matches your product and design docs" |
 | `/akili-execute` | "Leader → Implementer → Reviewer harness" | "build the approved tasks one by one, each checked by an independent review" |
 | `akili doctor --agents` | "Persona Drift" | "check that your project's agent instruction files are up to date (`--fix` updates them)" |
-| `akili routing` | "model routing" | "choose which AI model runs each step ([model routing](docs/model-routing.md))" | The `/akili-security` row: "audit your repository for security vulnerabilities; findings become bug specs. Not on native Windows (use WSL, Linux or macOS)". It carries **no** run-directory or slug text (DD-6).
+| `akili routing` | "model routing" | "choose which AI model runs each step ([model routing](docs/model-routing.md))" |
+
+The `/akili-security` row: "audit your repository for security vulnerabilities; findings become bug specs. Not on native Windows (use WSL, Linux or macOS)". It carries **no** run-directory or slug text (DD-6).
 
 ## 8. Overview page (FR-11)
 
@@ -125,12 +127,12 @@ The regexes, token lists and messages stay unchanged. The only structural change
 
 | Test | Today | After |
 |---|---|---|
-| `test/branching-flow.test.js:124-128` `flowDocs` | 3 sites, including `"README.md (Releasing Package Updates)"` (section reader) | Remove the README entry from `flowDocs`; the 7-token loop runs on `CONTRIBUTING.md` and `docs/release-checklist.md` |
-| `test/branching-flow.test.js:196-203` negative loop | `AGENTS.md` + `...flowDocs` | `AGENTS.md`, `"README.md": () => doc("README.md")` (**whole file**), `...flowDocs` |
+| `test/branching-flow.test.js:124-128` `flowDocs` | 3 sites, including `"README.md (Releasing Package Updates)"` (section reader) | **S1** (site removed; CONTRIBUTING and release-checklist stay): remove the README entry from `flowDocs`; the 7-token loop runs on `CONTRIBUTING.md` and `docs/release-checklist.md` |
+| `test/branching-flow.test.js:196-203` negative loop | `AGENTS.md` + `...flowDocs` | **S1** (site file: the README section becomes the whole README): `AGENTS.md`, `"README.md": () => doc("README.md")` (**whole file**), `...flowDocs` |
 | `test/akili-security-docs.test.js:47-53` `SLUG_SITES` | Includes `"README.md": README` | **S2**: split into `SLUG_PRESENCE_SITES` (README replaced by `"docs/overview.md": OVERVIEW`) for the presence test `:69`, and `SLUG_SHAPE_SITES` (= presence sites **plus** `"README.md": README`) for the two shape tests `:75`, `:89` |
-| `test/akili-security-docs.test.js:56-63` `RUN_DIR_SITES` | Includes the README security lines | Keep the README entry and add `"docs/overview.md (/akili-security lines)"`, since the negative phrase family must still read the README |
+| `test/akili-security-docs.test.js:56-63` `RUN_DIR_SITES` | Includes the README security lines | **S1** (site added): keep the README entry and add `"docs/overview.md (/akili-security lines)"`, since the negative phrase family must still read the README |
 | `test/akili-security-docs.test.js:118-124` (≥ 1 run-directory line per site) | `README.md` site | **S1**: replace the README with `docs/overview.md`. **S3**: add a README check that every `run directory` line, **if any**, says "always outside the target" (same regex; the presence requirement is dropped only for the README) |
-| `test/akili-security-docs.test.js:200-206` (no git) | README security lines | Unchanged, plus `docs/overview.md (/akili-security lines)` |
+| `test/akili-security-docs.test.js:200-206` (no git) | README security lines | **S1** (site added): unchanged, plus `docs/overview.md (/akili-security lines)` |
 | `test/diagram-design.test.js:409-412` | `README.md` | **S1**: the same three asserts read `docs/overview.md` (variable renamed `overview`). After the rebase, marketing's edit at `:413-417` sits beside these lines, so T5 re-reads the file at the rebased HEAD |
 
 ## 10. Test design: `test/docs-overview.test.js` (FR-16)
@@ -145,7 +147,7 @@ The regexes, token lists and messages stay unchanged. The only structural change
 | `tableRows(md, underHeading)` | The rows of the tables under a heading, until the next heading of the same or higher level | (a)–(c), (h) |
 | `firstCellName(row)` | The backticked name in the first cell (`` `/akili-x` `` or `` `skill` ``), link-aware | (a)–(c) |
 | `skillBinding(name)` | `metadata.binding` from `.claude/skills/<name>/SKILL.md` | (a) |
-| `proseOf(line)` | The line with inline code spans and link URLs removed | (g) |
+| `proseOf(line, {stripInlineCode})` | The line with URLs (`](…)`, `href`/`src`) removed, inline code removed when `stripInlineCode`, and `alt` text kept | (g) |
 
 | Clause | Assertion | Failure message names |
 |---|---|---|
@@ -177,7 +179,7 @@ No count of commands or skills is hard-coded (FR-16).
 | DD-9 | The hero keeps 3 of its 13 `shields.io` badges (10 removed: 7 tool, 3 OS) | Keep the tool badges | D8, approved. The text line keeps the information |
 | DD-10 | Governance checklist item 5 gains the overview row | Rely on the failing test | A rule a contributor reads beats a red test they have to interpret |
 | DD-11 | Replace the figure's alt text with a short plain one | Keep it and exempt HTML from the jargon check | The alt text is what a screen-reader user hears first, so U4 applies to it too (judgment J-5/F-07) |
-| DD-12 | Check anchors with an in-test GitHub-style slugger | Leave anchors to the PR preview | Two dead anchors already ship (`#grok-bot-grokbot`), so a human preview has missed them (J-7/F-02/F-03) |
+| DD-12 | Check anchors with an in-test GitHub-style slugger | Leave anchors to the PR preview | One dead anchor (`#grok-bot-grokbot`, in five links) already ships, so a human preview has missed them (J-7/F-02/F-03) |
 
 ### Reversion challenge (Step 2.3): "what does removing this break?"
 
@@ -206,7 +208,7 @@ Blast-radius triggers: **`consumer`** fires (the README, a doc read by tests and
 | P-3 | *Practical Example, Writing Good Requirements, Review Points, Core Concepts, Methodology Contract, Host Assumptions, Requirement Delta Preview, Spec Paths* are absent from `docs/flow.md` | existence | `grep -c "<text>" docs/flow.md` → 0 for each of the 8 | `cdb4c5a` | T2 shrinks (Low) | — |
 | P-4 | `docs/cli.md` has no prerequisites tables and no local-checkout install | existence | `grep -ci "prerequisites\|local checkout" docs/cli.md` → 0 | `cdb4c5a` | T3 shrinks (Low) | — |
 | P-5 | Package: 12 commands, 27 skills. Bindings as in §8 | data-env | `ls .claude/commands \| wc -l` → 12; `ls -d .claude/skills/*/ \| wc -l` → 27; loop `grep -m1 -E '^\s*binding:'` per `SKILL.md` | `cdb4c5a` | Group table rows change (Low) | — |
-| P-6 | `ALL_TOOLS` excludes `grokbot` (`bin/akili.js:517`, DD-4 comment `:519-522`); `bin/routing.js` has 0 `grok` references | location | `grep -n "ALL_TOOLS = " bin/akili.js` → `517`; `grep -ci grok bin/routing.js` → 0 | `f54efaf` | D6 rows read wrong (High: FR-11/FR-14 content) | — |
+| P-6 | `ALL_TOOLS` excludes `grokbot` (`bin/akili.js:517`, DD-4 comment `:519-521`); `bin/routing.js` has 0 `grok` references | location | `grep -n "ALL_TOOLS = " bin/akili.js` → `517`; `grep -ci grok bin/routing.js` → 0 | `f54efaf` | D6 rows read wrong (High: FR-11/FR-14 content) | — |
 | P-7 | Digit count claims in the FR-16 doc set: 9 hits, only in `docs/cli.md` (`:125, 191, 192, 203, 204, 225 ×2, 242 ×2`), all totals (12/27). The rev. 1 regex missed the two `12 command skills` hits | consumer | `grep -noE "\b[0-9]+ (packaged \|slash \|AKILI )?(commands?\|command skills\|skills\|skill directories)\b" README.md docs/*.md docs/commands/*.md docs/skills/*.md CONTRIBUTING.md` → 9 hits | `f54efaf` | Clause (d) needs more qualifiers (Low) | — |
 | P-8 | `CONTRIBUTING.md` and `docs/release-checklist.md` already satisfy the 7 branching-flow tokens, so dropping the README site loses no positive coverage | other | `node --test test/branching-flow.test.js test/akili-security-docs.test.js test/diagram-design.test.js` → `pass 74, fail 0` (Node v22.12.0); the token loop covers both files | `dfa1be2` | D7 weakens a guarantee (High) | — |
 | P-9 | `akili-marketing` modifies 12 existing files (`AGENTS.md`, `CHANGELOG.md`, `README.md`, `docs/README.md`, `docs/cli.md`, `docs/commands/README.md`, `docs/flow.md`, `docs/skills/README.md`, `docs/skills/governance.md`, `test/diagram-design.test.js`, `test/fixtures/doctor-codex-baseline.txt`, `test/install-cursor.test.js`), and its tests pin **no** README text. After the rebase, P-5, P-7, the 43-row ledger and every cited line number are re-run (T1) | consumer | `git diff --name-status 8679e25...JuankCadavid/akili-marketing \| grep -v '^A'` → 12; `git show JuankCadavid/akili-marketing:test/akili-marketing-command.test.js \| grep -c README` → 0 (same for `social-marketing-skill`) | branch `ea5c01d` | The rebase needs more test re-targets (Low) | — |
@@ -226,6 +228,6 @@ Hand-off: P-1 → T5 `Consumers`; P-2 → T5 and T6; P-7 → T3 and T8; P-9 → 
 |---|---|
 | Tasks | 9 |
 | LOC | ~1,330 added / ~950 removed. The README is −948 / +~190; the test grows to ~380 with (i) slugger and (j) |
-| Review rounds | **18**: T1 1, T2 2, T3 2, T4 2, T5 2, T6 3, T7 1, T8 3, T9 2 (18 per-task), plus 2 margin = **20**. **Tripwire: 26** |
+| Review rounds | **20**: per-task T1 1, T2 2, T3 2, T4 2, T5 2, T6 3, T7 1, T8 3, T9 2 = 18, plus 2 margin. **Tripwire: 26** |
 
 The estimate matches Standard depth. This supersedes the proposal's ~22-round / tripwire 28 estimate (judgment J-11/F-12).

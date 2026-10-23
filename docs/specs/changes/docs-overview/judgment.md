@@ -6,7 +6,7 @@
 | Mode | judgment_day, blind dual review; two read-only judges on `sonnet` (author ≠ auditor: the design was authored on Opus) |
 | Round 1 | Judge A (12 findings: 2 severe, 9 warning, 1 suggestion) · Judge B (15 findings: 3 severe, 11 warning, 1 suggestion). Both: **FIX-REQUIRED** |
 | Correction | Round 1 fix applied by the architect at `ce8fbb5`. The confirmed findings are single-answer factual corrections, logged, not gated (user feedback rule: a factual correction is applied and logged; a stop is owed only when scope, design or risk changes, and none did). The warnings that both judges agreed on were folded in as design strengthening, inside the approved scope |
-| Status | Round 1 closed; scoped re-judgment pending |
+| Status | **APPROVED**. Round 1 corrected at `ce8fbb5`; scoped re-judgment (round 2): both judges **APPROVE**, with no severe finding. Their info items are applied at the Phase 2 commit |
 
 ## Frozen ledger (round 1)
 
@@ -36,3 +36,14 @@ Contradictions between the judges: none (they differ only in severity on JD-2, J
 ## Premise rows the judges re-ran and confirmed
 
 Both judges reproduced P-1, P-3, P-4, P-5 (bindings and 7+9+6+1+4), P-8 (`pass 74, fail 0`), P-10 and P-12; the 13-badge count; the README `:73-83`, `:527-552`, `:762-795` and `:813` citations; the 192-line section sum; and the DD-1 intermediate-commit greenness. Neither judge could refute P-13 (no network).
+
+## Scoped re-judgment (round 2, `f54efaf..ce8fbb5`)
+
+| Judge | JD rows | Fix-caused items | Verdict |
+|---|---|---|---|
+| A | 17 resolved, JD-10 partial (proposal task lists keep old numbers) | FD-1 proposal "What it is" lines wrong (warning) · FD-2 proposal numbering note (warning) · FD-3 unmarked §9 rows (suggestion) · FD-4 budget bold (suggestion) · FD-5 table row broken by a trailing sentence (suggestion) · FD-6 `proseOf` signature (suggestion) | APPROVE |
+| B | 18 resolved | D-1 the same broken table row (warning) · D-2 "two dead anchors" → one anchor, five links (suggestion) · D-3 P-6 comment range `:519-521` (suggestion) · D-4 proposal "a–g" (suggestion) | APPROVE |
+
+All items were applied as info. FD-1: both judges' lines were checked at source. `sed -n 43,45p README.md` puts the paragraphs at `:43` and `:45`, so neither the original `:42-44` nor the judge's `:44/:46` was right.
+
+JUDGMENT: APPROVED ✅
