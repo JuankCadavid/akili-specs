@@ -291,7 +291,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~170 LOC) |
 | Depends on | T5 |
 | Requirements | FR-12 (docs pages, governance and skills README rows, size statement, upstream credit) |
