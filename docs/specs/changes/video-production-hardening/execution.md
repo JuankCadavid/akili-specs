@@ -127,3 +127,22 @@
 | spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
 | Running totals | tasks 6/21 · review rounds 6/~38 |
 | Approval | auto-approved (pre-approved mode) |
+
+### T7 — `akili-specify.md` — PASS (2026-10-23)
+
+| Field | Value |
+|---|---|
+| Final status | PASS, attempt 1 of 3 |
+| Requirements | FR-6 *Recorded where downstream reads it*; FR-7 *Specify converts it*; FR-9; FR-12 *Video gate multiplier*; FR-15 (specify); FR-17 |
+| Files changed | `.claude/commands/akili-specify.md` (+19 −12) |
+| Skills / effort | `cognitive-doc-design`; effort `medium` |
+| Verification | (1) `grep -c '\$ARGUMENTS'` → 1 (Arguments, :31; baseline 6). (2) hits :76 Approval Mode, :372 Step 2.4 *Video gate multiplier*, :391 Step 2.5 *Fix only*, :421 Step 3.2 fields, :451 item 8, :519 checklist. greenfield 3, `fixed, not re-judged` 2, `Deliverable: video` 7 |
+| Falsifier | scratch copy with `docs/specs/$ARGUMENTS/proposal.md` restored → check (1) read 2; scratch deleted, real file 1 |
+| Evidence re-run | Leader inline: VERIFIED; Arguments first-token bullet byte-identical to `akili-execute.md`'s |
+| Consumer suites (quiet tree: no Implementer active) | `node --test test/video-production.test.js test/diagram-design.test.js` → tests 29, pass 28, fail 1: `not ok 23 - NFR-4: project-scoped host directories cover Claude Code, OpenCode, Codex, Cursor, Antigravity` (T1 host-table shape, owned by T5); every `akili-specify.md` pin green |
+| Reviewer | `opus`, lens checklist, PASS: "meets FR-6, FR-7, FR-9, FR-12, FR-15 and FR-17 … The disqualifier does not apply: item 8, the Step 3.2 `Red run` field and the checklist clause all carry the greenfield exception … the Arguments bullet (:31) has the same md5 in all four commands" |
+| ADVISORY | Readability: Step 3.2 says the observing task's "Done criteria carry the obligation" while item 8 says "`Red run` field and Done criteria" — wording could match. Readability: the Outline mapping is written twice (Video Mode and Step 1.2, as design (b)+(d) requires) and may drift |
+| runtime events | none |
+| spawns | Implementer `sonnet` not reported by host, ended complete; Reviewer `opus` not reported by host, ended complete |
+| Running totals | tasks 7/21 · review rounds 7/~38 |
+| Approval | auto-approved (pre-approved mode) |

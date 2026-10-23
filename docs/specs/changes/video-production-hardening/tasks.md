@@ -205,7 +205,7 @@ The parallel width cap is 2–4 (`akili-execute.md` Step 1).
 
 ### T7 — `akili-specify.md`
 
-- **Status:** [ ] · **Size:** M · **Depends on:** none
+- **Status:** [x] · **Size:** M · **Depends on:** none
 - **Requirements:**
   - FR-6 *Recorded where downstream reads it*.
   - FR-7 *Specify converts it*.
