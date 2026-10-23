@@ -12,7 +12,7 @@
 
 ## 2. Final Status
 
-**Delivered.** Validation: PASS with 6 WARN. Four were fixed after validation, and two (stale spec figures) were synced in this archive. No FAIL, no PRODUCT_BUG, 608/608 tests.
+**Delivered.** Validation: PASS with 6 WARN. Four were fixed after validation, and two (stale spec figures) were synced in this archive. No FAIL, no PRODUCT_BUG, 608/608 tests at archive; 655/655 after merging `origin/dev` (Grok Bot target) on 2026-10-22.
 
 ## 3. Requirements Delivered
 
@@ -35,7 +35,7 @@
 
 ## 5. Test Evidence Summary
 
-`npm test` gives 608/608 on Node v25.2.1: 506 baseline, plus 66 author tests and 36 contract tests. The contract suite has 55 of 55 mutation reds, and the T6 FR-11 falsification has 8 of 8 reds. CI Node 18/22 is `UNVERIFIED` until the first push.
+`npm test` gave 608/608 on Node v25.2.1 at archive, and gives 655/655 after merging `origin/dev` (Grok Bot target adds 47; packaged skill files stay 224, `npm pack` 310 files). The archive-time count was 506 baseline, plus 66 author tests and 36 contract tests. The contract suite has 55 of 55 mutation reds, and the T6 FR-11 falsification has 8 of 8 reds. CI Node 18/22 is `UNVERIFIED` until the first push.
 
 ## 6. Validation Summary
 

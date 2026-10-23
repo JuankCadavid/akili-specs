@@ -27,7 +27,7 @@ function stripAnsi(text) {
 }
 
 function runFix(tmpDir, extraArgs) {
-  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir });
+  const env = Object.assign({}, process.env, { HOME: tmpDir, USERPROFILE: tmpDir, AKILI_GROKBOT_TARGET: path.join(tmpDir, "grokbot-env-unused", "workflows") });
   const result = spawnSync(
     process.execPath,
     [AKILI_BIN, "doctor", "--agents", "--fix"].concat(extraArgs || []),

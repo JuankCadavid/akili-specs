@@ -121,6 +121,7 @@ function scratchEnv(home, extra) {
       USERPROFILE: home,
       CODEX_HOME: path.join(home, ".codex-env-unused"),
       CURSOR_CONFIG_DIR: path.join(home, ".cursor-env-unused"),
+      AKILI_GROKBOT_TARGET: path.join(home, ".grokbot-env-unused", "workflows"),
     },
     extra || {}
   );
