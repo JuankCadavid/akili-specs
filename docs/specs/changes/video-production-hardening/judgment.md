@@ -7,7 +7,7 @@
 | Target | `requirements.md` (814a520) + `design.md` (a78c394), with `proposal.md` as intent |
 | Mode | judgment_day, blind dual review; Premise Ledger attacked first |
 | Judges | A and B, both `sonnet`, read-only Explore agents, identical prompt. The design was authored on `opus` (author ≠ auditor) |
-| Round | 1 |
+| Round | 2 (scoped re-judgment 1 done; fix round 2 applied; scoped re-judgment 2 below) |
 | Reversion challenge (Step 2.3) | One `sonnet` reviewer, one question per reverting DD; results in §4 |
 | Status | **round 1 complete. Confirmed severe findings → stop for the user** (`akili-specify.md` *Approval Mode*: severe judgment-day findings are an escalation even under `pre-approved`; judgment-day: "Ask before round-one correction") |
 
@@ -70,3 +70,29 @@ Merged: 9 confirmed (both judges; C-1–C-8 counted severe, plus C-9 at warning)
 ## 5. Decision required
 
 Confirmed severe findings C-1 to C-8 need a round-one correction. Per the skill, the architect asks before correcting.
+
+## 6. Round 2 — scoped re-judgment 1 (target 66aaa91, ledger + fix delta from b3d3df1)
+
+The user chose **Fix and Re-judge** (2026-10-23). The first launch of judge A died at the provider's session limit. On the user's instruction it was re-run with the identical prompt against the same target, and judge B's completed run stands.
+
+| Finding | Judge A | Judge B | Merged |
+|---|---|---|---|
+| C-1, C-2, C-3, C-4, C-7, C-8, C-9, S-1 | RESOLVED | RESOLVED | resolved |
+| C-5 (restatement sweep) | RESOLVED with residual `akili-test.md:86` | NOT RESOLVED: `docs/flow.md:379`, `akili-test.md:86` | **confirmed open**. Both judges name `akili-test.md:86`. Architect check: `docs/flow.md:379` reads "Ideally a Tester runs on a different model than the Implementer" (true) |
+| C-6 (skip-skills prefix) | NOT RESOLVED: `requirements.md` FR-2 still says "any HyperFrames command" | RESOLVED, but R-2: `init` missing, `skills check` reason unsupported, telemetry on exempt commands unstated | **confirmed open** (both judges flag the prefix scope) |
+
+New findings from the fix delta:
+
+| ID | Judges | Finding | Fix round 2 (r3) |
+|---|---|---|---|
+| R2-1 | A R-1 / B R-2 | FR-2 prefix scope and the Privacy 1 row (C-6) | FR-2 scenario rewritten: skip-skills on `check`/`snapshot`/`render`/`preview`/`init`; never on `skills update` or bare `skills`; `skills check` gets telemetry only; telemetry everywhere. Privacy 1 matches |
+| R2-2 | A R-2 / B R-1 | §9 misses `akili-test.md:86` and `docs/flow.md:379`; unclassified sweep hits | Both added (T9, T19); a "Not a Tester-model claim" row classifies the rest |
+| R2-3 | A R-4 / B R-3 | P-24 owner T2 vs T3 | T3 owns it in both places |
+| R2-4 | A R-3 / B R-4 | Base commit stated two ways | Document Control: b3d3df1/66aaa91 differ from 8679e25 only under `docs/specs/`; §8.5 says b3d3df1 |
+| R2-5 | B R-5 (suspect, adopted) | Ceiling rung cites a runtime-ladder rung as its mechanism | Reworded: the same switches under a new, non-runtime trigger, which the Loop Rules sentence names |
+| R2-6 | A R-4 (suspect, adopted) | No task map; T-ids not checkable | §15 Task map; every T-reference re-pointed; budget re-split (13 rules + 8 other → ~38 rounds) |
+| R2-7 | A R-5 (suspect, adopted) | Daemon and `--output` resolution rows claimed but absent | P-28 and P-29 added (`UNVERIFIED`, Low); count 29 / 24 / 5 |
+
+## 7. Round 2 — scoped re-judgment 2
+
+*Pending.*

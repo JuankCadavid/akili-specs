@@ -9,8 +9,9 @@
 | Type / Deliverable | Change / software |
 | Approval Mode | pre-approved (Juan Carlos Cadavid, 2026-10-23) |
 | Requirements | `requirements.md` (amended in judgment round 1: FR-2, FR-3, FR-9, FR-11, FR-17, §4) |
-| Base commit | 8679e25 (`dev`) |
-| Revision | r2 — judgment-day round-1 corrections C-1–C-9 and S-1 applied, plus the adopted info items (`judgment.md` §2–§3). The user chose **Fix and Re-judge** on 2026-10-23 |
+| Base commit | 8679e25 (`dev`). Citations marked b3d3df1 or 66aaa91 are equivalent: those commits differ from 8679e25 only under `docs/specs/` |
+| Revision | r2 — judgment-day round-1 corrections C-1–C-9 and S-1 applied, plus the adopted info items (`judgment.md` §2–§3). The user chose **Fix and Re-judge** on 2026-10-23 | 
+| Revision r3 | judgment-day round-2 corrections (judgment.md §6): the FR-2 prefix scope, the §9 sweep, the P-24 owner, one base commit, the ceiling-rung trigger, the task map, P-28 and P-29 |
 | Phase 2 gate | see §14 |
 
 ## 2. Executive Summary
@@ -102,7 +103,7 @@ It no longer relies on the `spawns:` line, which names no model.
 | 5 | `buildPlan` belt and braces, mirroring `:814-820`: a Tester whose bound model equals the Implementer's is written as `skipped (author ≠ tester unsatisfiable)` |
 | 6 | `ROLE_TIER.tester` stays `T2`: it labels the *role's* tier and effort. Only the *model source* changes. The comment at `:603` is updated to say so |
 
-**Packaged-roster outcome** (expected values; T14 executes them against the code it ships):
+**Packaged-roster outcome** (expected values; T15 executes them against the code it ships):
 
 | Host | Implementer | Tester today (`--dry-run`, 8679e25) | Tester after |
 |---|---|---|---|
@@ -133,7 +134,7 @@ Issue numbers are cited in the bare `#6138` form. The FR-8 placement test (`test
 | Install route | The core set is `hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`. The source is cited as the installed `hyperframes` skill's skill-lifecycle reference, by name. The command gains `--agent <id>`; the line keeps `--skill hyperframes ` and "project-scoped". Other skills: "installed on demand by name" |
 | Host table | One row per host with an `--agent` id column: `claude-code` → `.claude/skills`; `opencode`, `codex`, `cursor`, `antigravity` → `.agents/skills`. The NFR-4 test row regex (`:235-241`) is updated in T5 |
 | Commands table | `snapshot` row → `snapshot --at <t…> --describe false --output <spec>/evidence/stills/<task>-<label>/` (one folder per run, C-2). `render` rows → `--output <spec>/evidence/<name>.mp4`. Delivery row (`:65`) → "after final-look approval only; not run when `Delivery: deferred`". The `skills check` row is unchanged |
-| Privacy 1 | The prefix `HYPERFRAMES_NO_TELEMETRY=1 HYPERFRAMES_SKIP_SKILLS=1` applies to `check`, `snapshot`, `render` and `preview`. `skills update` and `skills check` are **exempt**, because the variable turns them into silent no-ops (skill-lifecycle reference; C-6). Opt-ins are recorded in `execution.md` |
+| Privacy 1 | `HYPERFRAMES_NO_TELEMETRY=1` prefixes **every** HyperFrames command. `HYPERFRAMES_SKIP_SKILLS=1` is added to `check`, `snapshot`, `render`, `preview` and `init`, because `init` checks GitHub and refreshes skills otherwise (skill-lifecycle reference `:12`). **Never** on `skills update` or bare `skills`, which the variable turns into a silent exit 0 (`:16`; C-6). `skills check` gets only the telemetry variable: it is read-only, and the effect of the skip variable on it is undocumented. Opt-ins are recorded in `execution.md` |
 | Privacy 2 (consent line) | Adds `snapshot --describe` (it "may send frames to a third-party model when `GEMINI_API_KEY` is set", #6138) and the rule that every snapshot passes `--describe false` unless the user consents for that use |
 | Privacy 3 | The sanitize rule, pointing to `render-evidence.md` *Evidence files* |
 | Phase map | New rows: <ul><li>`story.md` → `/akili-propose`: the Deliverable Outline on the Change track; the Lite proposal's Intent on the Trivial track; the Bug Diagnosis's expected behavior on the Bug track. Then `requirements.md`. The storyline pick is that proposal's approval (A J-15).</li><li>`SPEC.md` → `design.md` (beat table + look). It is generated from the approved docs and stored at the composition root. A review that changes the film changes `design.md` first: a beat change is a Pivot, a look change is an Adjust at the next gate. `SPEC.md` is regenerated, never approved on its own (A J-16).</li><li>`snapshot --review` + `REVIEW.md` → each execute task's verification. Run as `snapshot --review --describe false --output <spec>/evidence/review/<task>/`, with `REVIEW.md` copied there (A J-14).</li><li>The delivery row → "after final-look approval, unless `Delivery: deferred`".</li></ul> |
@@ -209,7 +210,7 @@ Issue numbers are cited in the bare `#6138` form. The FR-8 placement test (`test
 1. **Escalate with a distinct auditor.**
    - Applies when a Reviewer model exists that differs from the T3 pick (the next-tier Implementer model) and is at least as strong: the registry's frontier escalation pin when the host has one, or cross-host dispatch.
    - Action: move the Implementer to T3 at `xhigh` and the Reviewer to that model. Both are recorded.
-   - Per-spawn mechanism: the Reviewer ladder's existing rung 3, "a different model (`/model`) or the registry's cross-host dispatch" (`akili-execute.md:72`).
+   - Per-spawn mechanism: the same switches the Reviewer ladder's rung 3 names (`akili-execute.md:72`: a per-spawn different model via `/model`, or the registry's cross-host dispatch), but under a **new, non-runtime trigger**. The ladder fires on runtime events; this rung fires on a rework retry at the ceiling. The Loop Rules sentence states that trigger and names the Reviewer's model choice for it (B R-5).
    - Never route the Reviewer to a weaker model than the escalated Implementer. On Claude Code the T3 fallback `sonnet` does not qualify. Single-entry T3 hosts (OpenCode) have no in-host candidate (A J-12, B J-17).
 2. **Otherwise hold.** Keep T2 at `xhigh` with a fresh Implementer spawn carrying the Attempt History, and record `effort ceiling: held xhigh`.
 
@@ -235,7 +236,7 @@ The attempt ceiling stays 3.
 
 - One rule now covers both personas: both are edited.
 - Deployed `.agents/` copies read `outdated` in `akili doctor --agents` until `--fix` upgrades them, and the CHANGELOG says so.
-- Measured on a scratch copy at 8679e25 with `leader.md` and `tester.md` edited: `node --test test/agents-doctor*.test.js test/persona-digests.test.js test/install*.test.js` → 128 pass, 0 fail (P-26).
+- Measured on a scratch copy at b3d3df1 (docs-only delta from 8679e25) with `leader.md` and `tester.md` edited: `node --test test/agents-doctor*.test.js test/persona-digests.test.js test/install*.test.js` → 128 pass, 0 fail (P-26).
 
 **`judgment-day`**
 
@@ -259,21 +260,23 @@ Run as `grep -rn -i -E "author ≠ tester|prefer.*tester|tester.*prefer|Tester.*
 
 | Site | Action | Task |
 |---|---|---|
-| `akili-test.md:15,54` | MUST; role T2, model distinct | T9 |
-| `leader.md:333`; `tester.md:7` | §8.5 | T11 |
-| `akili-constitution.md:459` | "Author ≠ tester: the Tester's model MUST differ from the Implementer's" | T15 |
-| `akili-constitution.md:791-793` | Claude Code example: tester `opus` | T15 |
-| `akili-constitution.md:827-832` | OpenCode: Tester = `deepseek-v4-pro`; drop "prefer … note it per rule 1" | T15 |
-| `akili-constitution.md:844-846, 864` | Antigravity: only `akili-implementer/` is written on the packaged roster; the Tester is skipped and reported | T15 |
-| `akili-constitution.md:1020-1022` | Rule 1: the Tester MUST differ; skipped and reported when no distinct model has a wrapper value | T15 |
-| `akili-constitution.md:1429` (twice) | "the Tester takes a model distinct from the Implementer's" | T15 |
-| `docs/model-routing.md:71-72, 87, 189, 252, 795` | MUST; Testers no longer "stay on sonnet"; the Antigravity Tester is skipped | T16 |
-| `docs/cli.md:504` | Roles map: "Tester role T2, model = first auditor-tier pick distinct from the Implementer's" | T17 |
-| `README.md:898` | "Ideally" → MUST | T17 |
-| `docs/flow.md:394` | "T1 / T2 (model ≠ Implementer)" | T17 |
-| `docs/commands/akili-test.md:23,32` | MUST; "Step 8E wrapper (role T2, model distinct)" | T17 |
+| `akili-test.md:15,54,86` | MUST; role T2, model distinct (`:86` "wrapper (T2)" → "wrapper (role T2, model distinct)") | T9 |
+| `leader.md:333`; `tester.md:7` | §8.5 | T11, T12 |
+| `akili-constitution.md:459` | "Author ≠ tester: the Tester's model MUST differ from the Implementer's" | T16 |
+| `akili-constitution.md:791-793` | Claude Code example: tester `opus` | T16 |
+| `akili-constitution.md:827-832` | OpenCode: Tester = `deepseek-v4-pro`; drop "prefer … note it per rule 1" | T16 |
+| `akili-constitution.md:844-846, 864` | Antigravity: only `akili-implementer/` is written on the packaged roster; the Tester is skipped and reported | T16 |
+| `akili-constitution.md:1020-1022` | Rule 1: the Tester MUST differ; skipped and reported when no distinct model has a wrapper value | T16 |
+| `akili-constitution.md:1429` (twice) | "the Tester takes a model distinct from the Implementer's" | T16 |
+| `docs/model-routing.md:71-72, 87, 189, 252, 795` | MUST; Testers no longer "stay on sonnet"; the Antigravity Tester is skipped | T17 |
+| `docs/cli.md:504` | Roles map: "Tester role T2, model = first auditor-tier pick distinct from the Implementer's" | T19 |
+| `README.md:898` | "Ideally" → MUST | T19 |
+| `docs/flow.md:394` | "T1 / T2 (model ≠ Implementer)" | T19 |
+| `docs/flow.md:379` | "Ideally a Tester runs on a different model" → MUST | T19 |
+| `docs/commands/akili-test.md:23,32` | MUST; "Step 8E wrapper (role T2, model distinct)" | T18 |
 | **True as is:** `akili-constitution.md:666`, `docs/model-routing.md:402`, `model-routing.section.md:86` (effort `medium` for the role); `akili-constitution.md:726`, `docs/flow.md:476` (skill loading) | Not a model claim | — |
-| **Kept (debt):** `.claude/templates/model-routing.section.md:30,36` and its description `akili-constitution.md:576-578` | Editing the section template refuses existing fences (P-3, verified). "Prefer" is weaker than MUST but not false, and the T2 row describes the role. Recorded as debt in CHANGELOG | T19 |
+| **Not a Tester-model claim** (hits of the sweep pattern, opened and classified): `docs/skills/tdd.md:27`, `.claude/skills/tdd/SKILL.md:59` (author ≠ tester as a principle, true); `akili-test.md:62` (pointer slices); `akili-specify.md:280` (role-set wording rule); `akili-constitution.md:372` (lean commands), `:912` (Reviewer sandbox); `docs/commands/akili-constitution.md:100,114`; `docs/skills/governance.md:15` | None | — |
+| **Kept (debt):** `.claude/templates/model-routing.section.md:30,36` and its description `akili-constitution.md:576-578` | Editing the section template refuses existing fences (P-3, verified). "Prefer" is weaker than MUST but not false, and the T2 row describes the role. Recorded as debt in CHANGELOG | T21 |
 
 ## 10. Design Decisions
 
@@ -296,13 +299,13 @@ Run as `grep -rn -i -E "author ≠ tester|prefer.*tester|tester.*prefer|Tester.*
 
 ## 11. Premise Ledger
 
-**Count:** 27 rows — 24 verified, 3 `UNVERIFIED` (High 0, Low 3).
+**Count:** 29 rows — 24 verified, 5 `UNVERIFIED` (High 0, Low 5).
 **Blast-radius triggers fired:** `consumer` (report lines, wrapper models, skill and command text pinned by tests and docs), `shared-state` (`planWrapper` readers; persona digests), `live-path` (`--version` dispatch).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
 |---|---|---|---|---|---|---|
 | P-1 | `test/video-production.test.js` pins the skill and commands. Test-by-test: frontmatter `:111`; HeyGen placement `:128-143`; ≤3 files/≤20,000 bytes `:145-150`; verified subcommand set + outward-action placement `:152-175`; consent line `:177-188`; gate `:190-200`; route `--yes`/`--skill hyperframes `/project-scoped `:202-214`; first-render row `:216-225`; `skills check` row `:227-233`; host-table rows `:235-241`; duration `:243-252`; `Deliverable: video` counts ≥ specify 5 / test 3 / validate 4 `:254-260`; Video Mode default `:262-266` | consumer | `grep -n "^test(" test/video-production.test.js` + reading each body | b3d3df1 | T1–T5, T7, T9, T10 sites must keep or deliberately amend each pin → High | — |
-| P-2 | Readers of Tester wrapper models and report lines: `test/routing.test.js:313-318` (OpenCode T3 = T2 roster), `:638`, `:646`, `:658-663`, `:688`, `:697`, `:718-724` (four wrappers created), `:742-746` (six unchanged writes), `:801` (cross-host sonnet-only roster), `:842-852` (collapse line); `test/routing-io.test.js:154,214` (token-line counts), `:235` | consumer | `grep -rn -i tester test/*.js` (whole `test/`) and the body reads cited | b3d3df1 | T14 test scope → High | — |
+| P-2 | Readers of Tester wrapper models and report lines: `test/routing.test.js:313-318` (OpenCode T3 = T2 roster), `:638`, `:646`, `:658-663`, `:688`, `:697`, `:718-724` (four wrappers created), `:742-746` (six unchanged writes), `:801` (cross-host sonnet-only roster), `:842-852` (collapse line); `test/routing-io.test.js:154,214` (token-line counts), `:235` | consumer | `grep -rn -i tester test/*.js` (whole `test/`) and the body reads cited | b3d3df1 | T15 test scope → High | — |
 | P-3 | Editing `model-routing.section.md` makes an existing fence refuse: `replaceFencedSection` renders the expected body from previous answers with the current template and returns `TOKEN_REFUSED_EDIT` on mismatch | data-env | `bin/routing.js:422-436` | 8679e25 | DD-9 → Low | — |
 | P-4 | `skills` CLI 1.7.4 `add` has `-a, --agent <agents>`; ids `claude-code`, `opencode`, `codex`, `cursor`, `antigravity` | data-env | `npx skills@1.7.4 add --help`; `grep -rhoE "\b(claude-code\|opencode\|codex\|cursor\|antigravity)\b" <skills pkg>/dist \| sort \| uniq -c` → 12/10/13/93/11 | 8679e25 (skills 1.7.4, 2026-10-23) | §8.1 host table → High | — |
 | P-5 | The upstream eager core set is the 4 skills | data-env | installed `hyperframes/references/skill-lifecycle.md:7` (video project, read only) | 8679e25 | FR-3 → High | — |
@@ -310,10 +313,10 @@ Run as `grep -rn -i -E "author ≠ tester|prefer.*tester|tester.*prefer|Tester.*
 | P-7 | The compiler fetches "bundled" fonts from Google Fonts; a warm cache hides it | other | `UNVERIFIED — confirm at source before relying on it` (user-stated; #6137; counter-evidence: installed `format.md:96` "Bundled, so they resolve by name") | — | Note wording → Low; the self-host rule stands either way | user-stated; T2 cites #6137 |
 | P-8 | The source project ignores `*.log` | data-env | `git check-ignore -v video/x.log` in the video project → `.gitignore:41:*.log` | 8679e25 | FR-2 `.txt` rule → Low | — |
 | P-9 | `akili --version` exits 1 today | existence | `node bin/akili.js --version` → `ERROR: Unknown option '--version'`, exit 1 | 8679e25 | FR-18 unnecessary → Low | — |
-| P-10 | `currentVersion` is a module constant from `package.json` | location | `bin/akili.js:2294` | 8679e25 | T18 → Low | — |
+| P-10 | `currentVersion` is a module constant from `package.json` | location | `bin/akili.js:2294` | 8679e25 | T20 → Low | — |
 | P-11 | Only `-l` and `-h` short options exist | existence | `grep -n 'short:' bin/akili.js` → `:346`, `:348` | 8679e25 | `-v` collision → Low | — |
 | P-12 | `main` → `getArgs` → validation (`:381-388`) → the `check-update` branch → `checkForUpdates` (`:2898`) → switch | live-path | `bin/akili.js:2884-2898`, `:372-388` | 8679e25 | DD-10 placement → Low | — |
-| P-13 | `planWrapper` is read by `renderWrapper` (`:689`), the effort-bracket decision (`:747`) and `buildPlan` (`:793`, `:815`); `ROLE_TIER.tester = "T2"` (`:603`) | shared-state | `grep -n "planWrapper(" bin/routing.js` | 8679e25 | T14 keeps the Reviewer path and bracket decision intact → High | — |
+| P-13 | `planWrapper` is read by `renderWrapper` (`:689`), the effort-bracket decision (`:747`) and `buildPlan` (`:793`, `:815`); `ROLE_TIER.tester = "T2"` (`:603`) | shared-state | `grep -n "planWrapper(" bin/routing.js` | 8679e25 | T15 keeps the Reviewer path and bracket decision intact → High | — |
 | P-14 | On the packaged roster the Tester binds the Implementer's model on Claude Code, OpenCode, Antigravity and Codex | existence | `node bin/akili.js routing --project <tmp> --hosts claude,opencode,antigravity,codex --models claude=opus,sonnet,haiku --models opencode=opencode-go/deepseek-v4-pro,opencode-go/deepseek-v4.1-flash,opencode-go/deepseek-v4-flash --models antigravity=gemini-4-argon-high,gemini-3.8-flash-high,gemini-3.8-flash-medium,gemini-3.8-flash-low,claude-sonnet-5-5-high --models codex=gpt-5.6-terra,gpt-5.6-sol,gpt-5.6-luna --cli claude=claude --cli opencode=opencode --cli antigravity=agy --cli codex=codex --wrappers yes --yes --dry-run` → four `Tester: same model as the Implementer` lines | 8679e25 | FR-11 unnecessary → High | — |
 | P-15 | `$ARGUMENTS` occurrences: specify 6 (`:31,35,88,97,99,104`), execute 5 (`:28,103-106`), test 6 (`:30,34,98-100,143`), validate 11 (`:30,34,36,66,67,69-72,151,175`) | location | `grep -n '\$ARGUMENTS'` per file | 8679e25 | T7–T10 site lists → Low | — |
 | P-16 | The router names `story.md`, `SPEC.md`, `snapshot --review`/`REVIEW.md`, and a music bed for films over about 15 s | data-env | installed `hyperframes/SKILL.md:46-47`; `references/sound.md:7`; `references/review.md:44`; `references/spec.md:5` | 8679e25 | §8.1 rows → Low | — |
@@ -324,27 +327,29 @@ Run as `grep -rn -i -E "author ≠ tester|prefer.*tester|tester.*prefer|Tester.*
 | P-21 | Escalations above T2 are recorded in `execution.md` "naming the model and the effort chosen"; the `spawns:` line names no model | location | `.claude/templates/leader.md:26`; `akili-execute.md:393` | 8679e25 | DD-3 source → High | — |
 | P-22 | The `akili-quick-args` worktree holds no commits beyond `dev` | existence | `git log --oneline dev..JuankCadavid/akili-quick-args` → empty | 8679e25 | duplicate work → Low | — |
 | P-23 | Every `snapshot` run clears its `-o` folder and numbers from `00` | data-env | installed `hyperframes/references/storyboard.md:12` | 8679e25 | Per-run subfolders (§8.1, §8.2) → High | — |
-| P-24 | HyperFrames caches fonts at `~/.cache/hyperframes/fonts` | data-env | `UNVERIFIED — confirm at source before relying on it` (user-stated, friction log; no installed-skill hit for a font cache) | — | Item 7's procedure → Low (the item reports "not cold" when the path is wrong) | user-stated; the first video task to claim "local only" (the T2 text states it) |
+| P-24 | HyperFrames caches fonts at `~/.cache/hyperframes/fonts` | data-env | `UNVERIFIED — confirm at source before relying on it` (user-stated, friction log; no installed-skill hit for a font cache) | — | Item 7's procedure → Low (the item reports "not cold" when the path is wrong) | user-stated; the first video task that claims "local only" (T3 writes this settle-at-first-use clause into item 7) |
 | P-25 | Codex and Cursor install commands as skills verbatim; Grok Bot installs commands as workflows verbatim, so `$ARGUMENTS` is not substituted there | other | `bin/akili.js:1142` (commands as skills); `docs/cli.md:262` | 8679e25 | FR-15 rationale wording → Low | — |
 | P-26 | Editing `leader.md` and `tester.md` between releases keeps the doctor, digest and install suites green | data-env | scratch copy at b3d3df1 with both templates edited: `node --test test/agents-doctor*.test.js test/persona-digests.test.js test/install*.test.js` → 128 pass, 0 fail | b3d3df1 | DD-9 → Low | — |
 | P-27 | Issue topics: #6136 clip window, #6137 fonts, #6138 snapshot Gemini, #6139 multi-mount host id; all OPEN | data-env | `gh issue view <n> -R heygen-com/hyperframes --json number,title,state` (2026-10-23) | 8679e25 | DD-7 citations → Low | — |
+| P-28 | A HyperFrames warm-check process can outlive its command (no parent, exits after about 5 min idle) | data-env | `UNVERIFIED — confirm at source before relying on it` (user-stated, friction log; `grep -rn -i "daemon\|warm"` over the installed skills: no process hit) | — | The quiet-tree row wording → Low; the rule covers any tool daemon either way | user-stated; T2 words it as "observed in the source run" |
+| P-29 | `--output` resolves relative to the working directory, so commands run from the repository root write under `<spec>/evidence/` | data-env | `UNVERIFIED — confirm at source before relying on it` (installed `preview-render.md:106` shows `render ./my-video --output ./out.mp4` "from outside the project dir"; the resolution base is not stated) | — | Evidence paths → Low: evidence item 4 (`test -s <path>`) fails visibly when the file lands elsewhere | the first evidence run (item 4); T3 states that commands run from the repository root |
 
 Hand-off:
 
 - P-1 → `Consumers` of T1, T2, T3, T4, T5, T7, T9, T10.
-- P-2 → `Consumers` of T14.
-- P-26 → T11.
-- `UNVERIFIED` P-6, P-7 → T2. P-24 → T3, whose text carries the settle-at-first-use clause.
+- P-2 → `Consumers` of T15.
+- P-26 → T11, T12.
+- `UNVERIFIED` P-6, P-7, P-28 → T2. P-24, P-29 → T3, whose text carries the settle-at-first-use clauses.
 
 ## 12. Budget (Step 2.4)
 
 | Measure | Estimate | Basis |
 |---|---|---|
-| Tasks | 21 | §4, split per rules document (about 8 sites each; the mechanical `$ARGUMENTS` replacement counts as one site): 15 rules-text tasks, 6 code/test/docs tasks |
+| Tasks | 21 | The §13 task map, split per rules document (about 8 sites each; the mechanical `$ARGUMENTS` replacement counts as one site): 13 rules-text tasks (T1–T4, T6–T13, T16) and 8 code/test/docs tasks (T5, T14, T15, T17–T21) |
 | LOC | ~1,250 | Rules text ~+380 (now including `docs/commands/*` and personas). Tests ~+650: ~65 clauses × ~10 LOC (KZ-bugfix--init-ctrlc-abort-2). Code ~+90. CHANGELOG/docs ~+130 |
-| Review rounds | ~39 | 15 rules-text tasks × 2 (Step 2.4 rules-document rule) + 6 × 1.5 |
+| Review rounds | ~38 | 13 rules-text tasks × 2 (Step 2.4 rules-document rule) + 8 × 1.5 |
 
-The skill byte figure is a drafted measurement owed by T2 (DD-6). The estimate is about +4,900 bytes on top of 12,250 today; a measurement over 20,000 is a Pivot.
+The skill byte figure is a drafted measurement owed by T1 and T2 together (DD-6). The estimate is about +4,900 bytes on top of 12,250 today; a measurement over 20,000 is a Pivot.
 
 **Depth check:** Standard was declared. The estimate is large but made of single-file, low-risk tasks, so stay at Standard and split into three PRs (§13). The video ×2–3 multiplier (FR-12) does not apply: `Deliverable: software`.
 
@@ -353,11 +358,37 @@ The skill byte figure is a drafted measurement owed by T2 (DD-6). The estimate i
 | PR | Tasks | Review first |
 |---|---|---|
 | 1 — video skill | T1–T5 | `SKILL.md` Step 0 + privacy |
-| 2 — commands, personas, judgment-day | T6–T13 | the first-token rule (T13 tests) |
-| 3 — routing + CLI + docs + CHANGELOG | T14–T21 | `bin/routing.js` Tester derivation |
+| 2 — commands, personas, judgment-day | T6–T14 | the first-token rule (T14 tests) |
+| 3 — routing + CLI + docs + CHANGELOG | T15–T21 | `bin/routing.js` Tester derivation |
 
 ## 14. Gates
 
 - Step 2.3 reversion challenge: done (`judgment.md` §4).
 - Judgment-day round 1: 9 confirmed findings (8 severe), corrected in r2 after the user chose **Fix and Re-judge**.
 - Round-2 scoped re-judgment: see `judgment.md`.
+
+## 15. Task map (binding for `tasks.md`)
+
+| Task | Scope |
+|---|---|
+| T1 | `SKILL.md` part A: Step 0 gate, install route, host table, deferral table, and the precedence sentence (FR-3) |
+| T2 | `SKILL.md` part B: commands table, privacy 1–3, phase map, render rules (FR-1, FR-2, FR-4, FR-5, FR-6, FR-10) |
+| T3 | `render-evidence.md` (FR-1, FR-2, FR-5, FR-6) |
+| T4 | `acceptance-criteria.md` (FR-4, FR-5, FR-6, FR-14) |
+| T5 | `test/video-production.test.js`: new and amended pins for T1–T4 |
+| T6 | `akili-propose.md` (FR-6, FR-7, FR-12, FR-16) |
+| T7 | `akili-specify.md` (FR-6, FR-7, FR-9, FR-12, FR-15, FR-17) |
+| T8 | `akili-execute.md` (FR-12, FR-13, FR-15) |
+| T9 | `akili-test.md` (FR-8, FR-11, FR-15) |
+| T10 | `akili-validate.md` (FR-6, FR-15) |
+| T11 | `.claude/templates/leader.md` (FR-11, FR-13) |
+| T12 | `.claude/templates/tester.md` (FR-11) |
+| T13 | `.claude/skills/judgment-day/SKILL.md` (FR-17) |
+| T14 | `test/command-contracts.test.js`: contracts for T6–T13 |
+| T15 | `bin/routing.js` Tester derivation + `test/routing*.test.js` (FR-11) |
+| T16 | `akili-constitution.md` Step 8B/8E/9 restatements (FR-11) |
+| T17 | `docs/model-routing.md` (FR-11) |
+| T18 | Docs mirrors: `docs/commands/akili-{propose,specify,execute,test,validate}.md`, `docs/skills/video-production.md`, `docs/skills/judgment-day.md` |
+| T19 | `README.md`, `docs/cli.md` (Tester), `docs/flow.md` |
+| T20 | `bin/akili.js` `--version` + `test/cli-version.test.js` + help text + the `docs/cli.md`/`README.md` command row (FR-18); after T19 |
+| T21 | `CHANGELOG.md` `Unreleased` + the closing phrase-family sweep (FR-19) |

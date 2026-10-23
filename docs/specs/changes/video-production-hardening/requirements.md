@@ -100,9 +100,11 @@ Every committed video evidence artifact SHALL live under the evidence folder, be
 
 #### Scenario: Skill refresh is disabled during evidence runs
 
-- GIVEN any HyperFrames command run by the skill
+- GIVEN a `check`, `snapshot`, `render`, `preview` or `init` command the skill instructs
 - WHEN the skill names its environment prefix
-- THEN it names `HYPERFRAMES_SKIP_SKILLS=1` beside `HYPERFRAMES_NO_TELEMETRY=1`, stating that without it `init`/`skills` commands may refresh skills from GitHub
+- THEN it carries `HYPERFRAMES_SKIP_SKILLS=1` beside `HYPERFRAMES_NO_TELEMETRY=1`, stating that without it `init` checks GitHub and refreshes skills
+- BUT it must NOT put `HYPERFRAMES_SKIP_SKILLS=1` on `skills update` or bare `skills`, which the variable turns into a silent exit 0 (installed `hyperframes/references/skill-lifecycle.md:16`); `skills check` carries only the telemetry variable
+- AND IT MUST keep `HYPERFRAMES_NO_TELEMETRY=1` on every HyperFrames command, the `skills` commands included
 
 ### FR-3: Install route and availability gate (S3)
 
