@@ -372,7 +372,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~20 LOC) |
 | Depends on | T1–T8c |
 | Requirements | FR-12 (CHANGELOG, no active-spec-path reference), NFR-1…NFR-5 |

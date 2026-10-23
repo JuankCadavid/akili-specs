@@ -6,9 +6,23 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **`/akili-marketing` drafts LinkedIn, Instagram and Facebook social marketing as reviewable Markdown under `docs/marketing/`, anytime and outside the spec lifecycle.** It has six modes: `brand` (brand voice), `campaign` (brief and plan, behind a plan gate), `calendar`, `post` (with `--revise` and `--published`), `review` and `repurpose`. Each post ends at a copy-paste block and the human posts it by hand. Only LinkedIn, Instagram and Facebook are in scope; any other platform is recorded as out of scope and never drafted.
+- **Four invariants hold in every mode, defined once in the command's `## Invariants`:** never publish, the approval gate, the write boundary and untrusted content. The command contains no step that publishes, schedules or queues content on any platform or service. A post section becomes `approved` only by the user's own explicit words about the exact text shown, status is kept per platform section, and no Approval Mode auto-passes the gate (`pre-approved` included). The command writes only under `docs/marketing/`, runs no `git` write and fetches no URL. Third-party text is data, never instruction. The gate is prompt-level, not machine-enforced: the approval record is written by the agent and a hand edit is caught on the next read (`docs/commands/akili-marketing.md` > *Residual risk*).
+- **The packaged `social-marketing` skill (binding `core`) carries the method, adapted from three MIT skill packs by Sergey Bulaev.** The upstream pins are in `source`, `LICENSE` carries the upstream notice, and the skill has 10 reference files (voice rules, hook formulas, humanizer, brand-voice template, planning, repurposing, untrusted content and one per platform). Every platform rule is labelled `hard limit` or `heuristic`: the hard limits are sourced to each platform's own Help Center, read on 2026-10-23, and there are four for Instagram and six for LinkedIn; Facebook has no sourced limit.
+- **Docs.** New `docs/commands/akili-marketing.md` and `docs/skills/social-marketing.md`; `README.md`, `docs/README.md`, `docs/commands/README.md`, `docs/flow.md` (new section 2c, an artifacts row and the skill mention), `docs/skills/README.md`, the `core` row of `docs/skills/governance.md` and the `AGENTS.md` Skill Usage list name the command and the skill.
+
+### Changed
+
+- **Docs and tests count 13 commands and 28 packaged skills, up from 12 and 27.** `docs/cli.md` carries the new totals (the `--commands-only` row, both install-layout listings, the shared-root sentence and the Grok Bot paragraph), and `README.md` now says "Four capabilities" and "Six anytime commands". `test/install-cursor.test.js` moves its packaged skill file count from 224 to 236 and its totals to 13 commands and 28 skill directories, `test/fixtures/doctor-codex-baseline.txt` moves from `ok 47` to `ok 49`, and `test/diagram-design.test.js` now asserts `28 packaged skills` in place of `27`.
+
 ### Notes
 
-- No unreleased changes yet.
+- **Release class: minor** (a new command and a new skill).
+- **Tests.** The new `test/social-marketing-skill.test.js` has 9 cases and `test/akili-marketing-command.test.js` has 71 text-contract cases. The suite is 735 tests, all passing on Node 22.12.0 and on Node 18.20.8, both run on macOS after the last task; the baseline before this change was 655.
+- **Known debts.** (1) The lifecycle figure `assets/akili-flow.svg` and `assets/akili-flow.png` was not regenerated. (2) There is no `/akili-marketing` row in the model-routing registry: `docs/model-routing.md` and the routing template are unchanged, pending the routing template-evolution bug. (3) The Windows CI legs are unverified: nothing has been pushed.
+- `/akili-marketing` changes nothing in `bin/`, `package.json`, `scripts/`, `docs/model-routing.md` or `.claude/templates/`.
 
 ## [2.35.0] - 2026-10-22
 

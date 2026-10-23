@@ -215,3 +215,56 @@ Attempt 2 (rework): removed from the shipped references every row not backed by 
 - spawns: Implementer 13 calls, 101,995 tokens, ended complete; Reviewer not reported by host, ended complete (PASS).
 - **Final status: PASS** (2026-10-23). Requirements: every §3 row whose *Pins / checks* names T7 (FR-2…FR-11), DD-3 restatement (docs gate sentence, SKILL standalone line).
 - Running totals: tasks 10/12 · shipped LOC ~2,001 (1,467 + 534) · review rounds 19 — tripwire past 20; T9 is the last review round within it. Continue gate: auto-approved (user mandate).
+
+## T9 Artifact — Verification sweep
+
+Run 2026-10-23 on macOS, at HEAD `73cd220` plus the uncommitted `CHANGELOG.md` edit, after the last task that changes any figure. Test counts below are from the final run made after the CHANGELOG edit; earlier phase counts are not quoted.
+
+| Command | Quoted result |
+|---|---|
+| `npm test`, `node -v` = v22.12.0 | `# tests 735` `# pass 735` `# fail 0` `# cancelled 0` `# skipped 0`; exit 0 |
+| `npm test`, `node -v` = v18.20.8 | `# tests 735` `# pass 735` `# fail 0` `# cancelled 0` `# skipped 0`; exit 0 |
+| Baseline at `b042b97` | `# tests 655 · pass 655 · fail 0`; now +80 (9 skill test + 71 command test) |
+| `npm run verify:cli` | `Summary: 13 commands \| 28 skills \| 8 resources (akili-specs v2.35.0)` |
+| `npm run pack:dry-run` | `package size: 2.6 MB`, `unpacked size: 5.3 MB`, `total files: 325`; lists `.claude/commands/akili-marketing.md`, `docs/commands/akili-marketing.md`, `docs/skills/social-marketing.md`, `.claude/skills/social-marketing/{LICENSE,SKILL.md}` and its 10 references |
+| `git diff --check` | exit 0, no output |
+| `node bin/akili.js install --tool all --dry-run` | exit 0; `TOTAL installed 17 \| overwritten 0 \| skipped 349`; output contains `akili-marketing` (15 lines) and `social-marketing` (7 lines) |
+| `node bin/akili.js install --tool grokbot --target <scratchpad>/gb --dry-run` | exit 0; `GROKBOT installed 49 \| overwritten 0 \| skipped 0`; `akili-marketing` (73 lines) and `social-marketing` (1 line) |
+| `node bin/akili.js doctor --tool all` | Reports `INCOMPLETE` for the five tools at the real HOME: `ok 47 \| missing 2` each, the two missing being `akili-marketing.md` and `social-marketing`. Cause: the HOME install predates this change, not a repo defect. Control: after `install --tool claude --target <scratchpad>/cl`, `doctor --tool claude --target <scratchpad>/cl` reports `HEALTHY ok 49 \| missing 0` and `All checks passed.` |
+| `git diff 9a92092 -- bin/ .claude/templates/ docs/model-routing.md package.json` | empty (NFR-1, NFR-2, NFR-4); `scripts/` also empty |
+| `git diff 9a92092 --stat -- assets/` | empty: the figure was not regenerated (debt) |
+| `grep -rn "docs/specs/changes/akili-marketing" --include='*.md' --include='*.js' . \| grep -v "^\(\./\)\?docs/specs/" \| grep -v node_modules \| wc -l` | `0`. Note: on macOS BSD grep prints paths without `./`, so the literal filter `grep -v "^./docs/specs/"` matched nothing and counted 6 spec-folder files; the filter above covers both forms |
+| `grep -c "model-routing\|marketing"` of `docs/model-routing.md` and `.claude/templates/*` for marketing | `0` lines: no model-routing row (debt) |
+| CHANGELOG quote-check | 51 rows at `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-akili-marketing/5c67b285-11fa-433e-8262-039c9697624a/scratchpad/t9-quote-check.md`; 49 FOUND, 2 falsifier rows (`schedules posts` in the command and in the docs page) NOT FOUND as expected |
+| Windows CI legs | `UNVERIFIED`: nothing pushed. Open |
+
+Quote-check corrections made while drafting: a clause placing "Six anytime commands" in `docs/flow.md` is in `README.md`; "the anytime-command list" of `docs/flow.md` is its artifacts row, section 2c and the skill mention.
+
+### NFR-5 line counts (`wc -l`)
+
+| File | Lines |
+|---|---|
+| `.claude/commands/akili-marketing.md` | 182 |
+| `.claude/skills/social-marketing/SKILL.md` | 73 |
+| `references/brand-voice-template.md` | 131 |
+| `references/facebook.md` | 63 |
+| `references/hook-formulas.md` | 70 |
+| `references/humanizer.md` | 95 |
+| `references/instagram.md` | 88 |
+| `references/linkedin.md` | 79 |
+| `references/planning-and-calendar.md` | 86 |
+| `references/repurposing.md` | 57 |
+| `references/untrusted-content.md` | 34 |
+| `references/voice-rules.md` | 74 |
+| 10 references, total | 777 |
+| `test/social-marketing-skill.test.js` | 172 |
+| `test/akili-marketing-command.test.js` | 534 |
+
+---
+
+### T9 — CHANGELOG + full verification sweep (Leader entry)
+
+- **Attempt 1** (Implementer `sonnet`, effort high; skills `cognitive-doc-design`) — files: `CHANGELOG.md` (`## [Unreleased]`: Added / Changed / Notes — command, six modes, four invariants pointing to `## Invariants` with the command's own never-publish sentence, prompt-level gate pointer, `social-marketing` skill with Sergey Bulaev MIT credit, pins, LICENSE, 10 references, hard limits IG 4 / LI 6 / FB none read 2026-10-23, docs list; counts 13/28, `install-cursor` 224 → 236, fixture `ok 47` → `ok 49`, `diagram-design` pin; minor; tests 9 + 71 new, 735 on Node 22.12.0 and 18.20.8, baseline 655; debts: figure not regenerated, no model-routing row pending the template-evolution bug, Windows CI unverified) + `## T9 Artifact — Verification sweep` above. Quote-check table 51 rows (scratchpad `t9-quote-check.md`; caught and fixed two own drafting errors). Sweep: `npm test` 735/735/0 on v22.12.0 and v18.20.8; `verify:cli` "13 commands | 28 skills | 8 resources"; `pack:dry-run` 325 files; `git diff --check` clean; both install dry-runs list both names; `git diff 9a92092 -- bin/ .claude/templates/ docs/model-routing.md package.json` empty (also `scripts/`, `assets/`); spec-path grep 0 (task's literal `grep -v "^./docs/specs/"` is ineffective on BSD grep — corrected filter `^\(\./\)\?docs/specs/` → 0); NFR-5: command 182, SKILL 73, references 777, tests 172 + 534. Reds: `doctor --tool all` at the real HOME → `INCOMPLETE ok 47 | missing 2` per tool (HOME install predates this change); control install into a scratch HOME → `HEALTHY ok 49 | missing 0`. Evidence re-run (Leader inline): `npm test` 735/735/0 on v22.12.0 and v18.20.8; `verify:cli` 13 | 28 | 8; protected-path diff 0 lines; spec-path grep 0; `git diff --check` OK → `VERIFIED`. Reviewer (`opus`, fresh context): **PASS** — every clause and figure re-checked at HEAD (four invariants = "These four rules"; 10 references; `| hard limit |` rows 4/6/0; 9/9 + 71/71; 735 − 80 = 655; 325 files); falsifier executed on a copy ("It schedules posts…" → 0 shipped sources; all 13 `schedul*` hits are negations); model-routing debt backed in-repo (`CHANGELOG.md:108`, `:135`; `bin/routing.js:431-436` unchanged); `doctor` red reproduced and judged an outdated HOME install, not a defect or spec gap; FR-12, NFR-1…NFR-5, DD-3 hold. ADVISORY: suppressed (trivial tier). runtime events: none.
+- spawns: Implementer 29 calls, 118,850 tokens, ended complete; Reviewer not reported by host, ended complete (PASS).
+- **Final status: PASS** (2026-10-23). Requirements: FR-12 (CHANGELOG, no active-spec-path reference), NFR-1…NFR-5. Windows legs (NFR-3) `UNVERIFIED` until the user pushes.
+- Running totals: tasks 11/12 · shipped LOC ~2,017 (2,001 + 16 CHANGELOG) vs ~2,600 budget · review rounds **20** = tripwire limit (stop past 20). T10's observation round would be the 21st → **budget tripwire**: escalated to the user together with the T10 HITL stop.
