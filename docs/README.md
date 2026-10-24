@@ -39,6 +39,8 @@ Use `/akili-quick <change-name>` for a trivial, low-risk change with minimal tra
 
 Use `/akili-security` for a gated repository security audit outside the spec lifecycle; confirmed findings go to the Bug Track via `/akili-propose`. Not supported on native Windows.
 
+Use `/akili-marketing <mode>` independently to draft LinkedIn, Instagram and Facebook posts as Markdown under `docs/marketing/`; it never publishes. See [`/akili-marketing`](commands/akili-marketing.md).
+
 Video deliverables: see [video-production](skills/video-production.md) and [flow.md](flow.md#10-video-deliverables).
 
 Diagrams: see [diagram-design](skills/diagram-design.md) and [flow.md](flow.md#11-diagram-slots).

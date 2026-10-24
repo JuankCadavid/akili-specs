@@ -232,12 +232,19 @@ test("FR-4 (A3, freshness scope): `skills check` is stated as global-only and ne
   assert.match(row, /`skills-lock\.json`/);
 });
 
-test("NFR-4: project-scoped host directories cover Claude Code, OpenCode, Codex, Cursor, Antigravity", () => {
-  const lines = skillLines();
-  const claude = lines.find((l) => /^\| Claude Code \|/.test(l));
-  assert.ok(claude && claude.includes("`.claude/skills`"), "Claude Code → .claude/skills");
-  const agents = lines.find((l) => /^\| OpenCode, Codex, Cursor, Antigravity \|/.test(l));
-  assert.ok(agents && agents.includes("`.agents/skills`"), "OpenCode/Codex/Cursor/Antigravity → .agents/skills");
+test("NFR-4 / FR-3: one row per host with its `--agent` id and project-scoped directory", () => {
+  const hosts = section(skillText(), "## Step 0 — Availability gate (before any video work)")
+    .split("\n")
+    .filter((l) => /^\| (Claude Code|OpenCode|Codex|Cursor|Antigravity) \|/.test(l))
+    .map((l) => l.split("|").map((c) => c.trim()).filter(Boolean));
+  const expected = [
+    ["Claude Code", "`claude-code`", "`.claude/skills`"],
+    ["OpenCode", "`opencode`", "`.agents/skills`"],
+    ["Codex", "`codex`", "`.agents/skills`"],
+    ["Cursor", "`cursor`", "`.agents/skills`"],
+    ["Antigravity", "`antigravity`", "`.agents/skills`"],
+  ];
+  assert.deepEqual(hosts, expected, "host table: one row per host, columns Host / --agent id / Directory");
 });
 
 test("FR-6 / DD-12: duration compared with BOTH target ± tolerance (default ± 0.1 s) and root data-duration; check exit 0 never offsets it", () => {
@@ -309,4 +316,220 @@ test("FR-10 / P-5: `install --tool all --dry-run` lists video-production for eve
   } finally {
     fs.rmSync(home, { recursive: true, force: true });
   }
+});
+
+// ---------------------------------------------------------------------------
+// @akili-spec changes/video-production-hardening — pins for the hardened skill
+// text (FR-1..FR-5, FR-10, FR-14). Each test locates a row / line / section
+// first, then asserts inside it.
+
+const rowStarting = (text, prefix) => text.split("\n").find((l) => l.startsWith(prefix));
+const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
+// Numbered item "N. " through the line before the next item or blank line.
+function numberedItem(text, n) {
+  const lines = text.split("\n");
+  const start = lines.findIndex((l) => l.startsWith(`${n}. `));
+  assert.ok(start >= 0, `expected numbered item ${n}`);
+  const out = [lines[start]];
+  for (let i = start + 1; i < lines.length && lines[i].trim() !== "" && !/^\d+\. /.test(lines[i]); i++) out.push(lines[i]);
+  return out.join(" ").replace(/\s+/g, " ");
+}
+const privacyRule = (n) => numberedItem(section(skillText(), "## Privacy and outward actions"), n);
+const evidenceFiles = () => section(read(RENDER_EVIDENCE), "## Evidence files");
+const skillFiles = () => listFiles(SKILL_DIR).map((f) => [path.relative(SKILL_DIR, f), read(f)]);
+// Every line of the skill dir that instructs `npx hyperframes <sub>`.
+const commandLines = (sub) => {
+  const out = [];
+  for (const [rel, text] of skillFiles()) {
+    text.split("\n").forEach((line, i) => {
+      if (new RegExp(`npx hyperframes ${sub}\\b`).test(line)) out.push({ rel, n: i + 1, line });
+    });
+  }
+  return out;
+};
+
+test("FR-1 Default snapshot: every instructed `snapshot` line passes `--describe false`; the rule states it and why", () => {
+  const lines = commandLines("snapshot");
+  assert.ok(lines.length >= 3, `expected snapshot rows in SKILL.md and render-evidence.md, got ${lines.length}`);
+  for (const { rel, n, line } of lines) {
+    assert.match(line, /--describe false/, `${rel}:${n} snapshot line lacks --describe false`);
+  }
+  const consent = privacyRule(2);
+  assert.match(consent, /Every `snapshot` passes `--describe false` unless the user consents to describe for that use/);
+  assert.match(consent, /`snapshot --describe` \(reported in #6138 to send frames to a third-party model when `GEMINI_API_KEY` is set\)/);
+});
+
+test("FR-1 Consent per use: describe consent is per snapshot and does not carry over", () => {
+  const consent = privacyRule(2);
+  assert.match(consent, /Each use needs the user's explicit consent \*\*each time\*\*/);
+  assert.match(consent, /consent for one snapshot does not cover the next/);
+});
+
+test("FR-2 Output flag: every snapshot and render line passes `--output` under the spec's evidence folder, one folder per snapshot run", () => {
+  for (const sub of ["snapshot", "render"]) {
+    for (const { rel, n, line } of commandLines(sub)) {
+      const out = line.match(/--output (\S+?)[`\s|]/);
+      assert.ok(out, `${rel}:${n} ${sub} line has no --output (no default location)`);
+      assert.match(out[1], /^<spec>\/evidence\//, `${rel}:${n} --output must sit under <spec>/evidence/`);
+    }
+  }
+  for (const { rel, n, line } of commandLines("snapshot")) {
+    assert.match(line.match(/--output (\S+?)[`\s|]/)[1], /\/$/, `${rel}:${n} snapshot output is a folder`);
+  }
+  const stills = rowStarting(section(skillText(), "## Commands this skill instructs"), "| `npx hyperframes snapshot --at");
+  assert.ok(stills, "expected the beat-stills snapshot row");
+  assert.match(stills, /--output <spec>\/evidence\/stills\/<task>-<label>\//);
+  assert.match(stills, /one output folder per run, because each run clears its folder/);
+  assert.match(evidenceFiles(), /written there by the command's own output flag, one subfolder per snapshot run \(each run clears its output folder\)/);
+});
+
+test("FR-2 Sanitize: placeholders and both greps appear in Evidence files item 4, before `git add`", () => {
+  const item = numberedItem(evidenceFiles(), 4);
+  for (const ph of ["`<HOME>`", "`<CACHE>`", "`<TMP>`"]) assert.ok(item.includes(ph), `sanitize rule must name ${ph}`);
+  assert.match(item, /Both greps return nothing before `git add`/);
+  const block = evidenceFiles().match(/```bash\n([\s\S]*?)```/);
+  assert.ok(block, "expected the grep code block in Evidence files");
+  const greps = block[1].trim().split("\n");
+  assert.deepEqual(greps, [
+    'grep -rn "$HOME" <spec>/evidence/',
+    'grep -rnE "/(private/)?var/folders/|/tmp/" <spec>/evidence/',
+  ]);
+  assert.match(privacyRule(3), /Sanitize evidence before `git add` per `references\/render-evidence\.md` \*Evidence files\*/);
+});
+
+test("FR-2 Logs `.txt`: captured logs are .txt and need no .gitignore change", () => {
+  const item = numberedItem(evidenceFiles(), 2);
+  assert.match(item, /Captured logs are `\.txt`, never `\.log`; no `\.gitignore` change is needed/);
+});
+
+test("FR-2 Skill refresh: SKIP_SKILLS prefixes exactly check/snapshot/render/preview/init, never the skills commands; telemetry covers all", () => {
+  const rule = privacyRule(1);
+  assert.match(rule, /Prefix every HyperFrames command with `HYPERFRAMES_NO_TELEMETRY=1`[^.]*; the `skills` commands are included/);
+  const skip = rule.match(/Also prefix ([^:]*) with `HYPERFRAMES_SKIP_SKILLS=1`/);
+  assert.ok(skip, "expected the SKIP_SKILLS prefix sentence");
+  assert.deepEqual([...skip[1].matchAll(/`([a-z ]+)`/g)].map((m) => m[1]), ["check", "snapshot", "render", "preview", "init"]);
+  assert.match(rule, /with `HYPERFRAMES_SKIP_SKILLS=1`: without it `init` checks GitHub and refreshes skills/, "expected the stated reason for SKIP_SKILLS");
+  assert.match(rule, /Never put it on `skills update` or bare `skills`: the variable turns them into a silent exit 0/);
+  assert.match(rule, /`skills check` carries only the telemetry variable/);
+  for (const { rel, n, line } of commandLines("skills")) {
+    assert.doesNotMatch(line, /HYPERFRAMES_SKIP_SKILLS=1\s+npx hyperframes skills/, `${rel}:${n} puts SKIP_SKILLS on a skills command`);
+  }
+});
+
+test("FR-3 Route per host: core-set route is project-scoped with `--agent <id>`; the host table maps each id", () => {
+  const gate = section(skillText(), "## Step 0 — Availability gate (before any video work)");
+  const route = rowStarting(gate, "| Core set, non-interactive");
+  assert.ok(route, "expected the core-set route row");
+  assert.match(route, /From the project root, \*\*without `-g`\*\* \(project-scoped\), with `<id>` from the host table/);
+  const cmdMatch = route.match(/`(npx skills add [^`]*)`/);
+  assert.ok(cmdMatch, "expected the npx skills add command in the route row");
+  const cmd = cmdMatch[1];
+  assert.match(cmd, /--yes --agent <id> --skill hyperframes --skill hyperframes-cli --skill hyperframes-registry --skill media-use$/);
+  assert.doesNotMatch(cmd, /(^|\s)(-g|--global)(\s|$)/, "route must not carry -g/--global");
+  const header = rowStarting(gate, "| Host |");
+  assert.deepEqual(cells(header), ["Host", "`--agent` id", "Directory"]);
+  assert.match(gate, /Project-scoped skill directories by host \(never suggest a global directory, except the consent-gated global route above\)/);
+});
+
+test("FR-3 Lock mismatch: Router found row compares skills-lock.json both ways, warns, records, never passes silently", () => {
+  const found = rowStarting(section(skillText(), "## Step 0 — Availability gate (before any video work)"), "| Router found");
+  assert.ok(found, "expected the Router found row");
+  assert.match(found, /If the project has `skills-lock\.json`, list the skills it lists that are not installed under the host's project skill directory, and the installed skills it does not list/);
+  assert.match(found, /report both as a warning and record it in `execution\.md`/);
+  assert.match(found, /Never pass silently on the router alone when a lock file exists/);
+  assert.match(cells(found)[1], /\. Continue$/, "expected the gate to still pass on a found router");
+});
+
+test("FR-3 No stale names: every deferral owner is in the core four; captions route to the router", () => {
+  const core = new Set(["hyperframes", "hyperframes-cli", "hyperframes-registry", "media-use"]);
+  const rows = section(skillText(), "## Deferral table").split("\n").filter((l) => l.startsWith("| ") && !/^\| (Question|---)/.test(l));
+  assert.ok(rows.length >= 5, "expected the deferral rows");
+  for (const row of rows) {
+    const owner = cells(row)[1];
+    for (const m of owner.matchAll(/`([^`]+)`/g)) assert.ok(core.has(m[1]), `deferral owner "${m[1]}" is not in the core set`);
+  }
+  const captions = rows.find((r) => /captions/i.test(cells(r)[0]));
+  assert.ok(captions, "expected a row mentioning captions");
+  assert.match(cells(captions)[1], /^`hyperframes` \(router\) and its references$/);
+  for (const stale of ["hyperframes-core", "hyperframes-animation", "hyperframes-creative", "hyperframes-captions"]) {
+    assert.ok(!skillText().includes(stale), `stale skill name ${stale} present`);
+  }
+});
+
+test("FR-4 Film artifacts: phase map places story.md, SPEC.md, snapshot --review with no second approval", () => {
+  const phase = section(skillText(), "## Phase map");
+  const story = rowStarting(phase, "| `story.md`");
+  assert.ok(story, "expected the story.md row");
+  assert.equal(cells(story)[1], "`/akili-propose`", "expected story.md owner");
+  assert.match(story, /The Deliverable Outline on the Change track, the Lite proposal's Intent on the Trivial track, the Bug Diagnosis's expected behavior on the Bug track; then `requirements\.md`/, "expected story.md storage");
+  assert.match(story, /The storyline pick is that proposal's approval; no second approval/);
+  const spec = rowStarting(phase, "| `SPEC.md`");
+  assert.ok(spec, "expected the SPEC.md row");
+  assert.equal(cells(spec)[1], "`design.md` (beat table and look)", "expected SPEC.md owner");
+  assert.match(spec, /stored at the composition root/, "expected SPEC.md storage");
+  assert.match(spec, /regenerated, never approved on its own/);
+  const review = rowStarting(phase, "| `snapshot --review`");
+  assert.ok(review, "expected the snapshot --review row");
+  assert.equal(cells(review)[0], "`snapshot --review` and its `REVIEW.md`", "expected REVIEW.md named beside snapshot --review");
+  assert.equal(cells(review)[1], "Each execute task's verification", "expected snapshot --review owner");
+  assert.match(review, /Run as `snapshot --review --describe false /, "expected --describe false on the review snapshot");
+  assert.match(review, /snapshot --review --describe false --output <spec>\/evidence\/review\/<task>\/` with `REVIEW\.md` copied there/, "expected REVIEW.md storage");
+  assert.match(review, /it creates no approval of its own/);
+  const storyboard = rowStarting(phase, "| Storyboard plan");
+  assert.match(storyboard, /The beat table in `design\.md` is the storyboard; its approval is the storyboard approval/, "expected the storyboard rule to hold");
+});
+
+test("FR-4 Music bed: criteria row 8 requires a film over about 15 s to state its music bed or n/a", () => {
+  const row = rowStarting(read(path.join(SKILL_DIR, "references", "acceptance-criteria.md")), "| 8 |");
+  assert.ok(row, "expected criteria row 8");
+  assert.match(cells(row)[1], /^Audio$/);
+  assert.match(cells(row)[2], /a film over about 15 s states its music bed, or `n\/a — <reason>`/);
+});
+
+test("FR-5 Bundled is not local: Fonts row self-hosts every family, cites #6137, rejects a warm-cache check", () => {
+  const fonts = rowStarting(section(skillText(), "## Render rules"), "| Fonts |");
+  assert.ok(fonts, "expected the Fonts row");
+  assert.match(fonts, /Every font family a composition uses is self-hosted: `@font-face` pointing at a local file, "bundled" families included \(#6137 reports they may be fetched from Google Fonts at compile time\)/);
+  assert.match(fonts, /cold-font-cache `check` per `references\/render-evidence\.md` item 7; a warm-cache `check` is not evidence/);
+  const item7 = rowStarting(read(RENDER_EVIDENCE), "| 7 |");
+  assert.match(item7, /"bundled" families are not local \(#6137\)/);
+});
+
+test("FR-5 Brand source: criteria row 9 names the font files and their local paths", () => {
+  const row = rowStarting(read(path.join(SKILL_DIR, "references", "acceptance-criteria.md")), "| 9 |");
+  assert.ok(row, "expected criteria row 9");
+  assert.match(cells(row)[1], /^Brand source$/);
+  assert.match(cells(row)[2], /names the font files and their local paths/);
+});
+
+test("FR-10 Daemon: Quiet tree row treats a running tool daemon as breaking the quiet tree", () => {
+  const row = rowStarting(section(skillText(), "## Render rules"), "| Quiet tree |");
+  assert.ok(row, "expected the Quiet tree row");
+  assert.match(row, /No render, draft or delivery, while a delegated agent is active/);
+  assert.match(row, /A running tool daemon also breaks the quiet tree/);
+  assert.match(row, /wait for it to exit or stop it, and record which in `execution\.md`/);
+});
+
+test("FR-10 One render: Environment row allows one render at a time, a second waits", () => {
+  const row = rowStarting(section(skillText(), "## Render rules"), "| Environment |");
+  assert.ok(row, "expected the Environment row");
+  assert.match(row, /one render at a time: a second render, draft or delivery, waits for the first/);
+});
+
+test("FR-14 Motion: defect row gates on stills at transition boundaries then final look; check --at-transitions is not motion", () => {
+  const defects = section(read(path.join(SKILL_DIR, "references", "acceptance-criteria.md")), "## Defect class to gate");
+  const row = rowStarting(defects, "| Motion:");
+  assert.ok(row, "expected the Motion defect row");
+  const [klass, gate] = cells(row);
+  assert.match(klass, /a transition missing or wrong \(entry, exit, fade\)/);
+  assert.match(gate, /^Stills just before and just after each transition boundary, then final look\./);
+  assert.doesNotMatch(gate, /^`check`/, "motion must not be gated on check");
+  assert.match(gate, /`check --at-transitions` samples overlap and layout at tween boundaries, not motion/);
+});
+
+test("NFR-2 / NFR-6: the skill stays 3 files under the cap; this test file reads no active spec folder", () => {
+  assert.equal(listFiles(SKILL_DIR).length, 3);
+  const self = fs.readFileSync(__filename, "utf8").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+  const forbidden = new RegExp(["join\\([^)]*['\"]", "specs['\"]"].join(""));
+  assert.doesNotMatch(self, forbidden, "a test joins a path into docs/specs");
 });

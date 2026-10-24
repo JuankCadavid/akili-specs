@@ -83,4 +83,5 @@ Adaptation rules:
 
 - Persist the findings ledger as `docs/specs/<spec-path>/judgment.md` so `/akili-archive` can read it as evidence.
 - The two-judge blind protocol, the two-round fix ceiling, and the `APPROVED`/`ESCALATED` terminal states apply unchanged.
+- Under AKILI `pre-approved` the review still runs. A target corrected without re-judgment (`/akili-specify` Step 2.5 **Fix only**) closes `judgment.md` with the AKILI annotation `fixed, not re-judged` plus the fixed finding IDs, never `JUDGMENT: APPROVED`. The annotation is an AKILI-layer record; this skill's terminal states stay unchanged (see Hard Rules).
 - Prefer running the two judges on a model different from the one that authored the design (author ≠ auditor, per AKILI model routing).

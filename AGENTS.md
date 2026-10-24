@@ -61,6 +61,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
 - Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
+- Use `social-marketing` for social media drafting (LinkedIn, Instagram, Facebook): brand voice, campaigns, calendar and posts; `/akili-marketing` loads it, and it drafts only, never publishes.
 
 If a task document lists required or recommended skills, follow that list first.
 
