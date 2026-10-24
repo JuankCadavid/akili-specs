@@ -20,8 +20,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - **Release class: minor** (a new command and a new skill).
-- **Tests.** The new `test/social-marketing-skill.test.js` has 9 cases and `test/akili-marketing-command.test.js` has 71 text-contract cases. The suite is 735 tests, all passing on Node 22.12.0 and on Node 18.20.8, both run on macOS after the last task; the baseline before this change was 655.
-- **Known debts.** (1) The lifecycle figure `assets/akili-flow.svg` and `assets/akili-flow.png` was not regenerated. (2) There is no `/akili-marketing` row in the model-routing registry: `docs/model-routing.md` and the routing template are unchanged, pending the routing template-evolution bug. (3) The Windows CI legs are unverified: nothing has been pushed.
+- **Tests.** Four new files, 95 cases: `test/social-marketing-skill.test.js` (9), `test/akili-marketing-command.test.js` (71 text-contract cases), `test/social-marketing-install.test.js` (3; every host, byte-identical) and `test/akili-marketing-docs.test.js` (12; docs, governance, dated limits). After merging `dev` the suite is 819 tests, all passing on Node 22.12.0 and on Node 18.20.8 on macOS.
+- **Known debts.** (1) The lifecycle figure `assets/akili-flow.svg` and `assets/akili-flow.png` was not regenerated. (2) There is no `/akili-marketing` row in the model-routing registry: `docs/model-routing.md` and the routing template are unchanged, pending the routing template-evolution bug. (3) The Windows CI legs are verified only by the pull request's CI.
 - `/akili-marketing` changes nothing in `bin/`, `package.json`, `scripts/`, `docs/model-routing.md` or `.claude/templates/`.
 
 ## [2.35.0] - 2026-10-22
