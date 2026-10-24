@@ -9,7 +9,7 @@
 | Branch | `JuankCadavid/akili-marketing` (local; not pushed at report time) |
 | Leader | Opus 5.5 (T1) |
 | Tester | 1 delegated Tester, `opus` (Implementer ran on `sonnet` — author ≠ tester) |
-| Status | **PASS (automated)** — runtime behaviour (FR-2…FR-11) awaits the T10 dogfood |
+| Status | **PASS** — automated suites 750/750; runtime behaviour (FR-2…FR-11) observed in the T10 dogfood, 12/12 steps as expected (2026-10-24) |
 
 ## 2. Summary
 
@@ -45,7 +45,15 @@ Notes:
 
 ## 6. E2E Tests
 
-None automated. The behaviour of the agent running the command cannot be automated (requirements §8). The substitute is **T10**, a dogfood run at a HITL pause. It is pending at report time.
+None automated. The behaviour of the agent running the command cannot be automated (requirements §8). The substitute is **T10**, a dogfood run at a HITL pause.
+
+**T10 observed 2026-10-24: 12/12 steps PASS** in a fresh Claude Code session. The transcript and the three check outputs are recorded verbatim in `t10-dogfood.md`; the per-step verdicts are in `execution.md` → *T10 — Observation*. Final checks, re-run by the Leader:
+
+| Check | Result |
+|---|---|
+| New commits in the scratch project | none |
+| Fake-token grep | exit 1 (no match) |
+| Files written | 7, all under `docs/marketing/` |
 
 ## 7. Coverage & Traceability
 
@@ -54,16 +62,16 @@ None automated. The behaviour of the agent running the command cannot be automat
 | FR-1 | Attribution survives install | Integration | `social-marketing-install.test.js` A1, A3; `social-marketing-skill.test.js` | PASS | — |
 | FR-1 | Vendor paths and nudges are stripped | Static | `social-marketing-skill.test.js` | PASS | — |
 | FR-1/FR-12 | Command lands on every host | Integration | A2, A3 | PASS | — |
-| FR-2 | No or unknown mode; Write boundary | Text contract | `akili-marketing-command.test.js` | PASS (text) | Runtime: T10 |
-| FR-3 | Drafting without a brand voice; Language | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-4 | Plan stops for review; Platform outside v1 | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-5 | Status is read, never set | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-6 | Limits enforced before the card | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-7 | Ambiguous answer; Advance approval; Edit after approval | Text contract (with mutation checks) | same | PASS (text) | Runtime: T10 |
-| FR-8 | A posting tool is available; Credentials offered | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-9 | Recording a draft as published; Lookalike host | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-10 | Review edits nothing | Text contract | same | PASS (text) | Runtime: T10 |
-| FR-11 | Injected instruction in a pasted competitor post | Text contract | same | PASS (text) | Runtime: T10 |
+| FR-2 | No or unknown mode; Write boundary | Text contract | `akili-marketing-command.test.js` | PASS (text) | Runtime: T10 PASS |
+| FR-3 | Drafting without a brand voice; Language | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-4 | Plan stops for review; Platform outside v1 | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-5 | Status is read, never set | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-6 | Limits enforced before the card | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-7 | Ambiguous answer; Advance approval; Edit after approval | Text contract (with mutation checks) | same | PASS (text) | Runtime: T10 PASS |
+| FR-8 | A posting tool is available; Credentials offered | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-9 | Recording a draft as published; Lookalike host | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-10 | Review edits nothing | Text contract | same | PASS (text) | Runtime: T10 PASS |
+| FR-11 | Injected instruction in a pasted competitor post | Text contract | same | PASS (text) | Runtime: T10 PASS |
 | DD-3 | Gate defined once; restatements agree | Text contract | same (3 tests) | PASS | — |
 | FR-12 | Docs pages, governance/README rows, size statement, credit, CHANGELOG, lists, totals, no spec path shipped | Static | `akili-marketing-docs.test.js` B1–B9 | PASS | `docs/cli.md` states totals only, not names |
 | NFR-6 | Dated; every limit row labelled; hard limits cite a source | Static | B10–B12 | PASS | — |
@@ -83,7 +91,7 @@ No failures. One action is left to the user: delete the 15 stray paths from the 
 
 | Gap | Reason | Substitute |
 |---|---|---|
-| Runtime agent behaviour (FR-2…FR-11) | A prompt's obedience is not testable by `node:test` | T10 dogfood (HITL), pending |
+| Runtime agent behaviour (FR-2…FR-11) | A prompt's obedience is not testable by `node:test` | T10 dogfood, observed once, 12/12 steps (Claude Code only; FR-8 with a posting tool present not exercised) |
 | Wrong platform hard limit | External facts | T4 citations, dated (NFR-6) |
 | Copy quality | Not measurable | Human judgment at the approval card |
 | Windows CI legs | Not pushed yet | PR CI |

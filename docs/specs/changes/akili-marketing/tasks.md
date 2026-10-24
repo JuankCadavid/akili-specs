@@ -399,7 +399,7 @@ Every scenario clause and table rule has a task that writes it and, for command 
 
 | Field | Value |
 |---|---|
-| Status | `[~]` — **deferred by the user (Pivot Protocol, 2026-10-23)**: the dogfood stays pending and **blocks any release** of this change; see `execution.md` → *T10 — Pivot* |
+| Status | `[x]` — observed 2026-10-24 (round 21, observation only); the 2026-10-23 deferral was withdrawn by the user before closing; see `execution.md` → *T10 — Observation* |
 | Size | M (0 shipped LOC; transcript evidence in `execution.md`) |
 | Depends on | T9 |
 | Requirements | The §3 *Observes* column: FR-2…FR-11 runtime behaviour, especially FR-7, FR-8, FR-9, FR-11 |
