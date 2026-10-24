@@ -84,9 +84,11 @@ test("@akili-spec changes/akili-marketing FR-12: upstream credit (Sergey Bulaev,
   assert.match(readmeRow, /\bMIT\b/, "README Social marketing row names the licence");
 });
 
-test("@akili-spec changes/akili-marketing FR-12: CHANGELOG ## [Unreleased] names /akili-marketing and social-marketing", () => {
-  const unreleased = section(read("CHANGELOG.md"), /^## \[Unreleased\]/);
-  assert.notEqual(unreleased, "", "expected a ## [Unreleased] section");
+test("@akili-spec changes/akili-marketing FR-12: CHANGELOG ## [Unreleased] (or the 2.36.0 section it was released into) names /akili-marketing and social-marketing", () => {
+  // Stays true after the release script moves [Unreleased] into a dated section.
+  const log = read("CHANGELOG.md");
+  const unreleased = section(log, /^## \[Unreleased\]/) + section(log, /^## \[2\.36\.0\] - /);
+  assert.notEqual(unreleased, "", "expected a ## [Unreleased] or ## [2.36.0] section");
   assert.match(unreleased, /`\/akili-marketing`/);
   assert.match(unreleased, /`social-marketing`/);
 });

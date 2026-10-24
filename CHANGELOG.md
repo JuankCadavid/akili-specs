@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.36.0] - 2026-10-24
+
 ### Added
 
 - **`/akili-marketing` drafts LinkedIn, Instagram and Facebook social marketing as reviewable Markdown under `docs/marketing/`, anytime and outside the spec lifecycle.** It has six modes: `brand` (brand voice), `campaign` (brief and plan, behind a plan gate), `calendar`, `post` (with `--revise` and `--published`), `review` and `repurpose`. Each post ends at a copy-paste block and the human posts it by hand. Only LinkedIn, Instagram and Facebook are in scope; any other platform is recorded as out of scope and never drafted.
@@ -35,7 +41,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Known inconsistency: `/akili-test` governs and the docs lag (validation W-2).** Until the follow-up spec lands, `akili-constitution.md`, `docs/model-routing.md`, `docs/cli.md`, `README.md`, `docs/flow.md` and `docs/commands/akili-test.md` still describe a distinct Tester model as a preference, and `akili routing` (`bin/routing.js`) still writes a Tester wrapper bound to the Implementer's model and prints "Rule 1 allows it". `/akili-test` refuses that wrapper per spawn. `docs/skills/video-production.md` and `docs/commands/akili-validate.md` do not yet describe `--agent` or `Delivery: deferred` (W-8).
 - **Persona updates.** `leader.md` sections changed: `akili doctor --agents` reports them `outdated` and `--fix` replaces them. The `tester.md` tier note sits outside every `akili:section` fence, so `--fix` does not upgrade it: re-copy `.claude/templates/tester.md` into `.agents/tester.md` by hand if you want the new wording (W-5).
 - **Video hardening tests.** `test/video-production.test.js` goes from 16 to 33 tests, and the new `test/command-contracts.test.js` (52 tests) pins the command contracts above. Video hardening changes nothing in `bin/`, `package.json` or `scripts/`.
-
+- **Release step.** The `/akili-marketing` CHANGELOG test in `test/akili-marketing-docs.test.js` now reads the `[2.36.0]` section as well as `[Unreleased]`, so it stays true after the release script moves the notes.
 ## [2.35.0] - 2026-10-22
 
 ### Added
