@@ -13,9 +13,9 @@ Load in `/akili-specify` Video Mode. Every row becomes a requirement with a **me
 | 5 | Message | one sentence naming audience and the message they should take away | Final look |
 | 6 | Beat list | each beat: start time, on-screen content, intent | Snapshots + final look |
 | 7 | Captions | yes/no; language | Snapshots + final look |
-| 8 | Audio | voice-over, music, or none; level expectations if any | `ffprobe` streams + final look |
-| 9 | Brand source | where colors, fonts, logo come from | Final look |
-| 10 | Delivery quality | the quality setting for the delivery render | Delivery render command |
+| 8 | Audio | voice-over, music, or none; level expectations if any; a film over about 15 s states its music bed, or `n/a — <reason>` | `ffprobe` streams + final look |
+| 9 | Brand source | where colors, fonts, logo come from; names the font files and their local paths | Final look |
+| 10 | Delivery quality | the quality setting for the delivery render, or `Delivery: deferred` | Delivery render command |
 
 The beat list from row 6 is the storyboard: it lives in `design.md` and its approval is the storyboard approval.
 
@@ -29,6 +29,7 @@ The beat list from row 6 is the storyboard: it lives in `design.md` and its appr
 | Output file missing or empty | Non-empty file test |
 | A beat shows the wrong content, or text/layout is broken in pixels | Snapshots at beat times, then final look |
 | Captions missing, wrong language, unreadable | Snapshots + final look |
+| Motion: a transition missing or wrong (entry, exit, fade) | Stills just before and just after each transition boundary, then final look. `check --at-transitions` samples overlap and layout at tween boundaries, not motion (an AKILI gate rule, not a tool fact) |
 | Plausible but wrong overall | Final look only; nothing automated replaces it |
 
 ## Bug on a video

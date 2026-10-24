@@ -28,11 +28,12 @@ If `proposal.md` already exists for the same spec path, treat it as the approved
 
 ## Arguments
 
-- `$ARGUMENTS` — Relative path under `docs/specs/` where the spec should live. It may be a flat module name or a nested taxonomy path.
+- `$ARGUMENTS` — The first whitespace- or newline-delimited token is the spec path, written `$SPEC_PATH` below; everything after it is context and is never interpolated into a path or a command line.
+- `$SPEC_PATH` — Relative path under `docs/specs/` where the spec should live. It may be a flat module name or a nested taxonomy path.
 
 ## Output
 
-Create or update these files under `docs/specs/$ARGUMENTS/`:
+Create or update these files under `docs/specs/$SPEC_PATH/`:
 
 - `proposal.md` — optional prior intent document created by `/akili-propose`
 - `requirements.md` — what behavior must exist and why it matters
@@ -64,13 +65,15 @@ When the proposal's Document Control says `Deliverable: video`, specify runs in 
 
 - Load `video-production` before writing `requirements.md`; its phase map says what each document owns.
 - **Copy the `Deliverable: video` row into `requirements.md` Document Control**, beside `Type`. `/akili-test` and `/akili-validate` read `requirements.md`, not the proposal, so this row is how they learn the deliverable.
+- **Copy the `Delivery` row** (`render | deferred`) from the proposal into `requirements.md` Document Control, beside `Deliverable`, for the same reason: `/akili-validate` reads it there. An absent row means `render`.
+- **Convert the Deliverable Outline.** When the proposal's section 9 is a Deliverable Outline (Step 1.2), its beats feed acceptance criterion 6 and the design's beat table, its assets feed criterion 9 and the evidence plan, and its constraints feed criteria 1–4, 10 and the `Delivery` row.
 - Write the video acceptance criteria from `video-production`'s `references/acceptance-criteria.md`: each criterion carries a measurable value or an explicit `n/a - <reason>`, and the defect-class table maps each video defect class to its gate.
 - The storyboard beat table lives in `design.md`; its approval at the Phase 2 gate is the storyboard approval. Do not create a separate storyboard document.
 - **Bug x video:** when the spec is also in Bug Mode, the regression test is a frame or metadata check at the failing timestamp (snapshot or `ffprobe`, shape in `video-production`'s `references/render-evidence.md`), red before the fix and green after. A unit test of composition source alone does not satisfy the Bug Mode regression requirement.
 
 ### Approval Mode (inherited)
 
-Read `Approval Mode` from the proposal's Document Control (see `/akili-propose`). Under `pre-approved`, each phase's routine approval gate auto-passes and is **logged as `auto-approved (pre-approved mode)`** in the document produced by that phase — the gate is recorded, never silently skipped. Everything classified as an escalation still stops for the user: severe judgment-day findings, a budget that will not fit the depth, a discovery that invalidates the proposal, destructive actions. Judgment-day itself always runs — pre-approval skips *pauses*, not *review*.
+Read `Approval Mode` from the proposal's Document Control (see `/akili-propose`). Under `pre-approved`, each phase's routine approval gate auto-passes and is **logged as `auto-approved (pre-approved mode)`** in the document produced by that phase — the gate is recorded, never silently skipped. Everything classified as an escalation still stops for the user: severe judgment-day findings, a budget that will not fit the depth, a discovery that invalidates the proposal, destructive actions. Judgment-day itself always runs — pre-approval skips *pauses*, not *review*. A design corrected with **Fix only** (Step 2.5) is never recorded as `JUDGMENT: APPROVED`: `judgment.md` closes with the annotation `fixed, not re-judged` and the fixed finding IDs, and severe findings still stop under `pre-approved`.
 
 ### Delegation During an Interactive Phase
 
@@ -85,7 +88,7 @@ When this command delegates work to a subagent (the design agent in Step 2.1, sc
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
-1. Create directory `docs/specs/$ARGUMENTS/` if it does not exist.
+1. Create directory `docs/specs/$SPEC_PATH/` if it does not exist.
 2. Read project-level reference context (IN THIS ORDER):
    - Root `CLAUDE.md`
    - `AGENTS.md`
@@ -94,14 +97,14 @@ When this command delegates work to a subagent (the design agent in Step 2.1, sc
    - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - The constitutional templates in `docs/specs/general-setup/` (`requirements.md`, `design.md`, `task.md`, `family.md`)
    - Package-level `CLAUDE.md` files if they exist
-3. Read `docs/specs/$ARGUMENTS/proposal.md` if it exists. If it has a **Visual Reference** section, treat the referenced source as approved visual design context and load it:
+3. Read `docs/specs/$SPEC_PATH/proposal.md` if it exists. If it has a **Visual Reference** section, treat the referenced source as approved visual design context and load it:
    - A Figma URL → use the Figma MCP when available.
-   - A generated mockup under `docs/specs/$ARGUMENTS/mockup/`, `.stitch/designs`, or a `.stitch/DESIGN.md` reference → read those artifacts (screens, HTML, design tokens); use `stitch-design` to interpret `.stitch` artifacts. Mockups generated with the Claude Design MCP (`claude-design`) are read directly from their exported HTML/screenshots.
+   - A generated mockup under `docs/specs/$SPEC_PATH/mockup/`, `.stitch/designs`, or a `.stitch/DESIGN.md` reference → read those artifacts (screens, HTML, design tokens); use `stitch-design` to interpret `.stitch` artifacts. Mockups generated with the Claude Design MCP (`claude-design`) are read directly from their exported HTML/screenshots.
    - Any mockup produced during `/akili-propose` counts as visual design context for the `Design Impact` steps below, exactly like a Figma link.
 4. Read nearby or dependent specs under `docs/specs/` that overlap with the requested path.
    - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container — a folder whose only spec file is `family.md`. `general-setup/` is still read as the template source named earlier in this step — as templates, never as a nearby spec.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
-5. **Spec family membership:** if `docs/specs/$ARGUMENTS` is listed as a child row in a parent `family.md` (the spec-family manifest — schema defined once in `akili-constitution.md` Step 7 item 4; do not restate it here), read that manifest and let the child's order, `Depends on`, and `Status` inform this spec. **Warn (never block)** when a `Depends on` child's `Status` is not `done`. Do not create sibling spec folders outside the manifest's closed set.
+5. **Spec family membership:** if `docs/specs/$SPEC_PATH` is listed as a child row in a parent `family.md` (the spec-family manifest — schema defined once in `akili-constitution.md` Step 7 item 4; do not restate it here), read that manifest and let the child's order, `Depends on`, and `Status` inform this spec. **Warn (never block)** when a `Depends on` child's `Status` is not `done`. Do not create sibling spec folders outside the manifest's closed set.
 6. Respect the repository's current package layout and naming conventions instead of assuming a fixed stack.
 7. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
 8. **Delegation Thresholds (scout research):** Beyond the constitutional docs above, apply the *Delegation Thresholds* from `.agents/leader.md` to source-code exploration in every Explore step of this command — if answering a design question requires reading **4+ full source files**, spawn a scout/Explore subagent with fresh context and consume its conclusions instead of reading the files inline. CodeGraph lookups (rule 7) do not count toward the threshold.
@@ -194,6 +197,8 @@ If `proposal.md` includes a Requirement Delta Preview, convert it into full requ
 - `ADDED` items become new requirements and scenarios
 - `MODIFIED` items become updated behavior descriptions with before/after context
 - `REMOVED` items become explicit deprecation or removal requirements with migration notes when relevant
+
+If the proposal instead carries a **Deliverable Outline** (`Deliverable: video`, Change track), convert it as Video Mode states: beats become acceptance criterion 6 and the beat table, assets become criterion 9 and the evidence plan, constraints become criteria 1–4 and 10 and the `Delivery` row. The Outline replaces the Delta, so there is no delta to convert.
 
 #### Step 1.3 — Present & Approve
 
@@ -364,6 +369,8 @@ State three numbers from the design just written: **expected tasks, expected LOC
 | Estimate lands far **above** the depth | Recommend the higher depth, or splitting the spec. A `Lite` spec that resolves to eight tasks was mis-scoped, not ambitious |
 | Estimate matches | Say nothing beyond recording the numbers |
 
+**Video gate multiplier.** When `Deliverable: video`, estimate guard/gate code (check scripts, falsifier harnesses, parity tools) at 2–3× its first estimate and record the factor beside the number in the budget. A `software` spec takes no factor.
+
 Write the three numbers into `design.md` as a **budget**. They are not a cap on quality — they are a **tripwire**: `/akili-execute` compares actuals against them and, when execution exceeds the budget, the Leader **stops and escalates to the user** rather than continuing. Exceeding a budget is information, not failure; continuing past one silently is how a twenty-line change consumes a fourteen-task machinery.
 
 #### Step 2.5 — Present & Approve
@@ -381,7 +388,7 @@ Then explicitly ask the user how to proceed, providing these options:
 If the user selects **Review Design** and the `judgment-day` judges detect issues that need correction, present the following options to handle the findings:
 
 1. **Fix and Re-judge** (Apply fixes for the findings and run the judgment again)
-2. **Fix only** (Apply fixes but do not run the judgment again)
+2. **Fix only** (Apply fixes but do not run the judgment again; `judgment.md` closes with `fixed, not re-judged` and the fixed finding IDs, never `JUDGMENT: APPROVED`)
 3. **Continue** (Accept the design as-is and proceed to Phase 3: `tasks.md`)
 4. **Stop** (Pause the specification process here)
 5. **Type something** (Provide custom instructions or feedback)
@@ -411,7 +418,7 @@ Each task should include:
 - design references
 - scope
 - tests
-- verification fields — Falsifier, Red run, Disqualifier, Consumers (see the Falsifiability block below; absent values are written as n/a or none, never left blank)
+- verification fields — Falsifier, Red run, Disqualifier, Consumers (see the Falsifiability block below; absent values are written as n/a or none, never left blank). For a greenfield artifact only, `Red run` may read `predicted — greenfield artifact (observed in <task>)`, and that task's Done criteria carry the obligation (Falsifiability item 8)
 - `Review` — one of `skip-eligible`, `checklist`, `full`, `lenses`, plus a one-line reason; `skip-eligible` names a claim the task must prove at execute time (the *Review intensity* block, `/akili-execute` Step 2.3), never an instruction to skip. A task with no `Review` field defaults to the `checklist` depth band — a depth default, not a guarantee that a review runs. A `tasks.md` that carries no `Review` field at all predates this change: every one of its tasks gets a conformance Reviewer, exactly as today (FR-10)
 - done criteria
 - relevant skills
@@ -441,7 +448,7 @@ Task quality rules:
   5. **Consumer Sweep** — when a task extends or changes a shared exported symbol, a DOM hook or selector, or an emitted event, run one grep per changed symbol over the project's test files — unit, component, and E2E, including suites CI skips or a token gates — and list every file that pins it in the task's `Consumers` field; those files are part of the Verification, and "no automated coverage exists" is never asserted without that grep in hand (a sibling suite pinned an exported map's exact key list — `result-framework-reporting--programme-results-created-by-filter` KZ-1; a token-gated E2E suite broke silently — `changes--sidebar-toggle-consolidation` KZ-STC-1).
   6. **Rendered-measurement checklist** — *only when a gate asserts size, overflow, visibility, position, or containment of a rendered element*: measure the **baseline** of the pre-existing element before any zero-overflow assertion (a container that is a swipe strip by design already overflows); assert the production **fonts** — text and icon faces — are loaded in the harness, or self-host them; read **geometry** (bounding rects, scroll metrics, computed style), never class presence; use at least **two viewports** that differ on the dimension the gate depends on — a second width including the squeeze band where columns starve, or a second, shorter height that forces the intended scrolling ancestor; state viewport ACs in **effective CSS px** with the host zoom named; check **clip containment** where a scroll boundary is near (`bilateral--ai-processing-feedback` L1 — a zero-overflow gate on a swipe strip cost a Pivot; `changes--aow-identity-column-starvation` KZ-2 — a missing icon font produced a false red).
   7. **Enumeration-wide falsifier** — a negative constraint phrased over a closed set ("on any host, in any mode", "for every column") names a falsifier that runs the mutation on *every* member of that set and in every mode the task text names, never only the packaged or default path: in `changes/model-routing-configurator` FR-3's MUST held for the registry id but not the value the wrapper binds, passed eleven Reviewers and eleven live cases, and fell to one validator probe that placed an id on one host.
-  8. **Executed, not predicted** — a falsifier's expected red is observed at baseline and quoted in the task before the tasks gate ("→ `expected 'opus', got 'sonnet'`"), never written as a prediction ("→ goes red", "→ times out"); four predictions in `changes/model-routing-configurator` (T2, T5, T8, T13) were wrong, each caught only because the Implementer executed it and reported the discrepancy.
+  8. **Executed, not predicted** — a falsifier's expected red is observed at baseline and quoted in the task before the tasks gate ("→ `expected 'opus', got 'sonnet'`"), never written as a prediction ("→ goes red", "→ times out"); four predictions in `changes/model-routing-configurator` (T2, T5, T8, T13) were wrong, each caught only because the Implementer executed it and reported the discrepancy. **Greenfield exception:** when the falsifier's target does not exist at specify time, the expected red cannot be observed; write `predicted — greenfield artifact (observed in <task>)` and name the task that creates the artifact. That task's `Red run` field and Done criteria require the red observed and quoted verbatim in its `execution.md` entry before the task closes (`/akili-execute` enforces it, the Reviewer audits the quoted red); a red that differs from the prediction is recorded as the observed value. It never applies to a falsifier whose target exists at specify time.
 - **a presence-assertion is not a behavioral proof.** A check that an artifact exists — a CSS class in the markup, a config key, an attribute, a `MUST` clause in a document — proves presence, not effect. A green test has certified a truncation clamp whose classes were all present and whose effect was a no-op, and five `MUST` clauses have sat in a document describing a procedure that could not be executed. When a task's verification is a presence-assertion, the task must record **what that assertion cannot prove** and name the check that proves the behavior itself (a rendered measurement, an executed procedure). And **a property the harness structurally cannot evaluate is not covered**: jsdom cannot measure layout or contrast, and a checker that returns "incomplete" without failing has evaluated nothing — record such properties as explicit gaps or route them to a harness that can (a visual check at a HITL pause, a T6 review, a real browser run). The real-artifact-lock rule in the Falsifiability block names the check that proves the behavior.
 - **a walkthrough over the cases its rules cite is an inert fixture.** When a task's gate is a walkthrough or retro-fit of example cases against shipped prose, the task names at least one **held-out** case the text does not cite, and every case is judged against the general sentence with its parenthetical example stripped — a case the reader can find by its citation proves the citation, not the rule.
 - tasks should explicitly address the negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`) defined in their respective requirement scenarios
@@ -508,8 +515,8 @@ After all three documents are approved, verify:
 - [ ] For a bug (Bug Mode): the root cause is reflected in the requirements and at least one task adds a regression test (red before, green after)
 - [ ] The spec path matches the repo's chosen taxonomy under `docs/specs/`
 - [ ] Only real, available skills are referenced in tasks
-- [ ] If `Deliverable: video`: `requirements.md` Document Control carries the `Deliverable` row, the beat table is in `design.md`, and every task lists `video-production`
-- [ ] Every task carries the four verification fields — Falsifier, Red run, Disqualifier, Consumers — with n/a or none written for the ones that do not apply, never blank
+- [ ] If `Deliverable: video`: `requirements.md` Document Control carries the `Deliverable` row, the beat table is in `design.md`, and every task lists `video-production`; a proposal `Delivery` row is copied beside it
+- [ ] Every task carries the four verification fields — Falsifier, Red run, Disqualifier, Consumers — with n/a or none written for the ones that do not apply, never blank; every `Red run` is an observed red quoted in the task, except a `predicted — greenfield artifact (observed in <task>)` entry whose observing task requires the quoted red in `execution.md`
 - [ ] Every `skip-eligible` task was named with its reason in the Step 3.3 presentation list — not only inside the document — so the user saw the skip list and could reject the classification before execution started
 - [ ] Every gate that asserts size, overflow, visibility, position, or containment satisfies the rendered-measurement checklist in Step 3.2
 

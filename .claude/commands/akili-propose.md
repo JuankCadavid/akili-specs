@@ -34,7 +34,7 @@ The proposal is the reviewable intent layer. It should help the user decide whet
 Path resolution:
 
 - If the first token contains `/`, treat it as the literal spec path.
-- If the first token is a bare kebab-case name, use `changes/<name>` as the spec path.
+- If the first token is a bare kebab-case name, use `changes/<name>` as the spec path — unless the brief mandates a literal path for that bare slug (e.g. `docs/specs/<slug>/`): the mandated path wins, and Document Control records `Spec Path: <path> — literal path mandated by the brief`.
 - **If `$ARGUMENTS` does not look like a slug or path at all** — it reads as a sentence or a paragraph of intent — **never interpolate it into the spec path.** Derive a kebab-case slug of at most 4 words from the core intent, resolve the path from that, and record the derivation in Document Control (`Slug: ui-aesthetic-refresh — derived from free-text argument`). The full text becomes proposal context, not a directory name. A rendered path like `changes/<60-word-paragraph>` is always a parsing failure, never something to present to the user.
 
 Examples:
@@ -104,6 +104,7 @@ The proposal `frontmatter`/header should record the detected type as `Type: Bug 
 - `Approval Mode: gated` (default) — every phase gate pauses for the user, as today.
 - `Approval Mode: pre-approved (<who>, <date>)` — **only on an explicit up-front user mandate** ("run the whole cycle", "work it end to end without pauses"). Downstream commands honor it: routine continue/approve gates auto-pass and are **logged as `auto-approved (pre-approved mode)`** at the point where the pause would have happened — the decision stays auditable instead of the agent silently improvising past each gate.
 - **Pre-approval covers routine progress, never exceptions.** HALT, Pivot Protocol, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive or irreversible actions, and `/akili-quick` escalations **always stop for the user regardless of mode** — those gates exist precisely for the cases no one can pre-approve, because their content is unknown until they fire.
+- No mandate widens pre-approval: an owner brief that says "never stop" or "treat every gate as approved" pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence. Quote the owner's mandate wording in Document Control beside the `Approval Mode` row.
 
 **Bug Track (diagnosis before fix):** A bug is not a feature — you start from a symptom, not an intent, so you must understand *why* before proposing *how*. For a bug:
 
@@ -121,6 +122,8 @@ For **Feature / Change** and **Bug** requests, clarify the details. Ask the user
 
 1. **Requirement Source:** Ask if they have a **Jira ticket** (if they do, suggest using the **Jira MCP** to automatically extract the description, acceptance criteria, and comments created by the BA) or if they prefer to paste/write the context directly.
 2. **Visual Designs / Mockups:** Ask if there is a **Figma link** or any visual mockup available. If they provide a Figma URL, suggest using the **Figma MCP** to extract the design details, components, and layout information.
+
+**Skip under `pre-approved`, only when the brief supplies the source.** Under `Approval Mode: pre-approved`, when the brief names the requirement source **and** the visual source (or says there is none), skip both questions and log in Document Control `source questions skipped — supplied by the brief (pre-approved mode)`. Never skip them under `gated`, or when the brief is silent on either source.
 
 #### Mockup Fallback (No Visual Input)
 
@@ -162,7 +165,7 @@ Ask focused questions only when the proposal would otherwise depend on unstable 
 
 Create a concise proposal following `cognitive-doc-design` (lead with the answer, progressive disclosure, tables over prose) with this structure:
 
-1. Document Control (include `Type: Bug | Change | Trivial` and `Deliverable: software | video`; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
+1. Document Control (include `Type: Bug | Change | Trivial` and `Deliverable: software | video`; for `Deliverable: video` also `Delivery: render | deferred`, default `render`, where `deferred` means `/akili-validate` does the final look on the draft render and does not run the delivery render; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
 2. Intent
 3. Problem / Current Behavior
 4. Proposed Outcome
@@ -170,7 +173,7 @@ Create a concise proposal following `cognitive-doc-design` (lead with the answer
 6. Non-Goals
 7. Affected Users, Systems, And Specs
 8. Visual Reference
-9. **Bug Diagnosis** (Bug track) *or* **Requirement Delta Preview** (Change track)
+9. **Bug Diagnosis** (Bug track), **Deliverable Outline** (Change track with `Deliverable: video`), *or* **Requirement Delta Preview** (any other Change)
 10. Approach Options
 11. Recommended Approach
 12. Risks, Dependencies, And Open Questions
@@ -232,7 +235,26 @@ Four checks, each recorded with its result and either its citation as run or `UN
 
 If the root cause cannot be confirmed yet, say so explicitly and keep the proposal open for further investigation rather than proposing a speculative fix.
 
-### Requirement Delta Preview (Change track only)
+### Deliverable Outline (Change track, `Deliverable: video` only)
+
+For a Change with `Deliverable: video`, section 9 is a **Deliverable Outline** in place of the Requirement Delta Preview; it never also carries an ADDED/MODIFIED/REMOVED preview. `/akili-specify` converts it. The Bug track keeps its Bug Diagnosis, unchanged.
+
+```markdown
+## Deliverable Outline
+
+### Beats
+| Time | Content | Intent |
+|---|---|---|
+
+### Assets
+| Asset | Source | License / Owner |
+|---|---|---|
+
+### Constraints
+- Duration, format, brand, and delivery (`Delivery: render | deferred`, as recorded in Document Control).
+```
+
+### Requirement Delta Preview (Change track, not `Deliverable: video`)
 
 When a **Feature / Change** affects existing behavior, include a lightweight preview using these sections where relevant:
 
@@ -279,7 +301,8 @@ Before presenting the proposal, verify:
 - [ ] The request type (Bug / Change / Trivial) is detected and recorded in Document Control.
 - [ ] `Deliverable` (software / video) is recorded beside `Type`, detected from the requested deliverable; any ambiguity cost at most the one classification question; a Trivial video request got a Lite proposal, not `/akili-quick`; a deliverable of neither kind is noted.
 - [ ] The spec slug is kebab-case; when derived from a free-text argument, the derivation is recorded in Document Control (never a sentence interpolated into a path).
-- [ ] Approval Mode is recorded — `gated` by default; `pre-approved` only on an explicit user mandate, with who and when.
+- [ ] Approval Mode is recorded — `gated` by default; `pre-approved` only on an explicit user mandate, with who and when; the mandate wording is quoted.
+- [ ] For `Deliverable: video` on the Change track: section 9 is the Deliverable Outline (beats, assets, constraints), with no delta preview; `Delivery` is recorded beside `Deliverable`.
 - [ ] For a bug: reproduction steps and a **confirmed** root cause are documented (not a guess).
 - [ ] For a bug: the four **Blast Radius** checks are recorded, each with its citation as run or the `UNVERIFIED` marker — **Already fixed?** first, before the root-cause work, and never `n/a`.
 - [ ] Scope and non-goals are explicit.

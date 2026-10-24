@@ -12,7 +12,7 @@ Run automated and, when needed, manual tests against a spec path's implementatio
 
 In this command you act as the **Leader** (Orchestrator). You partition testing into per-suite units, delegate each unit to a focused **Tester** subagent, aggregate their structured reports, and assemble the final `test-report.md`. Testing should prove the behavior promised in `requirements.md`, not only increase test count.
 
-> **Recommended model tier:** Leader on T1 (orchestration judgment — partitions suites, selects each Tester's skills, adjudicates results; writes no tests), each Tester on T2 Coder (test authoring + verification). See the `## Model Routing` registry in the project's `AGENTS.md` / `CLAUDE.md`. Prefer a Tester model that differs from the Implementer that wrote the code (author ≠ tester reduces confirmation bias).
+> **Recommended model tier:** Leader on T1 (orchestration judgment — partitions suites, selects each Tester's skills, adjudicates results; writes no tests), each Tester on T2 Coder (test authoring + verification). See the `## Model Routing` registry in the project's `AGENTS.md` / `CLAUDE.md`. The Tester's *role* is T2; its *model* MUST differ from every Implementer model that wrote the code under test (author ≠ tester) — the chain is under *Delegation mechanism by tool*.
 
 ## Usage
 
@@ -27,11 +27,12 @@ In this command you act as the **Leader** (Orchestrator). You partition testing 
 
 ## Arguments
 
-- `$ARGUMENTS` — Relative path under `docs/specs/` that contains `requirements.md`, `design.md`, and `tasks.md`.
+- `$ARGUMENTS` — The first whitespace- or newline-delimited token is the spec path, written `$SPEC_PATH` below; everything after it is context and is never interpolated into a path or a command line.
+- `$SPEC_PATH` — Relative path under `docs/specs/` that contains `requirements.md`, `design.md`, and `tasks.md`.
 
 ## Output
 
-Create or update `docs/specs/$ARGUMENTS/test-report.md` with:
+Create or update `docs/specs/$SPEC_PATH/test-report.md` with:
 
 - commands run and their results
 - requirement-to-test matrix
@@ -51,10 +52,17 @@ If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold i
 
 **Delegation mechanism by tool:**
 
-- **Claude Code / OpenCode:** if the project has a tool-native `akili-tester` agent wrapper (scaffolded by `/akili-constitution` Step 8E with a `model:` binding from the `## Model Routing` registry), **spawn that named agent** so each Tester runs on its tier's model — preferring a model different from the Implementer's (author ≠ tester). Otherwise, spawn a focused subagent (or sub-prompt context) seeded with `tester.md` plus the suite's context slice.
-- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent) using the prompt read from `.agents/tester.md` (no per-agent model binding — guidance-only routing).
+- **Claude Code / OpenCode:** if the project has a tool-native `akili-tester` agent wrapper (scaffolded by `/akili-constitution` Step 8E with a `model:` binding from the `## Model Routing` registry), **spawn that named agent** so each Tester runs on its tier's model, provided that model is none of the Implementer models (author ≠ tester; see the *Tester model rule* below). Otherwise, spawn a focused subagent (or sub-prompt context) seeded with `tester.md` plus the suite's context slice.
+- **Google Antigravity:** invoke `invoke_subagent` (or the equivalent) using the prompt read from `.agents/tester.md` (no per-agent model binding — guidance-only routing; the *Tester model rule* below still binds, so run the Tester on a model that is none of the Implementer models, per the rule's order).
 - **Codex:** if the project has `.codex/agents/akili-tester.toml` (scaffolded by `/akili-constitution` Step 8E), request the named `akili-tester` role by name with the suite's context slice — Codex spawns it, routes the work, and waits; consume the consolidated result. Otherwise, fall back to a sub-prompt seeded with `tester.md`. **Observed live 2026-09-17 (codex-cli 0.154.0), per the model-driven-orchestration note in `/akili-execute`:** the Leader calls a `spawn_agent` tool with the wrapper's name as `agent_type`; the subagent's final report returns to the Leader, and the thread is inspectable with `/subagents`.
 - **Cursor:** if the project has `.cursor/agents/akili-tester.md` (scaffolded by `/akili-constitution` Step 8E), invoke the named `akili-tester` subagent with the suite's context slice — Cursor's Task tool launches it and returns its report to the Leader; several independent suites spawn several Testers via several Task calls in one message, which run in parallel (<https://cursor.com/docs/context/subagents>, `Last verified: 2026-10-01`). Otherwise, fall back to a sub-prompt seeded with `tester.md`.
+
+**Tester model rule (MUST, every host, every spawn):** the Tester's model MUST be none of the Implementer models that wrote the code under test. The Implementer models are: the registry's T2 pick or the `akili-implementer` wrapper's `model` binding, plus every model escalation recorded in `execution.md`. Resolve in this order:
+
+1. Use the `akili-tester` wrapper when its model is none of the Implementer models.
+2. Otherwise spawn the Tester on another model the host offers (a per-spawn model choice, such as `/model` in Claude Code).
+3. Otherwise use the registry's cross-host dispatch.
+4. Otherwise **stop** and tell the user no distinct Tester model is available. This stop is an exception: it is never auto-passed under `pre-approved`, joining the HALT, Pivot, budget tripwire, `FATAL_FAIL`, and `PRODUCT_BUG` exceptions.
 
 **Token discipline — thin context per Tester (this is the core saving):**
 
@@ -70,7 +78,7 @@ If `.agents/tester.md` is missing, run `/akili-constitution` first to scaffold i
 
 | Situation | Action |
 |---|---|
-| Lite depth, or a single trivial suite (e.g. one bugfix test) | **Run inline** — the Leader authors it directly. Spawning a subagent would cost more tokens than the work saves. |
+| Lite depth, or a single trivial suite (e.g. one bugfix test) | **Run inline** — the Leader authors it directly, but only when the Leader's own model is not among the Implementer models (see the *Tester model rule*); otherwise delegate. Spawning a subagent would cost more tokens than the work saves. |
 | Standard / Full depth with one substantial suite | Spawn **one** Tester for that suite. |
 | Multiple suites that are **independent** (touch different domains/files — e.g. backend unit vs frontend unit vs E2E) | Spawn **one Tester per suite, in parallel**. |
 | Multiple suites that **share files or fixtures** | Spawn Testers **sequentially** (or a single Tester covering them) to avoid conflicting writes. |
@@ -83,7 +91,7 @@ The Leader decides the count from the spec's depth and the independence of the s
 
 ### Phase 0: Load Context (Leader)
 
-**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you partition suites, **select each Tester's skills**, and adjudicate results. You write no tests, but these calls gate the whole run (low volume, high leverage). Testers route through the `akili-tester` wrapper (T2) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode, `/model` in Codex — which also sets reasoning effort when available, `Last verified: 2026-09-17` — https://learn.chatgpt.com/docs/cli/slash-commands; `/model` in the Cursor `agent` CLI, <https://cursor.com/docs/cli/reference/configuration>, `Last verified: 2026-10-01`, and the IDE's model picker (`UNVERIFIED — confirm at source before relying on it`)) at the first approval pause. Never block on this; continuing on the current model is always allowed.
+**Model checkpoint:** As Leader you run best on **T1** — orchestration here is judgment, not dispatch: you partition suites, **select each Tester's skills**, and adjudicate results. You write no tests, but these calls gate the whole run (low volume, high leverage). Testers route through the `akili-tester` wrapper (role T2, model distinct) when present. If the project's `## Model Routing` registry (root `AGENTS.md`/`CLAUDE.md`) maps T1 to a model different from the current session model, check the direction first — the registry is a floor, not a ceiling: if the session model is the stronger one (e.g. a newer generation than a stale entry), pass silently and flag the registry entry for update instead of recommending a downgrade. Only when the registry model is stronger for this tier, tell the user in one line — e.g. *"The Leader loop is T1 — the registry recommends `/model opus`; you are on sonnet"* — and offer to switch (`/model …` in Claude Code, the model selector in OpenCode, `/model` in Codex — which also sets reasoning effort when available, `Last verified: 2026-09-17` — https://learn.chatgpt.com/docs/cli/slash-commands; `/model` in the Cursor `agent` CLI, <https://cursor.com/docs/cli/reference/configuration>, `Last verified: 2026-10-01`, and the IDE's model picker (`UNVERIFIED — confirm at source before relying on it`)) at the first approval pause. Never block on this; continuing on the current model is always allowed.
 
 **Token Optimization (Prompt Caching):** To maximize prompt caching, always read the constitutional baseline documents FIRST and in the exact same order across all sessions before reading task-specific files.
 
@@ -95,9 +103,9 @@ The Leader decides the count from the spec's depth and the independence of the s
    - `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
    - Package-level `CLAUDE.md` and `AGENTS.md` files if they exist
 2. Read spec context:
-   - `docs/specs/$ARGUMENTS/requirements.md`
-   - `docs/specs/$ARGUMENTS/design.md`
-   - `docs/specs/$ARGUMENTS/tasks.md`
+   - `docs/specs/$SPEC_PATH/requirements.md`
+   - `docs/specs/$SPEC_PATH/design.md`
+   - `docs/specs/$SPEC_PATH/tasks.md`
 3. Read the Tester persona `.agents/tester.md` **only when the project has no Step 8E `akili-tester` wrapper** — the wrapper's body loads the persona in the Tester's own context, so the Leader reading it too pays the same tokens twice. Verify the file exists either way (stop and direct the user to `/akili-constitution` if `.agents/tester.md` is missing — a wrapper pointing at a missing persona spawns a Tester with no contract).
 4. Identify backend, frontend, and end-to-end scope from the design and tasks.
 5. Extract key requirements, Given/When/Then scenarios, negative constraints (`BUT it must NOT`), and strict validations (`AND IT MUST`) from `requirements.md`.
@@ -140,7 +148,7 @@ Recommended matrix columns:
 
 ### Phase 4: Generate Test Report (Leader)
 
-Create `docs/specs/$ARGUMENTS/test-report.md`. Write it following `cognitive-doc-design`: lead with the answer (overall status first), progressive disclosure, tables over prose.
+Create `docs/specs/$SPEC_PATH/test-report.md`. Write it following `cognitive-doc-design`: lead with the answer (overall status first), progressive disclosure, tables over prose.
 
 **Automated Test Parsing Option:** If the repository uses standard testing frameworks (like Jest or Vitest) and has a AKILI test parsing helper installed (e.g. `akili/scripts/parse_tests.js`), you may run the tests outputting to JSON (e.g. `jest --json --outputFile=jest-results.json` or `vitest --reporter=json --outputFile=test-results.json`) and run:
 `node <path-to-akili>/scripts/parse_tests.js jest-results.json`
@@ -157,6 +165,8 @@ The report must include:
 7. Coverage & Traceability
 8. Remediation
 9. Accepted Gaps, if any
+
+**Video deliverable (`Deliverable: video`):** with no software suite, sections 3–6 are replaced by **Render Evidence** (the evidence-set table), **Final-look pending** (what only the final look can decide), and **Deferred suspicions** (a Tester's suspected visual issues, each with timestamp and still path). Never carry Backend Unit, Frontend Unit, Integration, or E2E sections marked n/a. A spec that also has software suites keeps those suites' sections alongside the video ones.
 
 When Testers were delegated, record in the Summary how many suites ran, how many Testers were spawned (and whether in parallel), any suite run inline, and any lookup note a Tester's report held.
 
