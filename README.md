@@ -62,12 +62,13 @@ AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted dev
 
 ## What AKILI Covers
 
-Three capabilities sit beside the core spec loop; each fires at a specific point and tells you what, if anything, to install.
+Four capabilities sit beside the core spec loop; each fires at a specific point and tells you what, if anything, to install.
 
 | Capability | Where it fires | You install | Read more |
 |---|---|---|---|
 | Security audits | `/akili-security`, an anytime command outside the per-spec loop; confirmed findings go to `/akili-propose` and follow the Bug Track | Nothing extra (packaged `security-audit` skill, Cloudflare, MIT); not on native Windows | [`/akili-security`](docs/commands/akili-security.md) |
 | Video deliverables | A spec whose Document Control says `Deliverable: video`: `/akili-specify` Video Mode, `/akili-test` render evidence, `/akili-validate` final look and delivery render | HyperFrames, yourself (the packaged `video-production` bridge stops at its availability gate and prints the install route) | [`video-production`](docs/skills/video-production.md) |
+| Social marketing | `/akili-marketing`, an anytime command outside the per-spec loop; drafts LinkedIn, Instagram and Facebook posts as reviewable Markdown under `docs/marketing/`, and never publishes | Nothing extra (packaged `social-marketing` skill, adapted from Sergey Bulaev's MIT skill packs) | [`/akili-marketing`](docs/commands/akili-marketing.md) |
 | Diagrams | Diagram slots whose condition holds, filled as inline Mermaid at `/akili-constitution` Steps 3-5 and `/akili-specify` Step 2.1 (architecturally significant designs); `/akili-archive` Step 2 links the spec's views when it has slots — all via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
 
 ## Repository Structure
@@ -97,6 +98,7 @@ Three capabilities sit beside the core spec loop; each fires at a specific point
   - `akili-resume.md`
   - `akili-seo.md`
   - `akili-security.md`
+  - `akili-marketing.md`
 - `.claude/skills/`
   - `ai-agent-development`
   - `angular-developer`
@@ -117,6 +119,7 @@ Three capabilities sit beside the core spec loop; each fires at a specific point
   - `security-audit`
   - `seo-audit`
   - `shadcn-ui`
+  - `social-marketing`
   - `software-architect`
   - `stitch-design`
   - `systematic-debugging`
@@ -564,7 +567,7 @@ Use this flow for normal feature work:
 6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
 7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
 
-Five anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo` and `/akili-security`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
+Six anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security` and `/akili-marketing`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 
@@ -600,6 +603,7 @@ See the full [Command Reference](docs/commands/README.md) for detailed pages per
 | `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
 | `/akili-security [<path>…]` | Auditing a repository for security vulnerabilities (plan gate, static-only by default) | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (always outside the target) |
+| `/akili-marketing <mode> [args]` | Drafting LinkedIn, Instagram and Facebook social marketing (brand voice, campaigns, calendar, posts); drafts only, never publishes | Markdown under `docs/marketing/`; each post ends at a copy-paste block for you to place by hand |
 
 ## How To Choose The Right Depth
 
@@ -811,6 +815,7 @@ See [OpenSpec Comparison](docs/openspec-comparison.md) for the current AKILI com
 - `/akili-resume` — Resume work after a session break by scanning all active specs under `docs/specs/` and presenting a multi-spec dashboard. Shows current phase, progress bars, last action, blockers, and recommends the next command. If only one spec is active, goes directly to a detailed briefing. No arguments required.
 
 - `/akili-security [<path>…] [--profile quick|standard|deep] [--budget <N>] [--out <dir>]` — Full repository security audit using the packaged `security-audit` skill (Cloudflare, MIT). The plan gate stops on every run, and the routing gate stops whenever it is reached (only a run that writes an index reaches it); the run is static-only unless you approve sandboxed execution for that run, and the index is written only when both validators exit 0, or with the run recorded `incomplete`. Full findings stay in the run directory (always outside the target); the only tracked repository content written is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. Confirmed findings are routed to `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`. Agent behaviour cannot be machine-enforced, and a static-only run yields mostly `needs_validation` records — see [the command page](docs/commands/akili-security.md). **Not supported on native Windows** (the vendored validators need `fs.constants.O_NOFOLLOW`/`O_NONBLOCK`, which Windows lacks, so they fail closed): the preflight stops there and points to WSL, Linux or macOS.
+- `/akili-marketing <mode> [args]` — Draft social marketing for LinkedIn, Instagram and Facebook as reviewable Markdown under `docs/marketing/`: brand voice, campaigns, calendar, posts, review and repurposing, through the packaged `social-marketing` skill (adapted from Sergey Bulaev's MIT skill packs). Runs anytime, outside the spec lifecycle. Drafts only: it never publishes — see [the command page](docs/commands/akili-marketing.md).
 
 - `/akili-seo <site-domain>` — SEO setup & audit via Google Search Console. Verifies a domain through DNS TXT using a service account, adds the property to GSC, then audits index coverage, sitemaps, structured data, search analytics, server-side render, internal linking, and on-page SEO (titles, metas, headings, canonicals, hreflang) using the packaged `seo-audit` skill. Produces `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/`, including a copy-paste implementation prompt for fixing every High-severity finding. Optionally, when you opt in at the start, a read-only analytics phase (Phase 2B) audits GA4 and Microsoft Clarity: installation, consent signals, conversion events, and how Search Console traffic converts; it is skipped with a note when neither is detected. Behavior metrics (e.g. bounce rate, heatmaps, recordings) serve conversion and UX findings and are never claimed to affect ranking.
 
@@ -859,6 +864,7 @@ Fallback rule:
 - `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
 - `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
 - `/akili-security` operates outside the main spec lifecycle: it audits the repository with the `security-audit` skill, the only tracked repository content it writes is a redacted index under `docs/specs/audits/`, and hands confirmed findings to the Bug Track through `/akili-propose`. It never modifies target source or commits.
+- `/akili-marketing` operates outside the main spec lifecycle: it drafts social marketing for LinkedIn, Instagram and Facebook as Markdown under `docs/marketing/` with the packaged `social-marketing` skill, and never publishes. See [the command page](docs/commands/akili-marketing.md).
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 ## Multi-Agent Harness Engineering

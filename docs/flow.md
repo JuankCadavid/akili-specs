@@ -155,6 +155,7 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
 | `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent `drift-*.md` by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no `drift-*.md` file |
 | `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-security` | One redacted index per audit run: counts by verdict and severity, and opaque `S-n` rows for `confirmed` / `needs_validation` records. Full findings stay in the run directory (always outside the target); never a drift source |
+| `docs/marketing/brand-voice.md`, `campaigns/<slug>/{brief,plan,calendar}.md`, `calendar-<YYYY-MM>.md`, `posts/<YYYY-MM-DD>-<slug>.md` | `/akili-marketing` | Unpublished social marketing drafts (brand voice, campaigns, calendar, posts), outside the spec lifecycle; never published by the command |
 | `docs/specs/kaizen/<safe-spec-slug>.md` | `/akili-archive` (Kaizen Record, any branch) | One entry file per spec: metrics, root-cause lessons, sub-threshold signals, and the pending-standardization queue |
 | `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (the apply-capable branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
@@ -293,6 +294,9 @@ Run `/akili-audit` independently to verify that the active codebase reflects act
 
 ### 2b. Repository Security Auditing (`/akili-security`)
 Run `/akili-security` independently, outside the spec lifecycle, for a gated security audit of the repository. The plan gate stops on every run, and the routing gate stops whenever it is reached (only a run that writes an index reaches it); the run is static-only unless sandboxed execution is approved for that run. Full findings stay in a run directory (always outside the target); the only tracked repository content the command writes is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. That index sits beside the drift reports but is never a drift source. Each confirmed finding the user selects is routed to a Bug proposal (`/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`), which then follows the Bug Track. See [the command page](commands/akili-security.md) for residual risk and disclosure. It is not supported on native Windows (the vendored validators fail closed there); run it from WSL, Linux or macOS.
+
+### 2c. Social Marketing (`/akili-marketing`)
+Run `/akili-marketing <mode>` independently, outside the spec lifecycle, to draft social marketing for LinkedIn, Instagram and Facebook as reviewable Markdown under `docs/marketing/`. Six modes: `brand` (brand voice), `campaign` (brief and plan), `calendar`, `post`, `review` and `repurpose`. The files it writes are `brand-voice.md`, `campaigns/<slug>/{brief,plan,calendar}.md`, `calendar-<YYYY-MM>.md` and `posts/<YYYY-MM-DD>-<slug>.md`. It drafts only and never publishes: each post ends at a copy-paste block that you place by hand. See [the command page](commands/akili-marketing.md) for the gate and the full mode reference.
 
 ### 3. The Pivot Protocol
 If discovery during `/akili-execute` invalidates requirements or design rules:
@@ -466,7 +470,7 @@ which answers *when and how each skill loads*:
 * **core** — hard-wired to a precise command step: `kaizen` in `/akili-archive`, `judgment-day` in
   `/akili-specify`'s Review Design gate, `cognitive-doc-design` for every human-facing document,
   `brainstorming` for exploration, `product-manager-toolkit` in `/akili-constitution`,
-  `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`.
+  `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`.
 * **conditional** — loaded when the work touches its domain: `ui-ux-pro-max` / `frontend-design` /
   `stitch-design` for UI work, `gsap-animation` for animation work, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing).
 * **stack** — framework/platform skills (`angular-developer`, `nestjs-expert`, `shadcn-ui`,
