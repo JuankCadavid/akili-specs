@@ -57,7 +57,7 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~180 LOC) |
 | Depends on | T1 |
 | Requirements | FR-12 (moved content holds every obligation); FR-6 (target `## Practical Example` exists with the 3 sequences); NFR-2 (English) |

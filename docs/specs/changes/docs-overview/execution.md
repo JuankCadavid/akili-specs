@@ -67,3 +67,27 @@
 **Issues encountered.** The T3 ledger rows are committed with T2 (the ledger was still being edited by T2's rework when T3 closed).
 
 **Final verification.** As the Leader re-run above.
+
+### T2: Absorb README content into `docs/flow.md` — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 2 (attempt 1 in parallel with T3) |
+| Skills / effort | `cognitive-doc-design`; high → xhigh on attempt 2 |
+| spawns | Implementer (sonnet) 18 calls, 145,779 tokens, ended complete; Reviewer (opus) 20 calls, 112,894 tokens, ended fail; Implementer attempt 2 7 calls, 160,290 tokens (cumulative), ended complete; Reviewer re-review 5 calls, 119,931 tokens (cumulative), ended complete |
+| Requirements covered | FR-12 (T2 rows H24, H26–H33, H36, H38, H39, H41, H42 a–b, M5, M8), FR-6 (`## Practical Example` with the 3 sequences), NFR-2 |
+| Running totals | tasks 3/9 · LOC ~+535 / −65 so far (T1 ~102, T2 flow.md ~+221/−16, T3 ~+200, ledger quotes) · review rounds 6/26 |
+
+**Attempt 1.** Files: `docs/flow.md` (+207/−14), ledger T2 rows. New sections Start Here (with the `Six anytime commands run outside this loop` sentence verbatim), Core Concepts, Review Points, Requirement Delta Preview, Writing Good Requirements, Practical Example, Methodology Contract (H42 a–b under a "Provenance" lead-in), Host Assumptions; in-place extensions to the Modes, Depth, Spec Folder Shape, Harness and Kaizen parts. Implementer verification: Practical Example 1; Six anytime 1; `node --test test/akili-security-docs.test.js test/akili-marketing-docs.test.js` → `# pass 31`, `# fail 0`; NFR-2 0. Falsifiers: bugfix block removed (scratch) → `bugfix/login-redirect` 5 → 0; "in-target directory" added to the security bullet → `not ok 4 - FR-7 / FR-10 BUT: no restatement keeps an in-target run-directory option` and `not ok 13 - … run git status / check-ignore / rev-parse in the target`, reverted → pass. Leader re-run (tree quiet, after T3 reported): VERIFIED (full `npm test` `pass 819, fail 0`). Reviewer: **FAIL**, 3 issues (verbatim in the Reviewer report relayed to attempt 2): (1) H24 (h) CodeGraph usage list abridged — "semantic code exploration, symbol lookup, callers/callees, and impact checks" missing; (2) H24 (f) Legacy inspection scope missing "docs, architecture"; (3) H26 Lite rigor missing "keeps the documents short" and "testable". Each ledger quote showed a nearby line, not the obligation token.
+
+**Attempt 2.** Files: `docs/flow.md`, ledger T2 rows. The three gaps fixed at `:176`, `:171`, `:245`; a mandated mechanical sweep over all 16 rows found one more gap (H28 "Gemba: real facts, never speculation", README `:662`) and fixed it at `:604`; the doubled blank line removed. Sweep: `tokens 210 misses 0`; every T2 quote rewritten as token text + line. Implementer verification: as attempt 1, all green. Leader re-run: VERIFIED (Practical Example 1, Six anytime 1, `callers/callees` 1, `testable scenario` 1, `docs, architecture, tests` 1, suites 31/0, `npm test` 819/0, NFR-2 0, `git diff --check` clean). Reviewer: **PASS** — the fixes match README `:586`, `:581`, `:618`, `:662`; all 210 quote pairs resolve at their cited lines; word-diff deletes only text the same edit restores in longer form; verbatim sections intact; the redirected obligations (seo setup, semver table, audit remediation) are absent from flow.md (named conformance check).
+
+**ADVISORY (final verdict).** Readability: pre-existing flow.md `## Philosophy` and the Legacy row's `.agents/` cell name three default personas while the Methodology Contract lists four (with Tester); not a T2 obligation — a possible later `/akili-quick` follow-up. (Attempt-1 advisories: the Methodology Contract is a third restatement surface for the security pins — a back-link to §2b/§2c would help.)
+
+**Decisions made.** None beyond the brief. The Leader required a full mechanical token sweep in the rework brief (Phrase-family sweep rule); it found the fourth gap before review.
+
+**Issues encountered.** This commit also carries T3's ledger rows (T3 closed while T2's rework was editing the ledger).
+
+**Final verification.** As the attempt-2 Leader re-run.
