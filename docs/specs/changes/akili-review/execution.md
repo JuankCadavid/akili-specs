@@ -100,3 +100,10 @@
 **ADVISORY (final verdicts).** `allowlistOf` strips `[bot]` from every `trusted_posters` entry (so `alice` also trusts `alice[bot]`) — spec asks it only for the CI bot. An interrupted post can still duplicate inline comments (review posted, summary write failed → FR-10 row 7 re-posts; unparsable marker + tags), matching spec literally but not R-B8's intent. The "fixed" line says the thread was resolved before the resolve call runs (false on a 403). `--local` is not in design §6's `post` flags. Stale T2 test title "not-yet-built check-skip and post exit 2". The test file now takes ~37 s on Node 22.
 
 **Final verification.** `node --test test/pr-review-scripts.test.js` → `# pass 167 # fail 0` (Node 22.12.0 and 18.20.8).
+
+## PR 1 boundary (T1–T3) — stop for the user, 2026-10-25
+
+- **Commits:** `53ebe65` (T1), `235ebd8` (T2), `81aa9a2` (T3), local only.
+- **Full suite (tree quiet):** Node 22.12.0 and 18.20.8 each `# tests 1012 · pass 999 · fail 13` — `docs-overview` (a)/(c)/(d); `install-cursor` 395, 399, 401–405; `install-grokbot` 445, 447, 450. All caused by the new `.claude/skills/pr-review/` directory (no `SKILL.md` yet, counts/baselines stale); owned by T5/T6/T9b. The baseline `update-check` flake did not recur.
+- **Spec tension for the user (one-line amendment proposal):** PR 1 as split cannot pass the six required `CLI on <os> / Node <18|22>` checks — those 13 reds persist until T5/T6 (PR 2) and T9b (PR 3). Proposal: open PR 1 and PR 2 together as one PR (T1–T8), or move the T5 `SKILL.md` + T6 count/fixture edits into PR 1 and the `docs-overview` rows (T9b) forward, or accept PR 1 as a stacked PR merged only together with PR 2.
+- **Budget projection (not yet a tripwire):** LOC ~3,815 after 3 of 14 tasks against T1–T3 estimates of ~1,970 (×1.9); whole-spec estimate ~4,750, tripwire ~5,700. If the remaining ~2,780 estimated LOC run at the same ratio, the tripwire is crossed during PR 2 (T7, ~650 est., and T8 are the largest). Review rounds 5/25 (budgeted 5 for T1–T3: on plan). The tripwire itself fires only when actuals exceed it; this is advance notice.
