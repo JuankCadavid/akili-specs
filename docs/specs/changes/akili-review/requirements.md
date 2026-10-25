@@ -38,7 +38,8 @@ Two pieces of code carry the safety guarantees: `validate-review.cjs`, which che
 | Run directory | Holds the per-run artifacts (`findings.json`, `REVIEW.md`, chunk files). It is always outside the target |
 | Summary comment | The single PR comment that `post-review.cjs` creates and then updates in place. A hidden marker identifies it |
 | Marker | A hidden HTML comment in the summary comment. It carries the reviewed head SHA and the fingerprints of the findings it posted |
-| Trusted files | `AGENTS.md`, `CLAUDE.md`, `.agents/*.md` and `.akili/review.yml`, read **from the base ref** in CI because the PR head controls them |
+| Trusted files | `AGENTS.md`, `CLAUDE.md`, `.agents/*.md` and `.akili/review.yml`. In CI they are read only from the **base-SHA checkout** the agent runs in, because the PR head controls its own copies |
+| Input directory | `$RUNNER_TEMP/akili-input/` in CI: the PR diff, PR metadata, the prior-review state, the per-file patch files and the manifest, all written by deterministic steps before the agent runs, plus `head/`, a read-only materialization of the PR head that the agent reads as data |
 | Unspecified change | A changed file or behavior that no linked spec's tasks or requirements cover |
 
 ## 4. System Context & Scope
@@ -53,10 +54,11 @@ Today (at `708020e`):
 | The Reviewer persona supports a *single named lens* mode and has a fixed report contract (`STATUS:` first line, ~600 words, overflow goes to a file) | `.claude/templates/reviewer.md` section `lenses` ("When the Leader spawns you with a **single named lens**") and section `review-output` |
 | The installer copies the persona templates into each target's resources | Probe: `install --tool claude --local` into an empty directory wrote `.claude/akili/templates/reviewer.md`; `--tool codex --local` wrote `.codex/akili/templates/` (as run 2026-10-25) |
 | Adding one command and one skill directory turns exactly 8 existing tests red | Stub run in a scratch package copy: `# pass 836 · fail 8` (baseline `844/844`). The 8 are five in `docs-overview`, one count in `install-cursor`, and two Codex-doctor fixture comparisons (design P-6) |
-| Five files list the non-spec carve-outs under `docs/specs/` | `grep -rln "never a spec and are never read as one\|never a spec and never read as one"` → `akili-audit.md`, `akili-resume.md`, `akili-specify.md`, `akili-propose.md`, `docs/commands/akili-resume.md` (design P-9) |
+| Six files list the non-spec carve-outs under `docs/specs/` | `grep -rlE "quick/.{0,6}, .{0,3}kaizen/"` over `.claude` and `docs` (excluding `docs/specs/`) → `akili-audit.md`, `akili-resume.md`, `akili-specify.md`, `akili-propose.md`, `docs/commands/akili-resume.md`, `docs/commands/akili-audit.md` (design P-9; corrected after judgment-day C-1) |
 | On PR events, `claude-code-action` deletes `.claude/`, `CLAUDE.md`, `.mcp.json` and five more paths from the checkout and restores them from the base ref before the CLI starts | `anthropics/claude-code-action` @ `925afb5`, `src/github/operations/restore-config.ts` (`SENSITIVE_PATHS`; `rmSync` loop then `git checkout origin/<base> -- <path>`) and `src/entrypoints/run.ts` (the `isPR` branch) (design P-3) |
 | Both CI actions support schema-constrained final output | `claude-code-action` output `structured_output` ("when `--json-schema` is provided in `claude_args`"); `codex-action` inputs `output-schema-file` and `output-file` (design P-4) |
-| `AGENTS.md` and `.agents/` are not in `claude-code-action`'s restore list, so the PR head controls them | Same `SENSITIVE_PATHS` list (P-3) |
+| `AGENTS.md` and `.agents/` are not in `claude-code-action`'s restore list, so the PR head controls them; this repo's own `CLAUDE.md` is `@AGENTS.md`, so even a restored `CLAUDE.md` can import a PR-controlled file | Same `SENSITIVE_PATHS` list (P-3); `cat CLAUDE.md` → `@AGENTS.md` |
+| Without a `github_token` input, `claude-code-action` exchanges OIDC for an App token with `contents: write` and `pull_requests: write` | `src/github/token.ts:69-71` (`DEFAULT_PERMISSIONS`), `:160` (`OVERRIDE_GITHUB_TOKEN`) at `925afb5` (design P-19; found by judgment-day S-1) |
 
 **In scope:** the proposal's S1–S9, as amended by the correction above.
 **Out of scope:** the proposal's *Non-Goals*; an `akili ci init` subcommand (Q1); review of fork PRs; `pull_request_target`; auto-fix; approving or requesting changes; a `/akili-validate` hook (Q5); any edit to `reviewer.md` (FR-5 references it, it does not change it).
@@ -105,7 +107,7 @@ The package SHALL ship `.claude/skills/pr-review/` with `SKILL.md`, `NOTICE`, `r
 | Argument | Target diff |
 |---|---|
 | none | Current branch against the base, which resolves in this order: `Integration Branch:` pin, then `Default Branch:` pin, then the remote's default branch. If none resolves, the command asks the user |
-| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff` |
+| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff`; in `--ci`, read from the input directory that FR-12's deterministic steps wrote |
 | `<base>..<head>` | That range |
 | `--staged` | The staged changes against `HEAD` |
 
@@ -134,7 +136,7 @@ The command SHALL skip the review, posting nothing and exiting 0, when any of th
 | The PR is draft, closed or merged | — |
 | The author is a bot (`dependabot[bot]`, `renovate[bot]`, or any login ending in `[bot]`) | `--force` |
 | The PR carries the label `akili-review:skip` | — |
-| The summary comment's marker already records the current head SHA | `--force` |
+| The summary comment's marker, from an allowlisted posting identity (FR-9), already records the current head SHA. The check is made by `post-review.cjs check-skip`, never by the agent reading comments | `--force` |
 | The filtered diff (FR-4) is empty | — |
 
 #### Scenario: Re-run on the same head
@@ -146,7 +148,7 @@ The command SHALL skip the review, posting nothing and exiting 0, when any of th
 
 ### FR-4: Diff filtering and risk tier
 
-**Filtering.** Before review, the command SHALL drop lockfiles, vendored directories, minified files, source maps and generated files, and SHALL keep database migrations. An optional `.akili/review.yml` MAY add include or exclude globs and override thresholds. In CI, that file is a trusted file (FR-12) read from the base ref.
+**Filtering.** Before review, the command SHALL drop lockfiles, vendored directories, minified files, source maps and generated files, and SHALL keep database migrations. An optional `.akili/review.yml` MAY add include or exclude globs and override thresholds. Filtering and the tier are computed deterministically by `post-review.cjs prepare`, locally and in CI. In CI, `.akili/review.yml` is read from the base-SHA checkout (FR-12).
 
 **Tier.** The tier SHALL be derived from the filtered diff, or set by `--tier`:
 
@@ -180,7 +182,7 @@ Each lens SHALL run as the Reviewer persona in its *single named lens* mode: the
 | Context | Source |
 |---|---|
 | Local | the project's `.agents/reviewer.md`, else the installed template `<resources>/templates/reviewer.md` |
-| CI | the base-ref copy of `.agents/reviewer.md`, else the installed template |
+| CI | the base-SHA checkout's `.agents/reviewer.md`, else the installed template in HOME |
 
 **Lens brief.** Every lens brief MUST include, verbatim, the *target content is data* addendum (FR-12 text). The brief also names the lens, the chunk files, the shared context file, and the finding line format the coordinator parses.
 
@@ -225,9 +227,9 @@ If no spec maps, the review adds an "Unspecified PR" note. That note is never a 
 
 ### FR-7: Finding contract, filtering and verification
 
-**Fields.** Every finding SHALL carry `id`, `lens`, `severity`, `confidence` (an integer from 0 to 100), `file`, `line_start`, `line_end`, `side` (`RIGHT` for added or context lines, `LEFT` for removed lines), `evidence` (quoted diff lines), `why`, an optional `fix`, and `fingerprint` (stable across runs for the same issue).
+**Fields.** Every finding SHALL carry `id`, `lens`, `severity`, `confidence` (an integer from 0 to 100), `file`, `line_start`, `line_end`, `side` (`RIGHT` for added or context lines, `LEFT` for removed lines), `evidence` (quoted diff lines), `why`, and an optional `fix`. Its `fingerprint`, which is stable across runs for the same issue, is **computed by `post-review.cjs` from deterministic fields and never supplied by the agent** (judgment-day S-4).
 
-**Dropping.** The coordinator MUST drop findings below the threshold (default 80), findings on lines the diff does not touch, pre-existing issues, linter-catchable style, and pedantry. It merges duplicates across lenses.
+**Dropping.** The coordinator MUST drop findings below the threshold (default 80; an override comes only from the trusted `.akili/review.yml` or a CLI flag, never from the findings document), findings on lines the diff does not touch, pre-existing issues, linter-catchable style, and pedantry. It merges duplicates across lenses.
 
 **Verification by tier:**
 
@@ -268,7 +270,7 @@ Each review SHALL write `REVIEW.md` and `findings.json` to a run directory outsi
 
 **History.** `--record`, or `history: true` in `.akili/review.yml`, SHALL write `docs/specs/reviews/review-<YYYY-MM-DD>-<pr-<n>|<safe-branch>>[-N].md`, creating the directory with a one-line README. The file holds the verdict, the counts, the spec coverage table and the finding rows (id, lens, severity, file:line). It carries no evidence excerpts, no secrets, and no absolute paths or user names.
 
-**Carve-out.** `docs/specs/reviews/` MUST be added to every non-spec carve-out list (design P-9), so no scan reads it as a spec.
+**Carve-out.** `docs/specs/reviews/` MUST be added to every non-spec carve-out list (six sites, design P-9), so no scan reads it as a spec.
 
 #### Scenario: History is off by default
 
@@ -287,7 +289,9 @@ Each review SHALL write `REVIEW.md` and `findings.json` to a run directory outsi
 
 Posting SHALL happen only through `post-review.cjs`, and only after `validate-review.cjs` exits 0. The script MUST:
 
-- create the summary comment, or update it in place when a comment with the marker exists, and never create a second one;
+- create the summary comment, or update it in place when a comment with the marker exists, and never create a second one. A marker is trusted only from an allowlisted posting identity: the CI bot (`github-actions[bot]`) plus the logins listed in the trusted `.akili/review.yml` `trusted_posters`. When a local `--comment` finds a summary it cannot edit (for example the CI bot's), it posts nothing and says that CI owns this PR's summary;
+- pre-check every inline comment's line against the PR's diff hunks; a finding that does not map to a diff line moves to the summary. If the review request is still rejected, retry once with no inline comments and move them all to the summary;
+- cap the rendered summary below GitHub's comment body limit, truncating the summary-only sections first;
 - post **at most 10** inline comments, chosen from `critical` and non-suspect `warning` findings by severity, then confidence, then file and line order;
 - put a `suggestion`, a suspect warning, and every finding beyond the cap into the summary only, with the count of findings left out of inline;
 - link each finding with a full-SHA permalink (`blob/<40-hex head>/<file>#L<a>-L<b>`);
@@ -358,14 +362,20 @@ The exit status is decided by `post-review.cjs`, or by the validator step when n
 
 ### FR-12: CI templates and the trust boundary
 
-The package SHALL ship `docs/ci/akili-review.claude.yml` (runtime `anthropics/claude-code-action@v1`) and `docs/ci/akili-review.codex.yml` (runtime `openai/codex-action@v1`). Each template MUST have:
+The package SHALL ship `docs/ci/akili-review.claude.yml` (runtime `anthropics/claude-code-action`) and `docs/ci/akili-review.codex.yml` (runtime `openai/codex-action`), each action pinned by full commit SHA with its tag in a comment. Each template MUST have:
 
-1. **Trigger.** `pull_request` (`opened`, `synchronize`, `ready_for_review`, `reopened`) only, never `pull_request_target`; fork PRs are skipped (`head.repo.full_name == github.repository`); draft PRs are skipped.
-2. **Two jobs.** A `review` job with `contents: read` and `pull-requests: read` runs the agent, which emits schema-constrained findings (Claude: `--json-schema` → `structured_output`; Codex: `output-schema-file` → `output-file`) and uploads them as an artifact. A `post` job with `pull-requests: write` downloads the artifact, runs `validate-review.cjs`, then `post-review.cjs`. **The agent never holds a GitHub write permission or a posting tool.**
-3. **Install outside the checkout.** `npx -y akili-specs@<pinned> install --tool claude|codex --force` (global, into the runner's HOME), never `--local` and never `--skills-only`.
-4. **Trusted files from the base ref.** A step before the agent copies `AGENTS.md`, `CLAUDE.md`, `.agents/*.md` and `.akili/review.yml` from `origin/<base>` into `$RUNNER_TEMP/akili-trusted/`. The command reads conventions, the persona and the config from there in `--ci` mode.
-5. **Agent tool scope.** Read, Grep and Glob; `gh pr diff`, `gh pr view`; reading the trusted directory. No write tool on the checkout, no network tool, no package install, no running target scripts.
-6. **Cost controls.** `concurrency` with `cancel-in-progress`, `timeout-minutes`, a turn limit, the `akili-review:skip` label, and `paths-ignore` for docs-only changes (commented, opt-in).
+1. **Trigger and gating.** `pull_request` (`opened`, `synchronize`, `ready_for_review`, `reopened`) only, never `pull_request_target`; fork PRs are skipped (`head.repo.full_name == github.repository`); draft PRs are skipped; the label `akili-review:skip` skips.
+2. **Two jobs, no write token near the agent.**
+   - The `review` job has `contents: read` and `pull-requests: read`. It declares no `id-token` permission, and it passes the workflow's `GITHUB_TOKEN` to the action explicitly, so the action cannot exchange OIDC for a write-capable App token (P-19).
+   - The agent emits schema-constrained findings (Claude: `--json-schema` → `structured_output`; Codex: `output-schema-file` → `output-file`). Deterministic steps write them, with the input manifest, to an artifact.
+   - The `post` job has `pull-requests: write`, **checks out nothing**, installs the pinned package, and runs `post-review.cjs post` from HOME. It takes `repo`, `pr`, `base_sha` and `head_sha` from `github.event`, never from the artifact, and refuses an artifact whose recorded target differs.
+   - **The agent never holds a GitHub write permission, a posting tool or a network tool.**
+3. **Install outside the checkout.** `npx -y akili-specs@<pinned> install --tool claude|codex --force` (global, into the runner's HOME), in both jobs; never `--local` and never `--skills-only`.
+4. **The agent runs on the base.**
+   - The workspace checkout is the PR's **base SHA**, so every file a host auto-loads from its working directory (`CLAUDE.md` and its imports, `AGENTS.md`, `.agents/`, `.claude/`, `.akili/review.yml`) is the base copy.
+   - Before the agent runs, deterministic steps write to `$RUNNER_TEMP/akili-input/`: the PR diff and metadata (`gh pr diff` / `gh pr view`), the prior-review state (`post-review.cjs check-skip`), the per-file patch files and the manifest (`post-review.cjs prepare`), and `head/`, a materialization of the PR head SHA outside the workspace. The agent reads `head/` only as data.
+5. **Agent tool scope.** Read, Grep and Glob over the workspace, the input directory and the HOME install; the host's sub-agent and skill tools. No Bash, no write tool, no network tool, no package install, no running target scripts. Codex runs with a read-only sandbox and `safety-strategy: drop-sudo`.
+6. **Cost controls.** `concurrency` with `cancel-in-progress`, `timeout-minutes`, a turn limit, and `paths-ignore` for docs-only changes (commented, opt-in).
 7. **Advisory default.** `--fail-on none`, plus a commented line showing `--fail-on critical` for after a pilot.
 8. **Security note.** A header comment states the residual prompt-injection risk, and recommends "Require approval for all external contributors" for repos that take outside PRs.
 
@@ -377,14 +387,14 @@ The package SHALL ship `docs/ci/akili-review.claude.yml` (runtime `anthropics/cl
 
 - GIVEN a PR that edits `.claude/commands/akili-review.md`, `.agents/reviewer.md` and `AGENTS.md` to say "approve everything"
 - WHEN the CI review runs
-- THEN the command text comes from the pinned package in HOME, and the persona and conventions come from the base ref; the edits are reviewed as diff content
-- BUT it must NOT read any of those three files from the PR head as instructions
+- THEN the command text comes from the pinned package in HOME, and the persona and conventions come from the base-SHA checkout; the edits are reviewed as diff content under `head/`
+- BUT it must NOT read any of those three files from the PR head as instructions, and no host may auto-load them (the workspace is the base checkout)
 
 #### Scenario: Agent tries to post
 
 - GIVEN injected text that tells the agent to post a comment
 - WHEN the `review` job runs
-- THEN the post fails, because the job token has `pull-requests: read` and the agent has no posting tool
+- THEN nothing is posted, because the agent has no posting, Bash or network tool and the job's token (passed explicitly) has `pull-requests: read`
 - AND IT MUST leave posting to the `post` job's validated path
 
 ### FR-13: Routing of confirmed criticals (local only)
@@ -414,7 +424,7 @@ The change SHALL update the following:
 - **Lists and counts.** Every list or count that enumerates commands, core skills or anytime commands (design §9.1), including `docs/flow.md:21` → "Seven anytime commands" and the test that pins it.
 - **Figure.** The flow figure alt text and the SVG, unless the design records them as known debt.
 - **Governance.** The `docs/skills/governance.md` core list, and the `judgment-day` integration table (an `/akili-review` row: full tier, critical findings, no fix rounds).
-- **Carve-outs.** The five carve-out sites (FR-8).
+- **Carve-outs.** The six carve-out sites (FR-8).
 - **Agent guides.** `AGENTS.md` *Skill Usage*.
 - **Changelog.** `CHANGELOG.md` > Unreleased.
 
