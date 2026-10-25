@@ -475,7 +475,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~60) |
 | Depends on | T6 |
 | Requirements | FR-14 (lists and counts) |

@@ -359,3 +359,29 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 **Attempt 2.** Files: `docs/flow.md` and the test message only. Both history sentences name both switches; sweep also qualified run-directory claims as local-only (`--ci` writes and posts nothing) in the artifacts row, §2d and the lifecycle bullet; `doesNotMatch` message renamed "no stale 12/13 command or 27/28 skill total" (Reviewer advisory on the task's own line). Leader re-run: **VERIFIED** (marketing + diagram + docs-overview + contract 57/57 with T9b in the tree; `assets/` empty; `diff --check` clean). Reviewer: **PASS** — issue closed; CI clauses true at HEAD (Step 4 `--ci`; Step 0.2 item 5 → Step 2 skips the run-directory item); no regression.
 
 **ADVISORY.** §2d has no pointer to CI mode / `docs/ci/README.md` (the command page covers it). `\b13 commands\b` makes `\bthe 13 commands\b` redundant in the `doesNotMatch` regex (harmless).
+
+### T9b: README, `docs/README.md`, `docs/overview.md`, `docs/commands/README.md` — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-25 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design`; medium → high on attempt 2 (bump after FAIL) |
+| spawns | Implementer (sonnet) 7 calls, 79,041 tokens, ended complete; Reviewer (opus) 8 calls, 83,869 tokens, ended fail; Implementer attempt 2 (resumed) 1 call, 82,213 tokens (cumulative), ended complete; Reviewer re-review (resumed) 2 calls, 88,176 tokens (cumulative), ended complete. Ran in parallel with T9c (disjoint files) |
+| Requirements covered | FR-14 (lists and counts) |
+| Running totals | tasks 13/15 · LOC ~5,773 (T9b ~12 lines changed: `README.md` +1, `docs/README.md` +1, `docs/commands/README.md` +3/−1, `docs/overview.md` +4/−2) · review rounds **25/25** (rounds 22 and 25) |
+
+**Attempt 1.** Files: `README.md` command-table row; `docs/README.md` anytime-table row; `docs/overview.md` `## Commands` row, *Skills by purpose* `pr-review` row (T3b provisional row replaced, not duplicated), Glossary "Anytime command", task-table row "Review a pull request or diff"; `docs/commands/README.md` table row, independent-commands sentence, *Source files* row. Red run: `docs-overview` 10 pass / 3 fail — `not ok 2 - (a) docs/overview.md ## Commands …`, `not ok 4 - (b) README …`, `not ok 6 - (d) …`. Verification: docs-overview + contract 31/32, the one red (d) only on `docs/cli.md` (T9c). Falsifier: new `## Commands` row removed → `not ok 2 - (a) docs/overview.md \#\# Commands lists every packaged command exactly once`; restored. Leader re-run (T9c landed): **VERIFIED** — 32/32. Reviewer: **FAIL**, 2 issues (KZ-002) — (1) `docs/commands/README.md` Outputs "One summary comment (posted only with `--comment`) and a run directory" is local-only: `--ci` writes and posts nothing (`references/ci.md` *The `--ci` contract*), the CI `post` job posts without `--comment`; (2) README row "one summary comment" reads as every run posting, against Step 4.4 "Without `--comment`, post nothing".
+
+**Attempt 2.** Files: `docs/commands/README.md` Outputs cell split by mode ("Locally: a run directory with `REVIEW.md`, and one summary comment only with `--comment`. In CI: one summary comment posted by the workflow's post job"); README row "posts one summary comment only when asked (`--comment`) or from CI"; sweep: `docs/overview.md` command row qualified the same way, `pr-review` row "findings are verified before any summary comment is posted". Leader re-run: **VERIFIED** (57/57 across docs-overview, contract, marketing, diagram; `diff --check` clean). Reviewer: **PASS** — both closed; CI wording quote-checked against both templates' `post` step (`post-review.cjs post … --fail-on none`, no `--comment`) and `references/ci.md`.
+
+**ADVISORY.** None new ("never … blocks" is the shipped frontmatter's wording, qualified by `--fail-on` in SKILL.md — not a T9b defect).
+
+## HALT — review-round tripwire before T11, 2026-10-25
+
+- **Trigger:** review rounds 25/25 after T9b. T11 has `Review: checklist` and no task is skip-eligible (tasks.md §2), so T11's review would be round 26 — past the **> 25 rounds** tripwire the user told the Leader to HALT on ("HALT and report if … 25 review rounds would be exceeded"). T11 not started.
+- **Where rounds went:** PR-2+3 group budget assumed one round per task; T9a, T9b and T9c each FAILed once on a KZ-002 overstatement (trivial-tier lens count; local-vs-CI posting; `history: true` omitted) and passed on attempt 2.
+- **Other limits:** tasks 13/15 (T11 would be 14; T12 deferred) — not exceeded. LOC ~5,773 of ~6,200; T11 estimate ~25 → ~5,800 — not exceeded.
+- **State:** T1–T10 `[x]`, T11 `[ ]`, T12 deferred. Branch `feat/akili-review-pr2`, local only, nothing pushed.
+- **User decision needed:** raise the round tripwire (e.g. to 26–27) so T11 runs with its Reviewer, or another instruction.
