@@ -371,7 +371,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~650) |
 | Depends on | T6 |
 | Requirements | Pins the text clauses of FR-1, FR-2, FR-5, FR-6, FR-8, FR-9 (cap restatement), FR-12 (addendum restatements), FR-13; NFR-4 |
