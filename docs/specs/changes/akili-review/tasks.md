@@ -502,7 +502,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~110) |
 | Depends on | T6 |
 | Requirements | FR-14 ("Seven anytime commands", totals, AGENTS *Skill Usage*, figure kept as debt) |

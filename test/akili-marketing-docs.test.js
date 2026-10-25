@@ -97,8 +97,11 @@ test("@akili-spec changes/akili-marketing FR-12: the command is in every README/
   const overview = read("docs/overview.md");
   assert.ok(hasLine(overview, "(commands/akili-marketing.md)"), "docs/overview.md command page link");
   assert.ok(hasLine(overview, "| `/akili-marketing <mode> [args]` |"), "docs/overview.md command table");
-  const anytime = read("docs/flow.md").split("\n").find((l) => l.startsWith("Six anytime commands run outside this loop")) || "";
-  assert.match(anytime, /`\/akili-marketing`/, "docs/flow.md anytime-commands sentence");
+  const anytime = read("docs/flow.md").split("\n").find((l) => l.startsWith("Seven anytime commands run outside this loop")) || "";
+  for (const name of ["resume", "audit", "quick", "seo", "security", "marketing", "review"]) {
+    assert.ok(anytime.includes(`\`/akili-${name}\``), `docs/flow.md anytime-commands sentence names /akili-${name}`);
+  }
+  assert.doesNotMatch(read("docs/flow.md"), /^Six anytime commands/m, "no stale Six anytime commands");
 
   const cmds = read("docs/commands/README.md");
   assert.ok(hasLine(cmds, "| [`/akili-marketing <mode> [args]`](akili-marketing.md) |"), "docs/commands/README.md table");
@@ -108,12 +111,12 @@ test("@akili-spec changes/akili-marketing FR-12: the command is in every README/
   assert.ok(hasLine(read("docs/flow.md"), "### 2c. Social Marketing (`/akili-marketing`)"), "docs/flow.md section 2c");
 });
 
-test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (13 commands, 29 skills), none stale", () => {
+test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (14 commands, 29 skills), none stale", () => {
   // docs/cli.md enumerates no commands by name; it states totals, which FR-12 requires updated.
   const cli = read("docs/cli.md");
-  assert.ok(hasLine(cli, "(the 13 commands, installed as skills"), "cli.md command total");
+  assert.ok(hasLine(cli, "(the 14 commands, installed as skills"), "cli.md command total");
   assert.ok(hasLine(cli, "(the 29 packaged skills"), "cli.md skill total");
-  assert.doesNotMatch(cli, /\bthe 12 commands\b|\b12 command skills\b|\b27 packaged skills\b|\b28 packaged skills\b/, "no stale 12/27 total");
+  assert.doesNotMatch(cli, /\bthe 12 commands\b|\b12 command skills\b|\b27 packaged skills\b|\b28 packaged skills\b|\bthe 13 commands\b|\b13 command skills\b|\b13 commands\b/, "no stale 12/13 command or 27/28 skill total");
 });
 
 test("@akili-spec changes/akili-marketing FR-12: no shipped file references the active spec path (KZ-changes--archify-diagrams-1)", () => {
