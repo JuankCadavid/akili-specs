@@ -389,3 +389,23 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 ## Round-tripwire amendment (user decision), 2026-10-25
 
 - **Decision (Juan Carlos):** review-round tripwire raised from 25 to **27**; proceed with T11 and its Reviewer. Lines (~6,200) and tasks (15) unchanged. Recorded in tasks.md §1 *Budget*. Clears the HALT above: T11 review is round 26, one rework round (27) available.
+
+### T11: CHANGELOG + full verification sweep — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-25 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design`; high → xhigh on attempt 2 (bump after FAIL) |
+| spawns | Implementer (sonnet) 22 calls, 115,754 tokens, ended complete; Reviewer (opus) 15 calls, 93,622 tokens, ended fail; Implementer attempt 2 (resumed) 2 calls, 120,829 tokens (cumulative), ended complete; Reviewer re-review (resumed) 16 calls, 95,235 tokens (cumulative), ended complete |
+| Requirements covered | FR-14 (CHANGELOG, no active-spec path, figure debt stated), NFR-1, NFR-2, NFR-5; DD-12, DD-13 |
+| Running totals | tasks 14/15 (T12 deferred) · LOC ~5,793 (T11: `CHANGELOG.md` +19/−1) · review rounds **27/27** (rounds 26 and 27) |
+
+**Attempt 1.** File: `CHANGELOG.md` — `## [Unreleased]` placeholder replaced by *Added* (`/akili-review`, gated posting, tiers/lenses/threshold 80, `pr-review` skill and files, CI templates + `docs/ci/README.md`, docs pages and rows), *Changed* (`reviews/` carve-out at six sites; 14 commands / 29 skills; install-cursor 236 → 244 files; Codex doctor baseline `ok 49` → `ok 51`), *Notes* (minor; tests; figure debt; known limits; `bin/` and `package*.json` unchanged). The CI pin is described only as "the `akili-specs` release that ships `/akili-review`" (not claimed as published; npm latest 2.36.1). Counts re-run at HEAD: `ls .claude/commands | wc -l` → 14; skill dirs → 29; `find .claude/skills -type f | wc -l` → 244; `pr-review` files → 8; new test files 167 / 33 / 30; full suite 1075. Sweep: `npm test` Node 18.20.8 and 22.23.3 → `# tests 1075 · pass 1075 · fail 0` each; `verify:cli` → `14 commands | 29 skills | 8 resources (akili-specs v2.36.1)`; `pack:dry-run` lists the 8 `pr-review` files and the 3 `docs/ci/` files (340 files); `git diff --check` rc 0; `install --tool all --dry-run` → `TOTAL installed 17 | overwritten 0 | skipped 366`; `doctor --tool all` → `INCOMPLETE ok 49 | missing 2` per tool (host HOME predates this change: `akili-review.md` + `pr-review` not installed there — environment, not repo; no `--fix` run); `git diff --stat 708020e -- bin/ package.json package-lock.json` → empty; active-path grep → 0; `grep -c O_NOFOLLOW` → 0, 0. Falsifier: reference to `docs/specs/changes/akili-review/` appended to `docs/ci/README.md` → grep 1 (`docs/ci/README.md:54`); reverted, `git diff docs/ci/README.md` empty. Leader re-run: **VERIFIED** (Node 22.23.3 and 18.20.8 1075/1075; verify:cli; pack 11 lines; diff --check; `bin/` empty; active-path 0; O_NOFOLLOW 0/0; install dry-run TOTAL). Reviewer: **FAIL**, 1 issue — the *Known debt* note named the stale SVG/PNG but not the stale alt text in `docs/flow.md` (five anytime commands), which DD-12 ("The figure and its alt text are not edited; CHANGELOG states the debt") and FR-14 *Figure* require stating.
+
+**Attempt 2.** File: `CHANGELOG.md` only — *Known debt* bullet adds that the figure's alt text in `docs/flow.md` still names five anytime commands (`/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security`), without `/akili-marketing` or `/akili-review`; regenerating the figure and editing the alt text are deferred. Leader re-run: **VERIFIED** (alt text read at HEAD: exactly those five; CHANGELOG-reader tests `docs-overview-contract`, `akili-marketing-docs`, `branching-flow`, `diagram-design` 79/79; `diff --check` clean; only `CHANGELOG.md` modified). Reviewer: **PASS**.
+
+**Execute-time spec edit (single-answer factual correction).** T11's active-path grep `grep -vE "^./docs/specs/|node_modules"` never matches on BSD grep (`grep -rn` prints paths without `./`), so it let 4 in-spec lines through; tasks.md now reads `^(\./)?docs/specs/` (Implementer found, Reviewer confirmed; shipped count 0 with the corrected pattern).
+
+**Judged points.** `history: true`: command Step 4.3 (coordinator applies it) and `references/large-prs.md` ("`prepare` and `post` do not read it") do not contradict; the CHANGELOG's history clause ("opt-in … (`--record`)") is accurate (Reviewer). No ADVISORY gated.

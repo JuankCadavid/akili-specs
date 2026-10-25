@@ -562,7 +562,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~25 + sweep) |
 | Depends on | T1–T10 |
 | Requirements | FR-14 (CHANGELOG, no active-spec path, figure debt stated), NFR-1, NFR-2, NFR-5 |
@@ -579,7 +579,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Command | `npm test` on Node 18.20.8 and 22.23.3; `npm run verify:cli`; `npm run pack:dry-run` (lists `.claude/skills/pr-review/*` and `docs/ci/*`); `git diff --check`; `node bin/akili.js install --tool all --dry-run`; `node bin/akili.js doctor --tool all`; `git diff --stat 708020e -- bin/ package.json package-lock.json` → empty; `grep -rn "docs/specs/changes/akili-review" --include='*' . \| grep -vE "^./docs/specs/\|node_modules"` → 0; `grep -c O_NOFOLLOW .claude/skills/pr-review/*.cjs` → 0 |
+| Command | `npm test` on Node 18.20.8 and 22.23.3; `npm run verify:cli`; `npm run pack:dry-run` (lists `.claude/skills/pr-review/*` and `docs/ci/*`); `git diff --check`; `node bin/akili.js install --tool all --dry-run`; `node bin/akili.js doctor --tool all`; `git diff --stat 708020e -- bin/ package.json package-lock.json` → empty; `grep -rn "docs/specs/changes/akili-review" --include='*' . \| grep -vE "^(\./)?docs/specs/\|node_modules"` → 0; `grep -c O_NOFOLLOW .claude/skills/pr-review/*.cjs` → 0 |
 | Red run | n/a (no new test) |
 | Falsifier | Insert a reference to `docs/specs/changes/akili-review/` into `docs/ci/README.md` → the active-path grep reports 1 (executed and reverted) |
 | Disqualifier | A green `npm test` on one Node only does not cover NFR-2. A CHANGELOG count copied from `execution.md` rather than re-run at HEAD is not evidence |
