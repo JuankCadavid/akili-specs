@@ -124,8 +124,6 @@ function section(text, start, stop) {
 const flowDocs = {
   "CONTRIBUTING.md": () => doc("CONTRIBUTING.md"),
   "docs/release-checklist.md": () => doc("docs/release-checklist.md"),
-  "README.md (Releasing Package Updates)": () =>
-    section(doc("README.md"), "### Releasing Package Updates", /^#{2,3} /),
 };
 
 for (const [name, get] of Object.entries(flowDocs)) {
@@ -195,6 +193,7 @@ test("the direct commit-then-tag release block detector fires on the pre-change 
 
 for (const [name, get] of Object.entries({
   "AGENTS.md": () => doc("AGENTS.md"),
+  "README.md": () => doc("README.md"),
   ...flowDocs,
 })) {
   test(`${name} has no direct chore(release) commit followed by git tag block`, () => {

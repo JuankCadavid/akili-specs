@@ -2,6 +2,56 @@
 
 The `akili` CLI installs the AKILI command prompts, skills, and helper resources into Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, Grok Bot, or multiple tools.
 
+## Prerequisites
+
+Two layers: the **CLI** (installing/updating the package) and the **methodology** (running AKILI commands inside a host tool). Each dependency states which layer needs it and what happens without it.
+
+**Required:**
+
+| Dependency | Needed by | Without it |
+|---|---|---|
+| Node.js ≥ 18 | CLI | `akili install/update/doctor` cannot run (`engines` enforced) |
+| `npm` or `pnpm` | CLI | No install/update path; the CLI probes both to detect how it was installed |
+| Git | Methodology | Commits per task, worktree concurrency, HALT rollback, the tasks.md evidence gate, and `/akili-archive` all assume a git repo — the methodology is not designed for untracked folders |
+| A host tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and/or Grok Bot | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
+
+**Recommended (degrades gracefully):**
+
+| Dependency | Used by | Without it |
+|---|---|---|
+| [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) (`npm i -g @colbymchenry/codegraph`, then `codegraph init -i` per project) | `/akili-constitution` discovery scans, `/akili-audit` drift detection, `/akili-execute`/`/akili-test` worker briefs | Commands fall back to `Glob`/`Grep`; reports flag the lower-confidence scan explicitly |
+| GitHub CLI (`gh`) | PR strategy in `/akili-execute` delivery, external-PR review flows | Manual PR creation/review in the browser |
+
+**Conditional (only for specific features):**
+
+| Dependency | Feature | Notes |
+|---|---|---|
+| Python 3 + `google-auth` + `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | Plus a Google service-account key; the rest of `/akili-seo` runs without Python (setup steps below) |
+| Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present. Codex's own Windows git-bash dependency is unconfirmed — name it explicitly for Windows Codex users |
+| Archify skill (`npx skills add tt-a1i/archify`) | Interactive HTML views of diagram slots (optional) | Your own install; without it, diagrams stay Mermaid (see [Diagram Design](skills/diagram-design.md)) |
+| Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command still runs without them, except that a spec whose `Deliverable` selects one (`Deliverable: video` and `hyperframes`, through `video-production`) stops at that skill's availability gate (see `docs/skills/governance.md`) |
+
+`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every pull request and on every push to `dev` and `master`.
+
+```bash
+npm install -g @colbymchenry/codegraph
+# then, inside each project you want indexed:
+codegraph init -i
+```
+
+`akili doctor` checks for the CLI and reports it under *Environment* without failing the health check.
+
+### `/akili-seo` Setup
+
+Dependencies bundled with this repo: `scripts/gsc_verify.py` (Site Verification API helper, because the `gsc` MCP only wraps Search Console, not Site Verification) and `.mcp.json.example` (reference MCP server entry for `@mikusnuz/gsc-mcp`).
+
+Setup once per environment:
+
+1. Enable **Site Verification API** and **Search Console API** in your Google Cloud project.
+2. Create a service account, download its JSON key, store outside the repo.
+3. Install Python deps: `pip install google-auth google-api-python-client`.
+4. Copy the `gsc` block from `.mcp.json.example` into your global `~/.claude.json` (or a project `.mcp.json`) and set `GSC_SERVICE_ACCOUNT_KEY_PATH` to the absolute path of the key.
+
 ## Install
 
 ### Interactive Mode (Recommended)
@@ -18,7 +68,7 @@ Ctrl-C at either question exits with code 130; nothing is installed.
 With no input (stdin at end-of-input), `init` also exits 130; nothing is installed.
 
 The tool prompt lists `1) Claude Code`, `2) OpenCode`, `3) Google Antigravity`, `4) OpenAI Codex CLI`,
-`5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five` (the five desktop tools; `init` does not offer Grok Bot — run `akili install --tool grokbot` on the box, see [Grok Bot](#grok-bot-grokbot)). Inputs `5` and `6` changed
+`5) Cursor`, `6) Both (Claude Code + OpenCode)`, and `7) All five` (the five desktop tools; `init` does not offer Grok Bot — run `akili install --tool grokbot` on the box, see [Grok Bot](#grok-bot---tool-grokbot)). Inputs `5` and `6` changed
 meaning from v2.31.0 — `5` used to mean Both and `6` used to mean All four; Both is now `6` and
 All (now five hosts) is `7`. Choosing local for Codex maps to `./.agents/skills` (commands and
 skills) plus `./.codex/akili` (resources); choosing local for Cursor maps to `./.agents/skills`
@@ -45,7 +95,7 @@ non-empty `akili` resources directory under `$CODEX_HOME` (default `~/.codex`) /
 (default `~/.cursor`), or, for Codex only, an `akili-<cmd>/SKILL.md` command skill under
 `~/.agents/skills`) and act on all of them — so a bare `akili update` refreshes every installed
 tool, not just Claude. Grok Bot is detected by a non-empty `akili` resources directory at its
-resolved resources root only (see [Grok Bot](#grok-bot-grokbot)); a workflows folder alone never counts. A populated `~/.agents/skills` alone is **not** evidence of either a Codex or
+resolved resources root only (see [Grok Bot](#grok-bot---tool-grokbot)); a workflows folder alone never counts. A populated `~/.agents/skills` alone is **not** evidence of either a Codex or
 a Cursor install: that root is shared with other tools honoring the Agent Skills standard, so the
 two tenants are evidenced by two different signals that together keep detection symmetric overall
 — neither tool misreads the other's install (design DD-2). **Cursor detects by its own resources root
@@ -67,12 +117,84 @@ npm install -g akili-specs
 akili install --tool all
 ```
 
-pnpm works everywhere npm does: `pnpm dlx akili-specs …` for one-off runs, `pnpm add -g akili-specs` for a global install (after a one-time `pnpm setup`).
+pnpm works everywhere npm does: `pnpm dlx akili-specs …` for one-off runs (the package lives on the npm registry, which pnpm consumes directly — no extra setup), `pnpm add -g akili-specs` for a global install (after a one-time `pnpm setup` so `PNPM_HOME` is on your `PATH`).
 
 To install directly into the local project workspace instead of globally, use the `--local` flag:
 
 ```bash
 akili install --tool both --local
+```
+
+### Confirm Commands Are Available
+
+In your tool of choice, confirm AKILI commands are available (as slash commands, workflows, or — on Codex — skills invoked with `$`, e.g. `$akili-constitution`; on Cursor, skills invoked with `/`, e.g. `/akili-constitution` — `Last verified: 2026-10-01`, <https://cursor.com/docs/context/skills>: "Skills can also be manually invoked by typing / in Agent chat"):
+
+```text
+/akili-constitution
+/akili-propose
+/akili-specify
+/akili-execute
+/akili-test
+/akili-validate
+/akili-archive
+/akili-seo
+```
+
+Then start a project with:
+
+```text
+/akili-constitution
+```
+
+Or, if the project already has a strong baseline:
+
+```text
+/akili-propose add-my-feature
+```
+
+### Local Checkout Install
+
+If you are installing from this repository before publishing to npm, run:
+
+```bash
+node bin/akili.js install
+node bin/akili.js install --tool opencode
+node bin/akili.js install --tool both
+```
+
+Verify local checkout install:
+
+```bash
+node bin/akili.js doctor --tool both
+```
+
+### Manual Install
+
+This is the copy-files route, distinct from the `npx` flag install in [Manual Installation](#manual-installation). If you do not want to use the CLI, copy the repository `.claude/commands` and `.claude/skills` folders into your tool configuration location.
+
+Typical global install target:
+
+- `~/.claude/commands/`
+- `~/.claude/skills/`
+
+Typical OpenCode global install target:
+
+- `~/.config/opencode/commands/`
+- `~/.config/opencode/skills/`
+
+Example:
+
+```bash
+cp -R .claude/commands/* ~/.claude/commands/
+cp -R .claude/skills/* ~/.claude/skills/
+```
+
+Manual OpenCode example:
+
+```bash
+mkdir -p ~/.config/opencode/commands ~/.config/opencode/skills
+cp -R .claude/commands/* ~/.config/opencode/commands/
+cp -R .claude/skills/* ~/.config/opencode/skills/
 ```
 
 ## Commands
@@ -107,7 +229,7 @@ Every command closes with a clear end-of-run summary:
 | `--tool codex` | install, update, doctor | Target OpenAI Codex CLI config |
 | `--tool cursor` | install, update, doctor | Target Cursor config |
 | `--tool both` | install, update, doctor | Target Claude and OpenCode |
-| `--tool grokbot` | install, update, doctor | Target Grok Bot (run on the box; see [Grok Bot](#grok-bot-grokbot)) |
+| `--tool grokbot` | install, update, doctor | Target Grok Bot (run on the box; see [Grok Bot](#grok-bot---tool-grokbot)) |
 | `--tool all` | install, update, doctor | Target Claude, OpenCode, Antigravity, Codex, and Cursor — the five desktop tools; **never** Grok Bot |
 | `--target <path>` | single-tool install/update/doctor | Override the selected tool target directory. For `--tool codex` or `--tool cursor` this selects a **single-root sandbox layout** — resources at `<path>/akili` and skills at `<path>/skills`, both under the one path — instead of the split default (`~/.codex/akili` + `~/.agents/skills`, or `~/.cursor/akili` + `~/.agents/skills`). For `--tool grokbot` it selects `<path>/workflows` (commands and skills) and `<path>/akili` (resources). **Unverified:** whether Codex still reads `~/.codex/skills` as a legacy root (so `--target ~/.codex` would also produce a working legacy-style install) — the pinned skills page (`Last verified: 2026-09-16`, <https://learn.chatgpt.com/docs/build-skills>) documents only the `~/.agents/skills` Agent Skills root and does not state a legacy `~/.codex/skills` location; confirmed or retracted by the Codex install spec's live-validation task |
 | `--claude-target <path>` | multiple tools | Override Claude target directory |
@@ -143,6 +265,17 @@ Every command closes with a clear end-of-run summary:
 
 ## Install Targets
 
+| Target | Use When |
+|---|---|
+| Claude | You use Claude Code slash commands and Claude skills |
+| OpenCode | You use OpenCode commands and skills |
+| Antigravity | You use Google Antigravity global workflows and skills |
+| Codex | You use OpenAI Codex CLI and its Agent Skills |
+| Cursor | You use Cursor (IDE agent) and its Agent Skills |
+| Both | You switch between Claude Code and OpenCode |
+| Grok Bot | You run the AKILI CLI on the Grok Bot box (see [Grok Bot](#grok-bot---tool-grokbot)) |
+| All | You use Claude, OpenCode, Google Antigravity, Codex, and Cursor — the five desktop-tool paths, **not** Grok Bot, which you select explicitly with `--tool grokbot` |
+
 Default targets:
 
 ```text
@@ -173,6 +306,8 @@ OpenCode install layout:
 ~/.config/opencode/akili/templates/
 ~/.config/opencode/akili/.mcp.json.example
 ```
+
+OpenCode loads global command markdown files from `~/.config/opencode/commands/` and skills from `~/.config/opencode/skills/`. Restart OpenCode after install or update so it loads the new files.
 
 Antigravity install layout:
 
@@ -330,6 +465,26 @@ Install both tools into custom directories:
 akili install --tool both --claude-target ./.claude --opencode-target ./.opencode
 ```
 
+Update Claude:
+
+```bash
+npx akili-specs update --tool claude --force
+```
+
+Update OpenCode:
+
+```bash
+npx akili-specs update --tool opencode --force
+```
+
+Update both:
+
+```bash
+npx akili-specs update --tool both --force
+```
+
+Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped.
+
 Update Antigravity skills only:
 
 ```bash
@@ -341,6 +496,8 @@ Check all installs:
 ```bash
 akili doctor --tool all
 ```
+
+Expected result: every command, skill, and helper resource shows `OK`.
 
 ## Packaged Resources
 

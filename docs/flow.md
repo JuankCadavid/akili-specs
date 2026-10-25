@@ -6,6 +6,26 @@ The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a
 
 ![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
 
+## Start Here
+
+Use this flow for normal feature work:
+
+1. `/akili-constitution` - create or strengthen the project baseline.
+2. `/akili-propose <change-name-or-spec-path>` - capture intent, scope, and reviewable direction.
+3. `/akili-specify <spec-path>` - define one feature, module, bugfix, or enhancement.
+4. `/akili-execute <spec-path>` - implement the next approved task.
+5. `/akili-test <spec-path>` - prove the behavior with tests and traceability.
+6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
+7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
+
+Six anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security` and `/akili-marketing`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
+
+Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
+
+**Brand-new project? Don't re-propose the seed prompt.** After the seed drives `/akili-constitution`, the PRD *is* that intent — already reviewed. The next step is `/akili-propose <first-milestone>`, which reads the PRD and decomposes the v1 scope into bounded, ordered chunks (or `/akili-specify` directly when v1 is one bounded piece). See [Day 1 on a Brand-New Project](#day-1-on-a-brand-new-project-from-seed-prompt-to-first-spec).
+
+Use `/akili-propose` when the change needs review before full specification. For very small, obvious work, you may start directly with `/akili-specify <spec-path>`.
+
 ## Philosophy
 
 ```text
@@ -15,6 +35,21 @@ The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a
 → small verified tasks over broad rewrites
 → evidence before archive
 ```
+
+## Core Concepts
+
+| Concept | Meaning |
+|---|---|
+| Constitution | Project-wide context that should not be rediscovered every session |
+| Proposal | A lightweight review document for intent, scope, options, and risks |
+| Spec path | A folder under `docs/specs/` for one bounded piece of work |
+| Requirement | A testable statement of expected behavior |
+| Scenario | A concrete Given/When/Then example that proves a requirement |
+| Design | The technical and UX approach for satisfying requirements |
+| Task | A small executable unit linked to requirements and design sections |
+| Report | Evidence that the implementation was tested and validated |
+| Archive | Completed AKILI-SPECS history moved under `docs/specs/archive/` |
+| Kaizen | The continuous-improvement loop that turns each spec's evidence into lessons and standards |
 
 ## Day 1 on a Brand-New Project (from seed prompt to first spec)
 
@@ -133,10 +168,12 @@ The regression test is the non-negotiable evidence that the bug is actually fixe
 | Mode | Meaning | Constitution Behavior | `.agents/` Behavior |
 |---|---|---|---|
 | Brand-new (Seed Setup) | Little or no application code, no AKILI-SPECS docs, starting from scratch | Draft baseline from user intent, chosen stack, assumptions, and open questions | Copy default Leader / Implementer / Reviewer personas verbatim |
-| Legacy (Discovery Setup) | Real code, package manifests, routes, tests exist; AKILI-SPECS baseline missing or skeletal | Inspect repository reality (CodeGraph preferred) before drafting; synthesize baseline from evidence | Copy defaults then customize with detected stack, design tokens, lint and test commands |
-| Active AKILI-SPECS (Safe Update) | AKILI-SPECS baseline and possibly customized `.agents/` already in place | Upgrade weak sections, fill missing files, preserve custom rules | Replace each owned section per its drift state (`akili doctor --agents --fix`, see [CLI Reference](cli.md)); never append, and the project block is never touched |
+| Legacy (Discovery Setup) | Real code, package manifests, routes, tests exist; AKILI-SPECS baseline missing or skeletal | Inspect repository reality — code, docs, architecture, tests, package manifests, and routes (CodeGraph preferred) — before drafting baseline docs; synthesize baseline from evidence | Copy defaults then customize with detected stack, design tokens, lint and test commands |
+| Active AKILI-SPECS (Safe Update) | AKILI-SPECS baseline and possibly customized `.agents/` already in place | Upgrade weak sections, fill missing files, preserve custom rules | Replace each owned section per its drift state (`akili doctor --agents --fix`, see [CLI Reference](cli.md)); never append, and custom-edited sections and the project block are never touched |
 
-For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph/` exists. If CodeGraph is missing but the CLI is available, the agent should ask before running `codegraph init -i`. If CodeGraph is unavailable or declined, normal file and content searches are used.
+For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, Google Antigravity, Codex, and Cursor receive the same project guidance.
+
+For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph/` exists: agents should use it for semantic code exploration, symbol lookup, callers/callees, and impact checks. If CodeGraph is missing but the CLI is available, the agent should ask before running `codegraph init -i`. If CodeGraph is unavailable or declined, normal file and content searches are used. If the `codegraph` CLI itself is not installed, the agent says so once — with the install command (`npm install -g @colbymchenry/codegraph`) — and continues. Either way the methodology proceeds with normal `Glob`, `Grep`, and file reads at the **same scan scope**: a missing graph lowers the confidence the reports record, it never shrinks the analysis.
 
 ## Artifacts
 
@@ -176,6 +213,23 @@ AKILI keeps humans in control at each important transition.
 | Validation | No unresolved FAIL findings remain |
 | Archive | Warnings and follow-ups are accepted; Kaizen lessons are recorded and standardizations approved or deferred |
 
+## Review Points
+
+Before implementation, review:
+
+- whether the problem and scope are clear
+- whether every requirement has at least one scenario
+- whether design decisions explain trade-offs instead of only listing files
+- whether tasks are small enough to execute independently
+- whether every task has verification criteria
+
+Before completion, review:
+
+- whether all intended tasks are complete
+- whether tests cover the key scenarios
+- whether validation found unresolved failures
+- whether the spec should be updated based on implementation discoveries
+
 ## Documentation Depth
 
 Use the lightest documentation that still makes the work clear and verifiable.
@@ -183,35 +237,93 @@ Use the lightest documentation that still makes the work clear and verifiable.
 | Depth | Use For | Capture |
 |---|---|---|
 | Quick (`/akili-quick`) | Genuinely trivial cosmetic/copy changes (button color, title text, small paragraph) | No spec docs — a one-line `quick-log.md` entry + `[SPEC:quick/<name>]` commit; escalates if not trivial |
-| Lite | Small bugfixes, copy updates, narrow UI tweaks | Problem, scenario, focused task, verification command |
+| Lite | Small bugfixes, copy updates, narrow UI tweaks | Problem, affected requirement, scenario, focused task, verification command |
 | Standard | Normal features and enhancements | Requirements, scenarios, design decisions, tasks, tests |
-| Full | Risky, cross-cutting, API, data, auth, migration, or SEO work | Alternatives, rollout, risks, observability, rollback, explicit traceability |
+| Full | Risky, cross-cutting, API, data, auth, migration, or SEO work | Business context, alternatives, data/API contracts, rollout, risks, observability, rollback, explicit traceability |
+| Full plus constitution review | Cross-cutting architecture | Updates to project baseline docs and affected specs |
 
-Lite mode does not skip rigor. Requirements still need scenarios, tasks still need done criteria, and validation still needs evidence. `/akili-quick` is the only path that skips the spec documents — gated to genuinely trivial changes, and it auto-escalates anything larger to `/akili-specify` (Lite) or `/akili-propose`.
+Lite mode does not skip rigor. It keeps the documents short, but every requirement still needs a testable scenario, every task still needs a done criterion, and validation still needs evidence. `/akili-quick` is the only path that skips the spec documents — gated to genuinely trivial changes, and it auto-escalates anything larger to `/akili-specify` (Lite) or `/akili-propose`.
 
 ## Spec Folder Shape
 
+Each feature or change lives in one folder:
+
 ```text
 docs/specs/<spec-path>/
-├── proposal.md
+├── proposal.md           # created by /akili-propose, optional but recommended
 ├── requirements.md
 ├── design.md
 ├── tasks.md
-├── execution.md
-├── test-report.md
-├── validation-report.md
-└── archive-summary.md
+├── execution.md          # created by /akili-execute
+├── test-report.md        # created by /akili-test
+├── validation-report.md  # created by /akili-validate
+└── archive-summary.md    # created by /akili-archive before moving
 ```
+
+Commands accept a relative path under `docs/specs/`, not only a flat module name — for example `loan`, `enhancements/renewals` or `admin/user-management`. Choose paths that describe the domain and intent. When `/akili-propose add-remember-me` receives a bare change name, it defaults to `docs/specs/changes/add-remember-me/`. When it receives a nested path such as `bugfix/login-redirect`, it uses that path directly.
 
 Common spec paths:
 
 ```text
+docs/specs/loan/
 docs/specs/changes/add-remember-me/
 docs/specs/enhancements/renewals/
 docs/specs/admin/user-management/
 docs/specs/bugfix/login-redirect/
 docs/specs/seo/example.com/
 ```
+
+## Requirement Delta Preview
+
+Proposals can include a lightweight delta preview. This makes reviews faster for brownfield work:
+
+```markdown
+## Requirement Delta Preview
+
+### ADDED Requirements
+
+- The system SHALL allow users to opt into extended sessions.
+
+### MODIFIED Requirements
+
+- Session expiration changes from a fixed timeout to configurable timeout policies.
+
+### REMOVED Requirements
+
+- Legacy session persistence behavior is removed after migration.
+```
+
+During `/akili-specify`, these previews become full requirements, scenarios, design decisions, and tasks.
+
+## Writing Good Requirements
+
+Write requirements as behavior contracts, not implementation plans.
+
+Use this shape when possible:
+
+```markdown
+### Requirement: Session Expiration
+
+The system SHALL expire inactive user sessions after the configured timeout.
+
+#### Scenario: Idle timeout
+
+- GIVEN an authenticated user has an active session
+- WHEN the session remains inactive past the configured timeout
+- THEN the system invalidates the session
+- AND the user must authenticate again before accessing protected pages
+- BUT it must NOT invalidate the session if a keep-alive ping was received
+- AND IT MUST log the expiration event in the audit trail
+```
+
+Good requirements are:
+
+- observable by a user, system, API client, or operator
+- measurable enough to test
+- equipped with rigorous negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`) for boundary cases
+- independent from internal class names or library choices
+- linked to at least one implementation task
+- covered by test evidence or an explicit accepted gap
 
 ## Shortcut Paths
 
@@ -220,6 +332,41 @@ For a small, obvious change in a repository with a strong baseline, you may star
 For unclear, risky, cross-functional, or stakeholder-sensitive work, start at `/akili-propose <change-name-or-spec-path>`.
 
 For a new repository, stale documentation, or a major product pivot, start at `/akili-constitution`.
+
+## Practical Example
+
+For a new admin user-management feature:
+
+```text
+/akili-constitution
+/akili-propose admin/user-management
+/akili-specify admin/user-management
+/akili-execute admin/user-management
+/akili-test admin/user-management
+/akili-validate admin/user-management
+/akili-archive admin/user-management
+```
+
+For a small login redirect bugfix in an established repo:
+
+```text
+/akili-specify bugfix/login-redirect
+/akili-execute bugfix/login-redirect
+/akili-test bugfix/login-redirect
+/akili-validate bugfix/login-redirect
+/akili-archive bugfix/login-redirect
+```
+
+For a reviewable named change using the default `changes/` path:
+
+```text
+/akili-propose add-remember-me
+/akili-specify changes/add-remember-me
+/akili-execute changes/add-remember-me
+/akili-test changes/add-remember-me
+/akili-validate changes/add-remember-me
+/akili-archive changes/add-remember-me
+```
 
 ---
 
@@ -380,7 +527,7 @@ One repo can hold all four tenants without collision — no file name is shared:
 | Multiple **independent** suites | One Tester per suite, **in parallel** |
 | Suites sharing files/fixtures | Testers run sequentially |
 
-Each Tester gets only its suite's requirements, scenarios, and test command (never the full spec set), runs a bounded 3-attempt self-correction inner loop, and returns `STATUS: PASS`, `STATUS: FAIL`, or `STATUS: PRODUCT_BUG` — keeping a correct test red on a genuine product defect instead of rewriting it to pass. The Leader aggregates the per-suite coverage slices into the `test-report.md` requirement-to-test matrix. Ideally a Tester runs on a different model than the Implementer that wrote the code (author ≠ tester).
+Each Tester gets only its suite's requirements, scenarios, and test command (never the full spec set), explicitly covers negative constraints and strict validations, runs a bounded 3-attempt self-correction inner loop, and returns `STATUS: PASS`, `STATUS: FAIL`, or `STATUS: PRODUCT_BUG` — keeping a correct test red on a genuine product defect instead of rewriting it to pass. The Leader aggregates the per-suite coverage slices into the `test-report.md` requirement-to-test matrix. Ideally a Tester runs on a different model than the Implementer that wrote the code (author ≠ tester).
 
 ### 7. Capability-Tier Model Routing
 
@@ -424,21 +571,41 @@ registry.
 
 ### 8. The Kaizen Loop
 
-AKILI embeds Kaizen — continuous improvement through small, disciplined steps — as an executable
+Other methodologies execute specs. **AKILI learns from every spec.**
+
+AKILI embeds Kaizen (改善 — *kai* change, *zen* better) — continuous improvement through small, disciplined steps — as an executable
 retrospective inside `/akili-archive`, powered by the packaged `kaizen` skill (authored by
-Juan Carlos Cadavid — jcadavid.com). The loop runs in **two phases with two different homes**, so
+Juan Carlos Cadavid — jcadavid.com, inspired by the Kaizen Institute glossary, Robert Maurer's small-steps method, and INTI's *Emprendiendo Kaizen*). Every `/akili-archive` automatically runs a bounded retrospective — no extra command, no extra ceremony. The loop runs in **two phases with two different homes**, so
 parallel branches never contend for the same file.
+
+```text
+┌─────────┐    ┌─────────┐    ┌──────────────┐    ┌──────────┐
+│ MEASURE │ ─▶ │  LEARN  │ ─▶ │ STANDARDIZE  │ ─▶ │  RECORD  │
+│ rework, │    │ 0–3 root│    │ propose the  │    │ one entry│
+│ pivots, │    │ -cause  │    │ 1–3 line edit│    │ file per │
+│ bugs    │    │ lessons │    │ branch-gated │    │ spec     │
+└─────────┘    └─────────┘    └──────────────┘    └──────────┘
+   every /akili-archive, on any branch · docs/specs/kaizen/<slug>.md
+                              │  pending items
+                              ▼
+                    ┌──────────────────────┐
+                    │      APPLY MODE      │
+                    │ HITL menu · approved │
+                    │ edits · digest       │
+                    └──────────────────────┘
+   apply-capable branch · refreshes ## Active Lessons for the next spec
+```
 
 **Retrospective phase — any branch.** Every archive runs one bounded pass:
 
 * **Measure:** hunt waste (MUDA) in the spec's own evidence — Reviewer rework attempts, pivots,
   PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift (the most recent
   `drift-*.md` report under `docs/specs/audits/`; a `security-*.md` index is not a drift source).
-* **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence. Generic lessons
+* **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons
   are banned; a clean spec records a one-line clean-run entry instead. A root cause that already
   exists becomes a `digest-update` pending item, never a duplicate lesson or a live digest edit.
 * **Standardize:** propose one 1–3 line edit per lesson to constitution guides, `general-setup`
-  templates, design tokens, or `.agents/` personas. The proposals are always presented for review;
+  templates, design tokens, or `.agents/` personas — small steps, never rewrites. The proposals are always presented for review;
   whether they are *written* is gated on the branch — **no shared file is edited from a spec
   branch, or from the default branch while an `Integration Branch:` pin exists, approved or not**,
   and on the apply-capable branch every such edit still requires approval.
@@ -460,7 +627,7 @@ read, and written by this phase alone.
 Lessons target the **Product** (this project), the **Methodology** itself — recorded as a
 `Kind: upstream` pending item on any branch, collected into one upstream report at apply time and
 flipped to `upstreamed` — or both, so the methodology learns from every tool built with it. The
-retrospective never blocks the archive.
+retrospective never blocks the archive. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
 
 ### 9. Skill Binding (Governance)
 
@@ -498,3 +665,28 @@ Baseline and design documents carry named diagram slots. The packaged `diagram-d
 * `/akili-constitution` Steps 3-5 fill the PRD, UX/UI and TRD slots whose condition holds (the TRD's C4 Context and C4 Container are always filled).
 * `/akili-specify` Step 2.1 fills `design.md` slots when the design is architecturally significant.
 * `/akili-archive` Step 2 loads the skill only when the spec has a `diagrams/` folder or slot, to link the spec's views and list baseline slots the design made stale as follow-ups; it fills none.
+
+## Methodology Contract
+
+- **User-Facing Summaries:** All major commands (`/akili-propose`, `/akili-specify`, `/akili-execute`, `/akili-validate`, `/akili-test`, `/akili-constitution`) generate a short, digestible summary on the screen before proceeding to the next step, ensuring developers always understand what the agent just did.
+- `/akili-constitution` establishes the project baseline docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, `docs/infrastructure.md`) and `docs/specs/general-setup/` templates, and scaffolds the project `.agents/` harness (Leader, Implementer, Reviewer, Tester).
+- `/akili-propose` creates a lightweight proposal before full specification. Evaluates massive instructions for **Scope Chunking** to split work into manageable modules. Integrates with **Figma MCP** and **Jira MCP** to extract visual context, requirements, and user stories.
+- `/akili-specify` must follow those templates when generating module specs. Enforces **Human-in-the-loop (HITL)** approval pauses after Requirements, Design, and Tasks. Promotes rigorous BDD scenarios (`BUT it must NOT`, `AND IT MUST`), allows blind adversarial design reviews via the `judgment-day` skill, outputs a final **Lines of Code (LOC) estimate** to recommend a safe Pull Request strategy, and explicitly injects **Design Impact** rules (from Figma contexts) into UI tasks and components.
+- `/akili-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
+- `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
+- `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
+- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
+- `/akili-security` operates outside the main spec lifecycle: it audits the repository with the `security-audit` skill, the only tracked repository content it writes is a redacted index under `docs/specs/audits/`, and hands confirmed findings to the Bug Track through `/akili-propose`. It never modifies target source or commits.
+- `/akili-marketing` operates outside the main spec lifecycle: it drafts social marketing for LinkedIn, Instagram and Facebook as Markdown under `docs/marketing/` with the packaged `social-marketing` skill, and never publishes. See [the command page](commands/akili-marketing.md).
+- `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
+
+**Provenance** (how this repository was first populated; not methodology rules):
+
+- Commands were sourced from the current global Claude command setup.
+- Skills were copied with their bundled references and helper assets.
+
+## Host Assumptions
+
+- The host Claude environment can ask follow-up questions to the user during command execution.
+- The host environment can load local skills referenced by the commands.
+- Repository-specific build, lint, and test commands should be preferred over hardcoded stack assumptions.

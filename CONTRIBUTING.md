@@ -13,6 +13,20 @@ Thank you for your interest in improving AKILI-SPECS. This project packages a sp
 
 Despite the name, `.claude/` is **not Claude-only configuration** — it is the canonical source for all six install targets (Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot). The installer (`bin/akili.js`) maps its `commands/`, `skills/`, and `templates/` into each tool's own config layout. It must live at that literal path because this repository dogfoods its own methodology: Claude Code sessions working on this repo load the `/akili-*` commands and skills directly from it. So when your change should reach OpenCode, Antigravity, Codex, Cursor, or Grok Bot users, you still edit `.claude/` — there is no per-tool copy to keep in sync. See `.claude/README.md` for the full mapping.
 
+## Repository Structure
+
+> **Note for contributors:** `.claude/` is the canonical source for **all six install targets** (Claude Code, OpenCode, Antigravity, Codex, Cursor, Grok Bot) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
+
+- `.claude/commands/` — custom AKILI-SPECS command prompts
+- `.claude/skills/` — required and preferred skills used by the methodology
+- `.claude/templates/` — default Leader, Implementer, Reviewer, and Tester personas used by the multi-agent harness (deployed into project `.agents/`)
+- `docs/` — human-facing documentation for the flow, CLI, commands, skills, and release process
+- `scripts/` — helper scripts referenced by commands (e.g. `gsc_verify.py`)
+- `.mcp.json.example` — reference MCP server configuration (e.g. `gsc`)
+- `dotfiles/` — environment snapshots for Neovim and tmux (see [dotfiles/README.md](dotfiles/README.md))
+
+This repository stores the current methodology baseline so it can be reused or versioned independently.
+
 ## What Contributions Look Like
 
 | Area | Examples | Notes |
@@ -59,6 +73,16 @@ Changes flow `feat/<name>` / `fix/<name>` → `dev` → `master`. Nothing is com
 | Stable prep | `release/vX.Y.Z` from `dev` runs `npm run release:*`; its release commit lands via PR into `dev`, then a PR `dev` → `master` merges with a merge commit |
 | Stable ship | On an up-to-date `master`: tag and push the tag, `npm publish`, verify `npm view akili-specs dist-tags`, then the GitHub Release |
 | Resync | `sync/master-into-dev` merges `origin/master` into `dev` through a PR, with a merge commit |
+
+Use semantic versioning:
+
+| Bump | Use For | Example |
+|---|---|---|
+| Patch | Documentation fixes, small command clarifications, installer fixes | `0.2.0` to `0.2.1` |
+| Minor | New commands, new install targets, meaningful workflow additions | `0.2.0` to `0.3.0` |
+| Major | Breaking command behavior or package install changes | `0.2.0` to `1.0.0` |
+
+Commit repository changes separately from release version changes.
 
 Try the prerelease channel with `npm i akili-specs@next`. To leave it, run `npm i akili-specs@latest` (or `akili update`, which installs `@latest`); the update banner compares against `latest` only.
 
