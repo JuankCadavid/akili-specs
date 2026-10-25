@@ -138,3 +138,7 @@
 **ADVISORY (final verdicts).** Budget now sits exactly at the 15-task tripwire — any further split or added task escalates. `tasks.md` §3 Clause Ownership row (FR-1 standalone line → T4, T5) does not name T3b's provisional copy. The `--fail-on` qualifier reads as covering every script; "on findings" would remove the ambiguity.
 
 **Final verification.** See the PR-1 green run below.
+
+## PR 1 green run (T1–T3b), 2026-10-25
+
+At `619180e`, tree clean: `npm test` → Node 22.12.0 `# tests 1012 · pass 1012 · fail 0`; Node 18.20.8 `# tests 1012 · pass 1012 · fail 0`. `npm run verify:cli` → `Summary: 13 commands | 29 skills | 8 resources (akili-specs v2.36.1)`. `git diff --check HEAD~5` clean. PR 1 = `53ebe65`, `235ebd8`, `81aa9a2`, `fd23ed8`, `619180e` (+ this record). Stop before T4 (user instruction); push and PR are the user's step.
