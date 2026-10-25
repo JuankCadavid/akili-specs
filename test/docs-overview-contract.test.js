@@ -365,11 +365,15 @@ test("FR-17 governance item 5 and diagram-design.md name docs/overview.md", () =
   assert.ok(!/root `README\.md`/.test(d), "docs/skills/diagram-design.md FR-17: still points at the root README.md");
 });
 
-test("FR-17 CHANGELOG Unreleased has a Changed entry naming docs/overview.md and no placeholder", () => {
-  const s = mustSection("CHANGELOG.md", read("CHANGELOG.md"), "## [Unreleased]");
+test("FR-17 CHANGELOG Unreleased (or the 2.36.1 section it was released into) has a Changed entry naming docs/overview.md and no placeholder", () => {
+  // Stays true after the release script moves [Unreleased] into a dated section.
+  const log = read("CHANGELOG.md");
+  const released = log.split("\n").find((l) => /^## \[2\.36\.1\] - \d{4}-\d{2}-\d{2}$/.test(l));
+  const heading = released || "## [Unreleased]";
+  const s = mustSection("CHANGELOG.md", log, heading);
   const text = s.join("\n");
-  assert.ok(!/No unreleased changes yet\./.test(text), "CHANGELOG.md FR-17: ## [Unreleased] still has the placeholder");
-  const changed = mustSection("CHANGELOG.md", ["## [Unreleased]", ...s].join("\n"), "### Changed");
+  assert.ok(!/No unreleased changes yet\./.test(text), `CHANGELOG.md FR-17: ${heading} still has the placeholder`);
+  const changed = mustSection("CHANGELOG.md", [heading, ...s].join("\n"), "### Changed");
   const bullets = changed.filter((l) => /^\s*-\s+\S/.test(l));
   assert.ok(bullets.length > 0, "CHANGELOG.md FR-17: ### Changed has no entry");
   assert.ok(bullets.some((b) => /docs\/overview\.md/.test(b)), "CHANGELOG.md FR-17: no ### Changed entry names docs/overview.md");
