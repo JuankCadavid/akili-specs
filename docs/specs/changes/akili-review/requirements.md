@@ -379,7 +379,7 @@ The package SHALL ship `docs/ci/akili-review.claude.yml` (runtime `anthropics/cl
 4. **The agent runs on the base.**
    - The workspace checkout is the PR's **base SHA**, so every file a host auto-loads from its working directory (`CLAUDE.md` and its imports, `AGENTS.md`, `.agents/`, `.claude/`, `.akili/review.yml`) is the base copy.
    - Before the agent runs, deterministic steps write to `$RUNNER_TEMP/akili-input/`: the PR diff and metadata (`gh pr diff` / `gh pr view`), the prior-review state (`post-review.cjs check-skip`), the per-file patch files and the manifest (`post-review.cjs prepare`), and `head/`, a materialization of the PR head SHA outside the workspace. The agent reads `head/` only as data.
-5. **Agent tool scope.** Claude: Read, Grep and Glob over the workspace, the input directory and the HOME install, plus the host's sub-agent and skill tools. It has no Bash, no write tool and no network tool, and reads under `/proc` and outside those roots are denied. Codex: a read-only sandbox with no network and `safety-strategy: drop-sudo`. The Codex sandbox can still run read-only shell commands, which the header note states as a residual risk. Neither runtime installs packages or runs target scripts.
+5. **Agent tool scope.** Claude: Read, Grep and Glob over the workspace, the input directory and the HOME install, plus the host's sub-agent and skill tools. It has no Bash, no write tool and no network tool, and reads under `/proc` and `/sys` are denied; other reads are bounded by the absence of any network or posting tool and by the secret redaction `post-review.cjs` applies before rendering. Codex: a read-only sandbox with no network and `safety-strategy: drop-sudo`. The Codex sandbox can still run read-only shell commands, which the header note states as a residual risk. Neither runtime installs packages or runs target scripts.
 6. **Cost controls.** For the `review` job, `concurrency` with `cancel-in-progress`. The `post` job uses its own concurrency group with no cancel, so a post is never interrupted between its review call and its summary update. Each job has `timeout-minutes`. A turn limit is set where the runtime supports one (Claude `--max-turns`); Codex relies on the timeout. `paths-ignore` for docs-only changes is included as an opt-in comment.
 7. **Advisory default.** `--fail-on none`, plus a commented line showing `--fail-on critical` for after a pilot.
 8. **Security note.** A header comment states the residual prompt-injection risk, and recommends "Require approval for all external contributors" for repos that take outside PRs.
@@ -444,7 +444,7 @@ No shipped file may reference `docs/specs/changes/akili-review/` (KZ-changes--ar
 | NFR-3 | The scripts are deterministic and testable offline | `post-review.cjs` calls GitHub only through `gh`, resolved from `PATH`; tests drive it against a fake `gh` that records calls |
 | NFR-4 | Size: command ≤ 230 lines; `SKILL.md` ≤ 250 lines; references ≤ ~600 lines in total | `wc -l`; the command cap is pinned by its text-contract test |
 | NFR-5 | Suite green | `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` |
-| NFR-6 | CI cost stays bounded by configuration, not by the model | The templates carry a timeout, a turn limit and concurrency cancel; tier lens sets are fixed (FR-4) |
+| NFR-6 | CI cost stays bounded by configuration, not by the model | The templates carry a timeout, concurrency cancel, and a turn limit where the runtime supports one; tier lens sets are fixed (FR-4) |
 
 ### Defect classes and their gates
 

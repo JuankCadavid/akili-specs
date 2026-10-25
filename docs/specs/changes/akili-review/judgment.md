@@ -88,3 +88,31 @@
 | R-B5 | Proposal §13 carries the dated amendment |
 | R-B6 | Glossary *Marker*, FR-9 and FR-10 synced with design §5.4/§5.5, including the tag-rebuild row |
 | R-B8 | `post` has its own concurrency group with no cancel; the state is rebuilt from inline tags when the marker is missing |
+
+## Final scoped re-judgment (fix delta `3d4ed05..5e1c063`)
+
+| Judge | Verdict | Items | New findings |
+|---|---|---|---|
+| A | **approve** | All R-items resolved; R-A6 partially (NFR-6 wording) | F-A1 warning: NFR-6 still claims a turn limit for every template. F-A2 suggestion: proposal S6 lists `--max-turns` with no runtime qualifier |
+| B | **approve** | All R-items resolved; R-A5 and R-A6 partially (wording) | F-B1 warning: FR-12 item 5 says reads outside the roots are denied, but the design denies only `/proc` and `/sys`. F-B2 = F-A1. F-B3 suggestion: P-23's "proxy" parenthetical is not in `docs/security.md` @ `bdf19a4` |
+
+Both judges re-ran the new rows P-22 to P-24 and could not refute them; they stay `UNVERIFIED` with T8 owners. Counts reconcile: 24 rows, 10 `UNVERIFIED` (1 High), LOC 4,747 ≈ ~4,750.
+
+**Post-approval cleanup (wording only, no design change, applied in the closing commit):**
+
+- F-A1/F-B2: NFR-6 now says "a turn limit where the runtime supports one".
+- F-B1: FR-12 item 5 now says reads under `/proc` and `/sys` are denied, and other reads are bounded by the absence of network and posting tools and by redaction.
+- F-B3: the P-23 parenthetical now quotes `docs/security.md` @ `bdf19a4`.
+- F-A2: left as is, because the proposal's S6 is superseded by FR-12 (recorded here).
+
+## Terminal receipt
+
+| Field | Value |
+|---|---|
+| Target | `changes/akili-review` design + requirements + proposal |
+| Rounds | 2 fix rounds (round 1 user-approved; round 2 by the "re-judgment fails before round two" gate), 2 scoped re-judgments |
+| Counts | Round 1: 5 confirmed severe, 3 confirmed with contested severity, 4 confirmed info, 4 single-judge severe settled true, 5 single-judge info. Round-1 re-judgment: 2 severe (R-A1; R-A2 = R-B4), 13 warning/suggestion. Final: 0 severe, 3 warning, 2 suggestion (wording) |
+| Contradictions between judges | none |
+| Skill resolution | `judgment-day` (packaged); judges on Sonnet, design author on Opus |
+
+**JUDGMENT: APPROVED ✅**
