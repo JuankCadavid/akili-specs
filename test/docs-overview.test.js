@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 const REPO_ROOT = path.join(__dirname, "..");
-const read = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), "utf8");
+const read = (rel) => fs.readFileSync(path.join(REPO_ROOT, rel), "utf8").replace(/\r\n/g, "\n");
 const exists = (rel) => fs.existsSync(path.join(REPO_ROOT, rel));
 
 // ---------------------------------------------------------------- helpers
