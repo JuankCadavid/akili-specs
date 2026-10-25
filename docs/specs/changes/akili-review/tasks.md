@@ -10,10 +10,10 @@
 | Deliverable | `software` |
 | Approval Mode | `gated` for `/akili-execute` (proposal). This specify run stops at its Phase 3 gate, as the user asked ("Stop at the specify approval gate", 2026-10-25) |
 | Status | **Approved** 2026-10-25 (Phase 3 gate, user: "Approved: tasks as written, 3-PR split into dev as you recommend (T1–T3, T4–T8, T9–T11), and the T12 pilot deferred until Juan Carlos provides a test repo and API keys") |
-| PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step |
+| PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step. **Amended 2026-10-25 (user, PR-1 boundary):** PR 1 also carries **T3b**, which moves the consumer edits forward so `npm test` is green at the PR 1 head (a provisional `pr-review/SKILL.md` plus the count, docs-row and pin edits; T5, T6 and T9a–T9c later adjust these, they do not re-add them) |
 | T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred |
 | Date | 2026-10-25 |
-| Budget (design §11, amended here) | **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**. Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
+| Budget (design §11, amended here) | **15 tasks** with T3b (amended 2026-10-25; the tripwire stays **> 15 tasks**); originally **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**. Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
 | Commit prefix | `[SPEC:changes/akili-review]`. Local commits only: **no push, no PR, no release, no publish** |
 | Verified at | `67652ec`. The baseline readings quoted below were executed on 2026-10-25 |
 | Execute prerequisite | This repo has no deployed `.agents/` (`ls .agents` → `No such file or directory`, as run). `/akili-execute` Step 0 deploys or checks the personas (`akili doctor --agents`) before the first spawn, and treats `outdated`/`unmarked`/`missing` as a stop (KZ-changes--persona-upgrade-1) |
@@ -27,6 +27,7 @@
 T1 (schema + validator)
  ├─→ T2 (post-review: prepare + render/neutralize/redact)
  │     └─→ T3 (post-review: check-skip + post + reconcile)   ─┐
+ │           └─→ T3b (PR-1 consumer alignment: provisional SKILL.md, counts, docs rows; amended 2026-10-25)
  └─→ T4 (references + NOTICE)                                 │
        └─→ T5 (SKILL.md)                                      │
              └─→ T6 (command + install counts/fixture) ←──────┘
@@ -222,6 +223,41 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 | Consumers | none (new files) |
 
 **Done.** P-14 and P-15 settled with URLs. All 10 FR-10 rows have a fixture. Falsifiers (a)–(f) were observed red and reverted. No test reaches the network.
+
+---
+
+### T3b — PR-1 consumer alignment (amendment, 2026-10-25)
+
+| Field | Value |
+|---|---|
+| Status | `[x]` |
+| Size | S (~60: provisional `SKILL.md` ~20, counts/fixture ~15, docs rows ~6, `docs/cli.md` ×4, test pins ~6) |
+| Depends on | T3 |
+| Requirements | FR-1 *Installs on every target* (partly: the skill directory installs and doctor is healthy), FR-14 (lists and counts, the skill's share only) |
+| Design refs | §9.1 rows `test/install-cursor.test.js`, `doctor-codex-baseline.txt`, `docs/skills/README.md:38`, `docs/overview.md`, `docs/cli.md`, `test/akili-marketing-docs.test.js:114-115`, `test/diagram-design.test.js:417`; `docs/skills/governance.md` *Frontmatter Schema* and *Original-authorship variant* |
+| Review | `full`: changes pinned test evidence and adds an installed skill file |
+| Origin | User decision at the PR-1 boundary, 2026-10-25: "move the T6 skill-count edits … into PR 1 so the full npm test is green", then "Provisional SKILL.md (Recommended)" |
+
+**Scope.**
+
+- **Provisional `SKILL.md`.** Write `.claude/skills/pr-review/SKILL.md` with the governance frontmatter (`name: pr-review`, `description`, `license: MIT`, `metadata.author: "Juan Carlos Cadavid — jcadavid.com"`, `metadata.binding: core`, `metadata.version`) and a short body. The body says that only the review scripts and schema ship so far, that `/akili-review` and the method arrive with T4–T6, and the standalone line: the scripts review only, never edit, approve or block, and posting happens only via `post-review.cjs`. T5 replaces the body and completes the frontmatter (`inspired-by`, version `1.0.0`).
+- **Counts and fixture.** Update the `test/install-cursor.test.js` skill-file and skill-directory literals and comments (`:228`, `:239`, `:246-247`, `:341`, `:388`) and any `test/install-grokbot.test.js` literal, recomputed from the tree at this task's HEAD. Regenerate `test/fixtures/doctor-codex-baseline.txt` the way the cursor-install-target spec recorded. The command count stays 13 (the command lands in T6).
+- **Docs rows for the skill.** Add `pr-review` to `docs/overview.md` `## Skills by purpose` (binding `core`) and to `docs/skills/README.md` `## Skill Inventory`, matching neighbouring rows. In `docs/cli.md`, change "28 packaged skills" → "29 packaged skills" at its 4 sites (`:327`, `:339`, `:360`, `:377`) and any other 28-skill total. Update `test/akili-marketing-docs.test.js:111-115` (skill total 29; add `28 packaged` to any stale-total check) and `test/diagram-design.test.js:417` (`/29 packaged skills/`).
+- **Out of scope:** the command, any 13 → 14 command total, `Six` → `Seven`, `docs/flow.md`, governance core list, judgment-day row, `docs/commands/*`, `README.md`. Those stay with T6/T9a–T9c.
+
+**Verification.**
+
+| Field | Value |
+|---|---|
+| Command | `npm test` → `# fail 0` on Node 22 and 18.20.8 (the `update-check` load flake excepted only if it passes alone); `node bin/akili.js doctor --tool all` → exit 0 and no `MISSING`; `grep -c "28 packaged" docs/cli.md` → 0; `find .claude/skills -type f \| wc -l` equals the new install-cursor literal |
+| Red run | Observed at T3's HEAD (`81aa9a2`, as run 2026-10-25): 13 `not ok`, e.g. `expected 236 packaged skill files under .claude/skills; counted 239 instead`, doctor `MISSING pr-review`, `missing inventory row for skill pr-review`, `docs/cli.md:327: "28 packaged skills" found 28, derived 29 skills` |
+| Falsifier | (a) Delete the provisional `SKILL.md` → doctor `MISSING pr-review` and the install tests go red. (b) Revert the install-cursor file-count literal → `expected <n> … counted <m>` goes red. (c) Remove the `docs/skills/README.md` row → docs-overview (c) goes red. (d) Leave one `28 packaged skills` in `docs/cli.md` → docs-overview (d) and the updated pins go red. Each executed, quoted and reverted |
+| Disqualifier | A count recomputed by hand rather than from the tree, or a doctor run in a HOME that already holds an install, is not evidence. A provisional body that claims a capability the scripts do not ship (the command, lenses, CI) overstates the shipped text (KZ-002) |
+| Consumers | `test/install-cursor.test.js`, `test/install-grokbot.test.js`, `test/fixtures/doctor-codex-baseline.txt`, `test/docs-overview.test.js`, `test/docs-overview-contract.test.js`, `test/akili-marketing-docs.test.js`, `test/diagram-design.test.js` |
+
+**Done.** `npm test` is green on both Nodes, doctor is healthy, and nothing out of scope is touched.
+
+**Effect on later tasks.** T5 rewrites the `SKILL.md` body and adds `inspired-by`. T6 recomputes the counts again for the final file set and adds the command (13 → 14). T9a/T9b keep the `pr-review` rows that T3b adds and add the command rows. T9c changes only the command totals and `Six` → `Seven`; the skill total is already 29.
 
 ---
 
