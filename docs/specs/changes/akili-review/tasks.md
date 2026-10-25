@@ -186,7 +186,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~360 script + ~400 tests, fixtures and `fake-gh.js`) |
 | Depends on | T2 |
 | Requirements | FR-3 (skip table, *Re-run on the same head*), FR-7 (block on invalid; fingerprint), FR-9 (upsert, identity allowlist, local "CI owns it", cap + ordering, hunk pre-check + retry, single `COMMENT` review, marker + tags, *Cap*, *Invalid input*), FR-10 (all 10 rows, *Human resolved*), FR-11 (exit table, break glass, *Advisory default*), NFR-3 |

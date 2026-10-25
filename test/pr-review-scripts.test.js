@@ -922,3 +922,636 @@ test("post-review.cjs uses no O_NOFOLLOW and requires only Node core modules", (
     assert.ok(core.has(m[1].replace(/^node:/, "")), `non-core require: ${m[1]}`);
   }
 });
+
+// =====================================================================================
+// T3: check-skip and post, driven against fixtures/pr-review/fake-gh.js through
+// AKILI_GH_BIN. PATH is an empty directory, so a call that ignored AKILI_GH_BIN would fail
+// loudly instead of reaching a real gh; every test reads the fake's call log and asserts
+// request bodies (event, comment lines, marker JSON), never only a call count.
+// Expected values are literals from FR-3/FR-9/FR-10/FR-11 and design 5.4/5.5.
+// =====================================================================================
+
+const REAL = require(path.join(SKILL_DIR, "post-review.cjs"));
+const FAKE_GH = path.join(FIX, "fake-gh.js");
+const REPO = "acme/widgets";
+const PRN = 42;
+const API = `repos/${REPO}`;
+const SHA_OLD = "3".repeat(40);
+const CI_LOGIN = "github-actions[bot]";
+const MARKER_OPEN = "<!-- akili-review:v1";
+
+const mkFinding = (n, over = {}) => ({
+  id: `F-${n}`, lens: "correctness", severity: "warning", suspect: false, confidence: 90, file: "src/a.js",
+  line_start: n, line_end: n, side: "RIGHT", evidence: `+  line${n}();`, why: `WHY-${n}`, fix: null, ...over,
+});
+const mkDoc = (findings, over = {}) => ({
+  schema_version: "1", target: { kind: "pr", pr: PRN, repo: REPO, base_sha: SHA_BASE, head_sha: SHA_HEAD }, tier: "full",
+  host_mode: "parallel", lenses: ["correctness"], top_risks: [], coverage: [], unspecified_changes: [], notes: [], findings, ...over,
+});
+const mkManifest = (files = ["src/a.js"]) => ({
+  target: { kind: "pr", pr: PRN, repo: REPO, base_sha: SHA_BASE, head_sha: SHA_HEAD }, tier: "full", threshold: 80,
+  lenses: ["correctness"], files: files.map((p, i) => ({ path: p, status: "modified", added: 1, removed: 0, patch: `files/000${i + 1}.patch`, chunk: "c1" })),
+  skipped_files: [], recommend_security: [], chunks: [], config_source: "default",
+});
+const patchOf = (lines) => `@@ -1,3 +1,${lines} @@\n${Array.from({ length: lines }, (_, i) => `+x${i}`).join("\n")}`;
+const FILES_A = [{ filename: "src/a.js", patch: patchOf(40) }];
+const fpOf = (f) => REAL.fingerprint(f);
+const markerLine = (head, run, entries) => `${MARKER_OPEN} ${JSON.stringify({ head, run, findings: entries })} -->`;
+const comment = (id, body, login = CI_LOGIN) => ({ id, user: { login }, body });
+const tagBody = (fp, sev) => `rendered text\n\n<!-- akili-review:fp=${fp} sev=${sev} -->`;
+const thread = (id, fp, sev, { resolved = false, by = null, author = "github-actions" } = {}) => ({
+  id, isResolved: resolved, isOutdated: false, resolvedBy: by ? { login: by } : null,
+  comments: { nodes: [{ author: { login: author }, body: tagBody(fp, sev) }] },
+});
+
+function routesOf(over = {}) {
+  const info = { state: "open", draft: false, merged: false, user: { login: "alice" }, labels: (over.labels || []).map((name) => ({ name })), head: { sha: SHA_HEAD }, ...(over.pr || {}) };
+  const prRoute = over.prFail ? { status: 500, body: { message: "boom" } } : { body: info };
+  const config = over.config === undefined || over.config === null
+    ? { status: 404, body: { message: "Not Found" } }
+    : { body: { type: "file", encoding: "base64", content: Buffer.from(over.config).toString("base64") } };
+  return [
+    { method: "GET", path: `${API}/pulls/${PRN}`, ...prRoute },
+    { method: "GET", path: `${API}/contents/.akili/review.yml`, ...config },
+    { method: "GET", path: `${API}/issues/${PRN}/comments`, body: over.comments || [] },
+    { method: "POST", path: "graphql", contains: "reviewThreads", body: { data: { repository: { pullRequest: { reviewThreads: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: over.threads || [] } } } } } },
+    { method: "POST", path: "graphql", contains: "resolveReviewThread", ...(over.resolve || { body: { data: { resolveReviewThread: { thread: { id: "T", isResolved: true } } } } }) },
+    { method: "GET", path: `${API}/pulls/${PRN}/files`, body: over.files || FILES_A },
+    { method: "POST", path: `${API}/pulls/${PRN}/reviews`, ...(over.review || { body: { id: 1 } }) },
+    { method: "POST", path: `${API}/issues/${PRN}/comments`, ...(over.summary || { body: { id: 99 } }) },
+    { method: "PATCH", path: `${API}/issues/comments/7`, body: { id: 7 } },
+    { method: "GET", path: "user", body: { login: over.viewer || "alice" } },
+  ];
+}
+
+function ghRun(t, argsOf, over = {}, extraEnv = {}) {
+  const dir = tmpDir(t);
+  const empty = path.join(dir, "nobin");
+  fs.mkdirSync(empty);
+  fs.writeFileSync(path.join(dir, "routes.json"), JSON.stringify({ routes: routesOf(over) }));
+  const env = { ...process.env, PATH: empty, AKILI_GH_BIN: FAKE_GH, FAKE_GH_LOG: path.join(dir, "calls.jsonl"), FAKE_GH_ROUTES: path.join(dir, "routes.json"), FAKE_GH_STATE: path.join(dir, "state.json"), ...extraEnv };
+  const r = post(argsOf(dir), { env });
+  const log = path.join(dir, "calls.jsonl");
+  const calls = fs.existsSync(log) ? fs.readFileSync(log, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)) : [];
+  for (const c of calls) assert.ok(!c.unexpected, `the fake saw an unexpected call: ${JSON.stringify(c)}`);
+  return { r, calls, dir };
+}
+
+function postRun(t, doc, { manifest = mkManifest(), args = [], over = {}, extraEnv = {} } = {}) {
+  return ghRun(t, (dir) => {
+    fs.writeFileSync(path.join(dir, "findings.json"), JSON.stringify(doc));
+    fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify(manifest));
+    return ["post", path.join(dir, "findings.json"), "--manifest", path.join(dir, "manifest.json"), "--repo", REPO, "--pr", String(PRN), "--base", SHA_BASE, "--head", SHA_HEAD, ...args];
+  }, over, extraEnv);
+}
+
+function skipRun(t, over = {}, args = [], configText = null) {
+  return ghRun(t, (dir) => {
+    const a = ["check-skip", "--repo", REPO, "--pr", String(PRN), "--head", SHA_HEAD, "--out", path.join(dir, "out"), ...args];
+    if (configText !== null) { fs.writeFileSync(path.join(dir, "review.yml"), configText); a.push("--config", path.join(dir, "review.yml")); }
+    return a;
+  }, over);
+}
+
+const isQuery = (c) => c.path === "graphql" && c.body && /^query/.test(c.body.query);
+const writesOf = (calls) => calls.filter((c) => c.method !== "GET" && !isQuery(c));
+const reviewsOf = (calls) => calls.filter((c) => c.method === "POST" && c.path === `${API}/pulls/${PRN}/reviews`);
+const summaryWritesOf = (calls) => calls.filter((c) => c.path === `${API}/issues/${PRN}/comments` && c.method === "POST" || c.method === "PATCH");
+const resolvesOf = (calls) => calls.filter((c) => c.path === "graphql" && c.body && /resolveReviewThread/.test(c.body.query));
+const tagsOf = (body) => [...body.matchAll(/<!-- akili-review:fp=([0-9a-f]{16}) sev=(critical|warning) -->/g)].map((m) => ({ fp: m[1], sev: m[2] }));
+const markerOf = (body) => {
+  const all = [...body.matchAll(/<!-- akili-review:v1 (\{.*\}) -->/g)];
+  assert.equal(all.length, 1, "exactly one marker in the summary");
+  return JSON.parse(all[0][1]);
+};
+const summaryBody = (calls) => { const w = summaryWritesOf(calls); assert.equal(w.length, 1, "exactly one summary write"); return w[0].body.body; };
+
+// --- fingerprint (design 5.2) ---------------------------------------------------------
+
+test("fingerprint: the first 16 hex of sha256(lens|file|normalized first evidence line), literal from an external sha256", () => {
+  // printf '%s' 'correctness|src/auth/session.js|if (token == null) return true;' | shasum -a 256
+  const f = { ...readJson(fixture("valid-review.json")).findings[0] };
+  assert.equal(REAL.fingerprint(f), "147540294f623014");
+  assert.equal(REAL.fingerprint({ ...f, line_start: 99, line_end: 99, why: "reworded", confidence: 70, evidence: "-   if   (token == null) return true;\nsecond line" }), "147540294f623014");
+  assert.notEqual(REAL.fingerprint({ ...f, lens: "tests" }), "147540294f623014");
+  assert.notEqual(REAL.fingerprint({ ...f, file: "src/auth/other.js" }), "147540294f623014");
+});
+
+// --- check-skip (FR-3) ----------------------------------------------------------------
+
+const SKIP_CASES = [
+  ["a draft PR", { pr: { draft: true } }, /draft/],
+  ["a closed PR", { pr: { state: "closed" } }, /closed/],
+  ["a merged PR", { pr: { state: "closed", merged: true } }, /merged/],
+  ["a dependabot[bot] author", { pr: { user: { login: "dependabot[bot]" } } }, /bot/],
+  ["a renovate[bot] author", { pr: { user: { login: "renovate[bot]" } } }, /bot/],
+  ["any other [bot] author", { pr: { user: { login: "some-app[bot]" } } }, /bot/],
+  ["the label akili-review:skip", { labels: ["akili-review:skip"] }, /akili-review:skip/],
+  ["a trusted marker on the current head", { comments: [comment(7, `body\n${markerLine(SHA_HEAD, 1, [])}`)] }, /already records this head/],
+];
+
+for (const [name, over, reason] of SKIP_CASES) {
+  test(`check-skip: skips ${name}, writes skipped.json, and writes nothing to the PR`, (t) => {
+    const { r, calls, dir } = skipRun(t, over);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /^skip=true reason=/);
+    assert.match(r.stdout, reason);
+    assert.match(readJson(path.join(dir, "out", "skipped.json")).reason, reason);
+    assert.deepEqual(writesOf(calls), []);
+    assert.ok(calls.length >= 1, "the fake recorded the reads");
+  });
+}
+
+test("scenario Re-run on the same head: skip=true from the CI bot's marker, and it must NOT post or edit any comment", (t) => {
+  const { r, calls } = skipRun(t, { comments: [comment(7, `summary\n${markerLine(SHA_HEAD, 3, [{ fp: "a".repeat(16), sev: "warning", inline: true }])}`)] });
+  assert.equal(r.stdout.trim(), "skip=true reason=a trusted summary already records this head");
+  assert.deepEqual(writesOf(calls).map((c) => `${c.method} ${c.path}`), []);
+});
+
+test("check-skip: a new head is reviewed, and prior.json carries the trusted marker's entries and the tagged threads", (t) => {
+  const fp = "b".repeat(16);
+  const { r, dir } = skipRun(t, { comments: [comment(7, markerLine(SHA_OLD, 2, [{ fp, sev: "warning", inline: true }]))], threads: [thread("T1", fp, "warning", { resolved: true, by: "maintainer" })] });
+  assert.equal(r.stdout.trim(), "skip=false reason=none");
+  const prior = readJson(path.join(dir, "out", "prior.json"));
+  assert.equal(prior.marker_state, "trusted");
+  assert.equal(prior.head, SHA_OLD);
+  assert.equal(prior.run, 2);
+  assert.deepEqual(prior.findings, [{ fp, sev: "warning", inline: true }]);
+  assert.deepEqual(prior.threads, [{ fp, sev: "warning", resolved: true, resolved_by: "maintainer" }]);
+  assert.equal(fs.existsSync(path.join(dir, "out", "skipped.json")), false);
+});
+
+test("check-skip: a forged marker from a non-allowlisted author is not trusted (falsifier c)", (t) => {
+  const { r, dir } = skipRun(t, { comments: [comment(8, markerLine(SHA_HEAD, 1, []), "mallory")] });
+  assert.equal(r.stdout.trim(), "skip=false reason=none");
+  assert.equal(readJson(path.join(dir, "out", "prior.json")).marker_state, "none");
+});
+
+test("check-skip: trusted_posters from the config extends the allowlist; the login is compared without [bot]", (t) => {
+  const forged = [comment(8, markerLine(SHA_HEAD, 1, []), "maintainer")];
+  assert.match(skipRun(t, { comments: forged }).r.stdout, /skip=false/);
+  assert.match(skipRun(t, { comments: forged }, [], "trusted_posters: [maintainer]\n").r.stdout, /skip=true/);
+  assert.match(skipRun(t, { comments: [comment(8, markerLine(SHA_HEAD, 1, []), "github-actions")] }).r.stdout, /skip=true/);
+});
+
+test("check-skip: --force overrides a bot author and a recorded head, never a draft or the skip label", (t) => {
+  assert.match(skipRun(t, { pr: { user: { login: "dependabot[bot]" } } }, ["--force"]).r.stdout, /skip=false/);
+  assert.match(skipRun(t, { comments: [comment(7, markerLine(SHA_HEAD, 1, []))] }, ["--force"]).r.stdout, /skip=false/);
+  assert.match(skipRun(t, { pr: { draft: true } }, ["--force"]).r.stdout, /skip=true/);
+  assert.match(skipRun(t, { labels: ["akili-review:skip"] }, ["--force"]).r.stdout, /skip=true/);
+});
+
+test("check-skip: an unparsable marker is reported, never trusted, and does not skip", (t) => {
+  const { r, dir } = skipRun(t, { comments: [comment(7, `${MARKER_OPEN} {not json} -->`)] });
+  assert.equal(r.stdout.trim(), "skip=false reason=none");
+  assert.match(r.stderr, /unparsable/);
+  assert.equal(readJson(path.join(dir, "out", "prior.json")).marker_state, "unparsable");
+});
+
+test("check-skip: a gh failure exits 0 with skip=false; usage errors exit 2", (t) => {
+  const { r, calls } = skipRun(t, { prFail: true });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /^skip=false reason=pull request state unavailable/);
+  assert.match(r.stderr, /HTTP 500|failed/);
+  assert.deepEqual(writesOf(calls), []);
+  const dir = tmpDir(t);
+  for (const args of [["check-skip"], ["check-skip", "--repo", "bad", "--pr", "1", "--head", SHA_HEAD, "--out", dir], ["check-skip", "--repo", REPO, "--pr", "0", "--head", SHA_HEAD, "--out", dir], ["check-skip", "--repo", REPO, "--pr", "1", "--head", "abc", "--out", dir]]) {
+    assert.equal(post(args).status, 2, args.join(" "));
+  }
+});
+
+// --- post: the review request (FR-9) --------------------------------------------------
+
+const cappedDoc = () => {
+  const findings = [];
+  for (let i = 1; i <= 3; i++) findings.push(mkFinding(i, { severity: "critical", confidence: 90 + i })); // C1..C3: 91..93
+  for (let i = 4; i <= 12; i++) findings.push(mkFinding(i, { severity: "warning", confidence: 80 + (i - 4) })); // W4..W12: 80..88
+  for (let i = 13; i <= 14; i++) findings.push(mkFinding(i, { severity: "suggestion", confidence: 85 }));
+  return mkDoc(findings);
+};
+
+test("scenario Cap: 14 findings (3 critical, 9 warning, 2 suggestion) post exactly 10 inline, the rest only in the summary", (t) => {
+  const { r, calls } = postRun(t, cappedDoc());
+  assert.equal(r.status, 0, r.stderr);
+  const reviews = reviewsOf(calls);
+  assert.equal(reviews.length, 1, "one review");
+  const comments = reviews[0].body.comments;
+  assert.equal(comments.length, 10);
+  // criticals first by confidence, then the 7 highest-confidence warnings (W12..W6)
+  assert.deepEqual(comments.map((c) => c.line), [3, 2, 1, 12, 11, 10, 9, 8, 7, 6]);
+  assert.deepEqual(comments.map((c) => tagsOf(c.body)[0].sev), ["critical", "critical", "critical", "warning", "warning", "warning", "warning", "warning", "warning", "warning"]);
+  const body = summaryBody(calls);
+  const [inlinePart, onlyPart] = body.split("### Summary-only findings (4)");
+  assert.ok(onlyPart !== undefined, "the summary-only section counts 4");
+  for (const id of ["F-4", "F-5", "F-13", "F-14"]) assert.ok(onlyPart.includes(`#### ${id} `), `${id} is summary-only`);
+  for (const id of ["F-1", "F-3", "F-6", "F-12"]) assert.ok(inlinePart.includes(`#### ${id} `) && !onlyPart.includes(`#### ${id} `), `${id} is inline`);
+  assert.match(body, /4 finding\(s\) are listed in this summary only, not inline \(cap 10/);
+});
+
+test("the review is one POST: event is the literal COMMENT, commit_id is --head, and the body keys are exactly these", (t) => {
+  const doc = mkDoc([mkFinding(2, { line_end: 4, confidence: 95 })]);
+  const { r, calls } = postRun(t, doc);
+  assert.equal(r.status, 0, r.stderr);
+  const [review] = reviewsOf(calls);
+  assert.deepEqual(Object.keys(review.body).sort(), ["body", "comments", "commit_id", "event"]);
+  assert.equal(review.body.event, "COMMENT");
+  assert.equal(review.body.commit_id, SHA_HEAD);
+  assert.equal(typeof review.body.body, "string");
+  assert.deepEqual(review.body.comments.map(({ body, ...rest }) => rest), [{ path: "src/a.js", line: 4, side: "RIGHT", start_line: 2, start_side: "RIGHT" }]);
+  const fp = fpOf(doc.findings[0]);
+  assert.deepEqual(tagsOf(review.body.comments[0].body), [{ fp, sev: "warning" }]);
+});
+
+test("a single-line comment carries line and side only, no start_line", (t) => {
+  const { calls } = postRun(t, mkDoc([mkFinding(5)]));
+  assert.deepEqual(Object.keys(reviewsOf(calls)[0].body.comments[0]).sort(), ["body", "line", "path", "side"]);
+});
+
+test("DD-8: no input reaches the review event (a document event is rejected; a manifest or env event is ignored)", (t) => {
+  const doc = mkDoc([mkFinding(1)]);
+  const rejected = postRun(t, { ...doc, event: "APPROVE" }, { args: ["--fail-on", "critical"] });
+  assert.equal(rejected.r.status, 1);
+  assert.deepEqual(writesOf(rejected.calls), []);
+  assert.match(rejected.r.stderr, /event/);
+  const manifest = { ...mkManifest(), event: "APPROVE", review_event: "REQUEST_CHANGES" };
+  const { r, calls } = postRun(t, doc, { manifest, extraEnv: { AKILI_REVIEW_EVENT: "APPROVE", REVIEW_EVENT: "APPROVE", INPUT_EVENT: "APPROVE" } });
+  assert.equal(r.status, 0, r.stderr);
+  const reviews = reviewsOf(calls);
+  assert.equal(reviews.length, 1);
+  for (const review of reviews) assert.equal(review.body.event, "COMMENT");
+  assert.ok(!JSON.stringify(calls).includes("APPROVE") && !JSON.stringify(calls).includes("REQUEST_CHANGES"));
+});
+
+test("the summary is a separate issue comment, written after the review, whose marker records head, run and one entry per finding", (t) => {
+  const doc = mkDoc([mkFinding(1, { severity: "critical", confidence: 95 }), mkFinding(2), mkFinding(3, { severity: "suggestion" }), mkFinding(4, { suspect: true })]);
+  const { calls } = postRun(t, doc);
+  const order = calls.filter((c) => c.method === "POST").map((c) => c.path);
+  assert.deepEqual(order.filter((p) => p !== "graphql"), [`${API}/pulls/${PRN}/reviews`, `${API}/issues/${PRN}/comments`]);
+  const marker = markerOf(summaryBody(calls));
+  const fps = doc.findings.map(fpOf);
+  assert.deepEqual(marker, { head: SHA_HEAD, run: 1, findings: [
+    { fp: fps[0], sev: "critical", inline: true }, { fp: fps[1], sev: "warning", inline: true },
+    { fp: fps[3], sev: "warning", inline: false }, { fp: fps[2], sev: "suggestion", inline: false }] });
+  assert.ok(summaryBody(calls).trimEnd().endsWith("-->"), "the marker is the last thing in the summary");
+});
+
+test("suggestions and suspect warnings never go inline; findings link with a full-SHA permalink", (t) => {
+  const doc = mkDoc([mkFinding(3, { severity: "suggestion" }), mkFinding(4, { suspect: true }), mkFinding(5)]);
+  const { calls } = postRun(t, doc);
+  assert.deepEqual(reviewsOf(calls)[0].body.comments.map((c) => c.line), [5]);
+  assert.ok(summaryBody(calls).includes(`https://github.com/${REPO}/blob/${SHA_HEAD}/src/a.js#L3-L3`));
+});
+
+test("hunk pre-check: a line outside the hunks, an unknown file, a binary file and a wrong side move to the summary", (t) => {
+  const doc = mkDoc([mkFinding(50), mkFinding(2, { file: "src/missing.js" }), mkFinding(3, { file: "img.png" }), mkFinding(4, { side: "LEFT", line_start: 4, line_end: 4 }), mkFinding(6, { line_start: 39, line_end: 41 }), mkFinding(7)]);
+  const over = { files: [...FILES_A, { filename: "img.png" }] };
+  const { r, calls } = postRun(t, doc, { manifest: mkManifest(["src/a.js", "src/missing.js", "img.png"]), over });
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(reviewsOf(calls)[0].body.comments.map((c) => c.line), [7]);
+  assert.equal(markerOf(summaryBody(calls)).findings.filter((e) => e.inline).length, 1);
+  assert.match(summaryBody(calls), /### Summary-only findings \(5\)/);
+});
+
+test("hunk pre-check honours a LEFT hunk: a removed line inside the old span maps, one outside does not", (t) => {
+  const files = [{ filename: "src/a.js", patch: "@@ -10,3 +10,1 @@\n-a\n-b\n+c" }];
+  const doc = mkDoc([mkFinding(1, { side: "LEFT", line_start: 11, line_end: 11 }), mkFinding(2, { side: "LEFT", line_start: 20, line_end: 20 }), mkFinding(3, { side: "RIGHT", line_start: 11, line_end: 11 })]);
+  const { calls } = postRun(t, doc, { over: { files } });
+  assert.deepEqual(reviewsOf(calls)[0].body.comments.map((c) => `${c.side}:${c.line}`), ["LEFT:11"]);
+});
+
+test("a rejected review (422) is retried once with no inline comments; every finding moves to the summary", (t) => {
+  const over = { review: { responses: [{ status: 422, body: { message: "Validation Failed" } }, { status: 200, body: { id: 2 } }] } };
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1), mkFinding(2)]), { over });
+  assert.equal(r.status, 0, r.stderr);
+  const reviews = reviewsOf(calls);
+  assert.equal(reviews.length, 2);
+  assert.equal(reviews[0].body.comments.length, 2);
+  assert.deepEqual(reviews[1].body.comments, []);
+  assert.equal(reviews[1].body.event, "COMMENT");
+  const body = summaryBody(calls);
+  assert.ok(markerOf(body).findings.every((e) => e.inline === false));
+  assert.match(body, /### Summary-only findings \(2\)/);
+  assert.match(body, /rejected by GitHub/);
+});
+
+test("a review rejected twice still posts the summary, and the exit follows --fail-on none", (t) => {
+  const over = { review: { status: 422, body: { message: "Validation Failed" } } };
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1)]), { over });
+  assert.equal(r.status, 0);
+  assert.equal(reviewsOf(calls).length, 2);
+  assert.equal(summaryWritesOf(calls).length, 1);
+});
+
+test("upsert: no trusted summary creates one; a trusted one is edited in place, never a second", (t) => {
+  const doc = mkDoc([mkFinding(1)]);
+  const fresh = postRun(t, doc);
+  assert.deepEqual(summaryWritesOf(fresh.calls).map((c) => `${c.method} ${c.path}`), [`POST ${API}/issues/${PRN}/comments`]);
+  const edit = postRun(t, doc, { over: { comments: [comment(7, `old\n${markerLine(SHA_OLD, 4, [])}`)] } });
+  assert.deepEqual(summaryWritesOf(edit.calls).map((c) => `${c.method} ${c.path}`), [`PATCH ${API}/issues/comments/7`]);
+  assert.equal(markerOf(edit.calls.find((c) => c.method === "PATCH").body.body).run, 5);
+});
+
+test("a marker from a non-allowlisted author is not edited and not trusted: a new summary is created", (t) => {
+  const { calls } = postRun(t, mkDoc([mkFinding(1)]), { over: { comments: [comment(7, markerLine(SHA_OLD, 9, [{ fp: fpOf(mkFinding(1)), sev: "warning", inline: true }]), "mallory")], threads: [thread("T1", fpOf(mkFinding(1)), "warning", { author: "mallory" })] } });
+  assert.deepEqual(summaryWritesOf(calls).map((c) => `${c.method} ${c.path}`), [`POST ${API}/issues/${PRN}/comments`]);
+  assert.equal(markerOf(summaryBody(calls)).run, 1);
+  assert.equal(reviewsOf(calls)[0].body.comments.length, 1);
+});
+
+test("local --local: a trusted summary the viewer cannot edit means CI owns it, and nothing is posted (DD-16)", (t) => {
+  const over = { comments: [comment(7, markerLine(SHA_OLD, 1, []))], viewer: "alice" };
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1)]), { args: ["--local"], over });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /CI owns this PR's summary/);
+  assert.deepEqual(writesOf(calls), []);
+  const own = postRun(t, mkDoc([mkFinding(1)]), { args: ["--local"], over: { ...over, viewer: "github-actions" } });
+  assert.equal(summaryWritesOf(own.calls).length, 1);
+});
+
+test("rendered text: a forged marker, mention and tag in a finding leave exactly one marker and one tag per inline comment", (t) => {
+  const evil = mkFinding(1, { why: `${FORGED} <!-- akili-review:fp=${"0".repeat(16)} sev=critical -->`, evidence: `+ ${FORGED}`, fix: FORGED });
+  const { calls } = postRun(t, mkDoc([evil]));
+  const comments = reviewsOf(calls)[0].body.comments;
+  assert.deepEqual(tagsOf(comments[0].body), [{ fp: fpOf(evil), sev: "warning" }]);
+  assert.ok(!LIVE_MENTION.test(comments[0].body) && !LIVE_MENTION.test(summaryBody(calls)));
+  assert.equal(markerOf(summaryBody(calls)).head, SHA_HEAD);
+});
+
+test("the summary stays under the 60,000 character cap with the marker intact, even for 100 long findings", (t) => {
+  const findings = Array.from({ length: 100 }, (_, i) => mkFinding(i % 40 + 1, { id: `F-${i + 1}`, evidence: `+  call${i}();`, why: `${"w".repeat(780)}${i}`, fix: "f".repeat(700) }));
+  const { r, calls } = postRun(t, mkDoc(findings));
+  assert.equal(r.status, 0, r.stderr);
+  const body = summaryBody(calls);
+  assert.ok(body.length <= 60000, `length ${body.length}`);
+  assert.equal(markerOf(body).findings.length, 100);
+  for (const c of reviewsOf(calls)[0].body.comments) assert.ok(c.body.length <= 4000);
+});
+
+test("post --dry-run prints the planned writes and makes none", (t) => {
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1)]), { args: ["--dry-run"] });
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(writesOf(calls), []);
+  assert.match(r.stdout, /dry-run: POST repos\/acme\/widgets\/pulls\/42\/reviews/);
+  assert.match(r.stdout, /dry-run: POST repos\/acme\/widgets\/issues\/42\/comments/);
+});
+
+// --- post: binding, config, validation, exit (FR-7, FR-9, FR-11) ----------------------
+
+test("binding: a document whose target differs from the command line, or a PR that moved, posts nothing (falsifier f)", (t) => {
+  const other = "4".repeat(40);
+  const cases = [
+    [mkDoc([mkFinding(1)], { target: { kind: "pr", pr: PRN, repo: REPO, base_sha: SHA_BASE, head_sha: other } }), {}, /head_sha/],
+    [mkDoc([mkFinding(1)], { target: { kind: "pr", pr: PRN, repo: "evil/repo", base_sha: SHA_BASE, head_sha: SHA_HEAD } }), {}, /repo/],
+    [mkDoc([mkFinding(1)], { target: { kind: "pr", pr: 43, repo: REPO, base_sha: SHA_BASE, head_sha: SHA_HEAD } }), {}, /pr/],
+    [mkDoc([mkFinding(1)], { target: { kind: "pr", pr: PRN, repo: REPO, base_sha: other, head_sha: SHA_HEAD } }), {}, /base_sha/],
+    [mkDoc([mkFinding(1)], { target: { kind: "pr", pr: PRN, repo: REPO, base_sha: SHA_BASE, head_sha: other } }), { pr: { head: { sha: other } } }, /head_sha|PR head/],
+    [mkDoc([mkFinding(1)]), { pr: { head: { sha: other } } }, /PR head/],
+  ];
+  for (const [doc, over, message] of cases) {
+    const { r, calls } = postRun(t, doc, { over, args: ["--fail-on", "critical"] });
+    assert.equal(r.status, 1, r.stdout);
+    assert.match(r.stderr, message);
+    assert.deepEqual(writesOf(calls), []);
+  }
+});
+
+test("config is read from the base SHA through the contents API; its threshold and trusted_posters apply", (t) => {
+  const doc = mkDoc([mkFinding(1, { confidence: 85 })]);
+  const raised = postRun(t, doc, { over: { config: "threshold: 90\n" }, args: ["--fail-on", "critical"] });
+  const get = raised.calls.find((c) => c.path === `${API}/contents/.akili/review.yml`);
+  assert.equal(get.method, "GET");
+  assert.equal(get.query, `ref=${SHA_BASE}`);
+  assert.equal(raised.r.status, 1);
+  assert.match(raised.r.stderr, /findings\[0\]\.confidence/);
+  assert.deepEqual(writesOf(raised.calls), []);
+  const posters = postRun(t, doc, { over: { config: "trusted_posters: [maintainer]\n", comments: [comment(7, markerLine(SHA_OLD, 1, []), "maintainer")] } });
+  assert.deepEqual(summaryWritesOf(posters.calls).map((c) => c.method), ["PATCH"]);
+  const bad = postRun(t, doc, { over: { config: "bogus_key: 1\n" }, args: ["--fail-on", "warning"] });
+  assert.equal(bad.r.status, 1);
+  assert.deepEqual(writesOf(bad.calls), []);
+});
+
+test("scenario Invalid input: nothing is posted or edited, the validator error is printed, and the exit follows FR-11", (t) => {
+  const doc = mkDoc([mkFinding(1), mkFinding(2, { confidence: 120 })]);
+  const none = postRun(t, doc);
+  assert.equal(none.r.status, 0, "under --fail-on none a validation failure exits 0 (falsifier e)");
+  assert.match(none.r.stderr, /findings\[1\]\.confidence/);
+  assert.deepEqual(writesOf(none.calls), []);
+  for (const failOn of ["critical", "warning"]) {
+    const r = postRun(t, doc, { args: ["--fail-on", failOn] });
+    assert.equal(r.r.status, 1, failOn);
+    assert.match(r.r.stderr, /findings\[1\]\.confidence/);
+    assert.deepEqual(writesOf(r.calls), []);
+  }
+});
+
+test("FR-11 exit table: none never fails; critical on a non-suspect critical; warning on a critical or warning; suspect and suggestions never count", (t) => {
+  const crit = mkDoc([mkFinding(1, { severity: "critical" })]);
+  const warn = mkDoc([mkFinding(1)]);
+  const quiet = mkDoc([mkFinding(1, { suspect: true }), mkFinding(2, { severity: "suggestion" })]);
+  const table = [[crit, "none", 0], [crit, "critical", 1], [crit, "warning", 1], [warn, "none", 0], [warn, "critical", 0], [warn, "warning", 1], [quiet, "critical", 0], [quiet, "warning", 0]];
+  for (const [doc, failOn, code] of table) {
+    const { r, calls } = postRun(t, doc, { args: ["--fail-on", failOn] });
+    assert.equal(r.status, code, `${failOn} ${doc.findings.map((f) => f.severity).join()}`);
+    assert.equal(summaryWritesOf(calls).length, 1, "the review is posted even when the exit is 1");
+  }
+  assert.equal(postRun(t, warn, { args: ["--fail-on", "bogus"] }).r.status, 2);
+});
+
+test("exit table, binding row: a binding mismatch is a validation failure, so it exits 1 under critical/warning and 0 under none, and prints the failure", (t) => {
+  const other = "4".repeat(40);
+  const doc = mkDoc([mkFinding(1)], { target: { kind: "pr", pr: PRN, repo: REPO, base_sha: SHA_BASE, head_sha: other } });
+  for (const [args, code] of [[["--fail-on", "critical"], 1], [["--fail-on", "warning"], 1], [["--fail-on", "none"], 0], [[], 0]]) {
+    const { r, calls } = postRun(t, doc, { args });
+    assert.equal(r.status, code, args.join(" "));
+    assert.match(r.stderr, /post: failed: .*head_sha/);
+    assert.deepEqual(writesOf(calls), []);
+  }
+});
+
+test("exit table, API row: a GitHub failure while posting exits 1 only when the validated document has a matching non-suspect finding", (t) => {
+  const over = { summary: { status: 500, body: { message: "boom" } } };
+  const quiet = postRun(t, mkDoc([mkFinding(1)]), { over, args: ["--fail-on", "critical"] });
+  assert.equal(quiet.r.status, 0, "no critical: an API failure alone does not fail the run");
+  assert.match(quiet.r.stderr, /post: failed: /);
+  const crit = postRun(t, mkDoc([mkFinding(1, { severity: "critical" })]), { over, args: ["--fail-on", "critical"] });
+  assert.equal(crit.r.status, 1, "a non-suspect critical still fails the run");
+  assert.match(crit.r.stderr, /post: failed: /);
+  const suspect = postRun(t, mkDoc([mkFinding(1, { suspect: true })]), { over, args: ["--fail-on", "warning"] });
+  assert.equal(suspect.r.status, 0, "a suspect warning never counts");
+  assert.match(suspect.r.stderr, /post: failed: /);
+  const none = postRun(t, mkDoc([mkFinding(1, { severity: "critical" })]), { over, args: ["--fail-on", "none"] });
+  assert.equal(none.r.status, 0);
+  const forced = postRun(t, mkDoc([mkFinding(1, { severity: "critical" })]), { over: { ...over, labels: ["akili-review:advisory"] }, args: ["--fail-on", "critical"] });
+  assert.equal(forced.r.status, 0);
+});
+
+test("FR-3 empty filtered diff: a manifest with no files posts nothing and exits 0, whatever --fail-on says, without any gh call", (t) => {
+  for (const failOn of ["none", "critical", "warning"]) {
+    const { r, calls } = postRun(t, mkDoc([]), { manifest: mkManifest([]), args: ["--fail-on", failOn] });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /skip: the filtered diff is empty \(FR-3\)/);
+    assert.deepEqual(writesOf(calls), []);
+    assert.deepEqual(calls, [], "not even a read is needed");
+  }
+});
+
+test("scenario Advisory default: 2 criticals and no --fail-on exit 0 and both are posted inline", (t) => {
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1, { severity: "critical" }), mkFinding(2, { severity: "critical" })]));
+  assert.equal(r.status, 0);
+  assert.deepEqual(reviewsOf(calls)[0].body.comments.map((c) => tagsOf(c.body)[0].sev), ["critical", "critical"]);
+});
+
+test("break glass: the label akili-review:advisory forces none, even on a validation failure, and the summary records it", (t) => {
+  const label = { labels: ["akili-review:advisory"] };
+  const { r, calls } = postRun(t, mkDoc([mkFinding(1, { severity: "critical" })]), { over: label, args: ["--fail-on", "critical"] });
+  assert.equal(r.status, 0);
+  assert.ok(summaryBody(calls).includes("advisory forced by label"));
+  const plain = postRun(t, mkDoc([mkFinding(1, { severity: "critical" })]), { args: ["--fail-on", "critical"] });
+  assert.equal(plain.r.status, 1);
+  assert.ok(!summaryBody(plain.calls).includes("advisory forced by label"));
+  const invalid = postRun(t, mkDoc([mkFinding(1, { confidence: 120 })]), { over: label, args: ["--fail-on", "critical"] });
+  assert.equal(invalid.r.status, 0);
+});
+
+test("a skipped-run artifact (skipped.json beside the document or the manifest) exits 0 and makes no gh call at all", (t) => {
+  const dir = tmpDir(t);
+  fs.writeFileSync(path.join(dir, "skipped.json"), JSON.stringify({ reason: "the PR is a draft" }));
+  const { r, calls } = ghRun(t, () => ["post", path.join(dir, "findings.json"), "--manifest", path.join(dir, "manifest.json"), "--repo", REPO, "--pr", "42", "--base", SHA_BASE, "--head", SHA_HEAD, "--fail-on", "critical"]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /skipped run, nothing posted \(the PR is a draft\)/);
+  assert.deepEqual(calls, []);
+});
+
+test("post usage errors exit 2: missing flags, bad SHA, bad repo, no document, extra document", (t) => {
+  const base = ["--manifest", MANIFEST, "--repo", REPO, "--pr", "42", "--base", SHA_BASE, "--head", SHA_HEAD];
+  assert.equal(post(["post"]).status, 2);
+  assert.equal(post(["post", "d.json", "--manifest", MANIFEST]).status, 2);
+  assert.equal(post(["post", "d.json", ...base.slice(0, -1), "abc"]).status, 2);
+  assert.equal(post(["post", "d.json", "--manifest", MANIFEST, "--repo", "bad", "--pr", "42", "--base", SHA_BASE, "--head", SHA_HEAD]).status, 2);
+  assert.equal(post(["post", ...base]).status, 2);
+  assert.equal(post(["post", "a.json", "b.json", ...base]).status, 2);
+});
+
+// --- FR-10: one fixture per reconcile row ---------------------------------------------
+
+const W = mkFinding(1);
+const WFP = fpOf(W);
+const priorMarker = (entries) => comment(7, markerLine(SHA_OLD, 1, entries));
+const inlineEntry = { fp: WFP, sev: "warning", inline: true };
+const postedLines = (calls) => (reviewsOf(calls)[0] ? reviewsOf(calls)[0].body.comments.map((c) => c.line) : []);
+
+test("FR-10 row 1 fixed: inline, thread open, now absent -> listed as fixed and the thread is resolved", (t) => {
+  const other = mkFinding(9, { confidence: 99 });
+  const { r, calls } = postRun(t, mkDoc([other]), { over: { comments: [priorMarker([inlineEntry])], threads: [thread("THREAD-1", WFP, "warning")] } });
+  assert.equal(r.status, 0, r.stderr);
+  const resolves = resolvesOf(calls);
+  assert.equal(resolves.length, 1);
+  assert.deepEqual(resolves[0].body.variables, { threadId: "THREAD-1" });
+  assert.ok(summaryBody(calls).includes(`finding ${WFP} (warning) is no longer present`));
+  assert.ok(!markerOf(summaryBody(calls)).findings.some((e) => e.fp === WFP), "a fixed finding leaves the marker");
+  const last = calls[calls.length - 1];
+  assert.equal(last.path, "graphql", "the thread is resolved after the summary is written");
+});
+
+test("FR-10 row 1: when the API refuses to resolve, the summary still lists it as fixed", (t) => {
+  const { r, calls } = postRun(t, mkDoc([mkFinding(9)]), { over: { comments: [priorMarker([inlineEntry])], threads: [thread("T1", WFP, "warning")], resolve: { status: 403, body: { message: "Forbidden" } } } });
+  assert.equal(r.status, 0);
+  assert.ok(summaryBody(calls).includes(`finding ${WFP} (warning) is no longer present`));
+});
+
+test("FR-10 row 2 unfixed: inline, thread open, still present -> kept open in the summary, not re-posted", (t) => {
+  const { calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([inlineEntry])], threads: [thread("T1", WFP, "warning")] } });
+  assert.equal(reviewsOf(calls).length, 0);
+  assert.equal(resolvesOf(calls).length, 0);
+  const body = summaryBody(calls);
+  assert.ok(body.split("### Summary-only findings (1)")[1].includes("#### F-1 "));
+  assert.ok(body.includes(`Still open from earlier reviews: ${WFP}`));
+  assert.deepEqual(markerOf(body).findings, [{ fp: WFP, sev: "warning", inline: true }]);
+});
+
+test("FR-10 row 3 open again: thread resolved by the CI bot (GraphQL login without [bot]), still present -> re-posted", (t) => {
+  for (const by of ["github-actions", "github-actions[bot]"]) {
+    const { calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([inlineEntry])], threads: [thread("T1", WFP, "warning", { resolved: true, by })] } });
+    assert.deepEqual(postedLines(calls), [1], by);
+  }
+});
+
+test("scenario Human resolved / FR-10 row 4 respected: resolved by a maintainer at the same severity -> no new inline, still open in the summary (falsifier d)", (t) => {
+  const { r, calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([inlineEntry])], threads: [thread("T1", WFP, "warning", { resolved: true, by: "maintainer" })] } });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(reviewsOf(calls).length, 0);
+  const body = summaryBody(calls);
+  assert.ok(body.split("### Summary-only findings (1)")[1].includes("#### F-1 "));
+  assert.ok(body.includes(`Still open from earlier reviews: ${WFP}`));
+});
+
+test("FR-10 row 4: a lower severity than the human saw is also respected", (t) => {
+  const down = mkFinding(1, { severity: "suggestion" });
+  const entry = { fp: fpOf(down), sev: "warning", inline: true };
+  const { calls } = postRun(t, mkDoc([down]), { over: { comments: [priorMarker([entry])], threads: [thread("T1", entry.fp, "warning", { resolved: true, by: "maintainer" })] } });
+  assert.equal(reviewsOf(calls).length, 0);
+});
+
+test("FR-10 row 5 worse: resolved by a human at warning, now critical -> re-posted", (t) => {
+  const worse = mkFinding(1, { severity: "critical" });
+  const entry = { fp: fpOf(worse), sev: "warning", inline: true };
+  const { calls } = postRun(t, mkDoc([worse]), { over: { comments: [priorMarker([entry])], threads: [thread("T1", entry.fp, "warning", { resolved: true, by: "maintainer" })] } });
+  assert.deepEqual(postedLines(calls), [1]);
+  assert.deepEqual(tagsOf(reviewsOf(calls)[0].body.comments[0].body), [{ fp: entry.fp, sev: "critical" }]);
+});
+
+test("FR-10 row 6 thread not found: the marker says inline but no thread exists -> treated as new and posted", (t) => {
+  const { calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([inlineEntry])], threads: [] } });
+  assert.deepEqual(postedLines(calls), [1]);
+});
+
+test("FR-10 row 7 summary-only: a finding the marker records as not inline is eligible for inline", (t) => {
+  const { calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([{ ...inlineEntry, inline: false }])] } });
+  assert.deepEqual(postedLines(calls), [1]);
+  assert.deepEqual(markerOf(summaryBody(calls)).findings, [{ fp: WFP, sev: "warning", inline: true }]);
+});
+
+test("FR-10 row 8 rebuilt from tags: no trusted marker but a tagged open thread from the CI bot -> not duplicated", (t) => {
+  const { calls } = postRun(t, mkDoc([W, mkFinding(2)]), { over: { threads: [thread("T1", WFP, "warning")] } });
+  assert.deepEqual(postedLines(calls), [2]);
+  assert.deepEqual(markerOf(summaryBody(calls)).findings.map((e) => [e.fp, e.inline]), [[WFP, true], [fpOf(mkFinding(2)), true]]);
+});
+
+test("FR-10 row 8: a tag from a non-allowlisted author is not trusted", (t) => {
+  const { calls } = postRun(t, mkDoc([W]), { over: { threads: [thread("T1", WFP, "warning", { author: "mallory" })] } });
+  assert.deepEqual(postedLines(calls), [1]);
+});
+
+test("FR-10 row 9 first review: no marker and no tags -> every finding is new; an unparsable marker is reported and not trusted", (t) => {
+  const first = postRun(t, mkDoc([W]));
+  assert.deepEqual(postedLines(first.calls), [1]);
+  assert.equal(markerOf(summaryBody(first.calls)).run, 1);
+  const bad = postRun(t, mkDoc([W]), { over: { comments: [comment(7, `${MARKER_OPEN} {"head": nope} -->`)], threads: [thread("T1", WFP, "warning")] } });
+  assert.deepEqual(postedLines(bad.calls), [1], "the tags are not used to rebuild state under an unparsable marker");
+  assert.deepEqual(summaryWritesOf(bad.calls).map((c) => c.method), ["PATCH"], "the existing summary is still edited, not duplicated");
+  assert.match(summaryBody(bad.calls), /could not be parsed and was not trusted/);
+  assert.equal(markerOf(summaryBody(bad.calls)).run, 1);
+});
+
+test("FR-10 row 10 new: a finding with no history is posted under the cap; a vanished never-inline finding is dropped", (t) => {
+  const gone = { fp: "c".repeat(16), sev: "warning", inline: false };
+  const { calls } = postRun(t, mkDoc([W]), { over: { comments: [priorMarker([gone])] } });
+  assert.deepEqual(postedLines(calls), [1]);
+  assert.ok(!summaryBody(calls).includes(gone.fp));
+  assert.equal(resolvesOf(calls).length, 0);
+});
+
+test("the cap applies to re-posts too: open-again findings compete with new ones by severity, confidence, file and line", (t) => {
+  const findings = Array.from({ length: 12 }, (_, i) => mkFinding(i + 1, { confidence: 80 + i }));
+  const entries = findings.map((f) => ({ fp: fpOf(f), sev: "warning", inline: true }));
+  const threads = findings.map((f, i) => thread(`T${i}`, fpOf(f), "warning", { resolved: true, by: "github-actions" }));
+  const { calls } = postRun(t, mkDoc(findings), { over: { comments: [priorMarker(entries)], threads } });
+  assert.deepEqual(postedLines(calls), [12, 11, 10, 9, 8, 7, 6, 5, 4, 3]);
+});
+
+test("NFR-3: every call in this suite went through the fake (the log is non-empty and holds only gh api shapes)", (t) => {
+  const { calls } = postRun(t, mkDoc([W]));
+  assert.ok(calls.length >= 6);
+  assert.ok(calls.every((c) => typeof c.method === "string" && typeof c.path === "string" && !c.path.startsWith("http") && !c.path.startsWith("/")));
+});

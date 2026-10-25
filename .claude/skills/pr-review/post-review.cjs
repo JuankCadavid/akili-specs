@@ -5,18 +5,22 @@
 //
 // Deterministic half of /akili-review (design 5.3, 5.6, 6, 7.5). Plain Node core, no
 // dependencies, no no-follow open flag, so it runs on Node >= 18 including native Windows.
-// This build carries `prepare` and `render`; `check-skip` and `post` are added by T3, which
-// reuses the exported renderers and constants. Neither subcommand here calls `gh` or the network.
+// `prepare` and `render` never call `gh` or the network; `check-skip` and `post` reach GitHub only
+// through `gh api` (AKILI_GH_BIN, else `gh` on PATH).
 //
 // Usage:
 //   node post-review.cjs prepare --diff <file|-> --out <dir> [--config <yml>] [--tier <t>]
 //        [--base <sha> --head <sha> --repo <o/r> --pr <n>]
 //   node post-review.cjs render <doc> --manifest <m> [--history]
-// Exit: 0 ok | 1 invalid review document (render) | 2 usage or config error
+//   node post-review.cjs check-skip --repo <o/r> --pr <n> --head <sha> --out <dir> [--force] [--config <yml>]
+//   node post-review.cjs post <doc> --manifest <m> --repo <o/r> --pr <n> --base <sha> --head <sha>
+//        [--fail-on none|critical|warning] [--dry-run] [--local]
+// Exit: 0 ok | 1 invalid review document (render); `post`: per FR-11 | 2 usage or config error
 
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const crypto = require("crypto");
 const { spawnSync } = require("child_process");
 
 // ---------------------------------------------------------------------------------------
@@ -838,6 +842,428 @@ function runRender(opts, positional) {
 }
 
 // ---------------------------------------------------------------------------------------
+// GitHub access (design 6): every call is `gh api <path> --method M --input -`, resolved from
+// AKILI_GH_BIN (a path; `.js`/`.cjs` run through this Node) else `gh` on PATH (NFR-3).
+// ---------------------------------------------------------------------------------------
+
+const REVIEW_EVENT = "COMMENT"; // DD-8: a literal. No flag, file, manifest or environment value reaches it.
+const REVIEW_BODY = "AKILI Review: inline findings follow; the summary comment has the full report.";
+const REVIEW_RETRY_BODY = "AKILI Review: the inline comments could not be placed on this diff; every finding is in the summary comment.";
+const CI_BOT = "github-actions"; // the CI posting identity, compared without any `[bot]` suffix (FR-10)
+const SKIP_LABEL = "akili-review:skip";
+const ADVISORY_LABEL = "akili-review:advisory";
+const PAGE_SIZE = 100;
+const MAX_PAGES = 50;
+const MARKER_OPEN = "<!-- akili-review:v1";
+const MARKER_RE = /<!-- akili-review:v1 (\{[^\n]*\}) -->/;
+const TAG_RE = /<!-- akili-review:fp=([0-9a-f]{16}) sev=(critical|warning) -->/g;
+const FAIL_ON = Object.freeze(["none", "critical", "warning"]);
+const SEV_RANK = { suggestion: 0, warning: 1, critical: 2 };
+
+class GhError extends Error {
+  constructor(message, status = null) { super(message); this.status = status; }
+}
+
+function ghCommand() {
+  const bin = process.env.AKILI_GH_BIN;
+  if (!bin) return { cmd: "gh", pre: [] };
+  return /\.c?js$/i.test(bin) ? { cmd: process.execPath, pre: [bin] } : { cmd: bin, pre: [] };
+}
+
+function gh(method, apiPath, body) {
+  const { cmd, pre } = ghCommand();
+  const input = method === "GET" || body === undefined ? "" : JSON.stringify(body);
+  const r = spawnSync(cmd, [...pre, "api", apiPath, "--method", method, "--input", "-"], { input, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+  if (r.error) throw new GhError(`cannot run gh: ${r.error.code || r.error.message}`);
+  if (r.status !== 0) {
+    const text = `${r.stderr || ""}\n${r.stdout || ""}`;
+    const status = /HTTP (\d{3})/.exec(text);
+    const first = redact(text.trim().split("\n")[0] || `exit ${r.status}`).slice(0, 200);
+    throw new GhError(`gh api ${method} ${apiPath.split("?")[0]} failed: ${first}`, status ? Number(status[1]) : null);
+  }
+  const out = (r.stdout || "").trim();
+  if (out === "") return null;
+  try { return JSON.parse(out); } catch (error) { throw new GhError(`gh api ${method} ${apiPath.split("?")[0]} returned non-JSON output`); }
+}
+
+// Manual pagination: `gh api --paginate` does not combine with `--input`.
+function ghAll(apiPath) {
+  const all = [];
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const res = gh("GET", `${apiPath}?per_page=${PAGE_SIZE}&page=${page}`);
+    if (!Array.isArray(res)) throw new GhError(`gh api GET ${apiPath} returned a non-list`);
+    all.push(...res);
+    if (res.length < PAGE_SIZE) break;
+  }
+  return all;
+}
+
+const THREADS_QUERY = "query($owner:String!,$name:String!,$number:Int!,$cursor:String){repository(owner:$owner,name:$name){pullRequest(number:$number){reviewThreads(first:100,after:$cursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated resolvedBy{login} comments(first:1){nodes{author{login} body}}}}}}}";
+const RESOLVE_MUTATION = "mutation($threadId:ID!){resolveReviewThread(input:{threadId:$threadId}){thread{id isResolved}}}";
+
+function ghThreads(repo, pr) {
+  const [owner, name] = repo.split("/");
+  const nodes = [];
+  let cursor = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const res = gh("POST", "graphql", { query: THREADS_QUERY, variables: { owner, name, number: pr, cursor } });
+    const conn = res && res.data && res.data.repository && res.data.repository.pullRequest && res.data.repository.pullRequest.reviewThreads;
+    if (!conn || !Array.isArray(conn.nodes)) throw new GhError("review threads query returned no data");
+    nodes.push(...conn.nodes);
+    if (!conn.pageInfo || !conn.pageInfo.hasNextPage || !conn.pageInfo.endCursor) break;
+    cursor = conn.pageInfo.endCursor;
+  }
+  return nodes;
+}
+
+// ---------------------------------------------------------------------------------------
+// Trust: the posting-identity allowlist and the prior-state reader (design 5.4; FR-9, FR-10)
+// ---------------------------------------------------------------------------------------
+
+const normLogin = (login) => String(login === null || login === undefined ? "" : login).replace(/\[bot\]$/i, "").toLowerCase();
+const allowlistOf = (config) => new Set([CI_BOT, ...((config && config.trusted_posters) || [])].map(normLogin));
+
+function parseMarker(text) {
+  const m = MARKER_RE.exec(text);
+  if (!m) return null;
+  let data;
+  try { data = JSON.parse(m[1]); } catch (error) { return null; }
+  const ok = data && typeof data === "object" && validSha(data.head) && Number.isInteger(data.run) && data.run >= 0 &&
+    Array.isArray(data.findings) && data.findings.every((e) => e && FP_RE.test(e.fp) && SEVERITIES.includes(e.sev) && typeof e.inline === "boolean");
+  return ok ? { head: data.head, run: data.run, findings: data.findings.map((e) => ({ fp: e.fp, sev: e.sev, inline: e.inline })) } : null;
+}
+
+// Reads the earlier summary (trusted identities only) and the tagged review threads.
+// markerState: none | trusted | unparsable.
+function fetchPrior(repo, pr, allow) {
+  const prior = { summary: null, markerState: "none", marker: null, threads: new Map() };
+  for (const c of ghAll(`repos/${repo}/issues/${pr}/comments`)) {
+    if (!c || typeof c.body !== "string" || !c.user || !allow.has(normLogin(c.user.login)) || !c.body.includes(MARKER_OPEN)) continue;
+    const marker = parseMarker(c.body);
+    prior.summary = { id: c.id, login: c.user.login };
+    prior.marker = marker;
+    prior.markerState = marker ? "trusted" : "unparsable";
+    break;
+  }
+  for (const t of ghThreads(repo, pr)) {
+    const first = t && t.comments && Array.isArray(t.comments.nodes) ? t.comments.nodes[0] : null;
+    if (!first || typeof first.body !== "string" || !first.author || !allow.has(normLogin(first.author.login))) continue;
+    const tags = [...first.body.matchAll(TAG_RE)];
+    if (!tags.length) continue;
+    const [, fp, sev] = tags[tags.length - 1];
+    prior.threads.set(fp, { id: t.id, resolved: t.isResolved === true, resolvedBy: t.resolvedBy ? t.resolvedBy.login : null, sev }); // later threads win
+  }
+  return prior;
+}
+
+function loadBaseConfig(repo, base) {
+  let res;
+  try {
+    res = gh("GET", `repos/${repo}/contents/.akili/review.yml?ref=${base}`);
+  } catch (error) {
+    if (error.status === 404) return {}; // absent at the base SHA: defaults
+    throw error;
+  }
+  if (!res || res.type !== "file" || res.encoding !== "base64" || typeof res.content !== "string") throw new GhError("base-SHA .akili/review.yml has an unexpected shape");
+  const text = Buffer.from(res.content, "base64").toString("utf8");
+  if (text.length > MAX_CONFIG_BYTES) throw new UsageError("config is larger than the limit");
+  return parseConfig(text);
+}
+
+function readConfigFile(file) {
+  try { return parseConfig(readBounded(file, MAX_CONFIG_BYTES, "config")); } catch (error) {
+    if (error.code === "ENOENT") return {};
+    throw error;
+  }
+}
+
+function requireOpts(opts, names) {
+  for (const n of names) if (opts[n] === undefined) throw new UsageError(`--${n} is required`);
+  if (!validRepo(opts.repo)) throw new UsageError(`--repo must look like owner/name, got ${show(opts.repo)}`);
+  if (!/^[1-9]\d{0,8}$/.test(opts.pr)) throw new UsageError(`--pr must be a positive integer, got ${show(opts.pr)}`);
+  for (const n of ["base", "head"]) if (opts[n] !== undefined && !validSha(opts[n])) throw new UsageError(`--${n} must be a full 40-character lowercase hex SHA, got ${show(opts[n])}`);
+}
+
+// ---------------------------------------------------------------------------------------
+// check-skip (FR-3)
+// ---------------------------------------------------------------------------------------
+
+function runCheckSkip(opts) {
+  requireOpts(opts, ["repo", "pr", "head", "out"]);
+  const config = opts.config === undefined ? {} : readConfigFile(opts.config);
+  const pr = Number(opts.pr);
+  fs.mkdirSync(opts.out, { recursive: true });
+  const skippedFile = path.join(opts.out, "skipped.json");
+  fs.rmSync(skippedFile, { force: true });
+  const writePrior = (prior, state) => fs.writeFileSync(path.join(opts.out, "prior.json"), `${JSON.stringify({
+    marker_state: state,
+    head: prior && prior.marker ? prior.marker.head : null,
+    run: prior && prior.marker ? prior.marker.run : null,
+    findings: prior && prior.marker ? prior.marker.findings : [],
+    threads: prior ? [...prior.threads].map(([fp, t]) => ({ fp, sev: t.sev, resolved: t.resolved, resolved_by: t.resolvedBy })) : [],
+  }, null, 2)}\n`);
+
+  let skip = null;
+  let prior = null;
+  let state = "not-read";
+  try {
+    const info = gh("GET", `repos/${opts.repo}/pulls/${pr}`) || {};
+    const labels = (Array.isArray(info.labels) ? info.labels : []).map((l) => l && l.name);
+    if (info.merged === true) skip = "the PR is merged";
+    else if (info.state !== "open") skip = "the PR is closed";
+    else if (info.draft === true) skip = "the PR is a draft";
+    else if (!opts.force && info.user && /\[bot\]$/i.test(String(info.user.login))) skip = "the PR author is a bot (use --force to review it)";
+    else if (labels.includes(SKIP_LABEL)) skip = `the PR carries the label ${SKIP_LABEL}`;
+    else {
+      prior = fetchPrior(opts.repo, pr, allowlistOf(config));
+      state = prior.markerState;
+      if (state === "unparsable") process.stderr.write("check-skip: an unparsable summary marker was found and is not trusted\n");
+      if (!opts.force && prior.marker && prior.marker.head === opts.head) skip = "a trusted summary already records this head";
+    }
+  } catch (error) {
+    process.stderr.write(`check-skip: ${error.message}\n`);
+    writePrior(prior, state);
+    process.stdout.write("skip=false reason=pull request state unavailable\n");
+    return;
+  }
+  writePrior(prior, state);
+  if (skip !== null) fs.writeFileSync(skippedFile, `${JSON.stringify({ reason: skip })}\n`);
+  process.stdout.write(`skip=${skip !== null} reason=${skip === null ? "none" : skip}\n`);
+}
+
+// ---------------------------------------------------------------------------------------
+// post (FR-7, FR-9, FR-10, FR-11)
+// ---------------------------------------------------------------------------------------
+
+function fingerprint(f) {
+  const first = String(f.evidence).split(/\r?\n/).find((l) => l.trim() !== "") || "";
+  const norm = first.trim().replace(/\s+/g, " ").replace(/^[+-]/, "").trim();
+  return crypto.createHash("sha256").update(`${f.lens}|${f.file}|${norm}`).digest("hex").slice(0, 16);
+}
+
+// Per hunk, the line spans each side shows (context included), read from the `@@` header counts.
+function parseHunks(patch) {
+  const hunks = [];
+  for (const m of String(patch).matchAll(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/gm)) {
+    const [ls, ln, rs, rn] = [Number(m[1]), m[2] === undefined ? 1 : Number(m[2]), Number(m[3]), m[4] === undefined ? 1 : Number(m[4])];
+    hunks.push({ LEFT: ln > 0 ? [ls, ls + ln - 1] : null, RIGHT: rn > 0 ? [rs, rs + rn - 1] : null });
+  }
+  return hunks;
+}
+
+const mapsToHunk = (hunks, f) => Boolean(hunks) && hunks.some((h) => h[f.side] && h[f.side][0] <= f.line_start && f.line_end <= h[f.side][1]);
+const inlineKind = (f) => f.severity === "critical" || (f.severity === "warning" && !f.suspect);
+
+// Reconcile by fingerprint (design 5.5). Returns what is eligible for inline, what stays open
+// from an earlier review, and which earlier inline threads are now fixed.
+function reconcile(prior, findings) {
+  let prev = new Map();
+  if (prior.markerState === "trusted") prev = new Map(prior.marker.findings.map((e) => [e.fp, e]));
+  else if (prior.markerState === "none") prev = new Map([...prior.threads].map(([fp, t]) => [fp, { fp, sev: t.sev, inline: true }])); // rebuilt from the tags
+  const nowFps = new Set(findings.map((f) => f.fp));
+  const decisions = new Map();
+  for (const f of findings) {
+    const p = prev.get(f.fp);
+    const t = prior.threads.get(f.fp);
+    let d = { eligible: true, keptOpen: false };
+    if (!p) { if (prior.markerState === "trusted" && t && !t.resolved) d = { eligible: false, keptOpen: true }; } // a trusted marker that lacks an open tagged thread (an interrupted later post) is not new
+    else if (p.inline && t) {
+      if (!t.resolved) d = { eligible: false, keptOpen: true }; // unfixed
+      else if (normLogin(t.resolvedBy) === CI_BOT) d = { eligible: true, keptOpen: false }; // open again
+      else if (SEV_RANK[f.severity] > SEV_RANK[p.sev]) d = { eligible: true, keptOpen: false }; // worse than the human saw
+      else d = { eligible: false, keptOpen: true }; // respected
+    } // inline with no thread found: new; summary-only before: eligible
+    decisions.set(f.fp, d);
+  }
+  const fixed = [];
+  for (const [fp, p] of prev) {
+    const t = prior.threads.get(fp);
+    if (p.inline && !nowFps.has(fp) && t && !t.resolved) fixed.push({ fp, sev: p.sev, threadId: t.id });
+  }
+  return { decisions, fixed };
+}
+
+function validateDocument(docPath, manifestPath, threshold) {
+  const validator = path.join(__dirname, "validate-review.cjs");
+  const r = spawnSync(process.execPath, [validator, docPath, "--manifest", manifestPath, "--threshold", String(threshold)], { encoding: "utf8" });
+  if (r.status === 0) return null;
+  return (r.stderr || `validate-review failed to run: ${r.error ? r.error.message : "unknown error"}`).trimEnd();
+}
+
+function bindingProblem(doc, cli, info) {
+  const t = doc && doc.target;
+  if (!t || typeof t !== "object") return null; // the validator reports a missing target
+  const pairs = [["repo", t.repo, cli.repo], ["pr", t.pr, Number(cli.pr)], ["base_sha", t.base_sha, cli.base], ["head_sha", t.head_sha, cli.head]];
+  const bad = pairs.filter(([, docValue, cliValue]) => docValue !== cliValue).map(([name]) => name);
+  if (bad.length) return `the review document's target does not match the command line (${bad.join(", ")}); nothing was posted`;
+  const current = info && info.head && info.head.sha;
+  if (current !== cli.head) return `the PR head is ${show(current)}, not --head; nothing was posted`;
+  return null;
+}
+
+function matchesFailOn(findings, failOn) {
+  if (failOn === "none") return false;
+  return findings.some((f) => !f.suspect && (f.severity === "critical" || (failOn === "warning" && f.severity === "warning")));
+}
+
+function runPost(opts, positional) {
+  requireOpts(opts, ["manifest", "repo", "pr", "base", "head"]);
+  const failOn = opts["fail-on"] === undefined ? "none" : opts["fail-on"];
+  if (!FAIL_ON.includes(failOn)) throw new UsageError(`--fail-on must be one of ${FAIL_ON.join(", ")}, got ${show(failOn)}`);
+  if (positional.length !== 1) throw new UsageError("post needs exactly one review document");
+  const docPath = positional[0];
+  const dry = opts["dry-run"] === true;
+  const pr = Number(opts.pr);
+
+  for (const dir of new Set([path.dirname(docPath), path.dirname(opts.manifest)])) {
+    const file = path.join(dir, "skipped.json");
+    if (!fs.existsSync(file)) continue;
+    let reason = "skipped";
+    try { reason = String(JSON.parse(fs.readFileSync(file, "utf8")).reason).slice(0, NOTE_MAX); } catch (error) { /* keep the generic reason */ }
+    process.stdout.write(`post: skipped run, nothing posted (${redact(reason)})\n`);
+    return 0;
+  }
+
+  // FR-3, empty filtered diff: nothing to review, so nothing is posted (detection lives in `prepare`,
+  // which records it as files: []; this is the guarantee). Checked before any gh call.
+  try {
+    const early = JSON.parse(readBounded(opts.manifest, 5 * 1024 * 1024, "manifest"));
+    if (early && Array.isArray(early.files) && early.files.length === 0) {
+      process.stdout.write("post: skip: the filtered diff is empty (FR-3); nothing posted\n");
+      return 0;
+    }
+  } catch (error) { /* an unreadable manifest is reported by the validation stage below */ }
+
+  const write = (method, apiPath, body) => {
+    if (!dry) return gh(method, apiPath, body);
+    process.stdout.write(`dry-run: ${method} ${apiPath} ${JSON.stringify(body)}\n`);
+    return { id: 0 };
+  };
+
+  let labels = [];
+  let doc = null;
+  let failure = null;
+  let posted = null;
+  let stage = "validation"; // until the document is validated, a failure is a validation failure
+  try {
+    const info = gh("GET", `repos/${opts.repo}/pulls/${pr}`) || {};
+    labels = (Array.isArray(info.labels) ? info.labels : []).map((l) => l && l.name);
+    const text = readBounded(docPath, 5 * 1024 * 1024, "document");
+    try { doc = JSON.parse(text); } catch (error) { doc = null; }
+    const mismatch = bindingProblem(doc, opts, info);
+    if (mismatch) throw new UsageError(mismatch);
+    const config = loadBaseConfig(opts.repo, opts.base);
+    const problem = validateDocument(docPath, opts.manifest, effectiveConfig(config).threshold);
+    if (problem) throw new UsageError(`the review document is invalid:\n${problem}`);
+    stage = "posting";
+    posted = publish({ opts, pr, doc, config, labels, write });
+  } catch (error) {
+    failure = error.message;
+  }
+
+  const forced = labels.includes(ADVISORY_LABEL);
+  const effective = forced ? "none" : failOn;
+  if (failure !== null) process.stderr.write(`post: failed: ${failure}\n`);
+  else process.stdout.write(`post: ${posted.line}\n`);
+  if (posted && posted.stopped) return 0;
+  // FR-11 / design 6: exit 1 only when validation failed (binding and config included), or the
+  // validated document has a matching non-suspect finding. A posting failure alone never fails the run.
+  const validationFailed = failure !== null && stage === "validation";
+  const exit = effective === "none" ? 0 : validationFailed || matchesFailOn(doc.findings, effective) ? 1 : 0;
+  if (exit === 1) process.stdout.write(`post: exit 1 (--fail-on ${effective})\n`);
+  return exit;
+}
+
+function publish({ opts, pr, doc, config, labels, write }) {
+  const allow = allowlistOf(config);
+  const prior = fetchPrior(opts.repo, pr, allow);
+  if (opts.local) {
+    const viewer = gh("GET", "user");
+    if (prior.summary && normLogin(viewer && viewer.login) !== normLogin(prior.summary.login)) {
+      return { stopped: true, line: "CI owns this PR's summary comment; nothing was posted" };
+    }
+  }
+  const manifest = JSON.parse(fs.readFileSync(opts.manifest, "utf8"));
+  manifest.target = { kind: "pr", pr, repo: opts.repo, base_sha: opts.base, head_sha: opts.head }; // identity comes from the command line only
+  const ctx = contextOf(manifest);
+
+  // Fingerprint and merge duplicates (the best-ranked of each fingerprint survives).
+  const seen = new Set();
+  const findings = [];
+  for (const f of sortFindings(doc.findings.map((x) => ({ ...x, fp: fingerprint(x) })))) {
+    if (!seen.has(f.fp)) { seen.add(f.fp); findings.push(f); }
+  }
+
+  const hunkMap = new Map();
+  for (const file of ghAll(`repos/${opts.repo}/pulls/${pr}/files`)) {
+    if (file && typeof file.filename === "string" && typeof file.patch === "string") hunkMap.set(file.filename, parseHunks(file.patch));
+  }
+
+  const { decisions, fixed } = reconcile(prior, findings);
+  const eligible = [];
+  const rest = [];
+  for (const f of findings) {
+    const d = decisions.get(f.fp);
+    if (!inlineKind(f) || !d.eligible) rest.push(f);
+    else if (!mapsToHunk(hunkMap.get(f.file), f)) rest.push(f);
+    else eligible.push(f);
+  }
+  let inline = eligible.slice(0, INLINE_CAP);
+  rest.push(...eligible.slice(INLINE_CAP));
+
+  let reviewResult = "none";
+  const notes = [];
+  if (inline.length) {
+    const comments = inline.map((f) => {
+      const c = { path: f.file, line: f.line_end, side: f.side, body: renderInlineBody(f, ctx, { fp: f.fp }) };
+      if (f.line_start !== f.line_end) { c.start_line = f.line_start; c.start_side = f.side; }
+      return c;
+    });
+    try {
+      write("POST", `repos/${opts.repo}/pulls/${pr}/reviews`, { commit_id: opts.head, body: REVIEW_BODY, event: REVIEW_EVENT, comments });
+      reviewResult = "posted";
+    } catch (error) {
+      process.stderr.write(`post: ${error.message}; retrying once with no inline comments\n`);
+      try { write("POST", `repos/${opts.repo}/pulls/${pr}/reviews`, { commit_id: opts.head, body: REVIEW_RETRY_BODY, event: REVIEW_EVENT, comments: [] }); } catch (again) { process.stderr.write(`post: ${again.message}\n`); }
+      reviewResult = "retried-without-inline";
+      rest.push(...inline);
+      inline = [];
+      notes.push("The inline comments were rejected by GitHub; every finding is listed in this summary.");
+    }
+  }
+
+  const postedFps = new Set(inline.map((f) => f.fp));
+  const kept = findings.filter((f) => decisions.get(f.fp).keptOpen);
+  const leftOut = findings.length - inline.length;
+  if (leftOut > 0) notes.push(`${leftOut} finding(s) are listed in this summary only, not inline (cap ${INLINE_CAP}, suggestions, suspect warnings, lines outside the diff, or already open).`);
+  if (kept.length) notes.push(`Still open from earlier reviews: ${kept.map((f) => f.fp).join(", ")}.`);
+  if (prior.markerState === "unparsable") notes.push("An earlier summary marker could not be parsed and was not trusted; this is treated as a first review.");
+
+  const marker = `${MARKER_OPEN} ${JSON.stringify({
+    head: opts.head,
+    run: prior.marker ? prior.marker.run + 1 : 1,
+    findings: findings.map((f) => ({ fp: f.fp, sev: f.severity, inline: postedFps.has(f.fp) || decisions.get(f.fp).keptOpen })),
+  })} -->`;
+  const body = renderSummary({ ...doc, findings, notes: [...doc.notes, ...notes] }, manifest, {
+    findingsHeading: `Inline findings (${inline.length})`,
+    findings: inline,
+    summaryOnly: rest,
+    fixed: fixed.map((x) => `finding ${x.fp} (${x.sev}) is no longer present; its inline thread was resolved`),
+    advisoryForced: labels.includes(ADVISORY_LABEL),
+    reserve: marker.length + 1,
+  }) + `${marker}\n`;
+
+  if (prior.summary) write("PATCH", `repos/${opts.repo}/issues/comments/${prior.summary.id}`, { body });
+  else write("POST", `repos/${opts.repo}/issues/${pr}/comments`, { body });
+
+  let resolved = 0;
+  for (const x of fixed) {
+    try { write("POST", "graphql", { query: RESOLVE_MUTATION, variables: { threadId: x.threadId } }); resolved++; } catch (error) { process.stderr.write(`post: could not resolve a fixed thread: ${error.message}\n`); }
+  }
+  return { stopped: false, line: `ok review=${reviewResult} inline=${inline.length} summary_only=${rest.length} fixed=${fixed.length} resolved=${resolved}` };
+}
+
+// ---------------------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------------------
 
@@ -845,13 +1271,17 @@ const USAGE = [
   "usage: node post-review.cjs prepare --diff <file|-> --out <dir> [--config <yml>] [--tier <trivial|lite|full>]",
   "                                     [--base <sha> --head <sha> --repo <owner/name> --pr <n>]",
   "       node post-review.cjs render <doc> --manifest <manifest.json> [--history]",
+  "       node post-review.cjs check-skip --repo <owner/name> --pr <n> --head <sha> --out <dir> [--force] [--config <yml>]",
+  "       node post-review.cjs post <doc> --manifest <manifest.json> --repo <owner/name> --pr <n> --base <sha> --head <sha>",
+  "                                    [--fail-on none|critical|warning] [--dry-run] [--local]",
 ].join("\n");
 
 const COMMANDS = {
   prepare: { values: ["diff", "out", "config", "tier", "base", "head", "repo", "pr"], bools: [], positional: 0, run: (o) => runPrepare(o) },
   render: { values: ["manifest"], bools: ["history"], positional: 1, run: (o, p) => runRender(o, p) },
+  "check-skip": { values: ["repo", "pr", "head", "out", "config"], bools: ["force"], positional: 0, run: (o) => runCheckSkip(o) },
+  post: { values: ["manifest", "repo", "pr", "base", "head", "fail-on"], bools: ["dry-run", "local"], positional: 1, run: (o, p) => runPost(o, p) },
 };
-const PLANNED = ["check-skip", "post"]; // added by T3
 
 function parseFlags(spec, argv) {
   const opts = {};
@@ -877,11 +1307,11 @@ function main(argv) {
   const [command, ...rest] = argv;
   try {
     if (command === undefined) throw new UsageError("a subcommand is required");
-    if (PLANNED.includes(command)) throw new UsageError(`subcommand ${command} is not available in this build`);
     if (!Object.prototype.hasOwnProperty.call(COMMANDS, command)) throw new UsageError(`unknown subcommand ${show(command)}`);
     const spec = COMMANDS[command];
     const { opts, positional } = parseFlags(spec, rest);
-    spec.run(opts, positional);
+    const code = spec.run(opts, positional);
+    if (Number.isInteger(code) && code !== 0) process.exitCode = code;
   } catch (error) {
     const usage = error instanceof UsageError;
     process.stderr.write(`post-review: ${usage ? "" : "internal error: "}${error.message}\n${usage ? `${USAGE}\n` : ""}`);
@@ -895,6 +1325,7 @@ module.exports = {
   SOURCEMAP_GLOBS, GENERATED_GLOBS, MIGRATION_GLOBS, SENSITIVE_GLOBS, REDACTION_PATTERNS, CONFIG_KEYS,
   globToRegExp, parseConfig, parseDiff, buildPrepared, deriveTier, redact, neutralize, pathSpan, isSafePath,
   permalink, capText, renderSummary, renderInlineBody, renderHistory, scrubPaths,
+  fingerprint, parseHunks, normLogin, parseMarker,
 };
 
 if (require.main === module) main(process.argv.slice(2));
