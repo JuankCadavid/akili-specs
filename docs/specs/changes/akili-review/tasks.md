@@ -9,7 +9,9 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated` for `/akili-execute` (proposal). This specify run stops at its Phase 3 gate, as the user asked ("Stop at the specify approval gate", 2026-10-25) |
-| Status | Draft, at the Phase 3 gate |
+| Status | **Approved** 2026-10-25 (Phase 3 gate, user: "Approved: tasks as written, 3-PR split into dev as you recommend (T1–T3, T4–T8, T9–T11), and the T12 pilot deferred until Juan Carlos provides a test repo and API keys") |
+| PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step |
+| T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred |
 | Date | 2026-10-25 |
 | Budget (design §11, amended here) | **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**. Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
 | Commit prefix | `[SPEC:changes/akili-review]`. Local commits only: **no push, no PR, no release, no publish** |
