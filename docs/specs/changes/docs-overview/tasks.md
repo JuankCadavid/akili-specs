@@ -216,7 +216,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (+~190 / −~954) |
 | Depends on | T5 (pins no longer need README text), T1–T4 (every ledger destination quoted) |
 | Requirements | FR-1 (all clauses); FR-2 (≤ 200, install ≤ 90, no `<details>`; AND IT MUST: no packed lines, Reviewer-gated); FR-3 (≤ 3 sentences, 5 bullets with the overview link, 4-term glossary, marketing named, BUT no unshipped capability); FR-4 (figure kept and centered, new plain alt text, assets untouched); FR-5 (one install and one check, `docs/cli.md` link, BUT no per-tool doctor list or tables, Grok Bot named only); FR-6 (5 steps, quick and resume lines, `docs/flow.md#practical-example`, BUT no sample document); FR-7 (all commands in 2 groups linked, Windows note on the security row, 8 CLI rows; BUT no claim the command page lacks); FR-8; FR-9; FR-10; FR-12 (`kept` rows quoted); FR-17 BUT (no `## Dotfiles`/`nvim`); NFR-2, NFR-3, NFR-5 |

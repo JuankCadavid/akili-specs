@@ -86,7 +86,7 @@ n/a. There is no data, API, backend or runtime contract. The only "contract" is 
 | Row | Source wording | README wording (plain) |
 |---|---|---|
 | `/akili-audit` | "spec-to-code drift auditing" | "check that the code still matches your product and design docs" |
-| `/akili-execute` | "Leader → Implementer → Reviewer harness" | "build the approved tasks one by one, each checked by an independent review" |
+| `/akili-execute` | "Leader → Implementer → Reviewer harness" | "build the approved tasks one by one, each independently checked" *(amended at execute 2026-10-24, T6: the conformance review can be skipped under Review intensity, while the non-author evidence re-run never is — `docs/commands/akili-execute.md:50-52`; the earlier wording overclaimed)* |
 | `akili doctor --agents` | "Persona Drift" | "check that your project's agent instruction files are up to date (`--fix` updates them)" |
 | `akili routing` | "model routing" | "choose which AI model runs each step ([model routing](docs/model-routing.md))" |
 

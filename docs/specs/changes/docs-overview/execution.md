@@ -138,3 +138,25 @@
 **Forward pointers.** T9: the suite total is 812 after T5 (T8 adds its own); re-run counts before any summary states them (KZ-002).
 
 **Final verification.** `npm test` → 812 pass, 0 fail.
+
+### T6: Rewrite the README — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design`; high → xhigh on attempt 2 |
+| spawns | Implementer (sonnet) 23 calls, 115,101 tokens, ended complete; Reviewer (opus) 16 calls, 102,837 tokens, ended fail; Implementer attempt 2 3 calls, 121,627 tokens (cumulative), ended complete; Reviewer re-review 2 calls, 107,747 tokens (cumulative), ended complete |
+| Requirements covered | FR-1…FR-10, FR-12 (`kept` rows H01, H02, H06, H43), FR-17 BUT, NFR-2, NFR-3, NFR-5 |
+| Running totals | tasks 6/9 · LOC ~+950 / −1,040 so far (README +158 / −954) · review rounds 11/26 |
+
+**Attempt 1.** Files: `README.md` (954 → 157 lines), ledger `kept` rows. Ledger precheck: every non-`kept` row quoted, no blocker. Implementer verification: `wc -l` 157; first `npx akili-specs init` at `:72`; the 12 FR-1 headings in order; shields 3; `<details` 0; `^## Dotfiles|nvim` 0; `assets/` diff empty; `npm test` `pass 812, fail 0`; 30 relative links, 0 bad anchors; NFR-2 0; spec-folder link 0; lines > 300 chars 0 (figure `<img>` attributes split); FR-10 scan: banned 0, `model routing` only inside link text. Falsifiers (scratch): `## Dotfiles` → heading list differs; extra badge → 4; "The Reviewer checks." → `BANNED Reviewer 28`. Leader re-run: VERIFIED (same values; banned-term grep 0; `doctor --tool` 0; `git diff --check` clean). Reviewer: **FAIL**, 1 issue — H02's quote claimed the Documentation Hub (`docs/README.md`) "stays reachable from `docs/overview.md`"; false at HEAD, nothing linked the hub after the rewrite (FR-12). The Reviewer adjudicated the deviations: (1) `/akili-execute` "each independently checked" is more accurate than design §7's "each checked by an independent review" (`docs/commands/akili-execute.md:50-52`); (2) "offline" dropped correctly (`docs/cli.md` never mentions it); (3) "100% local" owned by `docs/overview.md:7`.
+
+**Attempt 2.** Files: `README.md` (158 lines), ledger `kept` rows. `## Learn more` row 2 `| browse all the docs | [docs/README.md](docs/README.md) |` at `:144` (overview row still first); `:157` "Every command and template carries this authorship notice."; all 22 `kept` citations re-derived, 0 bad. Checks as attempt 1, all green (31 links, 0 bad). Leader re-run: VERIFIED (158; `:72`; 12 headings; shields 3; 0 long lines; first *Learn more* link `](docs/overview.md)`; banned-term grep 0; `npm test` 812/0; `git diff --check` clean). Reviewer: **PASS** — hub link fixed and H02 quoted verbatim; README `:112` matches the amended design cell; no regression.
+
+**ADVISORY (attempt-1 verdict, settled in attempt 2).** H01 (h) figure range corrected to `:49-54`; "role template" reworded.
+
+**Decisions made.** Execute-time spec edit, 2026-10-24, `design.md` §7 plain-row table, `/akili-execute` row → "build the approved tasks one by one, each independently checked" (dated note). Reason: the earlier cell overclaimed — the conformance Reviewer can be skipped under Review intensity, the non-author evidence re-run never is. FR-7's meaning unchanged (Reviewer-confirmed). Carry as a named conformance check into the T7 Reviewer brief.
+
+**Final verification.** As the attempt-2 Leader re-run.
