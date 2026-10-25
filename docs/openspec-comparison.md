@@ -41,3 +41,11 @@ constitution → proposal → spec → execute → test → validate → archive
 ```
 
 Use the comparison as design guidance only. The AKILI command prompts in `.claude/commands/` are the implementation source of truth for this package.
+
+## Roadmap
+
+OpenSpec has useful ideas that fit this methodology well. Some are now supported through `/akili-propose` and `/akili-archive`. Remaining planned improvements:
+
+- automated sync lifecycle for completed specs
+- schema-style workflow templates for feature, bugfix, migration, SEO, and research-first work
+- broader command portability beyond Claude-specific command files

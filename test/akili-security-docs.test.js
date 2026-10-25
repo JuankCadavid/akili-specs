@@ -32,6 +32,7 @@ function section(text, heading) {
 }
 
 const README = read("README.md");
+const OVERVIEW = read("docs/overview.md");
 const FLOW = read("docs/flow.md");
 const CMD_DOC = read("docs/commands/akili-security.md");
 const SKILL_DOC = read("docs/skills/security-audit.md");
@@ -45,17 +46,19 @@ const securityLines = (text) =>
   text.split("\n").filter((l) => /akili-security|security-audit|audits\/security-/.test(l));
 
 // FR-10 scope: the five slug restatement sites named in requirements.md FR-10.
-const SLUG_SITES = {
-  "README.md": README,
+const SLUG_PRESENCE_SITES = {
+  "docs/overview.md": OVERVIEW,
   "docs/flow.md": FLOW,
   "docs/commands/akili-security.md": CMD_DOC,
   "docs/skills/security-audit.md": SKILL_DOC,
   "SKILL.md ## AKILI-SPECS Integration": SKILL_AKILI,
 };
+const SLUG_SHAPE_SITES = { ...SLUG_PRESENCE_SITES, "README.md": README };
 
 // FR-7 scope: the slug sites plus the commands index (docs/specs/ excluded).
 const RUN_DIR_SITES = {
   "README.md (/akili-security lines)": securityLines(README).join("\n"),
+  "docs/overview.md (/akili-security lines)": securityLines(OVERVIEW).join("\n"),
   "docs/flow.md (/akili-security lines)": securityLines(FLOW).join("\n"),
   "docs/commands/README.md (/akili-security lines)": securityLines(CMDS_README).join("\n"),
   "docs/commands/akili-security.md": CMD_DOC,
@@ -66,14 +69,14 @@ const RUN_DIR_SITES = {
 // ---------------------------------------------------------------- FR-8 / FR-10 slug
 
 test("FR-8 / FR-10 Slug restated elsewhere: every routing-slug site reads -r<N>-s<n>", () => {
-  for (const [name, text] of Object.entries(SLUG_SITES)) {
+  for (const [name, text] of Object.entries(SLUG_PRESENCE_SITES)) {
     assert.match(text, /bugfix\/security-<(?:YYYY-MM-DD|date)>-r<N>-s<n>/, `${name} has no routing slug of the form bugfix/security-<date>-r<N>-s<n>`);
   }
 });
 
 test("FR-8 / FR-10 BUT: no -s<n> occurrence in any restatement lacks the -r<N> prefix (every hit enumerated)", () => {
   const stale = [];
-  for (const [name, text] of Object.entries(SLUG_SITES)) {
+  for (const [name, text] of Object.entries(SLUG_SHAPE_SITES)) {
     for (const m of text.matchAll(/-s<n>/g)) {
       if (text.slice(m.index - 5, m.index) !== "-r<N>") {
         const line = text.slice(0, m.index).split("\n").length;
@@ -86,7 +89,7 @@ test("FR-8 / FR-10 BUT: no -s<n> occurrence in any restatement lacks the -r<N> p
 
 test("FR-8 / FR-10 BUT: no restated slug carries a non-template suffix (e.g. a title or path after -s<n>)", () => {
   const bad = [];
-  for (const [name, text] of Object.entries(SLUG_SITES)) {
+  for (const [name, text] of Object.entries(SLUG_SHAPE_SITES)) {
     for (const m of text.matchAll(/bugfix\/security-[^\s`)]*/g)) {
       if (!/^bugfix\/security-<(?:YYYY-MM-DD|date)>-r<N>-s<n>$/.test(m[0])) bad.push(`${name}: ${m[0]}`);
     }
@@ -118,7 +121,7 @@ test("FR-7 / FR-10 BUT: no restatement keeps an in-target run-directory option (
 
 test("FR-7 / FR-10: each run-directory restatement says the run directory is always outside the target", () => {
   const sites = {
-    "README.md": securityLines(README),
+    "docs/overview.md": securityLines(OVERVIEW),
     "docs/flow.md": securityLines(FLOW),
     "docs/commands/README.md": securityLines(CMDS_README),
   };
@@ -128,6 +131,10 @@ test("FR-7 / FR-10: each run-directory restatement says the run directory is alw
     for (const l of runDirLines) {
       assert.match(l, /run directory \(always outside the target\)/, `${name} restates the run directory without "always outside the target": ${l.slice(0, 140)}`);
     }
+  }
+  // The README may carry no run-directory line; any it does carry must say the same.
+  for (const l of securityLines(README).filter((l) => /run directory/.test(l))) {
+    assert.match(l, /run directory \(always outside the target\)/, `README.md restates the run directory without "always outside the target": ${l.slice(0, 140)}`);
   }
   const row = CMD_DOC.split("\n").find((l) => l.startsWith("| Full audit artifacts |"));
   assert.ok(row, "docs/commands/akili-security.md lost its Full audit artifacts row");
@@ -202,6 +209,7 @@ test("FR-6 / FR-10 BUT: no restatement tells the agent to run git status / check
     "docs/skills/security-audit.md": SKILL_DOC,
     "docs/flow.md (/akili-security lines)": securityLines(FLOW).join("\n"),
     "README.md (/akili-security lines)": securityLines(README).join("\n"),
+    "docs/overview.md (/akili-security lines)": securityLines(OVERVIEW).join("\n"),
   };
   for (const [name, text] of Object.entries(sites)) {
     assert.doesNotMatch(text, /git (status|check-ignore|rev-parse)/, `${name} tells the agent to run a git command in the target`);

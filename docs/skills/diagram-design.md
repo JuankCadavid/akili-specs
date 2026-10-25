@@ -18,7 +18,7 @@ Fills the diagram slots of AKILI baseline and spec documents as inline Mermaid (
 
 ## Archify (optional)
 
-Interactive views are rendered by [Archify](https://github.com/tt-a1i/archify) by tt-a1i, MIT licence. It is referenced, never vendored: the skill ships no Archify file. Installing it is your own choice (the command is in the root `README.md`); if it is absent, slots stay Mermaid-only and no command is blocked.
+Interactive views are rendered by [Archify](https://github.com/tt-a1i/archify) by tt-a1i, MIT licence. It is referenced, never vendored: the skill ships no Archify file. Installing it is your own choice (the command is in `docs/overview.md`); if it is absent, slots stay Mermaid-only and no command is blocked.
 
 ## Source
 

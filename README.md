@@ -11,9 +11,7 @@
 
 # AKILI
 
-### Supercharge Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot with constitution-first, self-improving spec intelligence
-
-**Durable product context · traceable requirements · governed releases · a methodology that learns from every spec · 100% local methodology files**
+Spec-driven development for AI coding assistants: plan the change, build it, test it, and learn from it.
 
 <p>
   <a href="https://www.npmjs.com/package/akili-specs"><img alt="npm version" src="https://img.shields.io/npm/v/akili-specs?style=for-the-badge&label=npm"></a>
@@ -21,934 +19,140 @@
   <img alt="Node.js 18+" src="https://img.shields.io/badge/Node.js-18%2B-91c714?style=for-the-badge">
 </p>
 
-<p>
-  <img alt="macOS supported" src="https://img.shields.io/badge/macOS-supported-1686c7?style=for-the-badge">
-  <img alt="Linux supported" src="https://img.shields.io/badge/Linux-supported-1686c7?style=for-the-badge">
-  <img alt="Windows supported" src="https://img.shields.io/badge/Windows-supported-1686c7?style=for-the-badge">
-</p>
-
-<p><sub><code>/akili-security</code> is not supported on native Windows — run it from WSL, Linux or macOS.</sub></p>
-
-<p>
-  <img alt="Claude Code supported" src="https://img.shields.io/badge/Claude%20Code-supported-7c3aed?style=for-the-badge">
-  <img alt="OpenCode supported" src="https://img.shields.io/badge/OpenCode-supported-7c3aed?style=for-the-badge">
-  <img alt="Google Antigravity supported" src="https://img.shields.io/badge/Google%20Antigravity-supported-7c3aed?style=for-the-badge">
-  <img alt="OpenAI Codex CLI supported" src="https://img.shields.io/badge/OpenAI%20Codex%20CLI-supported-7c3aed?style=for-the-badge">
-  <img alt="Cursor supported" src="https://img.shields.io/badge/Cursor-supported-7c3aed?style=for-the-badge">
-  <img alt="Grok Bot supported" src="https://img.shields.io/badge/Grok%20Bot-supported-7c3aed?style=for-the-badge">
-  <img alt="CodeGraph aware" src="https://img.shields.io/badge/CodeGraph-aware-7c3aed?style=for-the-badge">
-</p>
+Works with Claude Code · OpenCode · Google Antigravity · OpenAI Codex CLI · Cursor · Grok Bot — on macOS, Linux and Windows
 
 </div>
 
-Portable Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and Grok Bot configuration for the AKILI-SPECS methodology.
+## What is AKILI?
 
-AKILI-SPECS is a constitution-first, spec-driven methodology for AI-assisted development. It keeps product intent, UX direction, technical design, implementation tasks, tests, and validation evidence in repository documentation so humans and agents can work from the same durable context.
+AKILI adds slash commands and skills to your AI coding assistant.
+It makes the assistant write a spec before it codes, then build the change, test it and check the work against that spec.
+After each change, it learns what to do better next time.
+
+**What you get**
+
+- Shared project context that the assistant reads every session.
+- Every change planned in writing and traceable to a requirement.
+- Built-in review and tests before anything is called done.
+- A method that learns from every finished change.
+- Extras for security audits, SEO, video, diagrams and social marketing: see the [overview](docs/overview.md).
+
+| Term | Meaning |
+|---|---|
+| slash command | A prompt you type in your assistant, such as `/akili-propose`, that runs one step of the method. |
+| skill | A reusable set of instructions the assistant loads when the work needs it, such as debugging or UI design. |
+| spec | The folder of documents for one change: requirements, design and a task list, written before any code. |
+| constitution | The project-wide baseline (product, design and technical docs, plus the guides the assistant reads), set up once. |
+
+## How it works
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png"><img alt="AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose." src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900"></a>
+  <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png">
+    <img alt="The AKILI flow: set up the project once, then each change is proposed, specified, built, tested, validated and archived; some commands run any time."
+         src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png" width="900">
+  </a>
 </p>
 
-## Docs
-
-→ **[Documentation Hub](docs/README.md)**: full AKILI documentation<br>
-→ **[Flow](docs/flow.md)**: constitution-to-archive lifecycle<br>
-→ **[Model Routing](docs/model-routing.md)**: capability-tier model selection per AKILI-SPECS phase (Claude Code + OpenCode + Antigravity + Codex + Cursor), configured per project with `akili routing`<br>
-→ **[Commands](docs/commands/README.md)**: slash command reference<br>
-→ **[Skills](docs/skills/README.md)**: packaged skill reference<br>
-→ **[CLI](docs/cli.md)**: `akili` install/update/list/doctor reference<br>
-→ **[OpenSpec Comparison](docs/openspec-comparison.md)**: what AKILI borrows and how it differs<br>
-→ **[Release Checklist](docs/release-checklist.md)**: controlled npm release process
-
-## What AKILI Covers
-
-Four capabilities sit beside the core spec loop; each fires at a specific point and tells you what, if anything, to install.
-
-| Capability | Where it fires | You install | Read more |
-|---|---|---|---|
-| Security audits | `/akili-security`, an anytime command outside the per-spec loop; confirmed findings go to `/akili-propose` and follow the Bug Track | Nothing extra (packaged `security-audit` skill, Cloudflare, MIT); not on native Windows | [`/akili-security`](docs/commands/akili-security.md) |
-| Video deliverables | A spec whose Document Control says `Deliverable: video`: `/akili-specify` Video Mode, `/akili-test` render evidence, `/akili-validate` final look and delivery render | HyperFrames, yourself (the packaged `video-production` bridge stops at its availability gate and prints the install route) | [`video-production`](docs/skills/video-production.md) |
-| Social marketing | `/akili-marketing`, an anytime command outside the per-spec loop; drafts LinkedIn, Instagram and Facebook posts as reviewable Markdown under `docs/marketing/`, and never publishes | Nothing extra (packaged `social-marketing` skill, adapted from Sergey Bulaev's MIT skill packs) | [`/akili-marketing`](docs/commands/akili-marketing.md) |
-| Diagrams | Diagram slots whose condition holds, filled as inline Mermaid at `/akili-constitution` Steps 3-5 and `/akili-specify` Step 2.1 (architecturally significant designs); `/akili-archive` Step 2 links the spec's views when it has slots — all via the packaged `diagram-design` skill | Nothing; Archify is optional, for interactive views | [`diagram-design`](docs/skills/diagram-design.md) |
-
-## Repository Structure
-
-> **Note for contributors:** `.claude/` is the canonical source for **all six install targets** (Claude Code, OpenCode, Antigravity, Codex, Cursor, Grok Bot) — not Claude-only config. The installer maps it into each tool's layout; it lives at that path because this repo dogfoods its own methodology in Claude Code sessions. See `.claude/README.md`.
-
-- `.claude/commands/` — custom AKILI-SPECS command prompts
-- `.claude/skills/` — required and preferred skills used by the methodology
-- `.claude/templates/` — default Leader, Implementer, Reviewer, and Tester personas used by the multi-agent harness (deployed into project `.agents/`)
-- `docs/` — human-facing documentation for the flow, CLI, commands, skills, and release process
-- `scripts/` — helper scripts referenced by commands (e.g. `gsc_verify.py`)
-- `.mcp.json.example` — reference MCP server configuration (e.g. `gsc`)
-- `dotfiles/` — environment snapshots for Neovim and tmux
-
-## Contents
-
-- `.claude/commands/`
-  - `akili-constitution.md`
-  - `akili-propose.md`
-  - `akili-quick.md`
-  - `akili-specify.md`
-  - `akili-execute.md`
-  - `akili-test.md`
-  - `akili-validate.md`
-  - `akili-archive.md`
-  - `akili-audit.md`
-  - `akili-resume.md`
-  - `akili-seo.md`
-  - `akili-security.md`
-  - `akili-marketing.md`
-- `.claude/skills/`
-  - `ai-agent-development`
-  - `angular-developer`
-  - `api-design-principles`
-  - `aws-serverless`
-  - `brainstorming`
-  - `caveman`
-  - `cognitive-doc-design`
-  - `diagram-design`
-  - `error-handling-patterns`
-  - `frontend-design`
-  - `gsap-animation`
-  - `judgment-day`
-  - `kaizen`
-  - `nestjs-expert`
-  - `product-manager-toolkit`
-  - `react-doctor`
-  - `security-audit`
-  - `seo-audit`
-  - `shadcn-ui`
-  - `social-marketing`
-  - `software-architect`
-  - `stitch-design`
-  - `systematic-debugging`
-  - `tailwind-design-system`
-  - `tdd`
-  - `ui-ux-pro-max`
-  - `vercel-react-best-practices`
-  - `video-production`
-- `.claude/templates/`
-  - `leader.md`
-  - `implementer.md`
-  - `reviewer.md`
-  - `tester.md`
-- `docs/`
-  - `flow.md`
-  - `cli.md`
-  - `commands/`
-  - `skills/`
-  - `openspec-comparison.md`
+- Set up the project once with `/akili-constitution`.
+- Each change then runs propose, specify, execute, test, validate, archive.
+- Some commands work any time, outside that path.
+- The full flow is in [docs/flow.md](docs/flow.md).
 
 ## Install
 
-Install the methodology with the bundled CLI. The installer can target Claude, OpenCode, Google Antigravity, Codex, Cursor, Grok Bot, or multiple tools.
+### What you need
 
-### Prerequisites
+- Node.js 18 or newer
+- Git
+- One supported AI tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor or Grok Bot
 
-Two layers: the **CLI** (installing/updating the package) and the **methodology** (running AKILI commands inside a host tool). Each dependency states which layer needs it and what happens without it.
-
-**Required:**
-
-| Dependency | Needed by | Without it |
-|---|---|---|
-| Node.js ≥ 18 | CLI | `akili install/update/doctor` cannot run (`engines` enforced) |
-| `npm` or `pnpm` | CLI | No install/update path; the CLI probes both to detect how it was installed |
-| Git | Methodology | Commits per task, worktree concurrency, HALT rollback, the tasks.md evidence gate, and `/akili-archive` all assume a git repo — the methodology is not designed for untracked folders |
-| A host tool: Claude Code, OpenCode, Google Antigravity, OpenAI Codex CLI, Cursor, and/or Grok Bot | Methodology | Commands and skills are markdown loaded by the host; without one there is nothing to execute them |
-
-**Recommended (degrades gracefully):**
-
-| Dependency | Used by | Without it |
-|---|---|---|
-| [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) (`npm i -g @colbymchenry/codegraph`, then `codegraph init -i` per project) | `/akili-constitution` discovery scans, `/akili-audit` drift detection, `/akili-execute`/`/akili-test` worker briefs | Commands fall back to `Glob`/`Grep`; reports flag the lower-confidence scan explicitly |
-| GitHub CLI (`gh`) | PR strategy in `/akili-execute` delivery, external-PR review flows | Manual PR creation/review in the browser |
-
-**Conditional (only for specific features):**
-
-| Dependency | Feature | Notes |
-|---|---|---|
-| Python 3 + `google-auth` + `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | Plus a Google service-account key; the rest of `/akili-seo` runs without Python |
-| Git for Windows (git-bash) | Step 8F guardrail hook on Windows | The hook runs via `bash`; Claude Code on Windows already requires git-bash, so this is normally already present. Codex's own Windows git-bash dependency is unconfirmed — name it explicitly for Windows Codex users |
-| Archify skill (`npx skills add tt-a1i/archify`) | Interactive HTML views of diagram slots (optional) | Your own install; without it, diagrams stay Mermaid (see below) |
-| Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`) | Skill Map rows that reference them | Per-developer installs; every command still runs without them, except that a spec whose `Deliverable` selects one (`Deliverable: video` and `hyperframes`, through `video-production`) stops at that skill's availability gate (see `docs/skills/governance.md`) |
-
-`akili doctor` checks the recommended tooling and reports it under *Environment* without failing the health check. Cross-platform installs (Linux/macOS/Windows) are exercised by the CI workflow on every pull request and on every push to `dev` and `master`.
-
-```bash
-npm install -g @colbymchenry/codegraph
-# then, inside each project you want indexed:
-codegraph init -i
-```
-
-`akili doctor` checks for the CLI and reports it under *Environment* without failing the health check.
-
-### Step 1: Choose The Target Tool
-
-| Target | Use When | Default Install Path |
-|---|---|---|
-| Claude | You use Claude Code slash commands and Claude skills | `~/.claude` |
-| OpenCode | You use OpenCode commands and skills | `~/.config/opencode` |
-| Antigravity | You use Google Antigravity global workflows and skills | `~/.gemini` |
-| Codex | You use OpenAI Codex CLI and its Agent Skills | `~/.agents/skills` (commands and skills) + `~/.codex` (resources) |
-| Cursor | You use Cursor (IDE agent) and its Agent Skills | `~/.agents/skills` (commands and skills) + `~/.cursor` (resources) |
-| Both | You switch between Claude Code and OpenCode | Claude + OpenCode paths |
-| Grok Bot | You run the AKILI CLI on the Grok Bot box (see [Grok Bot](docs/cli.md#grok-bot-grokbot)) | `/home/box/agent-data/workflows` (commands and skills) + `/home/box/agent-data/akili` (resources) |
-| All | You use Claude, OpenCode, Google Antigravity, Codex, and Cursor | The five desktop-tool paths above — **not** Grok Bot, which you select explicitly with `--tool grokbot` |
-
-### Step 2: Install
-
-**Interactive Installation (Recommended):**
-Run the `init` command to launch the interactive setup wizard, which will ask you about the tool and whether you want a global or local installation:
+### Install
 
 ```bash
 npx akili-specs init
 ```
 
-> **Using pnpm?** Every `npx akili-specs …` command in this guide works as `pnpm dlx akili-specs …`. The package lives on the npm registry, which pnpm consumes directly — no extra setup for one-off runs.
+The wizard asks which tool to set up and whether to install globally or in this project.
+With pnpm, run `pnpm dlx akili-specs init` instead.
 
-**Manual Installation via Flags:**
-
-Install without `--tool` — the installer **auto-detects targets already installed on disk**
-(`~/.claude`, `~/.config/opencode`, `~/.gemini`, and Codex, Cursor and Grok Bot by their own resources roots) and acts on all of them; on a first-time run with
-nothing installed it defaults to Claude:
+### Check it worked
 
 ```bash
-npx akili-specs install
+npx akili-specs doctor
 ```
 
-Install globally for OpenCode:
+Restart your AI tool, then type `/akili-` and the AKILI commands appear (in Codex, type `$akili-`).
 
-```bash
-npx akili-specs install --tool opencode
-```
+Other tools, flags, manual install, updating and troubleshooting: see [docs/cli.md](docs/cli.md).
 
-Install locally to the current project workspace:
+## Your first spec
 
-```bash
-npx akili-specs install --tool both --local
-```
+Run these in your AI assistant, in order:
 
-Install for Grok Bot — run this **in a shell on the Grok Bot box** (the CLI never copies files to another machine). It is never part of `--tool all`, and it skips any folder in the workflows root that AKILI did not write, unless you pass `--force`; see [Grok Bot](docs/cli.md#grok-bot-grokbot) before the first run:
+1. `/akili-constitution`: AKILI studies your project and writes the baseline docs and guides, such as `docs/prd.md`.
+2. `/akili-propose <name>`: you describe the change and AKILI writes a short proposal, `proposal.md`.
+3. `/akili-specify <spec-path>`: AKILI plans the change in `requirements.md`, `design.md` and `tasks.md`.
+4. `/akili-execute <spec-path>`: AKILI builds the approved tasks one by one and logs the work in `execution.md`.
+5. `/akili-test`, `/akili-validate`, then `/akili-archive` (each with the spec path): you get `test-report.md`, `validation-report.md`, then `archive-summary.md`.
 
-```bash
-npx akili-specs install --tool grokbot
-```
+Tiny copy or color change? Use `/akili-quick <change-name>` and skip the steps.
+Coming back after a break? Run `/akili-resume` to see where each spec stands.
+A worked example with real names is in [docs/flow.md](docs/flow.md#practical-example).
 
-### Step 3: Verify The Installation
+## Commands at a glance
 
-Check Claude installation:
+### In your AI assistant
 
-```bash
-npx akili-specs doctor --tool claude
-```
-
-Check OpenCode installation:
-
-```bash
-npx akili-specs doctor --tool opencode
-```
-
-Check Antigravity installation:
-
-```bash
-npx akili-specs doctor --tool antigravity
-```
-
-Check Codex installation:
-
-```bash
-npx akili-specs doctor --tool codex
-```
-
-Check Cursor installation:
-
-```bash
-npx akili-specs doctor --tool cursor
-```
-
-Check Grok Bot installation (on the box):
-
-```bash
-npx akili-specs doctor --tool grokbot
-```
-
-Check all:
-
-```bash
-npx akili-specs doctor --tool all
-```
-
-Expected result: every command, skill, and helper resource shows `OK`.
-
-### Step 4: Restart Your Tool
-
-Restart Claude Code, OpenCode, Antigravity, Codex, Cursor, or Grok Bot (or open a new chat) after installation. Running sessions may not pick up new commands or skills until the tool restarts.
-
-### Step 5: Confirm Commands Are Available
-
-In your tool of choice, confirm AKILI commands are available (as slash commands, workflows, or — on Codex — skills invoked with `$`, e.g. `$akili-constitution`; on Cursor, skills invoked with `/`, e.g. `/akili-constitution` — `Last verified: 2026-10-01`, <https://cursor.com/docs/context/skills>: "Skills can also be manually invoked by typing / in Agent chat"):
-
-```text
-/akili-constitution
-/akili-propose
-/akili-specify
-/akili-execute
-/akili-test
-/akili-validate
-/akili-archive
-/akili-seo
-```
-
-Then start a project with:
-
-```text
-/akili-constitution
-```
-
-Or, if the project already has a strong baseline:
-
-```text
-/akili-propose add-my-feature
-```
-
-### Local Checkout Install
-
-If you are installing from this repository before publishing to npm, run:
-
-```bash
-node bin/akili.js install
-node bin/akili.js install --tool opencode
-node bin/akili.js install --tool both
-```
-
-Verify local checkout install:
-
-```bash
-node bin/akili.js doctor --tool both
-```
-
-### Global Install
-
-If you prefer a persistent global CLI:
-
-```bash
-npm install -g akili-specs
-akili install
-akili install --tool opencode
-akili doctor --tool opencode
-```
-
-With pnpm (requires a one-time `pnpm setup` so `PNPM_HOME` is on your `PATH`):
-
-```bash
-pnpm add -g akili-specs
-akili install
-```
-
-`akili update` detects which package manager owns the installation (npm or pnpm) and runs the matching update command.
-
-### Install Paths
-
-Default targets:
-
-```text
-Claude:   ~/.claude
-OpenCode: ~/.config/opencode
-```
-
-For Claude, the installer writes:
-
-```text
-~/.claude/commands/
-~/.claude/skills/
-~/.claude/akili/scripts/
-~/.claude/akili/templates/      (leader, implementer, reviewer, tester personas used by /akili-constitution)
-~/.claude/akili/.mcp.json.example
-```
-
-For OpenCode, the installer writes:
-
-```text
-~/.config/opencode/commands/
-~/.config/opencode/skills/
-~/.config/opencode/akili/scripts/
-~/.config/opencode/akili/templates/
-~/.config/opencode/akili/.mcp.json.example
-```
-
-OpenCode loads global command markdown files from `~/.config/opencode/commands/` and skills from `~/.config/opencode/skills/`. Restart OpenCode after install or update so it loads the new files.
-
-### Updating
-
-Update Claude:
-
-```bash
-npx akili-specs update --tool claude --force
-```
-
-Update OpenCode:
-
-```bash
-npx akili-specs update --tool opencode --force
-```
-
-Update both:
-
-```bash
-npx akili-specs update --tool both --force
-```
-
-Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped.
-
-### Releasing Package Updates
-
-Repository changes do not update the published npm package automatically. Every published package update must have a new version.
-
-Release policy:
-
-- Commit repository changes separately from release version changes.
-- Add `CHANGELOG.md` notes before preparing a release.
-- Use `npm run release:status` to detect drift between local release files, npm, tags, and GitHub Releases.
-- The `Release Status` GitHub Actions workflow runs the same drift check on pushes to `master` and `dev`, pull requests, and manual dispatches.
-- Publish only from a clean working tree after verification passes.
-- Confirm npm authentication before publishing.
-- Do not claim npm is updated until publish and smoke tests succeed.
-- If publish fails, fix the blocker and retry the same unpublished version.
-
-Use semantic versioning:
-
-| Bump | Use For | Example |
-|---|---|---|
-| Patch | Documentation fixes, small command clarifications, installer fixes | `0.2.0` to `0.2.1` |
-| Minor | New commands, new install targets, meaningful workflow additions | `0.2.0` to `0.3.0` |
-| Major | Breaking command behavior or package install changes | `0.2.0` to `1.0.0` |
-
-Controlled release flow (`feat/<name>` / `fix/<name>` → `dev` → `master`; nothing is committed or pushed to `dev` or `master` directly):
-
-1. Add notes under `CHANGELOG.md` > `Unreleased`; they land on `dev` through feature PRs.
-2. Cut `release/vX.Y.Z` from an up-to-date `dev`, run `npm run release:patch` (or `release:minor` / `release:major`), verify, commit the release, and open a PR into `dev`.
-3. Open a PR `dev` → `master` and merge it with a merge commit.
-4. On an up-to-date `master`: tag and push the tag, `npm publish`, verify `npm view akili-specs dist-tags`, then `gh release create`.
-5. Resync `dev` from `master` through a `sync/master-into-dev` PR, merged with a merge commit.
-
-To preview `dev` before a stable release, a maintainer runs `npm run release:next -- <patch|minor|major>`; users try it with `npm i akili-specs@next`. See [docs/release-checklist.md](docs/release-checklist.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
-
-After publish, smoke test:
-
-```bash
-npx akili-specs@X.Y.Z list
-npx akili-specs@X.Y.Z install --tool both --dry-run
-npm view akili-specs version --registry=https://registry.npmjs.org/
-npm run release:status
-```
-
-### CLI Commands
-
-See the full [CLI Reference](docs/cli.md) for options, install paths, examples, safety rules, and troubleshooting.
-
-| Command | Purpose |
+| Command | Use it to… |
 |---|---|
-| `akili install` | Install commands, skills, and helper resources |
-| `akili update` | Reinstall packaged commands, skills, and helper resources |
-| `akili list` | Show packaged commands, skills, and helper resources |
-| `akili doctor` | Check whether expected files are installed |
-| `akili routing` | Configure a project's model routing — the `## Model Routing` section of `AGENTS.md`, the Step 8E agent wrappers, and `.agents/model-routing.json` (see the [CLI Reference](docs/cli.md#routing-akili-routing)) |
-| `akili doctor --agents` | Report drift between a project's `.agents/` personas and the CLI's packaged templates; `--fix` upgrades them (see the [CLI Reference](docs/cli.md)) |
-| `akili check-update` | Print one line if a newer version is on npm (`--quiet` for session hooks; 24h cache) |
-| `akili notifications enable\|disable\|status` | Opt-in Claude Code SessionStart hook that announces new versions at session start |
+| **Every change** | |
+| [`/akili-constitution`](docs/commands/akili-constitution.md) | set up or repair the project baseline docs and the guides your assistant reads |
+| [`/akili-propose <name>`](docs/commands/akili-propose.md) | write a short proposal that you review before full planning |
+| [`/akili-specify <spec-path>`](docs/commands/akili-specify.md) | plan one bounded change: requirements, design and a task list |
+| [`/akili-execute <spec-path>`](docs/commands/akili-execute.md) | build the approved tasks one by one, each independently checked |
+| [`/akili-test <spec-path>`](docs/commands/akili-test.md) | write and run tests, and record the evidence |
+| [`/akili-validate <spec-path>`](docs/commands/akili-validate.md) | check that the finished work matches the approved spec |
+| [`/akili-archive <spec-path>`](docs/commands/akili-archive.md) | close a finished change and record what was learned |
+| **Any time** | |
+| [`/akili-quick <change-name>`](docs/commands/akili-quick.md) | make a trivial, low-risk change in one step; it escalates if the change is bigger |
+| [`/akili-audit`](docs/commands/akili-audit.md) | check that the code still matches your product and design docs |
+| [`/akili-resume`](docs/commands/akili-resume.md) | pick up after a break with a briefing on your active specs |
+| [`/akili-seo <site-domain>`](docs/commands/akili-seo.md) | set up Google Search Console for a domain and audit its SEO |
+| [`/akili-security [<path>…]`](docs/commands/akili-security.md) | audit your repository for security vulnerabilities; confirmed findings are routed to bug proposals. Not supported on native Windows (use WSL, Linux or macOS) |
+| [`/akili-marketing <mode> [args]`](docs/commands/akili-marketing.md) | draft LinkedIn, Instagram and Facebook posts as Markdown files; it never publishes |
 
-Useful options:
+### In your terminal
 
-```bash
-akili install --dry-run
-akili install --tool claude --target ./.claude
-akili install --tool opencode --target ./.config/opencode
-akili install --tool both --claude-target ./.claude --opencode-target ./.config/opencode
-akili update --force
-akili update --tool both --force
-akili doctor --commands-only
-akili doctor --tool opencode --skills-only
-akili doctor --agents --fix
-```
-
-Installer safety rules:
-
-- existing files are skipped by default
-- use `--force` to overwrite existing files
-- use `--dry-run` to preview changes
-- use `--tool claude`, `--tool opencode`, or `--tool both` to choose the destination
-- use `--target <path>` to install a single selected tool somewhere custom
-- use `--claude-target <path>` and `--opencode-target <path>` with `--tool both`
-
-The helper resources under the target `akili/` folder support commands such as `/akili-seo`, including the bundled Google Search Console verification helper.
-
-### Troubleshooting
-
-If commands do not appear:
-
-- run `akili doctor --tool <claude|opencode|antigravity|codex|cursor|grokbot|both|all>`
-- restart Claude Code, OpenCode, Antigravity, Codex, Cursor, or Grok Bot
-- confirm you installed into the expected target path
-- rerun install with `--force` if old files should be replaced
-
-If you want to preview installation without writing files:
-
-```bash
-akili install --tool both --dry-run
-```
-
-### Manual Install
-
-If you do not want to use the CLI, copy the repository `.claude/commands` and `.claude/skills` folders into your tool configuration location.
-
-Typical global install target:
-
-- `~/.claude/commands/`
-- `~/.claude/skills/`
-
-Typical OpenCode global install target:
-
-- `~/.config/opencode/commands/`
-- `~/.config/opencode/skills/`
-
-Example:
-
-```bash
-cp -R .claude/commands/* ~/.claude/commands/
-cp -R .claude/skills/* ~/.claude/skills/
-```
-
-Manual OpenCode example:
-
-```bash
-mkdir -p ~/.config/opencode/commands ~/.config/opencode/skills
-cp -R .claude/commands/* ~/.config/opencode/commands/
-cp -R .claude/skills/* ~/.config/opencode/skills/
-```
-
-## Dotfiles
-
-The repository also includes editor and terminal configuration snapshots under `dotfiles/`:
-
-- `dotfiles/.config/nvim/`
-- `dotfiles/.tmux/`
-- `dotfiles/.tmux.conf`
-
-These are stored as portable references or backup material for the environment used with this methodology.
-
-### Restore Neovim
-
-```bash
-mkdir -p ~/.config
-cp -R dotfiles/.config/nvim ~/.config/
-```
-
-### Restore tmux
-
-```bash
-cp dotfiles/.tmux.conf ~/.tmux.conf
-cp -R dotfiles/.tmux ~/.tmux
-```
-
-If you prefer a lighter restore, keep `~/.tmux.conf` and reinstall plugins separately instead of copying the full plugin snapshot.
-
-## Start Here
-
-See the full [Flow documentation](docs/flow.md) for artifacts, review gates, project modes, and spec folder shape.
-
-Use this flow for normal feature work:
-
-1. `/akili-constitution` - create or strengthen the project baseline.
-2. `/akili-propose <change-name-or-spec-path>` - capture intent, scope, and reviewable direction.
-3. `/akili-specify <spec-path>` - define one feature, module, bugfix, or enhancement.
-4. `/akili-execute <spec-path>` - implement the next approved task.
-5. `/akili-test <spec-path>` - prove the behavior with tests and traceability.
-6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
-7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
-
-Six anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security` and `/akili-marketing`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
-
-Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
-
-**Brand-new project? Don't re-propose the seed prompt.** After the seed drives `/akili-constitution`, the PRD *is* that intent — already reviewed. The next step is `/akili-propose <first-milestone>`, which reads the PRD and decomposes the v1 scope into bounded, ordered chunks (or `/akili-specify` directly when v1 is one bounded piece). See [Day 1 on a Brand-New Project](docs/flow.md#day-1-on-a-brand-new-project-from-seed-prompt-to-first-spec).
-
-`/akili-constitution` classifies the repository into one of three project modes:
-
-- **Brand-new (Seed Setup):** little or no code or durable docs. Creates the baseline from user intent, chosen stack, assumptions, and open questions, and copies default `.agents/` personas verbatim.
-- **Legacy (Discovery Setup):** real code exists but the AKILI-SPECS baseline does not. Inspects code, docs, architecture, tests, package manifests, and routes before drafting baseline docs, and customizes `.agents/` personas to the detected stack and design tokens.
-- **Active AKILI-SPECS (Safe Update):** the AKILI-SPECS baseline and possibly customized `.agents/` already exist. Upgrades weak sections and fills missing files, and replaces each `.agents/` persona's owned section per its drift state via `akili doctor --agents` (see the [CLI Reference](docs/cli.md)) — custom-edited sections and the project block are never touched.
-
-For all three modes, `/akili-constitution` creates or enhances root `CLAUDE.md` and root `AGENTS.md` so Claude Code, OpenCode, Google Antigravity, Codex, and Cursor receive the same project guidance.
-
-For existing projects, CodeGraph is an optional acceleration path. If `.codegraph/` exists, agents should use it for semantic code exploration, symbol lookup, callers/callees, and impact checks. If `.codegraph/` is missing and the `codegraph` CLI is available, the agent should ask whether to run `codegraph init -i`. If the CLI itself is not installed, the agent says so once — with the install command (`npm install -g @colbymchenry/codegraph`) — and continues. Either way the methodology proceeds with normal `Glob`, `Grep`, and file reads at the **same scan scope**: a missing graph lowers the confidence the reports record, it never shrinks the analysis.
-
-Use `/akili-propose` when the change needs review before full specification. For very small, obvious work, you may start directly with `/akili-specify <spec-path>`.
-
-## Command Map
-
-See the full [Command Reference](docs/commands/README.md) for detailed pages per command.
-
-| Command | Use When | Main Output |
-|---|---|---|
-| `/akili-constitution` | Starting a repo or repairing weak project context | `docs/prd.md`, UX/UI design, TRD, `docs/infrastructure.md`, general spec templates, `CLAUDE.md`, `AGENTS.md` guidance |
-| `/akili-propose <change-name-or-spec-path>` | Aligning on intent before full specification (supports Figma/Jira MCP context) | `proposal.md` under `docs/specs/<spec-path>/` |
-| `/akili-quick <change-name>` | Making a genuinely trivial, low-risk change (button color, title text, small paragraph) fast | The edit + a one-line entry in `docs/specs/quick/quick-log.md` and a `[SPEC:quick/<name>]` commit |
-| `/akili-specify <spec-path>` | Planning one bounded change before code | `requirements.md`, `design.md`, `tasks.md` under `docs/specs/<spec-path>/` (includes Design Impact injection, LOC estimation and HITL menus) |
-| `/akili-execute <spec-path>` | Implementing approved tasks via the Leader → Implementer → Reviewer harness | Code changes, updated `tasks.md`, `execution.md` with full PASS/FAIL audit trail |
-| `/akili-test <spec-path>` | Adding or running test evidence | `test-report.md` with requirement-to-test traceability |
-| `/akili-validate <spec-path>` | Checking implementation against the spec | `validation-report.md` with pass, warning, failure, and remediation items |
-| `/akili-archive <spec-path>` | Closing completed work after validation | Archived spec folder under `docs/specs/archive/` with `archive-summary.md`, one Kaizen entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, agent guides synced (or recorded as pending items on a spec branch), CodeGraph re-index reminder |
-| `/akili-audit` | Detecting drift between specs and codebase reality | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix |
-| `/akili-resume` | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
-| `/akili-seo <site-domain>` | Auditing deployed SEO and Search Console state | `seo-setup-report.md`, `seo-audit-report.md` |
-| `/akili-security [<path>…]` | Auditing a repository for security vulnerabilities (plan gate, static-only by default) | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (always outside the target) |
-| `/akili-marketing <mode> [args]` | Drafting LinkedIn, Instagram and Facebook social marketing (brand voice, campaigns, calendar, posts); drafts only, never publishes | Markdown under `docs/marketing/`; each post ends at a copy-paste block for you to place by hand |
-
-## How To Choose The Right Depth
-
-Use the lightest documentation that still makes the work clear and verifiable.
-
-| Work Type | Recommended Depth | What To Capture |
-|---|---|---|
-| Trivial cosmetic / copy tweak (button color, title text, small paragraph) | `/akili-quick` (no spec docs) | One-line log entry + `[SPEC:quick/<name>]` commit; auto-escalates if not actually trivial |
-| Small bugfix or UI tweak | Lite | Problem, affected requirement, scenario, focused task, verification command |
-| Normal feature | Standard | Requirements, scenarios, design decisions, task breakdown, tests |
-| High-risk change | Full | Business context, alternatives, data/API contracts, rollout, risks, observability, rollback |
-| Cross-cutting architecture | Full plus constitution review | Updates to project baseline docs and affected specs |
-
-Lite mode does not skip rigor. It keeps the documents short, but every requirement still needs a testable scenario and every task still needs a done criterion. `/akili-quick` is the one path that skips the spec documents entirely — reserved for genuinely trivial changes, with a strict gate that escalates anything bigger.
-
-## Core Concepts
-
-| Concept | Meaning |
+| Command | Use it to… |
 |---|---|
-| Constitution | Project-wide context that should not be rediscovered every session |
-| Proposal | A lightweight review document for intent, scope, options, and risks |
-| Spec path | A folder under `docs/specs/` for one bounded piece of work |
-| Requirement | A testable statement of expected behavior |
-| Scenario | A concrete Given/When/Then example that proves a requirement |
-| Design | The technical and UX approach for satisfying requirements |
-| Task | A small executable unit linked to requirements and design sections |
-| Report | Evidence that the implementation was tested and validated |
-| Archive | Completed AKILI-SPECS history moved under `docs/specs/archive/` |
-| Kaizen | The continuous-improvement loop that turns each spec's evidence into lessons and standards |
-
-## The Kaizen Loop
-
-Other methodologies execute specs. **AKILI learns from every spec.**
-
-AKILI embeds the Japanese Kaizen philosophy of continuous improvement (改善 — *kai* change, *zen* better) as an executable step, powered by the packaged `kaizen` skill (authored by [Juan Carlos Cadavid](https://jcadavid.com), inspired by the Kaizen Institute glossary, Robert Maurer's small-steps method, and INTI's *Emprendiendo Kaizen*). Every `/akili-archive` automatically runs a bounded retrospective — no extra command, no extra ceremony:
-
-```text
-┌─────────┐    ┌─────────┐    ┌──────────────┐    ┌──────────┐
-│ MEASURE │ ─▶ │  LEARN  │ ─▶ │ STANDARDIZE  │ ─▶ │  RECORD  │
-│ rework, │    │ 0–3 root│    │ propose the  │    │ one entry│
-│ pivots, │    │ -cause  │    │ 1–3 line edit│    │ file per │
-│ bugs    │    │ lessons │    │ branch-gated │    │ spec     │
-└─────────┘    └─────────┘    └──────────────┘    └──────────┘
-   every /akili-archive, on any branch · docs/specs/kaizen/<slug>.md
-                              │  pending items
-                              ▼
-                    ┌──────────────────────┐
-                    │      APPLY MODE      │
-                    │ HITL menu · approved │
-                    │ edits · digest       │
-                    └──────────────────────┘
-   apply-capable branch · refreshes ## Active Lessons for the next spec
-```
-
-- **Measure:** hunt MUDA (waste) in the spec's own evidence — Reviewer rework attempts, pivots, PRODUCT_BUGs, severe judgment-day findings, validation warnings, drift.
-- **Learn:** distill 0–3 lessons with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons are banned; a root cause that already exists is recorded as a digest update instead of a duplicate lesson.
-- **Standardize:** propose one 1–3 line edit per lesson to constitution guides, spec templates, design tokens, or agent personas — small steps, never rewrites. The proposal is always shown to you; whether it is *written* depends on the branch, and no shared file is ever edited from a spec branch, or from the default branch while an `Integration Branch:` pin exists.
-- **Record:** write one entry file per spec at `docs/specs/kaizen/<safe-spec-slug>.md`, carrying the metrics, the lessons, and the pending standardizations. Two branches archiving in parallel produce two distinct files and zero conflicts.
-- **Apply (apply-capable branch):** say *"apply pending kaizen standardizations"* — or accept the offer `/akili-archive` makes when it already runs there — to work the whole pending backlog through the approval menu, re-verify each approved item before writing it, make the approved edits, collect approved Methodology items into an upstream report, and refresh the capped `## Active Lessons` digest, which is then read by `/akili-propose`, `/akili-specify`, and `/akili-execute` so past mistakes shape new work, and shown by `/akili-resume` together with the pending count. The apply-capable branch is the pinned integration branch when one is set, otherwise the default branch — never both.
-
-The loop improves on two levels: **Product** lessons harden the project you are building, while **Methodology** lessons (root causes in AKILI itself) are recorded as a `Kind: upstream` pending item, collected into one upstream report at apply time, and flipped to `upstreamed` — so the methodology learns from every tool built with it. This is the meaning behind the name: *akili* is Swahili for intelligence, and intelligence that does not learn is not intelligence.
-
-## Spec Folder Shape
-
-Each feature or change should live in one folder:
-
-```text
-docs/specs/<spec-path>/
-├── proposal.md           # created by /akili-propose, optional but recommended
-├── requirements.md
-├── design.md
-├── tasks.md
-├── execution.md          # created by /akili-execute
-├── test-report.md        # created by /akili-test
-├── validation-report.md  # created by /akili-validate
-└── archive-summary.md    # created by /akili-archive before moving
-```
-
-Choose paths that describe the domain and intent:
-
-```text
-docs/specs/loan/
-docs/specs/enhancements/renewals/
-docs/specs/admin/user-management/
-docs/specs/bugfix/login-redirect/
-docs/specs/changes/add-remember-me/
-```
-
-When `/akili-propose add-remember-me` receives a bare change name, it defaults to `docs/specs/changes/add-remember-me/`. When it receives a nested path such as `bugfix/login-redirect`, it uses that path directly.
-
-## Requirement Delta Preview
-
-Proposals can include a lightweight delta preview. This makes reviews faster for brownfield work:
-
-```markdown
-## Requirement Delta Preview
-
-### ADDED Requirements
-
-- The system SHALL allow users to opt into extended sessions.
-
-### MODIFIED Requirements
-
-- Session expiration changes from a fixed timeout to configurable timeout policies.
-
-### REMOVED Requirements
-
-- Legacy session persistence behavior is removed after migration.
-```
-
-During `/akili-specify`, these previews become full requirements, scenarios, design decisions, and tasks.
-
-## Writing Good Requirements
-
-Write requirements as behavior contracts, not implementation plans.
-
-Use this shape when possible:
-
-```markdown
-### Requirement: Session Expiration
-
-The system SHALL expire inactive user sessions after the configured timeout.
-
-#### Scenario: Idle timeout
-
-- GIVEN an authenticated user has an active session
-- WHEN the session remains inactive past the configured timeout
-- THEN the system invalidates the session
-- AND the user must authenticate again before accessing protected pages
-- BUT it must NOT invalidate the session if a keep-alive ping was received
-- AND IT MUST log the expiration event in the audit trail
-```
-
-Good requirements are:
-
-- observable by a user, system, API client, or operator
-- measurable enough to test
-- equipped with rigorous negative constraints (`BUT it must NOT`) and strict validations (`AND IT MUST`) for boundary cases
-- independent from internal class names or library choices
-- linked to at least one implementation task
-- covered by test evidence or an explicit accepted gap
-
-## Review Points
-
-Before implementation, review:
-
-- whether the problem and scope are clear
-- whether every requirement has at least one scenario
-- whether design decisions explain trade-offs instead of only listing files
-- whether tasks are small enough to execute independently
-- whether every task has verification criteria
-
-Before completion, review:
-
-- whether all intended tasks are complete
-- whether tests cover the key scenarios
-- whether validation found unresolved failures
-- whether the spec should be updated based on implementation discoveries
-
-## Practical Example
-
-For a new admin user-management feature:
-
-```text
-/akili-constitution
-/akili-propose admin/user-management
-/akili-specify admin/user-management
-/akili-execute admin/user-management
-/akili-test admin/user-management
-/akili-validate admin/user-management
-/akili-archive admin/user-management
-```
-
-For a small login redirect bugfix in an established repo:
-
-```text
-/akili-specify bugfix/login-redirect
-/akili-execute bugfix/login-redirect
-/akili-test bugfix/login-redirect
-/akili-validate bugfix/login-redirect
-/akili-archive bugfix/login-redirect
-```
-
-For a reviewable named change using the default `changes/` path:
-
-```text
-/akili-propose add-remember-me
-/akili-specify changes/add-remember-me
-/akili-execute changes/add-remember-me
-/akili-test changes/add-remember-me
-/akili-validate changes/add-remember-me
-/akili-archive changes/add-remember-me
-```
-
-## Planned Improvements Inspired By OpenSpec
-
-OpenSpec has useful ideas that fit this methodology well. Some are now supported through `/akili-propose` and `/akili-archive`. Remaining planned improvements:
-
-See [OpenSpec Comparison](docs/openspec-comparison.md) for the current AKILI comparison and documentation-pattern notes.
-
-- automated sync lifecycle for completed specs
-- schema-style workflow templates for feature, bugfix, migration, SEO, and research-first work
-- broader command portability beyond Claude-specific command files
-
-### Auxiliary commands
-
-- `/akili-audit` — Detect and report drift between the project's specifications (PRD, UX/UI Design, TRD) and the actual implementation. Produces one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` — with a conformance score, categorized discrepancies (High/Medium/Low), a conformance matrix, and recommended remediation paths — so audits from parallel branches coexist instead of overwriting each other. Readers take only `drift-*.md` files as the drift source (a `security-*.md` index is never one); a legacy `docs/specs/drift-report.md` stays readable as a permanent fallback and is never modified. Run independently or after major implementation milestones.
-
-- `/akili-resume` — Resume work after a session break by scanning all active specs under `docs/specs/` and presenting a multi-spec dashboard. Shows current phase, progress bars, last action, blockers, and recommends the next command. If only one spec is active, goes directly to a detailed briefing. No arguments required.
-
-- `/akili-security [<path>…] [--profile quick|standard|deep] [--budget <N>] [--out <dir>]` — Full repository security audit using the packaged `security-audit` skill (Cloudflare, MIT). The plan gate stops on every run, and the routing gate stops whenever it is reached (only a run that writes an index reaches it); the run is static-only unless you approve sandboxed execution for that run, and the index is written only when both validators exit 0, or with the run recorded `incomplete`. Full findings stay in the run directory (always outside the target); the only tracked repository content written is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. Confirmed findings are routed to `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`. Agent behaviour cannot be machine-enforced, and a static-only run yields mostly `needs_validation` records — see [the command page](docs/commands/akili-security.md). **Not supported on native Windows** (the vendored validators need `fs.constants.O_NOFOLLOW`/`O_NONBLOCK`, which Windows lacks, so they fail closed): the preflight stops there and points to WSL, Linux or macOS.
-- `/akili-marketing <mode> [args]` — Draft social marketing for LinkedIn, Instagram and Facebook as reviewable Markdown under `docs/marketing/`: brand voice, campaigns, calendar, posts, review and repurposing, through the packaged `social-marketing` skill (adapted from Sergey Bulaev's MIT skill packs). Runs anytime, outside the spec lifecycle. Drafts only: it never publishes — see [the command page](docs/commands/akili-marketing.md).
-
-- `/akili-seo <site-domain>` — SEO setup & audit via Google Search Console. Verifies a domain through DNS TXT using a service account, adds the property to GSC, then audits index coverage, sitemaps, structured data, search analytics, server-side render, internal linking, and on-page SEO (titles, metas, headings, canonicals, hreflang) using the packaged `seo-audit` skill. Produces `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/`, including a copy-paste implementation prompt for fixing every High-severity finding. Optionally, when you opt in at the start, a read-only analytics phase (Phase 2B) audits GA4 and Microsoft Clarity: installation, consent signals, conversion events, and how Search Console traffic converts; it is skipped with a note when neither is detected. Behavior metrics (e.g. bounce rate, heatmaps, recordings) serve conversion and UX findings and are never claimed to affect ranking.
-
-  Dependencies bundled with this repo:
-
-  - `scripts/gsc_verify.py` — Site Verification API helper (token + verify), because the `gsc` MCP only wraps Search Console, not Site Verification.
-  - `.mcp.json.example` — reference MCP server entry for `@mikusnuz/gsc-mcp`.
-
-  Setup once per environment:
-
-  1. Enable **Site Verification API** and **Search Console API** in your Google Cloud project.
-  2. Create a service account, download its JSON key, store outside the repo.
-  3. Install Python deps: `pip install google-auth google-api-python-client`.
-  4. Copy the `gsc` block from `.mcp.json.example` into your global `~/.claude.json` (or a project `.mcp.json`) and set `GSC_SERVICE_ACCOUNT_KEY_PATH` to the absolute path of the key.
-
-## Spec Paths
-
-Commands accept a relative path under `docs/specs/`, not only a flat module name.
-
-Examples:
-
-- `loan`
-- `enhancements/renewals`
-- `admin/user-management`
-
-## Dependencies
-
-Included skills cover the default methodology path, including `ui-ux-pro-max`.
-
-Fallback rule:
-
-- when `ui-ux-pro-max` is unavailable, use `frontend-design` + `stitch-design` for UX/UI design work and `frontend-design` for UI validation/testing support.
-
-**Skill governance:** the skill set is curated, not accumulated. Every packaged skill declares its original author and license plus how AKILI binds it into the flow (`core` — hard-wired to a command step; `conditional` — loaded when the work touches its domain; `stack` — selected per project via the `## Skill Map` that `/akili-constitution` writes into the project guides). New skills enter only through the acceptance checklist in [docs/skills/governance.md](docs/skills/governance.md). Skills shipped by external tools — `orchestration`, `playwright-cli`, the `hyperframes` family — are **referenced through the Skill Map, never vendored**: the tool serves the version-matched guide, and availability stays per-developer. Every command still runs without them; the one narrowing is that a spec whose `Deliverable` selects one (`Deliverable: video`, through the packaged `video-production` bridge skill) stops at that skill's availability gate and prints the install route. Curation and adaptation by [Juan Carlos Cadavid](https://jcadavid.com), always preserving original authorship.
-
-**Optional: Archify interactive diagrams.** The packaged `diagram-design` skill writes every diagram slot as inline Mermaid. If you also want an interactive HTML view of each slot, install [Archify](https://github.com/tt-a1i/archify) by tt-a1i (MIT licence) yourself: `npx skills add tt-a1i/archify`. AKILI references it and never ships or installs it; without it, diagrams stay Mermaid and every command works unchanged.
-
-## Methodology Contract
-
-- **User-Facing Summaries:** All major commands (`/akili-propose`, `/akili-specify`, `/akili-execute`, `/akili-validate`, `/akili-test`, `/akili-constitution`) generate a short, digestible summary on the screen before proceeding to the next step, ensuring developers always understand what the agent just did.
-- `/akili-constitution` establishes the project baseline docs (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, `docs/infrastructure.md`) and `docs/specs/general-setup/` templates, and scaffolds the project `.agents/` harness (Leader, Implementer, Reviewer, Tester).
-- `/akili-propose` creates a lightweight proposal before full specification. Evaluates massive instructions for **Scope Chunking** to split work into manageable modules. Integrates with **Figma MCP** and **Jira MCP** to extract visual context, requirements, and user stories.
-- `/akili-specify` must follow those templates when generating module specs. Enforces **Human-in-the-loop (HITL)** approval pauses after Requirements, Design, and Tasks. Promotes rigorous BDD scenarios (`BUT it must NOT`, `AND IT MUST`), allows blind adversarial design reviews via the `judgment-day` skill, outputs a final **Lines of Code (LOC) estimate** to recommend a safe Pull Request strategy, and explicitly injects **Design Impact** rules (from Figma contexts) into UI tasks and components.
-- `/akili-execute` orchestrates a Leader → Implementer → Reviewer rework loop (max 3 retries) to implement tasks from an approved spec path.
-- `/akili-test` runs a Leader → Tester(s) harness: the Leader partitions testing into suites and delegates each to a Tester subagent (inline for trivial/Lite work; one Tester per independent suite, in parallel, otherwise). It validates requirement-to-test traceability, explicitly checking for negative constraints and strict boundaries.
-- `/akili-validate` audits implementation conformance against the spec (including rigorous boundary validations) and constitutional baseline.
-- `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
-- `/akili-security` operates outside the main spec lifecycle: it audits the repository with the `security-audit` skill, the only tracked repository content it writes is a redacted index under `docs/specs/audits/`, and hands confirmed findings to the Bug Track through `/akili-propose`. It never modifies target source or commits.
-- `/akili-marketing` operates outside the main spec lifecycle: it drafts social marketing for LinkedIn, Instagram and Facebook as Markdown under `docs/marketing/` with the packaged `social-marketing` skill, and never publishes. See [the command page](docs/commands/akili-marketing.md).
-- `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
-
-## Multi-Agent Harness Engineering
-
-`/akili-execute` and `/akili-test` are not single-agent scripts. Each is a coordinated set of specialized roles that share the same spec, the same constitution, and the same audit trail. The harness exists to remove confirmation bias from review and testing (an independent auditor/tester instead of the same agent that wrote the code), to keep each role's context window small and focused, and to enforce design-token and constitutional discipline through a hard PASS/FAIL gate.
-
-Roles live in the project's `.agents/` directory (scaffolded by `/akili-constitution`):
-
-| Role | File | Responsibilities |
-|---|---|---|
-| Leader | `.agents/leader.md` | Orchestration. Picks the next eligible task, delegates, enforces the rework loop, updates `tasks.md` and `execution.md`, commits with `[SPEC:<spec-path>]`. |
-| Implementer | `.agents/implementer.md` | Writes and tests the code. Strictly task-scoped, must follow design tokens from `docs/ux-ui/design.md`, must run the verification command before reporting, within a bounded self-correction loop. |
-| Reviewer | `.agents/reviewer.md` | Read-only spec audit. Compares the diff against requirements, design tokens, the TRD, and stability. Outputs a structured PASS or FAIL with *Discovered Issue*, *Violated Rule*, and *Remediation Suggestion* for each finding. |
-| Tester | `.agents/tester.md` | Authors and runs **one** test suite (backend unit, frontend unit, integration, or E2E) from a thin per-suite context. Explicitly covers negative constraints and strict validations, runs a bounded 3-attempt self-correction inner loop, and emits `PASS`/`FAIL`/`PRODUCT_BUG` — keeping a correct test red on a real product defect instead of rewriting it. |
-
-The Leader runs each task through this loop:
-
-```text
-Leader picks the next task → spawns Implementer with task + persona
-Implementer writes code and runs verification → reports back
-if the Implementer reports STATUS: CHECKPOINT: no Reviewer; Leader respawns a fresh Implementer with the report, at most twice per task; a third checkpoint → HALT
-Leader extracts git diff → spawns Reviewer with diff + persona, unless Review intensity (`/akili-execute` Step 2.3) is met and no override applies
-Reviewer emits STATUS: PASS or STATUS: FAIL
-
-if PASS, or Review intensity is met with no override → update tasks.md, append execution.md, commit, advance (closes as REVIEW_SKIPPED when no Reviewer ran)
-if FAIL  → log feedback; if attempts < 3, respawn Implementer with the Reviewer's findings
-if 3 consecutive FAILs → HALT, mark task [~], present full audit trail for human guidance
-```
-
-**Guardrails:**
-
-- **Maximum retries.** A hard ceiling of 3 rework attempts per task prevents infinite loops and token waste.
-- **Structured feedback.** The Reviewer's report is passed back unchanged to the next Implementer spawn — no paraphrasing.
-- **Pivot protocol.** If discovery proves the spec itself is wrong (not the implementation), the loop stops immediately and a `## Pivot Record` is opened in `execution.md` for user sign-off — rework retries are not consumed on a broken spec.
-- **Cross-tool.** `.agents/` is pure Markdown + YAML frontmatter and is resolved relative to the active workspace, so the same harness runs under Claude Code, OpenCode, Google Antigravity (which invokes `invoke_subagent` using the same persona files), Codex (which requests the named `.codex/agents/akili-*.toml` role by name when present, or falls back to a sub-prompt seeded with the persona file), and Cursor (named `.cursor/agents/akili-*.md` subagents, invoked via the Task tool when present, or the same sub-prompt fallback).
-
-**`/akili-test` — Leader → Tester(s):** The same Leader pattern drives testing, but delegation is token-aware. The Leader partitions the work into suites and applies a **Deployment Rule**: Lite depth or a single trivial suite runs **inline** (no subagent spawn — spawning would cost more tokens than it saves); Standard/Full depth or multiple **independent** suites get **one Tester per suite**, spawned **in parallel** when they touch different files, and sequentially when they share files/fixtures. Each Tester receives only its suite's requirements, scenarios, and test command — never the full spec set — and its context is discarded on completion, so per-suite contexts never accumulate. A Tester runs a bounded 3-attempt inner loop and distinguishes a **test defect** (fix the test) from a **product defect** (keep the test red, report `PRODUCT_BUG`). Ideally a Tester runs on a different model than the Implementer that wrote the code (author ≠ tester).
-
-`/akili-constitution` classifies the repository into one of three modes and seeds `.agents/` accordingly:
-
-| Mode | When | `.agents/` Behavior |
-|---|---|---|
-| Brand-new | No code, no docs | Copies the default Leader/Implementer/Reviewer/Tester templates verbatim |
-| Legacy | Real code, no AKILI-SPECS baseline | Copies defaults and customizes them with detected stack, design tokens, lint and test commands |
-| Active AKILI-SPECS | Baseline already exists | Replaces each owned section per its drift state via `akili doctor --agents --fix` (see [CLI Reference](docs/cli.md)); project space and `custom-edited` sections are never touched |
-
-## Capability-Tier Model Routing
-
-Not every model is best at every job. AKILI routes each AKILI-SPECS phase to the model matched to its
-dominant demand using six **capability tiers** — Architect, Coder, Auditor, Context-Ingest,
-Fast-Cheap, and Multimodal. A single editable **registry** binds each tier to a concrete model
-**per tool**, so model upgrades are a one-line edit rather than a rewrite.
-
-This is **guidance-first and model-agnostic**: no `model:` frontmatter is added to commands and the
-installer injects nothing. You switch models yourself (Claude Code `/model`, OpenCode model
-selector, Codex `/model` — which also sets reasoning effort when available), and
-`akili routing` writes a project's `## Model Routing` registry into its root `AGENTS.md`, plus (when you
-opt in) the Step 8E agent wrappers that pin each persona to its tier's model — only when you run it (or
-`/akili-constitution` runs it for you in Step 8C), never from the installer and never into commands.
-
-Key principles: **ARCHITECT = BUILDER** (the model that designs also builds), **author ≠ auditor**
-(the Reviewer runs on a different model than the Implementer), reserve deep-reasoning models for
-`/akili-propose`, `/akili-specify` (including the `tasks.md` decomposition), `/akili-validate`, and
-the `/akili-execute`/`/akili-test` Leader, and use fast/cheap models only for `/akili-archive` and
-pure setup/formatting steps. An **Effort dial** adds a second, per-task dimension on top of the tier.
-
-See **[docs/model-routing.md](docs/model-routing.md)** for the tiers, the full phase→tier mapping,
-and the default registry for Claude Code (PRO) and OpenCode Go.
-
-## Host Assumptions
-
-- The host Claude environment can ask follow-up questions to the user during command execution.
-- The host environment can load local skills referenced by the commands.
-- Repository-specific build, lint, and test commands should be preferred over hardcoded stack assumptions.
-
-## Notes
-
-- Commands were sourced from the current global Claude command setup.
-- Skills were copied with their bundled references and helper assets.
-- This repository stores the current methodology baseline so it can be reused or versioned independently.
-- Dotfiles are snapshots of the working environment and may include plugin source copies for portability.
-
-## Authorship
-
-The AKILI-SPECS methodology is created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com).
-
-Every command in `.claude/commands/` and every agent role template in `.claude/templates/` carries this authorship notice. The project is released under the [MIT License](LICENSE): you are free to use, modify, and redistribute it, provided the copyright and attribution notices are kept intact.
+| `akili init` | run the setup wizard |
+| `akili install` | install the commands and skills without the wizard |
+| `akili update` | update to the latest version and reinstall the files |
+| `akili list` | list what the package ships |
+| `akili doctor` | check that the expected files are installed; `--agents` checks that your project's agent instruction files are up to date (`--fix` updates them) |
+| `akili routing` | choose which AI model runs each step ([model routing](docs/model-routing.md)) |
+| `akili check-update` | print a line if a newer version is published |
+| `akili notifications` | turn update announcements on or off (Claude Code only) |
+
+Every option and example: [docs/cli.md](docs/cli.md).
+
+## Learn more
+
+| I want to… | Read |
+|---|---|
+| see every command, skill and install target in one place | [docs/overview.md](docs/overview.md) |
+| browse all the docs | [docs/README.md](docs/README.md) |
+| follow the whole flow, step by step | [docs/flow.md](docs/flow.md) |
+| look up one command | [docs/commands/README.md](docs/commands/README.md) |
+| look up one skill | [docs/skills/README.md](docs/skills/README.md) |
+| use the terminal tool or fix an install | [docs/cli.md](docs/cli.md) |
+| pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |
+| know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
+| compare AKILI with OpenSpec | [docs/openspec-comparison.md](docs/openspec-comparison.md) |
+
+## Contributing and license
+
+Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md); releases follow [docs/release-checklist.md](docs/release-checklist.md).
+Created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Released under the [MIT License](LICENSE).
+Every command and every agent template carries this authorship notice.
+The license lets you use, modify and redistribute AKILI, provided the copyright and attribution notices are kept.

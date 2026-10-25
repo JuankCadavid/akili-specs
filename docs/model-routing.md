@@ -14,6 +14,8 @@ Routing operates at two levels:
   OpenCode model selector). Commands emit a one-line **model checkpoint** when the phase's tier
   points to a different model than the current session, so the switch happens at the right moment.
 
+Grok Bot has no routing wrappers: `akili routing` does not target it (see the CLI's [Grok Bot](cli.md#grok-bot---tool-grokbot) section).
+
 Nothing here is injected into command frontmatter or the installer — see
 [Cross-Tool Safety](#cross-tool-safety).
 

@@ -406,10 +406,10 @@ test("@akili-spec changes/archify-diagrams FR-9 (governance, skills docs, README
   assert.match(cells[3], /Juan Carlos Cadavid/);
   assert.match(cells[5], /\/akili-constitution.*\/akili-specify.*\/akili-archive/);
 
-  const readme = read(path.join(REPO_ROOT, "README.md"));
-  assert.ok(readme.includes("npx skills add tt-a1i/archify"));
-  assert.match(readme, /Archify\]\(https:\/\/github\.com\/tt-a1i\/archify\) by tt-a1i \(MIT licence\)/);
-  assert.match(readme, /never ships or installs it/);
+  const overview = read(path.join(REPO_ROOT, "docs", "overview.md"));
+  assert.ok(overview.includes("npx skills add tt-a1i/archify"));
+  assert.match(overview, /Archify\]\(https:\/\/github\.com\/tt-a1i\/archify\) by tt-a1i \(MIT licence\)/);
+  assert.match(overview, /never ships or installs it/);
 
   const cli = read(path.join(REPO_ROOT, "docs", "cli.md"));
   assert.doesNotMatch(cli, /24 packaged/);
