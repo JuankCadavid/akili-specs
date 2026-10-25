@@ -1,0 +1,86 @@
+{
+  "schema_version": "1",
+  "target": {
+    "kind": "pr",
+    "pr": 42,
+    "repo": "acme/widgets",
+    "base_sha": "1111111111111111111111111111111111111111",
+    "head_sha": "2222222222222222222222222222222222222222"
+  },
+  "tier": "full",
+  "host_mode": "parallel",
+  "lenses": [
+    "spec",
+    "correctness",
+    "tests",
+    "security"
+  ],
+  "top_risks": [
+    "Null token accepted as authenticated",
+    "Remember-me cookie never expires"
+  ],
+  "coverage": [
+    {
+      "spec": "changes/add-remember-me",
+      "fr": "FR-1",
+      "status": "met",
+      "evidence": "src/auth/session.js:10"
+    },
+    {
+      "spec": "changes/add-remember-me",
+      "fr": "FR-2",
+      "status": "missing",
+      "evidence": "no expiry handling in the diff"
+    }
+  ],
+  "unspecified_changes": [
+    "README.md"
+  ],
+  "notes": [
+    "One chunk reviewed sequentially."
+  ],
+  "findings": [
+    {
+      "id": "F-2",
+      "lens": "tests",
+      "severity": "warning",
+      "suspect": false,
+      "confidence": 90,
+      "file": "lib/util@2/index.ts",
+      "line_start": 1,
+      "line_end": 1,
+      "side": "RIGHT",
+      "evidence": "+export const x = 1;",
+      "why": "No test covers the new export.",
+      "fix": null
+    },
+    {
+      "id": "F-3",
+      "lens": "maintainability",
+      "severity": "suggestion",
+      "suspect": false,
+      "confidence": 90,
+      "file": "README.md",
+      "line_start": 3,
+      "line_end": 3,
+      "side": "RIGHT",
+      "evidence": "+see docs",
+      "why": "The link text is vague.",
+      "fix": "Name the target."
+    },
+    {
+      "id": "F-1",
+      "lens": "correctness",
+      "severity": "critical",
+      "suspect": false,
+      "confidence": 90,
+      "file": "src/auth/session.js",
+      "line_start": 10,
+      "line_end": 12,
+      "side": "RIGHT",
+      "evidence": "+  if (token == null) return true;",
+      "why": "A null token is treated as authenticated.",
+      "fix": "Reject null tokens."
+    }
+  ]
+}

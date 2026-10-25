@@ -144,7 +144,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~340 script + ~300 tests and fixtures) |
 | Depends on | T1 |
 | Requirements | FR-4 (filter, tier, sensitive paths, *Lockfile-only PR*, *Small but sensitive*), FR-8 (`REVIEW.md` order, history allowlist), FR-9 (neutralization, size caps, permalinks, *Forged marker and mentions*), NFR-2, NFR-3 |
@@ -174,7 +174,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 |---|---|
 | Command | `node --test test/pr-review-scripts.test.js` |
 | Red run | `predicted — greenfield artifact (observed in T2)`. The *Forged marker and mentions* test must be observed failing on its "no live `<!--` in the output" assertion against a stub `render` that echoes input, and the red quoted in `execution.md` |
-| Falsifier | (a) Drop the `<`/`>` escape → the forged-marker fixture's output contains `<!-- akili-review:v1` and goes red. (b) Remove `package-lock.json` from the noise list → the lockfile-only fixture's manifest is non-empty and the skip assertion goes red. (c) Remove the sensitive glob `**/auth/**` → the 6-line `src/auth/session.js` fixture tiers as `trivial` and goes red. (d) Remove the `ghp_` redaction pattern → a fixture evidence holding `ghp_` followed by 36 alphanumerics renders verbatim and goes red. Each is executed after the change, quoted, then reverted |
+| Falsifier | (a) Drop the `<`/`>` escape → the forged-marker fixture's output contains `<!-- akili-review:v1` and goes red. (b) Remove `package-lock.json` from the noise list → the lockfile-only fixture's manifest is non-empty and the skip assertion goes red. (c) Remove the sensitive glob `**/auth/**` → a 6-line `src/auth/login.js` fixture (no session- or token-like name) tiers as `trivial` and goes red; remove the session file-name glob → a 6-line `src/session.js` fixture tiers as `trivial` and goes red (amended 2026-10-25 at execute: the original wording paired `**/auth/**` with `session.js`, which only stays red if FR-4's "sessions and tokens" class is left uncovered). (d) Remove the `ghp_` redaction pattern → a fixture evidence holding `ghp_` followed by 36 alphanumerics renders verbatim and goes red. Each is executed after the change, quoted, then reverted |
 | Disqualifier | A neutralization test that checks only `@` and not the marker form, or a render test that compares against output the script itself produced (a snapshot regenerated from the code), cannot fail on the defect |
 | Consumers | none (new files) |
 
