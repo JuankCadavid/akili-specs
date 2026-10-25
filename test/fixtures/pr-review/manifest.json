@@ -1,0 +1,14 @@
+{
+  "target": { "kind": "pr", "pr": 42, "repo": "acme/widgets", "base_sha": "1111111111111111111111111111111111111111", "head_sha": "2222222222222222222222222222222222222222" },
+  "tier": "full",
+  "threshold": 80,
+  "lenses": ["spec", "correctness", "tests", "maintainability", "security"],
+  "files": [
+    { "path": "src/auth/session.js", "status": "modified", "added": 6, "removed": 1, "patch": "files/0001.patch", "chunk": "c1" },
+    { "path": "lib/util@2/index.ts", "status": "added", "added": 30, "removed": 0, "patch": "files/0002.patch", "chunk": "c1" }
+  ],
+  "skipped_files": [],
+  "recommend_security": ["src/auth/session.js"],
+  "chunks": [{ "id": "c1", "files": ["src/auth/session.js", "lib/util@2/index.ts"], "tokens": 900 }],
+  "config_source": "default"
+}

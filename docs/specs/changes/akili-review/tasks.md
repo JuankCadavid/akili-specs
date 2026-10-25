@@ -111,7 +111,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~110 schema + ~200 validator + ~260 tests and fixtures) |
 | Depends on | none |
 | Requirements | FR-7 (fields, suspect rule, threshold, *Malformed findings*, *Single-judge critical*), FR-1 (file set, partly), NFR-2 |
