@@ -349,9 +349,9 @@ There is no UI. The surfaces are the `--comment` confirmation gate (Post / Edit 
 
 | Measure | Estimate | Basis |
 |---|---|---|
-| Tasks | **13** | `tasks.md` |
+| Tasks | **14** (amended at the tasks phase from 13: docs split into T9a/T9b/T9c) | `tasks.md` |
 | LOC authored | **~4,750**, broken down as: schema ~110; validator ~200; `post-review.cjs` ~700 (prepare ~150, check-skip ~80, render + neutralize + redact ~190, post + reconcile ~280); script tests and fixtures ~950; references ~600; `SKILL.md` + `NOTICE` ~300; command ~200; command contract test ~650 (44 clauses × ~14 lines plus the drift guard and restatements; precedent 673 lines for a 187-line command); CI templates ~280 + README ~130; CI contract test ~220; counts/fixtures ~40; docs ~330; carve-outs ~12; CHANGELOG ~25 | §4, §6, §7; KZ-bugfix--init-ctrlc-abort-2 |
-| Review rounds | **21**: 2 × (T2, T3, T4, T5, T6, T8, T10b) = 14, plus 1 × (T1, T7, T9, T10a, T11, T12) = 6, plus 1 margin | rules-document rule |
+| Review rounds | **22**: 2 × (T1, T2, T3, T4, T5, T6, T8, T9c) = 16 minus T1's second round, i.e. 15, plus 1 × (T7, T9a, T9b, T10, T11, T12) = 6, plus 1 margin | rules-document rule; numbering per `tasks.md` |
 
 **Depth check.** Standard fits. The work is additive, and judgment-day already attacked the CI boundary. The estimate is far above the ~400 LOC single-PR line, so a PR split is recommended at the tasks gate. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**.
 
