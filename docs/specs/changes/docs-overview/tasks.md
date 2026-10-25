@@ -8,11 +8,11 @@
 | Depth | Standard |
 | Requirements / Design | `requirements.md` (FR-1…FR-17, NFR-1…6) · `design.md` (approved, judgment `APPROVED ✅`) |
 | Phase 3 gate | `auto-approved (user mandate for /akili-specify, 2026-10-23)`. The run **stops before `/akili-execute`** (user rule) |
-| Precondition for T1 | `changes/akili-marketing` is merged into `dev`, and this branch is rebased onto it (D2). If it is not merged when execution starts, the Leader stops and asks the user to choose between the D2 fallback (execute on the current `dev`) and waiting |
+| Precondition for T1 | **Met 2026-10-24.** `changes/akili-marketing` merged into `dev` (v2.36.0, with `video-production-hardening`), and this branch is rebased onto `origin/dev` `dbc9275` with no conflicts (D2). The spec's citations were re-run there. If `origin/dev` has moved again when execution starts, T1 rebases once more and re-runs the same checks |
 | Language | English for every doc line written (NFR-2) |
 | Commits | Local only, `[SPEC:changes/docs-overview] …`; no push, tag, release or publish |
-| Budget (tripwire) | 9 tasks · ~1,330 added / ~950 removed LOC · 20 review rounds, **tripwire 26** (design §13) |
-| Baseline for "Red run" readings | Executed 2026-10-23 at `2784e57` unless a task says otherwise |
+| Budget (tripwire) | 9 tasks · ~1,350 added / ~955 removed LOC · 20 review rounds, **tripwire 26** (design §13; re-checked after the rebase) |
+| Baseline for "Red run" readings | Executed 2026-10-23 at `2784e57`; re-run 2026-10-24 on the rebased tree (`origin/dev` `dbc9275` + spec commits) unless a task says otherwise. Every reading still holds except the README line numbers (now 954 lines, install at `:205`) |
 
 ## 2. Task Graph
 
@@ -34,7 +34,7 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 | Depends on | Precondition (marketing merged, branch rebased) |
 | Requirements | FR-12 (every heading gets one disposition; "already in" quotes the destination; BUT not on a heading match alone) |
 | Design refs | §2 task map, DD-1, DD-2, P-9 |
-| Consumers | P-9: after the rebase, re-run P-5 (inventory), P-7 (count regex), the 43-heading count and every README line number cited in `design.md`/`requirements.md`; record the new values in the ledger header |
+| Consumers | P-9: re-run at the rebased HEAD on 2026-10-24 (P-5 → 13/28, P-7 → 9 hits at 13/28, 43 headings, README lines shifted; see design §12). T1 confirms them at execution HEAD and records them in the ledger header |
 | Review | `checklist`: a spec artifact, read by T2/T3/T6 Reviewers anyway |
 | Skills | `cognitive-doc-design` |
 
@@ -47,7 +47,7 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 | Verification field | Value |
 |---|---|
 | Falsifier | Delete one ledger row → the row-count check differs from the awk count. Write disposition `moved` without a file#anchor → the disposition check fails |
-| Red run | At `2784e57` the ledger does not exist (`ls` → No such file), and awk → 43 |
+| Red run | At `2784e57` and on the rebased tree, the ledger does not exist (`ls` → No such file), and awk → 43 |
 | Disqualifier | A count taken with a non-fence-aware grep (26 `##`) is not evidence; only the fence-aware awk is |
 | Consumers | none outside the spec folder |
 
@@ -62,7 +62,7 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 | Depends on | T1 |
 | Requirements | FR-12 (moved content holds every obligation); FR-6 (target `## Practical Example` exists with the 3 sequences); NFR-2 (English) |
 | Design refs | §3 `docs/flow.md` row; P-3 |
-| Consumers | `test/akili-security-docs.test.js` reads `docs/flow.md` (`securityLines(FLOW)`), so any moved `/akili-security` line keeps the pinned wording |
+| Consumers | `test/akili-security-docs.test.js` reads `docs/flow.md` (`securityLines(FLOW)`), so any moved `/akili-security` line keeps the pinned wording; `test/akili-marketing-docs.test.js:108` pins the flow.md heading `### 2c. Social Marketing (`/akili-marketing`)`, which T2 must not rename |
 | Review | `full`: the riskiest content-preservation task (KZ-changes--gate-falsifiability-2) |
 | Skills | `cognitive-doc-design` |
 
@@ -76,13 +76,15 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 - `## Methodology Contract`
 - `## Host Assumptions`
 - any *Start Here*, *Kaizen Loop*, *Multi-Agent Harness*, *How To Choose The Right Depth* or *Notes* obligation the ledger marks missing
+- the *Start Here* sentence `Six anytime commands run outside this loop, …` (README `:570`), verbatim, as the opening of the anytime-commands part of flow.md: `test/akili-marketing-docs.test.js` re-targets to it at T5
 
 Fill each row's destination quote. Do not rewrite flow.md content that already exists.
 
 **Verification.**
 - For each T2 ledger row, `grep -n "<obligation token>" docs/flow.md` returns a hit, quoted in the ledger.
 - `grep -c '^## Practical Example' docs/flow.md` → 1.
-- `node --test test/akili-security-docs.test.js` → 0 fail.
+- `node --test test/akili-security-docs.test.js test/akili-marketing-docs.test.js` → 0 fail.
+- `grep -c '^Six anytime commands run outside this loop' docs/flow.md` → 1.
 - NFR-2 heuristic grep over `git diff -U0 docs/flow.md` `+` lines → 0.
 
 | Verification field | Value |
@@ -103,7 +105,7 @@ Fill each row's destination quote. Do not rewrite flow.md content that already e
 | Depends on | T1 |
 | Requirements | FR-5 (detail reached via `docs/cli.md`); FR-12; FR-17 (roadmap, dotfiles, CONTRIBUTING repository structure, cli prerequisites and local checkout, dead-anchor fix); NFR-2; NFR-6 (`dotfiles/` stays unshipped) |
 | Design refs | §3 rows for `docs/cli.md`, `CONTRIBUTING.md`, `docs/openspec-comparison.md`, `dotfiles/README.md`; P-4, P-7, P-10, P-14 |
-| Consumers | `test/branching-flow.test.js` (reads `CONTRIBUTING.md`, so it must stay green); `test/diagram-design.test.js:415` (`docs/cli.md` "27 packaged skills", or "28" after the rebase); the 9 count hits in `docs/cli.md` (P-7) |
+| Consumers | `test/branching-flow.test.js` (reads `CONTRIBUTING.md`, so it must stay green); `test/diagram-design.test.js:415-417` (`docs/cli.md`: no `24`/`27 packaged`, `28 packaged skills` present); `test/akili-marketing-docs.test.js:114-116` (`docs/cli.md` keeps `(the 13 commands, installed as skills` and `(the 28 packaged skills`, no stale 12/27); the 9 count hits in `docs/cli.md` (P-7) |
 | Review | `full` |
 | Skills | `cognitive-doc-design` |
 
@@ -114,7 +116,7 @@ Fill each row's destination quote. Do not rewrite flow.md content that already e
   - The per-host invocation note (Codex `$`, Cursor `/`, with its `Last verified: 2026-10-01` citation).
   - Any *Install Paths*, *Updating*, *Troubleshooting* or *Manual Install* obligation the ledger marks missing.
   - Replace `#grok-bot-grokbot` with `#grok-bot---tool-grokbot` at `:21, 48, 110`.
-- `CONTRIBUTING.md`: `## Repository Structure` (README `:73-83`, with the `.claude/` note).
+- `CONTRIBUTING.md`: `## Repository Structure` (README `:74-84`, with the `.claude/` note).
 - `docs/openspec-comparison.md`: `## Roadmap` with the 3 planned items.
 - `dotfiles/README.md`: the Neovim/tmux restore steps.
 
@@ -123,7 +125,7 @@ Fill the ledger quotes.
 **Verification.**
 - Ledger obligation grep per T3 row → hits quoted.
 - `grep -c 'grok-bot-grokbot' docs/cli.md` → 0, and `grep -c 'grok-bot---tool-grokbot' docs/cli.md` → 3.
-- `node --test test/branching-flow.test.js test/diagram-design.test.js` → 0 fail.
+- `node --test test/branching-flow.test.js test/diagram-design.test.js test/akili-marketing-docs.test.js` → 0 fail.
 - `npm run pack:dry-run | grep -c dotfiles` → 0.
 - NFR-2 grep → 0.
 
@@ -145,47 +147,47 @@ Fill the ledger quotes.
 | Depends on | T2, T3 (overview links into their new sections) |
 | Requirements | FR-11 (8 parts in order; every command and skill once; 5 fixed groups; binding equals `SKILL.md`; Grok row cells and link; BUT membership by table row); FR-15 (the overview carries the positive security slug and run-directory text and the Archify pins); FR-3 AND IT MUST (marketing named); NFR-2; KZ-002 |
 | Design refs | §8 (parts, groups, security-line constraint), DD-6, DD-7, DD-8, P-5, P-6 |
-| Consumers | Pinned by T5 re-targets (`akili-security-docs`, `diagram-design`) |
+| Consumers | Pinned by T5 re-targets (`akili-security-docs`, `diagram-design`, `akili-marketing-docs`) |
 | Review | `full`: quote-check every one-liner against its command/skill page (KZ-002) |
 | Skills | `cognitive-doc-design` |
 
 **Scope.** Write the 8 parts of design §8:
-- Commands: every command at the rebased HEAD, `/akili-marketing` included.
-- Skills: every skill in its fixed group, with `social-marketing` placed in *Deliverables* and its binding read from its `SKILL.md`.
+- Commands: every command at the rebased HEAD, `/akili-marketing` included. The *Command* cell holds the invocation exactly as the README *Command Map* writes it today, unlinked (for example `` | `/akili-marketing <mode> [args]` | ``); the link sits in the *Page* column (`commands/akili-marketing.md`).
+- Skills: every skill in its fixed group, with `social-marketing` (`core`) placed in *Deliverables*. Its *Use it for* cell credits the upstream as the README row does today: adapted from Sergey Bulaev's MIT skill packs.
 - Under the hood: the 13 mechanisms.
 - Install targets: 6 rows, Grok Bot reading `no / no / no`, linked to `docs/cli.md#grok-bot---tool-grokbot`.
 - Optional tools: the Archify row carries `npx skills add tt-a1i/archify`, `[Archify](https://github.com/tt-a1i/archify) by tt-a1i (MIT licence)` and `never ships or installs it`.
 - Glossary.
 - I want to…
 
-The `/akili-security` row uses the README `:813` wording for the run directory and the slug. Every overview security line obeys the §8 constraint.
+The `/akili-security` row uses the README `:817` wording for the run directory and the slug. Every overview security line obeys the §8 constraint.
 
 **Verification.**
 - An ad-hoc membership loop: `for n in $(ls .claude/commands | sed 's/\.md$//'); do grep -c "^| \[\`/$n" docs/overview.md; done`, and the same for skills → each prints 1.
 - The binding cells equal the `grep -m1 binding:` loop.
-- Before T5, run the three pinned regexes against the overview by hand with `node -e` (slug regex, `run directory (always outside the target)`, the Archify regexes) → each matches.
+- Before T5, run the pinned regexes against the overview by hand with `node -e` (slug regex, `run directory (always outside the target)`, the Archify regexes, and the marketing pins: `/Sergey Bulaev/` and `/\bMIT\b/` on the `social-marketing` row, the `` | `/akili-marketing <mode> [args]` | `` literal, `(commands/akili-marketing.md)`) → each matches.
 - Link targets exist.
 - NFR-2 grep → 0.
 
 | Verification field | Value |
 |---|---|
 | Falsifier | List `tdd` under two groups → the membership loop prints 2 for it. Change one binding to `core` → the binding comparison differs. Remove `-r<N>` from the slug → the slug regex fails to match |
-| Red run | `ls docs/overview.md` → No such file (at `2784e57`) |
+| Red run | `ls docs/overview.md` → No such file (at `2784e57` and on the rebased tree) |
 | Disqualifier | A skill or command name matched in prose, not as a row's first cell, does not count. The loop's `^| [` anchor enforces this |
 | Consumers | T5 |
 
-**Done.** Every command and skill appears once in its group, bindings match, the three pin regexes match the overview, links resolve, and the English check is clean.
+**Done.** Every command and skill appears once in its group, bindings match, the pin regexes match the overview, links resolve, and the English check is clean.
 
 ### T5: Re-target the README pins; fix the diagram-design pointer
 
 | Field | Value |
 |---|---|
 | Status | `[ ]` |
-| Size | S (~50 LOC changed) |
-| Depends on | T4 |
-| Requirements | FR-15 (positive pins move; README negative guards remain; scenario mutations; BUT no regex, token list or message changes; AND IT MUST: only S1/S2/S3); FR-17 (`docs/skills/diagram-design.md:21` names `docs/overview.md`); NFR-1 |
+| Size | S (~65 LOC changed) |
+| Depends on | T4 (and T2 for the flow.md sentence) |
+| Requirements | FR-15 (positive pins move; README negative guards remain; scenario mutations; BUT no regex, token list or message changes beyond the site name; AND IT MUST: only S1–S4); FR-17 (`docs/skills/diagram-design.md:21` names `docs/overview.md`); NFR-1 |
 | Design refs | §9 (every row), DD-6, P-1, P-2, P-8 |
-| Consumers | `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js` (after the rebase, re-read `:405-420`: marketing edited `:413-417`) |
+| Consumers | `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js` (marketing's edit at `:416-417` is already in; `:409-412` unchanged), `test/akili-marketing-docs.test.js` (`:82-84`, `:98-101`) |
 | Review | `full`: changes guarantee-bearing tests |
 | Skills | `tdd` (red/green per moved pin) |
 
@@ -193,6 +195,7 @@ The `/akili-security` row uses the README `:813` wording for the run directory a
 - `branching-flow`: drop the README section site; add the whole README to the negative loop.
 - `akili-security-docs`: the `SLUG_PRESENCE_SITES` / `SLUG_SHAPE_SITES` split; the overview added to `RUN_DIR_SITES`; the presence site at `:118-124` moves to the overview, with the conditional README check; the overview added to the no-git sites.
 - `diagram-design`: `:409-412` reads `docs/overview.md`.
+- `akili-marketing-docs` (design §9 rows S1/S4): the credit row (`:82-84`) reads `docs/overview.md`, located by the `social-marketing` first cell; the command-table literal (`:99`) reads the overview; the command-file-list check (`:98`) becomes the overview's `(commands/akili-marketing.md)` page link; the anytime sentence (`:100-101`) reads `docs/flow.md`. The `docs/commands/README.md`, `docs/README.md` and flow.md `2c` checks are untouched.
 
 Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README is **not** edited in this task.
 
@@ -202,23 +205,23 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 
 | Verification field | Value |
 |---|---|
-| Falsifier | Run each mutation, observe it red, and quote it (executed, not predicted): (1) delete the slug from `docs/overview.md` → the FR-8/FR-10 slug presence test fails naming `docs/overview.md`; (2) delete `never ships or installs it` from the overview → the diagram-design FR-9 test fails; (3) add a README line `/akili-security … ignored in-target directory` → the FR-7 family test fails naming `README.md`; (4) append a fenced `git commit -m "chore(release)…"` + `git tag v` block to the README → the branching-flow negative test fails naming `README.md`. Revert each mutation after observing it |
-| Red run | The four mutations above, run against the post-T5 tests. Each must go red on its assertion, not on a file-not-found |
+| Falsifier | Run each mutation, observe it red, and quote it (executed, not predicted): (1) delete the slug from `docs/overview.md` → the FR-8/FR-10 slug presence test fails naming `docs/overview.md`; (2) delete `never ships or installs it` from the overview → the diagram-design FR-9 test fails; (3) add a README line `/akili-security … ignored in-target directory` → the FR-7 family test fails naming `README.md`; (4) append a fenced `git commit -m "chore(release)…"` + `git tag v` block to the README → the branching-flow negative test fails naming `README.md`; (5) delete `Sergey Bulaev` from the overview's `social-marketing` row → the FR-12 credit test fails; (6) delete `/akili-marketing` from the flow.md anytime sentence → the FR-12 enumeration test fails on "README anytime-commands sentence" (message keeps its text except the site name). Revert each mutation after observing it |
+| Red run | The six mutations above, run against the post-T5 tests. Each must go red on its assertion, not on a file-not-found |
 | Disqualifier | A red caused by a missing file or a thrown `section()` "no heading" error is a setup red, not the assertion. Mutation (4) must fail in `hasDirectReleaseSequence` |
 | Consumers | as above |
 
-**Done.** `npm test` is green, the four mutations are each observed red and reverted, the assert-pair diff shows only site/variable changes, and diagram-design.md:21 is updated.
+**Done.** `npm test` is green, the six mutations are each observed red and reverted, the assert-pair diff shows only site/variable changes, and diagram-design.md:21 is updated.
 
 ### T6: Rewrite the README
 
 | Field | Value |
 |---|---|
 | Status | `[ ]` |
-| Size | L (+~190 / −~950) |
+| Size | L (+~190 / −~954) |
 | Depends on | T5 (pins no longer need README text), T1–T4 (every ledger destination quoted) |
 | Requirements | FR-1 (all clauses); FR-2 (≤ 200, install ≤ 90, no `<details>`; AND IT MUST: no packed lines, Reviewer-gated); FR-3 (≤ 3 sentences, 5 bullets with the overview link, 4-term glossary, marketing named, BUT no unshipped capability); FR-4 (figure kept and centered, new plain alt text, assets untouched); FR-5 (one install and one check, `docs/cli.md` link, BUT no per-tool doctor list or tables, Grok Bot named only); FR-6 (5 steps, quick and resume lines, `docs/flow.md#practical-example`, BUT no sample document); FR-7 (all commands in 2 groups linked, Windows note on the security row, 8 CLI rows; BUT no claim the command page lacks); FR-8; FR-9; FR-10; FR-12 (`kept` rows quoted); FR-17 BUT (no `## Dotfiles`/`nvim`); NFR-2, NFR-3, NFR-5 |
 | Design refs | §7 (skeleton, plain-row table, security row wording), DD-9, DD-11, P-2, P-11, P-13, P-16 |
-| Consumers | `test/akili-security-docs.test.js` (the README negative guards), `test/branching-flow.test.js` (the README negative guard), and inbound anchors (P-2: none in the repo; external anchors are an accepted Low risk) |
+| Consumers | `test/akili-security-docs.test.js` (the README negative guards), `test/branching-flow.test.js` (the README negative guard), `test/akili-marketing-docs.test.js` (after T5 it reads no README text), and inbound anchors (P-2: none in the repo; external anchors are an accepted Low risk) |
 | Review | `full`: the Reviewer reads the README **whole** for plain language, packed lines and the jargon list (these gaps are not machine-checked) |
 | Skills | `cognitive-doc-design` |
 
@@ -240,7 +243,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 | Verification field | Value |
 |---|---|
 | Falsifier | Insert `## Dotfiles` → the heading check differs. Add one badge → the shields count reads 4. Add "Reviewer" in prose → the banned-term check fails (by hand until T8, then by the test) |
-| Red run | At `2784e57`: `wc -l` → 948; `grep -c shields.io` → 13; first `npx akili-specs init` at `:202`; 25 `##` headings |
+| Red run | At `2784e57`: `wc -l` → 948; on the rebased tree: 954; `grep -c shields.io` → 13; first `npx akili-specs init` at `:205` (was `:202`); 25 `##` headings |
 | Disqualifier | A line count met by long packed lines is not compliance (FR-2 AND IT MUST). The Reviewer measures lines over ~300 characters and judges each one |
 | Consumers | as above |
 
@@ -255,7 +258,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 | Depends on | T6 |
 | Requirements | FR-13 (overview first in *Start Here* and the *Documentation Map*; governance linked in both; anytime commands as a table); FR-14 (one Grok Bot line; BUT no behavior `bin/routing.js` lacks); FR-17 (governance item 5 requires the overview row); NFR-2 |
 | Design refs | §3 rows for `docs/README.md`, `docs/model-routing.md`, `docs/skills/governance.md`; DD-10; P-6 |
-| Consumers | Marketing's hub line (after the rebase) becomes a table row |
+| Consumers | Marketing's hub line (`docs/README.md:42`, present since the rebase) becomes a table row and keeps the literal `(commands/akili-marketing.md)` that `test/akili-marketing-docs.test.js:107` pins |
 | Review | `checklist` |
 | Skills | `cognitive-doc-design` |
 
@@ -316,9 +319,9 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 | Status | `[ ]` |
 | Size | S (~10 LOC) |
 | Depends on | T8 |
-| Requirements | FR-17 (one *Changed* entry replacing the placeholder or joining the marketing entries; each clause quote-checked); NFR-1, NFR-3, NFR-4, NFR-5, NFR-6; KZ-002; KZ-changes--kaizen-loop-closure-2 |
+| Requirements | FR-17 (one *Changed* entry replacing the `[Unreleased]` placeholder, which survived the rebase because marketing released under `[2.36.0]`; each clause quote-checked); NFR-1, NFR-3, NFR-4, NFR-5, NFR-6; KZ-002; KZ-changes--kaizen-loop-closure-2 |
 | Design refs | §3 CHANGELOG row; P-15 |
-| Consumers | `test/diagram-design.test.js:420` (a CHANGELOG `diagram-design` entry must survive) |
+| Consumers | `test/diagram-design.test.js:421` (a CHANGELOG `diagram-design` entry must survive); `test/akili-marketing-docs.test.js:89-93` (`[Unreleased]` or `[2.36.0]` names `/akili-marketing` and `social-marketing`) |
 | Review | `full`: CHANGELOG clauses are the KZ-002 hot spot |
 | Skills | `cognitive-doc-design` |
 
@@ -326,12 +329,12 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 - Write one CHANGELOG *Changed* entry: the landing README, `docs/overview.md`, the derived test, the re-targeted pins, the moved sections and the Grok anchor fix.
 - **Phrase-family sweep:**
   - grep shipped docs for claims that point at README content that no longer exists (`in the README`, `README's`, `root README`, `see the README`);
-  - grep for `#grok-bot-grokbot`, `Five anytime`, `Six anytime`, `What AKILI Covers`.
+  - grep for `#grok-bot-grokbot`, `Five anytime`, `Six anytime`, `What AKILI Covers`. `Six anytime` has exactly one intended hit, the `docs/flow.md` sentence T2 adds (pinned by `akili-marketing-docs`); it must be gone from the README.
   - Each hit is updated, or recorded as intentionally kept with a reason.
 
 **Verification.**
 - `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` → all pass.
-- `git diff --stat <T1 base> -- .claude bin package.json assets` → empty.
+- `git diff --stat <T1 base> -- .claude bin package.json assets` → empty (`<T1 base>` = the `origin/dev` commit the branch is rebased onto, `dbc9275` today, never a pre-rebase SHA).
 - `git log --format=%s <T1 base>..HEAD | grep -vc '^\[SPEC:changes/docs-overview\]'` → 0.
 - The pack output lists `README.md` and `docs/overview.md`, and not `dotfiles/`.
 - Each CHANGELOG clause is quoted against HEAD in the report.
@@ -364,8 +367,8 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 | FR-12 THEN (Practical Example in flow), AND (link resolves), BUT (no heading-only "already in") | T1, T2, T3, T6 (quotes); T8 (i) |
 | FR-13 THEN (first link overview), AND (governance), AND (table rows) | T7; T8 (j) |
 | FR-14 THEN (one line), BUT (no false behavior) | T7; T8 (j); BUT: T7 Reviewer against `bin/routing.js` |
-| FR-15 THEN (README guard fails), AND (overview slug removal fails), AND (Archify removal fails), BUT (no regex/token/message change), AND IT MUST (only S1/S2/S3) | T5 |
-| FR-16 (a)–(j), the marketing-lands scenario THEN, AND (stale `12 commands`) | T8; T1 re-runs the counts after the rebase |
+| FR-15 THEN (README guard fails), AND (overview slug removal fails), AND (Archify removal fails), AND (marketing credit / anytime sentence removal fails), BUT (no regex/token/message change), AND IT MUST (only S1–S4) | T5; T2 (flow.md sentence); T4 (overview marketing cells) |
+| FR-16 (a)–(j), the marketing-lands scenario THEN, AND (stale `12 commands`) | T8; counts re-run after the rebase (2026-10-24), confirmed by T1 |
 | FR-17 roadmap, dotfiles, CONTRIBUTING, cli prerequisites and local checkout, Grok anchors | T3 |
 | FR-17 diagram-design.md:21 | T5 |
 | FR-17 SKILL.md:76 accepted risk | recorded (requirements defect table); no task, out of scope |

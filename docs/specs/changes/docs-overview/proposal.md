@@ -13,7 +13,7 @@
 | Date | 2026-10-23 (rev. 2, same day) |
 | Author | AKILI session (proposer), from Juan Carlos Cadavid's audit at `dev` 8679e25 |
 | Status | **Approved** — 2026-10-23 (Juan Carlos Cadavid): D1–D8 as recommended; open question answered as recommended (no sample `proposal.md` in the README, link to `docs/flow.md` → *Practical Example*). Rule added at approval: all documentation (README, `docs/overview.md` and every other doc) is written in English |
-| Revision log | rev. 1 `35e9d4b`: capability overview + derived test. **rev. 2**: Juan Carlos Cadavid's new requirements (2026-10-23). The README must be simple for a new user, with a fixed section order, no unexplained jargon, and a substantially shorter length. Detail moves to `docs/`. This adds D7 (re-target the README pins) and D8 (hero). D1 now holds the exact section list and target length. The budget is re-estimated |
+| Revision log | rev. 1 `35e9d4b`: capability overview + derived test. **rev. 2**: Juan Carlos Cadavid's new requirements (2026-10-23). The README must be simple for a new user, with a fixed section order, no unexplained jargon, and a substantially shorter length. Detail moves to `docs/`. This adds D7 (re-target the README pins) and D8 (hero). D1 now holds the exact section list and target length. The budget is re-estimated. **Rebase addendum (2026-10-24)**: rebased onto `origin/dev` `dbc9275` (v2.36.0) with no conflicts. The line numbers in this proposal are as of `2784e57`; `design.md` §12 *Rebase re-check* holds the current ones. D7 now covers a 4th test, `test/akili-marketing-docs.test.js`. The decisions are unchanged |
 | Depends on | `changes/akili-marketing` (merge order only, see D2) |
 | Parallel-safe | **no**. `akili-marketing` modifies 12 existing files, 7 of which this spec also edits (`README.md`, `docs/README.md`, `docs/cli.md`, `docs/flow.md`, `docs/skills/governance.md`, `test/diagram-design.test.js`, `CHANGELOG.md`). Corrected at specify, 2026-10-23: rev. 2 said "8 of the same files"; see design P-9, per `git diff --stat 8679e25...JuankCadavid/akili-marketing` run 2026-10-23 |
 | Release class | patch: docs plus tests, with no new command, target or behavior |
@@ -107,6 +107,7 @@ A new user who opens the README understands what AKILI is, sees the flow, instal
 | `test/branching-flow.test.js:124-145` | `### Releasing Package Updates` holds 7 PR-flow tokens | `CONTRIBUTING.md`, `docs/release-checklist.md` (same tokens) |
 | `test/akili-security-docs.test.js:47-60,118-128` | Routing slug `bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`; ≥ 1 `/akili-security` line with `run directory (always outside the target)` | `docs/flow.md`, `docs/commands/README.md`, the command and skill pages |
 | `test/diagram-design.test.js:409-412` | `npx skills add tt-a1i/archify`, the Archify MIT attribution, `never ships or installs it` | — (README only; D7 moves it to `docs/overview.md`) |
+| `test/akili-marketing-docs.test.js:82-84,98-101` (after the rebase) | The *Social marketing* row's Sergey Bulaev/MIT credit; the `` `akili-marketing.md` `` list line; the `` `/akili-marketing <mode> [args]` `` table cell; the `Six anytime commands …` sentence | `docs/commands/README.md`, `docs/README.md`, `docs/flow.md` §2c (other assertions of the same test). D7 moves the README ones to `docs/overview.md` and `docs/flow.md` (design §9) |
 
 ## Proposed Outcome
 

@@ -13,12 +13,12 @@
 | Language rule | **All documentation this spec writes or edits is in English** (README, `docs/overview.md`, every other doc, and the spec documents). User rule, 2026-10-23 |
 | Out-of-bounds actions | Local commits only (`[SPEC:changes/docs-overview]`); no push, PR, tag, release or publish. The `akili-marketing` and `video-hardening` worktrees are not touched |
 | Source | `proposal.md` (Approved 2026-10-23, D1–D8) |
-| Verified at | `cdb4c5a` |
-| Depends on | `changes/akili-marketing`, for merge order only. Execute after it merges into `dev`, then rebase (D2) |
+| Verified at | `cdb4c5a`; facts and pins re-run after the rebase onto `origin/dev` `dbc9275` (v2.36.0: `akili-marketing` + `video-production-hardening` merged), 2026-10-24 |
+| Depends on | `changes/akili-marketing`, for merge order only. **Met 2026-10-24:** it merged into `dev` (v2.36.0) and this branch is rebased onto `origin/dev` `dbc9275` (D2) |
 
 ## 2. Executive Summary
 
-The README is cut from 948 lines to **≤ 200 lines**. Its 7 sections follow a fixed order for a new user: what AKILI is → the flow figure → install → first spec → commands at a glance → learn more → contributing and license. Every removed line gets a destination in `docs/`, recorded in a move ledger, so nothing is lost. A new `docs/overview.md` becomes the "everything AKILI ships" page. A new package-derived test keeps the inventory, the counts, the README order and length, and the jargon rule from drifting. Three existing tests that pin maintainer text in the README are re-targeted to where that text now lives. Their assertions do not change, and the README keeps their negative guards.
+The README is cut from 954 lines to **≤ 200 lines**. Its 7 sections follow a fixed order for a new user: what AKILI is → the flow figure → install → first spec → commands at a glance → learn more → contributing and license. Every removed line gets a destination in `docs/`, recorded in a move ledger, so nothing is lost. A new `docs/overview.md` becomes the "everything AKILI ships" page. A new package-derived test keeps the inventory, the counts, the README order and length, and the jargon rule from drifting. Four existing tests that pin README text in the README are re-targeted to where that text now lives. Their assertions do not change, and the README keeps their negative guards.
 
 ## 3. Glossary
 
@@ -36,24 +36,25 @@ The README is cut from 948 lines to **≤ 200 lines**. Its 7 sections follow a f
 
 ## 4. System Context & Scope
 
-Today (all as run at `cdb4c5a`):
+Today (as run after the rebase onto `origin/dev` `dbc9275`, 2026-10-24; first run at `cdb4c5a`):
 
 | Fact | Evidence |
 |---|---|
-| README is 948 lines with 25 fence-aware `##` and 18 `###` headings (43 in total; the hero tagline at `:14` is one of the `###`). A raw `grep -c '^## '` gives 26 because it also counts the fenced example at `:698` | `wc -l README.md`; `awk '/^```/{f=!f} !f && /^## /' README.md \| wc -l` → 25; the same with `/^### /` → 18 |
-| The first install command is at `:202`, after 3 prerequisite tables | `grep -n 'npx akili-specs init' README.md` → `202` |
+| README is 954 lines with 25 fence-aware `##` and 18 `###` headings (43 in total; the hero tagline at `:14` is one of the `###`). A raw `grep -c '^## '` gives 26 because it also counts the fenced example at `:702` | `wc -l README.md`; `awk '/^```/{f=!f} !f && /^## /' README.md \| wc -l` → 25; the same with `/^### /` → 18 |
+| The first install command is at `:205`, after 3 prerequisite tables | `grep -n 'npx akili-specs init' README.md` → `205` |
 | The hero has 13 badge images | `grep -c 'shields.io' README.md` → 13 |
 | The figure is `assets/akili-flow.png`, centered and linked at `:48-50` (the `<a>`/`<img>` are on `:49`) | `grep -n akili-flow README.md` → `49`; `sed -n 48,50p README.md` |
-| Package: 12 commands, 27 skills | `ls .claude/commands \| wc -l` → 12; `ls -d .claude/skills/*/ \| wc -l` → 27 |
+| Package: 13 commands, 28 skills (`akili-marketing` and `social-marketing`, binding `core`, arrived with v2.36.0) | `ls .claude/commands \| wc -l` → 13; `ls -d .claude/skills/*/ \| wc -l` → 28 |
 | `docs/overview.md` does not exist | `ls docs/overview.md` → No such file |
 | *Practical Example*, *Writing Good Requirements*, *Review Points*, *Core Concepts*, *Methodology Contract*, *Host Assumptions*, *Requirement Delta Preview*, *Spec Paths* appear in no `docs/flow.md` heading or text | `grep -c "<heading text>" docs/flow.md` → 0 for each (loop run 2026-10-23) |
 | `docs/cli.md` has no *Prerequisites* and no *Local Checkout* content | `grep -ci "prerequisites\|local checkout" docs/cli.md` → 0 |
-| Digit count claims exist only in `docs/cli.md`: 9 hits at `:125, 191, 192, 203, 204, 225 (×2), 242 (×2)`, all totals (`12 command skills`, `12 commands`, `27 packaged skills`) | `grep -noE "\b[0-9]+ (packaged \|slash \|AKILI )?(commands?\|command skills\|skills\|skill directories)\b" README.md docs/*.md docs/commands/*.md docs/skills/*.md CONTRIBUTING.md` → 9 |
-| `docs/cli.md` already links a dead anchor `#grok-bot-grokbot` at `:21, 48, 110` (and README `:193, 229`). The heading `## Grok Bot (`--tool grokbot`)` at `:240` slugs to `grok-bot---tool-grokbot` under GitHub's rule (lowercase; drop punctuation other than `-` and space; space → `-`) | `grep -rn "grok-bot-grokbot" README.md docs CONTRIBUTING.md`; `grep -n '^## Grok' docs/cli.md` → `240` |
+| Digit count claims exist only in `docs/cli.md`: 9 hits at `:125, 191, 192, 203, 204, 225 (×2), 242 (×2)`, all totals (`13 command skills`, `13 commands`, `28 packaged skills`; marketing updated them from 12/27) | `grep -noE "\b[0-9]+ (packaged \|slash \|AKILI )?(commands?\|command skills\|skills\|skill directories)\b" README.md docs/*.md docs/commands/*.md docs/skills/*.md CONTRIBUTING.md` → 9 |
+| `docs/cli.md` already links a dead anchor `#grok-bot-grokbot` at `:21, 48, 110` (and README `:196, 232`). The heading `## Grok Bot (`--tool grokbot`)` at `:240` slugs to `grok-bot---tool-grokbot` under GitHub's rule (lowercase; drop punctuation other than `-` and space; space → `-`) | `grep -rn "grok-bot-grokbot" README.md docs CONTRIBUTING.md`; `grep -n '^## Grok' docs/cli.md` → `240` |
 | `.claude/skills/diagram-design/SKILL.md:76` says Archify's install "is documented in the project README" | `sed -n 76p .claude/skills/diagram-design/SKILL.md` |
-| The audit's "duplicate `## Requirement Delta Preview` at `:693`/`:698`" is **false**: `:698` is inside a ` ```markdown ` example | `sed -n 697,698p README.md` |
+| The audit's "duplicate `## Requirement Delta Preview` at `:693`/`:698`" (now `:697`/`:702`) is **false**: `:702` is inside a ` ```markdown ` example | `sed -n 701,702p README.md` |
+| A 4th test pins README text: `test/akili-marketing-docs.test.js` (added by marketing) reads the README `\| Social marketing \|` row (Sergey Bulaev, MIT), the command-file list line `` - `akili-marketing.md` ``, the command-table cell `` \| `/akili-marketing <mode> [args]` \| `` and the sentence starting `Six anytime commands run outside this loop`. The rewrite removes all four | `grep -n README test/akili-marketing-docs.test.js` → `:82-84`, `:97-101` |
 
-**In scope:** `README.md`, the new `docs/overview.md`, `docs/README.md`, `docs/flow.md`, `docs/cli.md`, `docs/model-routing.md`, `docs/openspec-comparison.md`, `CONTRIBUTING.md`, the new `dotfiles/README.md`, `CHANGELOG.md`, the new `test/docs-overview.test.js`, and pin re-targets in `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js`.
+**In scope:** `README.md`, the new `docs/overview.md`, `docs/README.md`, `docs/flow.md`, `docs/cli.md`, `docs/model-routing.md`, `docs/openspec-comparison.md`, `CONTRIBUTING.md`, the new `dotfiles/README.md`, `CHANGELOG.md`, the new `test/docs-overview.test.js`, and pin re-targets in `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js`, `test/akili-marketing-docs.test.js`.
 
 **Out of scope:** `.claude/**`, `bin/**`, `package.json`, `assets/**`, `docs/commands/*.md` and `docs/skills/*.md` beyond link fixes, the fixed counts in existing tests, and any behavior change.
 
@@ -218,7 +219,7 @@ Every current README `##`/`###` section (43 fence-aware headings at `cdb4c5a`) S
 
 #### Scenario: Practical Example moves
 
-- GIVEN README *Practical Example* (`:762-795`)
+- GIVEN README *Practical Example* (`:766-799`)
 - WHEN the move completes
 - THEN `docs/flow.md` has a `## Practical Example` section with the three command sequences
 - AND FR-6's link resolves to it
@@ -256,6 +257,7 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 | `test/branching-flow.test.js` (7 release-flow tokens in `### Releasing Package Updates`) | dropped for README; `CONTRIBUTING.md` and `docs/release-checklist.md` keep it | the "no direct chore(release) commit followed by git tag block" check runs on the **whole** README |
 | `test/akili-security-docs.test.js` (slug presence; ≥ 1 run-directory line with "always outside the target") | `docs/overview.md` | the slug-shape checks (no `-s<n>` without `-r<N>`, no non-template suffix), the in-target phrase family, and the no-git check all still read the README |
 | `test/diagram-design.test.js:409-412` (Archify install, attribution, "never ships or installs it") | `docs/overview.md` | — |
+| `test/akili-marketing-docs.test.js` (`:82-84` credit row; `:98-101` command-file list, command-table cell, anytime sentence) | credit row and command cell → `docs/overview.md`; command-file list → the overview's `/akili-marketing` page link; anytime sentence → `docs/flow.md` | — |
 
 #### Scenario: A weakened restatement reappears in the README
 
@@ -264,8 +266,9 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 - THEN `test/akili-security-docs.test.js` fails, naming `README.md`
 - AND removing the slug from `docs/overview.md` fails the slug presence test, naming `docs/overview.md`
 - AND removing `never ships or installs it` from `docs/overview.md` fails the diagram-design test
+- AND removing Sergey Bulaev from the overview's `social-marketing` row, or the `Six anytime commands run outside this loop` sentence from `docs/flow.md`, fails the akili-marketing-docs test
 - BUT it must NOT change any regex, token list or message text of an existing assertion
-- AND IT MUST limit structural changes to the three that design §9 lists: which file a site reads; splitting a site map into presence and shape sets; and the README run-directory presence check becoming conditional (every README `run directory` line, if any, still says "always outside the target") because its positive pin moved to `docs/overview.md`
+- AND IT MUST limit structural changes to the four that design §9 lists: which file a site reads; splitting a site map into presence and shape sets; the README run-directory presence check becoming conditional (every README `run directory` line, if any, still says "always outside the target") because its positive pin moved to `docs/overview.md`; and, only where FR-1 deletes the README structure a pin located (a table row or list line), re-keying the locator to the successor structure while the assertion on the located text stays unchanged. A message changes only in the file name it mentions
 
 ### FR-16: Derived inventory and structure test
 
@@ -273,10 +276,10 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 
 #### Scenario: Marketing lands
 
-- GIVEN `akili-marketing` merged (13 commands, 28 skills) and the overview rows added
+- GIVEN `akili-marketing` merged (13 commands, 28 skills; true since the rebase) and the overview rows added
 - WHEN `npm test` runs
 - THEN the test passes without edits to `test/docs-overview.test.js`
-- AND a `docs/cli.md` line still saying `12 commands` or `12 command skills` fails, naming the file and line
+- AND a `docs/cli.md` line still saying `12 commands` or `12 command skills` fails, naming the file and line (mutation: marketing already moved them to 13, so the falsifier re-introduces a 12)
 
 ### FR-17: Moved content, roadmap, dotfiles, CHANGELOG
 
@@ -287,7 +290,7 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 - Docs that point at moved README content SHALL point at its new home: `docs/skills/diagram-design.md:21` ("the command is in the root `README.md`") names `docs/overview.md` instead. `.claude/skills/diagram-design/SKILL.md:76` ("documented in the project README") is out of scope (NFR-3). It stays reachable because the README *Learn more* table links the overview's *Optional tools*. This is recorded as an accepted Low risk with a `/akili-quick` follow-up.
 - The dead `#grok-bot-grokbot` anchors in `docs/cli.md` (`:21, 48, 110`) SHALL be corrected to `#grok-bot---tool-grokbot`.
 - `docs/skills/governance.md` acceptance checklist item 5 (*Docs + CHANGELOG*) SHALL also require the skill's row in `docs/overview.md`, so a new skill's author learns about the obligation from the checklist, not only from a failing test.
-- `CHANGELOG.md` `## [Unreleased]` SHALL replace its `### Notes` / "No unreleased changes yet." placeholder (or, after the rebase, join the entries marketing added) with one *Changed* entry describing the landing README, `docs/overview.md`, the new test and the re-targeted pins. Every clause SHALL be quote-checked at HEAD (KZ-002).
+- `CHANGELOG.md` `## [Unreleased]` SHALL replace its `### Notes` / "No unreleased changes yet." placeholder (still the placeholder after the rebase: marketing's entries were released under `## [2.36.0]`) with one *Changed* entry describing the landing README, `docs/overview.md`, the new test and the re-targeted pins. Every clause SHALL be quote-checked at HEAD (KZ-002).
 
 #### Scenario: Contributor looks for the release flow
 
@@ -303,7 +306,7 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 |---|---|
 | NFR-1 | `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` all pass at every task end that edits a pinned doc or a test |
 | NFR-2 | **English only.** Every changed or new doc line is in English. Gate: the Reviewer reads the diff, plus `git diff -U0 -- '*.md' \| grep -niE '\b(el\|los\|las\|qué\|también\|para\|está\|cómo\|usuario)\b'` → 0 hits on `+` lines (heuristic, see defect classes) |
-| NFR-3 | File scope per §4; `git diff --stat cdb4c5a -- .claude bin package.json assets` empty |
+| NFR-3 | File scope per §4; `git diff --stat dbc9275 -- .claude bin package.json assets` empty (`dbc9275` = the `origin/dev` this branch is rebased onto; the pre-rebase `cdb4c5a` is no longer an ancestor) |
 | NFR-4 | Local commits only, prefix `[SPEC:changes/docs-overview]`; no push/tag/release/publish |
 | NFR-5 | No shipped file links `docs/specs/changes/docs-overview/` (KZ-changes--archify-diagrams-1). The move ledger is a spec artifact and is never linked from shipped docs |
 | NFR-6 | `npm run pack:dry-run` still lists `README.md`, `docs/overview.md`, `assets/akili-flow.png`, and does not list `dotfiles/` |
@@ -318,7 +321,7 @@ Each README pin SHALL be re-targeted with its assertion text unchanged:
 | Prose not plain, definitions unclear, FR-3 paragraph over 3 sentences, several sentences packed into one line (FR-2 AND IT MUST) | **No automated check.** Substitute: the `full` Reviewer reads the README whole at the README-rewrite task, and the user reviews it at the PR |
 | Unique README content lost in a move | Move ledger walk (FR-12): each row's destination quote checked at HEAD by the Reviewer. No automated check can prove semantic equivalence, so this is a human/agent check, recorded per row |
 | Re-targeted pin weakened | Mutation per pin (FR-15 scenario), executed and quoted in the task |
-| Restatement drift on `/akili-security` or Archify lines | `node --test test/akili-security-docs.test.js test/diagram-design.test.js` after every task that moves such a line |
+| Restatement drift on `/akili-security`, Archify or `/akili-marketing` lines | `node --test test/akili-security-docs.test.js test/diagram-design.test.js test/akili-marketing-docs.test.js` after every task that moves such a line |
 | Overstated claim in a "Use it to…" line, an overview line or the CHANGELOG (KZ-002) | Quote-check against the command/skill page or frontmatter at HEAD (Reviewer). No automated check |
 | Broken relative link or anchor | `test/docs-overview.test.js` (i) for README, overview and hub, slug-aware; link check in task verification for the other edited docs |
 | Countable layout clause regresses (badges, bullets, glossary rows, figure, hub order, routing line) | `test/docs-overview.test.js` (j) |
