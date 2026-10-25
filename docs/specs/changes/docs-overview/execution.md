@@ -43,3 +43,27 @@
 **Issues encountered.** None beyond the FAIL above. The harness flagged the Implementer report as "instruction-shaped (settings-json)" because it named `~/.claude.json`; it was a path in a doc obligation, not an instruction.
 
 **Final verification.** `awk … README.md | wc -l` → 43; ledger `^| H` rows → 43; every row's disposition is one of the four values.
+
+### T3: Absorb into `docs/cli.md`, `CONTRIBUTING.md`, roadmap, dotfiles; fix the Grok anchors — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 1 (run in parallel with T2: disjoint files; the shared ledger edited row-by-row; Leader re-run taken after both reported, tree quiet) |
+| Skills / effort | `cognitive-doc-design`; medium-high |
+| spawns | Implementer (sonnet) 26 calls, 142,764 tokens, ended complete; Reviewer (opus) 21 calls, 111,013 tokens, ended complete |
+| Requirements covered | FR-5 (detail via `docs/cli.md`), FR-12 (T3 rows H04, H07–H10, H12–H17, H20–H23, H34, H35 setup steps, H42 c–d), FR-17 (roadmap, dotfiles, CONTRIBUTING repository structure, cli prerequisites and local checkout, Grok anchor fix), NFR-2, NFR-6 |
+| Running totals | tasks 2/9 (T1, T3) · LOC ~+300 so far for T3 (cli.md +165, CONTRIBUTING +24, openspec-comparison +8, dotfiles/README.md new, ledger rows) · review rounds 4/26 (T1 2, T2 1, T3 1) |
+
+**Attempt 1.** Files: `docs/cli.md`, `CONTRIBUTING.md`, `docs/openspec-comparison.md`, `dotfiles/README.md` (new), ledger rows above. Implementer verification: `grep -c 'grok-bot-grokbot' docs/cli.md` → 0; `grep -c 'grok-bot---tool-grokbot' docs/cli.md` → **4**; `^## Repository Structure` 1; `^## Roadmap` 1; `node --test test/branching-flow.test.js test/diagram-design.test.js test/akili-marketing-docs.test.js` → `# pass 67`, `# fail 0`; `npm run pack:dry-run | grep -c dotfiles` → 0; NFR-2 → 0; P-7 still 9 hits. Falsifiers (scratch copy): one anchor reverted → 1; `Git for Windows` row dropped → 0. Slug derivation: ``## Grok Bot (`--tool grokbot`)`` → `grok-bot---tool-grokbot` (unique; P-14 still not checked against a rendered page). Leader re-run (after T2 and T3 both reported): VERIFIED — same counts, suites pass 67/fail 0, full `npm test` `pass 819, fail 0`, `git diff --check` clean. Reviewer: **PASS** — every T3 destination holds its README content verbatim, including both design amendments (semver table at `CONTRIBUTING.md:77-83`, `/akili-seo` setup at `docs/cli.md` `### /akili-seo Setup`); existing cli.md content only extended; `manual-install` vs `manual-installation` slugs distinct.
+
+**Decisions made.** The task's `grok-bot---tool-grokbot` → 3 check reads 4 at HEAD: the fourth link sits in the new per-target *Use When* table, which ledger row H08 requires (its Grok Bot obligation includes the link). Reviewer adjudication: ledger-required content, not an addition; the check's intent (0 dead links, every link resolves to an existing heading) holds. Recorded count: 4.
+
+**ADVISORY (final verdict).** Readability: `CONTRIBUTING.md:18` new note restates `:14`; a later pass could merge them. Risk: the P-7 hit lines moved from `:125…242` to `:247, 326-327, 338-339, 360 ×2, 377 ×2` — later briefs citing old lines must re-derive them. Readability: P-14 is still unverified against a rendered page; T8 (i) is the gate.
+
+**Forward pointers.** T8/T9: P-7 line numbers in `docs/cli.md` are now `:247, 326-327, 338-339, 360 ×2, 377 ×2` (still 9 hits, 13/28).
+
+**Issues encountered.** The T3 ledger rows are committed with T2 (the ledger was still being edited by T2's rework when T3 closed).
+
+**Final verification.** As the Leader re-run above.

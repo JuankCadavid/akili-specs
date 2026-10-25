@@ -100,7 +100,7 @@ Fill each row's destination quote. Do not rewrite flow.md content that already e
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~150 LOC) |
 | Depends on | T1 |
 | Requirements | FR-5 (detail reached via `docs/cli.md`); FR-12; FR-17 (roadmap, dotfiles, CONTRIBUTING repository structure, cli prerequisites and local checkout, dead-anchor fix); NFR-2; NFR-6 (`dotfiles/` stays unshipped) |
