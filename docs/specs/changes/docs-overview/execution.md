@@ -91,3 +91,28 @@
 **Issues encountered.** This commit also carries T3's ledger rows (T3 closed while T2's rework was editing the ledger).
 
 **Final verification.** As the attempt-2 Leader re-run.
+
+### T4: `docs/overview.md` — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design`; high → xhigh on attempt 2 |
+| continuations | 1 (two `moved` obligations with no other shipped home: README `:850` `frontend-design` "UI validation/testing support"; README `:65` capabilities claim) |
+| spawns | Implementer (sonnet) 29 calls, 140,623 tokens, ended partial; continuation 31 calls, 144,949 tokens (cumulative), ended complete; Reviewer (opus) 29 calls, 132,968 tokens, ended fail; Implementer attempt 2 12 calls, 169,057 tokens (cumulative), ended complete; Reviewer re-review 5 calls, 146,254 tokens (cumulative), ended complete |
+| Requirements covered | FR-11 (8 parts in order; each command and skill once by first cell; 5 fixed groups; bindings = `SKILL.md`; Grok Bot row `no/no/no` + link; glossary of every AKILI term the overview uses), FR-15 (overview carries the positive security slug and run-directory text and the Archify pins), FR-3 AND IT MUST (marketing named), FR-12 (overview-destined ledger rows), NFR-2 |
+| Running totals | tasks 4/9 · LOC ~+760 / −65 so far (overview 209 new) · review rounds 8/26 |
+
+**Attempt 1.** Files: `docs/overview.md` (new), ledger rows H01, H03, H25, H35, H37, M1, M2, M6. Implementer verification: command membership 13 × `1` (anchor ``^| `/$n`` — the Command cell is unlinked per design §8, so the task text's ``^| [`/$n`` form does not apply; two under-the-hood rows renamed to avoid first-cell collisions); skill membership 28 × `1` (Skill cell linked, anchor ``^\| (\[)?`$n` ``); binding comparison clean; 16 pin regexes MATCH; `65 relative links checked; bad: []`; NFR-2 0; Grok row `no | no | no | yes` (= `bin/akili.js:517` `ALL_TOOLS`, `grep -ci grok bin/routing.js` → 0). Falsifiers on scratch copies: `tdd` twice → 2; `tdd` binding → `exp=conditional got=core`; `-r<N>` removed → `slug regex on mutated: NO MATCH`. Not Done / Assumptions (summary): Main-output column omitted per design §8; README `:65` intro and H37 `frontend-design` clause "not carried"; Figma/Jira context and re-index reminder left to command pages; count words removed. Leader check: two of those had no other shipped home → continuation 1 carried them (`:61` "and for UI validation and testing support"; Deliverables lead `:89`) and recorded the other two as held at `docs/commands/akili-propose.md:94` / `docs/commands/akili-archive.md:66`. Leader re-run: VERIFIED. Reviewer: **FAIL**, 2 issues — (1) glossary lacked AKILI terms the overview uses (Apply Mode, Skill Map, Lite, Bug Mode, Video Mode, Document Control, plan gate, run directory) — FR-11 (7); (2) ledger citations after `:88` off by two after the continuation's insert, and two H03 quotes not verbatim — DD-2, FR-12 BUT.
+
+**Attempt 2.** Files: overview, ledger T4 rows. Glossary +14 rows (the 8 named + Project mode, Triviality gate, Agent wrapper, Phase 2B, Context Discipline, Fleet execution from a full-page scan), each sourced; advisories on the sentences this run wrote applied (Deliverables lead names SEO with its Python deps; Fleet "can run"; HITL "for example"; "tracked repository content"). Ledger T4 blocks rewritten verbatim and re-derived mechanically: `H01 3 bad 0 · H03 11 · H25 4 · H35 9 · H37 5 · M1 6 · M2 2 · M6 2` (all bad 0). Leader re-run: VERIFIED (membership and bindings clean; every `run directory` line carries "(always outside the target)"; no `git status|check-ignore|rev-parse`; NFR-2 0; pin strings present; `npm test` `pass 819, fail 0`; `git diff --check` clean). Reviewer: **PASS** — all 14 glossary rows quote-checked at source; §8 security constraint holds on the four matching lines (`:37`, `:94`, `:184`, `:202`); 36 ledger citations checked, 0 real mismatches.
+
+**ADVISORY (final verdict).** Readability: the `seo-audit` row says "its domain verification"; the source gives verification to `/akili-seo` (`scripts/gsc_verify.py`) and also needs a Google service-account key. Readability: the *Run directory* glossary row could say "tracked repository content" to match `:37`.
+
+**Decisions made.** Execute-time design §8 amendment (T1) checked: the `/akili-audit` row keeps "recommended remediation paths" (Reviewer-confirmed). The command membership loop uses the unlinked anchor because design §8 makes the Command cell unlinked.
+
+**Forward pointers.** T6: the README glossary/term check must cover the README's own terms (Reviewer note on FR-11 (7)). T5: the overview's security lines are `:37`, `:94`, `:184`, `:202`; the `run directory` lines are `:37` and `:184`.
+
+**Final verification.** As the attempt-2 Leader re-run.

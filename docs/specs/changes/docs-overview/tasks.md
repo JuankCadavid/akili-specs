@@ -142,7 +142,7 @@ Fill the ledger quotes.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~300 LOC) |
 | Depends on | T2, T3 (overview links into their new sections) |
 | Requirements | FR-11 (8 parts in order; every command and skill once; 5 fixed groups; binding equals `SKILL.md`; Grok row cells and link; BUT membership by table row); FR-15 (the overview carries the positive security slug and run-directory text and the Archify pins); FR-3 AND IT MUST (marketing named); NFR-2; KZ-002 |
