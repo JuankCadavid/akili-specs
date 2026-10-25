@@ -202,3 +202,37 @@
 **Forward pointers.** T9: suite total is 825 after T8 — re-run before the CHANGELOG states any count (KZ-002).
 
 **Final verification.** `node --test test/docs-overview.test.js` 13/0; `npm test` 825/0.
+
+### T9: CHANGELOG and final sweep — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Skills / effort | `cognitive-doc-design`; high |
+| spawns | Implementer (sonnet) 24 calls, 102,812 tokens, ended complete; Reviewer (opus) 23 calls, 102,249 tokens, ended complete |
+| Requirements covered | FR-17 (CHANGELOG entry replacing the `[Unreleased]` placeholder, each clause quote-checked), NFR-1, NFR-3, NFR-4, NFR-5, NFR-6 |
+| Running totals | tasks 9/9 · LOC (shipped files, `git diff --shortstat dbc9275 -- . ':!docs/specs'`) +1,268 / −951 against ~1,350 / ~955 · review rounds 15/26 |
+
+**Attempt 1.** Files: `CHANGELOG.md` (`## [Unreleased]`: `### Changed` 4 bullets + `### Notes` 3 bullets; `[2.36.0]` untouched). Red run: `grep -c 'docs/overview.md' CHANGELOG.md` → 0 with the P-15 placeholder; after → 4. Implementer verification: `npm test` `# tests 825`, `# pass 825`, `# fail 0`; `npm run verify:cli` exit 0, `13 commands | 28 skills | 8 resources (akili-specs v2.36.0)`; `npm run pack:dry-run` exit 0, 326 files incl. `README.md` (8.4kB) and `docs/overview.md` (22.1kB), no `dotfiles/`; `git diff --check` 0; `git diff --stat dbc9275 -- .claude bin package.json assets` empty; non-prefixed commits since `dbc9275` → 0. Clause → evidence table quoted for every clause (README 954 → 158; headings; overview parts; hub; eight flow.md sections; cli.md sections; CONTRIBUTING; Roadmap; dotfiles; routing line; governance item 5; four re-targeted tests with README negative guards kept; 13-test derived suite; Grok anchor; 825 tests on Node v22.12.0; known debt `.claude/skills/diagram-design/SKILL.md:76`). Sweep: `#grok-bot-grokbot` none outside CHANGELOG; `Six anytime` only `docs/flow.md:21`; `Five anytime` none; `What AKILI Covers` only in CHANGELOG/release history (kept); `AGENTS.md:16`, `CONTRIBUTING.md:38`, `docs/openspec-comparison.md:11` kept as still true; `.claude/**` scaffold-README mentions not the root README; `SKILL.md:76` out of scope, recorded as known debt. Leader re-run: VERIFIED (all four commands pass; pack lists README.md and docs/overview.md, no dotfiles; scope diff empty; 0 non-prefixed commits; no `docs/specs/changes` link in the CHANGELOG). Reviewer: **PASS** — every clause true at HEAD; the added `### Notes` follows the repository convention (`[2.36.0]`, `[2.35.0]`, `[2.34.1]`) and states only true, in-scope facts, so not a FR-17 deviation; sweep re-run with paraphrases, no open hit.
+
+**ADVISORY (final verdict).** Readability: the CHANGELOG writes "I want to..." with three dots; the heading uses "…". Readability: "a command table" understates the README's two command tables (not false).
+
+**Final verification.** As the Leader re-run above.
+
+## 3. Summary
+
+| Item | Value |
+|---|---|
+| Status | All 9 tasks `[x]`, each closed by a Reviewer `PASS` (no `REVIEW_SKIPPED`, no `REVIEW_WAIVED`, no HALT, no Pivot) |
+| Attempts | T1 2 · T2 2 · T3 1 · T4 2 · T5 1 · T6 2 · T7 2 · T8 1 · T9 1 |
+| Review rounds | 15 (budget 20, tripwire 26) |
+| LOC (shipped files) | +1,268 / −951 (budget ~1,350 / ~955) |
+| Continuations | T1 1, T4 1 (owed obligations with no other shipped home) |
+| Checkpoints / runtime events | none |
+| Execute-time spec edits | `design.md` §3 (`CONTRIBUTING.md` semver table; `docs/cli.md` `/akili-seo` setup) and §8 (`/akili-audit` "recommended remediation paths") at T1; §7 `/akili-execute` row wording at T6. None changed an approved requirement's meaning (Reviewer-confirmed each time) |
+| Final suite | `npm test` 825 pass / 0 fail (812 after T5, +13 from T8); `verify:cli`, `pack:dry-run`, `git diff --check` pass |
+| Commits | local only on `JuankCadavid/docs-overview`, all `[SPEC:changes/docs-overview]`; nothing pushed, merged, tagged, released or published |
+| Recurring failure class | 5 of 6 FAILs were FR-12 content-preservation gaps (an obligation abridged, a ledger quote not holding its token, a claim false at HEAD) — KZ-changes--gate-falsifiability-2 recurring; the mechanical token sweep added in rework closed each. Kaizen input for `/akili-archive` |
+| Open follow-ups (recorded, not tasks) | `.claude/skills/diagram-design/SKILL.md:76` still says "documented in the project README" (accepted Low, `/akili-quick` follow-up); P-13/P-14 anchors verified only by the in-test slugger, confirm in the PR preview; flow.md `## Philosophy` names three default personas vs four (advisory) |

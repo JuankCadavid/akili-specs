@@ -6,9 +6,18 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Changed
+
+- **`README.md` is now a short landing page, and `docs/overview.md` is the full capability map.** The README goes from 954 to 158 lines: what AKILI is, how it works, install, a first spec, a command table and links onward. `docs/overview.md` (new) lists every packaged command and every packaged skill (in five purpose groups, each with its binding), then the mechanisms behind them, the install targets, the optional tools, a glossary and an "I want to..." table. `docs/README.md` now lists the overview first, links `docs/skills/governance.md`, and shows the anytime commands as a table.
+- **The material the README used to carry moved to the page that owns it.** `docs/flow.md` gained Start Here, Core Concepts, Review Points, Requirement Delta Preview, Writing Good Requirements, Practical Example, Methodology Contract and Host Assumptions. `docs/cli.md` gained Prerequisites (with `/akili-seo` Setup), Local Checkout Install and Manual Install. `CONTRIBUTING.md` gained Repository Structure and the semantic-versioning table, `docs/openspec-comparison.md` gained Roadmap, and `dotfiles/README.md` (new) describes the editor and terminal snapshots. `docs/model-routing.md` states that `akili routing` does not target Grok Bot, and item 5 of the `docs/skills/governance.md` checklist now asks for a row in `docs/overview.md`.
+- **Tests that pinned README content now pin the new homes.** `test/akili-marketing-docs.test.js`, `test/akili-security-docs.test.js`, `test/branching-flow.test.js` and `test/diagram-design.test.js` read `docs/overview.md` or `docs/flow.md` where they read the README; `test/akili-security-docs.test.js` and `test/branching-flow.test.js` still apply their negative checks to the README. `docs/skills/diagram-design.md` points at `docs/overview.md` for the Archify install command. The new `test/docs-overview.test.js` (13 tests) derives the commands and skills from `.claude/commands/` and `.claude/skills/` at test time, so a command or skill added later fails it by name instead of by a hard-coded count.
+- **Docs: the Grok Bot links in `docs/cli.md` resolve.** They pointed at `#grok-bot-grokbot`; the heading's anchor is `#grok-bot---tool-grokbot`.
+
 ### Notes
 
-- No unreleased changes yet.
+- **Docs and tests only.** Nothing in `.claude/`, `bin/`, `package.json` or `assets/` changes, and no version is bumped here.
+- **Tests.** The suite is 825 tests, all passing, on Node 22 on macOS.
+- **Known debt.** `.claude/skills/diagram-design/SKILL.md` still says Archify's install is documented "in the project README"; the install command now lives in `docs/overview.md`. The skill is installable content and was out of this change's scope.
 
 ## [2.36.0] - 2026-10-24
 

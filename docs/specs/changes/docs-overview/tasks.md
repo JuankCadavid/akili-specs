@@ -316,7 +316,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~10 LOC) |
 | Depends on | T8 |
 | Requirements | FR-17 (one *Changed* entry replacing the `[Unreleased]` placeholder, which survived the rebase because marketing released under `[2.36.0]`; each clause quote-checked); NFR-1, NFR-3, NFR-4, NFR-5, NFR-6; KZ-002; KZ-changes--kaizen-loop-closure-2 |
