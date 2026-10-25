@@ -333,7 +333,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~200 command + ~40 counts/fixture) |
 | Depends on | T3, T5 |
 | Requirements | FR-2 (all, both scenarios), FR-3 (text), FR-4 (*Small but sensitive* BUT), FR-5 (persona table, addendum, host fallback), FR-7 (drop list, tier verification), FR-8 (run dir, two-way rule, history, both scenarios), FR-9 (local confirmation gate; cap restated once), FR-12 (canonical addendum), FR-13 (all), FR-1 *Installs on every target* |
