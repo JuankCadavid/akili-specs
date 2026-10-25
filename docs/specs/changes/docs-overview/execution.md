@@ -116,3 +116,25 @@
 **Forward pointers.** T6: the README glossary/term check must cover the README's own terms (Reviewer note on FR-11 (7)). T5: the overview's security lines are `:37`, `:94`, `:184`, `:202`; the `run directory` lines are `:37` and `:184`.
 
 **Final verification.** As the attempt-2 Leader re-run.
+
+### T5: Re-target the README pins; fix the diagram-design pointer — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Skills / effort | `tdd`; high |
+| spawns | Implementer (sonnet) 13 calls, 86,878 tokens, ended complete; Reviewer (opus) 10 calls, 84,438 tokens, ended complete |
+| Requirements covered | FR-15 (positive pins moved to the overview / flow.md; README negative guards kept; scenario mutations; no regex/token/message change beyond the site name; only S1–S4), FR-17 (`docs/skills/diagram-design.md:21` names `docs/overview.md`), NFR-1 |
+| Running totals | tasks 5/9 · LOC ~+790 / −85 so far (T5 +28/−21) · review rounds 9/26 |
+
+**Attempt 1.** Files: `test/branching-flow.test.js`, `test/akili-security-docs.test.js`, `test/diagram-design.test.js`, `test/akili-marketing-docs.test.js`, `docs/skills/diagram-design.md`; README untouched. Implementer verification: `npm test` → `# tests 812`, `# pass 812`, `# fail 0` (also after reverting every mutation). Assert pairs: only site/variable/file names changed (marketing credit "README …" → "docs/overview.md …"; command-file list → `hasLine(overview, "(commands/akili-marketing.md)")`; command-table literal unchanged on the overview; anytime message "README anytime-commands sentence" → "docs/flow.md anytime-commands sentence"; diagram-design `readme` → `overview`, regexes unchanged; one added S3 assert reusing the regex). Six executed mutations, each red on its assertion: (1) `not ok 1 … 'docs/overview.md has no routing slug of the form bugfix/security-<date>-r<N>-s<n>'`; (2) `not ok 8 … /never ships or installs it/`; (3) `not ok 4 … README.md (/akili-security lines) line 10 matches /ignored in-target/i`; (4) `not ok 31 … 'README.md still instructs a direct release commit + tag'` (in `hasDirectReleaseSequence`); (5) `not ok 5 … /Sergey Bulaev/`; (6) `not ok 7 … 'docs/flow.md anytime-commands sentence'`. Leader re-run: VERIFIED (`npm test` 812/812/0). Test count 819 → 812 traced by the Leader: `branching-flow` 42 → 35 (the 7-token positive loop no longer runs on the README section site, design §9 S1); `akili-security-docs` 19 → 19. Reviewer: **PASS** — all 11 §9 rows applied, only S1–S4; the 7 dropped tests are exactly `README.md (Releasing Package Updates) names <token>`, and all 7 tokens are present in both CONTRIBUTING.md and docs/release-checklist.md (P-8 independently confirmed); the Reviewer re-ran nine mutations on a scratch copy outside the worktree (the six plus S3 alone, the S4 page link, the README shape guard), all red on their assertions.
+
+**ADVISORY (final verdict).** Readability: `test/akili-marketing-docs.test.js:82` variable `readmeRow` now holds an overview row; titles at `:78`/`:96` still say README. FR-15 freezes message text, so left as is.
+
+**Decisions made.** Mutation (6)'s message: design §9 ("A message changes only in the file name it mentions") governs, so "README anytime-commands sentence" became "docs/flow.md anytime-commands sentence" (Reviewer-confirmed).
+
+**Forward pointers.** T9: the suite total is 812 after T5 (T8 adds its own); re-run counts before any summary states them (KZ-002).
+
+**Final verification.** `npm test` → 812 pass, 0 fail.

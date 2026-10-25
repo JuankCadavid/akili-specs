@@ -79,9 +79,9 @@ test("@akili-spec changes/akili-marketing FR-12: upstream credit (Sergey Bulaev,
   const page = read("docs/skills/social-marketing.md");
   assert.match(page, /\| Author \| Sergey Bulaev \|/, "skill page attribution table: Author");
   assert.match(page, /\| Licence \| MIT/, "skill page attribution table: Licence");
-  const readmeRow = read("README.md").split("\n").find((l) => l.startsWith("| Social marketing |")) || "";
-  assert.match(readmeRow, /Sergey Bulaev/, `README Social marketing row credits the author:\n${readmeRow}`);
-  assert.match(readmeRow, /\bMIT\b/, "README Social marketing row names the licence");
+  const readmeRow = read("docs/overview.md").split("\n").find((l) => l.startsWith("| [`social-marketing`]")) || "";
+  assert.match(readmeRow, /Sergey Bulaev/, `docs/overview.md Social marketing row credits the author:\n${readmeRow}`);
+  assert.match(readmeRow, /\bMIT\b/, "docs/overview.md Social marketing row names the licence");
 });
 
 test("@akili-spec changes/akili-marketing FR-12: CHANGELOG ## [Unreleased] (or the 2.36.0 section it was released into) names /akili-marketing and social-marketing", () => {
@@ -94,11 +94,11 @@ test("@akili-spec changes/akili-marketing FR-12: CHANGELOG ## [Unreleased] (or t
 });
 
 test("@akili-spec changes/akili-marketing FR-12: the command is in every README/docs list that enumerates commands", () => {
-  const readme = read("README.md");
-  assert.ok(hasLine(readme, "  - `akili-marketing.md`"), "README command-file list");
-  assert.ok(hasLine(readme, "| `/akili-marketing <mode> [args]` |"), "README command table");
-  const anytime = readme.split("\n").find((l) => l.startsWith("Six anytime commands run outside this loop")) || "";
-  assert.match(anytime, /`\/akili-marketing`/, "README anytime-commands sentence");
+  const overview = read("docs/overview.md");
+  assert.ok(hasLine(overview, "(commands/akili-marketing.md)"), "docs/overview.md command page link");
+  assert.ok(hasLine(overview, "| `/akili-marketing <mode> [args]` |"), "docs/overview.md command table");
+  const anytime = read("docs/flow.md").split("\n").find((l) => l.startsWith("Six anytime commands run outside this loop")) || "";
+  assert.match(anytime, /`\/akili-marketing`/, "docs/flow.md anytime-commands sentence");
 
   const cmds = read("docs/commands/README.md");
   assert.ok(hasLine(cmds, "| [`/akili-marketing <mode> [args]`](akili-marketing.md) |"), "docs/commands/README.md table");

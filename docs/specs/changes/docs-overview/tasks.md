@@ -182,7 +182,7 @@ The `/akili-security` row uses the README `:817` wording for the run directory a
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~65 LOC changed) |
 | Depends on | T4 (and T2 for the flow.md sentence) |
 | Requirements | FR-15 (positive pins move; README negative guards remain; scenario mutations; BUT no regex, token list or message changes beyond the site name; AND IT MUST: only S1–S4); FR-17 (`docs/skills/diagram-design.md:21` names `docs/overview.md`); NFR-1 |
