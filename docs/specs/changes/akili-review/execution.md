@@ -176,3 +176,25 @@ At `619180e`, tree clean: `npm test` → Node 22.12.0 `# tests 1012 · pass 1012
 **Issues encountered.** None beyond the FAIL. The upstream Apache `LICENSE` file carries "some unrelated junk text appended at the end" (Implementer); not reproduced.
 
 **Final verification.** `head -2 .claude/skills/pr-review/references/*.md` → provenance in all three; `NOTICE` greps 3 / 4; proprietary grep 0.
+
+### T5: `pr-review/SKILL.md` — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-25 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design` (task list); high → xhigh on attempt 2 |
+| spawns | Implementer (sonnet) 13 calls, 85,331 tokens, ended complete; Reviewer (opus) 24 calls, 105,868 tokens, ended fail; Implementer attempt 2 (sonnet, fresh) 8 calls, 72,878 tokens, ended complete; Reviewer re-review (opus, resumed) 1 call, 108,796 tokens (cumulative), ended complete |
+| Requirements covered | FR-1 (original-authorship frontmatter, `inspired-by` with URLs and pins incl. both adapted works, the Anthropic plugin "pattern, not adapted" by marketplace name, Integration section, one-line standalone statement), FR-5 (persona by section id, no copied text), FR-7 (contract summary pointing to schema + validator), NFR-4 (87/250 lines) |
+| Running totals | tasks 6/15 · LOC ~4,380 (T5 ~80: `SKILL.md` +71/−10 over T3b's provisional body) · review rounds 11/25 |
+
+**Attempt 1.** File: `.claude/skills/pr-review/SKILL.md` (replaces T3b's provisional body). Red substitute (file pre-existed, so no `No such file`): the 3-pattern grep against the provisional file before editing → 1 hit (`binding: core` only). Verification: 87 lines; 3 hits (`:7`, `:9`, `:68`); `reviewer\.md:[0-9]` 0; proprietary URL 0; active-spec path 0; `git diff --check` clean. Falsifier (scratch copy with `reviewer.md:57`) → check returns 1; restored → 0; the T7 assertion is deferred to T7. `npm test`: the one expected `install-cursor` "expected 240 … counted 244" (T6). Leader re-run: VERIFIED. Reviewer: **FAIL**, 4 issues — (1) `:16` "a failing exit comes only from `--fail-on`" false (validator exits 1/2, `render` 1, `post` 2 on an invalid document) and the Implementer's evidence had misquoted the line as containing "on findings"; (2) `:50` sent "ranges and limits" to `review-schema.json`, which carries none (they live in `validate-review.cjs`); (3) Cloudflare cited by host only; (4) `inspired-by` omitted the two works whose text `lenses.md` adapts (FR-1: "each adapted or consulted work"). Rulings PASS on frontmatter variant, Integration table (Steps 0–5, each mapped reference holds the content), no restated numbers beyond the 10-inline cap, no persona copy, description not overstating (command and CI land in the same PR 2).
+
+**Attempt 2.** File: `SKILL.md` only. `:16` "…a failing exit on findings comes only from `--fail-on`, which the caller opts into), and posting happens only through `post-review.cjs post`." (one line); `:50` "The fields live in `review-schema.json`; the ranges and limits are enforced by `validate-review.cjs`; do not restate them."; `:9` Cloudflare `https://blog.cloudflare.com/ai-code-review/` (recorded at the proposal's requirement source `/Users/jcadavid/akili-review-analysis.md:57`; Implementer WebFetch resolved it, title "Orchestrating AI Code Review at scale") and both adapted works appended with GitHub URLs and pins `33d3dea` / `0c6a49f` ("text adapted in `references/lenses.md`; notice in `NOTICE`"); `:54` "a critical only one judge confirms becomes a `warning` with `suspect: true`" (FR-7 *Verification* wording; the Reviewer's narrower advisory wording declined, and the Reviewer agreed). Leader re-run: **VERIFIED** (87 lines; 3 hits; 0; 0; "on findings" `:16`; limits pointer `:50`; `git diff --check` clean; only `SKILL.md` changed). Reviewer: **PASS** — all four closed; `:54` conformant.
+
+**Decisions made.** Leader ruling: FR-1's "each adapted or consulted work" makes the two adapted sources mandatory in `inspired-by`; design §7.2's `SKILL.md` row lists that file's own influences and is not exhaustive (no spec conflict, no edit). The CI `--input` amendment was carried as a named conformance check; `SKILL.md` describes `--ci` only as reading `--input <dir>`, with no fallback.
+
+**ADVISORY (final verdicts).** Round 2: `:50` lead-in "Rules that sit outside the schema:" now follows a sentence placing ranges outside the schema too — "Rules that neither file enforces:" would be clearer.
+
+**Final verification.** `wc -l .claude/skills/pr-review/SKILL.md` → 87; `grep -n "binding: core\|inspired-by\|## AKILI-SPECS Integration"` → 3 lines; `grep -nE "reviewer\.md:[0-9]"` → 0.

@@ -299,7 +299,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~250) |
 | Depends on | T4 |
 | Requirements | FR-1 (frontmatter: original-authorship variant, `inspired-by` with pins and "pattern, not adapted" for the proprietary plugin; Integration section; standalone line), FR-5 (references `reviewer.md` sections by id), NFR-4 |
