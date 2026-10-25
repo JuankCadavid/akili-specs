@@ -403,7 +403,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~280 templates + ~130 README + ~220 test) |
 | Depends on | T6 |
 | Requirements | FR-12 (items 1–8, both scenarios), FR-11 (advisory default line), FR-14 (`docs/ci/README.md`), NFR-6 |
