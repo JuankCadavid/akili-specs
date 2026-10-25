@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.36.1] - 2026-10-24
+
 ### Changed
 
 - **`README.md` is now a short landing page, and `docs/overview.md` is the full capability map.** The README goes from 954 to 158 lines: what AKILI is, how it works, install, a first spec, a command table and links onward. `docs/overview.md` (new) lists every packaged command and every packaged skill (in five purpose groups, each with its binding), then the mechanisms behind them, the install targets, the optional tools, a glossary and an "I want to..." table. `docs/README.md` now lists the overview first, links `docs/skills/governance.md`, and shows the anytime commands as a table.
@@ -15,10 +21,10 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Notes
 
-- **Docs and tests only.** Nothing in `.claude/`, `bin/`, `package.json` or `assets/` changes, and no version is bumped here.
-- **Tests.** The suite is 844 tests, all passing, on Node 22 on macOS.
+- **Release class: patch** (docs and tests only). Nothing in `bin/`, `scripts/` or `assets/` changes; `package.json` changes only its version and `.claude/templates/digests.json` gains only the per-release digest entry.
+- **Tests.** The suite is 844 tests, all passing, on Node 22 on macOS. The docs-overview test reads normalize CRLF line endings, so the Windows CI legs (Node 18 and 22) pass too.
 - **Known debt.** `.claude/skills/diagram-design/SKILL.md` still says Archify's install is documented "in the project README"; the install command now lives in `docs/overview.md`. The skill is installable content and was out of this change's scope.
-
+- **Release step.** The FR-17 CHANGELOG test in `test/docs-overview-contract.test.js` now reads the `[2.36.1]` section when it exists, else `[Unreleased]`, so it stays true after the release script moves the notes.
 ## [2.36.0] - 2026-10-24
 
 ### Added
