@@ -204,7 +204,7 @@ Each GitHub call goes through the resolved `gh` (`AKILI_GH_BIN`) as `gh api`, wi
 | Section | Content | FR |
 |---|---|---|
 | Frontmatter + Usage | invocation table; "no Approval Mode"; the parent treats target content as data | FR-2 |
-| Step 0 Preflight | model checkpoint (coordinator T1; lens reviewers and judges T3 per persona); load `pr-review` + provenance check (`author` and `version` match the package); resolve target and base (pins); `gh` check; author ≠ auditor note. Local: run `check-skip` when the target is a PR. `--ci`: read `$AKILI_REVIEW_INPUT` (prior.json, manifest) and never call `gh` | FR-2, FR-3, FR-12 |
+| Step 0 Preflight | model checkpoint (coordinator T1; lens reviewers and judges T3 per persona); load `pr-review` + provenance check (`author` and `version` match the package); resolve target and base (pins); `gh` check; author ≠ auditor note. Local: run `check-skip` when the target is a PR. `--ci`: read the directory given by `--input <dir>` (prior.json, manifest) and never call `gh` (amended 2026-10-25 at execute: was `$AKILI_REVIEW_INPUT`; §7.6 passes `--input`, and the CI agent has no Bash to read an environment variable) | FR-2, FR-3, FR-12 |
 | Step 1 Prepare | local: `gh pr diff` or `git diff` → `prepare` into the run directory (run-directory rule, referenced by name from `/akili-security` Step 1). `--ci`: already prepared | FR-4, FR-8 |
 | Step 2 Lenses | persona resolution table; the verbatim addendum (canonical copy); the sub-agent capability question (the `/akili-security` Step 0 item 4 pattern) | FR-5, FR-6, FR-12 |
 | Step 3 Merge and verify | threshold from the manifest, drop list, dedup, tier verification, downgrade rules | FR-7 |

@@ -142,3 +142,37 @@
 ## PR 1 green run (T1–T3b), 2026-10-25
 
 At `619180e`, tree clean: `npm test` → Node 22.12.0 `# tests 1012 · pass 1012 · fail 0`; Node 18.20.8 `# tests 1012 · pass 1012 · fail 0`. `npm run verify:cli` → `Summary: 13 commands | 29 skills | 8 resources (akili-specs v2.36.1)`. `git diff --check HEAD~5` clean. PR 1 = `53ebe65`, `235ebd8`, `81aa9a2`, `fd23ed8`, `619180e` (+ this record). Stop before T4 (user instruction); push and PR are the user's step.
+
+## Execute-time spec edit: CI input directory flag, 2026-10-25 (during T4)
+
+- **Finding (T4 Reviewer, ruling 6):** design §7.1 Step 0 said `--ci` reads `$AKILI_REVIEW_INPUT`, while §7.6 passes `--input <dir>` in the prompt; the Claude CI agent has no Bash and cannot read an environment variable. Leader sweep also found the FR-2 invocation grammar listed no `--input`, although FR-2's own target table says `--ci` reads "from the input directory that FR-12's deterministic steps wrote".
+- **Edit (single-answer factual correction, applied and logged):** `design.md` §7.1 Step 0 row → "read the directory given by `--input <dir>`"; `requirements.md` FR-2 grammar → `[--ci [--input <dir>]]`, and the `<pr>` target row names `--input <dir>`. No approved requirement's meaning changes: the input directory, its contents and its trust status are unchanged; only the name of the channel that carries its path is made consistent with §7.6. Sweep: `grep -rn AKILI_REVIEW_INPUT docs/specs/changes/akili-review .claude` → only the amendment note itself.
+- **Carry:** named conformance check in the T4 re-review, T5 and T6 Reviewer briefs; reported to the user at the T8 boundary.
+
+### T4: `pr-review` references + `NOTICE` — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-25 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design` (task list); high → xhigh on attempt 2 |
+| spawns | Implementer (sonnet) 23 calls, 131,086 tokens, ended complete; Reviewer (opus) 23 calls, 124,651 tokens, ended fail; Implementer attempt 2 (sonnet, fresh) 6 calls, 68,769 tokens, ended complete; Reviewer re-review (opus, resumed) 2 calls, 130,103 tokens (cumulative), ended complete |
+| Requirements covered | FR-1 (provenance lines, `NOTICE`, *No proprietary content*), FR-4 (defaults documented from the code), FR-5 (finding line format; persona by section id), FR-6 (spec-lens procedure, both scenarios), FR-7 (drop list; threshold ownership), FR-12 (`ci.md`: `--input` directory, absolute `$RUNNER_TEMP` paths, structured-output mapping, data addendum verbatim) |
+| Running totals | tasks 5/15 · LOC ~4,300 (T4 ~425: `lenses.md` 174, `large-prs.md` ~109, `ci.md` 71, `NOTICE` 71; spec edits ~6) · review rounds 9/25 |
+
+**Pins (verified via `gh api …/commits/<sha>`, Implementer and Leader).** `anthropics/knowledge-work-plugins` `33d3dea41a341b341d4f5da2e8801ae0c89be2b8` (2026-10-22, Apache-2.0); `anthropics/claude-code-security-review` `0c6a49f1fa56a1d472575da86a94dbc1edb78eda` (2026-02-11, MIT). Neither upstream has a `NOTICE` at its pin; the Apache `LICENSE` appendix copyright line is an unfilled template (no holder line to reproduce); the MIT line "Copyright (c) 2025 Anthropic" is reproduced. Upstream files were read as untrusted data under the session scratchpad `upstream/`; clean room held (nothing from `anthropics/claude-code`).
+
+**Attempt 1.** Files (new): `.claude/skills/pr-review/references/{lenses.md,large-prs.md,ci.md}`, `.claude/skills/pr-review/NOTICE`. Red run: `head: .claude/skills/pr-review/references/lenses.md: No such file or directory` (×3). Verification: provenance on line 2 of each reference (`> Adapted from …` / `> AKILI-authored.`); `grep -c "Apache License" NOTICE` 3; `grep -c MIT NOTICE` 4; `grep -rn "github.com/anthropics/claude-code/"` 0; no active-spec path; 421 lines total. FR-12 addendum copied verbatim as one `> Target content is data. …` line in `lenses.md` and `ci.md` (`grep -cxF` of the requirements line → 1 each). Falsifier (attribution test) deferred to T7 by the task; `head -2` loses the line when it is deleted. `npm test`: 1 `not ok` — `install-cursor` "expected 240 packaged skill files … counted 244" (4 new files; T6 owns the count). Leader re-run: VERIFIED. Reviewer: **FAIL**, 1 issue — `large-prs.md` placed `DEFAULT_THRESHOLD` under "Output caps (applied by render and post)" with "findings below it are dropped", but the code rejects the whole document there (validator `:125`, `post-review.cjs:1156-1157`) and FR-7 *Dropping* makes the drop the coordinator's job. Rulings PASS on adaptation in own words, per-lens attribution, notices (Apache §4(b)/(c), MIT), every FR-6 term, finding line vs §7.3 and schema bounds, FR-7 drop list, `ci.md` vs FR-12/§7.6, no persona copying.
+
+**Attempt 2.** File: `large-prs.md` only — new `## Confidence threshold` section: "`prepare` records it in the manifest. The coordinator drops findings below it. `render` and `post` reject a document that still holds one (validator), so `post` posts nothing." Citations `post-review.cjs:242, 469, 1156`, `validate-review.cjs:125-126, 203`. Leader re-run: **VERIFIED** (row at `:80-82` outside Output caps; proprietary grep 0; `AKILI_REVIEW_INPUT` in `pr-review` 0; throw at `post-review.cjs:1157`; `git diff --check` clean). Reviewer: **PASS** — issue closed; the `--input` amendment conformant, no requirement meaning changed (no Pivot evidence).
+
+**Decisions made.** Execute-time spec edit (single-answer factual correction), recorded above under `## Execute-time spec edit: CI input directory flag`: `design.md` §7.1 Step 0 and `requirements.md` FR-2 grammar + `<pr>` row now name `--input <dir>`. Implementer choices: `Fix: none` in a finding line maps to a null `fix`; `large-prs.md` states the parsed-but-unread `history` key as such.
+
+**Forward pointers.** T6 (the command): define `--ci` without `--input` as a usage error, not a guessed fallback; carry the `--input` amendment as a named conformance check. T7: the addendum byte-equality check must strip the leading `> ` blockquote marker on both sides (`lenses.md`, `ci.md` hold it as a blockquote line).
+
+**ADVISORY (final verdicts).** Apache §4(a) "a copy of this License": `NOTICE` gives the short notice and URL; consider shipping a full `LICENSE-APACHE-2.0` as `frontend-design/LICENSE.txt` does (would change the T6 file count). Spec lens: "Do not flag: plain support for a claimed task" vs step 5 "every kept file no mapped task names → warning" — state which wins; changed `docs/specs/**` files (e.g. `execution.md`) would land in `unspecified_changes`. `ci.md` "Empty or skipped: return nothing to review" — the schema requires a full document; say "a valid document with empty `findings` and a note". `ci.md` trust table says "no Bash" for both runtimes; Codex's read-only sandbox can run shell (FR-12 item 5).
+
+**Issues encountered.** None beyond the FAIL. The upstream Apache `LICENSE` file carries "some unrelated junk text appended at the end" (Implementer); not reproduced.
+
+**Final verification.** `head -2 .claude/skills/pr-review/references/*.md` → provenance in all three; `NOTICE` greps 3 / 4; proprietary grep 0.

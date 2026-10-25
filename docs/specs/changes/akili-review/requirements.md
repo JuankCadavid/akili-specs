@@ -100,14 +100,14 @@ The package SHALL ship `.claude/skills/pr-review/` with `SKILL.md`, `NOTICE`, `r
 
 ### FR-2: Command — invocation, targets and the read-only boundary
 
-`/akili-review [<pr> | <base>..<head> | --staged] [--spec <path>] [--tier auto|trivial|lite|full] [--lens <a,b>] [--comment] [--ci] [--fail-on none|critical|warning] [--record] [--force] [--out <dir>]` SHALL be an anytime command that runs outside the spec lifecycle and loads `pr-review` before acting.
+`/akili-review [<pr> | <base>..<head> | --staged] [--spec <path>] [--tier auto|trivial|lite|full] [--lens <a,b>] [--comment] [--ci [--input <dir>]] [--fail-on none|critical|warning] [--record] [--force] [--out <dir>]` SHALL be an anytime command that runs outside the spec lifecycle and loads `pr-review` before acting.
 
 **Target resolution:**
 
 | Argument | Target diff |
 |---|---|
 | none | Current branch against the base, which resolves in this order: `Integration Branch:` pin, then `Default Branch:` pin, then the remote's default branch. If none resolves, the command asks the user |
-| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff`; in `--ci`, read from the input directory that FR-12's deterministic steps wrote |
+| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff`; in `--ci`, read from the input directory that FR-12's deterministic steps wrote, named by `--input <dir>` (grammar amended 2026-10-25 at execute: design §7.6 passes `--input`) |
 | `<base>..<head>` | That range |
 | `--staged` | The staged changes against `HEAD` |
 

@@ -265,7 +265,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~600 references + ~60 `NOTICE`) |
 | Depends on | T1 (the finding fields that `lenses.md` names) |
 | Requirements | FR-1 (`Adapted from` / `AKILI-authored` lines, `NOTICE`, *No proprietary content*), FR-4 (defaults documented), FR-5 (finding line format), FR-6 (spec-lens procedure, both scenarios), FR-7 (drop list), FR-12 (`ci.md`: input directory, structured-output mapping) |
