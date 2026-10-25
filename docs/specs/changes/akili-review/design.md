@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | See `requirements.md` §1. The design gate is resolved as **Review Design** (judgment-day) by user mandate, 2026-10-25 |
-| Status | **Round-1 correction applied** (W-1 to W-5, `judgment.md`; the user chose **Fix and Re-judge**, 2026-10-25). Awaiting scoped re-judgment |
+| Status | **Round-2 correction applied** (round-1 W-1 to W-5; round-2 fixes for R-A1 to R-A9 and R-B1 to R-B8, `judgment.md`). Awaiting the final scoped re-judgment |
 | Date | 2026-10-25 |
 | Verified at | Repository reads at `708020e`; the spec-only commits `d470096`, `1b7ae87` and `a7f4f6a` differ from it only in this folder. External reads at the commit each row names. Every reading was executed in this session and quoted, except the rows marked `UNVERIFIED` |
 | Scratch evidence | `$SCRATCH` is this session's scratchpad. `pkg/` is a package copy at `708020e` plus a stub command and a stub skill. `ci-probe/` holds real `install --local` runs. `ext/` holds `action.yml` files, examples and source files fetched with `gh api` (untrusted, read only) |
@@ -62,12 +62,12 @@ flowchart TD
 ```mermaid
 flowchart LR
   subgraph review["job review: contents read, pull-requests read, no id-token"]
-    C["checkout base.sha (workspace)"] --> I["npx akili-specs@pin install --tool … --force (HOME)"]
-    I --> IN["deterministic: gh pr diff/view → input/<br/>check-skip → input/prior.json<br/>prepare → input/files, manifest.json<br/>git worktree head.sha → input/head (data)"]
+    C["checkout base.sha (workspace, persist-credentials false, depth 1)"] --> I["npx akili-specs@pin install --tool … --force (HOME)"]
+    I --> IN["deterministic, all under $RUNNER_TEMP/akili-input (outside the workspace):<br/>gh pr diff/view → pr.diff, meta.json · check-skip → prior.json / skipped.json<br/>prepare → files/, manifest.json · gh api tarball head.sha → head/ (symlinks deleted)"]
     IN -->|skip=false| A["agent (github_token = GITHUB_TOKEN)<br/>Read/Grep/Glob + sub-agents, no Bash/Write/network<br/>→ schema JSON"]
-    A --> W["deterministic: write JSON → out/findings.json<br/>upload artifact (findings, manifest, skipped flag)"]
+    A --> W["deterministic: structured output → $RUNNER_TEMP/akili-review/findings.json<br/>upload artifact (findings, manifest, or skipped.json)"]
   end
-  subgraph post["job post: pull-requests write, NO checkout"]
+  subgraph post["job post: pull-requests write, contents read, NO checkout, no cancel"]
     I2["npx akili-specs@pin install (HOME)"] --> D["download artifact"] --> P2["post-review.cjs post<br/>--repo/--pr/--base/--head from github.event<br/>--fail-on …"]
   end
   W --> D
@@ -98,7 +98,7 @@ test/fixtures/pr-review/                         NEW  diffs, review docs (valid,
 EDIT  §9.1 sites, test/install-cursor.test.js, test/fixtures/doctor-codex-baseline.txt, two docs-pinning tests
 ```
 
-**Fake `gh`.** The scripts resolve the GitHub CLI from the environment variable `AKILI_GH_BIN`, else `gh` on `PATH`. Tests set `AKILI_GH_BIN` to `node <fixtures>/fake-gh.js` and invoke it through `process.execPath` with the script as an argument, so no shim is needed on native Windows (S-5).
+**Fake `gh`.** The scripts resolve the GitHub CLI from the environment variable `AKILI_GH_BIN`, else `gh` on `PATH`. `AKILI_GH_BIN` is a file path. When it ends in `.js` or `.cjs`, the script runs it as `process.execPath <path> …args`; otherwise it executes it directly. Tests point it at `<fixtures>/fake-gh.js`, so no shim is needed on native Windows (S-5, R-B7).
 
 ## 5. Data Model
 
@@ -170,13 +170,14 @@ Threads come from GraphQL `pullRequest.reviewThreads { isResolved, resolvedBy { 
 |---|---|---|
 | inline, thread open | absent | fixed: listed as fixed; thread resolved by the script (P-14) |
 | inline, thread open | present | unfixed: summary lists it open; not re-posted |
-| inline, thread resolved by an allowlisted identity (the script) | present | treated as **open again**: re-posted under the cap |
+| inline, thread resolved by the CI bot (login compared without the `[bot]` suffix, since REST says `github-actions[bot]` and GraphQL says `github-actions`) | present | treated as **open again**: re-posted under the cap |
 | inline, thread resolved by anyone else (a human) | present, `sev` ≤ previous | respected: summary only |
 | inline, thread resolved by a human | present, `sev` > previous | worse: re-posted under the cap |
 | inline, thread not found (deleted, outdated) | present | treated as new |
 | summary-only | present | eligible for inline under the cap |
 | any | absent, never inline | dropped from the summary |
-| no trusted marker, or an unparsable one | — | first review; an unparsable marker is reported in the job log, never trusted |
+| no trusted marker, but tagged inline comments from an allowlisted identity exist | — | state rebuilt from the tags (an interrupted post never duplicates inline comments, R-B8) |
+| no trusted marker and no tags, or an unparsable marker | — | first review; an unparsable marker is reported in the job log, never trusted |
 
 ### 5.6 History file (opt-in)
 
@@ -190,7 +191,7 @@ These are the script CLIs: Node ≥ 18, no dependencies, no `O_NOFOLLOW` (NFR-2)
 |---|---|---|
 | `node validate-review.cjs <doc> [--manifest <m>] [--threshold <n>]` | Schema + semantic checks (§5.2, the tier matches the manifest, every file is in the manifest) | 0 valid · 1 invalid (index + field named) · 2 usage |
 | `node post-review.cjs prepare --diff <file> --out <dir> [--config <yml>] [--base <sha> --head <sha> --repo <o/r> --pr <n>]` | Filter, tier and chunk; writes `files/*.patch`, `context.md`, `manifest.json`. The YAML reader supports only the flat keys `large-prs.md` documents (no YAML library; unknown keys are an error) | 0 · 2 usage/config error |
-| `node post-review.cjs check-skip --repo <o/r> --pr <n> --head <sha> [--force] [--config <yml>]` | Reads PR state and labels and the trusted marker through `gh api`; writes `prior.json`; prints `skip=<true\|false> reason=<…>` | 0 always (a skip is not a failure) |
+| `node post-review.cjs check-skip --repo <o/r> --pr <n> --head <sha> --out <dir> [--force] [--config <yml>]` | Reads PR state and labels, the trusted marker and the tagged threads through `gh api`; writes `prior.json`, and on a skip also `skipped.json` (`{reason}`); prints `skip=<true\|false> reason=<…>` | 0 always (a skip is not a failure) |
 | `node post-review.cjs render <doc> --manifest <m> [--history]` | Validates, then prints `REVIEW.md` (or the history file) | 0 · 1 invalid |
 | `node post-review.cjs post <doc> --manifest <m> --repo <o/r> --pr <n> --base <sha> --head <sha> [--fail-on none\|critical\|warning] [--dry-run]` | (1) Re-checks that the PR's current head is `--head` and the document's `target` matches the CLI; mismatch → post nothing. (2) Loads the threshold and allowlist from `.akili/review.yml` at `--base` through `gh api …/contents?ref=` (absent → defaults). (3) Validates. (4) Fingerprints. (5) Maps lines against the PR diff hunks (`gh api …/pulls/{n}/files` patches). (6) Reconciles. (7) Posts one `COMMENT` review with ≤ 10 inline comments; on rejection, retries with none. (8) Then upserts the summary with its marker. (9) Resolves fixed threads. `--dry-run` prints the planned calls | per FR-11: `none` → 0 after any completed or failed attempt (the failure is printed); `critical`/`warning` → 1 when matched or when validation failed; a skipped-run artifact (`skipped.json`) → 0 and nothing is posted (C-9) |
 
@@ -238,7 +239,7 @@ The lens reviewer returns its standard contract. Each `ISSUES` item opens with a
 | Context | Spec mapping inputs |
 |---|---|
 | Local | `git log --format=%s <base>..<head>` and the working tree |
-| CI | commit subjects from `gh pr view --json commits` (written into the input directory) and the spec files under `input/head/docs/specs/`. Both are read as data |
+| CI | commit subjects from `gh pr view --json commits` (written into the input directory) and the spec files under `$RUNNER_TEMP/akili-input/head/docs/specs/`. Both are read as data |
 
 ### 7.5 Rendering (`post-review.cjs render`/`post`)
 
@@ -255,14 +256,16 @@ The lens reviewer returns its standard contract. Each `ISSUES` item opens with a
 9. tier, lenses and host mode;
 10. footer (package version, advisory status, "advisory forced by label" when it applies).
 
-**Neutralization of every agent string:**
+**Neutralization of every rendered string**, whether it comes from the agent or from the PR through the manifest (file paths, `skipped_files` reasons, `recommend_security` paths) (R-A4):
 
 - escape `<` and `>` (so no HTML, no comment, no `--!>`);
 - `@` before a word character → `@` + U+200B;
 - `#<digits>` → `#` + U+200B + digits;
 - Markdown links and images whose URL is not `https://github.com/<repo>/blob/<head>/…` are rendered as inert text (`[text](url)` → `text (url)` with the URL in code);
 - backtick runs longer than 2 are collapsed;
-- each field is truncated to its validator maximum.
+- each field is truncated to its validator maximum;
+- a path that fails the §5.2 charset is shown as an escaped code span, never as a link;
+- **secret redaction:** any substring matching a fixed list of credential shapes is replaced with `[redacted]` before any text is rendered. The list covers `gh[opsur]_…`, `github_pat_…`, `sk-…`, `sk-ant-…`, `AKIA[0-9A-Z]{16}`, `-----BEGIN … PRIVATE KEY-----` and `xox[abpr]-…`. This is defense in depth for a secret the agent read and echoed (R-A5).
 
 **Size caps.** The summary is capped at 60,000 characters, truncating the summary-only sections first with a count line. Each inline body is capped at 4,000 characters.
 
@@ -272,16 +275,16 @@ The lens reviewer returns its standard contract. Each `ISSUES` item opens with a
 |---|---|---|
 | Trigger + gating | `on: pull_request` types `opened, synchronize, ready_for_review, reopened`; job `if:` not draft, `head.repo.full_name == github.repository`, no `akili-review:skip` label | same |
 | `review` job permissions | `contents: read`, `pull-requests: read`; no `id-token` | same |
-| Checkout | `actions/checkout@<sha>` with `ref: ${{ github.event.pull_request.base.sha }}`, `fetch-depth: 0`, `persist-credentials: false` | same |
+| Checkout | `actions/checkout@<sha>` with `ref: ${{ github.event.pull_request.base.sha }}`, `fetch-depth: 1`, `persist-credentials: false`. This is the **workspace**: only base files live under cwd | same |
 | Install | `npx -y akili-specs@<pin> install --tool claude --force` | `… --tool codex --force` |
-| Input step | env-passed values only (no `${{ }}` inside `run:` scripts except via `env:`): `gh pr diff`/`gh pr view --json title,body,commits,labels,author` → `input/`; `post-review.cjs check-skip` → `skip` output; `post-review.cjs prepare`; `git fetch origin <head.sha>` + `git worktree add input/head <head.sha>` | same |
-| Agent step (`if: skip != 'true'`) | `anthropics/claude-code-action@<sha> # v1.0.x` with `github_token: ${{ secrets.GITHUB_TOKEN }}`, `anthropic_api_key`, `prompt:` "Follow `$HOME/.claude/commands/akili-review.md` with arguments `<pr> --ci`; input in `$AKILI_REVIEW_INPUT`", `claude_args:` `--json-schema` (the schema file read into a step output) `--max-turns 40 --allowedTools "Read,Grep,Glob,Task,Skill" --disallowedTools "Bash,Write,Edit,WebFetch,WebSearch,NotebookEdit" --add-dir $HOME/.claude --add-dir $RUNNER_TEMP/akili-input` | `openai/codex-action@<sha> # v1.13` with `openai-api-key`, `prompt-file` (generated: follow `$HOME/.agents/skills/akili-review/SKILL.md` …), `output-schema-file: $HOME/.agents/skills/pr-review/review-schema.json`, `output-file: out/findings.json`, `sandbox: read-only`, `safety-strategy: drop-sudo` |
-| Output step | `env: OUT: ${{ steps.agent.outputs.structured_output }}` → `printf '%s' "$OUT" > out/findings.json` | already in `output-file` |
-| Artifact | `actions/upload-artifact@<sha>`: `out/findings.json`, `input/manifest.json`, `input/skipped.json` (when skipped) | same |
-| `post` job | `needs: review`, `if: always() && needs.review.result == 'success'`, `pull-requests: write`, **no checkout**, `actions/setup-node`, install the pinned package, `download-artifact`, `node $HOME/.claude/skills/pr-review/post-review.cjs post …` with `--repo/--pr/--base/--head` from `github.event` via `env:` | same, with the path under `$HOME/.agents/skills/` |
-| Cost | `concurrency: akili-review-${{ github.event.pull_request.number }}`, `cancel-in-progress: true`; `timeout-minutes: 20` (review), `5` (post); commented `paths-ignore` | same (no turn flag; timeout only) |
+| Input step | Values reach `run:` only through `env:`, never as `${{ }}` inside a script. `IN=$RUNNER_TEMP/akili-input` (outside the workspace). (1) `gh pr diff` → `$IN/pr.diff` and `gh pr view --json title,body,commits,labels,author,state,isDraft` → `$IN/meta.json`. (2) `post-review.cjs check-skip` → `$IN/prior.json`, plus `$IN/skipped.json` and the step output `skip=true` on a skip. (3) `post-review.cjs prepare` → `$IN/files/`, `$IN/context.md`, `$IN/manifest.json`. (4) `gh api repos/<repo>/tarball/<head.sha>` → extract into `$IN/head/` with `--strip-components=1`, then `find $IN/head -type l -delete`. This uses the job token (`contents: read`), so private repos work and no git credentials persist (R-A1, P-22). (5) A `paths` step output: `home=$HOME`, `in=$IN`, `out=$RUNNER_TEMP/akili-review` | same |
+| Agent step (`if: steps.input.outputs.skip != 'true'`) | `anthropics/claude-code-action@<sha> # v1.0.x` with `github_token: ${{ secrets.GITHUB_TOKEN }}` and `anthropic_api_key`. `prompt:` follow `${{ steps.paths.outputs.home }}/.claude/commands/akili-review.md` with arguments `<pr> --ci --input ${{ steps.paths.outputs.in }}` (the paths are expanded by Actions, not by the agent, R-A3). `claude_args:` `--json-schema` (the schema text from a prior step output), `--max-turns 40`, `--allowedTools "Read,Grep,Glob,Task,Skill"`, `--disallowedTools "Bash,Write,Edit,NotebookEdit,WebFetch,WebSearch,Read(//proc/**),Read(//sys/**)"`, `--add-dir <home>/.claude --add-dir <in>` | `openai/codex-action@<sha> # v1.13` with `openai-api-key`, `prompt-file` (written by a prior step with expanded paths: follow `<home>/.agents/skills/akili-review/SKILL.md` …), `output-schema-file: <home>/.agents/skills/pr-review/review-schema.json`, `output-file: <out>/findings.json`, `sandbox: read-only`, `safety-strategy: drop-sudo` |
+| Output step | `env: OUT: ${{ steps.agent.outputs.structured_output }}` → `printf '%s' "$OUT" > "$OUT_DIR/findings.json"` | already written to `output-file` |
+| Artifact | `actions/upload-artifact@<sha>` with absolute paths: `$RUNNER_TEMP/akili-review/findings.json` and `$RUNNER_TEMP/akili-input/manifest.json`, or `$RUNNER_TEMP/akili-input/skipped.json` alone on a skip (R-B2) | same |
+| `post` job | `needs: review`, `if: always() && needs.review.result == 'success'`. Permissions `pull-requests: write`, `contents: read` (to read `.akili/review.yml` at the base SHA through the contents API on private repos, R-B1). **No checkout.** `actions/setup-node`, install the pinned package, `download-artifact`, then `node <home>/.claude/skills/pr-review/post-review.cjs post …` with `--repo/--pr/--base/--head` from `github.event` via `env:`. A downloaded `skipped.json` → `post` exits 0 and posts nothing | same, with the path under `<home>/.agents/skills/` |
+| Cost | `review`: `concurrency: akili-review-${{ github.event.pull_request.number }}`, `cancel-in-progress: true`, `timeout-minutes: 20`. `post`: `concurrency: akili-review-post-${{ github.event.pull_request.number }}`, `cancel-in-progress: false`, `timeout-minutes: 5` (R-B8). Commented `paths-ignore` | same; there is no turn flag, and the `review` timeout is the bound (FR-12 item 6) |
 | Advisory | `--fail-on none` + commented `--fail-on critical` | same |
-| Header comment | residual prompt-injection risk; "Require approval for all external contributors"; the action pins are commit SHAs, updated deliberately | same |
+| Header comment | residual prompt-injection risk; "Require approval for all external contributors"; action pins are commit SHAs updated deliberately; **Codex only:** the read-only sandbox can still run shell commands over the input directory (no network, no writes) | same |
 
 **Pin policy.** Every third-party action is pinned by full commit SHA with its tag in a trailing comment. The `akili-specs` package is pinned to the exact release version. T8 fills the SHAs from `gh api` and records them.
 
@@ -328,7 +331,7 @@ There is no UI. The surfaces are the `--comment` confirmation gate (Post / Edit 
 | DD-3 | Every safety number and decision that can be code is code: filter, tier, chunk (`prepare`); skip (`check-skip`); fingerprint, hunk map, cap, marker, reconcile, review event, exit code (`post`). The command text restates only the cap, which a restatement test pins | A prompt-level rule is a request; the noise research makes the cap the main trust lever. Rejected: the agent posting through the inline-comment MCP tool | KZ-changes--kaizen-loop-closure-2 |
 | DD-4 | Job split. The `review` job is read-only, passes `GITHUB_TOKEN` explicitly and declares no `id-token`. The `post` job holds the write token, **checks out nothing**, runs the scripts from the pinned HOME install, and binds the target to `github.event`, refusing a mismatching artifact | Without `github_token`, the action exchanges OIDC for a write-capable App token (P-19, S-1). A checkout in `post` would run PR code with the write token (C-2). The artifact is agent-influenced, so its `target` is checked, never trusted | — |
 | DD-5 | CI installs globally into HOME (`--force`); prompts name the command file by absolute path | `claude-code-action` restores `.claude/` from base, so `--local` is wiped (P-3); HOME is outside the PR's reach; the absolute path removes reliance on user-level discovery (P-12). Supersedes the proposal's §7 line | — |
-| DD-6 | **The agent runs on the base SHA.** The workspace is a base checkout, so everything a host auto-loads from cwd (`CLAUDE.md` + imports, `AGENTS.md`, `.agents/`, `.claude/`) is trusted. The PR head is materialized at `input/head` (a `git worktree` outside the workspace) and read as data. **Supersedes** the round-0 "trusted files copied to `akili-trusted/`" step | A copied trusted dir does not stop the **host** from auto-loading the head's `AGENTS.md` (S-3: Codex reads `AGENTS.md` from cwd; this repo's `CLAUDE.md` is `@AGENTS.md`). Rejected: `--setting-sources user` (Claude only, and it does not cover Codex) | — |
+| DD-6 | **The agent runs on the base SHA.** The workspace is a base checkout, so everything a host auto-loads from cwd (`CLAUDE.md` + imports, `AGENTS.md`, `.agents/`, `.claude/`) is trusted. The PR head is materialized at `$RUNNER_TEMP/akili-input/head`: a tarball of the head SHA fetched with the job token, extracted outside the workspace, with symlinks deleted. It is read as data. **Supersedes** the round-0 "trusted files copied to `akili-trusted/`" step | A copied trusted dir does not stop the **host** from auto-loading the head's `AGENTS.md` (S-3: Codex reads `AGENTS.md` from cwd; this repo's `CLAUDE.md` is `@AGENTS.md`). Rejected: `--setting-sources user` (Claude only, and it does not cover Codex) | — |
 | DD-7 | Re-review state: marker entries `{fp, sev, inline}` plus a per-comment tag; the script computes fingerprints; trust comes from the allowlisted identity | C-3 and S-4: the agent cannot hash, and agent-chosen fingerprints could suppress findings; a thread needs its own tag to be matched; the resolver login separates bot-resolved from human-resolved threads | — |
 | DD-8 | Inline comments go in one PR review, event hard-coded `COMMENT`; posted before the summary, so the marker never records a post that failed | One call, no `APPROVE`/`REQUEST_CHANGES` path (FR-2) | — |
 | DD-9 | Without independent sub-agents, criticals are downgraded to suspect warnings, so `--fail-on critical` cannot fire. The Claude template allows `Task` so the parallel path exists; Codex may run sequential (P-13) | The finder never confirms its own finding (`/akili-security` FR-9 stance) | — |
@@ -347,14 +350,14 @@ There is no UI. The surfaces are the `--comment` confirmation gate (Post / Edit 
 | Measure | Estimate | Basis |
 |---|---|---|
 | Tasks | **13** | `tasks.md` |
-| LOC authored | **~4,600**, broken down as: schema ~110; validator ~200; `post-review.cjs` ~620 (prepare ~150, check-skip ~60, render + neutralize ~150, post + reconcile ~260); script tests and fixtures ~950; references ~600; `SKILL.md` + `NOTICE` ~300; command ~200; command contract test ~650 (44 clauses × ~14 lines plus the drift guard and restatements; precedent 673 lines for a 187-line command); CI templates ~280 + README ~130; CI contract test ~220; counts/fixtures ~40; docs ~330; carve-outs ~12; CHANGELOG ~25 | §4, §6, §7; KZ-bugfix--init-ctrlc-abort-2 |
+| LOC authored | **~4,750**, broken down as: schema ~110; validator ~200; `post-review.cjs` ~700 (prepare ~150, check-skip ~80, render + neutralize + redact ~190, post + reconcile ~280); script tests and fixtures ~950; references ~600; `SKILL.md` + `NOTICE` ~300; command ~200; command contract test ~650 (44 clauses × ~14 lines plus the drift guard and restatements; precedent 673 lines for a 187-line command); CI templates ~280 + README ~130; CI contract test ~220; counts/fixtures ~40; docs ~330; carve-outs ~12; CHANGELOG ~25 | §4, §6, §7; KZ-bugfix--init-ctrlc-abort-2 |
 | Review rounds | **21**: 2 × (T2, T3, T4, T5, T6, T8, T10b) = 14, plus 1 × (T1, T7, T9, T10a, T11, T12) = 6, plus 1 margin | rules-document rule |
 
-**Depth check.** Standard fits. The work is additive, and judgment-day already attacked the CI boundary. The estimate is far above the ~400 LOC single-PR line, so a PR split is recommended at the tasks gate. `/akili-execute` stops and escalates past **15 tasks, ~5,500 LOC, or 25 rounds**.
+**Depth check.** Standard fits. The work is additive, and judgment-day already attacked the CI boundary. The estimate is far above the ~400 LOC single-PR line, so a PR split is recommended at the tasks gate. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**.
 
 ## 12. Premise Ledger
 
-**Count:** 21 rows: 14 verified, 7 `UNVERIFIED` (1 High, 6 Low).
+**Count:** 24 rows: 14 verified, 10 `UNVERIFIED` (1 High, 9 Low).
 **Blast-radius triggers:**
 
 - `live-path`: `/akili-review` loads `pr-review` and reaches the persona on six targets and two CI runtimes (P-1, P-3, P-12, P-20).
@@ -382,5 +385,8 @@ There is no UI. The surfaces are the `--comment` confirmation gate (Post / Edit 
 | P-17 | `anthropics/claude-code` is all rights reserved; `knowledge-work-plugins` is Apache-2.0; `claude-code-security-review` and `obra/superpowers` are MIT | other | `gh api repos/anthropics/claude-code/contents/LICENSE.md` → "© Anthropic PBC. All rights reserved."; `gh api repos/<r>/license --jq .license.spdx_id` → `Apache-2.0` (`33d3dea`), `MIT` (`0c6a49f`, `2ce8aa1`); judge B re-ran it | as named | DD-11 changes or the proposal reopens (High) | — |
 | P-18 | `/akili-constitution` reads product docs anywhere under `docs/` | shared-state | `.claude/commands/akili-constitution.md:99` ("8. Any architecture, infrastructure, setup, or product docs already present under `docs/`") | `708020e` | Accepted: CI docs are setup context; reviews are carved out of spec scans, not of constitution reads (Low) | — |
 | P-19 | Without a `github_token` input, `claude-code-action` exchanges OIDC for an App token with `contents: write`, `pull_requests: write` and needs `id-token: write`; an explicit token sets `OVERRIDE_GITHUB_TOKEN` | other | `gh api 'repos/anthropics/claude-code-action/contents/src/github/token.ts?ref=925afb5…'` → `:64` ("Could not fetch an OIDC token … `id-token: write`"), `:69-71` (`DEFAULT_PERMISSIONS = { contents: "write", pull_requests: "write", …`), `:160` (`process.env.OVERRIDE_GITHUB_TOKEN`). Found by judge A (S-1), re-run by the parent | `925afb53` | DD-4's token rule changes (High) | — |
-| P-20 | Neither host auto-loads instruction files (`CLAUDE.md`, `AGENTS.md`) from an added or read directory outside cwd (`--add-dir`, `input/head`) | live-path | `UNVERIFIED — confirm at source before relying on it` | — | DD-6 needs the head materialized as a diff only, not a tree (Low) | T8 first step: Claude Code `--add-dir` docs (memory loading from additional directories) and Codex `AGENTS.md` discovery docs, URLs recorded; T12 pilot confirms |
+| P-20 | Neither host auto-loads instruction files (`CLAUDE.md`, `AGENTS.md`) from an added or read directory outside cwd (`--add-dir`, `$RUNNER_TEMP/akili-input/head`) | live-path | `UNVERIFIED — confirm at source before relying on it` | — | DD-6 needs the head materialized as a diff only, not a tree (Low) | T8 first step: Claude Code `--add-dir` docs (memory loading from additional directories) and Codex `AGENTS.md` discovery docs, URLs recorded; T12 pilot confirms |
 | P-21 | `claude-code-action` in agent mode (a `prompt` is given, `track_progress` off) runs with a read-only `GITHUB_TOKEN` and does not need to write a tracking comment | data-env | `UNVERIFIED — confirm at source before relying on it` | — | The review job needs `pull-requests: write` scoped to the action, and DD-4's split weakens (Low) | T8: read `src/modes/agent` at the pinned SHA; T12 pilot |
+| P-22 | `GET /repos/{o}/{r}/tarball/{sha}` returns the tree at that commit with a job token holding `contents: read`, private repos included | data-env | `UNVERIFIED — confirm at source before relying on it` | — | The head is materialized through a credentialed `actions/checkout` to a path that is then moved outside the workspace (Low) | T8 first step: GitHub REST docs (repository contents → tarball), URL recorded; T12 pilot |
+| P-23 | Under `codex-action`'s default `safety-strategy: drop-sudo`, the OpenAI key is not readable from the sandboxed process's own environment (the action's proxy holds it) | data-env | `UNVERIFIED — confirm at source before relying on it` | — | The residual-risk note in the Codex header names the key as exposed; §7.5 redaction already masks `sk-` shapes (Low) | T8: `codex-action` `docs/security.md` and `action.yml` at the pinned SHA, quoted |
+| P-24 | Claude Code permission rules deny `Read(//proc/**)` and `Read(//sys/**)` as absolute paths (`//` prefix) when passed through `--disallowedTools` | data-env | `UNVERIFIED — confirm at source before relying on it` | — | The deny list changes form; §7.5 redaction remains the backstop (Low) | T8 first step: Claude Code permissions docs (path-rule syntax), URL recorded |

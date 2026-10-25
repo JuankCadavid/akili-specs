@@ -190,6 +190,7 @@ Resulting template lines (the exact pin is set at release time):
 - The CI template, copied into a scratch repo, installs non-interactively with the verified flags and posts one summary plus capped inline comments on a test PR. This is a manual pilot, recorded at `/akili-validate`.
 - A completed review with criticals under the default `--fail-on none` exits 0. With `--fail-on critical`, it exits non-zero.
 - The docs say "seven anytime commands" everywhere the count appears, the figure included.
+  - **Amended 2026-10-25 (owner, at the specify design gate):** the figure (`assets/akili-flow.svg` and its alt text) stays as known debt (design DD-12); every other place the count appears says "seven".
 
 ## 14. Next Step
 

@@ -5,8 +5,8 @@
 | Target | `design.md` + `requirements.md` + `proposal.md` at `1b7ae87` (immutable) |
 | Mode | `/akili-specify` Step 2.5 **Review Design**, chosen by user mandate 2026-10-25 |
 | Judges | A and B, blind, read-only, in parallel, on Sonnet. The design was authored on Opus (author ≠ auditor) |
-| Round | 1: judged |
-| Status | **Awaiting the user's decision on round-1 correction** (Hard Rule: ask before round-one correction) |
+| Round | 1: judged → corrected (`3d4ed05`) → scoped re-judgment → round-2 correction (`<this commit>`) → final scoped re-judgment |
+| Status | Round-1 correction approved by the user (**Fix and Re-judge**, 2026-10-25); figure kept as known debt (owner) |
 
 ## Premise Ledger attack: results
 
@@ -60,3 +60,31 @@
 | W-4 Counts and citations | C-1, C-5, S-2, C-9, C-10, P-16 cite | 6 carve-out sites (FR-8, FR-14, P-9, §2, DD-10); P-4 pin `bdf19a4` (`v1.13`) and HEAD `c05cfd7` named separately; the P-6/P-7 consumer list widened by count across `test/` and docs (`akili-marketing-docs:114-115`, `diagram-design:417`, `cli.md:247`); "three new test files" and "8 skill files" corrected; validator and poster made `--fail-on`-aware, plus a `skipped.json` artifact path |
 | W-5 Rendering | S-7, S-5 | Render order aligned with FR-8; neutralize links, images and raw HTML (link allowlist: the repo's own blob URLs); global caps; `file` charset; `GH_BIN` injection for tests |
 | (owner) | S-8 | Figure: keep as known debt (DD-12, amends proposal §13), **or** add a task to regenerate `assets/akili-flow.svg` |
+
+## Round 1 scoped re-judgment (fix delta `a7f4f6a..3d4ed05`)
+
+| Judge | Verdict | Ledger items | New findings |
+|---|---|---|---|
+| A | not approve | All resolved except C-6, C-9, C-12 (partially) | **R-A1 severe**: `persist-credentials: false` then `git fetch` has no credentials on private repos. **R-A2 severe**: relative `input/` paths could put the head inside the workspace, where nested `CLAUDE.md` would load. R-A3 to R-A7 warning: input expansion, unneutralized manifest strings, `/proc` reads and bot login forms, Codex turn limit, no `skipped.json` writer. R-A8, R-A9 suggestion |
+| B | approve | All resolved except C-3, C-9, S-8 (partially) | R-B1 to R-B7 warning: `post` lacks `contents: read`; no `skipped.json` writer; Codex shell; relative paths (= R-A2); proposal §13 not amended; FR-9/FR-10 not synced; Codex turn limit and `AKILI_GH_BIN` form. R-B8 suggestion: a cancel can split review from summary |
+
+**Merged:** R-A2 = R-B4 (confirmed; severity contested). R-A7 = R-B2, R-A6 = R-B7 (confirmed). R-A1 is a single-judge severe; the parent accepted it by reading §7.6 (`persist-credentials: false` + `git fetch` in the same table). Decision gate "Scoped re-judgment fails before round two" → **the parent launched the final bounded fix round.**
+
+### Round-2 correction (applied)
+
+| Finding | Fix |
+|---|---|
+| R-A1 | The head is materialized via `gh api repos/<repo>/tarball/<head.sha>` with the job token (`contents: read`), extracted outside the workspace, symlinks deleted; checkout is depth 1 (P-22) |
+| R-A2 / R-B4 | Every CI path is absolute under `$RUNNER_TEMP` (`akili-input/`, `akili-review/`); requirements state that the input directory is outside the workspace |
+| R-A3 | A `paths` step output; inputs use `${{ steps.paths.outputs.* }}`, never shell variables |
+| R-A4 | Neutralization covers every rendered string, manifest paths included; non-conforming paths shown as code spans |
+| R-A5 | `Read(//proc/**)`, `Read(//sys/**)` denies (P-24); symlinks deleted from the head tree; secret-shape redaction before rendering; bot login compared without `[bot]` (P-23 for the Codex key) |
+| R-A6 / R-B7 | FR-12 item 6: a turn limit where the runtime supports it, Codex bounded by the timeout; `AKILI_GH_BIN` defined as a path, run through `process.execPath` for `.js`/`.cjs` |
+| R-A7 / R-B2 | `check-skip --out` writes `skipped.json`; the artifact on a skip is `skipped.json` alone; `post` exits 0 on it |
+| R-A8 | Only a thread resolved by the CI bot counts as script-resolved; a human allowlisted poster counts as human |
+| R-A9 | LOC ~4,750; escalation line ~5,700 |
+| R-B1 | `post` job gains `contents: read` |
+| R-B3 | FR-12 item 5 split per runtime; the Codex header states the read-only-shell residual |
+| R-B5 | Proposal §13 carries the dated amendment |
+| R-B6 | Glossary *Marker*, FR-9 and FR-10 synced with design §5.4/§5.5, including the tag-rebuild row |
+| R-B8 | `post` has its own concurrency group with no cancel; the state is rebuilt from inline tags when the marker is missing |

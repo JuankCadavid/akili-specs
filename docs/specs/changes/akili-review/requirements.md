@@ -37,9 +37,9 @@ Two pieces of code carry the safety guarantees: `validate-review.cjs`, which che
 | Risk tier | `trivial`, `lite` or `full`. It sets the lens set and the verification depth |
 | Run directory | Holds the per-run artifacts (`findings.json`, `REVIEW.md`, chunk files). It is always outside the target |
 | Summary comment | The single PR comment that `post-review.cjs` creates and then updates in place. A hidden marker identifies it |
-| Marker | A hidden HTML comment in the summary comment. It carries the reviewed head SHA and the fingerprints of the findings it posted |
+| Marker | A hidden HTML comment in the summary comment. It carries the reviewed head SHA and one entry per finding (fingerprint, severity, whether it went inline). Each inline comment also carries its own hidden tag with its fingerprint and severity |
 | Trusted files | `AGENTS.md`, `CLAUDE.md`, `.agents/*.md` and `.akili/review.yml`. In CI they are read only from the **base-SHA checkout** the agent runs in, because the PR head controls its own copies |
-| Input directory | `$RUNNER_TEMP/akili-input/` in CI: the PR diff, PR metadata, the prior-review state, the per-file patch files and the manifest, all written by deterministic steps before the agent runs, plus `head/`, a read-only materialization of the PR head that the agent reads as data |
+| Input directory | `$RUNNER_TEMP/akili-input/` in CI: the PR diff, PR metadata, the prior-review state, the per-file patch files and the manifest, all written by deterministic steps before the agent runs, plus `head/`, a materialization of the PR head SHA (from the repository tarball, with symlinks removed) that the agent reads as data. The input directory is **outside the workspace**, so no host auto-loads instruction files from it |
 | Unspecified change | A changed file or behavior that no linked spec's tasks or requirements cover |
 
 ## 4. System Context & Scope
@@ -295,7 +295,7 @@ Posting SHALL happen only through `post-review.cjs`, and only after `validate-re
 - post **at most 10** inline comments, chosen from `critical` and non-suspect `warning` findings by severity, then confidence, then file and line order;
 - put a `suggestion`, a suspect warning, and every finding beyond the cap into the summary only, with the count of findings left out of inline;
 - link each finding with a full-SHA permalink (`blob/<40-hex head>/<file>#L<a>-L<b>`);
-- write the marker with the head SHA and the posted fingerprints;
+- write the marker with the head SHA and one entry per finding (fingerprint, severity, inline or not), and tag each inline comment with its fingerprint and severity;
 - render every agent-provided text field inert: neutralize HTML comment delimiters so that no field can forge or close the marker, neutralize `@`-mentions, and cap each field's length (added at design time, 2026-10-25: the comment text is rendered by the script from agent JSON, so this is where injected text would reach the PR);
 - post inline comments as **one** PR review whose event is hard-coded to `COMMENT`. It never uses `APPROVE` or `REQUEST_CHANGES`, whatever the input says.
 
@@ -323,14 +323,19 @@ Posting SHALL happen only through `post-review.cjs`, and only after `validate-re
 
 ### FR-10: Incremental re-review
 
-On a new head, `post-review.cjs` SHALL read the marker of the previous summary and reconcile by fingerprint:
+On a new head, `post-review.cjs` SHALL read the trusted marker of the previous summary and the tagged inline threads, and reconcile by fingerprint. "The CI bot" below is the CI posting identity, compared by login with any `[bot]` suffix removed:
 
 | Previous finding | Now | Action |
 |---|---|---|
-| posted, absent now | fixed | listed as fixed in the summary; its own inline thread is resolved when the API allows it, else marked fixed in the summary |
-| posted, present now | unfixed | kept; not re-posted inline if its thread is still open |
-| its thread resolved by a human, present now, same severity | respected | not re-posted |
-| its thread resolved by a human, present now, higher severity | worse | re-posted |
+| inline, thread open | absent | fixed: listed as fixed in the summary; its thread is resolved when the API allows it, else marked fixed in the summary |
+| inline, thread open | present | unfixed: kept open in the summary; not re-posted inline |
+| inline, thread resolved by the CI bot | present | open again: re-posted under the cap |
+| inline, thread resolved by anyone else (a human), same or lower severity | present | respected: summary only, not re-posted |
+| inline, thread resolved by a human, higher severity now | present | worse: re-posted under the cap |
+| inline, thread not found (deleted or outdated) | present | treated as new |
+| summary-only | present | eligible for inline under the cap |
+| no trusted marker, but tagged inline comments from an allowlisted identity exist | — | the previous state is rebuilt from those tags, so an interrupted post never duplicates inline comments |
+| no trusted marker and no tags, or an unparsable marker | — | first review; an unparsable marker is reported, never trusted |
 | new | new | posted under the cap |
 
 #### Scenario: Human resolved
@@ -374,8 +379,8 @@ The package SHALL ship `docs/ci/akili-review.claude.yml` (runtime `anthropics/cl
 4. **The agent runs on the base.**
    - The workspace checkout is the PR's **base SHA**, so every file a host auto-loads from its working directory (`CLAUDE.md` and its imports, `AGENTS.md`, `.agents/`, `.claude/`, `.akili/review.yml`) is the base copy.
    - Before the agent runs, deterministic steps write to `$RUNNER_TEMP/akili-input/`: the PR diff and metadata (`gh pr diff` / `gh pr view`), the prior-review state (`post-review.cjs check-skip`), the per-file patch files and the manifest (`post-review.cjs prepare`), and `head/`, a materialization of the PR head SHA outside the workspace. The agent reads `head/` only as data.
-5. **Agent tool scope.** Read, Grep and Glob over the workspace, the input directory and the HOME install; the host's sub-agent and skill tools. No Bash, no write tool, no network tool, no package install, no running target scripts. Codex runs with a read-only sandbox and `safety-strategy: drop-sudo`.
-6. **Cost controls.** `concurrency` with `cancel-in-progress`, `timeout-minutes`, a turn limit, and `paths-ignore` for docs-only changes (commented, opt-in).
+5. **Agent tool scope.** Claude: Read, Grep and Glob over the workspace, the input directory and the HOME install, plus the host's sub-agent and skill tools. It has no Bash, no write tool and no network tool, and reads under `/proc` and outside those roots are denied. Codex: a read-only sandbox with no network and `safety-strategy: drop-sudo`. The Codex sandbox can still run read-only shell commands, which the header note states as a residual risk. Neither runtime installs packages or runs target scripts.
+6. **Cost controls.** For the `review` job, `concurrency` with `cancel-in-progress`. The `post` job uses its own concurrency group with no cancel, so a post is never interrupted between its review call and its summary update. Each job has `timeout-minutes`. A turn limit is set where the runtime supports one (Claude `--max-turns`); Codex relies on the timeout. `paths-ignore` for docs-only changes is included as an opt-in comment.
 7. **Advisory default.** `--fail-on none`, plus a commented line showing `--fail-on critical` for after a pilot.
 8. **Security note.** A header comment states the residual prompt-injection risk, and recommends "Require approval for all external contributors" for repos that take outside PRs.
 
