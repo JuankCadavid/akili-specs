@@ -29,7 +29,7 @@ T2 and T3 touch different files, so they may run in parallel after T1. Every oth
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~90 LOC spec artifact) |
 | Depends on | Precondition (marketing merged, branch rebased) |
 | Requirements | FR-12 (every heading gets one disposition; "already in" quotes the destination; BUT not on a heading match alone) |
