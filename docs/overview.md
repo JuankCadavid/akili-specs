@@ -50,6 +50,7 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | [`cognitive-doc-design`](skills/cognitive-doc-design.md) | core | Human-facing docs that reduce cognitive load: lead with the answer, progressive disclosure, tables over prose |
 | [`judgment-day`](skills/judgment-day.md) | core | Blind adversarial dual review of designs with bounded fix rounds |
 | [`kaizen`](skills/kaizen.md) | core | The bounded two-phase continuous-improvement loop run by `/akili-archive`, plus Apply Mode for the pending backlog |
+| `pr-review` | core | Deterministic pull-request review scripts: validate a review document against its schema, prepare a diff and post the review as a comment (the `/akili-review` command and method are not shipped yet) |
 | [`systematic-debugging`](skills/systematic-debugging.md) | core | Root-cause investigation for bugs, test failures and unexpected behavior |
 | [`tdd`](skills/tdd.md) | conditional | A red, then green loop with tests worth keeping, assigned per logic-heavy task |
 

@@ -414,7 +414,8 @@ test("@akili-spec changes/archify-diagrams FR-9 (governance, skills docs, README
   const cli = read(path.join(REPO_ROOT, "docs", "cli.md"));
   assert.doesNotMatch(cli, /24 packaged/);
   assert.doesNotMatch(cli, /27 packaged/);
-  assert.match(cli, /28 packaged skills/);
+  assert.doesNotMatch(cli, /28 packaged/);
+  assert.match(cli, /29 packaged skills/);
 
   const changelog = read(path.join(REPO_ROOT, "CHANGELOG.md"));
   // Stays true after the release script moves [Unreleased] into a dated section.

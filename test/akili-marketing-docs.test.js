@@ -108,12 +108,12 @@ test("@akili-spec changes/akili-marketing FR-12: the command is in every README/
   assert.ok(hasLine(read("docs/flow.md"), "### 2c. Social Marketing (`/akili-marketing`)"), "docs/flow.md section 2c");
 });
 
-test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (13 commands, 28 skills), none stale", () => {
+test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (13 commands, 29 skills), none stale", () => {
   // docs/cli.md enumerates no commands by name; it states totals, which FR-12 requires updated.
   const cli = read("docs/cli.md");
   assert.ok(hasLine(cli, "(the 13 commands, installed as skills"), "cli.md command total");
-  assert.ok(hasLine(cli, "(the 28 packaged skills"), "cli.md skill total");
-  assert.doesNotMatch(cli, /\bthe 12 commands\b|\b12 command skills\b|\b27 packaged skills\b/, "no stale 12/27 total");
+  assert.ok(hasLine(cli, "(the 29 packaged skills"), "cli.md skill total");
+  assert.doesNotMatch(cli, /\bthe 12 commands\b|\b12 command skills\b|\b27 packaged skills\b|\b28 packaged skills\b/, "no stale 12/27 total");
 });
 
 test("@akili-spec changes/akili-marketing FR-12: no shipped file references the active spec path (KZ-changes--archify-diagrams-1)", () => {
