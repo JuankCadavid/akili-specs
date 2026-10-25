@@ -9,7 +9,7 @@
 | Leader | Claude Code, `claude-opus-5-5` (T1) |
 | Approval Mode | `gated` (tasks.md). User mandate 2026-10-25: "Commit locally only; never push, open PRs, merge, tag or publish. Stop and report at each PR boundary and on any HALT or tripwire." Per-task continue gates inside a PR group proceed; the Leader stops at the PR boundaries (after T3, after T8, after T11). Exceptions (HALT, Pivot, tripwire, FATAL_FAIL, waiver, unearned skip) always stop |
 | Scope | T1–T11 in three PR groups (T1–T3, T4–T8, T9a–T11). T12 pilot **deferred** (needs a scratch repo and API keys) |
-| Budget | 14 tasks · ~4,750 LOC · 22 rounds; tripwire **> 15 tasks, > ~5,700 LOC, or > 25 rounds** (tasks.md §1, design §11) |
+| Budget | 14 tasks · ~4,750 LOC · 22 rounds; tripwire **> 15 tasks, > ~5,700 LOC, or > 25 rounds** (tasks.md §1, design §11). Amended 2026-10-25 (user, PR-2 boundary): line tripwire **> ~6,200 LOC**; tasks and rounds unchanged |
 | Personas | `.agents/` deployed 2026-10-25 from `.claude/templates/` (gitignored, `.gitignore:8`); `node bin/akili.js doctor --agents` → every section `CURRENT`, "No persona drift blocking CI." |
 | Delegation | No Step 8E wrappers in this repo → fallback spawn (`general-purpose` subagent; the worker reads its own persona). Implementer `sonnet` (T2), Reviewer `opus` (T3 role on a different model than the Implementer: author ≠ auditor) |
 | Base | branch `JuankCadavid/akili-review` at `26fe7cc` |
@@ -300,3 +300,10 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 - **Budget:** LOC ~5,540 of the ~5,700 tripwire (not exceeded). Remaining estimates: T9a ~200, T9b ~60, T9c ~110, T10 ~12, T11 ~25 ≈ 410 → projected ~5,950, so the line tripwire **will** fire during PR 3 (likely at T9a or T9c). Tasks 9/15 (T3b included); review rounds 18/25 (PR 2 budget was 10, actual 12).
 - **Execute-time spec edits in PR 2:** `--input <dir>` (design §7.1 Step 0, FR-2 grammar and `<pr>` row) — single-answer factual correction, logged above.
 - **Open items carried:** `akili-specs@2.37.0` pin in both templates is a forecast — release prep must set the real version; T12 pilot items listed under T8's forward pointers.
+
+## PR 2 + PR 3 amendment (user decision), 2026-10-25
+
+- **Decision (Juan Carlos):** PR #75 merged into `dev` (`dda3d5d`). PR 2 and PR 3 become **one PR**: T9a, T9b, T9c, T10, T11 continue on `feat/akili-review-pr2`; T12 stays deferred. No T8b, so the task count stays 15. Recorded in tasks.md §1 *PR strategy*.
+- **Budget:** line tripwire raised from ~5,700 to **~6,200 LOC**; 15 tasks and 25 rounds unchanged. Recorded in tasks.md §1 *Budget*. Remaining rounds: 7 for 5 tasks (at most 2 rework rounds in total before the round tripwire).
+- **Rebase:** `feat/akili-review-pr2` rebased onto `origin/dev` (`dda3d5d`, a merge commit whose tree equals `95f3989`), no conflicts. SHAs above are pre-rebase; new: T4 `96c2ddc`, T5 `0936454`, T6 `b1ac23d`, T7 `87d5823`, T8 `fc4e952`, PR 2 boundary record `d61b4c6`.
+- **Stop point:** after T11 — full `npm test` on Node 22 and 18 plus `npm run verify:cli`, then report. HALT before any task that would cross ~6,200 LOC, 15 tasks or 25 rounds.
