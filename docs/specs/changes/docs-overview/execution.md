@@ -180,3 +180,25 @@
 **Decisions made.** None. The named check (design §7 `/akili-execute` wording, carried from T6) passed and now drops.
 
 **Final verification.** As the attempt-2 Leader re-run.
+
+### T8: `test/docs-overview.test.js` — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Skills / effort | `tdd`; high |
+| spawns | Implementer (sonnet) 19 calls, 114,646 tokens, ended complete; Reviewer (opus) 13 calls, 98,264 tokens, ended complete |
+| Requirements covered | FR-16 (a)–(j) and its scenarios (stale `12 commands` / `12 command skills`), FR-7 scenario, FR-11 scenarios (new skill, two groups, wrong binding, Grok code check), FR-10 scenario (unexplained `harness`, banned `Reviewer`, whole word, plural, case-insensitive), FR-6 (anchor resolves); no hard-coded counts |
+| Running totals | tasks 8/9 · LOC ~+1,467 / −1,050 so far (test 477 new) · review rounds 14/26 |
+
+**Attempt 1.** Files: `test/docs-overview.test.js` (new, 477 lines; 13 tests: (a)–(j) + a slug self-check). Implementer verification: `node --test test/docs-overview.test.js` → 13 pass / 0 fail; `npm test` → `# tests 825`, `# pass 825`, `# fail 0` (812 + 13); count-literal grep → no output; no `docs/specs` read. Mutations (scratch copy, each red on its clause's assertion): (a) `missing row for skill zz-fake (.claude/skills/zz-fake/SKILL.md)` and (c) `missing inventory row for skill zz-fake (…)`; (b) `README command table is missing /akili-quick (.claude/commands/akili-quick.md)`; (d) `docs/cli.md:831: "12 commands" found 12, derived 13 commands`; (e) `README ## headings differ at position 2: expected "How it works", found "Learn more"`; (g) `unexplained term "harness" at README.md:160` and `banned term "Reviewer" at README.md:160`; (i) `README.md:100: docs/flow.md#practical-examples -> no heading in docs/flow.md slugs to "practical-examples"`; (j) `README has 4 shields.io badges, expected 3`; (h) `Grok Bot "Routing wrappers" cell reads "yes", expected "no"`. Red run (README from `1dbcbbd`): (e) `position 1: expected "What is AKILI?", found "Docs"`; (f) `README has 954 lines, cap is 200`; (j) `README has 13 shields.io badges, expected 3`. Leader re-run: VERIFIED (13/0; `npm test` 825/0; no count literals; no `docs/specs`). Leader flag: the P-7 grep returns 9 hits (`docs/cli.md:247, 326, 327, 338, 339, 360 ×2, 377 ×2`) while the Implementer listed 8. Reviewer: **PASS** — every clause and helper matches design §10; the flag resolved by mutation (`:247` → `12 command skills`, `:326`/`:338` → `12 commands` → (d) fails on all three lines); the Reviewer re-ran 17 mutations incl. DD-3 prose-only mention, DD-5 inline-code/URL/alt cases, `ALL_TOOLS` + `grokbot`, two-group `tdd`, wrong binding — all red on their assertions or correctly green; scratch copy restored.
+
+**ADVISORY (final verdict).** Reliability: (d) scans fenced code too (`:326`, `:338` are code examples) — consistent with FR-16 "every digit claim"; a legitimately old count in an example needs a subset qualifier. Readability: one structural README change can light up two clauses ((e) and (j)). Risk: (j) matches hub rows against every table in `docs/README.md`, looser than one named anytime table.
+
+**Decisions made.** None. The Implementer's "8 hits" was a reporting slip; the code covers all 9.
+
+**Forward pointers.** T9: suite total is 825 after T8 — re-run before the CHANGELOG states any count (KZ-002).
+
+**Final verification.** `node --test test/docs-overview.test.js` 13/0; `npm test` 825/0.

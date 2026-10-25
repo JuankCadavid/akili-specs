@@ -287,7 +287,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~380 LOC) |
 | Depends on | T4, T6, T7 |
 | Requirements | FR-16 (a)–(j), every clause; FR-7 scenario (a new command fails with its name); FR-11 scenarios (a new skill, two groups, a wrong binding, the Grok code check); FR-10 scenario (unexplained `harness`, banned `Reviewer`, whole word, plural, case-insensitive); FR-6 (anchor resolves); FR-16 scenario (a stale `12 commands` / `12 command skills` fails); no hard-coded counts |
