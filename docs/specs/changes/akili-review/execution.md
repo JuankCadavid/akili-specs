@@ -9,7 +9,7 @@
 | Leader | Claude Code, `claude-opus-5-5` (T1) |
 | Approval Mode | `gated` (tasks.md). User mandate 2026-10-25: "Commit locally only; never push, open PRs, merge, tag or publish. Stop and report at each PR boundary and on any HALT or tripwire." Per-task continue gates inside a PR group proceed; the Leader stops at the PR boundaries (after T3, after T8, after T11). Exceptions (HALT, Pivot, tripwire, FATAL_FAIL, waiver, unearned skip) always stop |
 | Scope | T1–T11 in three PR groups (T1–T3, T4–T8, T9a–T11). T12 pilot **deferred** (needs a scratch repo and API keys) |
-| Budget | 14 tasks · ~4,750 LOC · 22 rounds; tripwire **> 15 tasks, > ~5,700 LOC, or > 25 rounds** (tasks.md §1, design §11). Amended 2026-10-25 (user, PR-2 boundary): line tripwire **> ~6,200 LOC**; tasks and rounds unchanged |
+| Budget | 14 tasks · ~4,750 LOC · 22 rounds; tripwire **> 15 tasks, > ~5,700 LOC, or > 25 rounds** (tasks.md §1, design §11). Amended 2026-10-25 (user, PR-2 boundary): line tripwire **> ~6,200 LOC**; tasks and rounds unchanged. Amended 2026-10-25 (user, HALT before T11): round tripwire **> 27 rounds** |
 | Personas | `.agents/` deployed 2026-10-25 from `.claude/templates/` (gitignored, `.gitignore:8`); `node bin/akili.js doctor --agents` → every section `CURRENT`, "No persona drift blocking CI." |
 | Delegation | No Step 8E wrappers in this repo → fallback spawn (`general-purpose` subagent; the worker reads its own persona). Implementer `sonnet` (T2), Reviewer `opus` (T3 role on a different model than the Implementer: author ≠ auditor) |
 | Base | branch `JuankCadavid/akili-review` at `26fe7cc` |
@@ -385,3 +385,7 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 - **Other limits:** tasks 13/15 (T11 would be 14; T12 deferred) — not exceeded. LOC ~5,773 of ~6,200; T11 estimate ~25 → ~5,800 — not exceeded.
 - **State:** T1–T10 `[x]`, T11 `[ ]`, T12 deferred. Branch `feat/akili-review-pr2`, local only, nothing pushed.
 - **User decision needed:** raise the round tripwire (e.g. to 26–27) so T11 runs with its Reviewer, or another instruction.
+
+## Round-tripwire amendment (user decision), 2026-10-25
+
+- **Decision (Juan Carlos):** review-round tripwire raised from 25 to **27**; proceed with T11 and its Reviewer. Lines (~6,200) and tasks (15) unchanged. Recorded in tasks.md §1 *Budget*. Clears the HALT above: T11 review is round 26, one rework round (27) available.
