@@ -15,8 +15,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Notes
 
-- **Docs and tests only.** Nothing in `.claude/`, `bin/`, `package.json` or `assets/` changes, and no version is bumped here.
-- **Tests.** The suite is 844 tests, all passing, on Node 22 on macOS.
+- **Release class: patch** (docs and tests only). Nothing in `.claude/`, `bin/`, `scripts/` or `assets/` changes; `package.json` changes only its version.
+- **Tests.** The suite is 844 tests, all passing, on Node 22 on macOS. The docs-overview test reads normalize CRLF line endings, so the Windows CI legs (Node 18 and 22) pass too.
 - **Known debt.** `.claude/skills/diagram-design/SKILL.md` still says Archify's install is documented "in the project README"; the install command now lives in `docs/overview.md`. The skill is installable content and was out of this change's scope.
 
 ## [2.36.0] - 2026-10-24
