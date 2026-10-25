@@ -307,3 +307,19 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 - **Budget:** line tripwire raised from ~5,700 to **~6,200 LOC**; 15 tasks and 25 rounds unchanged. Recorded in tasks.md §1 *Budget*. Remaining rounds: 7 for 5 tasks (at most 2 rework rounds in total before the round tripwire).
 - **Rebase:** `feat/akili-review-pr2` rebased onto `origin/dev` (`dda3d5d`, a merge commit whose tree equals `95f3989`), no conflicts. SHAs above are pre-rebase; new: T4 `96c2ddc`, T5 `0936454`, T6 `b1ac23d`, T7 `87d5823`, T8 `fc4e952`, PR 2 boundary record `d61b4c6`.
 - **Stop point:** after T11 — full `npm test` on Node 22 and 18 plus `npm run verify:cli`, then report. HALT before any task that would cross ~6,200 LOC, 15 tasks or 25 rounds.
+
+### T10: Carve-outs (6 sites) — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-25 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Skills / effort | none listed; medium (identical one-token edits) |
+| spawns | Implementer (sonnet) 6 calls, 65,823 tokens, ended complete; Reviewer (opus) 7 calls, 76,380 tokens, ended complete. Ran in parallel with T9a (disjoint files) |
+| Requirements covered | FR-8 (carve-out), FR-14 (carve-outs) |
+| Running totals | tasks 10/15 · LOC ~5,552 (T10: 6 lines changed, +6/−6) · review rounds 19/25 |
+
+**Attempt 1.** Files: `.claude/commands/akili-{audit,resume,specify,propose}.md`, `docs/commands/akili-{audit,resume}.md` — `` `reviews/`, `` inserted after `` `audits/`, `` in each carve-out list. Red run: each file 0 hits for `` audits/`, `reviews/ ``; pipeline `grep -rlE "quick/.{0,6}, .{0,3}kaizen/" .claude docs --include='*.md' | grep -v docs/specs/` → the 6 files, `| xargs grep -L "reviews/"` → all 6. Verification: same pipeline → 6 files; `-L` → empty. Falsifier: revert `docs/commands/akili-audit.md` → `-L` prints that file alone; restored → empty. `node --test test/command-contracts.test.js test/docs-overview-contract.test.js test/akili-review-command.test.js` → 104/104. Leader re-run: **VERIFIED** (6 files, `-L` empty, word-diff shows six `+`reviews/`,` tokens, each after `audits/`). Reviewer: **PASS** — missed-site sweep with seven other phrasings found no further carve-out list (`akili-resume` `family.md` glob filter and the `docs/specs/audits/` write paths are not carve-outs); semantics coherent with `/akili-review` `--record` writing `docs/specs/reviews/` (not a spec; without it `/akili-resume` could report it as an incomplete spec, DD-10's named risk).
+
+**ADVISORY.** None.

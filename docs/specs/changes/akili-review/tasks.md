@@ -535,7 +535,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~12) |
 | Depends on | T6 |
 | Requirements | FR-8 (carve-out), FR-14 (carve-outs) |
