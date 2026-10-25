@@ -291,3 +291,12 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 **ADVISORY (final verdicts).** Sort both sides of the permission `deepEqual` (meaning-preserving reorder gives a false red). A `git fetch origin "refs/pull/$PR/head" && git checkout FETCH_HEAD` inside the input step's `run:` still passes — a negative check over `review`'s run lines (`/\bgit (fetch|checkout|switch|worktree)\b|gh pr checkout/`) would cover it. The KZ-002 test matches usage comments, not the `COMMANDS` flag table.
 
 **Final verification.** `node --test test/akili-review-ci.test.js` → `# pass 30 # fail 0`; `actionlint docs/ci/akili-review.claude.yml docs/ci/akili-review.codex.yml` → exit 0; `grep -c pull_request_target docs/ci/*.yml` → 0, 0; `grep -cE "uses: [^@]+@[0-9a-f]{40}" docs/ci/akili-review.claude.yml` → 6.
+
+## PR 2 boundary (T4–T8) — stop for the user, 2026-10-25
+
+- **Branch:** local `feat/akili-review-pr2`, cut from `95f3989` (PR 1 / #75 head) so PR 2 work does not land on PR 1's branch. Commits `f22821a` (T4), `cb4ee9e` (T5), `4ce1edc` (T6), `0a7876b` (T7), `23b29d1` (T8) + this record. Nothing pushed.
+- **Full suite (tree quiet):** Node 22.12.0 and 18.20.8 each `# tests 1075 · pass 1072 · fail 3` — `docs-overview` (a) `docs/overview.md ## Commands` lacks `/akili-review`, (b) README command table lacks `/akili-review`, (d) `docs/cli.md` "13 commands" totals vs 14. Owned by T9b/T9c (PR 3). `npm run verify:cli` → `14 commands | 29 skills | 8 resources (akili-specs v2.36.1)`.
+- **Spec tension for the user (same class as PR 1):** PR 2 as split cannot pass the required CI checks — those 3 reds persist until PR 3. Options: move the T9b command rows (`README.md`, `docs/overview.md`, `docs/README.md`, `docs/commands/README.md`) and the T9c command totals (`docs/cli.md` 13 → 14 + the `akili-marketing-docs`/`diagram-design` pins) into PR 2 as a T8b, mirroring T3b; or merge PR 2 and PR 3 together.
+- **Budget:** LOC ~5,540 of the ~5,700 tripwire (not exceeded). Remaining estimates: T9a ~200, T9b ~60, T9c ~110, T10 ~12, T11 ~25 ≈ 410 → projected ~5,950, so the line tripwire **will** fire during PR 3 (likely at T9a or T9c). Tasks 9/15 (T3b included); review rounds 18/25 (PR 2 budget was 10, actual 12).
+- **Execute-time spec edits in PR 2:** `--input <dir>` (design §7.1 Step 0, FR-2 grammar and `<pr>` row) — single-answer factual correction, logged above.
+- **Open items carried:** `akili-specs@2.37.0` pin in both templates is a forecast — release prep must set the real version; T12 pilot items listed under T8's forward pointers.
