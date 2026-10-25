@@ -253,7 +253,7 @@ Change `docs/skills/diagram-design.md:21` to name `docs/overview.md`. The README
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~40 LOC) |
 | Depends on | T6 |
 | Requirements | FR-13 (overview first in *Start Here* and the *Documentation Map*; governance linked in both; anytime commands as a table); FR-14 (one Grok Bot line; BUT no behavior `bin/routing.js` lacks); FR-17 (governance item 5 requires the overview row); NFR-2 |

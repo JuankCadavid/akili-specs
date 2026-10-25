@@ -98,7 +98,7 @@ A skill enters `.claude/skills/` only when all of these hold. If any box fails, 
 2. **Binding declared** — `core`, `conditional`, or `stack`, with the exact integration point. A `core`/`conditional` skill must actually be wired into command text in the same change; a skill referenced by no command and no Skill Map is dead weight and does not ship.
 3. **Attribution complete** — original author, source, and license identified and preserved; `adapted-by` added. If the origin cannot be verified after a genuine search, mark `author: community (origin unverified)`.
 4. **Size justified** — prefer one skill with `references/` (progressive disclosure) over families of sibling skills; large data/scripts payloads need a stated reason.
-5. **Docs + CHANGELOG** — a `docs/skills/<name>.md` page, a truthful row in `docs/skills/README.md` (Binding column included), and a `CHANGELOG.md` entry.
+5. **Docs + CHANGELOG** — a `docs/skills/<name>.md` page, a truthful row in `docs/skills/README.md` (Binding column included), a row in `docs/overview.md` under its purpose group, and a `CHANGELOG.md` entry.
 
 The same checklist applies in reverse: when a skill loses its integration points, remove it or re-bind it — do not let the inventory drift from the commands.
 

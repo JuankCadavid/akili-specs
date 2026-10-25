@@ -160,3 +160,23 @@
 **Decisions made.** Execute-time spec edit, 2026-10-24, `design.md` §7 plain-row table, `/akili-execute` row → "build the approved tasks one by one, each independently checked" (dated note). Reason: the earlier cell overclaimed — the conformance Reviewer can be skipped under Review intensity, the non-author evidence re-run never is. FR-7's meaning unchanged (Reviewer-confirmed). Carry as a named conformance check into the T7 Reviewer brief.
 
 **Final verification.** As the attempt-2 Leader re-run.
+
+### T7: Hub, routing line, governance checklist — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-24 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Skills / effort | `cognitive-doc-design`; medium → high on attempt 2 |
+| spawns | Implementer (sonnet) 7 calls, 73,622 tokens, ended complete; Reviewer (opus) 4 calls, 71,526 tokens, ended fail; Implementer attempt 2 1 call, 75,720 tokens (cumulative), ended complete; Reviewer re-review 1 call, 74,671 tokens (cumulative), ended complete |
+| Requirements covered | FR-13, FR-14 (incl. BUT, checked against `bin/routing.js` `HOST_KEYS`), FR-17 (governance item 5), NFR-2 |
+| Running totals | tasks 7/9 · LOC ~+990 / −1,050 so far · review rounds 13/26 |
+
+**Attempt 1.** Files: `docs/README.md`, `docs/model-routing.md`, `docs/skills/governance.md`. Red at HEAD: first *Start Here* link `](flow.md)`, governance 0, Grok 0, item-5 0. Green: `](overview.md)`; governance 2; `grok bot` 1; `no routing wrappers` 1; item-5 overview 1; English 0. Falsifier (stream copy): Overview line removed → `](flow.md)`. Tests: marketing 12/0, `npm test` 812/0. Grok line vs code: `grep -ci grok bin/routing.js` → 0; `HOST_KEYS` = claude, opencode, antigravity, codex, cursor. Leader re-run: VERIFIED. Reviewer: **FAIL**, 1 issue — the anytime table had two columns (`Command | Use When`); FR-13 (`requirements.md:230`) requires "(command · use it to · link)", and five of six rows linked nowhere.
+
+**Attempt 2.** Files: `docs/README.md`. Table now `| Command | Use it to | Reference |` (`:36`), each row links `commands/akili-<name>.md`; every prior obligation kept (dashboard, drift, GSC/SEO reports, quick auto-escalation, security gates + Bug Track + Windows note verbatim, marketing platforms + `docs/marketing/` + never publishes). Checks: as attempt 1, plus each of six page links → 1. Leader re-run: VERIFIED (`npm test` 812/0, `git diff --check` clean). Reviewer: **PASS** — fix matches FR-13; per-row comparison against the old cells and command pages shows nothing dropped or overstated; FR-14 and item 5 unchanged.
+
+**Decisions made.** None. The named check (design §7 `/akili-execute` wording, carried from T6) passed and now drops.
+
+**Final verification.** As the attempt-2 Leader re-run.
