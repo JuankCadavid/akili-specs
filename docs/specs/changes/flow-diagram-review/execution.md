@@ -74,3 +74,48 @@ ADVISORY (recorded, no task):
 - spawns: Implementer 35 calls, 139,603 tokens, ended complete; Reviewer 11 calls, 91,378 tokens, ended complete.
 - Running totals vs budget: tasks 1/3 · LOC 0/~95 (2 assets as files) · review rounds T1 = 1 (≤ 2). Within budget.
 - **Final status: PASS.** Phase gate: `auto-approved (pre-approved mode)`.
+
+### T2: alt texts and the figure test. PASS (attempt 1), 2026-10-26
+
+**Attempt 1**
+
+| Field | Record |
+|---|---|
+| Implementer | `sonnet`, effort `medium`, skills `cognitive-doc-design` and `tdd` (as listed) |
+| Files changed | `test/flow-figure.test.js` (new, 73 lines), `docs/flow.md` (lines 7 and 21, +2/−2), `README.md` (the `alt` attribute only, +1/−1) |
+
+**Red run** (before the text edit, quoted): `not ok 2 - the SVG desc equals the docs/flow.md figure alt text`. `strictEqual` actual = the new SVG `<desc>` (design §4 text); expected = the old `docs/flow.md:7` alt ("…/akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.").
+
+**Falsifiers** (each observed)
+- (1) Test-1 logic against the pre-T1 SVG gives `missing [ '/akili-marketing', '/akili-review' ]`.
+- (2) "baseline once" → "baseline twice" in `docs/flow.md:7` turns test 2 red; restored.
+- (3) `<script/>` inserted into the SVG turns test 3 red (`doesNotMatch /<script/`); restored with `git checkout`.
+
+**Implementer verification**
+- `node --test test/flow-figure.test.js` → 3/3.
+- Consumer suites (`akili-security-docs`, `akili-marketing-docs`, `docs-overview`, `docs-overview-contract`) → 63/63.
+- The README alt has no "Kaizen" or "Bug Track".
+- `grep docs/specs` on the test file → empty.
+- `npm test` → 1111/1111.
+
+**Not Done / Assumptions** (verbatim gist; no owed item, so this is not a continuation)
+- "Root `<title>`" is read as the first `<title>` element in the SVG (the `archify-diagram-title` one); the SVG also has per-node `<title>` tooltips.
+- Test 3's `url(` check ignores `data:` URLs and `url(#…)` fragment references, as the design requires.
+
+**Evidence re-run** (Leader-inline, non-author): VERIFIED. `flow-figure` pass 3 / fail 0; consumers tests 63 pass 63; `npm test` 1111 pass / 0 fail; diff stat README 1 line, flow.md 2 lines; no `docs/specs` in the test.
+
+**Reviewer** (`opus`, medium, checklist): **STATUS: PASS**
+- The §4 wording is byte-identical at all three sites, and the single SVG `<desc>` equals the flow alt text.
+- FR-3 BUT holds: only lines 7 and 21 changed. FR-4 holds: the block and URL are unchanged, the README count is ±0, and no banned words appear.
+- Test 1 is a whole-element `Set` match keyed on `.claude/commands`.
+- Test 3 is not tripped by `xmlns`, `data:` or comments.
+- The "first `<title>`" assumption holds: the root title is at offset 115483, before every node title. If the order changes, the test fails closed.
+- The alt claims are true at source: `docs/commands/akili-review.md:41` (local-only routing), `:81` (`--ci` never routes), `docs/ci/README.md`.
+- The named check (the T1 DD-2 amendment) holds: the alt text describes the shipped figure.
+- No ADVISORY.
+
+**Closure**
+- Requirements covered: FR-3, FR-4, FR-6 (figure test, BUT), NFR-2.
+- spawns: Implementer 10 calls, 97,431 tokens, ended partial (assumptions only); Reviewer 9 calls, 82,529 tokens, ended complete.
+- Running totals vs budget: tasks 2/3 · LOC 76/~95 (3 Markdown + 73 test) · review rounds T2 = 1. Within budget.
+- **Final status: PASS.** Phase gate: `auto-approved (pre-approved mode)`.

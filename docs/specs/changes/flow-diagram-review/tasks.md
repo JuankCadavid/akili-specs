@@ -77,7 +77,7 @@ T2 depends on T1 because the figure test reads the new SVG. T3 depends on T2 bec
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~10 LOC Markdown, ~60 LOC test) |
 | Depends on | T1 |
 | Requirements | FR-3 (alt text names seven anytime commands and both hand-offs; byte-identical to `<desc>`; the line-21 prefix is kept and both sources are named; BUT no other `docs/flow.md` line changes) · FR-4 (URL and block unchanged; plain-words alt; BUT no "Kaizen" or "Bug Track"; README grows by ≤ 1 line) · FR-6 (figure test: missing command → red; `<desc>` ≠ alt → red; BUT no read of the spec folder) · NFR-2 |
