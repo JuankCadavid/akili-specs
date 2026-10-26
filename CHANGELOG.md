@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.37.0] - 2026-10-26
+
 ### Added
 
 - **`/akili-review` reviews a pull request, a commit range or the staged changes against its specs, anytime and outside the spec lifecycle.** Usage: `/akili-review [<pr> | <base>..<head> | --staged] [--spec <path>] [--tier auto|trivial|lite|full] [--lens <a,b>] [--comment] [--ci [--input <dir>]] [--fail-on none|critical|warning] [--record] [--force] [--out <dir>]`. It filters and tiers the diff, runs one lens reviewer per lens and chunk, verifies the findings and writes `findings.json` and `REVIEW.md` to a run directory outside the target (`~/.akili/reviews/...`). It has no Approval Mode and a read-only boundary: it never edits target source, runs target code, commits, pushes, approves a PR or requests changes.
@@ -27,7 +33,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Known debt: the lifecycle figure was not updated.** `assets/akili-flow.svg` and `assets/akili-flow.png` still show the previous set of anytime commands, and the figure's alt text in `docs/flow.md` is unchanged and still names five anytime commands (`/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo` and `/akili-security`), without `/akili-marketing` or `/akili-review`. The prose of `docs/flow.md` does name `/akili-review`. Regenerating the figure and editing its alt text are deferred.
 - **Known limits.** The CI `review` job downloads the PR head tarball with a read-only token; whether that works on private repositories is unverified until the pilot, and it fails closed. `gh pr diff` can refuse a very large diff, and the job then fails instead of reviewing. A pull request is untrusted text: a prompt injection cannot post, fetch or run anything, but it can skew what the agent reports.
 - `/akili-review` changes nothing in `bin/`, `package.json` or `package-lock.json`. There is no `/akili-review` row in the model-routing registry; the command carries a one-line model checkpoint instead.
-
 ## [2.36.1] - 2026-10-24
 
 ### Changed
