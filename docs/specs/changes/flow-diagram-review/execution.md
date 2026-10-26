@@ -119,3 +119,69 @@ ADVISORY (recorded, no task):
 - spawns: Implementer 10 calls, 97,431 tokens, ended partial (assumptions only); Reviewer 9 calls, 82,529 tokens, ended complete.
 - Running totals vs budget: tasks 2/3 · LOC 76/~95 (3 Markdown + 73 test) · review rounds T2 = 1. Within budget.
 - **Final status: PASS.** Phase gate: `auto-approved (pre-approved mode)`.
+
+### T3: release notes and the FR-14 pin. PASS (attempt 1), 2026-10-26
+
+**Attempt 1**
+
+| Field | Record |
+|---|---|
+| Implementer | `sonnet`, effort `medium`, skill `cognitive-doc-design` (as listed) |
+| Files changed | `test/akili-review-contract-coverage.test.js` (FR-14, +3/−3), `CHANGELOG.md` (`[Unreleased]` note +10; one `[2.37.0]` bullet removed), `releases/v2.37.0.md` (the same bullet removed) |
+
+**Red run** (quoted): `not ok 18 - FR-14 docs pages + CHANGELOG: the three pages exist; the [2.37.0] CHANGELOG section covers command, skill, templates and carve-out, and no longer carries the figure known debt` / `error: 'CHANGELOG [2.37.0] still carries the lifecycle-figure known-debt bullet'` (pass 19, fail 1). After the deletion: pass 20, fail 0.
+
+**Implementer verification**
+- Debt greps → 0 / 0.
+- `git diff CHANGELOG.md` hunks are only in `[Unreleased]` and `[2.37.0]`; `releases/v2.36.0.md` is unchanged.
+- `verify:cli` → 14 commands, 29 skills.
+- `pack:dry-run` lists both assets.
+- `git diff --check` is clean.
+- `npm test` → 1111/1111, on three runs after one earlier run.
+
+**Issues encountered**
+- The first `npm test` run after the note edit reported 1110 pass / 1 fail; the failing test was not captured. It did not reproduce in three Implementer runs, two Leader runs or one Reviewer run.
+- It is recorded as an unidentified, probably flaky failure. It is not attributed to this diff, since the diff touches no code path any other test reads besides FR-14, which passed.
+
+**Evidence re-run** (Leader-inline, non-author): VERIFIED.
+- Contract-coverage pass 20 / fail 0.
+- Greps 0 / 0; `[2.36.0]` unchanged; `git diff --check` ok.
+- `npm test` ×2 → 1111/1111/0.
+- `verify:cli` 14 | 29 | 8.
+- `pack` lists `assets/akili-flow.png` 300.8kB and `assets/akili-flow.svg` 144.8kB.
+
+**Reviewer** (`opus`, high, checklist, KZ-002 quote-check): **STATUS: PASS**. Every clause of the `[Unreleased]` note was matched to shipped evidence:
+- three lanes, old and new;
+- the `/akili-review` column-0 stack at x=173;
+- the sublabel text;
+- `s1` and `s2` both `a-security`, dashed, ending at propose;
+- `docs/flow.md:7` and `:21`;
+- the README alt matching design §4;
+- test 1–3 contents;
+- an empty diff over `bin`, `package.json`, `package-lock.json` and `.claude`;
+- the Reviewer's own `npm test` → 1111;
+- the `README.md:50,52` raw URL.
+
+FR-5 and FR-6 were walked clause by clause. The design §5 do-not-restate grep is empty, and the `:276-308` scans pass. The red run is assertion-level. ADVISORY was suppressed (diff < 50 LOC).
+
+**Closure**
+- Requirements covered: FR-5, FR-6 (FR-14 pin, whole suite), NFR-3.
+- spawns: Implementer 13 calls, 88,396 tokens, ended complete; Reviewer 10 calls, 89,520 tokens, ended complete.
+- Running totals vs budget: tasks 3/3 · LOC 92/~95 (76 + 10 note + 6 test, counted by diff stat insertions) · review rounds T3 = 1. Within budget.
+- **Final status: PASS.** Phase gate: `auto-approved (pre-approved mode)`.
+
+## 3. Summary
+
+| Task | Result | Attempts | Reviewer |
+|---|---|---|---|
+| T1 Figure (Archify) | PASS | 1 | PASS |
+| T2 Alt texts + figure test | PASS | 1 | PASS |
+| T3 Release notes + FR-14 pin | PASS | 1 | PASS |
+
+**Budget:** 3/3 tasks, ~92/~95 LOC (plus 2 assets within the caps), 1 review round per task. No HALT, Pivot, tripwire or checkpoint.
+
+**Spec amendments:** one execute-time edit (design §3, the DD-2 column-0 stack), with FR-1's meaning unchanged.
+
+**Open items for the user**
+- The published GitHub Release v2.37.0 body still carries the removed debt bullet (proposal Q3, left untouched).
+- One unidentified `npm test` failure that did not reproduce.

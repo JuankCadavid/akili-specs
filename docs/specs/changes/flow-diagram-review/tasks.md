@@ -114,7 +114,7 @@ T2 depends on T1 because the figure test reads the new SVG. T3 depends on T2 bec
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~15 LOC Markdown, ~10 LOC test) |
 | Depends on | T2 |
 | Requirements | FR-5 (no debt bullet in `[2.37.0]` or `releases/v2.37.0.md`; `[Unreleased]` note covers figure, CI cue, shared hand-off, alt texts, debt removal, tests, patch class, and the `master` raw-URL behaviour; BUT `[2.36.0]`, `releases/v2.36.0.md` and other released sections untouched; AND IT MUST pass a quote-check) · FR-6 (FR-14 reads `## [2.37.0]` by heading, keeps the other four needles, drops the figure needle, asserts no debt bullet; the whole suite passes) · NFR-3 |

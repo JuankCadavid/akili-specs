@@ -345,18 +345,18 @@ test("FR-14 AGENTS.md Skill Usage names pr-review, loaded by /akili-review", () 
   assert.match(usage, /^- Use `pr-review` for [^\n]*`\/akili-review` loads it/m, "AGENTS.md Skill Usage lacks the pr-review line");
 });
 
-test("FR-14 docs pages + CHANGELOG: the three pages exist; the top CHANGELOG section naming /akili-review covers command, skill, templates, carve-out and figure debt", () => {
+test("FR-14 docs pages + CHANGELOG: the three pages exist; the [2.37.0] CHANGELOG section covers command, skill, templates and carve-out, and no longer carries the figure known debt", () => {
   for (const p of ["docs/commands/akili-review.md", "docs/skills/pr-review.md", "docs/ci/README.md"]) assert.ok(fs.existsSync(path.join(ROOT, p)), `${p} missing`);
   const log = read("CHANGELOG.md");
   const heads = [...log.matchAll(/^## \[/gm)].map((m) => m.index);
-  const sec = heads.map((h, i) => log.slice(h, heads[i + 1])).find((s) => s.includes("`/akili-review`")) || assert.fail("no CHANGELOG section names /akili-review");
+  const sec = heads.map((h, i) => log.slice(h, heads[i + 1])).find((s) => s.startsWith("## [2.37.0]")) || assert.fail("no CHANGELOG section headed ## [2.37.0]");
   for (const [needle, why] of [
     ["`pr-review`", "the skill"],
     ["`akili-review.claude.yml`", "the Claude template"],
     ["`akili-review.codex.yml`", "the Codex template"],
     ["`reviews/` joins the non-spec carve-outs", "the carve-out"],
-    ["`assets/akili-flow.svg`", "the figure known debt (DD-12)"],
   ]) assert.ok(sec.includes(needle), `CHANGELOG section lacks ${why} (${needle})`);
+  assert.ok(!sec.includes("Known debt: the lifecycle figure"), "CHANGELOG [2.37.0] still carries the lifecycle-figure known-debt bullet");
 });
 
 test("FR-14 no shipped file references docs/specs/changes/akili-review (npm pack file list)", () => {
