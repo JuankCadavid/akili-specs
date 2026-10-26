@@ -149,7 +149,7 @@ Verification carried forward from `docs-refresh-2-34`:
 
 | # | Item | Recommendation |
 |---|---|---|
-| Q1 | **Product decision: may Archify be installed into the session scratchpad (not the repo, not global config) to regenerate the figure?** | Yes (Option A). If not, use Option B |
+| Q1 | **Product decision: may Archify be installed into the session scratchpad (not the repo, not global config) to regenerate the figure?** | **Decided (Juan Carlos Cadavid, 2026-10-26): "Archify in scratchpad"**, so Option A |
 | Q2 | Should CHANGELOG `[2.36.0]` debt (1) (the figure lacks `/akili-marketing`) also be edited? | No. Leave released history as written, except for the `[2.37.0]` bullet the brief names. The 2.37.1 note says the figure now draws both commands |
 | Q3 | The published GitHub Release v2.37.0 body keeps the debt note after `releases/v2.37.0.md` is edited | Report it at the end. Editing it is the user's outward-facing action |
 | R1 | KZ-002: CHANGELOG clauses overstate what shipped | Quote-check every 2.37.1 clause at HEAD, including the sentences around each insertion |
