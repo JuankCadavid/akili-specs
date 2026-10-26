@@ -1,0 +1,163 @@
+# AKILI /akili-review on pull requests, runtime: openai/codex-action.
+#
+# Two jobs. `review` is read-only: the Codex sandbox is read-only with no network, and the agent holds
+# no GitHub write permission and no posting tool. `post` holds the only write token,
+# checks out nothing, and posts through the validated post-review.cjs path.
+#
+# RESIDUAL RISK: a pull request is untrusted text, and a prompt injection can still skew what the
+# agent reports (a missed finding, a false one). It cannot post or reach the network. The agent
+# runs on the BASE checkout; the PR head is read as data from a directory outside the workspace.
+# CODEX ONLY: the read-only sandbox can still run read-only shell commands over the files it can read
+# (the input directory included), with no network and no writes; `drop-sudo` keeps OPENAI_API_KEY out
+# of its reach. The upload steps run after the agent step in the same job, which codex-action
+# recommends avoiding for loose permissions; here the sandbox is read-only.
+# For repos that take outside PRs, set Settings > Actions > General > "Require approval for all
+# external contributors". This template skips fork PRs altogether.
+#
+# Action pins are commit SHAs with the tag in a comment; update them deliberately. The akili-specs
+# package is pinned to an exact release. Setup: docs/ci/README.md.
+name: AKILI review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    # Opt-in: skip docs-only changes.
+    # paths-ignore:
+    #   - "**.md"
+    #   - "docs/**"
+
+permissions: {}
+
+jobs:
+  review:
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.event.pull_request.labels.*.name, 'akili-review:skip')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: akili-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      # The workspace is the PR BASE: every file a host auto-loads from cwd is the base copy.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install AKILI into HOME
+        run: npx -y akili-specs@2.37.0 install --tool codex --force
+      - name: Paths
+        id: paths
+        run: |
+          mkdir -p "$RUNNER_TEMP/akili-review"
+          {
+            echo "home=$HOME"
+            echo "in=$RUNNER_TEMP/akili-input"
+            echo "out=$RUNNER_TEMP/akili-review"
+          } >> "$GITHUB_OUTPUT"
+      - name: Prepare the input directory
+        id: input
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          IN: ${{ steps.paths.outputs.in }}
+          HOME_DIR: ${{ steps.paths.outputs.home }}
+        run: |
+          set -euo pipefail
+          SK="$HOME_DIR/.agents/skills/pr-review/post-review.cjs"
+          mkdir -p "$IN"
+          gh pr diff "$PR" --repo "$REPO" > "$IN/pr.diff"
+          gh pr view "$PR" --repo "$REPO" --json title,body,commits,labels,author,state,isDraft > "$IN/meta.json"
+          # The workspace is the base checkout, so this is the BASE .akili/review.yml, never the PR head's.
+          CFG=()
+          if [ -f "$GITHUB_WORKSPACE/.akili/review.yml" ]; then CFG=(--config "$GITHUB_WORKSPACE/.akili/review.yml"); fi
+          node "$SK" check-skip --repo "$REPO" --pr "$PR" --head "$HEAD_SHA" --out "$IN" "${CFG[@]}"
+          if [ -f "$IN/skipped.json" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          node "$SK" prepare --diff "$IN/pr.diff" --out "$IN" --base "$BASE_SHA" --head "$HEAD_SHA" --repo "$REPO" --pr "$PR" "${CFG[@]}" | tee "$RUNNER_TEMP/prepare.log"
+          if grep -q 'empty=true' "$RUNNER_TEMP/prepare.log"; then echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # The head tree is data, extracted outside the workspace with the job token; symlinks are removed.
+          mkdir -p "$IN/head"
+          gh api "repos/$REPO/tarball/$HEAD_SHA" > "$RUNNER_TEMP/head.tgz"
+          tar -xzf "$RUNNER_TEMP/head.tgz" -C "$IN/head" --strip-components=1 --no-same-owner
+          find "$IN/head" -type l -delete
+          rm -f "$RUNNER_TEMP/head.tgz"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+      - name: Write the prompt
+        if: steps.input.outputs.skip != 'true'
+        env:
+          HOME_DIR: ${{ steps.paths.outputs.home }}
+          IN: ${{ steps.paths.outputs.in }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          printf 'Follow %s/.agents/skills/akili-review/SKILL.md with arguments: %s --ci --input %s\n' "$HOME_DIR" "$PR" "$IN" > "$RUNNER_TEMP/akili-prompt.md"
+      - name: Review
+        if: steps.input.outputs.skip != 'true'
+        uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675 # v1.13
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: ${{ runner.temp }}/akili-prompt.md
+          output-schema-file: ${{ steps.paths.outputs.home }}/.agents/skills/pr-review/review-schema.json
+          output-file: ${{ steps.paths.outputs.out }}/findings.json
+          sandbox: read-only
+          safety-strategy: drop-sudo
+      - name: Stage the artifact
+        env:
+          IN: ${{ steps.paths.outputs.in }}
+          OUT_DIR: ${{ steps.paths.outputs.out }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/akili-artifact"
+          if [ -f "$IN/skipped.json" ]; then cp "$IN/skipped.json" "$RUNNER_TEMP/akili-artifact/"; exit 0; fi
+          cp "$IN/manifest.json" "$RUNNER_TEMP/akili-artifact/"
+          if [ -f "$OUT_DIR/findings.json" ]; then cp "$OUT_DIR/findings.json" "$RUNNER_TEMP/akili-artifact/"; fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: akili-review
+          path: ${{ runner.temp }}/akili-artifact
+          if-no-files-found: error
+
+  post:
+    needs: review
+    if: always() && needs.review.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: akili-review-post-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install AKILI into HOME
+        run: npx -y akili-specs@2.37.0 install --tool codex --force
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: akili-review
+          path: ${{ runner.temp }}/akili-artifact
+      - name: Post
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ART: ${{ runner.temp }}/akili-artifact
+        # Advisory by default (--fail-on none). After a pilot, switch the run line to:
+        #   --fail-on critical
+        run: |
+          node "$HOME/.agents/skills/pr-review/post-review.cjs" post "$ART/findings.json" --manifest "$ART/manifest.json" --repo "$REPO" --pr "$PR" --base "$BASE_SHA" --head "$HEAD_SHA" \
+            --fail-on none

@@ -1,0 +1,60 @@
+{
+  "schema_version": "1",
+  "target": {
+    "kind": "pr",
+    "pr": 42,
+    "repo": "acme/widgets",
+    "base_sha": "1111111111111111111111111111111111111111",
+    "head_sha": "2222222222222222222222222222222222222222"
+  },
+  "tier": "full",
+  "host_mode": "parallel",
+  "lenses": [
+    "spec",
+    "correctness",
+    "tests"
+  ],
+  "top_risks": [
+    "Null token accepted"
+  ],
+  "coverage": [
+    {
+      "spec": "changes/add-remember-me",
+      "fr": "FR-1",
+      "status": "met",
+      "evidence": "src/auth/session.js:10"
+    }
+  ],
+  "unspecified_changes": [],
+  "notes": [],
+  "findings": [
+    {
+      "id": "F-1",
+      "lens": "correctness",
+      "severity": "warning",
+      "suspect": false,
+      "confidence": 85,
+      "file": "src/auth/session.js",
+      "line_start": 10,
+      "line_end": 12,
+      "side": "RIGHT",
+      "evidence": "+  if (token == null) return true;",
+      "why": "A null token is treated as authenticated.",
+      "fix": null
+    },
+    {
+      "id": "F-2",
+      "lens": "correctness",
+      "severity": "warning",
+      "suspect": false,
+      "confidence": 85,
+      "file": "../../etc/passwd",
+      "line_start": 10,
+      "line_end": 12,
+      "side": "RIGHT",
+      "evidence": "+  if (token == null) return true;",
+      "why": "A null token is treated as authenticated.",
+      "fix": null
+    }
+  ]
+}

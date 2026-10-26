@@ -28,7 +28,7 @@ First, read the constitutional documentation baseline in the repository:
 2. `docs/ux-ui/design.md` (legacy fallback: `docs/system-design/design.md`)
 3. `docs/trd/trd.md` (legacy fallback: `docs/detailed-design/detailed-design.md`)
 4. Any active specs in `docs/specs/` that are not yet archived.
-   - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container — a folder whose only spec file is `family.md`. `audits/` matters most here: it holds this command's own prior drift reports, which are audit output and never audit input.
+   - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, `reviews/`, plus any family container — a folder whose only spec file is `family.md`. `audits/` matters most here: it holds this command's own prior drift reports, which are audit output and never audit input.
 
 ### Step 1: Scan Active Codebase
 

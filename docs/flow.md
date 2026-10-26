@@ -18,7 +18,7 @@ Use this flow for normal feature work:
 6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
 7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
 
-Six anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security` and `/akili-marketing`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
+Seven anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security`, `/akili-marketing` and `/akili-review`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 
@@ -193,6 +193,7 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent `drift-*.md` by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no `drift-*.md` file |
 | `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-security` | One redacted index per audit run: counts by verdict and severity, and opaque `S-n` rows for `confirmed` / `needs_validation` records. Full findings stay in the run directory (always outside the target); never a drift source |
 | `docs/marketing/brand-voice.md`, `campaigns/<slug>/{brief,plan,calendar}.md`, `calendar-<YYYY-MM>.md`, `posts/<YYYY-MM-DD>-<slug>.md` | `/akili-marketing` | Unpublished social marketing drafts (brand voice, campaigns, calendar, posts), outside the spec lifecycle; never published by the command |
+| `~/.akili/reviews/<repo>/<pr-<n>\|range-<short-sha>>/run-<k>/` (outside the target); `docs/specs/reviews/review-<YYYY-MM-DD>-<pr-<n>\|<safe-branch>>[-N].md` only with `--record` (or `history: true` in `.akili/review.yml`) | `/akili-review` | A local run's run directory holds `findings.json`, `REVIEW.md` and the prepared diff files (`--ci` writes nothing); the `docs/specs/reviews/` history file is opt-in and not a spec. Nothing under `docs/specs/` changes unless history is enabled (`--record` or `history: true`) |
 | `docs/specs/kaizen/<safe-spec-slug>.md` | `/akili-archive` (Kaizen Record, any branch) | One entry file per spec: metrics, root-cause lessons, sub-threshold signals, and the pending-standardization queue |
 | `docs/specs/kaizen-log.md` | the `kaizen` skill's Apply Mode (the apply-capable branch only — the digest's single writer) | The `## Active Lessons` digest read by `/akili-propose`, `/akili-specify`, `/akili-execute`, and `/akili-resume`; its legacy `## Entries` section is frozen history |
 | `docs/specs/archive/.../archive-summary.md` | `/akili-archive` | Historical closure record |
@@ -445,6 +446,9 @@ Run `/akili-security` independently, outside the spec lifecycle, for a gated sec
 ### 2c. Social Marketing (`/akili-marketing`)
 Run `/akili-marketing <mode>` independently, outside the spec lifecycle, to draft social marketing for LinkedIn, Instagram and Facebook as reviewable Markdown under `docs/marketing/`. Six modes: `brand` (brand voice), `campaign` (brief and plan), `calendar`, `post`, `review` and `repurpose`. The files it writes are `brand-voice.md`, `campaigns/<slug>/{brief,plan,calendar}.md`, `calendar-<YYYY-MM>.md` and `posts/<YYYY-MM-DD>-<slug>.md`. It drafts only and never publishes: each post ends at a copy-paste block that you place by hand. See [the command page](commands/akili-marketing.md) for the gate and the full mode reference.
 
+### 2d. Pull-Request Review (`/akili-review`)
+Run `/akili-review [<pr> | <base>..<head> | --staged]` independently, outside the spec lifecycle, to review a pull request, a commit range or the staged changes against its specs with the packaged `pr-review` skill: a filtered and tiered diff, one lens reviewer per lens and chunk, verified findings, and one summary comment. A local run writes the review to a run directory outside the target (the `--ci` form returns it as structured output and writes and posts nothing); PR comments are posted only with `--comment`, behind a confirmation gate, and only through the packaged scripts. It reviews only: it never edits target source, runs target code, commits, pushes, approves a PR or requests changes. A `docs/specs/reviews/` history file is written only with `--record` (or `history: true` in `.akili/review.yml`). Confirmed critical findings can be routed to a Bug proposal through `/akili-propose` in a local run. See [the command page](commands/akili-review.md) and [the skill page](skills/pr-review.md).
+
 ### 3. The Pivot Protocol
 If discovery during `/akili-execute` invalidates requirements or design rules:
 1. Mark the current task in `tasks.md` as `[~]` (blocked).
@@ -637,7 +641,7 @@ which answers *when and how each skill loads*:
 * **core** — hard-wired to a precise command step: `kaizen` in `/akili-archive`, `judgment-day` in
   `/akili-specify`'s Review Design gate, `cognitive-doc-design` for every human-facing document,
   `brainstorming` for exploration, `product-manager-toolkit` in `/akili-constitution`,
-  `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`.
+  `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`, `pr-review` in `/akili-review`.
 * **conditional** — loaded when the work touches its domain: `ui-ux-pro-max` / `frontend-design` /
   `stitch-design` for UI work, `gsap-animation` for animation work, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing).
 * **stack** — framework/platform skills (`angular-developer`, `nestjs-expert`, `shadcn-ui`,
@@ -678,6 +682,7 @@ Baseline and design documents carry named diagram slots. The packaged `diagram-d
 - `/akili-archive` preserves completed specs under `docs/specs/archive/` after validation, runs the Kaizen retrospective (measure → learn → standardize → record) into one entry file at `docs/specs/kaizen/<safe-spec-slug>.md`, syncs agent guides (child `CLAUDE.md`/`AGENTS.md` + the parent `## Module Guides` index) from the spec's `## Constitution Impact` notes, and recommends a CodeGraph re-index. Off the apply-capable branch (a spec branch, or the default branch while an `Integration Branch:` pin exists) the guide, factual-sweep, and TRD/ADR edits are recorded as pending items instead of written, and applied later on the apply-capable branch.
 - `/akili-security` operates outside the main spec lifecycle: it audits the repository with the `security-audit` skill, the only tracked repository content it writes is a redacted index under `docs/specs/audits/`, and hands confirmed findings to the Bug Track through `/akili-propose`. It never modifies target source or commits.
 - `/akili-marketing` operates outside the main spec lifecycle: it drafts social marketing for LinkedIn, Instagram and Facebook as Markdown under `docs/marketing/` with the packaged `social-marketing` skill, and never publishes. See [the command page](commands/akili-marketing.md).
+- `/akili-review` operates outside the main spec lifecycle: it reviews a pull request, a commit range or staged changes with the packaged `pr-review` skill, in a local run writes its review to a run directory outside the target, posts a PR comment only with `--comment` after a confirmation gate, and never edits, approves or blocks. See [the command page](commands/akili-review.md).
 - `/akili-seo` operates outside the main spec lifecycle: it provisions Google Search Console ownership for a domain and produces a standalone SEO audit under `docs/specs/seo/<domain>/`. Run it any time after deployment; rerun after major content or schema changes.
 
 **Provenance** (how this repository was first populated; not methodology rules):

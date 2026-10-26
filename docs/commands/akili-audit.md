@@ -12,7 +12,7 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 
 The command performs a four-step audit:
 
-1. **Read Project Specifications** — reads `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and any active specs in `docs/specs/`. Non-spec directories are carved out and never read as a spec: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, plus any family container. `audits/` matters most here — it holds this command's own prior reports, which are audit output and never audit input.
+1. **Read Project Specifications** — reads `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md`, and any active specs in `docs/specs/`. Non-spec directories are carved out and never read as a spec: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, `reviews/`, plus any family container. `audits/` matters most here — it holds this command's own prior reports, which are audit output and never audit input.
 2. **Scan Active Codebase** — extracts API surfaces, database schemas, UI components, modules, and dependencies using CodeGraph (if available) or standard file search.
 3. **Compare Documentation vs. Codebase Reality** — identifies discrepancies across six categories:
    - Stale Specification (documented but missing in code)
