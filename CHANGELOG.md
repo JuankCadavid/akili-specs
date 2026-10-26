@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.37.1] - 2026-10-26
+
 ### Changed
 
 - **The lifecycle figure now draws `/akili-review` and `/akili-marketing`.** `assets/akili-flow.svg` and `assets/akili-flow.png` were regenerated with Archify (a generation tool, not shipped) and keep the three lanes. `/akili-review` is stacked under `/akili-security`, labelled "PR review · local or CI", and both share the dashed Bug Track hand-off into `/akili-propose`; `/akili-marketing` is added to the Anytime lane.
@@ -18,7 +24,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Release class: patch** (docs, figure and tests only; nothing under `bin/`, `package.json` or `.claude/`).
 - **Tests.** The whole suite is 1120 tests, all passing.
 - README viewers on GitHub and npm see the new figure once `master` updates, because the README image loads from the `master` raw URL.
-
 ## [2.37.0] - 2026-10-26
 
 ### Added
