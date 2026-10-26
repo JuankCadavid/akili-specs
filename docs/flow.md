@@ -4,7 +4,7 @@ AKILI keeps durable product, design, implementation, test, and validation contex
 
 The workflow is inspired by OpenSpec's artifact-guided pattern, but AKILI adds a project constitution step, Claude/OpenCode skills, and explicit validation evidence before archive.
 
-![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-security, whose confirmed findings enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
+![AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-security, /akili-review (local or in CI), /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-marketing; confirmed /akili-security findings, and confirmed critical /akili-review findings from a local run, enter the Bug Track through /akili-propose.](../assets/akili-flow.svg)
 
 ## Start Here
 
@@ -18,7 +18,7 @@ Use this flow for normal feature work:
 6. `/akili-validate <spec-path>` - audit conformance before calling the work done.
 7. `/akili-archive <spec-path>` - preserve completed work and remove it from active specs.
 
-Seven anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security`, `/akili-marketing` and `/akili-review`. Confirmed `/akili-security` findings re-enter the loop through `/akili-propose` on the Bug Track.
+Seven anytime commands run outside this loop, at any time: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security`, `/akili-marketing` and `/akili-review`. Confirmed `/akili-security` findings, and confirmed critical `/akili-review` findings from a local run, re-enter the loop through `/akili-propose` on the Bug Track.
 
 Run `/akili-constitution` first in a new repository, after a major product pivot, or when the baseline docs are missing. For an established repository with a good baseline, start at `/akili-propose <change-name>` or `/akili-specify <spec-path>`.
 

@@ -10,6 +10,20 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - No unreleased changes yet.
 
+## [2.37.1] - 2026-10-26
+
+### Changed
+
+- **The lifecycle figure now draws `/akili-review` and `/akili-marketing`.** `assets/akili-flow.svg` and `assets/akili-flow.png` were regenerated with Archify (a generation tool, not shipped) and keep the three lanes. `/akili-review` is stacked under `/akili-security`, labelled "PR review · local or CI", and both share the dashed Bug Track hand-off into `/akili-propose`; `/akili-marketing` is added to the Anytime lane.
+- **Alt texts follow the figure.** The figure alt in `docs/flow.md` now names all seven anytime commands and adds the `/akili-review` hand-off from a local run, the sentence under the numbered flow that names the anytime commands gains the same hand-off clause, and the `README.md` figure alt says seven commands run any time, among them a security audit and a pull-request review that can also run in CI. The SVG `<desc>` equals the `docs/flow.md` alt text.
+- **The 2.37.0 known-debt bullet about the lifecycle figure is removed** from `CHANGELOG.md` and from `releases/v2.37.0.md`; the debt is paid by this change. The `[2.36.0]` entry and `releases/v2.36.0.md` are unchanged.
+- **Tests.** New `test/flow-figure.test.js` pins that every `.claude/commands/akili-*.md` name and `Kaizen` is drawn as the whole text of an SVG `<text>` element, that the SVG `<desc>` equals the `docs/flow.md` figure alt text, and that the SVG is standalone (no script, no external reference, no `prefers-color-scheme`) with its expected title and no Archify text drawn. FR-14 in `test/akili-review-contract-coverage.test.js` now reads the `## [2.37.0]` section by its heading and asserts that the known-debt bullet is gone, instead of requiring the figure path. New `test/flow-figure-contract.test.js` pins the rest of the figure contract: exactly three lanes and no unpackaged command drawn, `/akili-review` in `/akili-security`'s node style with a CI cue, both dashed edges into `/akili-propose`, the font floor, the PNG width and both size caps, the alt wording in `docs/flow.md` and `README.md`, and this note.
+
+### Notes
+
+- **Release class: patch** (docs, figure and tests only; nothing under `bin/`, `package.json` or `.claude/`).
+- **Tests.** The whole suite is 1120 tests, all passing.
+- README viewers on GitHub and npm see the new figure once `master` updates, because the README image loads from the `master` raw URL.
 ## [2.37.0] - 2026-10-26
 
 ### Added
@@ -30,7 +44,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **Release class: minor** (a new command and a new skill).
 - **Tests.** Five new files: `test/pr-review-scripts.test.js` (167), `test/pr-review-scripts-coverage.test.js` (13), `test/akili-review-command.test.js` (33), `test/akili-review-contract-coverage.test.js` (20) and `test/akili-review-ci.test.js` (30), with fixtures under `test/fixtures/pr-review/`. The whole suite is 1108 tests, all passing on Node 18.20.8 and on Node 22.23.3 on macOS.
-- **Known debt: the lifecycle figure was not updated.** `assets/akili-flow.svg` and `assets/akili-flow.png` still show the previous set of anytime commands, and the figure's alt text in `docs/flow.md` is unchanged and still names five anytime commands (`/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo` and `/akili-security`), without `/akili-marketing` or `/akili-review`. The prose of `docs/flow.md` does name `/akili-review`. Regenerating the figure and editing its alt text are deferred.
 - **Known limits.** The CI `review` job downloads the PR head tarball with a read-only token; whether that works on private repositories is unverified until the pilot, and it fails closed. `gh pr diff` can refuse a very large diff, and the job then fails instead of reviewing. A pull request is untrusted text: a prompt injection cannot post, fetch or run anything, but it can skew what the agent reports.
 - `/akili-review` changes nothing in `bin/`, `package.json` or `package-lock.json`. There is no `/akili-review` row in the model-routing registry; the command carries a one-line model checkpoint instead.
 ## [2.36.1] - 2026-10-24
