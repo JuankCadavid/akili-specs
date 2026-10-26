@@ -125,6 +125,7 @@ No failures, so no remediation is due. Tester inner-loop fixes were test defects
 |---|---|---|
 | CI runtime wiring (trigger, permissions, job split, install, tarball input, posting on a real PR) | No offline GitHub Actions runtime; needs a scratch repo and API keys | YAML text contract (CI, B+). **T12 pilot (deferred)**; P-12, P-22, P-23 open there |
 | Host behavior: sub-agent spawning, skill discovery from HOME, honoring the data addendum, agent-side "must NOT" clauses (no `/akili-security` run, no `security-audit` load) | Model behavior; no deterministic check | Deterministic boundary (read-only `review` job, validated posting) + T12 pilot. Residual prompt-injection risk accepted (requirements §7) |
+| Agent-side clauses with text-only evidence: FR-2 *PR number without `gh`* BUT (no other fetch), the FR-2 read-only boundary, FR-13 *CI never routes*, FR-8 *History is off by default* | Model behavior; only the command text can be pinned | Text contract (`test/akili-review-command.test.js`) + T12 pilot. *(Added 2026-10-26, validation W-6)* |
 | Review quality (noise, false positives) | Unmeasurable in this spec (requirements §7) | Kaizen metric over the pilot: comments resolved vs dismissed |
 | NFR-2 on Linux and Windows | Local machine is macOS | The six `CLI on <os> / Node <18\|22>` checks on PR #77 |
 | FR-1 content comparison against the upstream code-review plugin | Clean room (DD-11) forbids opening it | Provenance statements tested (B+) |

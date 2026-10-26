@@ -8,7 +8,7 @@ metadata:
 
 # Review a Pull Request or Diff
 
-Run the packaged `pr-review` skill over a target diff. This command owns the gates around it: preflight, the run directory, the confirmation gate, and routing. The method (lenses, finding contract, scripts) stays in the skill: reference it by name and never restate it. Scripts own every number and guarantee that can be code (filter, tier, chunking, skip check, fingerprints, inline cap, marker, exit code); this command restates only the cap.
+Run the packaged `pr-review` skill over a target diff. This command owns the gates around it: preflight, the run directory, the confirmation gate, and routing. The method (lenses, finding contract, scripts) stays in the skill: reference it by name and never restate it. Scripts own every number and guarantee that can be code (filter, tier, chunking, skip check, fingerprints, inline cap, marker, exit code); this command decides nothing the scripts decide.
 
 ## Usage
 

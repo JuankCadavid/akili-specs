@@ -153,3 +153,17 @@ W-4, W-6, W-7, W-8 and W-9 are single-answer corrections. W-7 and W-8 touch ship
 4. PR #77 is green on all six legs (W-5).
 
 Release prep must also publish exactly 2.37.0 so the template pins resolve. The T12 premises P-12, P-13, P-22 and P-23 stay accepted runtime risks until the pilot runs.
+
+## 13. Remediation Applied (2026-10-26)
+
+User decisions: W-1 accepted (T12 deferred), W-2/W-3 option (a), fix W-4, W-6, W-7, W-8, W-9. Details in execution.md *Post-validation remediation*.
+
+| WARN | Status |
+|---|---|
+| W-1 | Closed: T12 deferral accepted and recorded in tasks.md |
+| W-2, W-3 | Closed: FR-8 and FR-11 corrected to match what ships (PR comment is the only CI report; failures in the job log); proposal note added by correction closure |
+| W-4, W-6, W-9 | Closed: CHANGELOG, test-report §9, design §11 corrected |
+| W-7, W-8 | Closed: R1 Implementer → Reviewer PASS |
+| W-5 | Open (ops): re-run PR #77's Ubuntu / Node 22 leg; pre-existing pty flake |
+
+Post-remediation: `npm test` 1108/1108 on Node 22.23.3 and 18.20.8; `verify:cli` 14 commands, 29 skills. **Archive readiness: ready for `/akili-archive changes/akili-review`** once PR #77's six legs are green (W-5).

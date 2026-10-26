@@ -409,3 +409,32 @@ No premise refuted → no Pivot. Other source findings: both actions refuse an a
 **Execute-time spec edit (single-answer factual correction).** T11's active-path grep `grep -vE "^./docs/specs/|node_modules"` never matches on BSD grep (`grep -rn` prints paths without `./`), so it let 4 in-spec lines through; tasks.md now reads `^(\./)?docs/specs/` (Implementer found, Reviewer confirmed; shipped count 0 with the corrected pattern).
 
 **Judged points.** `history: true`: command Step 4.3 (coordinator applies it) and `references/large-prs.md` ("`prepare` and `post` do not read it") do not contradict; the CHANGELOG's history clause ("opt-in … (`--record`)") is accurate (Reviewer). No ADVISORY gated.
+
+## Post-validation remediation (user decisions), 2026-10-26
+
+Source: `validation-report.md` §11 (PASS with 9 WARN, 0 FAIL). Decisions by Juan Carlos, 2026-10-26.
+
+| WARN | Decision / fix | Where |
+|---|---|---|
+| W-1 | **T12 (pilot) explicitly accepted as deferred**; the spec may be archived with T12 open. P-12, P-13, P-22, P-23 and the CI-wiring / host-behavior defect classes stay open as accepted runtime risks | tasks.md §1 *T12 pilot* row and `### T12` Status |
+| W-2 | Option (a): FR-8 corrected to match what ships — locally `REVIEW.md` + `findings.json` in the run directory; in CI the agent writes nothing, a workflow step writes `findings.json` to `$RUNNER_TEMP/akili-review`, and the PR summary comment is the only report | requirements.md FR-8 (dated note) |
+| W-3 | Option (a): FR-11 corrected — under `none` the failure is reported in the job log (stderr), not a job summary; no code change. Correction closure: forward grep (`job summary`, `STEP_SUMMARY`, `RUNNER_TEMP/akili-review`) found the same claim in proposal.md §7 → dated correction note added; no shipped file claims a job summary | requirements.md FR-11; proposal.md |
+| W-4 | CHANGELOG *Tests* note → five new files (167, 13, 33, 20, 30), whole suite 1108 | CHANGELOG.md |
+| W-6 | test-report §9 gains the agent-side clauses with text-only evidence (FR-2 BUT, FR-2 read-only boundary, FR-13 *CI never routes*, FR-8 *History off*) | test-report.md |
+| W-9 | design §11 marked superseded by tasks.md §1 (15 tasks, > ~6,200 LOC, > 27 rounds); specify-time figures kept as history | design.md §11 |
+| W-5 | Not a repo change: PR #77 Ubuntu / Node 22 leg red on the pre-existing pty flake (also red on `dev` `dda3d5d`); re-run before merge is the user's step | — |
+
+### R1: W-7 + W-8 (shipped text) — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-26 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Skills / effort | high |
+| spawns | Implementer (sonnet) 4 calls, 67,572 tokens, ended complete; Reviewer (opus) 7 calls, 80,525 tokens, ended complete |
+| Budget note | Post-execution remediation ordered by the user (outside the closed 27-round execute budget); 1 round |
+
+**Changes.** `.claude/skills/pr-review/references/ci.md` trust row split per runtime — Claude: "no Bash, no write tool, no network tool and no posting tool"; Codex: "a read-only, no-network sandbox that can still run read-only shell commands, and has no posting tool", instruction "Run nothing that writes or needs the network" (W-7). `.claude/commands/akili-review.md` opener: "this command restates only the cap" → "this command decides nothing the scripts decide" (W-8). `test/akili-review-contract-coverage.test.js`: the one assertion that pinned the false combined row replaced by two row pins (Claude, Codex). Tests before/after (Node 22): command 33/33, contract-coverage 20/20, ci 30/30; command 137 lines (≤ 230). Leader re-run: **VERIFIED** (83/83; `diff --check` clean). Reviewer: **PASS** — Claude row matches `--allowedTools`/`--disallowedTools`; Codex row matches `sandbox: read-only` and FR-12 item 5 verbatim; FR-12's "runs no target scripts" still held by the command's read-only boundary and the verbatim addendum; "decides nothing the scripts decide" checked item by item (tier, skips, filtering, threshold, fingerprints, cap, marker, exit code) and true; test change minimal and stronger.
+
+**Final verification (tree quiet).** `npm test` Node 22.23.3 and 18.20.8 → `# tests 1108 · pass 1108 · fail 0` each; `npm run verify:cli` → `14 commands | 29 skills | 8 resources (akili-specs v2.36.1)`; `git diff --check` clean.

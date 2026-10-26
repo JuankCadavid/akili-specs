@@ -11,7 +11,7 @@
 | Approval Mode | `gated` for `/akili-execute` (proposal). This specify run stops at its Phase 3 gate, as the user asked ("Stop at the specify approval gate", 2026-10-25) |
 | Status | **Approved** 2026-10-25 (Phase 3 gate, user: "Approved: tasks as written, 3-PR split into dev as you recommend (T1–T3, T4–T8, T9–T11), and the T12 pilot deferred until Juan Carlos provides a test repo and API keys") |
 | PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step. **Amended 2026-10-25 (user, PR-1 boundary):** PR 1 also carries **T3b**, which moves the consumer edits forward so `npm test` is green at the PR 1 head (a provisional `pr-review/SKILL.md` plus the count, docs-row and pin edits; T5, T6 and T9a–T9c later adjust these, they do not re-add them). **Amended 2026-10-25 (user, PR-2 boundary; PR 1 merged into `dev` as `dda3d5d`):** PR 2 and PR 3 merge into **one PR** — T4–T11 on `feat/akili-review-pr2`, rebased onto `origin/dev` — so the PR's head carries the T9b/T9c docs rows and `npm test` is green there; no T8b |
-| T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred |
+| T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred. **Accepted as deferred 2026-10-26 (Juan Carlos, at validation W-1):** the spec may be archived with T12 open; P-12, P-13, P-22, P-23 and the CI-wiring / host-behavior defect classes stay open, carried as accepted runtime risks for a later pilot |
 | Date | 2026-10-25 |
 | Budget (design §11, amended here) | **15 tasks** with T3b (amended 2026-10-25; the tripwire stays **> 15 tasks**); originally **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~6,200 LOC, or 27 rounds** (round tripwire raised from 25 by the user, 2026-10-25, at the HALT before T11) (line tripwire raised from ~5,700 by the user, 2026-10-25, PR-2 boundary: ~5,540 spent at T8, ~410 left). Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
 | Commit prefix | `[SPEC:changes/akili-review]`. Local commits only: **no push, no PR, no release, no publish** |
@@ -593,7 +593,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[ ]` — deferred, accepted by the user 2026-10-26 (validation W-1) |
 | Size | M (~0 shipped; a record in `execution.md`) |
 | Depends on | T11 |
 | Requirements | Observes FR-2, FR-3, FR-5, FR-6, FR-8, FR-9, FR-10, FR-11, FR-12 at runtime; settles P-12, P-13 |

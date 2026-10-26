@@ -255,7 +255,7 @@ If no spec maps, the review adds an "Unspecified PR" note. That note is never a 
 
 ### FR-8: Local report, run directory and opt-in history
 
-Each review SHALL write `REVIEW.md` and `findings.json` to a run directory outside the target: `~/.akili/reviews/<repo>/<pr-<n>|range-<short-sha>>/run-<k>` locally (or `--out`), and `$RUNNER_TEMP/akili-review` in CI.
+A local review SHALL write `REVIEW.md` and `findings.json` to a run directory outside the target: `~/.akili/reviews/<repo>/<pr-<n>|range-<short-sha>>/run-<k>` (or `--out`). In CI the agent writes nothing: a workflow step writes `findings.json` to `$RUNNER_TEMP/akili-review`, and the PR summary comment is the only report (no `REVIEW.md`). *(Corrected 2026-10-26 at validation, W-2, user decision: matches what ships.)*
 
 **Run directory rule.** The run directory's real path MUST be neither inside the target nor an ancestor of it. The same two-way rule as `/akili-security` applies.
 
@@ -355,7 +355,7 @@ The exit status is decided by `post-review.cjs`, or by the validator step when n
 | `critical` | at least one non-suspect `critical` is present |
 | `warning` | at least one non-suspect `critical` or `warning` is present |
 
-- A validation failure exits 1 only when `--fail-on` is not `none`. Under `none` it exits 0 and the job summary reports the failure.
+- A validation failure exits 1 only when `--fail-on` is not `none`. Under `none` it exits 0 and the failure is reported in the job log (stderr); nothing is posted. *(Corrected 2026-10-26 at validation, W-3, user decision: there is no job-summary output.)*
 - **Break glass:** the label `akili-review:advisory` forces `none` for that run. The summary records it ("advisory forced by label").
 
 #### Scenario: Advisory default
