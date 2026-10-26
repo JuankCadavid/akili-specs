@@ -13,9 +13,15 @@
 
 **Drawn-text check (DT).** Run from the repository root. It prints the commands missing from the SVG drawn text and whether "Kaizen" is present:
 
-`node -e 'const fs=require("fs");const s=fs.readFileSync("assets/akili-flow.svg","utf8");const d=[...s.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(m=>m[1].replace(/<[^>]+>/g,"")).join("\n");console.log("missing:",fs.readdirSync(".claude/commands").map(f=>"/"+f.replace(/\.md$/,"")).filter(c=>!d.includes(c)),"kaizen:",d.includes("Kaizen"))'`
+`node -e 'const fs=require("fs");const s=fs.readFileSync("assets/akili-flow.svg","utf8");const d=[...s.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(m=>m[1].replace(/<[^>]+>/g,"")).join("\n");console.log("missing:",fs.readdirSync(".claude/commands").map(f=>"/"+f.replace(/\.md$/,"")).filter(c=>!d.split("\n").map(x=>x.trim()).includes(c)),"kaizen:",d.split("\n").map(x=>x.trim()).includes("Kaizen"))'`
 
 Baseline output at `66c91de`: `missing: [ '/akili-marketing', '/akili-review' ] kaizen: true`.
+
+**Floor check (FL).** Prints the viewBox width, the smallest drawn font, and its size at 900 px. The node-label minimum is read the same way, restricted to the label `<text>` elements:
+
+`node -e 'const s=require("fs").readFileSync("assets/akili-flow.svg","utf8");const w=+s.match(/viewBox="0 0 ([\d.]+) /)[1];const m=Math.min(...[...s.matchAll(/font-size="([\d.]+)"/g)].map(x=>+x[1]));console.log(w,m,(m*900/w).toFixed(2))'`
+
+Baseline output at `66c91de`: `1005 6.6 5.91`.
 
 ## 2. Task Graph
 
@@ -97,7 +103,7 @@ T2 depends on T1 because the figure test reads the new SVG. T3 depends on T2 bec
 
 | Verification field | Value |
 |---|---|
-| Falsifier | (1) Run the test 1 logic against the pre-T1 SVG → missing `/akili-marketing`, `/akili-review` (observed with DT at `66c91de`). (2) Change one word of the `docs/flow.md:7` alt text → test 2 red; restore. (3) Add `<script>` to a temporary copy of the SVG in the test's input → test 3 red. Falsifiers (2) and (3) are `predicted — greenfield artifact (observed in T2)` |
+| Falsifier | (1) Run the test 1 logic against the pre-T1 SVG → missing `/akili-marketing`, `/akili-review` (observed with DT at `66c91de`). (2) Change one word of the `docs/flow.md:7` alt text → test 2 red; restore. (3) Temporarily insert `<script/>` into `assets/akili-flow.svg`, run test 3 → red, then `git checkout assets/akili-flow.svg`. Falsifiers (2) and (3) are `predicted — greenfield artifact (observed in T2)` |
 | Red run | Test 2 red before step 3, quoted verbatim in `execution.md`. `predicted — greenfield artifact (observed in T2)` |
 | Disqualifier | A test 1 that matches names anywhere in the file, `<title>` or `<desc>` included, instead of drawn text only, proves nothing about what a viewer sees. If test 2 is green before step 3, it compares the wrong strings |
 | Consumers | listed above, all run in Verification |
