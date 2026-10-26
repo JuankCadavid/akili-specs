@@ -37,7 +37,7 @@ T2 depends on T1 because the figure test reads the new SVG. T3 depends on T2 bec
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (2 binary assets, 0 LOC Markdown) |
 | Depends on | none |
 | Requirements | FR-1 (every clause: 14 of 14 names plus Kaizen; `/akili-review` beside `/akili-security`, same colour family, sublabel with "CI"; both dashed edges, at least one labelled; `/akili-marketing` sublabel; BUT no new lane, track or unpackaged name; BUT no Archify in drawn text; AND IT MUST font floor, light only, standalone, `<title>`, `role="img"`) · FR-2 (same source and run, 1800 px, visual parity, size caps) · NFR-1 (no Archify file in the repo) |

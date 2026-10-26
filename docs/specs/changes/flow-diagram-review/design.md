@@ -1,6 +1,6 @@
 # Design: refresh the lifecycle figure for `/akili-review` and `/akili-marketing`
 
-> **Answer first.** Rebuild the figure as an Archify `workflow` from a source JSON written in the scratchpad. It keeps today's three lanes and node text. The Anytime lane becomes two rows: `/akili-security`, `/akili-review`, `/akili-resume` and `/akili-audit` on top; `/akili-quick`, `/akili-seo` and `/akili-marketing` below. Export `svg-light` and the PNG from one viewer session, then set `<desc>` to the new `docs/flow.md` alt text. The text edits are three sentences and a CHANGELOG note. A new `test/flow-figure.test.js` pins the figure to `.claude/commands/`. Budget: 3 tasks, about 95 LOC plus 2 assets.
+> **Answer first.** Rebuild the figure as an Archify `workflow` from a source JSON written in the scratchpad. It keeps today's three lanes and node text. The Anytime lane becomes two rows: `/akili-security`, `/akili-resume`, `/akili-audit` and `/akili-quick` on top; `/akili-review` (stacked directly under `/akili-security`), `/akili-seo` and `/akili-marketing` below. Export `svg-light` and the PNG from one viewer session, then set `<desc>` to the new `docs/flow.md` alt text. The text edits are three sentences and a CHANGELOG note. A new `test/flow-figure.test.js` pins the figure to `.claude/commands/`. Budget: 3 tasks, about 95 LOC plus 2 assets.
 
 ## 1. Document Control
 
@@ -31,10 +31,10 @@
 | 01 / Once per project | `/akili-constitution` | PRD · UX/UI · TRD · personas · routing · Skill Map | as today |
 | 02 / Per-spec loop | `/akili-propose` → `/akili-specify` → `/akili-execute` → `/akili-test` → `/akili-validate` → `/akili-archive` → `Kaizen` | as today | as today. Kaizen sits under `/akili-archive` (six-column limit, P-2) |
 | 03 / Anytime, row 1 | `/akili-security` | repository vulnerability audit | as today (red, shield) |
-| | `/akili-review` *new* | PR review · local or CI | same style as `/akili-security` |
 | | `/akili-resume` | multi-spec dashboard | as today (grey) |
 | | `/akili-audit` | spec ↔ code drift | as today |
-| 03 / Anytime, row 2 | `/akili-quick` | trivial, low-risk change | as today |
+| | `/akili-quick` | trivial, low-risk change | as today |
+| 03 / Anytime, row 2 | `/akili-review` *new* | PR review · local or CI | same style as `/akili-security`, in the same column, directly below it |
 | | `/akili-seo` | SEO + GEO audit | as today |
 | | `/akili-marketing` *new* | social drafts · never publishes | grey, like the other anytime nodes |
 
@@ -79,7 +79,7 @@ Both `docs/flow.md` lines contain `akili-security`, so `test/akili-security-docs
 | ID | Decision | Rejected | Driver |
 |---|---|---|---|
 | DD-1 | Regenerate with Archify from a rebuilt source JSON | Hand-editing the export; a hand-authored SVG | Proposal Q1 (user) |
-| DD-2 | Two rows in the Anytime lane, with the two Bug Track sources first in row 1 | Seven columns (Archify allows six, P-2); dropping a command | FR-1, P-2 |
+| DD-2 | Two rows in the Anytime lane, with the two Bug Track sources stacked in the first column (*amended at T1, 2026-10-26: placing `/akili-review` beside `/akili-security` in row 1 would route its edge through `/akili-specify`*) | Seven columns (Archify allows six, P-2); dropping a command | FR-1, P-2 |
 | DD-3 | `/akili-review` uses the same style as `/akili-security` | Grey like the others | Brief: "parallel to /akili-security"; both hand off to the Bug Track |
 | DD-4 | If the export path fails (P-3 refuted) or the font floor fails, stop and ask the user. Never hand-author silently | Silent fallback | Precedent DD-4 and the amended floor from 2026-10-19 |
 | DD-5 | One alt text, shared by `docs/flow.md:7` and the SVG `<desc>`, with a test pinning their identity | Separate texts | FR-3 |
