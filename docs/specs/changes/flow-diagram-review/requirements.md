@@ -38,7 +38,7 @@ Current state, with evidence (run at `66c91de`):
 - `docs/flow.md:7` alt text names five anytime commands.
 - `docs/flow.md:21` names all seven, but names only `/akili-security` as a Bug Track source. `docs/flow.md:450` and `docs/commands/akili-review.md:41` route confirmed `/akili-review` criticals to `/akili-propose` in a local run.
 - The SVG `<desc>` equals the `docs/flow.md:7` alt text today.
-- `CHANGELOG.md:33` and `releases/v2.37.0.md:23` carry the 2.37.0 figure-debt bullet. `test/akili-review-contract-coverage.test.js:349-360` requires it.
+- `CHANGELOG.md:33` and `releases/v2.37.0.md:23` carry the 2.37.0 figure-debt bullet. `test/akili-review-contract-coverage.test.js:348-360` requires it.
 
 In scope: the two assets; `docs/flow.md` lines 7 and 21; the README figure alt text; `CHANGELOG.md`; `releases/v2.37.0.md`; two test files.
 Out of scope: everything in the proposal's Non-Goals, including the GitHub Release body, CHANGELOG `[2.36.0]` and running the release.
@@ -85,7 +85,7 @@ The figure SHALL keep its three lanes, lane titles, per-spec loop and Kaizen bac
 
 - GIVEN `docs/flow.md`
 - WHEN line 7 (the figure) and the anytime sentence are read
-- THEN the alt text names all seven anytime commands and says that confirmed `/akili-security` and `/akili-review` findings enter the Bug Track through `/akili-propose`
+- THEN the alt text names all seven anytime commands and says that confirmed `/akili-security` findings, and confirmed critical `/akili-review` findings from a local run, enter the Bug Track through `/akili-propose`
 - AND the alt text is byte-identical to the SVG `<desc>`
 - AND the anytime sentence still starts with "Seven anytime commands run outside this loop" and names both Bug Track sources, noting that `/akili-review` routes findings in a local run
 - BUT it must NOT change any other line of `docs/flow.md`
@@ -118,7 +118,7 @@ The figure SHALL keep its three lanes, lane titles, per-spec loop and Kaizen bac
 
 - GIVEN the test suite
 - WHEN `npm test` runs
-- THEN a figure test fails if any `.claude/commands/akili-*.md` name is missing from the SVG drawn text, or if the SVG `<desc>` differs from the `docs/flow.md` alt text
+- THEN a figure test fails if any `.claude/commands/akili-*.md` name is missing from the SVG drawn text, if the SVG `<desc>` differs from the `docs/flow.md` alt text, or if an FR-1 standalone or identity rule is broken (`<title>`, `role="img"`, no Archify in drawn text)
 - AND `test/akili-review-contract-coverage.test.js` FR-14 reads the `## [2.37.0]` section by its heading, still checks that section's other needles, and no longer requires the figure-debt needle
 - AND the whole suite passes
 - BUT no test may read `docs/specs/changes/flow-diagram-review/` (KZ-changes--archify-diagrams-1)
@@ -136,6 +136,7 @@ The figure SHALL keep its three lanes, lane titles, per-spec loop and Kaizen bac
 | Defect class | Gate |
 |---|---|
 | A command missing from the figure | FR-6 figure test (automated) |
+| Wrong `<title>`, missing `role="img"`, or "Archify" in drawn text | FR-6 figure test (automated) |
 | The SVG `<desc>` drifting from the flow alt text | FR-6 figure test (automated) |
 | Layout defects: overlap, clipping, misrouted edge, wrong colour family | **No automated check.** Substitute: a tier-T6 visual review of the PNG and of the browser-rendered SVG by the Leader, then by the Reviewer |
 | The PNG out of sync with the SVG | **No automated check.** The same-run export rule (FR-2) plus the T6 visual comparison |
