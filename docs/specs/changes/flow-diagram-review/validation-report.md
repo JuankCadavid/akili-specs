@@ -47,7 +47,7 @@
 | `test/akili-review-contract-coverage.test.js` FR-14 (modified) | yes | PASS |
 | `CHANGELOG.md`, `releases/v2.37.0.md` (modified); `releases/v2.36.0.md` (unchanged) | yes; `git diff 3f718cb -- releases/v2.36.0.md` is empty | PASS |
 | `test/flow-figure-contract.test.js` (new, added by `/akili-test`) | yes | PASS |
-| No Archify file in the repository (NFR-1) | `git ls-files \| grep -i archify` → none | PASS |
+| No Archify file in the repository (NFR-1) | `git diff 3f718cb --name-only \| grep -i archify` → none. `git ls-files \| grep -i archify` lists only 9 pre-existing archived spec and kaizen documents of `changes/archify-diagrams`, none of them Archify tool files | PASS |
 
 ## 5. Build Integrity
 
@@ -107,7 +107,7 @@ The repository has no linter. The new tests follow the sibling `node:test` Commo
 | `execution.md` "1111" | Point-in-time records of T2 and T3, correct when written; left as history |
 
 Correction closure for the count fix:
-- Forward: `grep -rn "1111"` over the shipped files leaves only the historical `execution.md` lines.
+- Forward: `grep -n "1111" CHANGELOG.md README.md docs/flow.md releases/v2.37.0.md test/flow-figure*.test.js` → none. Inside the spec folder, only the historical `execution.md` lines remain.
 - Backward: `test/flow-figure-contract.test.js` test 9 reads the note and still passes, because its needles are unchanged.
 
 **Final look:** I read `assets/akili-flow.png` as an image. It shows all 14 commands and Kaizen, the red `/akili-review` under `/akili-security`, both dashed Bug Track edges, and the grey `/akili-marketing`, with no clipped or overlapping text.
