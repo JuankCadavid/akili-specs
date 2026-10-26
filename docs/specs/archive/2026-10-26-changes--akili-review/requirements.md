@@ -100,14 +100,14 @@ The package SHALL ship `.claude/skills/pr-review/` with `SKILL.md`, `NOTICE`, `r
 
 ### FR-2: Command — invocation, targets and the read-only boundary
 
-`/akili-review [<pr> | <base>..<head> | --staged] [--spec <path>] [--tier auto|trivial|lite|full] [--lens <a,b>] [--comment] [--ci] [--fail-on none|critical|warning] [--record] [--force] [--out <dir>]` SHALL be an anytime command that runs outside the spec lifecycle and loads `pr-review` before acting.
+`/akili-review [<pr> | <base>..<head> | --staged] [--spec <path>] [--tier auto|trivial|lite|full] [--lens <a,b>] [--comment] [--ci [--input <dir>]] [--fail-on none|critical|warning] [--record] [--force] [--out <dir>]` SHALL be an anytime command that runs outside the spec lifecycle and loads `pr-review` before acting.
 
 **Target resolution:**
 
 | Argument | Target diff |
 |---|---|
 | none | Current branch against the base, which resolves in this order: `Integration Branch:` pin, then `Default Branch:` pin, then the remote's default branch. If none resolves, the command asks the user |
-| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff`; in `--ci`, read from the input directory that FR-12's deterministic steps wrote |
+| `<pr>` | PR base…head, read through `gh pr view` / `gh pr diff`; in `--ci`, read from the input directory that FR-12's deterministic steps wrote, named by `--input <dir>` (grammar amended 2026-10-25 at execute: design §7.6 passes `--input`) |
 | `<base>..<head>` | That range |
 | `--staged` | The staged changes against `HEAD` |
 
@@ -255,7 +255,7 @@ If no spec maps, the review adds an "Unspecified PR" note. That note is never a 
 
 ### FR-8: Local report, run directory and opt-in history
 
-Each review SHALL write `REVIEW.md` and `findings.json` to a run directory outside the target: `~/.akili/reviews/<repo>/<pr-<n>|range-<short-sha>>/run-<k>` locally (or `--out`), and `$RUNNER_TEMP/akili-review` in CI.
+A local review SHALL write `REVIEW.md` and `findings.json` to a run directory outside the target: `~/.akili/reviews/<repo>/<pr-<n>|range-<short-sha>>/run-<k>` (or `--out`). In CI the agent writes nothing: a workflow step writes `findings.json` to `$RUNNER_TEMP/akili-review`, and the PR summary comment is the only report (no `REVIEW.md`). *(Corrected 2026-10-26 at validation, W-2, user decision: matches what ships.)*
 
 **Run directory rule.** The run directory's real path MUST be neither inside the target nor an ancestor of it. The same two-way rule as `/akili-security` applies.
 
@@ -355,7 +355,7 @@ The exit status is decided by `post-review.cjs`, or by the validator step when n
 | `critical` | at least one non-suspect `critical` is present |
 | `warning` | at least one non-suspect `critical` or `warning` is present |
 
-- A validation failure exits 1 only when `--fail-on` is not `none`. Under `none` it exits 0 and the job summary reports the failure.
+- A validation failure exits 1 only when `--fail-on` is not `none`. Under `none` it exits 0 and the failure is reported in the job log (stderr); nothing is posted. *(Corrected 2026-10-26 at validation, W-3, user decision: there is no job-summary output.)*
 - **Break glass:** the label `akili-review:advisory` forces `none` for that run. The summary records it ("advisory forced by label").
 
 #### Scenario: Advisory default

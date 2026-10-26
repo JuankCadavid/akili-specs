@@ -120,6 +120,7 @@ A worked example with real names is in [docs/flow.md](docs/flow.md#practical-exa
 | [`/akili-seo <site-domain>`](docs/commands/akili-seo.md) | set up Google Search Console for a domain and audit its SEO |
 | [`/akili-security [<path>…]`](docs/commands/akili-security.md) | audit your repository for security vulnerabilities; confirmed findings are routed to bug proposals. Not supported on native Windows (use WSL, Linux or macOS) |
 | [`/akili-marketing <mode> [args]`](docs/commands/akili-marketing.md) | draft LinkedIn, Instagram and Facebook posts as Markdown files; it never publishes |
+| [`/akili-review [<pr> \| <base>..<head> \| --staged]`](docs/commands/akili-review.md) | review a pull request or diff against its specs; posts one summary comment only when asked (`--comment`) or from CI; it never edits, approves or blocks |
 
 ### In your terminal
 

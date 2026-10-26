@@ -62,6 +62,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
 - Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
 - Use `social-marketing` for social media drafting (LinkedIn, Instagram, Facebook): brand voice, campaigns, calendar and posts; `/akili-marketing` loads it, and it drafts only, never publishes.
+- Use `pr-review` for read-only pull-request and diff review (lenses, verified findings, one summary comment); `/akili-review` loads it, and it reviews only, never editing, approving or blocking.
 
 If a task document lists required or recommended skills, follow that list first.
 

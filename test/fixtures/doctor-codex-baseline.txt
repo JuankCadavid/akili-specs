@@ -16,6 +16,7 @@ Commands:
   OK akili-propose.md
   OK akili-quick.md
   OK akili-resume.md
+  OK akili-review.md
   OK akili-security.md
   OK akili-seo.md
   OK akili-specify.md
@@ -76,7 +77,7 @@ Environment (recommended, not required):
 
 ────────────────────────────────────────────────────────
 Doctor Summary — akili-specs v<VERSION>
-  CODEX        HEALTHY  ok 50 | missing 0 | fixed 0
+  CODEX        HEALTHY  ok 51 | missing 0 | fixed 0
                → <HOME>/.codex
 
 All checks passed. Your installation is complete and healthy.

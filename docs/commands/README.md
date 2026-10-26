@@ -19,6 +19,7 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 | [`/akili-seo <site-domain>`](akili-seo.md) | Setting up GSC ownership and SEO audit evidence | `seo-setup-report.md`, `seo-audit-report.md` |
 | [`/akili-security [<path>…]`](akili-security.md) | Auditing a repository for security vulnerabilities behind a plan gate | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (always outside the target) |
 | [`/akili-marketing <mode> [args]`](akili-marketing.md) | Drafting LinkedIn, Instagram and Facebook social marketing as reviewable Markdown; drafts only, never publishes | Markdown under `docs/marketing/` (brand voice, campaigns, calendar, posts) |
+| [`/akili-review [<pr> \| <base>..<head> \| --staged]`](akili-review.md) | Reviewing a pull request, commit range or staged changes against its specs; reviews only, never edits, approves or blocks | Locally: a run directory with `REVIEW.md`, and one summary comment only with `--comment`. In CI: one summary comment posted by the workflow's post job |
 
 ## Normal Sequence
 
@@ -34,7 +35,7 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 
 You can skip `/akili-propose` for very small, obvious work. For a genuinely trivial, low-risk change (a button color, a title's text, a small paragraph) use `/akili-quick <change-name>`, which makes the edit in one step with minimal traceability and auto-escalates to `/akili-specify` (Lite) or `/akili-propose` if the change turns out to be bigger than trivial. You should not skip validation before archiving unless the user explicitly accepts the risk.
 
-Run `/akili-audit` independently to detect drift between specs and codebase reality at any time. Run `/akili-security` independently for a gated repository security audit; it is not part of the spec lifecycle. Run `/akili-marketing` independently to draft social marketing; it never publishes and is not part of the spec lifecycle.
+Run `/akili-audit` independently to detect drift between specs and codebase reality at any time. Run `/akili-security` independently for a gated repository security audit; it is not part of the spec lifecycle. Run `/akili-marketing` independently to draft social marketing; it never publishes and is not part of the spec lifecycle. Run `/akili-review` independently to review a pull request or diff; it reviews only and is not part of the spec lifecycle.
 
 ## Source Files
 
@@ -53,3 +54,4 @@ Run `/akili-audit` independently to detect drift between specs and codebase real
 | `/akili-seo` | `.claude/commands/akili-seo.md` |
 | `/akili-security` | `.claude/commands/akili-security.md` |
 | `/akili-marketing` | `.claude/commands/akili-marketing.md` |
+| `/akili-review` | `.claude/commands/akili-review.md` |

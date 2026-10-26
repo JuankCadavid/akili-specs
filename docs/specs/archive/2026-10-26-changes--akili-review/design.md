@@ -204,7 +204,7 @@ Each GitHub call goes through the resolved `gh` (`AKILI_GH_BIN`) as `gh api`, wi
 | Section | Content | FR |
 |---|---|---|
 | Frontmatter + Usage | invocation table; "no Approval Mode"; the parent treats target content as data | FR-2 |
-| Step 0 Preflight | model checkpoint (coordinator T1; lens reviewers and judges T3 per persona); load `pr-review` + provenance check (`author` and `version` match the package); resolve target and base (pins); `gh` check; author ≠ auditor note. Local: run `check-skip` when the target is a PR. `--ci`: read `$AKILI_REVIEW_INPUT` (prior.json, manifest) and never call `gh` | FR-2, FR-3, FR-12 |
+| Step 0 Preflight | model checkpoint (coordinator T1; lens reviewers and judges T3 per persona); load `pr-review` + provenance check (`author` and `version` match the package); resolve target and base (pins); `gh` check; author ≠ auditor note. Local: run `check-skip` when the target is a PR. `--ci`: read the directory given by `--input <dir>` (prior.json, manifest) and never call `gh` (amended 2026-10-25 at execute: was `$AKILI_REVIEW_INPUT`; §7.6 passes `--input`, and the CI agent has no Bash to read an environment variable) | FR-2, FR-3, FR-12 |
 | Step 1 Prepare | local: `gh pr diff` or `git diff` → `prepare` into the run directory (run-directory rule, referenced by name from `/akili-security` Step 1). `--ci`: already prepared | FR-4, FR-8 |
 | Step 2 Lenses | persona resolution table; the verbatim addendum (canonical copy); the sub-agent capability question (the `/akili-security` Step 0 item 4 pattern) | FR-5, FR-6, FR-12 |
 | Step 3 Merge and verify | threshold from the manifest, drop list, dedup, tier verification, downgrade rules | FR-7 |
@@ -347,13 +347,15 @@ There is no UI. The surfaces are the `--comment` confirmation gate (Post / Edit 
 
 ## 11. Budget (Step 2.4: tripwire for `/akili-execute`)
 
+> **Superseded by tasks.md §1 *Budget*** (amended 2026-10-25): 15 tasks with T3b; tripwire **> 15 tasks, > ~6,200 LOC, or > 27 rounds** (user decisions at the PR-2 boundary and at the HALT before T11). The figures below are the specify-time estimate, kept as history.
+
 | Measure | Estimate | Basis |
 |---|---|---|
 | Tasks | **14** (amended at the tasks phase from 13: docs split into T9a/T9b/T9c) | `tasks.md` |
 | LOC authored | **~4,750**, broken down as: schema ~110; validator ~200; `post-review.cjs` ~700 (prepare ~150, check-skip ~80, render + neutralize + redact ~190, post + reconcile ~280); script tests and fixtures ~950; references ~600; `SKILL.md` + `NOTICE` ~300; command ~200; command contract test ~650 (44 clauses × ~14 lines plus the drift guard and restatements; precedent 673 lines for a 187-line command); CI templates ~280 + README ~130; CI contract test ~220; counts/fixtures ~40; docs ~330; carve-outs ~12; CHANGELOG ~25 | §4, §6, §7; KZ-bugfix--init-ctrlc-abort-2 |
 | Review rounds | **22**: 2 × (T2, T3, T4, T5, T6, T8, T9c) = 14, plus 1 × (T1, T7, T9a, T9b, T10, T11, T12) = 7, plus 1 margin | rules-document rule; numbering per `tasks.md` |
 
-**Depth check.** Standard fits. The work is additive, and judgment-day already attacked the CI boundary. The estimate is far above the ~400 LOC single-PR line, so a PR split is recommended at the tasks gate. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**.
+**Depth check.** Standard fits. The work is additive, and judgment-day already attacked the CI boundary. The estimate is far above the ~400 LOC single-PR line, so a PR split is recommended at the tasks gate. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds** (specify-time values; superseded, see the note at the top of this section).
 
 ## 12. Premise Ledger
 

@@ -10,10 +10,10 @@
 | Deliverable | `software` |
 | Approval Mode | `gated` for `/akili-execute` (proposal). This specify run stops at its Phase 3 gate, as the user asked ("Stop at the specify approval gate", 2026-10-25) |
 | Status | **Approved** 2026-10-25 (Phase 3 gate, user: "Approved: tasks as written, 3-PR split into dev as you recommend (T1–T3, T4–T8, T9–T11), and the T12 pilot deferred until Juan Carlos provides a test repo and API keys") |
-| PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step. **Amended 2026-10-25 (user, PR-1 boundary):** PR 1 also carries **T3b**, which moves the consumer edits forward so `npm test` is green at the PR 1 head (a provisional `pr-review/SKILL.md` plus the count, docs-row and pin edits; T5, T6 and T9a–T9c later adjust these, they do not re-add them) |
-| T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred |
+| PR strategy | Three PRs into `dev`, in order: **PR 1** T1–T3 (schema, validator, `post-review.cjs`); **PR 2** T4–T8 (references, `SKILL.md`, command + counts, contract tests, CI templates); **PR 3** T9a–T11 (docs, carve-outs, CHANGELOG, sweep). Each PR description follows `cognitive-doc-design` review-empathy rules (what to review first, what is out of scope, links to the previous and next PR). Opening the PRs is the user's step. **Amended 2026-10-25 (user, PR-1 boundary):** PR 1 also carries **T3b**, which moves the consumer edits forward so `npm test` is green at the PR 1 head (a provisional `pr-review/SKILL.md` plus the count, docs-row and pin edits; T5, T6 and T9a–T9c later adjust these, they do not re-add them). **Amended 2026-10-25 (user, PR-2 boundary; PR 1 merged into `dev` as `dda3d5d`):** PR 2 and PR 3 merge into **one PR** — T4–T11 on `feat/akili-review-pr2`, rebased onto `origin/dev` — so the PR's head carries the T9b/T9c docs rows and `npm test` is green there; no T8b |
+| T12 pilot | **Deferred** until Juan Carlos provides a scratch GitHub repository and API keys. Until then, P-12, P-13, P-20 to P-22 runtime confirmation and the "CI template wiring" / "Host behavior" defect classes stay recorded as open (requirements §7). The spec is not archived as complete while T12 is open, unless the user explicitly accepts it as deferred. **Accepted as deferred 2026-10-26 (Juan Carlos, at validation W-1):** the spec may be archived with T12 open; P-12, P-13, P-22, P-23 and the CI-wiring / host-behavior defect classes stay open, carried as accepted runtime risks for a later pilot |
 | Date | 2026-10-25 |
-| Budget (design §11, amended here) | **15 tasks** with T3b (amended 2026-10-25; the tripwire stays **> 15 tasks**); originally **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~5,700 LOC, or 25 rounds**. Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
+| Budget (design §11, amended here) | **15 tasks** with T3b (amended 2026-10-25; the tripwire stays **> 15 tasks**); originally **14 tasks · ~4,750 LOC authored · 22 review rounds**. `/akili-execute` stops and escalates past **15 tasks, ~6,200 LOC, or 27 rounds** (round tripwire raised from 25 by the user, 2026-10-25, at the HALT before T11) (line tripwire raised from ~5,700 by the user, 2026-10-25, PR-2 boundary: ~5,540 spent at T8, ~410 left). Amended from 13 tasks and 21 rounds: the docs work is split three ways because its sites span a rules document (`AGENTS.md`) and more than ~8 sites (`/akili-specify` Step 3.2) |
 | Commit prefix | `[SPEC:changes/akili-review]`. Local commits only: **no push, no PR, no release, no publish** |
 | Verified at | `67652ec`. The baseline readings quoted below were executed on 2026-10-25 |
 | Execute prerequisite | This repo has no deployed `.agents/` (`ls .agents` → `No such file or directory`, as run). `/akili-execute` Step 0 deploys or checks the personas (`akili doctor --agents`) before the first spawn, and treats `outdated`/`unmarked`/`missing` as a stop (KZ-changes--persona-upgrade-1) |
@@ -265,7 +265,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~600 references + ~60 `NOTICE`) |
 | Depends on | T1 (the finding fields that `lenses.md` names) |
 | Requirements | FR-1 (`Adapted from` / `AKILI-authored` lines, `NOTICE`, *No proprietary content*), FR-4 (defaults documented), FR-5 (finding line format), FR-6 (spec-lens procedure, both scenarios), FR-7 (drop list), FR-12 (`ci.md`: input directory, structured-output mapping) |
@@ -299,7 +299,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~250) |
 | Depends on | T4 |
 | Requirements | FR-1 (frontmatter: original-authorship variant, `inspired-by` with pins and "pattern, not adapted" for the proprietary plugin; Integration section; standalone line), FR-5 (references `reviewer.md` sections by id), NFR-4 |
@@ -333,7 +333,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~200 command + ~40 counts/fixture) |
 | Depends on | T3, T5 |
 | Requirements | FR-2 (all, both scenarios), FR-3 (text), FR-4 (*Small but sensitive* BUT), FR-5 (persona table, addendum, host fallback), FR-7 (drop list, tier verification), FR-8 (run dir, two-way rule, history, both scenarios), FR-9 (local confirmation gate; cap restated once), FR-12 (canonical addendum), FR-13 (all), FR-1 *Installs on every target* |
@@ -371,7 +371,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~650) |
 | Depends on | T6 |
 | Requirements | Pins the text clauses of FR-1, FR-2, FR-5, FR-6, FR-8, FR-9 (cap restatement), FR-12 (addendum restatements), FR-13; NFR-4 |
@@ -403,7 +403,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~280 templates + ~130 README + ~220 test) |
 | Depends on | T6 |
 | Requirements | FR-12 (items 1–8, both scenarios), FR-11 (advisory default line), FR-14 (`docs/ci/README.md`), NFR-6 |
@@ -443,7 +443,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~200) |
 | Depends on | T6 |
 | Requirements | FR-14 (docs pages, governance core list, judgment-day row, skills README row) |
@@ -475,7 +475,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~60) |
 | Depends on | T6 |
 | Requirements | FR-14 (lists and counts) |
@@ -502,7 +502,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~110) |
 | Depends on | T6 |
 | Requirements | FR-14 ("Seven anytime commands", totals, AGENTS *Skill Usage*, figure kept as debt) |
@@ -535,7 +535,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~12) |
 | Depends on | T6 |
 | Requirements | FR-8 (carve-out), FR-14 (carve-outs) |
@@ -562,7 +562,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~25 + sweep) |
 | Depends on | T1–T10 |
 | Requirements | FR-14 (CHANGELOG, no active-spec path, figure debt stated), NFR-1, NFR-2, NFR-5 |
@@ -579,7 +579,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Command | `npm test` on Node 18.20.8 and 22.23.3; `npm run verify:cli`; `npm run pack:dry-run` (lists `.claude/skills/pr-review/*` and `docs/ci/*`); `git diff --check`; `node bin/akili.js install --tool all --dry-run`; `node bin/akili.js doctor --tool all`; `git diff --stat 708020e -- bin/ package.json package-lock.json` → empty; `grep -rn "docs/specs/changes/akili-review" --include='*' . \| grep -vE "^./docs/specs/\|node_modules"` → 0; `grep -c O_NOFOLLOW .claude/skills/pr-review/*.cjs` → 0 |
+| Command | `npm test` on Node 18.20.8 and 22.23.3; `npm run verify:cli`; `npm run pack:dry-run` (lists `.claude/skills/pr-review/*` and `docs/ci/*`); `git diff --check`; `node bin/akili.js install --tool all --dry-run`; `node bin/akili.js doctor --tool all`; `git diff --stat 708020e -- bin/ package.json package-lock.json` → empty; `grep -rn "docs/specs/changes/akili-review" --include='*' . \| grep -vE "^(\./)?docs/specs/\|node_modules"` → 0; `grep -c O_NOFOLLOW .claude/skills/pr-review/*.cjs` → 0 |
 | Red run | n/a (no new test) |
 | Falsifier | Insert a reference to `docs/specs/changes/akili-review/` into `docs/ci/README.md` → the active-path grep reports 1 (executed and reverted) |
 | Disqualifier | A green `npm test` on one Node only does not cover NFR-2. A CHANGELOG count copied from `execution.md` rather than re-run at HEAD is not evidence |
@@ -593,7 +593,7 @@ Every scenario clause and table rule has a task that writes it. Command and skil
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[ ]` — deferred, accepted by the user 2026-10-26 (validation W-1) |
 | Size | M (~0 shipped; a record in `execution.md`) |
 | Depends on | T11 |
 | Requirements | Observes FR-2, FR-3, FR-5, FR-6, FR-8, FR-9, FR-10, FR-11, FR-12 at runtime; settles P-12, P-13 |

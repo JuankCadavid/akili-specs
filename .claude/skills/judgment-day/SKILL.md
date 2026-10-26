@@ -77,6 +77,7 @@ These reference files are not packaged with AKILI-SPECS. When they are unavailab
 | AKILI moment | How to use this skill |
 |---|---|
 | `/akili-specify` Step 2.5 — *Present & Approve*, **Review Design** option | The user-selected blind dual review of `design.md` before tasks are written; the target is the approved requirements + draft design, and judges attack the Premise Ledger first |
+| `/akili-review` Step 3 — *Merge and Verify*, `full` tier (via the `pr-review` skill) | Two blind judges per `critical` finding (blind protocol only, **no fix rounds**); a critical only one judge confirms becomes a `warning` with `suspect: true`. `lite` uses one verifier pass and `trivial` none, so they do not run this protocol |
 | `/akili-archive` Kaizen Measure | Severe confirmed findings from Judgment Day runs are a signal row in the `kaizen` retrospective |
 
 Adaptation rules:

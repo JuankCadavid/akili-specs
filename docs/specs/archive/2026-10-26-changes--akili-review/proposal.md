@@ -117,7 +117,7 @@ Resulting template lines (the exact pin is set at release time):
 - With no target, the default diff is the current branch against the `Integration Branch:` pin, or the default branch when there is no pin.
 - Locally, `--comment` posts only after a confirmation gate. `--ci` is fully non-interactive: it takes PR context from `GITHUB_*`, and the exit code follows `--fail-on` (default `none`, which always exits 0 on a completed review).
 - Posting cap: one sticky summary comment, updated in place, and at most 10 inline comments, critical and warning only, each with a full-SHA permalink. Suggestions appear only in the summary.
-- Each finding must pass `validate-review.cjs` against `review-schema.json` before it is posted. If validation fails, nothing is posted, the job summary reports the failure, and the job still follows `--fail-on`.
+- Each finding must pass `validate-review.cjs` against `review-schema.json` before it is posted. If validation fails, nothing is posted, the job summary reports the failure, and the job still follows `--fail-on`. *(Correction 2026-10-26, validation W-3: the failure is reported in the job log, not a job summary; see requirements FR-11.)*
 - Re-review on `synchronize`: findings that are now fixed are resolved, unfixed ones are re-emitted, and threads a human resolved are respected unless the issue got worse.
 - Run artifacts live outside the target by default (`~/.akili/reviews/<repo>/pr-<n>/run-<k>`; in CI, `$RUNNER_TEMP`, uploaded as a workflow artifact).
 - History in `docs/specs/reviews/` only with `--record`. Off by default.

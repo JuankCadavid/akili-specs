@@ -41,6 +41,7 @@ Anytime commands run outside the spec loop:
 | `/akili-quick <change-name>` | Make a trivial, low-risk change with minimal traceability; it auto-escalates when the change is not trivial | [akili-quick](commands/akili-quick.md) |
 | `/akili-security` | Run a gated repository security audit; confirmed findings go to the Bug Track via `/akili-propose`. Not supported on native Windows | [akili-security](commands/akili-security.md) |
 | `/akili-marketing <mode>` | Draft LinkedIn, Instagram and Facebook posts as Markdown under `docs/marketing/`; it never publishes | [akili-marketing](commands/akili-marketing.md) |
+| `/akili-review [<pr>]` | Review a pull request, commit range or staged changes against its specs; it reviews only and never edits, approves or blocks; [CI templates](ci/README.md) | [akili-review](commands/akili-review.md) |
 
 Video deliverables: see [video-production](skills/video-production.md) and [flow.md](flow.md#10-video-deliverables).
 
