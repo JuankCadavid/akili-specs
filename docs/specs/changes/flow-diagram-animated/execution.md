@@ -259,3 +259,88 @@
 | Spawns | Implementer ×1 (`sonnet`, complete, 75,505 tokens). Reviewer ×1 (`opus`, PASS, 83,778) |
 | Running budget | Tasks 3/4. LOC 372 + 27 = 399 (estimate ~360, tripwire ~500). Review rounds: T1 3, T2 2, T3 1, total 6 of 7. **No tripwire crossed** |
 | Continue gate | `auto-approved (pre-approved mode)` |
+
+### T4: CHANGELOG and full verification (PASS)
+
+#### Attempt 1: FAIL (2026-10-27)
+
+- **Implementer:** `sonnet`; effort `medium`; skills `cognitive-doc-design`.
+- **Files changed:** `CHANGELOG.md` only. `[Unreleased]` gains `### Added`, `### Changed` and `### Notes`.
+- **Verification:**
+  - `npm test`: 1140/1140.
+  - `verify:cli`: exit 0.
+  - `pack:dry-run`: lists `assets/akili-flow-animated.svg` (134.9 kB); `grep -c animate-flow` → 0.
+  - `git diff --check`: 0.
+  - Protected-paths diff: empty.
+  - Placeholder count: 1 → 0.
+- **Implementer *Not Done / Assumptions*** (no owed item):
+  - The NFR-2 falsifier was reasoned through the `files` array plus a grep, as the brief allowed.
+  - "propose to archive" is the Implementer's own wording.
+- **Evidence re-run (Leader-inline): VERIFIED.** Same outputs.
+- **Reviewer (`opus`): FAIL**, four KZ-002 quote-check issues (substance verbatim). For all four, the violated rule is FR-7's "AND IT MUST pass a quote-check at HEAD".
+  1. "A highlight walks the per-spec loop (propose to archive)" drops the constitution start and the Kaizen return. The highlight runs e1 constitution→propose … e8 Kaizen→propose. Also checked against FR-1 and design §7. **Remediation:** describe the whole path, or drop the parenthetical.
+  2. "CSS only, no `<script>` and no SMIL, so it loads in an `<img>`" is a false cause. An SVG with script or SMIL also loads in an `<img>`. The spec's real reason is DD-2: SMIL cannot be switched off by a media query. Also checked against design DD-2. **Remediation:** tie "CSS only" to the reduced-motion switch, or drop the "so" clause.
+  3. "npm shows it once 2.37.2 is published" states the npm animation as fact, but P-7's "still animates on npm" is `UNVERIFIED` (design §11 settlement). **Remediation:** say that npm should show it, and that this has not been checked yet; the SVG `<img>` is kept there through a proxy.
+  4. "Release class: patch (docs, figure, generator and tests only; …)" omits `.gitattributes`, which the same section lists under Changed (misplaced scope). **Remediation:** name `.gitattributes` in the parenthetical.
+- **Leader adjudication:** all four are in scope (FR-7 AND IT MUST; KZ-002 recurrence). Attempt 2 runs at effort `high`.
+
+#### Attempt 2: FAIL (2026-10-27)
+
+- **Implementer:** `sonnet`; effort `high`.
+- **Files changed:** `CHANGELOG.md` `[Unreleased]` only. The four clauses were rewritten:
+  - the loop path, from `/akili-constitution` through archive and the Kaizen return to propose;
+  - "CSS only (no `<script>`, no SMIL), so the reduced-motion rule below can switch it off";
+  - "npm should show it once 2.37.2 is published; that is not checked yet" ("through a proxy" was dropped as unverified for this asset);
+  - the release class now names `.gitattributes`.
+
+  Each fix is cited to HEAD: `assets/akili-flow.svg:971`/`:977`/`:978`, design DD-2, the P-7 settlement, and `.gitattributes`.
+- **Implementer note:** "rests on the static figure" depends on P-14, which the T2 settlement records as confirmed.
+- **Evidence re-run (Leader-inline): VERIFIED.** 1140/1140; `git diff --check` clean.
+- **Reviewer (`opus`): FAIL**, one issue.
+  - **Discovered Issue:** CHANGELOG.md:26 "The whole suite is 1140 tests, all passing (re-run after `/akili-test`)". The bracket claims a re-run that has not happened yet; `/akili-test` has not run. The 2.37.1 note has no such bracket.
+  - **Violated Rule:** FR-7 "AND IT MUST pass a quote-check at HEAD, with every count and size re-run after `/akili-test`"; T4 Disqualifier.
+  - **Remediation:** delete the bracket, and record the owed re-run in `execution.md`.
+  - All four attempt-1 issues are closed. Every other clause, count and size, and NFR-1, -2, -3 and -4, holds at HEAD.
+- **Root cause (Leader):** the attempt-1 brief itself asked for "(this count will be re-run after /akili-test — KZ-002)". The Implementer turned that instruction into shipped text, so the defect came from the brief, not the Implementer.
+- **ADVISORY (recorded):**
+  - Readability: "the reduced-motion rule below" points ahead to the next sentence.
+  - Reliability: "with motion off it draws the static figure" is unverified in Firefox (P-6, carried to validation).
+- **Owed, recorded here and not in the CHANGELOG:** re-run `npm test` after `/akili-test` and update the CHANGELOG count if it changed (FR-7, KZ-002). Owner: `/akili-validate`.
+- **Budget:** T4 reaches 3 review rounds with attempt 3, which is at the per-task tripwire ("past 3"), not past it. Attempt 3 is the last allowed and runs at effort `xhigh`.
+
+#### Attempt 3: PASS (2026-10-27)
+
+- **Implementer:** `sonnet`; effort `xhigh`.
+- **Files changed:** `CHANGELOG.md` `[Unreleased]`.
+  - Tests line → "The whole suite is 1140 tests, all passing."
+  - Advisory applied: "so a reduced-motion rule can switch it off".
+- **Falsifier:** `grep -n "re-run after" CHANGELOG.md` → no output, exit 1.
+- **Evidence re-run (Leader-inline): VERIFIED.** Same grep result; 1140/1140; `git diff --check` clean.
+- **Reviewer (`opus`): PASS.**
+  - The attempt-2 issue is closed, and the attempt-1 closures hold.
+  - Every FR-7 clause was quote-checked at HEAD: size, 9 s × 3, no script or SMIL, the reduced-motion rule, the README `<picture>`, the `docs/flow.md` embed, the test files, `.gitattributes`, not shipped, and the NFR-1 boundary.
+  - No released section is touched.
+
+**T4 summary**
+
+| Field | Value |
+|---|---|
+| Final status | PASS (attempt 3 of 3) |
+| Requirements covered | FR-7 (all), NFR-1, NFR-2, NFR-3, NFR-5 |
+| Decisions made | The npm sentence is hedged to the verified state, per the P-7 settlement. The owed post-`/akili-test` count re-run is recorded here (owner: `/akili-validate`), not in the CHANGELOG |
+| Spawns | Implementer ×3 (`sonnet`, all complete: 73,665 / 71,523 / 59,589 tokens). Reviewer ×3 (`opus`, FAIL / FAIL / PASS: 84,782 / 89,509 / 68,810) |
+| Final verification | `npm test` 1140/1140; `verify:cli` exit 0; `pack:dry-run` lists the animated SVG and not the generator; `git diff --check` clean; protected paths unchanged |
+| Running budget | Tasks 4/4. LOC ~415 (399 + 16 CHANGELOG), against an estimate of ~360 and a tripwire of ~500. Review rounds: T1 3, T2 2, T3 1, T4 3; total 9 against an estimate of 7. **No tripwire crossed**: no task went past 3 rounds, and LOC stays under ~500 |
+| Continue gate | `auto-approved (pre-approved mode)` |
+
+## Summary
+
+All four tasks PASS. The commits are `e102ee2` (T1), `98d2a33` (T2), `184332b` (T3) and this T4 commit.
+
+| Item | Value |
+|---|---|
+| Shipped | `assets/akili-flow-animated.svg` (134,905 B); `scripts/animate-flow.js` (not packaged); `test/flow-figure-animated.test.js` (20 tests); the README `<picture>`; the `docs/flow.md` target; 4 updated test pins; 2 `.gitattributes` lines; `CHANGELOG.md` `[Unreleased]` |
+| Suite | 1140/1140 (the baseline was 1120) |
+| Rework | T1 needed 3 attempts (Windows CRLF; missing ceiling, cycle and flash locks; a hole in the flash lock). T2 needed 2 (the CSS-less case had no real evidence). T4 needed 3 (KZ-002 overstatements, one of them introduced by the Leader's brief) |
+| Over estimate | Review rounds 9 against 7, and LOC ~415 against ~360. Both are within the tripwires |
+| Carried to `/akili-test` and `/akili-validate` | P-6 (the user's Firefox with reduced motion). P-7 (animation on npmjs.com after the 2.37.2 publish). The live GitHub check of this repository after `master` updates. The re-run of the CHANGELOG test count after `/akili-test`. The T6 observation (the Bug Track pulse is brand green over the red edges) |

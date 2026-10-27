@@ -171,7 +171,7 @@ T2 and T3 both need T1's asset. They touch different files and could run in para
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~15 LOC) |
 | Depends on | T1, T2, T3 |
 | Requirements | FR-7 (all), NFR-1, NFR-2, NFR-3, NFR-5 |
