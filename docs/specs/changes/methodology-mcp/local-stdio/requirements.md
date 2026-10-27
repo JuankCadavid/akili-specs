@@ -53,7 +53,7 @@ Current state, with evidence run at `48c28ba` on 2026-10-27:
 - `doctor --agents` builds each persona's section states from `parsePersona`, `sectionStates` and `resultExitCode` (`bin/persona.js`, exported at `:917`), plus `loadTemplates`/`digestsForRole`, which are private to `bin/akili.js` (`:1820-1840`). It reports them as coloured text only (`bin/akili.js:2058-2209`).
 - No MCP server code exists in the package (`grep -rln "\bmcp\b" bin test scripts` → `bin/akili.js` only, at the `.mcp.json.example` copy sites).
 
-In scope: the `mcp` subcommand, its core and transport modules, the three tools, tests, the `akili help` line, `docs/cli.md`, the README terminal table and *Learn more* row, and the CHANGELOG `Unreleased` note.
+In scope: the `mcp` subcommand, its core and transport modules, the three tools, tests, the `akili help` line, `docs/cli.md`, the README *In your terminal* row (and its test pin), and the CHANGELOG `Unreleased` note.
 Out of scope: everything in the proposal's §5 *Explicitly out* list and the parent's Non-Goals. That covers streamable HTTP, remote hosting, write tools, client-config writing, and rewriting command text.
 
 ## 5. Stakeholders / Personas
