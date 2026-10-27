@@ -26,7 +26,7 @@ No Bedrock **model** is needed in any option. The server serves files and runs d
 | Target AWS account | As set by `docs/infrastructure.md` → *Rule: AWS target account* (owner constraint, 2026-10-27). No AWS command has been or may be run against it in this proposal. It applies to chunk 2 only |
 | AWS docs | Read 2026-10-27 through the AWS documentation MCP (`aws-mcp` `search_documentation`); references §10.6 |
 | Date | 2026-10-27 |
-| Status | **Draft — awaiting approval** |
+| Status | **Approved** (Juan Carlos Cadavid, 2026-10-27, as recommended: chunk 1 local stdio first, chunk 2 Gateway + Lambda `pending` until OQ-6 is a yes; OQ-1..OQ-8 accepted at their defaults) |
 
 ## 2. Intent
 
