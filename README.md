@@ -155,5 +155,6 @@ Every option and example: [docs/cli.md](docs/cli.md).
 
 Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md); releases follow [docs/release-checklist.md](docs/release-checklist.md).
 Created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Released under the [MIT License](LICENSE).
+AKILI-SPECS is built by [Akili](https://akili.com.co/).
 Every command and every agent template carries this authorship notice.
 The license lets you use, modify and redistribute AKILI, provided the copyright and attribution notices are kept.

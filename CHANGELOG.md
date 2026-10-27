@@ -6,9 +6,10 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Changed
 
-- No unreleased changes yet.
+- **The package homepage now points to the Akili methodology page.** `homepage` in `package.json` is `https://akili.com.co/es/metodologia/` instead of the GitHub README, so the npm page links to the methodology site. The repository and issues links are unchanged.
+- **The README credits link Akili.** The "Contributing and license" section adds one line saying AKILI-SPECS is built by [Akili](https://akili.com.co/). The existing authorship line is unchanged.
 
 ## [2.37.1] - 2026-10-26
 
