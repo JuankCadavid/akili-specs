@@ -986,7 +986,7 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
 .mo-t,.mo-n,.mo-b{fill:none;stroke:var(--arrow-emphasis);animation-duration:9s;animation-delay:var(--d);animation-iteration-count:3;animation-fill-mode:none}
 .mo-t{stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;stroke-linecap:butt;animation-name:mo-trace;animation-timing-function:linear}
 .mo-n{stroke-width:2.5;animation-name:mo-glow;animation-timing-function:ease-in-out}
-.mo-b{stroke-width:3;animation-name:mo-bug;animation-timing-function:ease-in-out}
+.mo-b{stroke:var(--security-stroke);stroke-width:3;animation-name:mo-bug;animation-timing-function:ease-in-out}
 @keyframes mo-trace{0%{stroke-dashoffset:1;opacity:.9}6.667%{stroke-dashoffset:0;opacity:.9}10%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
 @keyframes mo-glow{0%{opacity:0}3.333%{opacity:.9}8.889%{opacity:0}100%{opacity:0}}
 @keyframes mo-bug{0%{opacity:0}4.444%{opacity:.5}11.111%{opacity:0}100%{opacity:0}}

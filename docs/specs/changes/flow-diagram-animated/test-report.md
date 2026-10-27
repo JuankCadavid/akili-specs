@@ -1,5 +1,7 @@
 # Test Report: `changes/flow-diagram-animated`
 
+> **Post-validation amendment (2026-10-27):** one test was added (Bug Track pulse colour), so the suite is now **1153/1153**. See `validation-report.md` §13.
+>
 > **Status: PASS.** `npm test` → **1152 tests, 1152 pass, 0 fail**: the 1120 baseline, plus 20 author tests from T1, plus 12 requirement-contract tests from this phase. Every FR and NFR clause has test evidence, rendered evidence from T2, or a named accepted gap. No product bug was found. **One owed item, since resolved:** the CHANGELOG said "1140 tests"; `/akili-validate` corrected it to 1152 and re-ran `npm test` (1152/1152) (KZ-002).
 
 ## 1. Document Control

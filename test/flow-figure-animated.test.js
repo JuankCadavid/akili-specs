@@ -110,6 +110,13 @@ test("overlay: reduced-motion block stops every overlay animation", () => {
   assert.match(overlayStyle, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.akili-motion,\s*\.akili-motion \*\s*\{\s*animation:\s*none/);
 });
 
+test("overlay: loop traces and glows use the brand green; the Bug Track pulse uses its edges' red", () => {
+  // The Bug Track edges are stroked by .a-security { stroke: var(--security-stroke) } in the static figure.
+  assert.match(animated, /\.a-security\s*\{[^}]*stroke:\s*var\(--security-stroke\)/);
+  assert.match(overlayStyle, /\.mo-t,\.mo-n,\.mo-b\{[^}]*stroke:var\(--arrow-emphasis\)/);
+  assert.match(overlayStyle, /\.mo-b\{[^}]*stroke:var\(--security-stroke\)/);
+});
+
 test("overlay: three iterations, never infinite, no fill-mode carry-over", () => {
   assert.match(overlayStyle, /animation-iteration-count:\s*3\b/);
   assert.doesNotMatch(overlayMarkup, /infinite/);

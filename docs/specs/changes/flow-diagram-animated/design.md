@@ -56,7 +56,7 @@ The only data is the SVG. The generator relies on the hooks below. If one is mis
 | `<rect … data-animate="node" style="--step: K; …">` inside `<g id="node-X">` for X in the loop (constitution, propose, specify, execute, test, validate, archive, kaizen) | Loop nodes | Overlay outline: same `x`, `y`, `width`, `height`, `rx` |
 | `<path data-edge-id="s1">`, `<path data-edge-id="s2">` | Bug Track edges | Faint pulse once per cycle |
 | First `<g data-edge-from=…>` (edge-label group), after the last `<g id="node-…">` | Label layer | The node-glow group is inserted just before it, so all labels paint over the overlay (F-2) |
-| `--arrow-emphasis` custom property | Root theme rule | The only overlay colour, so no new brand colour enters |
+| `--arrow-emphasis` and `--security-stroke` custom properties | Root theme rules | The only two overlay colours, both already in the figure, so no new colour enters: the loop in brand green, the Bug Track pulse in the red its edges use (`.a-security`) |
 | `@keyframes name { … }` with no `animation`/`animation-name` that uses `name` | `<style>` | Removed (12,686 B today) |
 
 ## 5. API Design
@@ -87,7 +87,7 @@ The only data is the SVG. The generator relies on the hooks below. If one is mis
 
 | Rule | Value |
 |---|---|
-| Colour | `stroke: var(--arrow-emphasis)` (#059669 in the light theme), **set in the overlay `<style>`, never in a presentation attribute** (F-9) |
+| Colour | Traces and glows: `stroke: var(--arrow-emphasis)` (#059669 in the light theme). Bug Track pulse: `stroke: var(--security-stroke)`, the token its dashed edges use (user decision, 2026-10-27 10:33, replacing the brand green). Both are **set in the overlay `<style>`, never in a presentation attribute** (F-9) |
 | Trace stroke | `stroke-width: 3`, `stroke-dasharray: 1`, `stroke-dashoffset: 1` at rest, `stroke-linecap: butt`, `fill: none` (F-8) |
 | Node outline | `stroke-width: 2.5`, `fill: none`, same `x`/`y`/`width`/`height`/`rx` as the node's `data-animate="node"` rect |
 | Opacity ceiling | Loop 0.9, Bug Track 0.5 |

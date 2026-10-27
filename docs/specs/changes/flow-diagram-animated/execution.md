@@ -344,3 +344,15 @@ All four tasks PASS. The commits are `e102ee2` (T1), `98d2a33` (T2), `184332b` (
 | Rework | T1 needed 3 attempts (Windows CRLF; missing ceiling, cycle and flash locks; a hole in the flash lock). T2 needed 2 (the CSS-less case had no real evidence). T4 needed 3 (KZ-002 overstatements, one of them introduced by the Leader's brief) |
 | Over estimate | Review rounds 9 against 7, and LOC ~415 against ~360. Both are within the tripwires |
 | Carried to `/akili-test` and `/akili-validate` | P-6 (the user's Firefox with reduced motion). P-7 (animation on npmjs.com after the 2.37.2 publish). The live GitHub check of this repository after `master` updates. The re-run of the CHANGELOG test count after `/akili-test`. The T6 observation (the Bug Track pulse is brand green over the red edges) |
+
+## Post-validation amendment: Bug Track pulse colour (2026-10-27)
+
+| Field | Value |
+|---|---|
+| Trigger | User decision, Juan Carlos Cadavid, 2026-10-27 10:33: "keep the Bug Track pulse RED, matching its dashed edges, not brand green". It resolves the T2 tier-T6 observation (validation A-6) |
+| Change | `scripts/animate-flow.js`: one line, `.mo-b` gains `stroke:var(--security-stroke)`, the token `.a-security` uses for the Bug Track edges. `assets/akili-flow-animated.svg` regenerated (134,905 → 134,935 B) |
+| Test (red, then green) | New lock in `test/flow-figure-animated.test.js`, "loop traces and glows use the brand green; the Bug Track pulse uses its edges' red". Red before the generator edit: "The input did not match the regular expression /\.mo-b\{[^}]*stroke:var\(--security-stroke\)/." The contract size lock then went red as intended, "134905 !== 134935", until the CHANGELOG size was updated |
+| Docs | CHANGELOG (134935 bytes; "The Bug Track edges pulse once per cycle in their own red."; 1153 tests). design.md §4 and §7 colour rows. validation-report.md §5, §7 A-6, §8 and new §13. test-report.md amendment line |
+| Verification | `npm test` 1153/1153; `verify:cli` exit 0; `git diff --check` clean; `pack:dry-run` lists the asset (134.9 kB), not the generator; regeneration idempotent (`cmp`). Rendered (Chromium 149, image alone): motion off vs static AE 0; the 7.85 s frame shows the s1/s2 pulse in red (`#E4395F` samples on the edge) |
+| Review | Applied by the Leader on the user's explicit instruction, after validation. No separate Reviewer spawn: the change is one CSS declaration, locked by a falsified test and verified by rendering. Recorded here so the absence of a Reviewer PASS for this delta is visible |
+| Requirements | No change of meaning. FR-1 "fainter" (opacity ≤ 0.5) and "must NOT recolour any static element" still hold |

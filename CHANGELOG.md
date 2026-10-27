@@ -8,7 +8,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Added
 
-- **An animated lifecycle figure, `assets/akili-flow-animated.svg` (134905 bytes).** A highlight walks the loop edge by edge, from `/akili-constitution` through archive and the Kaizen return to propose, in three 9 s cycles, then rests on the static figure. It is CSS only (no `<script>`, no SMIL), so a reduced-motion rule can switch it off. A `prefers-reduced-motion: reduce` rule inside the SVG stops the motion, and with motion off it draws the static figure.
+- **An animated lifecycle figure, `assets/akili-flow-animated.svg` (134935 bytes).** A highlight walks the loop edge by edge, from `/akili-constitution` through archive and the Kaizen return to propose, in three 9 s cycles, then rests on the static figure. The Bug Track edges pulse once per cycle in their own red. It is CSS only (no `<script>`, no SMIL), so a reduced-motion rule can switch it off. A `prefers-reduced-motion: reduce` rule inside the SVG stops the motion, and with motion off it draws the static figure.
 - **The generator `scripts/animate-flow.js`** derives the animated figure from `assets/akili-flow.svg`. It is a maintainer tool and is not shipped in the npm package. **`test/flow-figure-animated.test.js`** is its staleness test: the committed animated SVG must equal what the generator produces from the static one.
 
 ### Changed
@@ -23,7 +23,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Release class: patch** (docs, figure, generator, tests and `.gitattributes` only; nothing under `bin/`, `package.json` or `.claude/`).
 - **The static `assets/akili-flow.svg` and `assets/akili-flow.png` are unchanged.**
 - **Where it shows.** GitHub shows the animation once `master` updates, because the README image loads from the `master` raw URL. npm should show it once 2.37.2 is published; that is not checked yet. On npm the fallback `<img>` is moved out of `<picture>`, so the `<picture>` switch to the PNG does not apply there; only the reduced-motion rule inside the SVG does.
-- **Tests.** The whole suite is 1152 tests, all passing.
+- **Tests.** The whole suite is 1153 tests, all passing.
 
 ## [2.37.1] - 2026-10-26
 

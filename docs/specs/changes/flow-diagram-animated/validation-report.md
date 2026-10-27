@@ -42,7 +42,7 @@ Budget: 4 tasks; LOC ~415 against an estimate of ~360 (tripwire ~500); 9 review 
 | Design §3 path | Present | Change |
 |---|---|---|
 | `scripts/animate-flow.js` | yes | new, 124 lines |
-| `assets/akili-flow-animated.svg` | yes | new, 134,905 B |
+| `assets/akili-flow-animated.svg` | yes | new, 134,935 B (134,905 B before the post-validation colour change, §13) |
 | `test/flow-figure-animated.test.js` | yes | new, 20 tests |
 | `README.md` | yes | figure block only (+5/−1) |
 | `docs/flow.md` | yes | line 7 only |
@@ -56,7 +56,7 @@ Budget: 4 tasks; LOC ~415 against an estimate of ~360 (tripwire ~500); 9 review 
 
 | Command | Result |
 |---|---|
-| `npm test` | 1152 tests, 1152 pass, 0 fail |
+| `npm test` | 1152 tests, 1152 pass, 0 fail. After the §13 amendment: 1153/1153 |
 | `npm run verify:cli` | exit 0 |
 | `npm run pack:dry-run` | lists `assets/akili-flow-animated.svg` (134.9 kB), the static SVG and the PNG; no `animate-flow`; 341 files |
 | `git diff --check` | clean |
@@ -91,7 +91,7 @@ There is no linter. Unresolved `ADVISORY` findings from `execution.md` are carri
 | A-3 | Reliability | `overlayStyle` slices from the last `<style>` to `</svg>`, so stray bytes after `</style>` would be hidden from the subsequence check | T1 attempt-1 Reviewer |
 | A-4 | Readability | The trace-order test hardcodes `[0…6.3]` instead of reading `--step` | T1 attempt-1 Reviewer |
 | A-5 | Risk | Editing either SVG on Windows with a CRLF editor would commit CRLF and turn the staleness test red. `-text` does not prevent that | T1 attempt-2 Reviewer |
-| A-6 | Readability (visual) | The Bug Track pulse is brand green (`--arrow-emphasis`) over red dashed security edges. It conforms to design §7, but reads as a brief recolour of those edges | T2 tier-T6 review |
+| A-6 | Readability (visual) | The Bug Track pulse was brand green (`--arrow-emphasis`) over red dashed security edges. **Resolved in §13:** the pulse now uses `--security-stroke` | T2 tier-T6 review |
 
 ## 8. Design Conformance
 
@@ -100,7 +100,7 @@ There is no linter. Unresolved `ADVISORY` findings from `execution.md` are carri
 | DD-1..DD-11 | PASS: overlay generated from the static figure; CSS only; hidden by attribute; `pathLength`; keyframes-only removal; README `<picture>`; Markdown flow line; staleness test; no spec path; overlay under the label layer; three cycles then rest |
 | Design §7 timeline and rules | PASS: the T1 Reviewer checked every keyframe stop and `--d` value; T2 frames confirm order and rest |
 | Premise Ledger | PASS. Execute-time settlement recorded (design §11): P-14 and P-11 confirmed (with P-11's proxy wording corrected); P-12's rsvg result marked vacuous and replaced by stripped renders; P-6 and P-7's npm-animation clause carried to you |
-| Cross-document figure check | 3 stale figures, all corrected (R-1..R-3). Other figures agree: 134,905 B (CHANGELOG, `execution.md`, contract test); 153,600 B cap (requirements, design, test); 9 s × 3 (requirements, design, asset `:986`) |
+| Cross-document figure check | 3 stale figures, all corrected (R-1..R-3). Other figures agree: 134,905 B at validation, 134,935 B after §13 (CHANGELOG and the contract-test lock, re-run); 153,600 B cap (requirements, design, test); 9 s × 3 (requirements, design, asset `:986`) |
 | Proposal alignment | PASS for intent, scope and non-goals: no GIF, MP4 deferred, static assets unchanged, click-through PNG, patch release. Two documented changes: the proposal's `docs/flow.md` pointer sentence was dropped on purpose (DD-7, judgment F-12); the loop stops after 3 cycles (your decision at judgment, F-11). Success criterion 1 asked for Firefox, which could not run: WARN. Success criterion 6 is yours after merge and publish: WARN |
 
 ## 9. Test Evidence Summary
@@ -135,3 +135,16 @@ None. No `## Constitution Impact` block in `execution.md`. `scripts/animate-flow
 ```text
 /akili-archive changes/flow-diagram-animated
 ```
+
+## 13. Post-validation amendment (2026-10-27)
+
+**Your decision (10:33): keep the Bug Track pulse red, matching its dashed edges.**
+
+| Item | Value |
+|---|---|
+| Change | `scripts/animate-flow.js`: `.mo-b` gains `stroke:var(--security-stroke)`, the token `.a-security` strokes the Bug Track edges with. Traces and glows stay `var(--arrow-emphasis)` |
+| Asset | Regenerated: 134,905 → 134,935 B (≤ 153,600) |
+| Test | New lock in `test/flow-figure-animated.test.js`: the edges use `--security-stroke`; loop overlay green; pulse red. Red before the generator change: "The input did not match the regular expression /\.mo-b\{[^}]*stroke:var\(--security-stroke\)/." The size lock in the contract suite went red as intended ("134905 !== 134935") until the CHANGELOG size was updated |
+| Docs | CHANGELOG (size 134935, a sentence on the red pulse, 1153 tests); design §4 and §7 colour rows; A-6 resolved |
+| Verification | See `execution.md`, *Post-validation amendment* |
+| Requirements | No FR changes meaning. FR-1's "fainter" (opacity ≤ 0.5) and "must NOT recolour any static element" hold: the pulse now matches its edge's own colour |
