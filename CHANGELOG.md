@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.37.2] - 2026-10-27
+
 ### Added
 
 - **An animated lifecycle figure, `assets/akili-flow-animated.svg` (134935 bytes).** A highlight walks the loop edge by edge, from `/akili-constitution` through archive and the Kaizen return to propose, in three 9 s cycles, then rests on the static figure. The Bug Track edges pulse once per cycle in their own red. It is CSS only (no `<script>`, no SMIL), so a reduced-motion rule can switch it off. A `prefers-reduced-motion: reduce` rule inside the SVG stops the motion, and with motion off it draws the static figure.
@@ -24,7 +30,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **The static `assets/akili-flow.svg` and `assets/akili-flow.png` are unchanged.**
 - **Where it shows.** GitHub shows the animation once `master` updates, because the README image loads from the `master` raw URL. npm should show it once 2.37.2 is published; that is not checked yet. On npm the fallback `<img>` is moved out of `<picture>`, so the `<picture>` switch to the PNG does not apply there; only the reduced-motion rule inside the SVG does.
 - **Tests.** The whole suite is 1153 tests, all passing.
-
 ## [2.37.1] - 2026-10-26
 
 ### Changed
