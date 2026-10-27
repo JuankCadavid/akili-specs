@@ -46,7 +46,7 @@ T2 and T3 both need T1's asset. They touch different files and could run in para
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~130 LOC script, ~160 LOC test, 1 generated asset) |
 | Depends on | none |
 | Requirements | FR-1 (structure), FR-2 (attribute, media rule), FR-3 (all), FR-6 (all), NFR-1, NFR-4 |

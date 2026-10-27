@@ -8,3 +8,13 @@
 # keeps every fixture's committed line ending intact regardless of checkout
 # platform or autocrlf setting.
 test/fixtures/** -text
+
+# changes/flow-diagram-animated T1, NFR-3 Cross-platform.
+#
+# Windows CI (core.autocrlf=true) would check both SVGs out with CRLF.
+# test/flow-figure-animated.test.js asserts the committed animated asset is
+# byte-identical to animate(static), and animate() writes LF; a CRLF checkout
+# of either file makes that comparison fail on the windows-latest legs.
+# Declaring both figures byte-exact keeps their committed LF on every platform.
+assets/akili-flow.svg -text
+assets/akili-flow-animated.svg -text
