@@ -132,7 +132,7 @@ T2 and T3 both need T1's asset. They touch different files and could run in para
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~12 LOC docs, ~40 LOC test edits) |
 | Depends on | T1, T2 (T2's P-7 and P-11 outcome gates the README shape) |
 | Requirements | FR-4 (all), FR-5 (all), FR-2 BUT (`<picture>`), NFR-4, NFR-5 |

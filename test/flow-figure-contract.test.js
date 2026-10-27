@@ -84,13 +84,13 @@ test("FR-2 AND IT MUST: PNG is 1800 px wide and both assets fit their size caps"
 test("FR-3: the anytime sentence keeps its prefix and names both Bug Track sources, review from a local run", () => {
   const line = read("docs/flow.md").split("\n").find((l) => l.startsWith("Seven anytime commands run outside this loop")) || assert.fail("no anytime sentence");
   assert.match(line, /Confirmed `\/akili-security` findings, and confirmed critical `\/akili-review` findings from a local run, re-enter the loop through `\/akili-propose` on the Bug Track\./);
-  const alt = read("docs/flow.md").match(/^!\[(.*)\]\(\.\.\/assets\/akili-flow\.svg\)$/m)[1];
+  const alt = read("docs/flow.md").match(/^!\[(.*)\]\(\.\.\/assets\/akili-flow-animated\.svg\)$/m)[1];
   for (const c of ["security", "review", "resume", "audit", "quick", "seo", "marketing"]) assert.ok(alt.includes(`/akili-${c}`), `alt lacks /akili-${c}`);
   assert.match(alt, /\/akili-review findings from a local run, enter the Bug Track/);
 });
 
 test("FR-4: the README figure alt says seven commands run any time, naming the security audit and the CI-capable PR review", () => {
-  const img = read("README.md").match(/<img alt="([^"]*)"\s+src="[^"]*akili-flow\.png"/) || assert.fail("no figure img");
+  const img = read("README.md").match(/<img alt="([^"]*)"\s+src="[^"]*akili-flow-animated\.svg"/) || assert.fail("no figure img");
   assert.match(img[1], /seven commands run any time/);
   assert.match(img[1], /security audit/);
   assert.match(img[1], /pull-request review that can also run in CI/);

@@ -212,3 +212,50 @@
 | Spawns | Implementer ×2 (`sonnet`, both complete: 127,245 / 77,363 tokens). Reviewer ×2 (`opus`, FAIL / PASS: 99,127 / 80,760) |
 | Running budget | Tasks 2/4. LOC 372, unchanged (T2 ships no repository code). Review rounds: T1 3, T2 2, total 5 of 7. The remaining T3 and T4 are budgeted at 2 rounds each, so the projected total of 9 exceeds the estimate of 7, but no tripwire is crossed (the tripwire is per task, "past 3 rounds", and ~500 LOC). **No tripwire crossed** |
 | Continue gate | `auto-approved (pre-approved mode)` |
+
+### T3: README `<picture>`, `docs/flow.md` embed, test pins (PASS)
+
+#### Attempt 1: PASS (2026-10-27)
+
+- Skills `cognitive-doc-design`; effort `medium`; Implementer `sonnet`.
+- **Files changed:**
+  - `README.md`: +5/−1, figure block only.
+  - `docs/flow.md`: 1 line, the line-7 target.
+  - `test/docs-overview-contract.test.js`: +12/−1.
+  - `test/docs-overview.test.js`: 2 lines.
+  - `test/flow-figure-contract.test.js`: 2 lines.
+  - `test/flow-figure.test.js`: +6/−2.
+  - Total 27+/9−.
+- **Reds before the doc edits** (new pins against the unedited docs, 4 fail):
+  - `'README.md FR-4: figure is not an <a> wrapping a <picture>'`;
+  - not ok 39: `"Cannot read properties of null (reading '1')"`;
+  - not ok 40: `'no figure img'`;
+  - not ok 43: `'docs/flow.md has no figure line'`.
+- **Falsifiers:**
+  - (1) README reverted → not ok 2 'figure is not an <a> wrapping a <picture>', not ok 40 'no figure img';
+  - (2) href set to the animated URL → 'README.md FR-4: figure is not linked to …akili-flow.png (href: …akili-flow-animated.svg)';
+  - (3) one flow-alt character changed → not ok 43, assert-equal diff;
+  - (4) flow line pointed at the static SVG → not ok 39 (TypeError), not ok 43 'docs/flow.md has no figure line'.
+- **Implementer *Not Done / Assumptions*** (assumptions only):
+  - the `docs-overview` pin (PNG in `src` or `srcset`) was already green before the edit, by the task's own wording;
+  - falsifier 3 exercises the flow-alt half of the equality;
+  - the animated `<desc>` already equals the alt.
+- **Evidence re-run (Leader-inline):** **VERIFIED.** `npm test` 1140/1140; `grep -c '<picture' README.md` → 1; the diff stat confirms only the figure block and one flow line.
+- **Reviewer (`opus`, checklist depth): PASS.**
+  - Every FR-4, FR-5, FR-2 BUT, NFR-4 and NFR-5 clause was walked.
+  - All five P-8 pins are updated, none loosened; the `src`-or-`srcset` widening is the task's own wording.
+  - The not-ok-39 TypeError comes from a pre-existing unguarded `.match(...)[1]`. It is still a behavioural red, and falsifier 4 also fails test 43 on a real assertion.
+  - The markup is well-formed (indentation cosmetic).
+  - The named conformance check (design §11 T2 settlement) changes no claim's meaning.
+  - Non-gating notes: the §11 Count line and the §12 R-2 text do not reflect the settlement (for archive).
+
+**T3 summary**
+
+| Field | Value |
+|---|---|
+| Final status | PASS (attempt 1) |
+| Requirements covered | FR-4 (all), FR-5 (all), FR-2 BUT, NFR-4, NFR-5 |
+| Decisions made | None beyond the task |
+| Spawns | Implementer ×1 (`sonnet`, complete, 75,505 tokens). Reviewer ×1 (`opus`, PASS, 83,778) |
+| Running budget | Tasks 3/4. LOC 372 + 27 = 399 (estimate ~360, tripwire ~500). Review rounds: T1 3, T2 2, T3 1, total 6 of 7. **No tripwire crossed** |
+| Continue gate | `auto-approved (pre-approved mode)` |
