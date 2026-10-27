@@ -452,8 +452,8 @@ test("(j) README countable clauses", () => {
   const gl = tableRows(README, "## What is AKILI?").length;
   assert.ok(gl === 4, `README glossary has ${gl} rows, expected 4`);
   const fig = README.match(/<p align="center">[\s\S]*?<\/p>/g) || [];
-  assert.ok(fig.some((b) => /\bsrc="[^"]*akili-flow\.png"/.test(b)),
-    'akili-flow.png src is not inside a <p align="center"> block');
+  assert.ok(fig.some((b) => /\b(src|srcset)="[^"]*akili-flow\.png"/.test(b)),
+    'akili-flow.png src or srcset is not inside a <p align="center"> block');
   assert.ok(!README.includes("doctor --tool"), "README mentions `doctor --tool`");
   const learn = tableRows(README, "## Learn more")[0] || "";
   assert.ok(/\]\(docs\/overview\.md\)/.test(learn), `first Learn more row does not link docs/overview.md: ${learn}`);
