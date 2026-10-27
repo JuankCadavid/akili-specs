@@ -13,7 +13,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/methodology-mcp/local-stdio` |
-| Parent Spec | `changes/methodology-mcp` (`family.md` row 1, `active`) |
+| Parent Spec | `changes/methodology-mcp` (`family.md` row 2, `pending`: **held** 2026-10-27, depends on `gateway-lambda`; Adjust round owed on resume) |
 | Depth | Standard (re-checked in design §8) |
 | Type | Change |
 | Deliverable | software |

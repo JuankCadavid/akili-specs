@@ -7,7 +7,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/methodology-mcp/local-stdio` |
-| Parent Spec | `changes/methodology-mcp` (manifest: `docs/specs/changes/methodology-mcp/family.md`, row 1) |
+| Parent Spec | `changes/methodology-mcp` (manifest: `docs/specs/changes/methodology-mcp/family.md`, row 2 since 2026-10-27; **held**, depends on `gateway-lambda`) |
 | Type | **Change** |
 | Deliverable | `software` |
 | Approval Mode | `gated` for the final spec approval. Owner mandate, 2026-10-27: *"Answer process gates with the recommended option; stop only for product, cost or risk decisions, HALT, or the final spec approval."* Routine process gates are logged as `auto-approved (owner mandate)` |
@@ -17,7 +17,7 @@
 | Parallel-safe | no (edits `bin/akili.js` dispatch) |
 | Release | minor (new command), through the normal `release:minor` flow, after merge into `dev` |
 | Date | 2026-10-27 |
-| Status | **Approved** with the parent (family row 1) |
+| Status | **Approved** with the parent; **held** 2026-10-27 (owner: remote first). The spec approval waits, and an Adjust round is owed on resume: T1 reuses `gateway-lambda`'s content core |
 
 ## 2. Intent
 

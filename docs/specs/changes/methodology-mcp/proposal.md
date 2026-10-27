@@ -8,6 +8,15 @@
 
 No Bedrock **model** is needed in any option. The server serves files and runs deterministic code, so it makes no LLM calls.
 
+> **Amendment, 2026-10-27 (owner direction change).** Juan Carlos: *"his real goal is the REMOTE MCP, so people connect from Claude Code (and other clients) to AgentCore Gateway + Lambda and use every AKILI command and skill without installing anything, and on every npm release the Lambda content updates automatically."* This changes four things:
+>
+> - **OQ-6** is answered **yes**: the consumer is public users from Claude Code.
+> - **Chunk 2 (`gateway-lambda`)** becomes **Must**, comes first, and stands alone: it owns the shared content core.
+> - **Chunk 1 (`local-stdio`)** is held with its spec unapproved, and later reuses that core (`family.md`).
+> - **Auth:** the "Cognito M2M client credentials" auth in §10.2, §11.2 and OQ-5 is **superseded** by user sign-in, as analysed in `gateway-lambda/proposal.md`. Remote users are people in Claude Code, not machines.
+>
+> The rest of this document stays as the decision record; where it conflicts with this amendment, the amendment wins.
+
 ## 1. Document Control
 
 | Field | Value |
@@ -264,7 +273,7 @@ If remote **prompts/resources** become a requirement, add a streamable-HTTP tran
 | OQ-3 | Install-layout paths in command text: rewrite at serve time, add resource URIs, or document? | Leave the text unchanged; document that helpers are resources and that `akili install` provides them |
 | OQ-4 | Should `akili install` also write the MCP entry into each tool's config? | No in chunk 1 |
 | OQ-5 | (2) One shared Cognito M2M client, or one app client per consumer? | One per consumer, listed in `allowedClients` |
-| OQ-6 | (2) Is there a concrete cloud-agent consumer today? | Without one, chunk 2 stays `pending` and is not specified |
+| OQ-6 | (2) Is there a concrete cloud-agent consumer today? | **Answered 2026-10-27: yes**, public users from Claude Code (see the amendment at the top). Chunk 2 is Must |
 | OQ-7 | (2) Account and region are **decided** by `docs/infrastructure.md`. Still open: the IaC tool (CDK vs SAM). Sharing an account with a live site also calls for resource tagging, a separate Budgets alarm, and least-privilege roles scoped to this stack | CDK, matching the existing stacks; tag `project=akili-mcp` |
 | OQ-8 | (2) Bundle content in the Lambda zip per release, or one Lambda reading `s3://…/<version>/` for multi-version serving? | Bundle per release (simplest, immutable Lambda versions); revisit if old-version serving is needed |
 
@@ -285,4 +294,4 @@ On approval, write `docs/specs/changes/methodology-mcp/family.md` (two rows, §1
 /akili-specify changes/methodology-mcp/local-stdio
 ```
 
-Chunk 2 is specified only once OQ-6 is a yes.
+~~Chunk 2 is specified only once OQ-6 is a yes.~~ OQ-6 is a yes (amendment, 2026-10-27). The next step is now `gateway-lambda/proposal.md`'s approval, then `/akili-specify changes/methodology-mcp/gateway-lambda`.
