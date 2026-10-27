@@ -123,3 +123,92 @@
 | Final verification | `npm test` 1140/1140; asset 134,905 B (≤ 153,600); `git check-attr text` → unset ×2 |
 | Running budget | Tasks 1/4. LOC 372 (script 124 + test 238 + `.gitattributes` 10) against an estimate of ~360 and a tripwire of ~500; the remaining tasks are estimated at ~70 (test edits ~40, docs ~12, CHANGELOG ~15), projecting ~440 < 500. Review rounds: T1 3 (tripwire: past 3); total 3 of 7. **No tripwire crossed** |
 | Continue gate | `auto-approved (pre-approved mode)` |
+
+### T2: rendered evidence and live-path premises (PASS)
+
+#### Attempt 1: FAIL (2026-10-27)
+
+- **Skills and effort:** `playwright-cli`; effort `medium`; Implementer `sonnet`.
+- **Leader deviation (recorded):** step 1 named the user's Chrome via claude-in-chrome. `tabs_context_mcp` returned "Browser extension is not connected", so P-7 and P-11 ran in headless Playwright (read-only) instead.
+- **Files changed:** none in the repository. The harness and evidence live in the session scratchpad `t2/`. The full report, copied, is at `t2/report.md`.
+- **Implementer evidence, motion on** (Chromium 149.0.7827.55 and WebKit 26.5; image alone; AE no fuzz / 2 % fuzz in the edge's own box):
+
+  | Edge | Chromium | WebKit |
+  |---|---|---|
+  | e1 | 303 | 280 |
+  | e2 | 103 | 104 |
+  | e3 | 108 | 106 |
+  | e4 | 120 | 120 |
+  | e5 | 100 | 100 |
+  | e6 | 100 | 100 |
+  | e7 | 247 | 329 |
+  | e8 | 1484 | 1405 |
+  | s1 at 7.9 s | 457 | 457 |
+  | s2 at 7.9 s | 1824 | 1818 |
+
+  - Label strips: 0, except 2 px in one Chromium frame.
+  - Chromium "outside" pixels: 0–96, all on 28-px vertical hairlines. The Reviewer identified them as the **right-border pixels of the Anytime nodes** at x = 373, 531, 565 and 687, ±9/255 in both directions. They are absent at rest, absent with reduced motion, absent when the static SVG is served, and absent in WebKit. Ruled anti-aliasing from Chromium re-rasterising during animation, not a recolouring (FR-1 BUT); T1's FR-3 byte checks prove that no static element is restyled.
+- **Implementer evidence, motion off** (AE, no fuzz):
+  - 4a: Chromium with `--force-prefers-reduced-motion` → 0 at 5 frames.
+  - 4b: rsvg-convert → 0, but INCONCLUSIVE: `var()` is unresolved, so the render is black blocks.
+  - 4c: Chromium and WebKit at 30 s → 0 (P-14 confirmed).
+- **Falsifiers:**
+  - (a) as specified (e1 trace `opacity="0"` removed) → AE 0, **inert**: the trace is also hidden by `stroke-dashoffset:1`.
+  - (a) replacements: glow → 2324, s1 → 486, trace dashoffset and opacity → 1112.
+  - (b) static served in place of animated → every box 0.
+  - (c) `infinite` at 30 s → Chromium 1227, WebKit 1188.
+- **Premises:**
+  - **P-11:** confirmed (Platane/snk). Same-host `raw.githubusercontent.com` is **not** camo-proxied, contrary to the row's wording "through its image proxy"; recorded here as a correction. The image animates (3640 / 3048 px), and `<source media>` survives.
+  - **P-7:** the SVG `<img>` is kept on npm via a camo proxy (WebKit; Chromium got a 403 Cloudflare challenge). `<picture>` is only half kept: the fallback `<img>` is moved out, so source switching cannot work on npm. Whether the SVG still animates through camo: UNVERIFIED. The test used `prefers-color-scheme`, not `prefers-reduced-motion`.
+  - **P-6:** UNVERIFIED (Firefox hung a third time).
+- **Evidence re-run** (Leader-inline, Chromium 149, `probe/rest.js`, image alone, no fuzz): motion off → 0; rest at 30 s → 0; `infinite` at 30 s → 1227. **VERIFIED.**
+- **Leader tier-T6 review** of `montage-chromium.png`:
+  - Order and pace are as in design §7; no text is struck through; the Anytime lane is still.
+  - **Observation for the user:** the Bug Track pulse is brand green (`--arrow-emphasis`, per design §7 and FR-1) over the red dashed security edges. It conforms, but reads as a brief colour change on those edges.
+- **Reviewer (`opus`): FAIL**, one issue, verbatim in substance.
+  - **Discovered Issue:** step 4b is INCONCLUSIVE, so FR-2's third motion-off case rests only on T1's presence checks, and P-12's rsvg citation is vacuous for the same reason.
+  - **Violated Rule:** FR-2 ("a renderer that ignores `<style>` also draws the static figure"); T2 Scope 4; the reviewer persona's rule that a presence assertion is not a proof.
+  - **Remediation:** copy both SVGs with every `<style>` element removed; render each alone with rsvg-convert and with Chromium; compare with AE, no fuzz, expecting 0. Falsifier: in the stripped animated copy, remove `opacity="0"` from one overlay element and expect AE > 0. Record that P-12's rsvg result was vacuous.
+  - **Reviewer rulings:**
+    - (1) The hairlines are an accepted artefact.
+    - (2) Falsifier (a) is met by the replacements.
+    - (4) P-7: the Leader's reading holds. No Pivot: npm keeps the SVG `<img>`, which is the case proposal R-2 covers. Design §12 R-2's "the README is covered by `<picture>`" is true on GitHub only (noted here; no amendment). P-7's "animated" clause stays UNVERIFIED, owned by the user after the 2.37.2 publish.
+    - (5) P-6 is carried to the user's Firefox check, per its Settled-by.
+  - **ADVISORY:**
+    - The Chrome → Playwright deviation should be recorded (done above).
+    - "Exactly three times" and the 8–10 s cycle are proven by T1's structure plus the 30 s stop, with no frame in cycle 3; frames at about 19 s and about 9.3 s would close that.
+    - The npm `<picture>` test used `prefers-color-scheme`.
+- **Leader adjudication:** the issue is in scope (T2 Scope 4, FR-2). Attempt 2 runs at effort `high`. The 9.3 s and 19 s frames sit inside T2's own coverage row (FR-1 "8–10 s, three runs, then rest"), so they are added `[advisory-grade]`.
+
+#### Attempt 2: PASS (2026-10-27)
+
+- Effort `high`. Implementer `sonnet`. Repository files changed: none. Evidence is in the scratchpad: `t2/strip/` and `t2/cyc/`.
+- Tools: Chromium 149.0.7827.55, rsvg-convert 2.62.0, ImageMagick 7.1.2-13. Every comparison is AE with no fuzz, each image rendered alone.
+- **CSS-less case (FR-2, the third motion-off case):**
+
+  | Case | rsvg | Chromium |
+  |---|---|---|
+  | Both SVGs with every `<style>` removed, animated vs static | **0** | **0** |
+  | Falsifier `fal-red.svg`: the e1 glow rect's `opacity="0"` replaced by `fill="#f00"` | **12968** | **12960** |
+  | **Reviewer control:** the same rect with `fill="#f00"` added and `opacity="0"` kept | **0** | — |
+  | Variant B (only the motion `<style>` removed) vs the original static | 0 (inert) | **0** |
+  | Variant B falsifier | 0 (inert) | **12960** |
+
+  The fully stripped render is a nearly black canvas of about 18 colours. An opacity-only falsifier there would draw black on black, which is why the falsifier adds a red fill. The control shows that the `opacity="0"` attribute is what hides the overlay. Variant B is extra evidence; reduced-motion mode (attempt 1, 4a) is the better model of a renderer that does not run CSS animation.
+- **`[advisory-grade]` cycle frames, Chromium, e1 box:** 0.3 s 276; 9.3 s 268; 18.3 s 275; 27.3 s 0; 28.3 s 0. The constitution glow box reads 2348 at the first three and 0 at the last two. This evidences exactly three 9 s cycles, then rest.
+- **Evidence re-run (Leader-inline):** **VERIFIED.** rsvg stripped 0; rsvg red 12968; Chromium variant B 0; variant B falsifier 12960. Variant B differs from the shipped asset by exactly one `<style>` element.
+- **Reviewer (`opus`):** **PASS.** The attempt-1 issue is closed, and nothing blocks Done. The Reviewer re-derived the stripped copies byte for byte and added the control above.
+- **ADVISORY (recorded):** quote the control beside `fal-red` and state that the canvas is nearly black (done above); record P-12's rsvg 0 as vacuous (done, design §11 annotation).
+
+**T2 summary**
+
+| Field | Value |
+|---|---|
+| Final status | PASS (attempt 2 of 3) |
+| Requirements covered | FR-1, rendered: motion in cycles 1–3; e1–e8 in order, e8 last; Bug Track pulse fainter and once per cycle; rest after 27 s; nothing static moved; no text struck through. Strip reviewed at tier T6. FR-2: 0 px with reduced motion (Chromium), with no CSS (rsvg, Chromium), and at rest. P-14 and P-11 settled; P-6 and P-7's npm animation carried to the user |
+| Decisions made | (1) Chrome extension not connected, so headless Playwright was used for P-7 and P-11. (2) Execute-time annotation of design §11 (P-14, P-11, P-7, P-6, P-12 outcomes; no claim's meaning changed), carried to the T3 Reviewer as a named conformance check. (3) No Pivot on P-7: npm keeps the SVG `<img>`, and the loss of `<picture>` source switching is the case proposal R-2 covers (Reviewer ruling) |
+| Carried to validation (user-owned) | P-6, the user's Firefox with reduced motion. P-7, the animation on npmjs.com after the 2.37.2 publish (the npm `<picture>` test used `prefers-color-scheme`). The live check of this repository's README on GitHub after `master` updates |
+| T6 observation for the user | The Bug Track pulse is brand green over the red dashed security edges. It conforms to design §7, but reads as a brief colour change on those edges |
+| Spawns | Implementer ×2 (`sonnet`, both complete: 127,245 / 77,363 tokens). Reviewer ×2 (`opus`, FAIL / PASS: 99,127 / 80,760) |
+| Running budget | Tasks 2/4. LOC 372, unchanged (T2 ships no repository code). Review rounds: T1 3, T2 2, total 5 of 7. The remaining T3 and T4 are budgeted at 2 rounds each, so the projected total of 9 exceeds the estimate of 7, but no tripwire is crossed (the tripwire is per task, "past 3 rounds", and ~500 LOC). **No tripwire crossed** |
+| Continue gate | `auto-approved (pre-approved mode)` |

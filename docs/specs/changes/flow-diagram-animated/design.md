@@ -141,6 +141,16 @@ Depth check: this lands at the Standard level. It is not Lite: four tasks, a new
 
 ## 11. Premise Ledger
 
+**Execute-time settlement (T2, 2026-10-27; annotation only, no claim's meaning changed; evidence in `execution.md` T2):**
+
+| Row | Outcome |
+|---|---|
+| P-14 | Confirmed: 0 px at 30 s in Chromium and WebKit; frames show motion in cycles 1–3 and none at 27.3 s |
+| P-11 | Confirmed for a same-host `raw.githubusercontent.com` URL. Correction: such a URL is **not** proxied (camo is used for third-party hosts only), so "through its image proxy" does not apply |
+| P-7 | Not refuted on its High-impact claim: npm keeps the SVG `<img>`, proxied through camo. npm moves the fallback `<img>` out of `<picture>`, so reduced-motion source switching does not work on npm and only the in-SVG rule applies there (design §12 R-2's "covered by `<picture>`" holds on GitHub only). "Still animates on npm": `UNVERIFIED`, owner the user after the 2.37.2 publish |
+| P-6 | Still `UNVERIFIED`: headless Firefox hung at launch three times. Owner: the user's Firefox at validation |
+| P-12 | The `rsvg-convert` 0 is **vacuous**: rsvg does not resolve `var()`. The CSS-less case is evidenced at T2 by renders with `<style>` stripped (0 in rsvg and in Chromium) plus a falsifier and a control |
+
 Count: 14 rows. 10 verified. 4 `UNVERIFIED` (High 2: P-7, P-11; Low 2: P-6, P-14).
 Blast-radius triggers: `consumer` fires (the README figure block and the `docs/flow.md` figure line are pinned by tests) → P-8. `live-path` fires (the user action "a reader opens the README") → P-11 (GitHub) and P-7 (npm). `shared-state`: none applies — no state, service or lifecycle hook is shared; the static SVG is read, not changed.
 

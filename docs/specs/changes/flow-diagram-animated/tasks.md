@@ -92,7 +92,7 @@ T2 and T3 both need T1's asset. They touch different files and could run in para
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (scratchpad harness ~80 LOC, not committed; evidence written to `execution.md`) |
 | Depends on | T1 |
 | Requirements | FR-1 (rendered: motion, order, pace, three runs then rest, no flashing, nothing static moved), FR-2 (0 px with motion off), P-6, P-7, P-11, P-14 |
