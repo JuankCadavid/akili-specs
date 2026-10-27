@@ -45,7 +45,7 @@ Today the methodology reaches an AI tool only through `akili install`, which cop
 
 Current state, with evidence run at `48c28ba` on 2026-10-27:
 
-- The CLI dispatches `install`, `update`, `doctor`, `routing`, `list`, `notifications`, `help`, plus `init` and `check-update` handled before the switch. Any other command reaches `fail("Unknown command: …")` (`bin/akili.js:2884-2943`).
+- The CLI dispatches `install`, `update`, `doctor`, `routing`, `list`, `notifications`, `help`, plus `init` and `check-update` handled before the switch. Any other command reaches `fail("Unknown command: …")` (`bin/akili.js:2884-2941`).
 - Before the switch, every command except `check-update` and `routing --json` runs `checkForUpdates()` (`bin/akili.js:2896-2898`). That function returns at once when stdout is not a TTY (`bin/akili.js:2392`). Every command except `help`, `list`, `init`, `routing --json` prints the banner to stdout (`bin/akili.js:2900-2902`).
 - The package has no runtime dependency (`grep -c '"dependencies"' package.json` → 0) and requires Node `>=18.0.0` (`package.json` `engines`).
 - All 14 command files open with YAML frontmatter carrying `name` and `description` (`.claude/commands/akili-propose.md:1-7`; per-file check in design P-4).
