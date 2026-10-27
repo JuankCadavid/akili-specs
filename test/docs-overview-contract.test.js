@@ -147,10 +147,21 @@ test("FR-4 How it works keeps the linked flow figure with a new, present alt tex
   const FIG = "https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png";
   const href = block[1].match(/<a\s[^>]*href="([^"]+)"/);
   assert.ok(href && href[1] === FIG, `README.md FR-4: figure is not linked to ${FIG} (href: ${href && href[1]})`);
+  // @akili-spec changes/flow-diagram-animated (T3): <picture> with a reduced-motion PNG source
+  const ANIM = "https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow-animated.svg";
+  assert.ok(/<a\b[^>]*>\s*<picture>[\s\S]*<\/picture>\s*<\/a>/.test(block[1]), "README.md FR-4: figure is not an <a> wrapping a <picture>");
+  const source = block[1].match(/<source\b[^>]*>/);
+  assert.ok(source, "README.md FR-4: figure <picture> has no <source>");
+  const media = source[0].match(/\bmedia="([^"]+)"/);
+  assert.ok(media && media[1] === "(prefers-reduced-motion: reduce)", `README.md FR-4: <source> media is ${media && media[1]}`);
+  const srcset = source[0].match(/\bsrcset="([^"]+)"/);
+  assert.ok(srcset && srcset[1] === FIG, `README.md FR-4: <source> srcset is ${srcset && srcset[1]}, expected ${FIG}`);
   const img = block[1].match(/<img\b[^>]*>/);
   assert.ok(img, "README.md FR-4: figure block has no <img>");
   const src = img[0].match(/\bsrc="([^"]+)"/);
-  assert.ok(src && src[1] === FIG, `README.md FR-4: <img> src is ${src && src[1]}, expected ${FIG}`);
+  assert.ok(src && src[1] === ANIM, `README.md FR-4: <img> src is ${src && src[1]}, expected ${ANIM}`);
+  const width = img[0].match(/\bwidth="([^"]+)"/);
+  assert.ok(width && width[1] === "900", `README.md FR-4: <img> width is ${width && width[1]}, expected 900`);
   const alt = img[0].match(/\balt="([^"]*)"/);
   assert.ok(alt && alt[1].trim().length > 0, "README.md FR-4: figure <img> has no alt text");
   for (const old of ["Kaizen", "Bug Track"])

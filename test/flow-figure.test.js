@@ -54,10 +54,14 @@ test("every command name and Kaizen is drawn as the whole text of an SVG text el
   assert.deepEqual(missing, []);
 });
 
-test("the SVG desc equals the docs/flow.md figure alt text", () => {
-  const m = read("docs/flow.md").match(/^!\[(.*)\]\(\.\.\/assets\/akili-flow\.svg\)$/m);
+test("the SVG desc of both assets equals the docs/flow.md figure alt text", () => {
+  // @akili-spec changes/flow-diagram-animated (T3): the flow line embeds the animated asset
+  const m = read("docs/flow.md").match(/^!\[(.*)\]\(\.\.\/assets\/akili-flow-animated\.svg\)$/m);
   assert.ok(m, "docs/flow.md has no figure line");
   assert.equal(firstElementText("desc"), m[1]);
+  const animated = read("assets/akili-flow-animated.svg").match(/<desc\b[^>]*>([\s\S]*?)<\/desc>/);
+  assert.ok(animated, "assets/akili-flow-animated.svg has no <desc>");
+  assert.equal(decode(animated[1].replace(/<[^>]*>/g, "")).trim(), m[1]);
 });
 
 test("the SVG is standalone and carries the expected identity", () => {
