@@ -1,6 +1,6 @@
 # Test Report: `changes/flow-diagram-animated`
 
-> **Status: PASS.** `npm test` → **1152 tests, 1152 pass, 0 fail**: the 1120 baseline, plus 20 author tests from T1, plus 12 requirement-contract tests from this phase. Every FR and NFR clause has test evidence, rendered evidence from T2, or a named accepted gap. No product bug was found. **One owed item:** the CHANGELOG still says "1140 tests" and must say 1152. That fix belongs to `/akili-validate` (KZ-002).
+> **Status: PASS.** `npm test` → **1152 tests, 1152 pass, 0 fail**: the 1120 baseline, plus 20 author tests from T1, plus 12 requirement-contract tests from this phase. Every FR and NFR clause has test evidence, rendered evidence from T2, or a named accepted gap. No product bug was found. **One owed item, since resolved:** the CHANGELOG said "1140 tests"; `/akili-validate` corrected it to 1152 and re-ran `npm test` (1152/1152) (KZ-002).
 
 ## 1. Document Control
 
@@ -92,7 +92,7 @@ Key: A = `test/flow-figure-animated.test.js` (T1). C = `test/flow-figure-animate
 | FR-5 | BUT no other line changed | static (structural) | C | PASS | Diff claim: accepted gap (§9) |
 | FR-6 | every clause | static | A (staleness, hook failure, CLI), C (built-ins) | PASS | |
 | FR-7 | THEN, AND, BUT | static | C | PASS | Falls back to the dated 2.37.2 section after release |
-| FR-7 | AND IT MUST quote-check; counts and sizes re-run | static + manual | C (size lock) | **GAP (count)** | CHANGELOG says 1140; actual 1152. Owed to `/akili-validate` (§8) |
+| FR-7 | AND IT MUST quote-check; counts and sizes re-run | static + manual | C (size lock); count re-run at validation | PASS | The count was stale (1140); corrected to 1152 at validation (§8 R-1) |
 | NFR-1 | no change to `bin/`, `package.json`, `.claude/` or the static assets | manual + static | `git diff --stat 88d4b67^ HEAD`, C (no GIF, MP4 or Archify) | PASS | Diff claim is manual |
 | NFR-2 | pack lists the SVG, not the generator | static + manual | C, `npm pack --dry-run` | PASS | |
 | NFR-3 | `npm test`; Windows byte-exactness | run + static | 1152/1152, C | PASS | `verify:cli` and `git diff --check` are re-run at validation |
@@ -103,7 +103,7 @@ Key: A = `test/flow-figure-animated.test.js` (T1). C = `test/flow-figure-animate
 
 | # | Item | Owner |
 |---|---|---|
-| R-1 | Change the CHANGELOG `[Unreleased]` Tests note from "1140 tests" to the count at validation (1152 now), then re-run `npm test` (KZ-002) | `/akili-validate` |
+| R-1 | Change the CHANGELOG `[Unreleased]` Tests note from "1140 tests" to the count at validation (1152 now), then re-run `npm test` (KZ-002) | `/akili-validate`. **Done 2026-10-27:** CHANGELOG reads 1152; `npm test` 1152/1152 |
 
 No product bug was found.
 

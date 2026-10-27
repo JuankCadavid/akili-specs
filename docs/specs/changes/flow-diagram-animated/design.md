@@ -151,7 +151,7 @@ Depth check: this lands at the Standard level. It is not Lite: four tasks, a new
 | P-6 | Still `UNVERIFIED`: headless Firefox hung at launch three times. Owner: the user's Firefox at validation |
 | P-12 | The `rsvg-convert` 0 is **vacuous**: rsvg does not resolve `var()`. The CSS-less case is evidenced at T2 by renders with `<style>` stripped (0 in rsvg and in Chromium) plus a falsifier and a control |
 
-Count: 14 rows. 10 verified. 4 `UNVERIFIED` (High 2: P-7, P-11; Low 2: P-6, P-14).
+Count: 14 rows. At specify: 10 verified, 4 `UNVERIFIED` (High 2: P-7, P-11; Low 2: P-6, P-14). **After T2 (validation correction, 2026-10-27):** 12 verified or settled (P-11, P-14 confirmed); 2 still `UNVERIFIED`, both owned by the user: P-6 (Firefox) and P-7's "still animates on npm" clause.
 Blast-radius triggers: `consumer` fires (the README figure block and the `docs/flow.md` figure line are pinned by tests) → P-8. `live-path` fires (the user action "a reader opens the README") → P-11 (GitHub) and P-7 (npm). `shared-state`: none applies — no state, service or lifecycle hook is shared; the static SVG is read, not changed.
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -176,7 +176,7 @@ Blast-radius triggers: `consumer` fires (the README figure block and the `docs/f
 | # | Risk | Response |
 |---|---|---|
 | R-1 | P-7 refuted (npm drops SVG images) | Pivot. The likely amendment is an `<img src>` = PNG fallback for npm only, which a single README cannot do. It would need a user decision |
-| R-2 | Firefox, or Safari under the real OS setting, ignores the in-SVG rule (P-6; P-5 proves it only in Chromium, F-10) | It affects `docs/flow.md` only; the README is covered by `<picture>`, and the 3-cycle stop bounds it. Recorded as an accepted gap if T2 cannot settle it |
+| R-2 | Firefox, or Safari under the real OS setting, ignores the in-SVG rule (P-6; P-5 proves it only in Chromium, F-10) | It affects `docs/flow.md` and the **npm** README; the GitHub README is covered by `<picture>` (T2: npm moves the `<img>` out of `<picture>`, so the switch never applies there). The 3-cycle stop bounds the exposure. Recorded as an accepted gap (validation correction, 2026-10-27) |
 | R-3 | A future Archify export renames the hooks | The generator throws and names the missing hook; the staleness test goes red |
 | R-4 | `dev` branch views of the README show a broken image until `master` has the asset | It does not affect the default-branch page (`master`), where the README and the asset arrive in the same merge. FR-7's "once `master` updates" clause covers it |
 | R-5 | WCAG 2.2.2: an `<img>` has no pause control | DD-11: three cycles, about 27 s, then the static figure (F-11) |
