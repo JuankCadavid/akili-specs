@@ -106,7 +106,7 @@ The map never posts, schedules or publishes anything (`## Invariants`).
 
 ### `campaign <slug> [brief]`
 
-Write `campaigns/<slug>/brief.md`: goal, audience, platforms (a subset of the three; X, Threads, TikTok and YouTube are recorded as out of scope and left out of the plan), KPIs, start and end dates, offer, UTM scheme (`utm_source=<platform>&utm_medium=social&utm_campaign=<slug>`, editable), and plan status. Write `plan.md`: pillars, format mix per platform, and a numbered post list (`#`, working title, platform(s), format, target date, post file once drafted). Both open with the `Voice:` line. When the campaign folder already exists, show what will change and ask before writing; never overwrite silently.
+Write `campaigns/<slug>/brief.md`: goal, audience, platforms (a subset of the three; X, Threads, TikTok and YouTube are recorded as out of scope and left out of the plan), KPIs, start and end dates, offer, UTM scheme (`utm_source=<platform>&utm_medium=social&utm_campaign=<slug>`, editable), and plan status. Write `plan.md`: pillars, format mix per platform, and a numbered post list (`#`, working title, platform(s), format, `Angle`, `Approach`, `Hooks`, target date, post file once drafted). Each slot's `Angle` (an approved angle ID, optionally a second, or `needs input`), `Approach` and three `Hooks` follow `planning-and-calendar.md`, with IDs and approaches from `angles-framework.md`; a slot with no approved angle reads `Angle: needs input`. Cite no angle ID from a pillar section that is not validly `approved` (the status reading of `angles` step 5, with `## Invariants`: invalid or unrecognized, `published` included, reads as `draft`). Both open with the `Voice:` line. When the campaign folder already exists, show what will change and ask before writing; never overwrite silently.
 
 #### Plan gate
 
@@ -123,7 +123,8 @@ An argument naming an existing campaign folder is a slug; otherwise `YYYY-MM` is
 ### `post <request>`
 
 1. Resolve platforms, campaign (or `none`) and target slot. If a campaign is named and its plan is not approved, refuse and name the missing approval.
-2. Write `posts/<YYYY-MM-DD>-<slug>.md`, never overwriting: on a name collision add `-2`, `-3` …. Header: campaign, target slot, `Voice:` line, language.
+2. Write `posts/<YYYY-MM-DD>-<slug>.md`, never overwriting: on a name collision add `-2`, `-3` …. Header: campaign, target slot, `Voice:` line, language, `Angle:` (approved ID[s] from `angles.md`, or `none — no angles map`) and `Approach:` (one of the five in `angles-framework.md`). With no `angles.md`, draft as before, record `Angle: none — no angles map` and offer `angles` once. Refuse a request citing an angle ID from a pillar section that is not validly `approved` (the status reading of `angles` step 5, with `## Invariants`; `published` or an invalid approval reads as `draft`) and name the missing pillar approval. For `social proof`, require a story-bank fact marked free to use, a brief fact or a fact the user supplied; without one, ask for it or propose another approach, and never invent a testimonial, client name or figure.
+   Show three hook candidates (formula IDs from `hook-formulas.md`, one-line draft each) and draft with the one the user picks. Only the chosen hook reaches the card, as the first line of *Copy*; it adds no card field.
 3. One `## <Platform>` section per requested platform, written for that platform, not cross-posted, with the hook before the platform's fold:
 
 | Field | Content |
@@ -177,6 +178,7 @@ Turn owned content (a blog post, release note, page text or similar) into new `d
 | Foreign `social-marketing` copy | Step 0.2; stop and name the resolved path |
 | Campaign slug missing, or a campaign folder with no `brief.md` | Say so and offer `campaign <slug>`; write nothing |
 | Plan not approved for `post` or `repurpose` | Refuse and name the missing approval |
+| Angle ID from a pillar section that is not validly `approved` (`post`, `campaign`) | Refuse and name the missing pillar approval |
 | `angles` with no pillars on file and none given | Ask for the pillars (or offer `brand`); write nothing |
 | Request to publish, schedule or post with an available tool | For an `approved` section, output the copy-paste block; `/akili-marketing` does not publish. For a `draft`, show the card and ask: "just post it" approves no unseen text (`## Invariants`) |
 | User pastes a credential, token or key | Say no credential is needed; write it nowhere (`## Invariants`) |
