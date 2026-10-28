@@ -137,7 +137,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~80 LOC) |
 | Depends on | T1, T2 |
 | Requirements | FR-1 (brand interview, existing file), FR-2 (all scenarios), FR-6 (all), NFR-1 |
