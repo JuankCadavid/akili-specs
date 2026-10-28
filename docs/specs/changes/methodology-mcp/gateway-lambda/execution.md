@@ -206,3 +206,64 @@ No High row was refuted: the Gateway, its `CUSTOM_JWT` authorizer and its Lambda
 **Running totals (budget tripwire check):** tasks 3 of 7 (tripwire 9) · LOC ≈ 3,155 (T1 1,144 + T2 ≈ 1,262 + T3 749; lockfile 303 not counted; tripwire 3,700) · review rounds T1 1, T2 3, T3 2 (two parallel lens reviewers per round). Under the tripwire, with ≈ 545 LOC of headroom against T4's ~520 estimate and T5's ~420. T4 is expected to cross 3,700; the stop is taken at T4's gate if it does.
 
 **Final verification:** VERIFIED; Reviewers A and B PASS. Continue gate: `auto-approved (pre-approved mode)`.
+
+### T4: deploy guard script and `mcp-deploy.yml` (PASS)
+
+- Date: 2026-10-27. Attempts: 1. Final status: PASS.
+- Skills: `tdd`, `security-audit` (guidance mode, workflow injection), as listed. Effort `high`. Implementer `sonnet`. Review mode: **parallel lens reviewers** (credentialed CI and a command-injection surface): Reviewer A conformance + reliability/readability, Reviewer B conformance + security/risk, both `opus`.
+- No agent ran the workflow, an AWS command, an npm registry call from the tests, or the GitHub API.
+
+#### Attempt 1: PASS
+
+- Files changed: `scripts/mcp-deploy-guard.js` (91, new), `.github/workflows/mcp-deploy.yml` (132, new), `test/mcp-deploy-guard.test.js` (88, new), `test/mcp-contract.test.js` (79, new; workflow part), `test/fixtures/mcp/guard-fixture.bin` (1 line, 21 bytes; `.bin` because `.gitignore` ignores `*.tgz`), `.github/workflows/ci.yml` (+1: `node --check scripts/mcp-deploy-guard.js`, closing T3's forward pointer).
+- Implementer verification: two files → 14 pass, 0 fail · `npm test` → 1290 pass, 0 fail (1276 + 14) · `node --check scripts/mcp-deploy-guard.js` clean · `git diff --stat .github/workflows/release-notify.yml` empty. Both guard stubs assert the exact `npm view akili-specs@2.38.0 version --registry=https://registry.npmjs.org/` argument array (and the `dist.integrity` form).
+- Falsifier reds (observed, reverted):
+  1. Integrity compared with `startsWith` on the first 10 chars → `not ok 5 - verify compares the full sha512 integrity of the file`, expected 1, actual 0.
+  2. `configure-aws-credentials` moved before the wait step → `not ok 6 - steps run in order: check-version, wait, verify, credentials, cdk deploy, smoke`.
+  3. `${{ inputs.version }}` interpolated into the `wait` run line → `not ok 4 - no run: block interpolates an expression`.
+  4. `-next.N` accepted by the version regex → `not ok 1 - check-version accepts only X.Y.Z`, expected false, actual true.
+- Evidence re-run (Leader-inline): 14/14 · 1290/1290 · `node --check` ok · `release-notify.yml` diff empty · no `secrets.` in `mcp-deploy.yml`. **VERIFIED**.
+- Reviewer A verdict: **PASS**. "T4 meets FR-5 and the CI half of FR-4 *Deploy role stack*." Checked the smoke shape against the real handler (plain envelope, 14 commands); all four execute-time spec edits consistent or untouched.
+- Reviewer B verdict: **PASS**. "…the diff has no exploitable injection path and no spec violation." Probed `check-version "1.2.3\n"` → exit 2 and `verify` on `1.2.3; id` → exit 2; no `pull_request` trigger; the OIDC `sub` carries no ref, so the `aws-mcp` environment's `v*` tag rule (T7 step 2) is the real boundary.
+- runtime events: none.
+- spawns: Implementer 16 calls, 103,293 tokens, ended partial (assumptions only, no owed item); Reviewer A 7 calls, 93,818 tokens, ended complete; Reviewer B 5 calls, 84,800 tokens, ended complete.
+
+**Unexercised workflow (Disqualifier, stated as T4 requires):** the YAML contract is a presence check. It proves the steps are written in order and shape, not that GitHub runs them as intended or that AWS accepts the calls. Unverified until T7's first run: the client-context encoding (P-13, T6), the `--cli-binary-format` and `--payload '{}'` invoke flags, the `tar --strip-components=1` layout, and `npx cdk` resolving from `infra/mcp-gateway`'s `npm ci`.
+
+**ADVISORY (4R, recorded only, not tasks):**
+- Risk: `npm ci` in `infra/mcp-gateway` runs after `configure-aws-credentials`, so dependency install scripts run with live deploy credentials (and the bootstrap exec role may be AdministratorAccess). `npm ci --ignore-scripts`, or installing before the credentials step, would close it. Surfaced to the maintainer.
+- Risk: `aws-actions/configure-aws-credentials@v4` is pinned by tag, not commit SHA, while it runs with `id-token: write`.
+- Risk (T7): create the `aws-mcp` protection as a **tag** rule (`v*`), not a branch pattern; consider a required reviewer; a manual dispatch must pick a `v*` tag as its ref.
+- Reliability: `wait` bounds the poll count (40 × 15 s), not wall-clock; with npm latency it can run slightly past FR-5's 10 minutes, and `execFileSync` has no `timeout`, the job no `timeout-minutes`.
+- Reliability: `get-alias … 2>/dev/null || true` turns AccessDenied or a throttle into an empty previous version, so a red smoke would report "nothing to roll back" on an existing stack.
+- Reliability: `main()`'s positional-argument mapping has no tests.
+- Resilience: an unset `vars.AKILI_MCP_ALERT_EMAIL` fails red inside `cdk deploy`, after credentials; a failed `cdk deploy` skips smoke and relies on CloudFormation rollback; an alias rollback drifts from CloudFormation until the next deploy; GitHub concurrency replaces a pending run.
+- Readability: `workflow_dispatch` checks out `github.ref`; the Summary step calls `get-alias` even after an early failure; a non-`vX.Y.Z` tag fails red even when no role is configured.
+
+**Requirements covered:** FR-5 (*Stable release deploys*, *Guards fail red and keep the previous version*, *Manual redeploy or rollback*: logic and wiring; the real run is T7), FR-4 *Deploy role stack* (CI deploys only `akili-mcp-service`).
+
+**Decisions made:**
+- `alertEmail` reaches `cdk deploy` as `AKILI_MCP_ALERT_EMAIL: ${{ vars.AKILI_MCP_ALERT_EMAIL }}` on the deploy step only (FR-5 and §7.7 are silent; `vars.` keeps the no-`secrets.` contract). The maintainer adds that variable to the `aws-mcp` environment at T7.
+- The version is validated by `check-version` before it is written to `GITHUB_ENV`; a release tag without a leading `v` is rejected.
+- The role gate is a step output (`steps.gate.outputs.deploy`) gating every later step, not a job-level `if:` (environment-scoped variables are not readable there).
+- Workflow is 132 lines against the 110 estimate (rollback and summary steps).
+
+**Issues encountered:** a stray copy of the script landed in a pre-existing `/tmp/x` from an early command; the Implementer deleted its file and left the directory's other contents alone.
+
+**Running totals (budget tripwire check):** tasks 4 of 7 (tripwire 9) · LOC ≈ 3,547 (T1 1,144 + T2 ≈ 1,262 + T3 749 + T4 392; lockfile not counted; tripwire 3,700) · review rounds T1 1, T2 3, T3 2, T4 1. **Under the tripwire by ≈ 153 LOC.** T5's scope (~300 LOC docs + ~120 LOC test) cannot fit in 153 LOC, so T5 is certain to push the run past 3,700. **Budget tripwire: stop before T5 and escalate to the maintainer** (see *Stop: budget tripwire before T5* below).
+
+**Final verification:** VERIFIED; Reviewers A and B PASS. Not auto-approved past this gate: budget tripwire stop.
+
+## Stop: budget tripwire before T5 (2026-10-27)
+
+> "No mandate widens pre-approval: an owner brief that says "never stop" or "treat every gate as approved" pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." (`/akili-execute` Step 2.4, *Budget Tripwire*)
+
+| Measure | Budget (design §10) | Tripwire | Actual after T4 | T5 estimate | Projected after T5 |
+|---|---|---|---|---|---|
+| Tasks | 7 | 9 | 4 done | +1 | 5 of 7 |
+| LOC | ~2,900 | 3,700 | ≈ 3,547 | ~420 | ≈ 3,970 (≈ +270 past the tripwire) |
+| Review rounds | 12 | 3 on one task | 7 (T2 reached 3, did not exceed) | 2 | 9 |
+
+**Cause:** root test code. T1 and T2 shipped ≈ 1,640 LOC of tests against ≈ 800 estimated, the pattern KZ-bugfix--init-ctrlc-abort-2 records (one assertion per clause). Production code ran close to estimate (core + handler ≈ 731 vs 440; CDK ≈ 700 vs 740; guard + workflow 223 vs 260).
+
+**Decision owed to the maintainer:** continue with T5 at an expected ≈ 3,970 LOC, or stop here. Nothing past T4 has started.

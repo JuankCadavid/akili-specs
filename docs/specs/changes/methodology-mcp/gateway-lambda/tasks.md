@@ -202,7 +202,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~150 LOC script, ~110 LOC workflow, ~260 LOC test) |
 | Depends on | T3 |
 | Requirements | FR-5 (all), FR-4 *Deploy role stack* (CI deploys only the service stack) |

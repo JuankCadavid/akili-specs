@@ -46,6 +46,7 @@ jobs:
           node --check scripts/notify-slack.js
           node --check bin/mcp-core.js
           node --check bin/mcp-lambda.js
+          node --check scripts/mcp-deploy-guard.js
 
       - name: verify:cli (list packaged commands, skills, resources)
         run: npm run verify:cli

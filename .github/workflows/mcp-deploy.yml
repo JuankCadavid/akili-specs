@@ -1,0 +1,132 @@
+name: MCP Deploy
+
+# Deploys exactly the published npm tarball of a stable release to AWS
+# (FR-5). Tag and input values reach shell only through env: variables, never
+# as expression text inside a run: block. Nothing here runs until the aws-mcp environment holds
+# the AWS_ROLE_ARN variable; until then the job ends green with a summary note.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to deploy or roll back to (X.Y.Z)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    environment: aws-mcp
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: us-east-1
+      FUNCTION_NAME: akili-mcp-content
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: check-version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            V="$INPUT_VERSION"
+          else
+            case "$TAG_NAME" in v*) V="${TAG_NAME#v}" ;; *) V="not-a-release-tag" ;; esac
+          fi
+          node scripts/mcp-deploy-guard.js check-version "$V"
+          echo "V=$V" >> "$GITHUB_ENV"
+
+      - name: Role gate
+        id: gate
+        env:
+          ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+        run: |
+          if [ -z "$ROLE_ARN" ]; then
+            echo "MCP deploy skipped: no deploy role configured" >> "$GITHUB_STEP_SUMMARY"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: wait for npm
+        if: steps.gate.outputs.deploy == 'true'
+        run: node scripts/mcp-deploy-guard.js wait "$V" --timeout 600 --interval 15
+
+      - name: Download and verify tarball
+        if: steps.gate.outputs.deploy == 'true'
+        run: |
+          npm pack "akili-specs@$V" --registry=https://registry.npmjs.org/ --pack-destination "$RUNNER_TEMP"
+          node scripts/mcp-deploy-guard.js verify "$RUNNER_TEMP/akili-specs-$V.tgz" "$V"
+          mkdir "$RUNNER_TEMP/pkg"
+          tar -xzf "$RUNNER_TEMP/akili-specs-$V.tgz" --strip-components=1 -C "$RUNNER_TEMP/pkg"
+
+      - name: configure-aws-credentials
+        if: steps.gate.outputs.deploy == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Record current live version
+        id: prev
+        if: steps.gate.outputs.deploy == 'true'
+        run: |
+          PREV=$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text 2>/dev/null || true)
+          case "$PREV" in ''|None) PREV="" ;; esac
+          echo "version=$PREV" >> "$GITHUB_OUTPUT"
+
+      - name: cdk deploy
+        if: steps.gate.outputs.deploy == 'true'
+        working-directory: infra/mcp-gateway
+        env:
+          AKILI_MCP_ALERT_EMAIL: ${{ vars.AKILI_MCP_ALERT_EMAIL }}
+        run: |
+          npm ci
+          npx cdk deploy akili-mcp-service --require-approval never -c packageDir="$RUNNER_TEMP/pkg" -c version="$V" -c stage=prod
+
+      - name: smoke
+        if: steps.gate.outputs.deploy == 'true'
+        env:
+          PREV_VERSION: ${{ steps.prev.outputs.version }}
+        run: |
+          CC=$(printf '%s' '{"custom":{"bedrockAgentCoreToolName":"akili___list_commands"}}' | base64 | tr -d '\n')
+          aws lambda invoke --function-name "$FUNCTION_NAME" --qualifier live --client-context "$CC" \
+            --cli-binary-format raw-in-base64-out --payload '{}' "$RUNNER_TEMP/result.json" || true
+          if node scripts/mcp-deploy-guard.js smoke "$RUNNER_TEMP/result.json" "$V"; then
+            exit 0
+          fi
+          if [ -n "$PREV_VERSION" ]; then
+            aws lambda update-alias --function-name "$FUNCTION_NAME" --name live --function-version "$PREV_VERSION"
+            echo "Smoke failed: live moved back to version $PREV_VERSION" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Smoke failed on the first deploy: nothing to roll back to" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 1
+
+      - name: Summary
+        if: always() && steps.gate.outputs.deploy == 'true'
+        env:
+          STATUS: ${{ job.status }}
+        run: |
+          LIVE=$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text 2>/dev/null || echo unknown)
+          echo "MCP deploy of akili-specs $V: $STATUS (Lambda live version $LIVE)" >> "$GITHUB_STEP_SUMMARY"
