@@ -229,7 +229,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~90 LOC) |
 | Depends on | T3, T4, T5, T6 |
 | Requirements | FR-7 (all), NFR-3 |

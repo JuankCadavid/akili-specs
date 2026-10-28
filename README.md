@@ -35,7 +35,7 @@ After each change, it learns what to do better next time.
 - Every change planned in writing and traceable to a requirement.
 - Built-in review and tests before anything is called done.
 - A method that learns from every finished change.
-- Extras for security audits, SEO, video, diagrams and social marketing: see the [overview](docs/overview.md).
+- Extras for security audits, video, diagrams and a growth track (`/akili-seo`, `/akili-marketing`): see the [overview](docs/overview.md).
 
 | Term | Meaning |
 |---|---|

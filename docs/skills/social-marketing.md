@@ -1,6 +1,6 @@
 # `social-marketing`
 
-**Binding `core`** — loaded by `/akili-marketing` in its setup step, with only the references each mode needs. Adapted from three MIT skill packs by Sergey Bulaev.
+**Binding `core`** — loaded by `/akili-marketing` in its setup step, with only the references each mode needs. Adapted from three MIT skill packs by Sergey Bulaev; the angle method follows the structure of Nico Azero's content method.
 
 ## Purpose
 
@@ -16,10 +16,11 @@ Write native, human-sounding drafts for LinkedIn, Instagram and Facebook from a 
 
 | Mode | References loaded |
 |---|---|
-| `brand` | `brand-voice-template.md`, `voice-rules.md`, `untrusted-content.md` |
-| `campaign` | `planning-and-calendar.md`, `brand-voice-template.md`, `voice-rules.md`, platform files in scope |
+| `brand` | `brand-voice-template.md`, `angles-framework.md` (foundations), `voice-rules.md`, `untrusted-content.md` |
+| `angles` | `angles-framework.md`, `brand-voice-template.md`, `voice-rules.md`, `untrusted-content.md` |
+| `campaign` | `planning-and-calendar.md`, `angles-framework.md`, `brand-voice-template.md`, `voice-rules.md`, platform files in scope |
 | `calendar` | `planning-and-calendar.md` |
-| `post` | `voice-rules.md`, `hook-formulas.md`, `humanizer.md`, `brand-voice-template.md`, `untrusted-content.md`, platform files in scope |
+| `post` | `voice-rules.md`, `angles-framework.md`, `hook-formulas.md`, `humanizer.md`, `brand-voice-template.md`, `untrusted-content.md`, platform files in scope |
 | `review` | `humanizer.md`, `voice-rules.md`, `untrusted-content.md`, platform files in scope |
 | `repurpose` | `repurposing.md`, `hook-formulas.md`, `humanizer.md`, `voice-rules.md`, `untrusted-content.md`, platform files in scope |
 
@@ -27,11 +28,12 @@ The command checks that the loaded copy's frontmatter carries `adapted-for: "AKI
 
 ## References
 
-`.claude/skills/social-marketing/`: `SKILL.md`, `LICENSE` and ten files under `references/`.
+`.claude/skills/social-marketing/`: 13 files: `SKILL.md`, `LICENSE` and eleven files under `references/`.
 
 | Group | Files |
 |---|---|
 | Voice and writing | `brand-voice-template.md`, `voice-rules.md`, `hook-formulas.md`, `humanizer.md` |
+| Angles | `angles-framework.md` |
 | Planning and reuse | `planning-and-calendar.md`, `repurposing.md` |
 | Platforms | `instagram.md`, `linkedin.md`, `facebook.md` |
 | Safety | `untrusted-content.md` |
@@ -40,7 +42,7 @@ Every rule in a platform file is a `hard limit` or a `heuristic`, and each file 
 
 ## Size
 
-**Size justified.** Three upstream packs are merged into one skill: `SKILL.md` is 73 lines and the ten references total 777 (547 across the seven voice, planning, reuse and safety files, 230 across the three platform files). The body stays a short core pattern and an integration table; detail lives in `references/`, which the command loads per mode, so a run reads only what its mode names. Nothing is carried that no mode loads.
+**Size justified.** Three upstream packs are merged into one skill: `SKILL.md` is 74 lines and the eleven references total 937 (707 across the eight voice, angles, planning, reuse and safety files, 230 across the three platform files). The body stays a short core pattern and an integration table; detail lives in `references/`, which the command loads per mode, so a run reads only what its mode names. Nothing is carried that no mode loads.
 
 ## Attribution and licence
 
@@ -50,6 +52,7 @@ Every rule in a platform file is a `hard limit` or a `heuristic`, and each file 
 | Sources | `https://github.com/sergebulaev/instagram-skills` @ `6a124481d0ebe9b6d3ac1323ed2a2abc40c7e1d7`; `https://github.com/sergebulaev/linkedin-skills` @ `c4447ead7723aa0b65bbfb5d9281784b20dce75a`; `https://github.com/sergebulaev/facebook-skills` @ `f3fb266c0b984cf5e9e9e3a6a57021373f3ced68` |
 | Licence | MIT, one `LICENSE` file at `.claude/skills/social-marketing/LICENSE` ("Copyright (c) 2026 Sergey Bulaev") |
 | Adapted by | Juan Carlos Cadavid — jcadavid.com, for AKILI-SPECS |
+| Angle method | `references/angles-framework.md` is AKILI-authored; it follows the structure (foundations, then angles of four types, then five approaches) of Nico Azero's content method from the video *Así creo 6.480 reels con Claude en 3h*, written in AKILI's own words. The video was not fetched and none of its content is reproduced |
 
 The three packs are merged and rewritten tool-neutral, not vendored: every file under `references/` names what it was adapted from.
 
