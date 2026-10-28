@@ -8,7 +8,9 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const path = require("path");
 
-const yml = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "mcp-deploy.yml"), "utf8");
+// CRLF is normalized: a Windows checkout (core.autocrlf) would otherwise put \r before every
+// line end and break the line-anchored patterns below.
+const yml = fs.readFileSync(path.join(__dirname, "..", ".github", "workflows", "mcp-deploy.yml"), "utf8").replace(/\r\n/g, "\n");
 const lines = yml.split("\n");
 
 // Lines belonging to each `run:` block (inline value or following deeper-indented lines).
@@ -98,7 +100,7 @@ test("an unset role variable skips green, and only the service stack is deployed
 
 const { spawnSync } = require("child_process");
 const ROOT = path.join(__dirname, "..");
-const readRoot = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
+const readRoot = (p) => fs.readFileSync(path.join(ROOT, p), "utf8").replace(/\r\n/g, "\n");
 
 function run(cmd, args) {
   const r = spawnSync(cmd, args, { cwd: ROOT, encoding: "utf8", shell: process.platform === "win32", maxBuffer: 64 * 1024 * 1024 });
