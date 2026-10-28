@@ -26,6 +26,8 @@ concurrency:
 jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    # Ample for the 10 min registry poll plus deploy and smoke; a hang cannot hold the concurrency group past 45.
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     environment: aws-mcp
     permissions:

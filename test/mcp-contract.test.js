@@ -42,6 +42,12 @@ test("a prerelease is skipped by the job guard", () => {
   assert.match(yml, /if: github\.event_name == 'workflow_dispatch' \|\| !github\.event\.release\.prerelease/);
 });
 
+test("the deploy job has a numeric timeout-minutes", () => {
+  const m = yml.match(/\n {4}timeout-minutes: (\d+)\n/);
+  assert.ok(m, "deploy job needs timeout-minutes");
+  assert.ok(Number(m[1]) >= 20 && Number(m[1]) <= 360, `timeout-minutes ${m[1]}`);
+});
+
 test("uses the aws-mcp environment with id-token: write and no secrets", () => {
   assert.match(yml, /environment: aws-mcp/);
   assert.match(yml, /id-token: write/);

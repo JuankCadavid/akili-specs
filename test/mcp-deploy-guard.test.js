@@ -93,6 +93,64 @@ test("wait treats a failing npm view (E404) as not yet published", () => {
   assert.equal(env.calls, 2);
 });
 
+test("wait passes each call a timeoutMs within the 30 s cap and the time remaining", () => {
+  const timeouts = [];
+  const env = fakeEnv(() => "", 20000);
+  const run = (cmd, args, opts) => {
+    timeouts.push(opts.timeoutMs);
+    return env.run();
+  };
+  assert.equal(guard.wait("2.38.0", { timeout: 50, interval: 15, run, sleep: env.sleep, now: env.now }), 1);
+  // t=0 rem 50000 -> 30000; t=20000+15000=35000 rem 15000 -> 15000; then the deadline has passed.
+  assert.deepEqual(timeouts, [30000, 15000]);
+});
+
+test("wait gives the last call only the time remaining, floored at 1 ms", () => {
+  const timeouts = [];
+  const env = fakeEnv(() => "");
+  const run = (cmd, args, opts) => {
+    timeouts.push(opts.timeoutMs);
+    return env.run();
+  };
+  guard.wait("2.38.0", { timeout: 20, interval: 15, run, sleep: env.sleep, now: env.now });
+  assert.deepEqual(timeouts, [20000, 5000, 1]);
+});
+
+test("wait treats a timed-out call as not yet published and keeps polling", () => {
+  const env = fakeEnv((n) => (n < 3 ? Object.assign(new Error("ETIMEDOUT"), { code: "ETIMEDOUT" }) : "2.38.0"));
+  assert.equal(guard.wait("2.38.0", { timeout: 60, interval: 15, ...env }), 0);
+  assert.equal(env.calls, 3);
+});
+
+test("verify gives its npm view a fixed 30 s timeout", () => {
+  let opts;
+  guard.verify(FIXTURE, "2.38.0", { run: (c, a, o) => ((opts = o), ""), readFile });
+  assert.deepEqual(opts, { timeoutMs: 30000 });
+});
+
+test("main rejects a bad --timeout or --interval with exit 2 and never polls", () => {
+  const boom = () => {
+    throw new Error("must not run");
+  };
+  const deps = { run: boom, sleep: boom, now: () => 0, readFile };
+  const cases = [
+    ["wait", "1.2.3", "--timeout"],
+    ["wait", "1.2.3", "--timeout", "--interval", "5"],
+    ["wait", "1.2.3", "--interval", "abc"],
+    ["wait", "1.2.3", "--interval", "0"],
+    ["wait", "1.2.3", "--timeout", "NaN"],
+    ["wait", "1.2.3", "--timeout", "-5"],
+    ["wait", "1.2.3", "--timeout", "Infinity"],
+  ];
+  for (const argv of cases) assert.equal(guard.main(argv, deps), 2, argv.join(" "));
+});
+
+test("main still runs a valid wait and returns its code", () => {
+  const env = fakeEnv(() => "1.2.3");
+  assert.equal(guard.main(["wait", "1.2.3", "--timeout", "10", "--interval", "2"], env), 0);
+  assert.equal(guard.main(["wait", "1.2.3"], env), 0);
+});
+
 test("verify compares the full sha512 integrity of the file", () => {
   const real = "sha512-" + execFileSync("openssl", ["dgst", "-sha512", "-binary", FIXTURE]).toString("base64");
   const seen = [];

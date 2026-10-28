@@ -420,3 +420,32 @@ No page found states in so many words that managed login keeps working when `Exp
 **Final totals:** tasks 5 of 7 plus S1 (T6 and T7 are maintainer-owned and not started) · LOC ≈ 3,953 (T1 1,144 + T2 ≈ 1,262 + T3 749 + T4 392 + S1 93 + T5 313; lockfile not counted). That is past the 3,700 tripwire by ≈ 253, under the maintainer's 2026-10-28 approval (expected ≈ 3,970) · review rounds T1 1, T2 3, T3 2, T4 1, S1 1, T5 3.
 
 **Constitution Impact:** none. No module guide is created or reshaped; `docs/mcp.md` is a new user doc linked from `docs/README.md` and `README.md`.
+
+## A1: advisory fixes (maintainer-approved, 2026-10-28 6:28 AM)
+
+Recorded from the maintainer's brief:
+
+> "Fix the three recorded advisories with tests: add a per-call timeout to npm view plus a timeout-minutes on the deploy job; make the guard reject --timeout/--interval with a missing or non-numeric value instead of hanging; add --region us-east-1 to the sts get-caller-identity line in docs/infrastructure.md. Log them in execution.md as maintainer-approved."
+
+They are the S1 RESILIENCE and RELIABILITY advisories and the first T5 attempt-3 advisory. The maintainer approved them, so they are not an advisory promoted by the run.
+
+### Attempt 1 (Implementer `sonnet`)
+
+- **`scripts/mcp-deploy-guard.js`:**
+  - Every `npm view` gets a per-call `timeoutMs` through the injected `run`. In `wait` it is `max(1, min(30000, remaining))`, with a 1 ms floor because `execFileSync` reads 0 as "no timeout". `verify` gets a fixed 30000. The CLI maps the value to `execFileSync`'s `timeout`. A timed-out call counts as "not yet published".
+  - `--timeout` and `--interval` must be finite and > 0. A missing value, `--` followed by the next flag, a non-numeric value, `NaN`, `Infinity`, or ≤ 0 makes `main` return 2 before any poll.
+- **`.github/workflows/mcp-deploy.yml`:** the deploy job has `timeout-minutes: 45` (the 10 min npm wait plus install, deploy and smoke).
+- **`docs/infrastructure.md:13`:** `--region us-east-1` added to the `sts get-caller-identity` cell.
+- **Tests:** `test/mcp-deploy-guard.test.js` +58, `test/mcp-contract.test.js` +6.
+- **Reds (Implementer, against the previous guard and workflow, which were copied aside and restored):** 5 failing (`# pass 25`, `# fail 5`):
+  - `wait passes each call a timeoutMs within the 30 s cap and the time remaining`;
+  - `wait gives the last call only the time remaining, floored at 1 ms`;
+  - `verify gives its npm view a fixed 30 s timeout`;
+  - `main rejects a bad --timeout or --interval with exit 2 and never polls`;
+  - `the deploy job has a numeric timeout-minutes` (`expected: true, actual: ~`).
+- **Evidence re-run (Leader): VERIFIED.**
+  - `npm test` 1306/1306; infra 20/20; `verify:cli` clean; pack 345 files, none under `infra/` or `test/`; `git diff --check` clean.
+  - The real CLI with `--timeout` (no value), `--interval abc` and `--interval 0` exits 2 in about 50 ms.
+- **Reviewer (`opus`): PASS, no findings.** It ran nine bad-flag cases on the real CLI and all exited 2. It traced the fake-clock sequences against the expected literals and confirmed the workflow's literal flags are still accepted.
+
+**LOC (insertions, excluding docs/specs):** 91. **Review rounds:** 1. **Final totals:** LOC ≈ 4,044 (T1–T5 + S1 ≈ 3,953, plus A1 91); review rounds T1 1, T2 3, T3 2, T4 1, S1 1, T5 3, A1 1.

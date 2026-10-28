@@ -10,7 +10,7 @@ All AWS infrastructure for AKILI-SPECS (for example AgentCore Gateway, its Lambd
 |---|---|
 | AWS CLI profile | `CREDINOVA` (on the maintainer's machine) |
 | Region | `us-east-1` |
-| Account ID | Resolve it from the profile (`aws sts get-caller-identity --profile CREDINOVA`); it is not written in this public repo |
+| Account ID | Resolve it from the profile (`aws sts get-caller-identity --profile CREDINOVA --region us-east-1`); it is not written in this public repo |
 
 - Use `--profile CREDINOVA` (or `AWS_PROFILE=CREDINOVA`) for every AWS CLI, CDK and AgentCore command. Never deploy AKILI resources with a default or other profile.
 - Agents never create, change or delete AWS resources without the maintainer's explicit OK, and never commit credentials, access keys or role ARNs.

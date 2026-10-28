@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 // Deploy guards for .github/workflows/mcp-deploy.yml (FR-5). Each subcommand is
-// a pure function over injected run(cmd, args), sleep(ms), now() (ms) and readFile; the CLI
-// binds the real ones. npm is always called with an argument array, never a
+// a pure function over injected run(cmd, args, { timeoutMs }), sleep(ms), now() (ms) and
+// readFile; the CLI binds the real ones. npm is always called with an argument array, never a
 // shell string, so a hostile version cannot inject anything.
 const crypto = require("node:crypto");
 const fs = require("node:fs");
@@ -10,24 +10,28 @@ const { execFileSync } = require("node:child_process");
 
 const REGISTRY = "--registry=https://registry.npmjs.org/";
 const COMMAND_COUNT = 14;
+// Per-call cap on one `npm view`: a hung call must not outlive the wait's deadline.
+const CALL_CAP_MS = 30000;
 
 function checkVersion(v) {
   return typeof v === "string" && /^\d+\.\d+\.\d+$/.test(v);
 }
 
-function npmView(run, v, field) {
-  return String(run("npm", ["view", `akili-specs@${v}`, field, REGISTRY])).trim();
+function npmView(run, v, field, timeoutMs) {
+  return String(run("npm", ["view", `akili-specs@${v}`, field, REGISTRY], { timeoutMs })).trim();
 }
 
 function wait(v, { timeout, interval, run, sleep, now }) {
   const start = now();
   const deadline = timeout * 1000;
   for (;;) {
+    // Capped, and never past the deadline; at least 1 ms because execFileSync reads 0 as "no timeout".
+    const timeoutMs = Math.max(1, Math.min(CALL_CAP_MS, deadline - (now() - start)));
     let seen = "";
     try {
-      seen = npmView(run, v, "version");
+      seen = npmView(run, v, "version", timeoutMs);
     } catch {
-      // Not published yet (E404) or a registry blip: keep polling.
+      // Not published yet (E404), a registry blip or a timed-out call: keep polling.
     }
     if (seen === v) return 0;
     const remaining = deadline - (now() - start);
@@ -40,7 +44,7 @@ function verify(tgz, v, { run, readFile }) {
   const actual = "sha512-" + crypto.createHash("sha512").update(readFile(tgz)).digest("base64");
   let expected = "";
   try {
-    expected = npmView(run, v, "dist.integrity");
+    expected = npmView(run, v, "dist.integrity", CALL_CAP_MS);
   } catch {
     return 1;
   }
@@ -64,9 +68,15 @@ function smoke(resultFile, v, { readFile }) {
   return ok ? 0 : 1;
 }
 
+// Absent flag: the fallback. Present with a missing, non-numeric, non-finite or
+// non-positive value: NaN, which main turns into a usage error (exit 2).
 function flag(args, name, fallback) {
   const i = args.indexOf(name);
-  return i === -1 ? fallback : Number(args[i + 1]);
+  if (i === -1) return fallback;
+  const raw = args[i + 1];
+  if (raw === undefined || raw.startsWith("--") || raw.trim() === "") return NaN;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : NaN;
 }
 
 function main(argv, deps) {
@@ -76,7 +86,10 @@ function main(argv, deps) {
   const v = sub === "wait" ? rest[0] : rest[1];
   if (!checkVersion(v)) return 2;
   if (sub === "wait") {
-    return wait(v, { timeout: flag(rest, "--timeout", 600), interval: flag(rest, "--interval", 15), ...deps });
+    const timeout = flag(rest, "--timeout", 600);
+    const interval = flag(rest, "--interval", 15);
+    if (Number.isNaN(timeout) || Number.isNaN(interval)) return 2;
+    return wait(v, { timeout, interval, ...deps });
   }
   return sub === "verify" ? verify(rest[0], v, deps) : smoke(rest[0], v, deps);
 }
@@ -85,7 +98,8 @@ module.exports = { checkVersion, wait, verify, smoke, main };
 
 if (require.main === module) {
   const deps = {
-    run: (cmd, args) => execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }),
+    run: (cmd, args, opts = {}) =>
+      execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: opts.timeoutMs }),
     now: () => Date.now(),
     sleep: (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms),
     readFile: (p) => fs.readFileSync(p),
