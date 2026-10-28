@@ -58,16 +58,26 @@ test("the version reaches the shell through env: only", () => {
   assert.match(yml, /env:\s*\n\s*INPUT_VERSION: \$\{\{ inputs\.version \}\}\s*\n\s*TAG_NAME: \$\{\{ github\.event\.release\.tag_name \}\}/);
 });
 
-test("steps run in order: check-version, wait, verify, credentials, cdk deploy, smoke", () => {
+test("steps run in order: check-version, wait, verify, infra install, credentials, cdk deploy, smoke", () => {
   const order = [
     "node scripts/mcp-deploy-guard.js check-version",
     "node scripts/mcp-deploy-guard.js wait",
     "node scripts/mcp-deploy-guard.js verify",
+    "npm ci --ignore-scripts",
     "aws-actions/configure-aws-credentials",
     "cdk deploy",
     "node scripts/mcp-deploy-guard.js smoke",
   ].map(at);
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
+});
+
+test("every npm ci is script-free and every action is pinned to a full SHA", () => {
+  const ci = lines.filter((l) => /\bnpm ci\b/.test(l));
+  assert.equal(ci.length, 1);
+  for (const l of ci) assert.match(l, /npm ci --ignore-scripts/, l);
+  const uses = lines.filter((l) => /^\s*(?:- )?uses:/.test(l));
+  assert.equal(uses.length, 3);
+  for (const l of uses) assert.match(l, /uses: [\w.\/-]+@[0-9a-f]{40} # v\d/, l);
 });
 
 test("an unset role variable skips green, and only the service stack is deployed", () => {

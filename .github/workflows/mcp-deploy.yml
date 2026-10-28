@@ -2,7 +2,9 @@ name: MCP Deploy
 
 # Deploys exactly the published npm tarball of a stable release to AWS
 # (FR-5). Tag and input values reach shell only through env: variables, never
-# as expression text inside a run: block. Nothing here runs until the aws-mcp environment holds
+# as expression text inside a run: block. Actions are pinned to full commit SHAs, and
+# infra dependencies install with --ignore-scripts before AWS credentials exist.
+# Nothing here runs until the aws-mcp environment holds
 # the AWS_ROLE_ARN variable; until then the job ends green with a summary note.
 on:
   release:
@@ -34,12 +36,12 @@ jobs:
       FUNCTION_NAME: akili-mcp-content
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: ${{ github.event.release.tag_name || github.ref }}
           persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
 
@@ -80,9 +82,14 @@ jobs:
           mkdir "$RUNNER_TEMP/pkg"
           tar -xzf "$RUNNER_TEMP/akili-specs-$V.tgz" --strip-components=1 -C "$RUNNER_TEMP/pkg"
 
+      - name: Install infra dependencies
+        if: steps.gate.outputs.deploy == 'true'
+        working-directory: infra/mcp-gateway
+        run: npm ci --ignore-scripts
+
       - name: configure-aws-credentials
         if: steps.gate.outputs.deploy == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: us-east-1
@@ -100,9 +107,7 @@ jobs:
         working-directory: infra/mcp-gateway
         env:
           AKILI_MCP_ALERT_EMAIL: ${{ vars.AKILI_MCP_ALERT_EMAIL }}
-        run: |
-          npm ci
-          npx cdk deploy akili-mcp-service --require-approval never -c packageDir="$RUNNER_TEMP/pkg" -c version="$V" -c stage=prod
+        run: npx cdk deploy akili-mcp-service --require-approval never -c packageDir="$RUNNER_TEMP/pkg" -c version="$V" -c stage=prod
 
       - name: smoke
         if: steps.gate.outputs.deploy == 'true'

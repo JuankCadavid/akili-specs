@@ -130,7 +130,7 @@ Lookups are `Map.get(key)` on exact strings; no input is ever joined onto a path
 | Log group | Explicit, 14 days | D-7 |
 | Cognito user pool | Self sign-up on, sign-in alias email, auto-verify email, required attribute email only, Essentials plan, deletion protection on in `prod`, default Cognito email sender (P-17) | D-1, D-5 |
 | Domain | Cognito prefix domain `akili-mcp[-spike]-<suffix>` with managed login | D-6 |
-| App client | No secret; code grant; PKCE is used by the client: Cognito supports PKCE but does not enforce it for public clients (corrected 2026-10-27 at T3, P-15); the stack's enforceable controls are code grant only, no secret and `allowedClients`, and the client's PKCE use is checked at T6; callback `http://localhost:<callbackPort>/callback`; scopes `openid`, `email`; access token 60 min, refresh 30 days | D-2 |
+| App client | No secret; code grant; PKCE is used by the client: Cognito supports PKCE but does not enforce it for public clients (corrected 2026-10-27 at T3, P-15); the stack's enforceable controls are code grant only, no secret and `allowedClients`, and the client's PKCE use is checked at T6; `ExplicitAuthFlows` = `[ALLOW_REFRESH_TOKEN_AUTH]` only, so no SRP, password, custom or `ALLOW_USER_AUTH` sign-in bypasses managed login (S1, 2026-10-28; leaving the property unset would enable SRP and custom auth, and T6 confirms managed login still signs in); callback `http://localhost:<callbackPort>/callback`; scopes `openid`, `email`; access token 60 min, refresh 30 days | D-2 |
 | Gateway | `protocolType MCP`; `CUSTOM_JWT` with `discoveryUrl` = the pool's `/.well-known/openid-configuration`, `allowedClients` = [client ID] | FR-4, DD-7 |
 | Target `akili` | Lambda on the `live` alias; inline `TOOL_DEFINITIONS` read from `packageDir/bin/mcp-core.js` | DD-4 |
 | Rate limits | 60/min keyed `$.context.jwt.sub`; 20/s global. Implemented as `AWS::BedrockAgentCore::GatewayRateLimit` (`CfnGatewayRateLimit`; settled at T3, P-10). The global limit is keyed on `targetName` = `akili`, because a rate limit needs a dimension key; whether it covers `tools/list` is checked at T6 | D-3 |
@@ -172,7 +172,7 @@ The budget switch therefore caps a sustained global attack at about $20 plus the
 | Subcommand | Logic | Exit |
 |---|---|---|
 | `check-version <v>` | `^\d+\.\d+\.\d+$` | 0 / 2 |
-| `wait <v> --timeout 600 --interval 15` | Repeats `npm view akili-specs@<v> version --registry=https://registry.npmjs.org/` until stdout equals `<v>` | 0 / 1 after timeout |
+| `wait <v> --timeout 600 --interval 15` | Repeats `npm view akili-specs@<v> version --registry=https://registry.npmjs.org/` until stdout equals `<v>`, against an elapsed-time deadline on an injected clock: no sleep runs past the deadline (S1, 2026-10-28) | 0 / 1 after timeout |
 | `verify <tgz> <v>` | Computes `sha512-` + base64 of the file; compares with `npm view … dist.integrity` | 0 / 1 |
 | `smoke <result.json> <v>` | Parses the invoke payload; requires `akiliVersion === v`, `commands.length === 14`, no `error` | 0 / 1 |
 
@@ -187,11 +187,11 @@ Each subcommand is a pure function over injected `run(cmd, args)`, `sleep(ms)` a
    - Permissions are `id-token: write` and `contents: read`.
 2. **Version.** Taken from `inputs.version`, or from `release.tag_name` with the leading `v` removed. It passes through an `env:` variable, never interpolated into `run:` text, and `check-version` validates it.
 3. **Role gate.** If `vars.AWS_ROLE_ARN` is empty, the job writes *"MCP deploy skipped: no deploy role configured"* to the summary and stops green (FR-5).
-4. **Fetch and verify.** `wait`, then `npm pack akili-specs@$V`, then `verify`, then untar to `$RUNNER_TEMP/pkg`.
-5. **Credentials.** `aws-actions/configure-aws-credentials` with `role-to-assume: ${{ vars.AWS_ROLE_ARN }}` and region `us-east-1`. No secret is used.
+4. **Fetch and verify.** `wait`, then `npm pack akili-specs@$V`, then `verify`, then untar to `$RUNNER_TEMP/pkg`. Then `npm ci --ignore-scripts` in `infra/mcp-gateway`, **before** any credentials exist, so no dependency script runs with deploy credentials (S1, 2026-10-28).
+5. **Credentials.** `aws-actions/configure-aws-credentials` with `role-to-assume: ${{ vars.AWS_ROLE_ARN }}` and region `us-east-1`. No secret is used. Every `uses:` in this workflow is pinned to a full 40-hex commit SHA with the tag in a trailing comment (S1, 2026-10-28).
 6. **Deploy.**
    - Record the current `live` version with `aws lambda get-alias`; it is empty on the first deploy.
-   - Then run `npm ci` and `cdk deploy akili-mcp-service --require-approval never` in `infra/mcp-gateway`, with `-c packageDir -c version -c stage=prod`.
+   - Then run `cdk deploy akili-mcp-service --require-approval never` in `infra/mcp-gateway`, with `-c packageDir -c version -c stage=prod`.
 7. **Smoke.** `aws lambda invoke` on the `live` alias, with a base64 client context naming `akili___list_commands`, then `smoke`.
    - Red with a recorded previous version: `aws lambda update-alias` back to it, then fail.
    - Red on the first deploy: fail with nothing to roll back.

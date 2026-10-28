@@ -82,7 +82,10 @@ class ServiceStack extends cdk.Stack {
     const client = pool.addClient("Client", {
       userPoolClientName: `${p}-client`,
       generateSecret: false,
-      authFlows: { userSrp: true },
+      // Hosted-UI code grant needs no direct auth flow. A non-empty authFlows object makes CDK emit
+      // ExplicitAuthFlows [ALLOW_REFRESH_TOKEN_AUTH]; an empty/absent one would leave the property unset,
+      // which AWS reads as SRP + custom enabled.
+      authFlows: { userSrp: false },
       supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.COGNITO],
       oAuth: {
         flows: { authorizationCodeGrant: true },

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 // Deploy guards for .github/workflows/mcp-deploy.yml (FR-5). Each subcommand is
-// a pure function over injected run(cmd, args), sleep(ms) and readFile; the CLI
+// a pure function over injected run(cmd, args), sleep(ms), now() (ms) and readFile; the CLI
 // binds the real ones. npm is always called with an argument array, never a
 // shell string, so a hostile version cannot inject anything.
 const crypto = require("node:crypto");
@@ -19,9 +19,10 @@ function npmView(run, v, field) {
   return String(run("npm", ["view", `akili-specs@${v}`, field, REGISTRY])).trim();
 }
 
-function wait(v, { timeout, interval, run, sleep }) {
-  const polls = Math.max(1, Math.floor(timeout / interval));
-  for (let i = 0; i < polls; i++) {
+function wait(v, { timeout, interval, run, sleep, now }) {
+  const start = now();
+  const deadline = timeout * 1000;
+  for (;;) {
     let seen = "";
     try {
       seen = npmView(run, v, "version");
@@ -29,9 +30,10 @@ function wait(v, { timeout, interval, run, sleep }) {
       // Not published yet (E404) or a registry blip: keep polling.
     }
     if (seen === v) return 0;
-    if (i < polls - 1) sleep(interval * 1000);
+    const remaining = deadline - (now() - start);
+    if (remaining <= 0) return 1;
+    sleep(Math.min(interval * 1000, remaining));
   }
-  return 1;
 }
 
 function verify(tgz, v, { run, readFile }) {
@@ -84,6 +86,7 @@ module.exports = { checkVersion, wait, verify, smoke, main };
 if (require.main === module) {
   const deps = {
     run: (cmd, args) => execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }),
+    now: () => Date.now(),
     sleep: (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms),
     readFile: (p) => fs.readFileSync(p),
   };

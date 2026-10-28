@@ -267,3 +267,56 @@ No High row was refuted: the Gateway, its `CUSTOM_JWT` authorizer and its Lambda
 **Cause:** root test code. T1 and T2 shipped ≈ 1,640 LOC of tests against ≈ 800 estimated, the pattern KZ-bugfix--init-ctrlc-abort-2 records (one assertion per clause). Production code ran close to estimate (core + handler ≈ 731 vs 440; CDK ≈ 700 vs 740; guard + workflow 223 vs 260).
 
 **Decision owed to the maintainer:** continue with T5 at an expected ≈ 3,970 LOC, or stop here. Nothing past T4 has started.
+
+## Maintainer decision: continue past the tripwire (2026-10-28 5:55 AM)
+
+Recorded verbatim from the maintainer's brief:
+
+> "APPROVED: (1) T5 even though it exceeds the 3,700-line budget (about 3,970 expected; record the budget overrun approval in execution.md). (2) In the same round, also fix these reviewer security findings and log them in execution.md as maintainer-approved scope: (a) mcp-deploy.yml: npm ci must not run with deploy credentials loaded (use --ignore-scripts and/or install before configure-aws-credentials); pin aws-actions/configure-aws-credentials and other third-party actions by full commit SHA; make the 10-minute npm wait use elapsed time, not poll count. (b) Cognito app client: disable direct SRP/password auth flows (ALLOW_USER_SRP_AUTH etc.) so sign-in only goes through the hosted login page (authorization code + PKCE), keeping refresh tokens; update the offline infra checks to assert it."
+
+| Item | Effect on the plan |
+|---|---|
+| Budget overrun | The 3,700 LOC tripwire is lifted for T5 and the security fixes only. The task (7) and per-task review-round (3) limits still stand |
+| Security fixes | Run as one extra unit, **S1** (maintainer-approved scope, not an advisory promotion: AGENTS.md *Scope only grows through approval*). S1 runs before T5 so the T5 docs describe the final workflow and client. Review `full` with a security lens (it changes the auth surface and the deploy credentials window) |
+
+### S1 sources (Leader, raw-verified 2026-10-28)
+
+| Claim | Source | Quote |
+|---|---|---|
+| Leaving `ExplicitAuthFlows` unset does not disable SRP | <https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-cognito-userpoolclient.html> | "If you don't specify a value for ExplicitAuthFlows , your app client supports ALLOW_REFRESH_TOKEN_AUTH , ALLOW_USER_SRP_AUTH , and ALLOW_CUSTOM_AUTH ." |
+| `ALLOW_USER_AUTH` would re-open password and SRP sign-in | same page | "This authentiation flow can do username-password and SRP authentication without other ExplicitAuthFlows permitting them." |
+| The refresh flow is its own value | same page | "ALLOW_REFRESH_TOKEN_AUTH : Enable authflow to refresh tokens." |
+| `ExplicitAuthFlows` governs SDK sign-in for apps, not the browser flow | <https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow-methods.html> | "To permit SRP sign-in for a client-side mobile or native app, edit an app client and choose Sign in with secure remote password (SRP): ALLOW_USER_SRP_AUTH under Authentication flows ." |
+| Action pins | `git ls-remote --tags` on each action repo (lightweight tags, so the value is the commit) | `actions/checkout` v5.1.0 = `fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09`; `actions/setup-node` v5.0.0 = `a0853c24544627f65ddf259abe73b1d18a591444`; `aws-actions/configure-aws-credentials` v4.3.1 = `7474bc4690e29a8392af63c5b98e7449536d5c3a` |
+
+No page found states in so many words that managed login keeps working when `ExplicitAuthFlows` is `[ALLOW_REFRESH_TOKEN_AUTH]` alone. The quotes above place the flows on the SDK path, so the stack sets refresh-only and **T6 confirms the managed-login sign-in still works** (added to the T6 open items, not a new task).
+
+## S1: security fixes (maintainer-approved scope, 2026-10-28)
+
+**Scope:** the maintainer's items (a) and (b) above. Spec amendments by the Leader: requirements FR-4 (app client, refresh-only flows) and FR-5 (wait is an elapsed-time bound); design §7.3 App client row, the guard `wait` row, and workflow steps 4–6; the tasks.md T6 row gains the managed-login sign-in check.
+
+### Attempt 1 (Implementer `sonnet`, effort high)
+
+- `infra/mcp-gateway/lib/service-stack.js`: `authFlows: { userSrp: false }`. aws-cdk-lib 2.274.0 renders any non-empty `authFlows` as `[ALLOW_REFRESH_TOKEN_AUTH]` plus the flags set, and an empty or absent one as an unset property (which AWS reads as SRP + custom on), so no L1 override was needed. `checks/stack.check.js:90` asserts the literal `["ALLOW_REFRESH_TOKEN_AUTH"]`.
+- `scripts/mcp-deploy-guard.js` `wait`: an injected `now()` clock (the CLI binds `Date.now`), at least one poll, each sleep clamped to `min(interval, remaining)`, exit 1 when the elapsed time reaches the timeout.
+- `.github/workflows/mcp-deploy.yml`: all three `uses:` pinned by full commit SHA with a `# vX.Y.Z` comment. A new step, *Install infra dependencies*, runs `npm ci --ignore-scripts` after the tarball verify and before `configure-aws-credentials`. The deploy step runs only `npx cdk deploy` with unchanged arguments. The lockfile has 0 `hasInstallScript` entries.
+- Tests:
+  - `test/mcp-deploy-guard.test.js` uses a fake clock that the fake sleep and slow calls advance.
+  - `test/mcp-contract.test.js` has the install inside the order test, plus one new test: exactly one `npm ci`, which carries `--ignore-scripts`, and every `uses:` is a 40-hex SHA plus a `# v` comment.
+- **Reds (quoted from the Implementer, all restored afterwards):**
+  1. `userSrp: true` → `not ok 6 - FR-4 public app client …` `+ 'ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH'`.
+  2. New wait tests against the old poll-count code → `not ok 3 … expected: 600000 actual: 585000`; `not ok 4 - wait never sleeps past the deadline when each npm view call is slow … 'finished at 1385000 ms'`; `not ok 5 - wait clamps its last sleep to the time remaining`.
+  3. Install moved after credentials → order test red. Plain `npm ci` → `missing: npm ci --ignore-scripts` and `not ok 7 … 'run: npm ci'`. `setup-node@v5` unpinned → `not ok 7 … 'uses: actions/setup-node@v5'`. `# v4.3.1` comment removed → `not ok 7`.
+- **Evidence re-run (Leader, non-author): VERIFIED.** `npm test` 1294/1294 pass, 0 fail. Infra `npm run check` 20/20. A direct `wait` call with 20 s npm calls returns `1 18 615000`: 18 calls, ended at 615 s, no sleep past the deadline.
+- **Reviewer (`opus`, conformance + security lenses): PASS.**
+  - Mutations `userSrp`, `custom` and `user` each turned one check red.
+  - An offline `npm ci --ignore-scripts` still links `node_modules/.bin/cdk`.
+  - `git ls-remote` confirms all three SHAs.
+  - No `${{` appears in any `run:` text, and no changed line holds an account ID or ARN.
+- **ADVISORY (recorded, not actioned):**
+  - **RESILIENCE:** a hung `npm view` has no per-call timeout (`execFileSync` with no `timeout`, the job with no `timeout-minutes`), so the wait can overrun 10 minutes by one call's duration. With a hang it could reach GitHub's 6-hour job default. This all happens before credentials exist. Suggested fix: a per-call `timeout`, and/or `timeout-minutes` on the step.
+  - **RELIABILITY:** `--timeout` or `--interval` with no value becomes `NaN`, and `sleep(NaN)` blocks forever. The workflow passes literals, so the deploy path is not affected. Suggested fix: reject a non-finite flag with exit 2.
+
+**LOC (excluding docs/specs):** 128 changed (93 insertions, 35 deletions). **Review rounds:** 1.
+
+**Running totals:** tasks 4 of 7 plus S1 · LOC ≈ 3,640 (T1–T4 ≈ 3,547 + S1 93 insertions) · tripwire lifted for T5 and S1 by the maintainer (2026-10-28) · review rounds T1 1, T2 3, T3 2, T4 1, S1 1.

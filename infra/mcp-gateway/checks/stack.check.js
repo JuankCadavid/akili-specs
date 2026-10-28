@@ -87,6 +87,7 @@ test("FR-4 public app client: no secret, code grant, localhost callback, openid+
   assert.deepEqual(c.CallbackURLs, ["http://localhost:33418/callback"]);
   assert.deepEqual([...c.AllowedOAuthScopes].sort(), ["email", "openid"]);
   assert.deepEqual(c.SupportedIdentityProviders, ["COGNITO"]);
+  assert.deepEqual(c.ExplicitAuthFlows, ["ALLOW_REFRESH_TOKEN_AUTH"]);
 });
 
 test("FR-4 gateway: MCP, CUSTOM_JWT, discovery URL, allowedClients = the client", () => {
