@@ -91,7 +91,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~150 LOC incl. test edits) |
 | Depends on | — |
 | Requirements | FR-2 (map shape, sourcing, distinct types, no mass generation), FR-3 (approach table, social proof), FR-4, NFR-2, NFR-4 |

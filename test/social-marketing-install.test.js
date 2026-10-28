@@ -36,6 +36,7 @@ const COMMAND_SRC = path.join(REPO_ROOT, ".claude", "commands", "akili-marketing
 const EXPECTED_FILES = [
   "LICENSE",
   "SKILL.md",
+  "references/angles-framework.md",
   "references/brand-voice-template.md",
   "references/facebook.md",
   "references/hook-formulas.md",

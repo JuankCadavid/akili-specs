@@ -225,7 +225,7 @@ const SKILL_FILE_COUNT = countFiles(SOURCE_SKILLS);
 const SKILL_DIR_COUNT = fs
   .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
   .filter((e) => e.isDirectory()).length;
-const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 244 = 258
+const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 245 = 259
 const RESOURCE_FILE_COUNT = 8; // gsc_verify.py, parse_tests.js, leader/implementer/reviewer/tester.md, digests.json, .mcp.json.example
 // The installer's OWN install/skip/overwrite counters (and the printed
 // "install "/"skip existing " lines) are per top-level operation, not per
@@ -243,8 +243,8 @@ test(
   (t) => {
     assert.equal(
       SKILL_FILE_COUNT,
-      244,
-      `expected 244 packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
+      245,
+      `expected 245 packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
         "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"
     );
     assert.equal(COMMAND_COUNT, 14, `expected 14 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);
@@ -338,7 +338,7 @@ test(
 
     // File-level proof (the "every skill FILE skipped" half of the scenario,
     // not just every top-level directory operation): the shared root holds
-    // exactly the real 258 files (14 command SKILL.md + 244 packaged skill
+    // exactly the real 259 files (14 command SKILL.md + 245 packaged skill
     // files), and the Cursor block rewrote none of them -- content is
     // byte-identical to what the Codex block alone wrote.
     const sharedFileList = listRelativeFiles(skillsShared);
