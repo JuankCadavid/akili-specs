@@ -183,7 +183,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~170 LOC) |
 | Depends on | T2, T4 |
 | Requirements | Pins every §3 row whose *Pins* column names T5; NFR-1 |
