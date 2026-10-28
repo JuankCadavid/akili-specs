@@ -10,10 +10,11 @@
 | Type | Change |
 | Deliverable | software (methodology prompts, skill references, docs) |
 | Approval Mode | gated |
+| Status | **Approved** — Juan Carlos Cadavid, 2026-10-28 06:42, "APPROVE the growth-angles proposal (d9c0fd0) with the recommended option B and recommended D-1 to D-9, with ONE change: D-5 is overridden." |
 | Requested by | Juan Carlos Cadavid (maintainer), 2026-10-28 |
 | Source | Brief pasted in session: adopt the structure of Nico Azero's content method ("Así creo 6.480 reels con Claude en 3h"). The video URL was **not** fetched, by instruction; the method is taken only from the brief's summary |
 | Source questions | Requirement source and visual source both supplied by the brief (no Jira, no Figma); process gates answered with the recommended option per the brief |
-| Visual | None — prompt/docs change; figure change deferred (D-5) |
+| Visual | Existing flow figure (`assets/akili-flow.svg`, `assets/akili-flow-animated.svg`, `assets/akili-flow.png`), redrawn in this spec (D-5 overridden) |
 | Reference input | Private draft angle map supplied by the maintainer (outside the repo, not approved); read for structure only, nothing copied — see §8 *Grounding* |
 | Depends on | none |
 | Parallel-safe | yes with `methodology-mcp` (different files) — **except** the shared release slot: both may target 2.38.0 (D-7) and both may touch `CHANGELOG.md` `Unreleased` |
@@ -46,7 +47,7 @@ Make AKILI's marketing drafts come from the business, not from the model. Today 
 3. **Selection, not mass generation.** `campaign` slots and `post` requests pick one approved angle (`<pillar>/<type>-<n>`) and one of five approaches — expert, bridge, differentiator, social proof, connection. The post header records both. `social proof` requires a real proof from the story bank or brief.
 4. **Three hooks.** `post` offers three hook candidates from `hook-formulas.md` for the chosen angle; the user picks one; only the chosen hook reaches the card. Card fields and the approval gate are unchanged.
 5. **Ask once.** When `docs/prd.md` exists, `brand` and `angles` pre-fill customer, offer, objections and beliefs from it (cited) and ask only for gaps; when `brand-voice.md` (`filled: yes`) exists, `/akili-constitution` Step 2 offers its foundations as proposed defaults, recorded as cited Assumptions.
-6. **Growth track (docs).** README, `docs/overview.md`, `docs/flow.md` group `/akili-seo` and `/akili-marketing` as the growth track, with the data flow between them and the baseline in one table.
+6. **Growth track (docs + figure).** README, `docs/overview.md`, `docs/flow.md` group `/akili-seo` and `/akili-marketing` as the growth track, with the data flow between them and the baseline in one table; the flow figure shows the growth group and its link to `/akili-constitution`.
 
 ## 5. Scope
 
@@ -54,6 +55,7 @@ Make AKILI's marketing drafts come from the business, not from the model. Today 
 - `.claude/skills/social-marketing/`: `brand-voice-template.md` gains the foundation sections; new `references/angles-framework.md` (angle types, the five approaches, sourcing rule, attribution); `planning-and-calendar.md` slot shape gains Angle + Approach; `SKILL.md` integration table gains the `angles` row.
 - `.claude/commands/akili-constitution.md`: optional PRD section *Customer Objections & Beliefs* (filled only from user-supplied material; thin-seed rules apply) and one Step 2 bullet reading `brand-voice.md` foundations as cited defaults.
 - Docs: `docs/commands/akili-marketing.md`, `docs/skills/social-marketing.md`, `docs/overview.md`, `docs/flow.md` (growth-track paragraph + artifacts row for `angles.md`), `docs/README.md`, README (one line at most; README stays short).
+- Figure (D-5 override): `assets/akili-flow.svg`, `assets/akili-flow-animated.svg`, `assets/akili-flow.png` and the `flow-figure-*` contract tests; README/`docs/flow.md` figure alt text.
 - Tests: extend the existing marketing contract tests (`test/akili-marketing-command.test.js`, `test/social-marketing-skill.test.js`, `test/akili-marketing-docs.test.js`; "six modes" assertions become seven).
 - `CHANGELOG.md` `Unreleased` entry.
 
@@ -65,7 +67,7 @@ Make AKILI's marketing drafts come from the business, not from the model. Today 
 - No fetch of the source video or any URL.
 - No new platforms; no video/reel production beyond today's script-brief pointer.
 - No SEO behavior change: `/akili-seo` neither reads nor writes `angles.md` in this spec (D-4).
-- No redraw of `assets/akili-flow.svg`, `assets/akili-flow-animated.svg` or the PNG in this spec (D-5).
+- ~~No redraw of the flow figure (D-5)~~ — withdrawn: D-5 overridden at approval; the redraw is in scope.
 - No forced migration of existing `brand-voice.md` files: a file without the new sections stays valid.
 
 ## 7. Affected Users, Systems, And Specs
@@ -162,7 +164,7 @@ The maintainer supplied a private, unapproved draft angle map built with this me
 | D-2 | Angles per type: exactly 9 or up to 9 | **Up to 9**, never padded |
 | D-3 | Approval granularity for `angles.md`: per pillar section, or per angle | **Per pillar section** (one card per pillar, ≤ 36 lines) |
 | D-4 | SEO ↔ angles link: none now; or `/akili-seo` Growth Strategy Addendum maps topic clusters to pillars | **None now**; docs note only; follow-up spec |
-| D-5 | Flow figure: unchanged; or add a "growth" sub-group in the Anytime lane (both SVGs + PNG + figure tests) | **Unchanged here**; separate patch spec if wanted |
+| D-5 | Flow figure: unchanged; or add a "growth" sub-group in the Anytime lane (both SVGs + PNG + figure tests) | ~~Unchanged here~~ **Overridden by the maintainer (2026-10-28): redraw in this spec** — growth group (`/akili-seo` + `/akili-marketing`) and its link to `/akili-constitution`, in both SVGs and the PNG together; reduced-motion behavior and the 3-cycles-then-rest animation kept; `flow-figure-*` contract tests updated deliberately, never loosened |
 | D-6 | Attribution wording for Nico Azero's method (name, title, no link fetched) | "Structure adapted from Nico Azero's content method (video *Así creo 6.480 reels con Claude en 3h*); AKILI's own words" |
 | D-7 | Release: this spec as 2.38.0 alone, or bundled with `methodology-mcp` in one minor | Whichever lands first takes 2.38.0; the other rebases its `Unreleased` notes |
 | D-8 | Where the 3 hooks live: plan slot (candidates, as in the reference) or only in `post` | **Both**: plan slot lists 3 candidates, `post` confirms one; only the chosen hook reaches the card |
@@ -170,7 +172,7 @@ The maintainer supplied a private, unapproved draft angle map built with this me
 
 ### Open questions
 
-- Should `angles` also seed from the story bank's *Positions* (beliefs) and *Scars* (objections), or only from foundations + PRD? Proposed: yes, as cited sources.
+- Should `angles` also seed from the story bank's *Positions* (beliefs) and *Scars* (objections), or only from foundations + PRD? Proposed: yes, as cited sources. **Resolved at approval: yes** — *Positions* may seed beliefs, *Scars* objections, each cited.
 - Does any constitution test pin the nine PRD sections? Check at `/akili-specify` (premise to verify, not assumed).
 
 ## 13. Success Criteria
@@ -180,6 +182,16 @@ The maintainer supplied a private, unapproved draft angle map built with this me
 - Existing `brand-voice.md` files without the new sections still pass the brand-voice check.
 - Every marketing invariant test still passes unchanged; seven-mode assertions are green.
 - `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` pass.
+
+## Approval Record
+
+| Item | Decision |
+|---|---|
+| Option | B |
+| D-1 … D-9 | Recommended values, except D-5 |
+| D-5 | Overridden: figure redrawn in this spec (see the D-5 row) |
+| Story bank open question | Accepted |
+| Approved by | Juan Carlos Cadavid, 2026-10-28 06:42 |
 
 ## 14. Next Step
 
