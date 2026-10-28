@@ -1,5 +1,5 @@
-// Tests for bin/mcp-core.js (catalog, path guard, rendering, paging,
-// list_commands, get_command). Expected values come from the approved
+// Tests for bin/mcp-core.js (catalog, path guard, rendering, paging, the seven
+// tools, search, the error envelope). Expected values come from the approved
 // scenarios (FR-1, FR-2), the real npm pack list, and independent re-derivations
 // of the file text, never from the code under test.
 "use strict";
@@ -595,9 +595,8 @@ test("FR-2 error results carry code from the closed set, and no stack trace or f
     realCore.callTool("get_command", {}),
     realCore.callTool("get_command", { name: "akili-audit", part: 99 }),
     realCore.callTool("nope", {}),
-    realCore.callTool("search", { query: "x" }), // stubbed in T1: internal
+    realCore.callTool("search", { query: "   " }),
   ];
-  assert.equal(samples[4].error.code, "internal");
   for (const r of samples) {
     assert.ok(core.ERROR_CODES.includes(r.error.code));
     const s = JSON.stringify(r);
@@ -618,6 +617,611 @@ test("FR-2 a throw inside a handler becomes a generic internal error with no pat
     assert.ok(!JSON.stringify(r).includes("ENOENT"));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// FR-2 Lists and lookups: list_skills, get_skill, get_template, get_file
+// ---------------------------------------------------------------------------
+
+// Independent recursive listing of one skill directory as catalog keys.
+function skillKeysOnDisk(dir) {
+  const out = [];
+  const walk = (abs, rel) => {
+    for (const name of fs.readdirSync(abs).sort()) {
+      if (name.startsWith(".")) continue;
+      const a = path.join(abs, name);
+      if (fs.statSync(a).isDirectory()) walk(a, `${rel}/${name}`);
+      else out.push(`${rel}/${name}`);
+    }
+  };
+  walk(path.join(REPO_ROOT, ".claude", "skills", dir), `skills/${dir}`);
+  return out;
+}
+
+function independentBinding(text) {
+  const m = /^[ \t]+binding:[ \t]*(\S+)[ \t]*$/m.exec(text.split(/\r?\n---\r?\n/)[0]);
+  return m ? m[1].replace(/^"|"$/g, "") : null;
+}
+
+test("FR-2 list_skills: one entry per .claude/skills directory, sorted, with frontmatter name, description, binding and catalog-key files", () => {
+  const r = realCore.callTool("list_skills");
+  assert.equal(r.akiliVersion, realCore.akiliVersion);
+  const dirs = fs
+    .readdirSync(path.join(REPO_ROOT, ".claude", "skills"), { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .sort();
+  assert.equal(dirs.length, 29);
+  assert.deepEqual(
+    r.skills.map((e) => e.name),
+    dirs
+  );
+  for (const e of r.skills) {
+    assert.deepEqual(Object.keys(e), ["name", "description", "binding", "files"]);
+    const text = read(`.claude/skills/${e.name}/SKILL.md`);
+    assert.equal(e.description, independentFrontmatterField(text, "description"));
+    assert.equal(e.binding, independentBinding(text), `${e.name} binding`);
+    assert.ok(["core", "conditional", "stack"].includes(e.binding), `${e.name}: ${e.binding}`);
+    assert.deepEqual(e.files, skillKeysOnDisk(e.name));
+    assert.ok(e.files.includes(`skills/${e.name}/SKILL.md`));
+    for (const f of e.files) assert.ok(realCore.keys().includes(f), `${f} is a catalog key`);
+  }
+});
+
+test("FR-2 list_skills: binding is null when the SKILL.md has none", () => {
+  const dir = tmpCopyOfFixture();
+  try {
+    fs.writeFileSync(path.join(dir, ".claude", "skills", "s", "SKILL.md"), "---\nname: s\ndescription: no meta\n---\nbody\n");
+    const c = core.createCore({ packageDir: dir });
+    assert.deepEqual(c.callTool("list_skills").skills, [
+      { name: "s", description: "no meta", binding: null, files: ["skills/s/SKILL.md", "skills/s/references/r.md"] },
+    ]);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("FR-2 get_skill: SKILL.md by default, another file of the skill when given, text equal to the file", () => {
+  const def = realCore.callTool("get_skill", { name: "tdd" });
+  assert.deepEqual(Object.keys(def), ["akiliVersion", "name", "file", "part", "parts", "text"]);
+  assert.equal(def.name, "tdd");
+  assert.equal(def.file, "SKILL.md");
+  assert.equal(def.text, read(".claude/skills/tdd/SKILL.md").slice(0, def.text.length));
+  assert.equal(def.parts, core.splitParts(read(".claude/skills/tdd/SKILL.md")).length);
+  const ref = realCore.callTool("get_skill", { name: "tdd", file: "mocking.md" });
+  assert.equal(ref.file, "mocking.md");
+  assert.equal(ref.text, read(".claude/skills/tdd/mocking.md"));
+});
+
+test("FR-2 get_skill with an unknown file returns not_found and lists that skill's files", () => {
+  const r = realCore.callTool("get_skill", { name: "tdd", file: "nope.md" });
+  assert.equal(r.error.code, "not_found");
+  assert.deepEqual(r.error.files, skillKeysOnDisk("tdd"));
+});
+
+test("FR-2 an unknown skill name is not_found with the list of valid names", () => {
+  const r = realCore.callTool("get_skill", { name: "no-such-skill" });
+  assert.equal(r.error.code, "not_found");
+  assert.deepEqual(r.error.valid, realCore.callTool("list_skills").skills.map((e) => e.name));
+  assert.equal(r.error.valid.length, 29);
+});
+
+const TEMPLATE_TABLE = [
+  ["leader", "templates/leader.md"],
+  ["implementer", "templates/implementer.md"],
+  ["reviewer", "templates/reviewer.md"],
+  ["tester", "templates/tester.md"],
+  ["model-registry", "templates/model-registry.json"],
+  ["model-routing.section", "templates/model-routing.section.md"],
+  ["digests", "templates/digests.json"],
+];
+
+test("FR-2 get_template accepts the seven names, each mapped to templates/<file>, text equal to the file", () => {
+  for (const [name, key] of TEMPLATE_TABLE) {
+    const r = realCore.callTool("get_template", { name });
+    assert.deepEqual(Object.keys(r), ["akiliVersion", "name", "path", "part", "parts", "text"]);
+    assert.equal(r.name, name);
+    assert.equal(r.path, key);
+    const raw = read(`.claude/${key}`);
+    assert.equal(r.parts, core.splitParts(raw).length);
+    assert.equal(r.text, core.splitParts(raw)[0]);
+  }
+});
+
+test("FR-2 get_template accepts exactly those seven: any other spelling is not_found with the seven valid names", () => {
+  const valid = TEMPLATE_TABLE.map(([n]) => n);
+  for (const bad of ["Leader", "leader.md", "templates/leader.md", "model-routing", "digests.json", "", "../leader", "constructor"]) {
+    const r = realCore.callTool("get_template", { name: bad });
+    assert.equal(r.error.code, "not_found", bad);
+    assert.deepEqual(r.error.valid, valid);
+  }
+});
+
+test("FR-2 get_file serves every catalog key; non-command text equals the specific tool's text", () => {
+  const keys = realCore.keys();
+  assert.ok(keys.length > 250);
+  for (const key of keys) {
+    const r = realCore.callTool("get_file", { path: key });
+    assert.deepEqual(Object.keys(r), ["akiliVersion", "path", "part", "parts", "text"]);
+    assert.equal(r.path, key);
+    if (!key.startsWith("commands/")) assert.equal(r.text, core.splitParts(rawOnDisk(key))[0], key);
+  }
+  const skill = realCore.callTool("get_skill", { name: "tdd", file: "tests.md" });
+  assert.equal(realCore.callTool("get_file", { path: "skills/tdd/tests.md" }).text, skill.text);
+  const tmpl = realCore.callTool("get_template", { name: "tester" });
+  assert.equal(realCore.callTool("get_file", { path: "templates/tester.md" }).text, tmpl.text);
+  assert.equal(realCore.callTool("get_file", { path: "scripts/parse_tests.js" }).text, core.splitParts(read("scripts/parse_tests.js"))[0]);
+});
+
+test("FR-2 get_file of a command key returns the text get_command returns with no arguments", () => {
+  const viaCommand = realCore.callTool("get_command", { name: "akili-propose" });
+  const viaFile = realCore.callTool("get_file", { path: "commands/akili-propose.md" });
+  assert.equal(viaFile.text, viaCommand.text);
+  assert.equal(viaFile.parts, viaCommand.parts);
+});
+
+test("FR-2 get_file of a path that is not a catalog key is not_found", () => {
+  for (const bad of ["scripts/other.py", "docs/mcp.md", "templates/", "skills/tdd", "commands/akili-propose"]) {
+    assert.equal(realCore.callTool("get_file", { path: bad }).error.code, "not_found", bad);
+  }
+});
+
+// FR-1 Keys are the only way in, through every tool.
+for (const [label, input] of HOSTILE) {
+  test(`FR-1 ${label}: get_skill, get_template and get_file answer not_found and read no file`, () => {
+    const out = [];
+    const calls = withReadSpy(() => {
+      out.push(realCore.callTool("get_skill", { name: input }));
+      out.push(realCore.callTool("get_skill", { name: "tdd", file: input }));
+      out.push(realCore.callTool("get_template", { name: input }));
+      out.push(realCore.callTool("get_file", { path: input }));
+    });
+    assert.deepEqual(calls, [], "no read attempt");
+    for (const r of out) {
+      assert.equal(r.error.code, "not_found", JSON.stringify(r).slice(0, 120));
+      assert.ok(!JSON.stringify(r).includes(REPO_ROOT), "the input is not echoed back as a path");
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// FR-2 Search
+// ---------------------------------------------------------------------------
+
+// Builds a throwaway package whose search scores are known by hand from the
+// design weights (name/path 5, description 3, headings 2, body 1; a token takes
+// its highest field weight; a file's score is the sum over distinct query tokens).
+function searchFixture(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "akili-mcp-search-"));
+  fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({ name: "f", version: "1.2.3" }));
+  for (const [rel, text] of Object.entries(files)) {
+    const abs = path.join(dir, ".claude", rel);
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, text);
+  }
+  return dir;
+}
+
+function withFixture(files, fn) {
+  const dir = searchFixture(files);
+  try {
+    return fn(core.createCore({ packageDir: dir }));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test("FR-2 search scores: each query token counts its highest field weight once (name/path 5, description 3, heading 2, body 1)", () => {
+  withFixture(
+    {
+      "commands/cmd-one.md": "---\nname: cmd-one\ndescription: zebra herd\n---\n# Zebra rules\nzebra stripes\n",
+      "skills/zebra/SKILL.md": "---\nname: zebra\ndescription: nothing\n---\ntext\n",
+      "templates/body.md": "plain zebra body\n",
+      "templates/head.md": "# Zebra heading\nother\n",
+    },
+    (c) => {
+      const r = c.callTool("search", { query: "zebra" }).results;
+      assert.deepEqual(
+        r.map((e) => [e.path, e.score]),
+        [
+          ["skills/zebra/SKILL.md", 5],
+          ["commands/cmd-one.md", 3],
+          ["templates/head.md", 2],
+          ["templates/body.md", 1],
+        ]
+      );
+      // Two distinct tokens add: zebra (3, description) + stripes (1, body) in cmd-one; a repeated token counts once.
+      const two = c.callTool("search", { query: "zebra stripes zebra ZEBRA" }).results;
+      assert.deepEqual(
+        two.map((e) => [e.path, e.score]),
+        [
+          ["skills/zebra/SKILL.md", 5],
+          ["commands/cmd-one.md", 4],
+          ["templates/head.md", 2],
+          ["templates/body.md", 1],
+        ]
+      );
+    }
+  );
+});
+
+test("FR-2 search sorts by score, then by key: tied results come back in key order whatever the query order", () => {
+  withFixture(
+    {
+      "templates/zed.md": "red only\n",
+      "templates/ace.md": "blue only\n",
+      "templates/mid.md": "red blue\n",
+    },
+    (c) => {
+      const r = c.callTool("search", { query: "red blue" }).results;
+      assert.deepEqual(
+        r.map((e) => [e.path, e.score]),
+        [
+          ["templates/mid.md", 2],
+          ["templates/ace.md", 1],
+          ["templates/zed.md", 1],
+        ]
+      );
+    }
+  );
+});
+
+test("FR-2 search tokens: case-insensitive, split on non-alphanumerics, at least 2 characters, no stemming", () => {
+  withFixture(
+    {
+      "templates/a.md": "Hello-World x tests\n",
+      "templates/b.md": "test\n",
+    },
+    (c) => {
+      assert.deepEqual(c.callTool("search", { query: "HELLO" }).results.map((e) => e.path), ["templates/a.md"]);
+      assert.deepEqual(c.callTool("search", { query: "world_hello" }).results.map((e) => e.path), ["templates/a.md"]);
+      assert.deepEqual(c.callTool("search", { query: "x" }).results, [], "one-character tokens are not indexed");
+      assert.deepEqual(c.callTool("search", { query: "test" }).results.map((e) => e.path), ["templates/b.md"], "no stemming");
+      assert.deepEqual(c.callTool("search", { query: "zzzqq" }).results, []);
+      assert.deepEqual(c.callTool("search", { query: "!!! ???" }).results, []);
+    }
+  );
+});
+
+test("FR-2 search title is the frontmatter name, else the first heading, else the key", () => {
+  withFixture(
+    {
+      "commands/c.md": "---\nname: nice-name\ndescription: d\n---\n# Other heading\nmarker\n",
+      "templates/h.md": "intro\n# First heading\n## Second\nmarker\n",
+      "templates/n.md": "marker only\n",
+    },
+    (c) => {
+      const byPath = Object.fromEntries(c.callTool("search", { query: "marker" }).results.map((e) => [e.path, e.title]));
+      assert.deepEqual(byPath, {
+        "commands/c.md": "nice-name",
+        "templates/h.md": "First heading",
+        "templates/n.md": "templates/n.md",
+      });
+    }
+  );
+});
+
+test("FR-2 search snippet: at most 200 characters, around the first match, wherever the match sits", () => {
+  const filler = "lorem ipsum dolor sit amet ".repeat(80); // > 2000 chars, none of the query words
+  withFixture(
+    {
+      "templates/start.md": "needleword begins here. " + filler,
+      "templates/middle.md": filler + " needleword in the middle " + filler,
+      "templates/end.md": filler + " the tail needleword",
+      "templates/multi.md": filler + "\n\nline\twith   tabs needleword and\n\nmore " + filler,
+    },
+    (c) => {
+      const r = c.callTool("search", { query: "needleword" }).results;
+      assert.equal(r.length, 4);
+      for (const e of r) {
+        assert.ok(e.snippet.length <= 200, `${e.path}: ${e.snippet.length}`);
+        assert.ok(e.snippet.includes("needleword"), `${e.path} snippet holds the match: ${e.snippet}`);
+      }
+      const first = r.find((e) => e.path === "templates/start.md").snippet;
+      assert.ok(first.startsWith("needleword begins here."));
+    }
+  );
+});
+
+test("FR-2 search does not index frontmatter keys as body text: a key word absent from the body and from name/description does not match", () => {
+  withFixture(
+    {
+      "commands/fm.md": "---\nname: fm\ndescription: tidy\nmetadata:\n  binding: core\nlicense: MIT\n---\n# Heading\nplain body words\n",
+      "templates/other.md": "plain body words\n",
+    },
+    (c) => {
+      for (const q of ["description", "metadata", "binding", "license"]) {
+        assert.deepEqual(c.callTool("search", { query: q }).results, [], `frontmatter key "${q}" must not match`);
+      }
+      const hit = c.callTool("search", { query: "plain" }).results;
+      assert.equal(hit.length, 2);
+      for (const e of hit) assert.ok(e.snippet.toLowerCase().includes("plain"), "a body hit's snippet holds the query token");
+    }
+  );
+});
+
+test("FR-2 search snippet shows the first match, not a later one, and falls back to the opening text for a path-only hit", () => {
+  withFixture(
+    {
+      "templates/two.md": "alpha early marker one. " + "pad ".repeat(200) + " marker two late\n",
+      "skills/gamma/SKILL.md": "---\nname: delta\ndescription: d\n---\nunrelated text here\n",
+    },
+    (c) => {
+      const two = c.callTool("search", { query: "marker" }).results[0];
+      assert.ok(two.snippet.includes("marker one") && !two.snippet.includes("marker two"));
+      const g = c.callTool("search", { query: "gamma" }).results[0];
+      assert.equal(g.path, "skills/gamma/SKILL.md");
+      assert.equal(g.snippet, "unrelated text here");
+    }
+  );
+});
+
+test("FR-2 search snippet quotes the frontmatter description or name when that is where the only text match sits", () => {
+  withFixture(
+    {
+      "skills/desc/SKILL.md": "---\nname: plainname\ndescription: Use when you need to trigger zebrafish handling\n---\n# Opening heading\nnothing relevant in this body\n",
+      "skills/nameonly/SKILL.md": "---\nname: quokkaword\ndescription: unrelated summary\n---\nbody without the token\n",
+      "templates/headonly.md": "intro text\n# Axolotl heading\nmore text\n",
+    },
+    (c) => {
+      const d = c.callTool("search", { query: "zebrafish" }).results;
+      assert.equal(d.length, 1);
+      assert.ok(d[0].snippet.toLowerCase().includes("zebrafish"), `description hit snippet: ${d[0].snippet}`);
+      assert.ok(d[0].snippet.length <= 200);
+      const n = c.callTool("search", { query: "quokkaword" }).results;
+      assert.equal(n.length, 1);
+      assert.ok(n[0].snippet.toLowerCase().includes("quokkaword"), `name hit snippet: ${n[0].snippet}`);
+      const h = c.callTool("search", { query: "axolotl" }).results;
+      assert.equal(h.length, 1);
+      assert.ok(h[0].snippet.toLowerCase().includes("axolotl"), `heading hit snippet: ${h[0].snippet}`);
+    }
+  );
+});
+
+test("FR-2 search \"regression test\" on the real package: result shape, catalog keys, snippet bound, snippet holds the first matching word", () => {
+  const r = realCore.callTool("search", { query: "regression test" });
+  assert.equal(r.akiliVersion, realCore.akiliVersion);
+  assert.equal(r.results.length, 10, "default limit 10");
+  const keys = new Set(realCore.keys());
+  for (const e of r.results) {
+    assert.deepEqual(Object.keys(e), ["path", "title", "snippet", "score"]);
+    assert.ok(keys.has(e.path) && /^(commands|skills|templates)\//.test(e.path), e.path);
+    assert.ok(e.snippet.length <= 200);
+    assert.ok(Number.isInteger(e.score) && e.score >= 1);
+    const raw = realCore.readFile(e.path);
+    const body = stripFrontmatter(raw);
+    const m = /(?<![\p{L}\p{N}])(regression|test)(?![\p{L}\p{N}])/iu.exec(body);
+    if (m) assert.ok(e.snippet.includes(m[0]), `${e.path} snippet should hold ${m[0]}: ${e.snippet}`);
+    const fm = /^name:[ \t]*(.+)$/m.exec(raw.split(/\r?\n---\r?\n/)[0]);
+    const h = /^#{1,6}\s+(.+?)\s*$/m.exec(body);
+    const expectTitle = raw.startsWith("---") && fm ? fm[1].trim().replace(/^"|"$/g, "") : h ? h[1] : e.path;
+    assert.equal(e.title, expectTitle, e.path);
+  }
+  for (let i = 1; i < r.results.length; i++) {
+    const a = r.results[i - 1];
+    const b = r.results[i];
+    assert.ok(a.score > b.score || (a.score === b.score && a.path < b.path), `${a.path}(${a.score}) before ${b.path}(${b.score})`);
+  }
+});
+
+test("FR-2 search is deterministic: the same query returns the same results, also from a fresh core", () => {
+  const a = realCore.callTool("search", { query: "regression test", limit: 20 });
+  const b = realCore.callTool("search", { query: "regression test", limit: 20 });
+  const c = core.createCore({ packageDir: REPO_ROOT }).callTool("search", { query: "regression test", limit: 20 });
+  assert.deepEqual(a, b);
+  assert.deepEqual(a, c);
+  assert.deepEqual(realCore.callTool("search", { query: "Regression  TEST" }).results.map((e) => e.path), realCore.callTool("search", { query: "regression test" }).results.map((e) => e.path));
+});
+
+test("FR-2 search \"akili-propose\" ranks the command named akili-propose first", () => {
+  const r = realCore.callTool("search", { query: "akili-propose" }).results[0];
+  assert.equal(r.path, "commands/akili-propose.md");
+  assert.equal(r.score, 10, "akili (5) + propose (5), name and path");
+});
+
+test("FR-2 search limit: default 10, honored below 20, clamped to 20 above it", () => {
+  const n = (limit) => realCore.callTool("search", Object.assign({ query: "md" }, limit === undefined ? {} : { limit })).results.length;
+  assert.equal(n(undefined), 10);
+  assert.equal(n(1), 1);
+  assert.equal(n(3), 3);
+  assert.equal(n(20), 20);
+  assert.equal(n(21), 20);
+  assert.equal(n(1000), 20);
+});
+
+test("FR-2 search with an empty or whitespace query, or a limit below 1, returns invalid_argument naming the argument", () => {
+  for (const q of ["", " ", "   ", "\t\n ", "\u00a0"]) {
+    const r = realCore.callTool("search", { query: q });
+    assert.equal(r.error.code, "invalid_argument", JSON.stringify(q));
+    assert.match(r.error.message, /query/);
+  }
+  for (const limit of [0, -1, -20]) {
+    const r = realCore.callTool("search", { query: "test", limit });
+    assert.equal(r.error.code, "invalid_argument");
+    assert.match(r.error.message, /limit/);
+  }
+});
+
+test("FR-2 search reads only catalog files: no read of a path outside the catalog, no external call", () => {
+  const fresh = core.createCore({ packageDir: REPO_ROOT });
+  const calls = withReadSpy(() => {
+    fresh.callTool("search", { query: "regression test" });
+  });
+  const claude = path.join(REPO_ROOT, ".claude") + path.sep;
+  for (const [, file] of calls) assert.ok(file.startsWith(claude), `read ${file}`);
+});
+
+// ---------------------------------------------------------------------------
+// FR-2 Errors: a table of bad inputs for every tool
+// ---------------------------------------------------------------------------
+
+const BAD_INPUTS = [
+  // [tool, args, expected code, regex the message must match]
+  ["list_commands", { extra: 1 }, "invalid_argument", /extra/],
+  ["list_commands", "x", "invalid_argument", /object/],
+  ["list_skills", { extra: 1 }, "invalid_argument", /extra/],
+  ["list_skills", [], "invalid_argument", /object/],
+  ["get_command", { name: 5 }, "invalid_argument", /name/],
+  ["get_command", {}, "invalid_argument", /name/],
+  ["get_command", { name: "akili-audit", extra: 1 }, "invalid_argument", /extra/],
+  ["get_command", { name: "../package.json" }, "not_found", /command/],
+  ["get_skill", { name: ["tdd"] }, "invalid_argument", /name/],
+  ["get_skill", {}, "invalid_argument", /name/],
+  ["get_skill", { name: "tdd", file: 3 }, "invalid_argument", /file/],
+  ["get_skill", { name: "tdd", part: "2" }, "invalid_argument", /part/],
+  ["get_skill", { name: "tdd", part: 99 }, "invalid_argument", /part/],
+  ["get_skill", { name: "tdd", part: 0 }, "invalid_argument", /part/],
+  ["get_skill", { name: "tdd", extra: 1 }, "invalid_argument", /extra/],
+  ["get_skill", { name: "tdd", file: "../../package.json" }, "not_found", /file/],
+  ["get_skill", { name: "/etc/passwd" }, "not_found", /skill/],
+  ["get_template", { name: {} }, "invalid_argument", /name/],
+  ["get_template", {}, "invalid_argument", /name/],
+  ["get_template", { name: "leader", part: 1.5 }, "invalid_argument", /part/],
+  ["get_template", { name: "leader", part: 99 }, "invalid_argument", /part/],
+  ["get_template", { name: "leader", extra: 1 }, "invalid_argument", /extra/],
+  ["get_template", { name: "..\\leader" }, "not_found", /template/],
+  ["get_file", { path: 7 }, "invalid_argument", /path/],
+  ["get_file", {}, "invalid_argument", /path/],
+  ["get_file", { path: null }, "invalid_argument", /path/],
+  ["get_file", { path: "scripts/parse_tests.js", part: "1" }, "invalid_argument", /part/],
+  ["get_file", { path: "scripts/parse_tests.js", part: 99 }, "invalid_argument", /part/],
+  ["get_file", { path: "scripts/parse_tests.js", extra: 1 }, "invalid_argument", /extra/],
+  ["get_file", { path: "../package.json" }, "not_found", /path/],
+  ["get_file", { path: "/etc/passwd" }, "not_found", /path/],
+  ["get_file", { path: path.join(REPO_ROOT, "package.json") }, "not_found", /path/],
+  ["get_file", { path: "C:\\Windows\\win.ini" }, "not_found", /path/],
+  ["get_file", { path: "" }, "not_found", /path/],
+  ["search", { query: 5 }, "invalid_argument", /query/],
+  ["search", {}, "invalid_argument", /query/],
+  ["search", { query: "  " }, "invalid_argument", /query/],
+  ["search", { query: "x", limit: "5" }, "invalid_argument", /limit/],
+  ["search", { query: "x", limit: 1.5 }, "invalid_argument", /limit/],
+  ["search", { query: "x", limit: 0 }, "invalid_argument", /limit/],
+  ["search", { query: "x", extra: 1 }, "invalid_argument", /extra/],
+  ["search", null, "invalid_argument", /query/],
+];
+
+test("FR-2 bad inputs for every tool: the right code, an envelope with akiliVersion, no throw, no stack trace or absolute path", () => {
+  const seenTools = new Set();
+  for (const [tool, args, code, re] of BAD_INPUTS) {
+    seenTools.add(tool);
+    let r;
+    assert.doesNotThrow(() => {
+      r = realCore.callTool(tool, args);
+    }, `${tool} ${JSON.stringify(args)}`);
+    assert.equal(r.akiliVersion, realCore.akiliVersion);
+    assert.equal(r.error.code, code, `${tool} ${JSON.stringify(args)} -> ${JSON.stringify(r.error)}`);
+    assert.match(r.error.message, re, `${tool} ${JSON.stringify(args)}`);
+    assert.ok(core.ERROR_CODES.includes(r.error.code));
+    assert.deepEqual(Object.keys(r), ["akiliVersion", "error"]);
+    const s = JSON.stringify(r);
+    assert.ok(!s.includes(REPO_ROOT), "no absolute path");
+    assert.ok(!s.includes("/Users/") && !s.includes("\\Users\\"), "no home path");
+    assert.ok(!/\n\s+at |\.js:\d+:\d+|node_modules|"stack"/.test(s), "no stack trace");
+  }
+  assert.deepEqual(Array.from(seenTools).sort(), core.TOOL_DEFINITIONS.map((d) => d.name).sort(), "every tool has rows");
+});
+
+test("FR-2 a part outside 1..parts names parts in the hint, for every file-returning tool", () => {
+  const calls = [
+    ["get_command", { name: "akili-constitution" }],
+    ["get_skill", { name: "tdd" }],
+    ["get_template", { name: "digests" }],
+    ["get_file", { path: "templates/digests.json" }],
+  ];
+  for (const [tool, args] of calls) {
+    const ok = realCore.callTool(tool, args);
+    for (const part of [0, -1, ok.parts + 1]) {
+      const r = realCore.callTool(tool, Object.assign({}, args, { part }));
+      assert.equal(r.error.code, "invalid_argument", `${tool} part ${part}`);
+      assert.equal(r.error.parts, ok.parts);
+      assert.match(r.error.message, new RegExp(`1 to ${ok.parts}`));
+    }
+  }
+});
+
+test("FR-2 a throw in any tool becomes a generic internal error (handlers other than get_command too)", () => {
+  const dir = tmpCopyOfFixture();
+  try {
+    const c = core.createCore({ packageDir: dir });
+    for (const rel of [".claude/skills/s/SKILL.md", ".claude/skills/s/references/r.md", ".claude/templates/t.md"]) fs.rmSync(path.join(dir, rel));
+    const calls = [
+      ["get_skill", { name: "s" }],
+      ["get_skill", { name: "s", file: "references/r.md" }],
+      ["get_file", { path: "templates/t.md" }],
+      ["list_skills", {}],
+      ["search", { query: "anything" }],
+    ];
+    for (const [tool, args] of calls) {
+      const r = c.callTool(tool, args);
+      assert.equal(r.error.code, "internal", tool);
+      assert.equal(r.error.message, "internal error");
+      const s = JSON.stringify(r);
+      assert.ok(!s.includes(dir) && !s.includes("ENOENT"), tool);
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// FR-2 Paging, re-run through callTool for every file-returning tool
+// ---------------------------------------------------------------------------
+
+function rawOnDisk(key) {
+  return key.startsWith("scripts/") ? read(key) : read(`.claude/${key}`);
+}
+
+// Walks parts 1..parts of one tool call; returns the rejoined text.
+function pagedThroughCallTool(tool, args, expectParts) {
+  const first = realCore.callTool(tool, Object.assign({}, args, { part: 1 }));
+  assert.equal(first.error, undefined, `${tool} ${JSON.stringify(args)}`);
+  if (expectParts !== undefined) assert.equal(first.parts, expectParts);
+  const texts = [];
+  for (let p = 1; p <= first.parts; p++) {
+    const r = realCore.callTool(tool, Object.assign({}, args, { part: p }));
+    assert.equal(r.part, p);
+    assert.equal(r.parts, first.parts);
+    assert.ok(r.text.length <= PART_MAX, `${tool} ${JSON.stringify(args)} part ${p}: ${r.text.length}`);
+    const size = JSON.stringify(r).length;
+    assert.ok(size <= RESULT_MAX, `${tool} ${JSON.stringify(args)} part ${p} serialized: ${size}`);
+    if (p < first.parts) assert.ok(r.text.endsWith("\n") || !r.text.includes("\n"), "cuts at a line break");
+    texts.push(r.text);
+  }
+  return texts.join("");
+}
+
+test("FR-2 paging sweep through callTool: get_file over every catalog key rejoins byte-exact, parts <= 30,000, results <= 40,000", () => {
+  for (const key of realCore.keys()) {
+    const expected = key.startsWith("commands/") ? stripFrontmatter(rawOnDisk(key)).split("$ARGUMENTS").join("") : rawOnDisk(key);
+    assert.equal(pagedThroughCallTool("get_file", { path: key }), expected, key);
+  }
+});
+
+test("FR-2 paging sweep through callTool: get_skill over every file of every skill", () => {
+  let files = 0;
+  for (const { name, files: keys } of realCore.callTool("list_skills").skills) {
+    for (const key of keys) {
+      files++;
+      const file = key.slice(`skills/${name}/`.length);
+      assert.equal(pagedThroughCallTool("get_skill", { name, file }), rawOnDisk(key), key);
+    }
+  }
+  assert.ok(files > 60, `swept ${files} skill files`);
+});
+
+test("FR-2 paging sweep through callTool: get_template over the seven templates, digests.json spans parts", () => {
+  for (const [name, key] of TEMPLATE_TABLE) {
+    assert.equal(pagedThroughCallTool("get_template", { name }), rawOnDisk(key), name);
+  }
+  assert.equal(realCore.callTool("get_template", { name: "digests" }).parts, 16);
+});
+
+test("FR-2 paging sweep through callTool: get_command over every command, with and without arguments", () => {
+  for (const { name } of realCore.callTool("list_commands").commands) {
+    const body = stripFrontmatter(rawOnDisk(`commands/${name}.md`));
+    assert.equal(pagedThroughCallTool("get_command", { name }), body.split("$ARGUMENTS").join(""), name);
   }
 });
 

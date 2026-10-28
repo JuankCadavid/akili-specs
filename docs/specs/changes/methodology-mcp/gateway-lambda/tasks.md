@@ -108,7 +108,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~200 LOC code, ~420 LOC test) |
 | Depends on | T1 |
 | Requirements | FR-1 (*Keys*, through every tool), FR-2 (*Lists and lookups*, *Search*, *Errors*, the paging sweep through `callTool`), FR-3 (all), NFR-2 (warm), NFR-3 |

@@ -161,7 +161,7 @@ The handler SHALL take a Gateway Lambda-target event and context, strip the targ
 - WHEN the handler runs
 - THEN it returns the `get_command` result for those inputs
 - AND it builds the catalog once per process, not per call
-- AND it logs one line per call to stderr/CloudWatch: tool name, part, outcome code, duration, and the Gateway request ID. BUT it must NOT log the event, `arguments`, `query`, or any result text (D-7)
+- AND it logs one line per call to CloudWatch (stdout, `console.log`; amended 2026-10-27 at T2 to match design §7.2): tool name, part, outcome code, duration, and the Gateway request ID. BUT it must NOT log the event, `arguments`, `query`, or any result text (D-7)
 - AND a missing `clientContext` returns `unknown_tool`, not a crash
 
 #### Scenario: Direct smoke invocation

@@ -17,6 +17,20 @@ const AREAS = ["commands", "skills", "templates"];
 // two lists equal by reading bin/akili.js as text (DD-6).
 const RESOURCE_SCRIPTS = ["gsc_verify.py", "parse_tests.js"];
 const ERROR_CODES = ["not_found", "invalid_argument", "unknown_tool", "internal"];
+// get_template names -> catalog keys (FR-2 Lists and lookups: exactly these seven).
+const TEMPLATE_FILES = new Map([
+  ["leader", "templates/leader.md"],
+  ["implementer", "templates/implementer.md"],
+  ["reviewer", "templates/reviewer.md"],
+  ["tester", "templates/tester.md"],
+  ["model-registry", "templates/model-registry.json"],
+  ["model-routing.section", "templates/model-routing.section.md"],
+  ["digests", "templates/digests.json"],
+]);
+const SEARCH_DEFAULT_LIMIT = 10;
+const SEARCH_MAX_LIMIT = 20;
+const SNIPPET_CHARS = 200;
+const SEARCH_WEIGHTS = { name: 5, path: 5, description: 3, heading: 2, body: 1 };
 
 // A coded failure. Handlers throw it; callTool turns it into an error result.
 class ToolError extends Error {
@@ -314,6 +328,40 @@ function buildCatalog(packageDir) {
   return catalog;
 }
 
+// ---------------------------------------------------------------------------
+// Search (design §6): tokens are lowercased runs of letters/digits, at least 2
+// characters. A token's weight in a file is the largest weight of the fields it
+// appears in (name/path 5, description 3, headings 2, body 1); a file's score
+// is the sum over the distinct query tokens it contains.
+// ---------------------------------------------------------------------------
+
+const TOKEN_RE = /[\p{L}\p{N}]+/gu;
+
+function tokenize(text) {
+  const out = [];
+  for (const m of text.matchAll(TOKEN_RE)) {
+    const t = m[0].toLowerCase();
+    if (t.length >= 2) out.push(t);
+  }
+  return out;
+}
+
+function compareKeys(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+// A window of at most SNIPPET_CHARS code units around index `at`, whitespace
+// collapsed, never starting or ending inside a surrogate pair.
+function makeSnippet(text, at) {
+  let start = Math.max(0, at - 80);
+  let end = Math.min(text.length, start + SNIPPET_CHARS);
+  start = Math.max(0, end - SNIPPET_CHARS);
+  const isLow = (i) => i < text.length && text.charCodeAt(i) >= 0xdc00 && text.charCodeAt(i) <= 0xdfff;
+  if (start > 0 && isLow(start)) start += 1;
+  if (end < text.length && isLow(end)) end -= 1;
+  return text.slice(start, end).replace(/\s+/g, " ").trim();
+}
+
 function okResult(version, fields) {
   return Object.assign({ akiliVersion: version }, fields);
 }
@@ -382,6 +430,16 @@ function createCore(options) {
   }
   const sortedCommandNames = Array.from(commandKeys.keys()).sort();
   const sortedSkillNames = Array.from(skillNames).sort();
+  const commandKeySet = new Set(commandKeys.values());
+  // Every directory under skills/ (catalog keys are already sorted by the walk).
+  const skillFiles = new Map();
+  for (const key of Array.from(catalog.keys()).sort()) {
+    const m = /^skills\/([^/]+)\//.exec(key);
+    if (!m) continue;
+    if (!skillFiles.has(m[1])) skillFiles.set(m[1], []);
+    skillFiles.get(m[1]).push(key);
+  }
+  const sortedSkillDirs = Array.from(skillFiles.keys()).sort();
 
   // The only file read after build. Unknown or non-string keys return null.
   function readFile(key) {
@@ -431,11 +489,134 @@ function createCore(options) {
       if (page.part === 1) out.usage = USAGE;
       return out;
     },
+
+    list_skills() {
+      const skills = sortedSkillDirs.map((dir) => {
+        const key = `skills/${dir}/SKILL.md`;
+        const hasSkillMd = catalog.has(key);
+        const fm = hasSkillMd ? frontmatterOf(key) : { fields: {}, binding: null };
+        return {
+          name: typeof fm.fields.name === "string" && fm.fields.name !== "" ? fm.fields.name : dir,
+          description: typeof fm.fields.description === "string" ? fm.fields.description : "",
+          binding: typeof fm.binding === "string" && fm.binding !== "" ? fm.binding : null,
+          files: skillFiles.get(dir).slice(),
+        };
+      });
+      return { skills };
+    },
+
+    get_skill(args) {
+      const files = skillFiles.get(args.name);
+      if (files === undefined) {
+        throw new ToolError("not_found", "unknown skill", { valid: sortedSkillDirs.slice() });
+      }
+      const file = args.file === undefined ? "SKILL.md" : args.file;
+      const key = `skills/${args.name}/${file}`;
+      const text = readFile(key);
+      if (text === null) {
+        throw new ToolError("not_found", "unknown file in skill", { files: files.slice() });
+      }
+      const page = pageText(text, args.part);
+      return { name: args.name, file, part: page.part, parts: page.parts, text: page.text };
+    },
+
+    get_template(args) {
+      const key = TEMPLATE_FILES.get(args.name);
+      const text = key === undefined ? null : readFile(key);
+      if (text === null) {
+        throw new ToolError("not_found", "unknown template", { valid: Array.from(TEMPLATE_FILES.keys()) });
+      }
+      const page = pageText(text, args.part);
+      return { name: args.name, path: key, part: page.part, parts: page.parts, text: page.text };
+    },
+
+    // Any catalog key. A command key returns the text get_command returns with
+    // no arguments, so get_file and the specific tool never disagree.
+    get_file(args) {
+      const raw = readFile(args.path);
+      if (raw === null) throw new ToolError("not_found", "unknown path");
+      const text = commandKeySet.has(args.path) ? renderCommand(raw, "") : raw;
+      const page = pageText(text, args.part);
+      return { path: args.path, part: page.part, parts: page.parts, text: page.text };
+    },
+
+    search(args) {
+      const queryTokens = Array.from(new Set(tokenize(args.query)));
+      if (args.query.trim() === "") {
+        throw new ToolError("invalid_argument", "argument query must not be empty");
+      }
+      if (args.limit !== undefined && args.limit !== null && args.limit < 1) {
+        throw new ToolError("invalid_argument", "argument limit must be at least 1");
+      }
+      const limit = Math.min(args.limit == null ? SEARCH_DEFAULT_LIMIT : args.limit, SEARCH_MAX_LIMIT);
+      const index = getSearchIndex();
+      const scores = new Map();
+      for (const token of queryTokens) {
+        const postings = index.postings.get(token);
+        if (postings === undefined) continue;
+        for (const [key, weight] of postings) scores.set(key, (scores.get(key) || 0) + weight);
+      }
+      const ranked = Array.from(scores, ([key, score]) => ({ key, score }));
+      ranked.sort((a, b) => b.score - a.score || compareKeys(a.key, b.key));
+      const wanted = new Set(queryTokens);
+      const results = ranked.slice(0, limit).map(({ key, score }) => {
+        const doc = index.docs.get(key);
+        return { path: key, title: doc.title, snippet: snippetFor(key, wanted), score };
+      });
+      return { results };
+    },
   };
 
-  // Tools whose handlers arrive in a later task answer `internal` for now.
-  function notReady() {
-    throw new ToolError("internal", "tool not available");
+  // The inverted index, built on first use (design §6 Search).
+  let searchIndex = null;
+  function getSearchIndex() {
+    if (searchIndex !== null) return searchIndex;
+    const postings = new Map();
+    const docs = new Map();
+    for (const key of catalog.keys()) {
+      if (!/^(commands|skills|templates)\//.test(key)) continue;
+      const text = readFile(key);
+      const fm = parseFrontmatter(text);
+      const weights = new Map();
+      const put = (tokens, weight) => {
+        for (const t of tokens) if ((weights.get(t) || 0) < weight) weights.set(t, weight);
+      };
+      put(tokenize(fm.body), SEARCH_WEIGHTS.body);
+      const headingLines = [];
+      for (const line of fm.body.split("\n")) if (/^#{1,6}\s/.test(line)) headingLines.push(line);
+      put(tokenize(headingLines.join("\n")), SEARCH_WEIGHTS.heading);
+      if (typeof fm.fields.description === "string") put(tokenize(fm.fields.description), SEARCH_WEIGHTS.description);
+      if (typeof fm.fields.name === "string") put(tokenize(fm.fields.name), SEARCH_WEIGHTS.name);
+      put(tokenize(key), SEARCH_WEIGHTS.path);
+      for (const [t, w] of weights) {
+        let list = postings.get(t);
+        if (list === undefined) postings.set(t, (list = []));
+        list.push([key, w]);
+      }
+      let title = typeof fm.fields.name === "string" && fm.fields.name !== "" ? fm.fields.name : "";
+      if (title === "") {
+        const h = /^#{1,6}\s+(.+?)\s*$/m.exec(fm.body);
+        title = h ? h[1] : key;
+      }
+      docs.set(key, { title });
+    }
+    searchIndex = { postings, docs };
+    return searchIndex;
+  }
+
+  // Snippet around the first query token: in the body, else in the frontmatter
+  // description, else in the name. Only a hit whose sole match is the path has
+  // no text to quote and shows the opening body.
+  function snippetFor(key, wanted) {
+    const fm = parseFrontmatter(readFile(key));
+    const sources = [fm.body, fm.fields.description, fm.fields.name];
+    for (const source of sources) {
+      if (typeof source !== "string") continue;
+      for (const m of source.matchAll(TOKEN_RE)) {
+        if (wanted.has(m[0].toLowerCase())) return makeSnippet(source, m.index);
+      }
+    }
+    return makeSnippet(fm.body, 0);
   }
 
   function callTool(name, args) {
@@ -445,8 +626,7 @@ function createCore(options) {
         throw new ToolError("unknown_tool", "unknown tool", { valid: TOOL_DEFINITIONS.map((d) => d.name) });
       }
       const clean = validateArgs(def, args);
-      const handler = Object.prototype.hasOwnProperty.call(handlers, def.name) ? handlers[def.name] : notReady;
-      return okResult(akiliVersion, handler(clean));
+      return okResult(akiliVersion, handlers[def.name](clean));
     } catch (err) {
       if (err instanceof ToolError) {
         return errorResult(akiliVersion, err.code, err.message, err.hints);
