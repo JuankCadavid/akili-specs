@@ -57,6 +57,37 @@ test("FR-1 AND: both /akili-security and /akili-review have a dashed edge into /
   assert.ok(bug.some((e) => e["data-edge-label"] === "confirmed finding → Bug Track"), "no Bug Track label on either edge");
 });
 
+// @akili-spec changes/growth-angles (FR-8): the growth group and its link
+test("FR-8: a group labelled Growth track holds exactly /akili-seo and /akili-marketing, inside the Anytime lane", () => {
+  const frames = [...SVG.matchAll(/<rect\b[^>]*data-composition-frame-kind="group"[^>]*>/g)].map((m) => attrs(m[0]));
+  assert.equal(frames.length, 1, "expected exactly one group frame");
+  const f = { x: +frames[0].x, y: +frames[0].y, w: +frames[0].width, h: +frames[0].height };
+  const label = [...SVG.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)].find((m) => m[2].replace(/<[^>]*>/g, "").trim() === "Growth track");
+  assert.ok(label, "no Growth track label drawn");
+  const l = attrs(label[1]);
+  assert.ok(+l.x >= f.x && +l.x <= f.x + f.w && Math.abs(+l.y - f.y) <= 8, "label is not on the group frame");
+  const box = (id) => {
+    const m = SVG.match(new RegExp(`<g\\b[^>]*data-node-id="${id}"[^>]*>[\\s\\S]*?<rect x="([\\d.]+)" y="([\\d.]+)" width="([\\d.]+)" height="([\\d.]+)"`));
+    assert.ok(m, `no geometry for ${id}`);
+    return { x: +m[1], y: +m[2], w: +m[3], h: +m[4] };
+  };
+  const inside = (b) => b.x >= f.x && b.y >= f.y && b.x + b.w <= f.x + f.w && b.y + b.h <= f.y + f.h;
+  const members = nodes.map((n) => n["data-node-id"]).filter((id) => inside(box(id)));
+  assert.deepEqual(members.sort(), ["marketing", "seo"]);
+  assert.deepEqual(nodes.filter((n) => /Growth track/.test(n["data-node-context"] || "")).map((n) => n["data-node-label"]).sort(), ["/akili-marketing", "/akili-seo"]);
+  for (const id of members) assert.equal(node(id === "seo" ? "/akili-seo" : "/akili-marketing")["data-node-context"], "Anytime › Growth track");
+});
+
+test("FR-8: edge g1 runs from /akili-constitution to /akili-marketing, dashed and labelled", () => {
+  const g1 = edges.filter((e) => e["data-edge-id"] === "g1");
+  assert.equal(g1.length, 1);
+  assert.equal(g1[0]["data-edge-from"], "constitution");
+  assert.equal(g1[0]["data-edge-to"], "marketing");
+  assert.ok((g1[0]["data-edge-label"] || "").trim().length > 0, "g1 has no label");
+  const dashed = new Set([...SVG.matchAll(/\.(a-[\w-]+)\s*\{[^}]*stroke-dasharray/g)].map((m) => m[1]));
+  assert.ok((g1[0].class || "").split(/\s+/).some((c) => dashed.has(c)), "g1 is not dashed");
+});
+
 test("FR-1 AND: /akili-marketing says it drafts and never publishes", () => {
   const s = node("/akili-marketing")["data-node-sublabel"];
   assert.match(s, /draft/i);
@@ -87,6 +118,7 @@ test("FR-3: the anytime sentence keeps its prefix and names both Bug Track sourc
   const alt = read("docs/flow.md").match(/^!\[(.*)\]\(\.\.\/assets\/akili-flow-animated\.svg\)$/m)[1];
   for (const c of ["security", "review", "resume", "audit", "quick", "seo", "marketing"]) assert.ok(alt.includes(`/akili-${c}`), `alt lacks /akili-${c}`);
   assert.match(alt, /\/akili-review findings from a local run, enter the Bug Track/);
+  assert.match(alt, /\/akili-seo and \/akili-marketing form the growth track, linked to \/akili-constitution: the PRD seeds the brand voice and angles, and they return as cited defaults\./);
 });
 
 test("FR-4: the README figure alt says seven commands run any time, naming the security audit and the CI-capable PR review", () => {
@@ -94,6 +126,7 @@ test("FR-4: the README figure alt says seven commands run any time, naming the s
   assert.match(img[1], /seven commands run any time/);
   assert.match(img[1], /security audit/);
   assert.match(img[1], /pull-request review that can also run in CI/);
+  assert.match(img[1], /growth track/);
 });
 
 test("FR-5: [Unreleased] records the refresh as a patch; 2.37.0 and its release notes drop the figure debt", () => {

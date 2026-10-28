@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 1009 710" data-reader-fit="width-first" data-layout-contract="readable-v2" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" style="--flow-cycle: 7.477s; width: 1009px; height: 710px; min-width: 0px;" width="1009" height="710" xmlns="http://www.w3.org/2000/svg" data-theme="light"><style>
+<svg viewBox="0 0 1043 710" data-reader-fit="width-first" data-layout-contract="readable-v2" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" style="--flow-cycle: 7.477s; width: 1043px; height: 710px; min-width: 0px;" width="1043" height="710" xmlns="http://www.w3.org/2000/svg" data-theme="light"><style>
 /*
 JetBrains Mono variable WOFF2 subsets from Google Fonts service revision v24.
 These fixed bytes are shared by the viewer and its SVG/raster exports.
@@ -350,6 +350,9 @@ svg[data-preset="editorial"] { --flow-halo-peak: 0.07; --flow-glow-peak: 0.28; -
 
 
 
+
+
+
 svg[data-node-ui] [data-node-id] &gt; rect:not(.c-mask) { stroke-width: 1.25px; }
 :is([data-theme="dark"] svg[data-node-ui], svg[data-node-ui][data-theme="dark"]) [data-node-id] &gt; rect:not(.c-mask).c-frontend { fill: color-mix(in srgb, var(--frontend-stroke) 13%, var(--mask)); stroke: color-mix(in srgb, var(--frontend-stroke) 72%, var(--mask)); }
 :is([data-theme="dark"] svg[data-node-ui], svg[data-node-ui][data-theme="dark"]) [data-node-id] &gt; rect:not(.c-mask).c-backend { fill: color-mix(in srgb, var(--backend-stroke) 13%, var(--mask)); stroke: color-mix(in srgb, var(--backend-stroke) 72%, var(--mask)); }
@@ -370,7 +373,7 @@ svg[data-node-ui] g[data-edge-from] &gt; rect.c-mask { rx: 7px; stroke: var(--la
 svg[data-node-ui][data-preset="blueprint"] :is([data-graph-role="structural-frame-label-mask"], g[data-edge-from] &gt; rect.c-mask, .phase-chip) { rx: 2px; }
 svg[data-node-ui][data-preset="editorial"] :is([data-graph-role="structural-frame-label-mask"], g[data-edge-from] &gt; rect.c-mask, .phase-chip) { rx: 3px; }
 :root, svg { --bg: #f4f5f7; --grid: #e9edf2; --canvas-dot: #e2e7ec; --text: #111827; --text-muted: #5b6474; --text-dim: #9aa3b2; --text-faint: #6b7280; --panel: #ffffff; --panel-border: #e5e7eb; --lane-fill: rgba(248, 250, 252, 0.65); --lane-stroke: #cbd5e1; --arrow: #64748b; --arrow-emphasis: #059669; --mask: #ffffff; --frontend-fill: rgba(34, 211, 238, 0.15); --frontend-stroke: #0891b2; --backend-fill: rgba(52, 211, 153, 0.18); --backend-stroke: #059669; --database-fill: rgba(167, 139, 250, 0.2); --database-stroke: #7c3aed; --cloud-fill: rgba(251, 191, 36, 0.18); --cloud-stroke: #d97706; --security-fill: rgba(251, 113, 133, 0.15); --security-stroke: #e11d48; --messagebus-fill: rgba(251, 146, 60, 0.15); --messagebus-stroke: #ea580c; --external-fill: rgba(148, 163, 184, 0.18); --external-stroke: #64748b; --toolbar-bg: rgba(255, 255, 255, 0.92); --toolbar-border: #cbd5e1; --toolbar-text: #334155; --toolbar-hover: #ffffff; --toolbar-menu-bg: #ffffff; --flow-cycle: ; --flow-halo-peak: ; --flow-glow-peak: ; --flow-tail-peak: ; --flow-head-peak: ; --flow-wake-peak: ; --flow-ripple-peak: ; --flow-peak: ; }
-</style><rect x="0" y="0" width="1009" height="710" fill="#f4f5f7"/><metadata id="archify-software-notices">NOTICE
+</style><rect x="0" y="0" width="1043" height="710" fill="#f4f5f7"/><metadata id="archify-software-notices">NOTICE
 Archify
 Copyright (c) 2026 tt-a1i (Archify)
 Copyright (c) 2025 Cocoon AI
@@ -706,7 +709,7 @@ owners. This notice records provenance and known terms; it does not grant rights
 that Archify does not hold, and it does not state that every packaged mark has
 been cleared for every commercial, promotional, or redistributive use.</metadata>
         <title id="archify-diagram-title">AKILI-SPECS methodology lifecycle</title>
-        <desc id="archify-diagram-description">AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-security, /akili-review (local or in CI), /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-marketing; confirmed /akili-security findings, and confirmed critical /akili-review findings from a local run, enter the Bug Track through /akili-propose.</desc>
+        <desc id="archify-diagram-description">AKILI-SPECS lifecycle: /akili-constitution sets the baseline once; each spec then runs /akili-propose, /akili-specify, /akili-execute, /akili-test, /akili-validate and /akili-archive, and a Kaizen retrospective feeds the next spec. Anytime commands: /akili-security, /akili-review (local or in CI), /akili-resume, /akili-audit, /akili-quick, /akili-seo and /akili-marketing; confirmed /akili-security findings, and confirmed critical /akili-review findings from a local run, enter the Bug Track through /akili-propose. /akili-seo and /akili-marketing form the growth track, linked to /akili-constitution: the PRD seeds the brand voice and angles, and they return as cited defaults.</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -751,32 +754,34 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
         <rect width="100%" height="100%" fill="url(#grid)"/>
 
         <!-- Swimlanes -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="941" height="104" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="983" height="104" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="74" class="t-muted" font-size="10" font-weight="600">01 / Once per project</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="176" width="941" height="230" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="176" width="983" height="230" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="198" class="t-muted" font-size="10" font-weight="600">02 / Per-spec loop</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="426" width="941" height="160" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="426" width="983" height="160" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="448" class="t-muted" font-size="10" font-weight="600">03 / Anytime</text>
 
         <!-- Phase headers -->
 
 
         <!-- Workflow groups -->
-
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="group" data-composition-frame-id="group-0" x="723" y="464" width="292" height="118" rx="9" class="c-lane" stroke-width="1"/>
+        <text x="733" y="462" class="t-muted" font-size="7" font-weight="600">Growth track</text>
 
         <!-- Edge paths -->
-        <path data-edge-from="constitution" data-edge-to="propose" data-edge-key="0" data-edge-id="e1" data-edge-role="" data-composition-points="173,145;173,280" d="M 173 145 L 173 280" class="a-emphasis" data-animate="edge" style="--step: 0;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="constitution" data-edge-to="propose" data-edge-key="0" data-edge-id="e1" data-edge-role="" data-composition-points="166,145;166,161;20,161;20,264;173,264;173,280" d="M 166 145 L 166 153 Q 166 161 158 161 L 28 161 Q 20 161 20 169 L 20 256 Q 20 264 28 264 L 165 264 Q 173 264 173 272 L 173 280" class="a-emphasis" data-animate="edge" style="--step: 0;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="propose" data-edge-to="specify" data-edge-key="1" data-edge-id="e2" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="219,306;253,306" d="M 219 306 L 253 306" class="a-emphasis" data-animate="edge" style="--step: 1;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="specify" data-edge-to="execute" data-edge-key="2" data-edge-id="e3" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="401,306;437,306" d="M 401 306 L 437 306" class="a-emphasis" data-animate="edge" style="--step: 2;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="execute" data-edge-to="test" data-edge-key="3" data-edge-id="e4" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="533,306;577,306" d="M 533 306 L 577 306" class="a-emphasis" data-animate="edge" style="--step: 3;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="specify" data-edge-to="execute" data-edge-key="2" data-edge-id="e3" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="401,306;433,306" d="M 401 306 L 433 306" class="a-emphasis" data-animate="edge" style="--step: 2;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="execute" data-edge-to="test" data-edge-key="3" data-edge-id="e4" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="533,306;573,306" d="M 533 306 L 573 306" class="a-emphasis" data-animate="edge" style="--step: 3;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="test" data-edge-to="validate" data-edge-key="4" data-edge-id="e5" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="673,306;705,306" d="M 673 306 L 705 306" class="a-emphasis" data-animate="edge" style="--step: 4;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="validate" data-edge-to="archive" data-edge-key="5" data-edge-id="e6" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="841,306;873,306" d="M 841 306 L 873 306" class="a-emphasis" data-animate="edge" style="--step: 5;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="archive" data-edge-to="kaizen" data-edge-key="6" data-edge-id="e7" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="973,306;993,306;993,376;969,376" d="M 973 306 L 985 306 Q 993 306 993 314 L 993 368 Q 993 376 985 376 L 969 376" class="a-emphasis" data-animate="edge" style="--step: 6;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="kaizen" data-edge-to="propose" data-edge-label="next spec starts smarter" data-edge-key="7" data-edge-id="e8" data-composition-routing="workflow-v2-auto" data-edge-role="return" data-composition-points="877,376;197,376;197,332" d="M 877 376 L 205 376 Q 197 376 197 368 L 197 332" class="a-dashed" data-animate="edge" style="--step: 7;" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="security" data-edge-to="propose" data-edge-label="confirmed finding → Bug Track" data-edge-key="8" data-edge-id="s1" data-composition-routing="workflow-v2-auto" data-edge-role="branch" data-composition-points="173,460;173,332" d="M 173 460 L 173 332" class="a-security" data-animate="edge" style="--step: 8;" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="review" data-edge-to="propose" data-edge-key="9" data-edge-id="s2" data-edge-role="branch" data-composition-points="123,556;20,556;20,306;127,306" d="M 123 556 L 28 556 Q 20 556 20 548 L 20 314 Q 20 306 28 306 L 127 306" class="a-security" data-animate="edge" style="--step: 9;" stroke-width="1.4" marker-end="url(#arrowhead-security)"/><g class="akili-motion" aria-hidden="true" pointer-events="none"><path class="mo-t" d="M 173 145 L 173 280" pathLength="1" opacity="0" style="--d:0s"/><path class="mo-t" d="M 219 306 L 253 306" pathLength="1" opacity="0" style="--d:0.9s"/><path class="mo-t" d="M 401 306 L 437 306" pathLength="1" opacity="0" style="--d:1.8s"/><path class="mo-t" d="M 533 306 L 577 306" pathLength="1" opacity="0" style="--d:2.7s"/><path class="mo-t" d="M 673 306 L 705 306" pathLength="1" opacity="0" style="--d:3.6s"/><path class="mo-t" d="M 841 306 L 873 306" pathLength="1" opacity="0" style="--d:4.5s"/><path class="mo-t" d="M 973 306 L 985 306 Q 993 306 993 314 L 993 368 Q 993 376 985 376 L 969 376" pathLength="1" opacity="0" style="--d:5.4s"/><path class="mo-t" d="M 877 376 L 205 376 Q 197 376 197 368 L 197 332" pathLength="1" opacity="0" style="--d:6.3s"/><path class="mo-b" d="M 173 460 L 173 332" opacity="0" style="--d:7.4s"/><path class="mo-b" d="M 123 556 L 28 556 Q 20 556 20 548 L 20 314 Q 20 306 28 306 L 127 306" opacity="0" style="--d:7.4s"/></g>
+        <path data-edge-from="validate" data-edge-to="archive" data-edge-key="5" data-edge-id="e6" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="841,306;879,306" d="M 841 306 L 879 306" class="a-emphasis" data-animate="edge" style="--step: 5;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="archive" data-edge-to="kaizen" data-edge-key="6" data-edge-id="e7" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="983,306;1004,306;1004,376;977,376" d="M 983 306 L 996 306 Q 1004 306 1004 314 L 1004 368 Q 1004 376 996 376 L 977 376" class="a-emphasis" data-animate="edge" style="--step: 6;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="kaizen" data-edge-to="propose" data-edge-label="next spec starts smarter" data-edge-key="7" data-edge-id="e8" data-composition-routing="workflow-v2-auto" data-edge-role="return" data-composition-points="885,376;197,376;197,332" d="M 885 376 L 205 376 Q 197 376 197 368 L 197 332" class="a-dashed" data-animate="edge" style="--step: 7;" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="constitution" data-edge-to="marketing" data-edge-label="PRD ↔ brand voice · angles" data-edge-key="8" data-edge-id="g1" data-composition-routing="workflow-v2-auto" data-edge-role="branch" data-composition-points="197,145;197,267;1027,267;1027,521;1011,521" d="M 197 145 L 197 259 Q 197 267 205 267 L 1019 267 Q 1027 267 1027 275 L 1027 513 Q 1027 521 1019 521 L 1011 521" class="a-dashed" data-animate="edge" style="--step: 8;" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="security" data-edge-to="propose" data-edge-label="confirmed finding → Bug Track" data-edge-key="9" data-edge-id="s1" data-composition-routing="workflow-v2-auto" data-edge-role="branch" data-composition-points="173,460;173,332" d="M 173 460 L 173 332" class="a-security" data-animate="edge" style="--step: 9;" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="review" data-edge-to="propose" data-edge-key="10" data-edge-id="s2" data-edge-role="branch" data-composition-points="121,556;20,556;20,306;127,306" d="M 121 556 L 28 556 Q 20 556 20 548 L 20 314 Q 20 306 28 306 L 127 306" class="a-security" data-animate="edge" style="--step: 10;" stroke-width="1.4" marker-end="url(#arrowhead-security)"/><g class="akili-motion" aria-hidden="true" pointer-events="none"><path class="mo-t" d="M 166 145 L 166 153 Q 166 161 158 161 L 28 161 Q 20 161 20 169 L 20 256 Q 20 264 28 264 L 165 264 Q 173 264 173 272 L 173 280" pathLength="1" opacity="0" style="--d:0s"/><path class="mo-t" d="M 219 306 L 253 306" pathLength="1" opacity="0" style="--d:0.9s"/><path class="mo-t" d="M 401 306 L 433 306" pathLength="1" opacity="0" style="--d:1.8s"/><path class="mo-t" d="M 533 306 L 573 306" pathLength="1" opacity="0" style="--d:2.7s"/><path class="mo-t" d="M 673 306 L 705 306" pathLength="1" opacity="0" style="--d:3.6s"/><path class="mo-t" d="M 841 306 L 879 306" pathLength="1" opacity="0" style="--d:4.5s"/><path class="mo-t" d="M 983 306 L 996 306 Q 1004 306 1004 314 L 1004 368 Q 1004 376 996 376 L 977 376" pathLength="1" opacity="0" style="--d:5.4s"/><path class="mo-t" d="M 885 376 L 205 376 Q 197 376 197 368 L 197 332" pathLength="1" opacity="0" style="--d:6.3s"/><path class="mo-b" d="M 173 460 L 173 332" opacity="0" style="--d:7.4s"/><path class="mo-b" d="M 121 556 L 28 556 Q 20 556 20 548 L 20 314 Q 20 306 28 306 L 127 306" opacity="0" style="--d:7.4s"/></g>
 
         <!-- Nodes -->
         <g id="node-constitution" data-node-id="constitution" data-node-label="/akili-constitution" tabindex="0" role="button" aria-label="Focus /akili-constitution, PRD · UX/UI · TRD · personas · routing · Skill Map, Once per project" aria-pressed="false" data-node-kind="backend" data-node-sublabel="PRD · UX/UI · TRD · personas · routing · Skill Map" data-node-context="Once per project">
@@ -807,7 +812,7 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
         <g id="node-specify" data-node-id="specify" data-node-label="/akili-specify" tabindex="0" role="button" aria-label="Focus /akili-specify, requirements · design · tasks, Per-spec loop" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="requirements · design · tasks" data-node-context="Per-spec loop">
           <title>/akili-specify · requirements · design · tasks · Per-spec loop</title>
           <rect x="253" y="280" width="148" height="52" rx="8" class="c-mask"/>
-          <rect x="253" y="280" width="148" height="52" rx="8" class="c-frontend" data-animate="node" style="--step: 2; --flow-node-name: archify-relay-node-4;" stroke-width="1.5"/>
+          <rect x="253" y="280" width="148" height="52" rx="8" class="c-frontend" data-animate="node" style="--step: 2; --flow-node-name: archify-relay-node-5;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(259 286) scale(0.6875)">
             <rect x="2" y="3" width="12" height="10" rx="2"/>
             <path d="M2 6.5h12"/>
@@ -820,30 +825,30 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
 
         <g id="node-execute" data-node-id="execute" data-node-label="/akili-execute" tabindex="0" role="button" aria-label="Focus /akili-execute, Implementer → Reviewer, Per-spec loop" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Implementer → Reviewer" data-node-context="Per-spec loop">
           <title>/akili-execute · Implementer → Reviewer · Per-spec loop</title>
-          <rect x="437" y="280" width="96" height="52" rx="8" class="c-mask"/>
-          <rect x="437" y="280" width="96" height="52" rx="8" class="c-backend" data-animate="node" style="--step: 3; --flow-node-name: archify-relay-node-5;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(443 286) scale(0.6875)">
+          <rect x="433" y="280" width="100" height="52" rx="8" class="c-mask"/>
+          <rect x="433" y="280" width="100" height="52" rx="8" class="c-backend" data-animate="node" style="--step: 3; --flow-node-name: archify-relay-node-6;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(439 286) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" x="485" y="311.5" class="t-primary" font-size="10.4" font-weight="600" text-anchor="middle">/akili-execute</text>
-          <text x="485" y="324.6" class="t-muted" font-size="6.6" text-anchor="middle">Implementer → Reviewer</text>
+          <text data-node-label="" x="483" y="312.1" class="t-primary" font-size="10.9" font-weight="600" text-anchor="middle">/akili-execute</text>
+          <text x="483" y="325.7" class="t-muted" font-size="6.9" text-anchor="middle">Implementer → Reviewer</text>
         </g>
 
         <g id="node-test" data-node-id="test" data-node-label="/akili-test" tabindex="0" role="button" aria-label="Focus /akili-test, Testers, one per suite, Per-spec loop" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Testers, one per suite" data-node-context="Per-spec loop">
           <title>/akili-test · Testers, one per suite · Per-spec loop</title>
-          <rect x="577" y="280" width="96" height="52" rx="8" class="c-mask"/>
-          <rect x="577" y="280" width="96" height="52" rx="8" class="c-backend" data-animate="node" style="--step: 4; --flow-node-name: archify-relay-node-6;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(583 286) scale(0.6875)">
+          <rect x="573" y="280" width="100" height="52" rx="8" class="c-mask"/>
+          <rect x="573" y="280" width="100" height="52" rx="8" class="c-backend" data-animate="node" style="--step: 4; --flow-node-name: archify-relay-node-7;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(579 286) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" x="632.3" y="301" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-test</text>
-          <text x="625" y="318" class="t-muted" font-size="6.6" text-anchor="middle">Testers, one per suite</text>
+          <text data-node-label="" x="628.3" y="301" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-test</text>
+          <text x="623" y="318" class="t-muted" font-size="6.9" text-anchor="middle">Testers, one per suite</text>
         </g>
 
         <g id="node-validate" data-node-id="validate" data-node-label="/akili-validate" tabindex="0" role="button" aria-label="Focus /akili-validate, requirements · tokens · UX, Per-spec loop" aria-pressed="false" data-node-kind="security" data-node-sublabel="requirements · tokens · UX" data-node-context="Per-spec loop">
           <title>/akili-validate · requirements · tokens · UX · Per-spec loop</title>
           <rect x="705" y="280" width="136" height="52" rx="8" class="c-mask"/>
-          <rect x="705" y="280" width="136" height="52" rx="8" class="c-security" data-animate="node" style="--step: 5; --flow-node-name: archify-relay-node-7;" stroke-width="1.5"/>
+          <rect x="705" y="280" width="136" height="52" rx="8" class="c-security" data-animate="node" style="--step: 5; --flow-node-name: archify-relay-node-8;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(711 286) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
@@ -854,40 +859,40 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
 
         <g id="node-archive" data-node-id="archive" data-node-label="/akili-archive" tabindex="0" role="button" aria-label="Focus /akili-archive, archive + retrospective, Per-spec loop" aria-pressed="false" data-node-kind="database" data-node-sublabel="archive + retrospective" data-node-context="Per-spec loop">
           <title>/akili-archive · archive + retrospective · Per-spec loop</title>
-          <rect x="873" y="280" width="100" height="52" rx="8" class="c-mask"/>
-          <rect x="873" y="280" width="100" height="52" rx="8" class="c-database" data-animate="node" style="--step: 6; --flow-node-name: archify-relay-node-8;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(879 286) scale(0.6875)">
+          <rect x="879" y="280" width="104" height="52" rx="8" class="c-mask"/>
+          <rect x="879" y="280" width="104" height="52" rx="8" class="c-database" data-animate="node" style="--step: 6; --flow-node-name: archify-relay-node-9;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(885 286) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" x="923" y="312.1" class="t-primary" font-size="10.9" font-weight="600" text-anchor="middle">/akili-archive</text>
-          <text x="923" y="325.3" class="t-muted" font-size="6.6" text-anchor="middle">archive + retrospective</text>
+          <text data-node-label="" x="931" y="312.2" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-archive</text>
+          <text x="931" y="325.8" class="t-muted" font-size="6.9" text-anchor="middle">archive + retrospective</text>
         </g>
 
         <g id="node-kaizen" data-node-id="kaizen" data-node-label="Kaizen" tabindex="0" role="button" aria-label="Focus Kaizen, retrospective, Per-spec loop" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="retrospective" data-node-context="Per-spec loop">
           <title>Kaizen · retrospective · Per-spec loop</title>
-          <rect x="877" y="350" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="877" y="350" width="92" height="52" rx="8" class="c-messagebus" data-animate="node" style="--step: 7; --flow-node-name: archify-relay-node-9;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(883 356) scale(0.6875)">
+          <rect x="885" y="350" width="92" height="52" rx="8" class="c-mask"/>
+          <rect x="885" y="350" width="92" height="52" rx="8" class="c-messagebus" data-animate="node" style="--step: 7; --flow-node-name: archify-relay-node-10;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(891 356) scale(0.6875)">
             <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
             <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" x="923" y="371" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kaizen</text>
-          <text x="923" y="388" class="t-muted" font-size="8" text-anchor="middle">retrospective</text>
+          <text data-node-label="" x="931" y="371" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kaizen</text>
+          <text x="931" y="388" class="t-muted" font-size="8" text-anchor="middle">retrospective</text>
         </g>
 
         <g id="node-review" data-node-id="review" data-node-label="/akili-review" tabindex="0" role="button" aria-label="Focus /akili-review, PR review · local or CI, Anytime" aria-pressed="false" data-node-kind="security" data-node-sublabel="PR review · local or CI" data-node-context="Anytime">
           <title>/akili-review · PR review · local or CI · Anytime</title>
-          <rect x="123" y="530" width="100" height="52" rx="8" class="c-mask"/>
-          <rect x="123" y="530" width="100" height="52" rx="8" class="c-security" data-animate="node" style="--step: 8; --flow-node-name: archify-relay-node-2;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(129 536) scale(0.6875)">
+          <rect x="121" y="530" width="104" height="52" rx="8" class="c-mask"/>
+          <rect x="121" y="530" width="104" height="52" rx="8" class="c-security" data-animate="node" style="--step: 8; --flow-node-name: archify-relay-node-2;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(127 536) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
           <text data-node-label="" x="173" y="562.2" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-review</text>
-          <text x="173" y="575.5" class="t-muted" font-size="6.6" text-anchor="middle">PR review · local or CI</text>
+          <text x="173" y="575.8" class="t-muted" font-size="6.9" text-anchor="middle">PR review · local or CI</text>
         </g>
 
         <g id="node-security" data-node-id="security" data-node-label="/akili-security" tabindex="0" role="button" aria-label="Focus /akili-security, repository vulnerability audit, Anytime" aria-pressed="false" data-node-kind="security" data-node-sublabel="repository vulnerability audit" data-node-context="Anytime">
@@ -914,52 +919,52 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
           <text x="327" y="505.6" class="t-muted" font-size="7" text-anchor="middle">multi-spec dashboard</text>
         </g>
 
-        <g id="node-seo" data-node-id="seo" data-node-label="/akili-seo" tabindex="0" role="button" aria-label="Focus /akili-seo, SEO + GEO audit, Anytime" aria-pressed="false" data-node-kind="external" data-node-sublabel="SEO + GEO audit" data-node-context="Anytime">
-          <title>/akili-seo · SEO + GEO audit · Anytime</title>
-          <rect x="281" y="530" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="281" y="530" width="92" height="52" rx="8" class="c-external" data-animate="node" style="--step: 11;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(287 536) scale(0.6875)">
-            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
-            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
-          </g>
-          <text data-node-label="" x="333" y="551" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-seo</text>
-          <text x="327" y="568" class="t-muted" font-size="8" text-anchor="middle">SEO + GEO audit</text>
-        </g>
-
         <g id="node-audit" data-node-id="audit" data-node-label="/akili-audit" tabindex="0" role="button" aria-label="Focus /akili-audit, spec ↔ code drift, Anytime" aria-pressed="false" data-node-kind="external" data-node-sublabel="spec ↔ code drift" data-node-context="Anytime">
           <title>/akili-audit · spec ↔ code drift · Anytime</title>
-          <rect x="439" y="460" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="439" y="460" width="92" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(445 466) scale(0.6875)">
+          <rect x="437" y="460" width="92" height="52" rx="8" class="c-mask"/>
+          <rect x="437" y="460" width="92" height="52" rx="8" class="c-external" data-animate="node" style="--step: 11;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(443 466) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" x="485" y="492.2" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-audit</text>
-          <text x="485" y="507.1" class="t-muted" font-size="8" text-anchor="middle">spec ↔ code drift</text>
-        </g>
-
-        <g id="node-marketing" data-node-id="marketing" data-node-label="/akili-marketing" tabindex="0" role="button" aria-label="Focus /akili-marketing, social drafts · never publishes, Anytime" aria-pressed="false" data-node-kind="external" data-node-sublabel="social drafts · never publishes" data-node-context="Anytime">
-          <title>/akili-marketing · social drafts · never publishes · Anytime</title>
-          <rect x="405" y="530" width="160" height="52" rx="8" class="c-mask"/>
-          <rect x="405" y="530" width="160" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(411 536) scale(0.6875)">
-            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
-            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
-          </g>
-          <text data-node-label="" x="485" y="551" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-marketing</text>
-          <text x="485" y="568" class="t-muted" font-size="8" text-anchor="middle">social drafts · never publishes</text>
+          <text data-node-label="" x="483" y="492.2" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-audit</text>
+          <text x="483" y="507.1" class="t-muted" font-size="8" text-anchor="middle">spec ↔ code drift</text>
         </g>
 
         <g id="node-quick" data-node-id="quick" data-node-label="/akili-quick" tabindex="0" role="button" aria-label="Focus /akili-quick, trivial, low-risk change, Anytime" aria-pressed="false" data-node-kind="external" data-node-sublabel="trivial, low-risk change" data-node-context="Anytime">
           <title>/akili-quick · trivial, low-risk change · Anytime</title>
-          <rect x="563" y="460" width="124" height="52" rx="8" class="c-mask"/>
-          <rect x="563" y="460" width="124" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(569 466) scale(0.6875)">
+          <rect x="561" y="460" width="124" height="52" rx="8" class="c-mask"/>
+          <rect x="561" y="460" width="124" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(567 466) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" x="625" y="481" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-quick</text>
-          <text x="625" y="498" class="t-muted" font-size="8" text-anchor="middle">trivial, low-risk change</text>
+          <text data-node-label="" x="623" y="481" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-quick</text>
+          <text x="623" y="498" class="t-muted" font-size="8" text-anchor="middle">trivial, low-risk change</text>
+        </g>
+
+        <g id="node-seo" data-node-id="seo" data-node-label="/akili-seo" tabindex="0" role="button" aria-label="Focus /akili-seo, SEO + GEO audit, Anytime › Growth track" aria-pressed="false" data-node-kind="external" data-node-sublabel="SEO + GEO audit" data-node-context="Anytime › Growth track">
+          <title>/akili-seo · SEO + GEO audit · Anytime › Growth track</title>
+          <rect x="727" y="495" width="92" height="52" rx="8" class="c-mask"/>
+          <rect x="727" y="495" width="92" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(733 501) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-node-label="" x="779" y="516" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-seo</text>
+          <text x="773" y="533" class="t-muted" font-size="8" text-anchor="middle">SEO + GEO audit</text>
+        </g>
+
+        <g id="node-marketing" data-node-id="marketing" data-node-label="/akili-marketing" tabindex="0" role="button" aria-label="Focus /akili-marketing, social drafts · never publishes, Anytime › Growth track" aria-pressed="false" data-node-kind="external" data-node-sublabel="social drafts · never publishes" data-node-context="Anytime › Growth track">
+          <title>/akili-marketing · social drafts · never publishes · Anytime › Growth track</title>
+          <rect x="851" y="495" width="160" height="52" rx="8" class="c-mask"/>
+          <rect x="851" y="495" width="160" height="52" rx="8" class="c-external" data-animate="node" style="--step: 12; --flow-node-name: archify-relay-node-4;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(857 501) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text data-node-label="" x="931" y="516" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">/akili-marketing</text>
+          <text x="931" y="533" class="t-muted" font-size="8" text-anchor="middle">social drafts · never publishes</text>
         </g>
 
         <!-- Edge labels -->
@@ -970,11 +975,15 @@ been cleared for every commercial, promotional, or redistributive use.</metadata
 
 
 
-        <g class="akili-motion" aria-hidden="true" pointer-events="none"><rect class="mo-n" x="48" y="93" width="250" height="52" rx="8" opacity="0" style="--d:0s"/><rect class="mo-n" x="127" y="280" width="92" height="52" rx="8" opacity="0" style="--d:0.6s"/><rect class="mo-n" x="253" y="280" width="148" height="52" rx="8" opacity="0" style="--d:1.5s"/><rect class="mo-n" x="437" y="280" width="96" height="52" rx="8" opacity="0" style="--d:2.4s"/><rect class="mo-n" x="577" y="280" width="96" height="52" rx="8" opacity="0" style="--d:3.3s"/><rect class="mo-n" x="705" y="280" width="136" height="52" rx="8" opacity="0" style="--d:4.2s"/><rect class="mo-n" x="873" y="280" width="100" height="52" rx="8" opacity="0" style="--d:5.1s"/><rect class="mo-n" x="877" y="350" width="92" height="52" rx="8" opacity="0" style="--d:6s"/></g><g data-edge-from="kaizen" data-edge-to="propose" data-edge-label="next spec starts smarter" data-edge-key="7" data-edge-id="e8">
-          <rect x="474.4" y="356" width="125.19999999999999" height="14" rx="3" class="c-mask"/>
-          <text x="537" y="366" class="t-edge-dashed" font-size="8" text-anchor="middle">next spec starts smarter</text>
+        <g class="akili-motion" aria-hidden="true" pointer-events="none"><rect class="mo-n" x="48" y="93" width="250" height="52" rx="8" opacity="0" style="--d:0s"/><rect class="mo-n" x="127" y="280" width="92" height="52" rx="8" opacity="0" style="--d:0.6s"/><rect class="mo-n" x="253" y="280" width="148" height="52" rx="8" opacity="0" style="--d:1.5s"/><rect class="mo-n" x="433" y="280" width="100" height="52" rx="8" opacity="0" style="--d:2.4s"/><rect class="mo-n" x="573" y="280" width="100" height="52" rx="8" opacity="0" style="--d:3.3s"/><rect class="mo-n" x="705" y="280" width="136" height="52" rx="8" opacity="0" style="--d:4.2s"/><rect class="mo-n" x="879" y="280" width="104" height="52" rx="8" opacity="0" style="--d:5.1s"/><rect class="mo-n" x="885" y="350" width="92" height="52" rx="8" opacity="0" style="--d:6s"/></g><g data-edge-from="kaizen" data-edge-to="propose" data-edge-label="next spec starts smarter" data-edge-key="7" data-edge-id="e8">
+          <rect x="478.4" y="356" width="125.19999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="541" y="366" class="t-edge-dashed" font-size="8" text-anchor="middle">next spec starts smarter</text>
         </g>
-        <g data-edge-from="security" data-edge-to="propose" data-edge-label="confirmed finding → Bug Track" data-edge-key="8" data-edge-id="s1">
+        <g data-edge-from="constitution" data-edge-to="marketing" data-edge-label="PRD ↔ brand voice · angles" data-edge-key="8" data-edge-id="g1">
+          <rect x="544.6" y="247" width="134.8" height="14" rx="3" class="c-mask"/>
+          <text x="612" y="257" class="t-edge-dashed" font-size="8" text-anchor="middle">PRD ↔ brand voice · angles</text>
+        </g>
+        <g data-edge-from="security" data-edge-to="propose" data-edge-label="confirmed finding → Bug Track" data-edge-key="9" data-edge-id="s1">
           <rect x="98.4" y="386" width="149.2" height="14" rx="3" class="c-mask"/>
           <text x="173" y="396" class="t-edge-security" font-size="8" text-anchor="middle">confirmed finding → Bug Track</text>
         </g>

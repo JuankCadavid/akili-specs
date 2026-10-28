@@ -50,7 +50,7 @@ After each change, it learns what to do better next time.
   <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png">
     <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png">
-    <img alt="The AKILI flow: set up the project once, then each change is proposed, specified, built, tested, validated and archived; seven commands run any time, among them a security audit and a pull-request review that can also run in CI."
+    <img alt="The AKILI flow: set up the project once, then each change is proposed, specified, built, tested, validated and archived; seven commands run any time, among them a security audit and a pull-request review that can also run in CI; two of them, SEO and marketing, form a growth track."
          src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow-animated.svg" width="900">
     </picture>
   </a>

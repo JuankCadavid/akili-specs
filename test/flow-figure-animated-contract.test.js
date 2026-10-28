@@ -107,7 +107,11 @@ test("@akili-spec changes/flow-diagram-animated FR-7 AND: says the static SVG an
 });
 
 test("@akili-spec changes/flow-diagram-animated FR-7 AND IT MUST: the stated byte size of the animated SVG equals the committed file (KZ-002)", () => {
-  const m = NOTES.match(/`assets\/akili-flow-animated\.svg` \((\d[\d,]*) bytes\)/);
+  // @akili-spec changes/growth-angles (T8): [Unreleased] is checked first, so a newer entry that
+  // restates the regenerated size is the one held to the committed file; otherwise the released notes.
+  const SIZE = /`assets\/akili-flow-animated\.svg` \((\d[\d,]*) bytes\)/;
+  const unreleased = LOG.includes("## [Unreleased]") ? section(LOG, "## [Unreleased]") : "";
+  const m = unreleased.match(SIZE) || NOTES.match(SIZE);
   assert.ok(m, "notes state no byte size for the animated SVG");
   const actual = fs.statSync(path.join(ROOT, "assets/akili-flow-animated.svg")).size;
   assert.equal(Number(m[1].replace(/,/g, "")), actual);

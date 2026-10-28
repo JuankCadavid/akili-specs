@@ -132,7 +132,7 @@ Card fields are unchanged; the chosen hook is the first line of *Copy*.
 | `flow-figure-contract` FR-4 (README alt) | "seven commands run any time" | same, plus "growth track" |
 | `flow-figure.test.js` `<desc>` = alt | equality | unchanged (both sides change together) |
 | `flow-figure-animated` overlay counts (18), groups (2), pulses (2), cycle, iteration count 3 | — | unchanged; a new assertion that no overlay element references `g1` |
-| `flow-figure-animated-contract` byte-size statement (KZ-002) | the CHANGELOG states the committed size | the new CHANGELOG entry states the new size |
+| `flow-figure-animated-contract` byte-size statement (KZ-002) | the CHANGELOG states the committed size | the new CHANGELOG entry states the new size. **Amended at T8 (2026-10-28, execute-time edit):** the test reads the dated `[2.37.2]` section, which can never state the regenerated size, so it now reads `[Unreleased]` when that section states an animated byte size, else falls back to `[2.37.2]`, and still asserts exact equality with the committed file |
 | size caps, PNG width | caps | unchanged |
 
 No assertion is removed.

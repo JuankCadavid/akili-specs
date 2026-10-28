@@ -138,20 +138,20 @@
   {
    "id": "seo",
    "lane": "any",
-   "col": 1,
+   "col": 4,
    "type": "external",
    "label": "/akili-seo",
    "sublabel": "SEO + GEO audit",
-   "yOffset": 35
+   "yOffset": 0
   },
   {
    "id": "marketing",
    "lane": "any",
-   "col": 2,
+   "col": 5,
    "type": "external",
    "label": "/akili-marketing",
    "sublabel": "social drafts · never publishes",
-   "yOffset": 35
+   "yOffset": 0
   }
  ],
  "edges": [
@@ -223,6 +223,23 @@
    "role": "branch",
    "fromSide": "left",
    "toSide": "left"
+  },
+  {
+   "id": "g1",
+   "from": "constitution",
+   "to": "marketing",
+   "label": "PRD ↔ brand voice · angles",
+   "variant": "dashed",
+   "role": "branch"
+  }
+ ],
+ "groups": [
+  {
+   "id": "growth",
+   "label": "Growth track",
+   "lane": "any",
+   "fromCol": 4,
+   "toCol": 5
   }
  ]
 }

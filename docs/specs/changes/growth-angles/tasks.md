@@ -252,7 +252,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~70 LOC + generated assets) |
 | Depends on | T7 |
 | Requirements | FR-8 (all), NFR-7, FR-7 AND (seven anytime) |
@@ -291,7 +291,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 | Red run (executed at baseline) | `grep -n "No unreleased changes yet" CHANGELOG.md` → `11:- No unreleased changes yet.` |
 | Falsifier | State a wrong byte size in the entry → `flow-figure-animated-contract` FR-7 red |
 | Disqualifier | One dogfood run of a non-deterministic agent is evidence, not proof — record it as observed once, on Claude Code only; a sweep run while another agent is active is not evidence (AGENTS.md concurrency rule) |
-| Consumers | `test/flow-figure-contract.test.js:99-110` reads `[2.37.1]` or `[Unreleased]` — the dated `## [2.37.1]` section exists (`CHANGELOG.md:33`, as run), so that test reads it and is unaffected by the new `[Unreleased]` entry |
+| Consumers | `test/flow-figure-contract.test.js:99-110` reads `[2.37.1]` or `[Unreleased]` — the dated `## [2.37.1]` section exists (`CHANGELOG.md:33`, as run), so that test reads it and is unaffected by the new `[Unreleased]` entry. **Amended at T8 (2026-10-28):** `test/flow-figure-animated-contract.test.js` FR-7 byte-size test read `[2.37.2]` and went red on the regenerated SVG; T8 points it at the newest section stating the size, so T9's entry must state `assets/akili-flow-animated.svg` (<n> bytes) with the committed size. Its sibling "no released section mentions the animated figure" test excludes only `[2.37.2]`, so a dated 2.38.0 section naming the animated SVG would turn it red at the release cut, and the amended byte-size test itself falls back to `[2.37.2]` once `[Unreleased]` becomes a dated `[2.38.0]` (T8 Reviewer advisory) — settle both at T9 with the maintainer |
 
 **Done.** Entry quote-checked; all sweep commands pass with counts recorded; dogfood steps recorded with outcomes; leak grep empty.
 
