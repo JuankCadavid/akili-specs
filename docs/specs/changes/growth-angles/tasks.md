@@ -114,7 +114,7 @@ No cycles. T3 waits for T1/T2 because it points at their sections by name. T7 qu
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~50 LOC) |
 | Depends on | — |
 | Requirements | FR-1 (sections, interview, no plausible fill, existing file), FR-2 (story-bank note), FR-3 (slot fields) |

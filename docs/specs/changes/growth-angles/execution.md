@@ -53,3 +53,22 @@
 - **spawns:** Implementer 10 calls, 99,262 tokens, ended complete; Reviewer 6 calls, 76,793 tokens, ended complete (PASS)
 - **Running totals vs budget:** tasks 2/9 · LOC +192 −12 (T1) + T6 below · review rounds 4 (T1 3, T6 1; T2 in flight) / tripwire 21 — within tripwire
 - **Gate:** auto-approved (maintainer mandate 2026-10-28)
+
+### T2 — Foundations and slot fields in the skill references
+
+- **Final status:** PASS (attempt 2 of 3) · 2026-10-28 · ran in parallel with T6
+- **Requirements covered:** FR-1 (sections, interview, no plausible fill, existing file), FR-2 (story-bank note), FR-3 (slot fields)
+- **Skills / effort:** `cognitive-doc-design` (as listed); Implementer `sonnet` effort medium → high (attempt 2); Reviewer `opus`
+- **Attempt 1** — files: `.claude/skills/social-marketing/references/brand-voice-template.md` (four foundation sections after *Audience*; read-table row for pre-foundation `filled: yes` files; interview step 8 for empty foundations; note that foundations are not part of the `filled` check; story-bank *Positions*/*Scars* line), `planning-and-calendar.md` (step 4 Angle/Approach/Hooks; balance-check line; worked-shape Angle + Approach columns). Read-table row text for T5: "| File present, `filled: yes`, written before the foundations existed (none of *Ideal customer*, *Ideal follower*, *Offer*, *Message*) | Stays `filled: yes`; the foundations read as empty and the file is not rewritten. `brand` or `angles` offers to add them |".
+  - continuations: 1 (Leader pre-review sweep, two gaps: step 5 still carried the old free-text angle-sourcing rule beside the new step 4 field; `### Plan shape` numbered list lacked `Angle`/`Approach`/`Hooks` per design §4.3) — both fixed before review
+  - Verification: heading grep 4; `grep -c "Approach"` 3; `node --test test/social-marketing-skill.test.js` 11/0; leak grep empty; shipping default `- filled: no` unchanged (line 27)
+  - Evidence re-run (Leader inline): same → `VERIFIED`
+  - Reviewer: **FAIL** — Discovered Issue: the no-plausible-fill sentence pointed to a "Never fill a gap" rule in `/akili-marketing` that the command does not contain (`grep -n -i "plausible\|fill a gap\|never fill\|invent" .claude/commands/akili-marketing.md` → nothing); Violated Rule: `tasks.md` §3 row "FR-1 *Interview* BUT no plausible fill; empty stays empty | T2 (points to the existing "Never fill a gap" rule)", FR-1; Remediation: extend the template's own rule in place ("foundation lines included") and point step 9 to it. ADVISORY: balance-check "source for its angle" vs `needs input`; `source:` hint only on *Pains*.
+  - runtime events: none
+- **Attempt 2** — files: `brand-voice-template.md` (rule reads "Never fill a gap with a plausible answer, foundation lines included: … Leave the line empty."; step 9 opens "An unanswered foundation line stays empty (see the rule below)."; `source:` hint moved to *Ideal customer* Who line "add `source:` to any line pre-filled from the PRD"), `planning-and-calendar.md` (balance check "… a source for its angle, or `needs input`"). Both advisories applied as `[advisory-grade]` one-line consistency edits inside the task's own files.
+  - Evidence re-run (Leader inline): heading grep 4, Approach 3, skill test 11/0, leak grep empty → `VERIFIED`
+  - Reviewer: **PASS** — issue closed (pointer resolves to the paragraph below); moved `source:` hint covers every line per design §4.1; balance-check lines consistent; `filled: no` default unchanged; `install-cursor` + skill tests 23/0 (P-3 carry holds); `git diff --check` clean. ADVISORY: none.
+  - runtime events: none
+- **spawns:** Implementer 8 calls, 83,338 tokens, ended complete; Implementer (resumed, continuation) 9 calls, 86,155 tokens cumulative, ended complete; Reviewer 8 calls, 81,787 tokens, ended complete (FAIL); Implementer (resumed, attempt 2) 1 call, 89,278 tokens cumulative, ended complete; Reviewer (resumed) 1 call, 84,690 tokens cumulative, ended complete (PASS)
+- **Running totals vs budget:** tasks 3/9 · LOC: T1 +192 −12, T6 +103, T2 +39 −14 → +334 −26 cumulative (shipped files) · review rounds 6 / tripwire 21 — within tripwire
+- **Gate:** auto-approved (maintainer mandate 2026-10-28)
