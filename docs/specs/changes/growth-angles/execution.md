@@ -162,3 +162,18 @@
 - **spawns:** Implementer 31 calls, 116,666 tokens, ended complete; Implementer (resumed, continuation) 3 calls, 121,639 tokens cumulative, ended complete; Reviewer 11 calls, 89,532 tokens, ended complete (PASS)
 - **Running totals vs budget:** tasks 8/9 · LOC +706 −62 cumulative (shipped files, assets not counted per design §8; T8 text + tests +49 −4; `figure-source.json` +21 −4 in the spec folder) · review rounds 14 / tripwire 21 — within tripwire
 - **Gate:** auto-approved (maintainer mandate 2026-10-28). Run stops here: T9 (CHANGELOG, sweep, dogfood) needs the maintainer present.
+
+### T9 — CHANGELOG, sweep, dogfood (HITL)
+
+- **Status:** `[~]` · 2026-10-28 · CHANGELOG + sweep PASS (attempt 1 of 3); **dogfood pending the maintainer**
+- **Requirements covered:** FR-9, NFR-1, NFR-2, NFR-4, NFR-5 (dogfood observations pending)
+- **Skills / effort:** Implementer `sonnet`; Reviewer `opus`
+- **Attempt 1** — files: `CHANGELOG.md` (`[Unreleased]`: 8 Added, 4 Changed, 2 Notes bullets; no version or date in the heading; figure bullets separable for the planned second PR; states `` `assets/akili-flow-animated.svg` (136694 bytes) ``, Nico Azero credit, `Release class: minor`), `test/flow-figure-animated-contract.test.js` (byte-size test: first section in document order stating a size, exact equality kept; sibling test: only sections released before 2.37.2, numeric compare, title reworded to "no section released before 2.37.2 …").
+  - Release-cut simulation (scratch copy, `scripts/release.js` transform with 2.38.0): ten CHANGELOG-reading test files 140/140 pass; with HEAD's test file, exactly the two named tests red. Falsifier: stated 136000 → byte-size red.
+  - Evidence re-run (Leader, quiet tree): `npm test` 1195/1195 on Node 22.12.0 and 18.20.8; `npm run verify:cli` OK (14 commands, 29 skills); `npm run pack:dry-run` 343 files, `angles-framework.md` included; `git diff --check` clean; `install --tool all --dry-run` OK; leak grep over `git diff 8991113` → 0; cut simulation re-run → same outcomes → `VERIFIED`
+  - Reviewer: **PASS** — every FR-9 topic present; every claim quote-checked against `git diff c836c68 HEAD`; `older()` correct for all versions present; nothing weakened. Non-gating notes: "up to 9 problems, desires…" read as a total; "once" not shipped wording; README Extras line rewrite not named; "1195 tests" holds only for the combined state.
+  - Leader post-PASS wording fixes (factual, single answer, tests re-run 140/140): "up to 9 problems, 9 desires, 9 objections and 9 beliefs"; the PRD bullet lead now says "never re-asks a confirmed question" and "asks only what the PRD does not answer" (shipped wording).
+  - runtime events: none
+- **Open for the maintainer:** (1) `assets/akili-flow.svg.nodes` (15 lines, Archify node-id sidecar) was committed in T8 without being planned or logged and ships in the npm package; nothing reads it — keep or remove. (2) If the work is split into two PRs, the "1195 tests" Notes line must be restated per PR.
+- **spawns:** Implementer 19 calls, 110,704 tokens, ended complete; Reviewer 11 calls, 97,848 tokens, ended complete (PASS)
+- **Running totals vs budget:** tasks 9/9 · review rounds 15 / tripwire 21

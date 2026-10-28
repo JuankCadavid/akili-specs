@@ -107,18 +107,28 @@ test("@akili-spec changes/flow-diagram-animated FR-7 AND: says the static SVG an
 });
 
 test("@akili-spec changes/flow-diagram-animated FR-7 AND IT MUST: the stated byte size of the animated SVG equals the committed file (KZ-002)", () => {
-  // @akili-spec changes/growth-angles (T8): [Unreleased] is checked first, so a newer entry that
-  // restates the regenerated size is the one held to the committed file; otherwise the released notes.
+  // @akili-spec changes/growth-angles (T9): sections are taken in document order (newest first:
+  // [Unreleased], then the dated sections top-down) and the FIRST one stating a size is held to the
+  // committed file, so the check survives the release cut that turns [Unreleased] into a dated section.
   const SIZE = /`assets\/akili-flow-animated\.svg` \((\d[\d,]*) bytes\)/;
-  const unreleased = LOG.includes("## [Unreleased]") ? section(LOG, "## [Unreleased]") : "";
-  const m = unreleased.match(SIZE) || NOTES.match(SIZE);
+  const heads = [...LOG.matchAll(/^## \[[^\]]+\][^\n]*$/gm)].map((h) => h[0]);
+  let m = null;
+  for (const h of heads) {
+    m = section(LOG, h).match(SIZE);
+    if (m) break;
+  }
   assert.ok(m, "notes state no byte size for the animated SVG");
   const actual = fs.statSync(path.join(ROOT, "assets/akili-flow-animated.svg")).size;
   assert.equal(Number(m[1].replace(/,/g, "")), actual);
 });
 
-test("@akili-spec changes/flow-diagram-animated FR-7 BUT: no released section mentions the animated figure or its generator", () => {
-  const heads = [...LOG.matchAll(/^## \[(\d+\.\d+\.\d+)\][^\n]*$/gm)].map((m) => m[0]).filter((h) => h !== RELEASED);
+test("@akili-spec changes/flow-diagram-animated FR-7 BUT: no section released before 2.37.2 mentions the animated figure or its generator", () => {
+  // @akili-spec changes/growth-angles (T9): a dated section for a later release may name the figure.
+  const older = (v) => {
+    const [a, b, c] = v.split(".").map(Number);
+    return a !== 2 ? a < 2 : b !== 37 ? b < 37 : c < 2;
+  };
+  const heads = [...LOG.matchAll(/^## \[(\d+\.\d+\.\d+)\][^\n]*$/gm)].filter((m) => older(m[1])).map((m) => m[0]);
   assert.ok(heads.length > 0);
   for (const h of heads) assert.doesNotMatch(section(LOG, h), /akili-flow-animated|animate-flow/, h);
 });
