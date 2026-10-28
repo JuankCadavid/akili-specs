@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/methodology-mcp/gateway-lambda` |
 | Depth | Full |
-| Status | Phase 3 gate: awaiting the owner's **final spec approval** |
+| Status | APPROVED by the maintainer (2026-10-27 7:30 PM); executing T1–T5 (T6, T7 maintainer-owned) |
 | Budget (design §10) | **7 tasks · ~2,900 LOC · 12 review rounds**. Stop and escalate past 9 tasks, 3,700 LOC, or 3 rounds on any task |
 | Commit prefix | `[SPEC:changes/methodology-mcp/gateway-lambda]`. Agents make local commits only. No push, merge, tag, release or `npm publish`, and **no AWS command of any kind** (no CLI, CDK deploy, `sts` or SDK call against any account). `cdk synth` runs offline and is allowed |
 | Baselines (as run 2026-10-27 at `174299c`) | `npm test` → 1153 tests, 1153 pass, 0 fail · `bin/mcp-*`, `scripts/mcp-*`, `infra/`, `docs/mcp.md`, `.github/workflows/mcp-deploy.yml` do not exist (`ls` → no matches) |
@@ -69,7 +69,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~260 LOC code, ~380 LOC test) |
 | Depends on | none |
 | Requirements | FR-1 (all), FR-2 (*Command text rendered*, *Paging*, `list_commands`, `get_command`), NFR-1, NFR-5 |
