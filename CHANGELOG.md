@@ -16,10 +16,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **The docs name the growth track.** `/akili-seo` and `/akili-marketing` are described as the growth track, a documentation grouping of two anytime commands and not a command, so the count of seven anytime commands does not change. `docs/flow.md` adds a data-flow table, the `docs/marketing/angles.md` artifacts row and the seven-mode list; `docs/overview.md`, `docs/README.md`, `docs/commands/akili-marketing.md` and `docs/skills/social-marketing.md` follow.
 - **The lifecycle figure draws the growth track.** `assets/akili-flow.svg` and `assets/akili-flow.png` were regenerated with Archify (a generation tool, not shipped) with a group labelled "Growth track" around `/akili-seo` and `/akili-marketing` and a dashed edge from `/akili-constitution` to `/akili-marketing`.
 - **The animated figure is regenerated: `assets/akili-flow-animated.svg` (136694 bytes)** (was 134935). The growth link adds no motion.
-- **A read-only methodology MCP server, code only; nothing is deployed yet.** `bin/mcp-core.js` serves the shipped commands, skills and templates through seven tools (`list_commands`, `get_command`, `list_skills`, `get_skill`, `get_template`, `get_file`, `search`) and `bin/mcp-lambda.js` is its AWS Lambda handler. Both use Node built-ins only, and both ship in the npm package.
-- **`docs/mcp.md`** explains the Claude Code setup, the seven tools, the limits, the privacy note and the cost brakes, with placeholders for the endpoint, which is not live yet.
-- **Infrastructure and deploy, not shipped.** `infra/mcp-gateway/` (a CDK app that synthesizes offline: Lambda, Cognito sign-in through managed login only, AgentCore Gateway, rate limits, a budget kill switch, and a GitHub OIDC deploy role), `scripts/mcp-deploy-guard.js` and `.github/workflows/mcp-deploy.yml` (deploys exactly the npm tarball of each stable release; skips green until the deploy role exists).
-- **Tests.** `test/mcp-core.test.js`, `test/mcp-lambda.test.js`, `test/mcp-deploy-guard.test.js` and `test/mcp-contract.test.js`, which also checks the pack list, scans tracked files for account IDs and role ARNs, and ties the docs to `infra/mcp-gateway/config.json`. A new `infra` CI job runs the stack checks.
 
 ### Changed
 
@@ -27,13 +23,17 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **The `README.md` figure alt text and the `docs/flow.md` figure alt text say that SEO and marketing form a growth track.** The `README.md` change is net 0 lines.
 - **Tests.** New `test/growth-track.test.js`; changed `test/akili-marketing-command.test.js`, `test/social-marketing-skill.test.js`, `test/social-marketing-install.test.js` and `test/install-cursor.test.js` (245 packaged skill files, was 244).
 - **Figure tests.** `test/flow-figure-contract.test.js` pins the "Growth track" group, the dashed `/akili-constitution` to `/akili-marketing` edge and the new alt wording; `test/flow-figure-animated.test.js` pins that no overlay element reuses the growth link. In `test/flow-figure-animated-contract.test.js` the byte-size check now holds the newest section that states a size to the committed file, and the "no released section" check covers only sections released before 2.37.2, so both stay true after the release cut.
-- **`docs/infrastructure.md`** lists the MCP server resources and adds the manual kill switch, reset and alias rollback runbooks, cost-allocation tag activation, and the rule that only the owner deploys outside CI.
-- **`docs/release-checklist.md`** adds a step to confirm the `MCP Deploy` run after `gh release create`. `README.md` and `docs/README.md` link `docs/mcp.md`.
+
+### Removed
+
+- **The methodology MCP server and its AWS infrastructure leave this repository before any release; they move to a separate private repository for the hosted AKILI MCP service.** Removed: `bin/mcp-core.js` (the local read-only server and its seven tools), `bin/mcp-lambda.js`, `infra/mcp-gateway/`, `scripts/mcp-deploy-guard.js`, `.github/workflows/mcp-deploy.yml`, `docs/mcp.md`, `docs/infrastructure.md`, the `methodology-mcp` spec folder, the four `test/mcp-*.test.js` files with `test/fixtures/mcp/`, the CI syntax checks for those files and the `infra` CI job, and the `MCP Deploy` step of `docs/release-checklist.md`. `docs/README.md` drops the two links; `AGENTS.md` now states that this repository has no cloud infrastructure.
+- **Who is affected.** No published version ever shipped these files (they reached `dev` after 2.37.2), so nothing changes for npm users and no install step, CLI command or packaged skill referenced them. Only someone running `node bin/mcp-core.js` or `bin/mcp-lambda.js` from a `dev` checkout loses them; the AKILI MCP will be offered as a hosted service on akili.com.co instead.
+- **`README.md`** points the "MCP client with nothing installed" row at akili.com.co (net 0 lines). `.mcp.json.example` (the `gsc` server reference for `/akili-seo`) is unrelated and stays.
 
 ### Notes
 
-- **Release class: minor** (a new mode and new behavior in an existing command, a new reference file and new constitution options, plus the new MCP server modules `bin/mcp-core.js` and `bin/mcp-lambda.js`; no new command or install target, and nothing is deployed).
-- **Tests.** The whole suite is 1348 tests, all passing.
+- **Release class: minor** (a new mode and new behavior in an existing command, a new reference file and new constitution options; no new command or install target; the MCP removal touches no released file).
+- **Tests.** The whole suite is 1195 tests, all passing (1348 before the MCP removal; the 153 removed tests moved with the MCP code).
 
 ## [2.37.2] - 2026-10-27
 

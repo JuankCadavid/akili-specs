@@ -153,7 +153,7 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |
 | know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
 | compare AKILI with OpenSpec | [docs/openspec-comparison.md](docs/openspec-comparison.md) |
-| use AKILI from an MCP client with nothing installed (not live yet) | [docs/mcp.md](docs/mcp.md) |
+| use AKILI from an MCP client with nothing installed (hosted AKILI MCP service, not live yet) | [akili.com.co](https://akili.com.co) |
 
 ## Contributing and license
 
