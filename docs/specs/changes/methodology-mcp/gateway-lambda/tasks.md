@@ -267,7 +267,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 4. `docs/release-checklist.md`: the *MCP Deploy* line after `gh release create`. `docs/README.md` *Start Here*: append an `MCP` link. `README.md` *Learn more*: append a row. `CHANGELOG.md` `Unreleased`: one entry, with no spec-folder path.
 5. `test/mcp-contract.test.js` additions:
    - **pack list:** `npm pack --dry-run --json` contains `bin/mcp-core.js`, `bin/mcp-lambda.js` and `docs/mcp.md`, and nothing under `infra/`, `scripts/mcp-deploy-guard.js` or `test/` (NFR-4);
-   - **tracked-files scan** (`git ls-files`): no `arn:aws:…:<12 digits>:` and no `"account": "<12 digits>"` (NFR-7);
+   - **tracked-files scan** (`git ls-files`): no ARN whose account field is 12 digits and no `"account": "<12 digits>"` (NFR-7);
    - no shipped file or test cites `docs/specs/changes/methodology-mcp` (NFR-5);
    - `docs/mcp.md` states the `callbackPort` and rate values equal to `config.json` (DD-8).
 6. **Full verification:** `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check`, `git diff --stat package.json` empty, and the infra `check` again.
@@ -276,7 +276,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Verification field | Value |
 |---|---|
-| Falsifier | (1) Put a fake `arn:aws:iam::123456789012:role/x` in `docs/mcp.md` → the NFR-7 scan red. (2) Change `callbackPort` in `config.json` only → the DD-8 docs-equality check red. (3) Insert the README row as the first *Learn more* row → `docs-overview.test.js:458` red (an existing test, observable now) |
+| Falsifier | (1) Put a fake IAM role ARN carrying the AWS documentation example account ID in `docs/mcp.md` → the NFR-7 scan red. (2) Change `callbackPort` in `config.json` only → the DD-8 docs-equality check red. (3) Insert the README row as the first *Learn more* row → `docs-overview.test.js:458` red (an existing test, observable now) |
 | Red run | Falsifier 3 runs against an existing test and is observed at T5 before the final row placement, and quoted. 1–2: `predicted — greenfield artifact (observed in T5)` |
 | Disqualifier | Docs passing their tests proves structure, not truth: each AWS-behavior and cost sentence needs its quoted source in `execution.md`, and the Reviewer quote-checks them. The account-ID scan proves only the patterns it encodes; a role ARN split across lines or written without `arn:` is outside it, so the Reviewer also reads the new docs whole |
 | Consumers | as in the table above |

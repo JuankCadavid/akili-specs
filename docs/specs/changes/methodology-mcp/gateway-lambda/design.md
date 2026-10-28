@@ -145,7 +145,7 @@ Lookups are `Map.get(key)` on exact strings; no input is ever joined onto a path
 
 - **Trust:** the GitHub OIDC provider for `token.actions.githubusercontent.com`. Context `oidcProvider=import|create`: import builds the ARN from `${AWS::AccountId}`, because an account allows one provider per URL and a paolachicue one may already exist (P-19). Conditions: `aud = sts.amazonaws.com`, `sub = repo:JuankCadavid/akili-specs:environment:aws-mcp`.
 - **Permissions:**
-  - `sts:AssumeRole` on `arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-*-${AWS::AccountId}-us-east-1` (the bootstrap deploy, file-publishing and lookup roles; P-20);
+  - `sts:AssumeRole` on the role pattern `iam::${AWS::AccountId}:role/cdk-hnb659fds-*-${AWS::AccountId}-us-east-1` (ARN prefix omitted here) (the bootstrap deploy, file-publishing and lookup roles; P-20);
   - `lambda:InvokeFunction`, `GetAlias`, `UpdateAlias`, `ListVersionsByFunction` on `function:akili-mcp-content*`.
   - Nothing else.
 - **Deployment:** this stack is deployed once by the owner with the `docs/infrastructure.md` profile (D-8 ii). CI never deploys it, and the workflow's `cdk deploy` names only the service stack.
