@@ -152,7 +152,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~420 LOC CDK, ~320 LOC checks, ~30 LOC CI) |
 | Depends on | T2 (`TOOL_DEFINITIONS`, handler path) |
 | Requirements | FR-4 (all), FR-6 (resources), NFR-1 (root unchanged), NFR-6 (discovery), NFR-7 (template scan), NFR-8 (config values) |
@@ -202,7 +202,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~150 LOC script, ~110 LOC workflow, ~260 LOC test) |
 | Depends on | T3 |
 | Requirements | FR-5 (all), FR-4 *Deploy role stack* (CI deploys only the service stack) |
@@ -242,7 +242,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~300 LOC docs, ~120 LOC test) |
 | Depends on | T4 |
 | Requirements | FR-6 (docs wording), FR-7 (all), NFR-4, NFR-5, NFR-6, NFR-7, NFR-8, NFR-9 |
@@ -290,7 +290,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 | Status | `[ ]` |
 | Size | owner session, ~1–2 h; ~0–40 LOC follow-up |
 | Depends on | T3 (stack), the owner's **D-8(i) OK** |
-| Requirements | FR-8 (spike gate, destroy, record), FR-6 (per-user throttle, manual switch), NFR-2 (cold start), and settling P-11, P-12, P-13, P-14, P-15, P-17 in AWS |
+| Requirements | FR-8 (spike gate, destroy, record), FR-6 (per-user throttle, manual switch), NFR-2 (cold start), and settling P-11, P-12, P-13, P-14, P-15, P-17 in AWS; S1 check: managed login still signs in with `ExplicitAuthFlows` = `[ALLOW_REFRESH_TOKEN_AUTH]` (added 2026-10-28) |
 | Design refs | DD-5, DD-11, §7.5, P-11, P-12, P-13 |
 | Consumers | none |
 | Review | `checklist`: an owner-run procedure. The Leader audits the record against the checklist below; there is no code diff unless a fix follows, and a fix gets its own `full` review |

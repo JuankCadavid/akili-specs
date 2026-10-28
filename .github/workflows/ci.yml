@@ -44,6 +44,9 @@ jobs:
           node --check scripts/release-status.js
           node --check scripts/release-next.js
           node --check scripts/notify-slack.js
+          node --check bin/mcp-core.js
+          node --check bin/mcp-lambda.js
+          node --check scripts/mcp-deploy-guard.js
 
       - name: verify:cli (list packaged commands, skills, resources)
         run: npm run verify:cli
@@ -114,3 +117,23 @@ jobs:
 
       - name: Pack dry-run (no stray files enter the tarball)
         run: npm run pack:dry-run
+
+  # remote-mcp (FR-4): synth-only CDK assertions. Own package, own job: the root
+  # suite never discovers *.check.js, and no AWS call or credential is involved.
+  infra:
+    name: Infra synth checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install and check (offline synth)
+        working-directory: infra/mcp-gateway
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: |
+          npm ci
+          npm run check
