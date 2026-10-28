@@ -1,0 +1,228 @@
+{
+ "schema_version": 2,
+ "diagram_type": "workflow",
+ "meta": {
+  "title": "AKILI-SPECS — methodology lifecycle",
+  "quality_profile": "showcase",
+  "output": "akili-flow.html",
+  "legend": {
+   "mode": "hidden"
+  }
+ },
+ "lanes": [
+  {
+   "id": "once",
+   "label": "Once per project"
+  },
+  {
+   "id": "loop",
+   "label": "Per-spec loop"
+  },
+  {
+   "id": "any",
+   "label": "Anytime"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "constitution",
+   "lane": "once",
+   "col": 0,
+   "type": "backend",
+   "label": "/akili-constitution",
+   "sublabel": "PRD · UX/UI · TRD · personas · routing · Skill Map",
+   "width": 250
+  },
+  {
+   "id": "propose",
+   "lane": "loop",
+   "col": 0,
+   "type": "frontend",
+   "label": "/akili-propose",
+   "sublabel": "spec folder + intent"
+  },
+  {
+   "id": "specify",
+   "lane": "loop",
+   "col": 1,
+   "type": "frontend",
+   "label": "/akili-specify",
+   "sublabel": "requirements · design · tasks"
+  },
+  {
+   "id": "execute",
+   "lane": "loop",
+   "col": 2,
+   "type": "backend",
+   "label": "/akili-execute",
+   "sublabel": "Implementer → Reviewer"
+  },
+  {
+   "id": "test",
+   "lane": "loop",
+   "col": 3,
+   "type": "backend",
+   "label": "/akili-test",
+   "sublabel": "Testers, one per suite"
+  },
+  {
+   "id": "validate",
+   "lane": "loop",
+   "col": 4,
+   "type": "security",
+   "label": "/akili-validate",
+   "sublabel": "requirements · tokens · UX"
+  },
+  {
+   "id": "archive",
+   "lane": "loop",
+   "col": 5,
+   "type": "database",
+   "label": "/akili-archive",
+   "sublabel": "archive + retrospective"
+  },
+  {
+   "id": "kaizen",
+   "lane": "loop",
+   "col": 5,
+   "type": "messagebus",
+   "label": "Kaizen",
+   "sublabel": "retrospective",
+   "yOffset": 70
+  },
+  {
+   "id": "security",
+   "lane": "any",
+   "col": 0,
+   "type": "security",
+   "label": "/akili-security",
+   "sublabel": "repository vulnerability audit",
+   "yOffset": -35
+  },
+  {
+   "id": "review",
+   "lane": "any",
+   "col": 0,
+   "type": "security",
+   "label": "/akili-review",
+   "sublabel": "PR review · local or CI",
+   "yOffset": 35
+  },
+  {
+   "id": "resume",
+   "lane": "any",
+   "col": 1,
+   "type": "external",
+   "label": "/akili-resume",
+   "sublabel": "multi-spec dashboard",
+   "yOffset": -35
+  },
+  {
+   "id": "audit",
+   "lane": "any",
+   "col": 2,
+   "type": "external",
+   "label": "/akili-audit",
+   "sublabel": "spec ↔ code drift",
+   "yOffset": -35
+  },
+  {
+   "id": "quick",
+   "lane": "any",
+   "col": 3,
+   "type": "external",
+   "label": "/akili-quick",
+   "sublabel": "trivial, low-risk change",
+   "yOffset": -35
+  },
+  {
+   "id": "seo",
+   "lane": "any",
+   "col": 1,
+   "type": "external",
+   "label": "/akili-seo",
+   "sublabel": "SEO + GEO audit",
+   "yOffset": 35
+  },
+  {
+   "id": "marketing",
+   "lane": "any",
+   "col": 2,
+   "type": "external",
+   "label": "/akili-marketing",
+   "sublabel": "social drafts · never publishes",
+   "yOffset": 35
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "from": "constitution",
+   "to": "propose",
+   "variant": "emphasis",
+   "fromSide": "bottom",
+   "toSide": "top"
+  },
+  {
+   "id": "e2",
+   "from": "propose",
+   "to": "specify",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e3",
+   "from": "specify",
+   "to": "execute",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e4",
+   "from": "execute",
+   "to": "test",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e5",
+   "from": "test",
+   "to": "validate",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e6",
+   "from": "validate",
+   "to": "archive",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e7",
+   "from": "archive",
+   "to": "kaizen",
+   "variant": "emphasis"
+  },
+  {
+   "id": "e8",
+   "from": "kaizen",
+   "to": "propose",
+   "label": "next spec starts smarter",
+   "variant": "dashed",
+   "role": "return"
+  },
+  {
+   "id": "s1",
+   "from": "security",
+   "to": "propose",
+   "label": "confirmed finding → Bug Track",
+   "variant": "security",
+   "role": "branch"
+  },
+  {
+   "id": "s2",
+   "from": "review",
+   "to": "propose",
+   "variant": "security",
+   "role": "branch",
+   "fromSide": "left",
+   "toSide": "left"
+  }
+ ]
+}
