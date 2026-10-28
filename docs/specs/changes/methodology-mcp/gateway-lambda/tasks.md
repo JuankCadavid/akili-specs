@@ -242,7 +242,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~300 LOC docs, ~120 LOC test) |
 | Depends on | T4 |
 | Requirements | FR-6 (docs wording), FR-7 (all), NFR-4, NFR-5, NFR-6, NFR-7, NFR-8, NFR-9 |

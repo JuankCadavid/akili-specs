@@ -16,6 +16,8 @@ Use this documentation when you want the human-facing reference. The installable
 - [Skill governance](skills/governance.md) - acceptance checklist for packaged skills
 - [Release checklist](release-checklist.md) - controlled npm release process
 - [Slack notifications](slack-notifications.md) - webhook setup, rotation, and troubleshooting for release announcements
+- [MCP](mcp.md) - use AKILI from an MCP client with nothing installed (not live yet)
+- [Infrastructure](infrastructure.md) - AWS account rules, MCP server resources, and the kill switch, reset and rollback runbooks
 
 ## Quick Flow
 

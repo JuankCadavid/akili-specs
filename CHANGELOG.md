@@ -6,9 +6,17 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Added
 
-- No unreleased changes yet.
+- **A read-only methodology MCP server, code only; nothing is deployed yet.** `bin/mcp-core.js` serves the shipped commands, skills and templates through seven tools (`list_commands`, `get_command`, `list_skills`, `get_skill`, `get_template`, `get_file`, `search`) and `bin/mcp-lambda.js` is its AWS Lambda handler. Both use Node built-ins only, and both ship in the npm package.
+- **`docs/mcp.md`** explains the Claude Code setup, the seven tools, the limits, the privacy note and the cost brakes, with placeholders for the endpoint, which is not live yet.
+- **Infrastructure and deploy, not shipped.** `infra/mcp-gateway/` (a CDK app that synthesizes offline: Lambda, Cognito sign-in through managed login only, AgentCore Gateway, rate limits, a budget kill switch, and a GitHub OIDC deploy role), `scripts/mcp-deploy-guard.js` and `.github/workflows/mcp-deploy.yml` (deploys exactly the npm tarball of each stable release; skips green until the deploy role exists).
+- **Tests.** `test/mcp-core.test.js`, `test/mcp-lambda.test.js`, `test/mcp-deploy-guard.test.js` and `test/mcp-contract.test.js`, which also checks the pack list, scans tracked files for account IDs and role ARNs, and ties the docs to `infra/mcp-gateway/config.json`. A new `infra` CI job runs the stack checks.
+
+### Changed
+
+- **`docs/infrastructure.md`** lists the MCP server resources and adds the manual kill switch, reset and alias rollback runbooks, cost-allocation tag activation, and the rule that only the owner deploys outside CI.
+- **`docs/release-checklist.md`** adds a step to confirm the `MCP Deploy` run after `gh release create`. `README.md` and `docs/README.md` link `docs/mcp.md`.
 
 ## [2.37.2] - 2026-10-27
 

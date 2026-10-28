@@ -320,3 +320,103 @@ No page found states in so many words that managed login keeps working when `Exp
 **LOC (excluding docs/specs):** 128 changed (93 insertions, 35 deletions). **Review rounds:** 1.
 
 **Running totals:** tasks 4 of 7 plus S1 · LOC ≈ 3,640 (T1–T4 ≈ 3,547 + S1 93 insertions) · tripwire lifted for T5 and S1 by the maintainer (2026-10-28) · review rounds T1 1, T2 3, T3 2, T4 1, S1 1.
+
+## T5: docs, CHANGELOG, contract scans, full verification
+
+### Step 1: P-21 and P-17 settled (Leader, raw-verified 2026-10-28)
+
+| P-row | Source | Quote |
+|---|---|---|
+| P-21 | <https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html> | "AWS Budgets information is updated up to three times a day. Updates typically occur 8–12 hours after the previous update." |
+| P-17 | <https://docs.aws.amazon.com/cognito/latest/developerguide/limits.html> | Quota table row: "Email messages sent daily per AWS account 2 50"; footnote 2: "This quota applies only if you are using the default email feature for an Amazon Cognito user pool. For a higher email delivery volume, configure your user pool to use your Amazon SES email configuration. This restriction resets daily at 0900 UTC." |
+| P-17 | <https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html> | "When you use the default option, Amazon Cognito limits the number of emails it sends each day for your user pool." · "For typical production environments, the default email limit is below the required delivery volume." |
+
+**Readings for the docs:**
+
+- **P-21 (verified):** budget data refreshes up to three times a day, 8–12 h apart. The cost brake therefore reacts within about half a day of the spend, not within minutes, and the docs say "cost brake, not a guarantee" (FR-6).
+- **P-17 (verified, sharper than the P-row):** the default sender is capped at **50 emails a day per AWS account**, resetting at 09:00 UTC. The cap is per *account*, so it is shared with any other user pool in the same account that uses the default sender, and a 51st sign-up or reset email that day is not sent. The docs state the cap; SES stays the later fix.
+
+### Attempt 1 (Implementer `sonnet`, effort high)
+
+- **Changes:**
+  - new `docs/mcp.md` (79);
+  - `docs/infrastructure.md`: resources, kill-switch, reset, rollback and tag-activation runbooks, owner-only deploys (+121/−1). It also fixed an existing NFR-5 hit: the opening paragraph cited the spec folder;
+  - one appended line each in `docs/release-checklist.md` and `README.md` *Learn more*;
+  - `docs/README.md` *Start Here*: `MCP` and `Infrastructure` appended;
+  - a CHANGELOG `Unreleased` entry;
+  - `test/mcp-contract.test.js`: +79, five tests (NFR-4 pack list, NFR-7 tracked-files scan, NFR-5 citation scan, DD-8 port and rates equality).
+- **Reds (quoted from the Implementer, all restored):**
+  1. Falsifier 3, README row first → `not ok 12 - (j) README countable clauses` `'first Learn more row does not link docs/overview.md: …'`.
+  2. Falsifier 1, fake ARN in `docs/mcp.md` → `not ok 10 - NFR-7: no account ID inside an ARN or an account field in any repo file`.
+  3. Falsifier 2, `callbackPort` 33419 in `config.json` only → `not ok 12 - DD-8: docs/mcp.md states the callback port and the rates from config.json` `'callback port differs from config.json'`.
+- **Evidence re-run (Leader): VERIFIED.**
+  - `npm test` 1299/1299; `verify:cli` clean.
+  - The pack list holds `bin/mcp-core.js`, `bin/mcp-lambda.js` and `docs/mcp.md`, and nothing under `infra/` or `test/`.
+  - Infra check 20/20; `git diff --check` clean; `package.json` unchanged.
+- **Reviewer (`opus`, full, quote-check): FAIL.**
+  1. `docs/infrastructure.md:88`: `list-gateways` lacks `--profile CREDINOVA --region us-east-1`.
+  2. The NFR-7 scan skips all of `docs/specs/`. With a real-shaped ARN appended to execution.md it stayed green, so it is narrower than NFR-7 ("any committed file").
+  3. "Fail open on transient errors" and "$0.005 per 1,000 invocations" have no quote in execution.md. The Reviewer fetched both and they are true; the quotes are added below by the Leader.
+  - Advisories: tag activation can take up to 24 h plus 24 h (budget blind for up to about 48 h; deploy, then wait, then activate); a dimension that cannot be resolved also fails open (a T6 point); `docs/mcp.md:79` present tense; `cdk destroy` lacks profile and stack; the P-17/P-21 bookkeeping columns (fixed by the Leader).
+- **Leader adjudication:**
+  - Issues 1 and 2 go to attempt 2.
+  - The tag-activation delay and the `docs/mcp.md` tense are taken into attempt 2 because they correct T5's own scope item 3 (tag activation) and FR-7 wording, not new scope. The activation delay is quoted below.
+  - The `cdk destroy` flags are fixed for the same reason as issue 1.
+  - The "dimension cannot be resolved" point is recorded for T6, which already checks `tools/list` coverage.
+  - Effort bump: high → xhigh.
+
+### T5 sources added after attempt 1 (Reviewer-fetched 2026-10-28; Leader records them)
+
+| Claim | Source | Quote |
+|---|---|---|
+| Gateway rate limits fail open | <https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-rate-limits.html> | "Rate limits use fail-open behavior by default. If the rate limit service is unavailable or a dimension cannot be resolved, the gateway allows the request to proceed." |
+| Same, release notes | AWS release note cited in proposal §10.5 | "The system fails open on transient errors — individual enforcement failures allow the affected request rather than blocking customer traffic." |
+| Gateway price | <https://aws.amazon.com/bedrock/agentcore/pricing/> | "Gateway API Invocations (e.g. ListTools, InvokeTool, Ping) $0.005 per 1,000 invocations" |
+| Tag activation delay | <https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/activating-tags.html> (Leader re-fetched) | "After you create and apply user-defined tags to your resources, it can take up to 24 hours for the tag keys to appear on your cost allocation tags page for activation." · "It can then take up to 24 hours for tag keys to activate." |
+
+### Attempt 2 (Implementer `sonnet`, effort xhigh)
+
+- **Changes:**
+  - `list-gateways` and both `cdk destroy` commands gained `--profile CREDINOVA`, and the destroys name both stacks.
+  - The NFR-7 scan now covers `docs/specs/`. Only AWS's documentation example account ID is tolerated, and only under `docs/specs/`.
+  - The tag-activation wording follows the quote, in the order deploy, wait, activate.
+  - The `docs/mcp.md` deploy sentence is now conditional.
+- **Reds:**
+  - Falsifier 1 as written (example ARN in `docs/mcp.md`) → `not ok 10 - NFR-7: …`.
+  - A different-ID ARN in execution.md → `not ok 10 - NFR-7: …`. The file was restored byte-identical.
+- **Evidence re-run (Leader): VERIFIED.** `npm test` 1299/1299; infra 20/20; `git diff --check` clean; the pack holds nothing under `infra/`, `test/` or the guard script; falsifier 1 re-observed red, then green after restoring.
+- **Reviewer (`opus`, fresh): FAIL.** `docs/infrastructure.md:132-135`: both `npx cdk destroy` commands lack `--region us-east-1`. `bin/app.js` sets no stack `env`, so the region would come from the profile, which contradicts line 21 and the account rule.
+  - Advisories:
+    - `:144` "sees nothing" is stronger than the quote;
+    - `docs/mcp.md:34` present tense;
+    - an `Infrastructure` link was appended to `docs/README.md` beyond scope item 4.
+- **Leader adjudication:**
+  - The region goes to attempt 3.
+  - The `:144` and `:34` wording is taken in as accuracy corrections of T5's own text.
+  - The extra `Infrastructure` link is kept. It is appended, harmless and links the page that T5 scope item 3 extends; it is recorded here.
+  - Effort stays at xhigh: the tier ceiling, so no bump.
+
+### Attempt 3 (Implementer `sonnet`, effort xhigh)
+
+- **Changes:**
+  - `--region us-east-1` added to both `npx cdk destroy` commands.
+  - Tag-activation wording now reads "the budget may not see the stack's cost".
+  - `docs/mcp.md:34` is now conditional ("once the server is live").
+- **Evidence re-run (Leader): VERIFIED.** `npm test` 1299/1299, infra 20/20, `git diff --check` clean. A scan of the code blocks in `docs/infrastructure.md` found 0 `aws`/`cdk` blocks without both `--profile CREDINOVA` and `--region us-east-1`.
+- **Reviewer (`opus`, fresh, full conformance and quote-check): PASS.**
+  - Every new AWS command carries both flags, and no ID, ARN, URL or client ID appears in the new docs.
+  - Every AWS-behavior and cost sentence traces to a quote. The cost bounds recompute to ≈ $12.96, $259.20 and $8.64 a day.
+  - Resource names match the stack code and `config.json`.
+  - The Reviewer re-ran falsifier 1 (red, then restored with `shasum -c` OK).
+  - `npm test` 1299/1299; infra 20/20; pack has 345 files with nothing under `infra/`; `verify:cli` clean; `package.json` unchanged.
+- **ADVISORY (recorded, not actioned):**
+  - `docs/infrastructure.md:13`: the older `sts get-caller-identity` cell has no `--region` while line 21 says every command carries it. STS is account-global, so this is harmless; an `/akili-quick` candidate.
+  - "Reserved concurrency is an immediate cap on parallel runs" has no quoted source. It is standard Lambda behavior, low risk.
+
+**Full verification (T5 item 6):** `npm test` 1299 pass / 0 fail (baseline at the spec start was 1153). `npm run verify:cli` clean (14 commands, 29 skills, 8 resources). `npm run pack:dry-run` holds `bin/mcp-core.js`, `bin/mcp-lambda.js` and `docs/mcp.md`, and nothing under `infra/`, `test/` or `scripts/mcp-deploy-guard.js`. `git diff --check` clean. `git diff --stat package.json` empty. Infra `npm run check` 20/20, offline.
+
+**LOC (excluding docs/specs, insertions):** 313. That is `docs/mcp.md` 79, `docs/infrastructure.md` 136, `test/mcp-contract.test.js` 84, CHANGELOG 10, `docs/README.md` 2, README 1, release-checklist 1. **Review rounds:** 3 (at the limit, not over).
+
+**Final totals:** tasks 5 of 7 plus S1 (T6 and T7 are maintainer-owned and not started) · LOC ≈ 3,953 (T1 1,144 + T2 ≈ 1,262 + T3 749 + T4 392 + S1 93 + T5 313; lockfile not counted). That is past the 3,700 tripwire by ≈ 253, under the maintainer's 2026-10-28 approval (expected ≈ 3,970) · review rounds T1 1, T2 3, T3 2, T4 1, S1 1, T5 3.
+
+**Constitution Impact:** none. No module guide is created or reshaped; `docs/mcp.md` is a new user doc linked from `docs/README.md` and `README.md`.
