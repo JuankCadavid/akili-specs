@@ -174,6 +174,6 @@
   - Reviewer: **PASS** — every FR-9 topic present; every claim quote-checked against `git diff c836c68 HEAD`; `older()` correct for all versions present; nothing weakened. Non-gating notes: "up to 9 problems, desires…" read as a total; "once" not shipped wording; README Extras line rewrite not named; "1195 tests" holds only for the combined state.
   - Leader post-PASS wording fixes (factual, single answer, tests re-run 140/140): "up to 9 problems, 9 desires, 9 objections and 9 beliefs"; the PRD bullet lead now says "never re-asks a confirmed question" and "asks only what the PRD does not answer" (shipped wording).
   - runtime events: none
-- **Open for the maintainer:** (1) `assets/akili-flow.svg.nodes` (15 lines, Archify node-id sidecar) was committed in T8 without being planned or logged and ships in the npm package; nothing reads it — keep or remove. (2) If the work is split into two PRs, the "1195 tests" Notes line must be restated per PR.
+- **Open for the maintainer:** (1) `assets/akili-flow.svg.nodes` (15 lines, Archify node-id sidecar) was committed in T8 without being planned or logged and shipped in the npm package; nothing read it. **Maintainer decision 2026-10-28: removed, and its CHANGELOG clause dropped;** checks re-run after removal (below). (2) **Maintainer decision 2026-10-28: single PR planned**, so the "1195 tests" Notes line stands.
 - **spawns:** Implementer 19 calls, 110,704 tokens, ended complete; Reviewer 11 calls, 97,848 tokens, ended complete (PASS)
 - **Running totals vs budget:** tasks 9/9 · review rounds 15 / tripwire 21
