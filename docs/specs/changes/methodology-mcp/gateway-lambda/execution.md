@@ -124,3 +124,85 @@
 **Running totals (budget tripwire check):** tasks 2 of 7 (tripwire 9) · LOC ≈ 2,406 (T1 1,144 + T2 ≈ 1,262; tripwire 3,700) · review rounds T1 1, T2 3 (tripwire: past 3 on one task, so T2 reached it and did not exceed it). Under the tripwire. **Projection:** T1 and T2 ran ~1.9× their combined estimate (~1,260). The remaining T3–T5 estimate is ~1,710 LOC, so even at estimate the run reaches ~4,100 and will cross 3,700 during T3 or T4. That stop is reported at the gate where it happens.
 
 **Final verification:** VERIFIED; Reviewer PASS. Continue gate: `auto-approved (pre-approved mode)`.
+
+### T3: CDK app (synth only), infra checks, CI `infra` job (PASS)
+
+- Date: 2026-10-27. Attempts: 2. Final status: PASS (attempt 2).
+- Skills: `aws-cdk`, `aws-serverless`, `aws-auth` (knowledge only), `security-audit` (guidance mode), as listed. Effort `high` → `xhigh` (attempt 2). Implementer `sonnet`. Review mode: **parallel lens reviewers** (the task touches IAM and auth, a security surface): Reviewer A conformance + reliability/readability, Reviewer B conformance + security/risk, both `opus`.
+- No AWS call was made by any agent: synth is in-process (`new cdk.App()` + `Template.fromStack`), run with `env -i` and `AWS_EC2_METADATA_DISABLED=true`; no `cdk` CLI, no `aws` CLI, no SDK, no `aws-mcp` tool. Only public npm-registry installs and public documentation reads.
+
+#### P-rows settled at step 1 (quotes raw-verified by the Leader with `curl` on 2026-10-27)
+
+| Row | Verdict | Quote | Source |
+|---|---|---|---|
+| P-10 | Verified: `AWS::BedrockAgentCore::GatewayRateLimit` (`CfnGatewayRateLimit`); rate 0 is valid; the kill switch uses `UpdateGatewayRateLimit` | "Rate value range \| 0 to 10,000,000 (0 blocks all matching traffic)" · "Updates the entries of a gateway rate limit. The dimension keys are immutable after creation." | <https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-rate-limits.md> · <https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_UpdateGatewayRateLimit.md> |
+| P-14 | Not refuted: no per-description limit documented; the schema (≈ 3 KB) is far under the cap | "Maximum inline schema size \| 1 MB" | <https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/bedrock-agentcore-limits.md> |
+| P-15 | **Partly refuted**: localhost callback accepted; PKCE recommended, not enforced | "Amazon Cognito requires `HTTPS` over `HTTP` except for `http://localhost` for testing purposes only." · "…activate only the authorization-code grant OAuth flow, and implement Proof Key for Code Exchange (PKCE)…" | <https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-client-apps.md> |
+| P-16 | Verified (SDK v3 bundled); whether that minor version includes `@aws-sdk/client-bedrock-agentcore-control` stays `UNVERIFIED` → T6 invokes the kill switch once | "All supported Lambda Node.js runtimes include a specific minor version of the AWS SDK for JavaScript v3, not the latest version." | <https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.md> |
+| P-18 | Format verified (`TagKeyValue: ["user:project$akili-mcp"]`); activation stays with T7 | "User-defined tag keys must use the `user:` prefix." · CLI example `"TagKeyValue" : [ "user:Key$value1" , "user:Key$value2" ]` | <https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create-filters.md> · <https://docs.aws.amazon.com/cli/latest/reference/budgets/create-budget.html> |
+
+No High row was refuted: the Gateway, its `CUSTOM_JWT` authorizer and its Lambda target are all expressible as CloudFormation L1 resources. Not a Pivot.
+
+#### Attempt 1: FAIL
+
+- Files changed: `infra/mcp-gateway/package.json` (17; `aws-cdk-lib` 2.274.0, `constructs` 10.8.1, `aws-cdk` 2.1146.1, exact pins), `config.json` (11), `cdk.json` (3), `bin/app.js` (44), `lib/service-stack.js` (241), `lib/deploy-role-stack.js` (64), `lib/kill-switch.js` (34), `checks/helpers.js` (45), `checks/stack.check.js` (243), `package-lock.json` (303, generated, not counted), `.github/workflows/ci.yml` (+22: `Infra synth checks` job, `node --check` for `bin/mcp-core.js` and `bin/mcp-lambda.js`), `.gitignore` (+1 `cdk.out/`).
+- Implementer verification: `npm ci && npm run check` (fresh `node_modules`, `env -i`) → 19 pass, 0 fail · root `npm test` → 1276 pass, 0 fail, no infra output · `git diff --stat package.json` empty · no 12-digit literal, no `docs/specs` reference.
+- Falsifier reds (observed, reverted):
+  1. Concurrency 50 in `config.json` → `not ok 1 - FR-4 function: Node 22, handler, concurrency 5…`, expected 5, actual 50.
+  2. `"*"` in the deploy role → `not ok 16 - FR-4 deploy role: only bootstrap-role assume and the function alias; no wildcard action or resource`.
+  3. Spike stack id = prod → `not ok 14 - FR-4 spike: distinct stack and resource names, no deploy role`, expected/actual `'akili-mcp-service'`.
+  4. A check renamed to `infra/mcp-gateway/test/x.test.js` with `node_modules` moved aside → root `npm test` 1277 tests, 1 fail, `Error: Cannot find module 'aws-cdk-lib'` in `# Subtest: infra/mcp-gateway/test/x.test.js` (P-9 / DD-9 on the real tree).
+- Evidence re-run (Leader-inline): fresh `npm ci` + `npm run check` → 19/19 · root 1276/1276, 0 infra lines · no 12-digit literal. **VERIFIED**.
+- Reviewer B (security) verdict: **FAIL**, 1 issue:
+  1. **Discovered Issue:** The kill-switch role is not limited to "those two resources". CDK attaches the managed policy `AWSLambdaBasicExecutionRole` (`KillSwitchServiceRole.ManagedPolicyArns`). That policy allows `logs:CreateLogGroup`, `logs:CreateLogStream` and `logs:PutLogEvents` on `Resource: "*"`. Check 16 ("no wildcard action or resource") does not catch this: `statements()` reads only inline `Policies` and `AWS::IAM::Policy`, never managed policies. The green result therefore claims a property the effective role lacks. **Violated Rule:** `design.md` §7.3, *Kill-switch Lambda* row: "Least-privilege role on those two resources only"; and FR-4, *Deploy role stack* scenario ("must NOT grant `*` … resources"). **Remediation:** explicit `iam.Role` with no managed policy, `grantWrite` on its own log group, plus the two brake statements; fail on any `ManagedPolicyArns`; red run.
+- Reviewer A (conformance) verdict: **FAIL**, 3 issues:
+  1. **Discovered Issue:** FR-4 still says the template holds a client with "authorization-code grant with PKCE". T3 amended design §7.3 … but left requirements.md unchanged. The two now contradict each other. **Violated Rule:** requirements.md FR-4 *Stack contents*, app-client bullet, against design.md §7.3 *App client* (as amended). **Remediation:** amend the FR-4 bullet as an execute-time spec edit. *(Leader-owned; fixed at the gate.)*
+  2. **Discovered Issue:** P-10, P-14, P-16 and P-18 are settled only in the Implementer's report. execution.md has no T3 quotes, and the §12 ledger still marks all four `UNVERIFIED` … The §7.3 *Rate limits* row still offers "construct property … else L1 override … else AwsCustomResource". … the P-18 `$` joiner is documented after all. **Violated Rule:** tasks.md T3 Scope 1, "Quote each source in `execution.md`", and *Done*; design.md §12 and §7.3. **Remediation:** record quotes, update the ledger rows and the §7.3 row. *(Leader-owned; fixed at the gate and in the table above.)*
+  3. **Discovered Issue:** The test titled "…code is the packed directory" only checks `S3Key.endsWith(".zip")`. Nothing ties the asset to `packageDir`, so the FR-4 term "whose code is that directory unchanged" is untested. **Violated Rule:** requirements.md FR-4, first bullet; tasks.md T3 Scope 3; reviewer.md, *presence-assertion is not a behavioral proof*. **Remediation:** assert the asset hash equals `cdk.FileSystem.fingerprint(packed.packageDir)`.
+- Leader adjudication: B1 and A3 are in-scope code defects → attempt 2. A1 and A2 are spec-record work the Leader owns (Step 3, execute-time spec edits) → fixed at the gate, carried to attempt 2's Reviewers as named checks.
+- runtime events: none.
+
+#### Attempt 2: PASS
+
+- Files changed: `lib/service-stack.js` (`lambdaRole(id, logGroup)` helper: explicit `iam.Role`, no managed policy, `grantWrite` on its own group; used by the kill switch with `KillSwitchLogs` and by the content function with `ContentLogs`, whose default role also carried `AWSLambdaBasicExecutionRole`), `checks/stack.check.js` (`statements()` fails on any `ManagedPolicyArns` outside the empty `MANAGED_POLICY_ALLOW`; the wildcard check is its own test over the prod, spike and deploy-role templates; the asset check asserts `S3Key === cdk.FileSystem.fingerprint(packed.packageDir) + ".zip"`).
+- Implementer verification: `npm run check` → 20 pass, 0 fail · root `npm test` → 1276/1276, no infra output · `package.json` unchanged.
+- Reds (observed, reverted byte-identical):
+  - (a) managed policy re-added → `role ContentRole90291FB9 carries managed policy [... :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole]` (the temporary edit was in the shared helper).
+  - (b) `Resource: "*"` on `UpdateGatewayRateLimit` → only the wildcard test red (`Resource of bedrock-agentcore:UpdateGatewayRateLimit`, actual `'*'`); the action-list test stays green, so the wildcard check fires on its own. *(Leader-added check on falsifier 2's evidence quality, within the task's falsifier 2.)*
+  - (c) code pointed at a one-byte-changed copy → test 1 red, actual `'592a360a…89b06f.zip'`, expected `'fc6da3e6…a96c.zip'`.
+- Evidence re-run (Leader-inline): `npm run check` → 20/20 · root 1276/1276. **VERIFIED**.
+- Reviewer B verdict: **PASS**. "There are three roles (content, gateway, kill switch), and none carries `ManagedPolicyArns`. The kill-switch role now matches design §7.3 … `grantWrite` … one statement, `["logs:CreateLogStream", "logs:PutLogEvents"]`, on `Fn::GetAtt <LogGroup>.Arn` … Leaving out `logs:CreateLogGroup` is correct, and safer." Content function unchanged except `Role`.
+- Reviewer A verdict: **PASS**. "Attempt 2 clears all three of my attempt-1 issues, and I found no new conformance violation across the whole T3 state." Raw-checked every new §12 quote at its source.
+- runtime events: none.
+- spawns: Implementer (a1) 77 calls, 246,737 tokens, ended complete; Reviewer A (a1) 24 calls, 134,046 tokens, ended fail; Reviewer B (a1) 15 calls, 117,633 tokens, ended fail; Implementer (a2) 8 calls, 95,475 tokens, ended partial (assumptions only, no owed item); Reviewer A (a2, resumed) 3 calls, 143,408 tokens, ended complete; Reviewer B (a2, resumed) 2 calls, 125,182 tokens, ended complete.
+
+**ADVISORY (4R, recorded only, not tasks):**
+- Risk: the app client allows `ALLOW_USER_SRP_AUTH` (with `ALLOW_REFRESH_TOKEN_AUTH`); anyone with the public client ID can get tokens through `InitiateAuth`, skipping managed login, and the Gateway accepts them. No spec clause limits the client's auth flows (Reviewer B checked). Surfaced to the maintainer.
+- Risk: the deploy role's effective power is whatever the bootstrap `cfn-exec-role` allows (AdministratorAccess by default) in the account shared with paolachicue; the `aws-mcp` environment's protection rules are the real gate (T4, T7).
+- Risk: the CI `infra` job (like all of `ci.yml`) has no `permissions:` block; `persist-credentials: false` is not set.
+- Resilience: the kill switch changes concurrency and rate entries outside CloudFormation; a later `cdk deploy` may restore template values and undo it. The T5 runbook should say how a release behaves while the switch is on.
+- Resilience: the global limit keyed on `targetName` would become per target if a second target were added; concurrency 0 still covers it.
+- Reliability: whether the runtime SDK includes `@aws-sdk/client-bedrock-agentcore-control` (P-16) is for T6; `packCheckout`/`synth` run at module load before `test.after`, so a synth throw leaks the temp dir.
+- Readability: design §7.4 says `…-us-east-1` and a role wildcard; the code uses `${AWS::Region}` and three named bootstrap roles (narrower). The §12 summary counts are stale beside the appended note.
+
+**Requirements covered:** FR-4 (both scenarios, synth), FR-6 (resources), NFR-1, NFR-6 (P-9 probe), NFR-7 (template scan), NFR-8 (config values).
+
+**Decisions made:**
+- **Execute-time spec edits (2026-10-27, T3):**
+  - `design.md` §7.3 *App client*: "PKCE (Cognito enforces it for public clients, P-15)" → "PKCE is used by the client: Cognito supports PKCE but does not enforce it for public clients (corrected 2026-10-27 at T3, P-15); the stack's enforceable controls are code grant only, no secret and `allowedClients`, and the client's PKCE use is checked at T6". Reason: factual correction from the P-15 source.
+  - `requirements.md` FR-4 *Stack contents*, app-client bullet: "authorization-code grant with PKCE" → "authorization-code grant only, with PKCE used by the client (Cognito does not enforce PKCE for public clients, P-15; amended 2026-10-27 at T3, the client's PKCE use is checked at T6)". Reason: keep FR-4 and §7.3 consistent (Reviewer A issue 1). The obligation on the template (code grant, no secret, public client) is unchanged.
+  - `design.md` DD-8: "synth checks and the docs test read it" → "the stack and the docs test read it, and the synth checks pin the owner-decided values as literals…". Reason: T3 falsifier 1 (a `config.json` edit goes red) cannot hold if the checks read the config.
+  - `design.md` §7.3 *Rate limits*: the fallback chain replaced by `AWS::BedrockAgentCore::GatewayRateLimit`, with the `targetName` key for the global limit.
+  - `design.md` §12: P-10, P-14, P-15, P-16, P-18 rows updated with quotes; summary line note appended.
+  - These are carried once more into T4's Reviewer brief.
+- Stack names: `akili-mcp-service` (prod), `akili-mcp-deploy-role`, `akili-mcp-spike-service` (no deploy-role stack for the spike). T4's workflow and T5's docs name these.
+- Global rate limit: dimension `targetName` = `akili` (the API needs a dimension key); coverage of `tools/list`/`ping` is for T6.
+- Deploy role: three explicit bootstrap-role ARNs built from `${AWS::AccountId}` / `${AWS::Region}` (narrower than §7.4's wildcard); `oidcProvider` defaults to `import`.
+- `CfnManagedLoginBranding` with Cognito defaults is included: Reviewer A cited the Cognito managed-login page ("Managed login isn't available for an app client created with an AWS SDK until you create one with a CreateManagedLoginBranding request"), so D-6 requires it. Budget `ResourceTags` included for FR-4 "every taggable resource".
+- CI: `node --check` for the two existing bin files only; a guarded third line would break the Windows (PowerShell) leg, so **T4 adds `node --check scripts/mcp-deploy-guard.js`** (forward pointer to T4).
+
+**Issues encountered:** none beyond the review findings. Open for the maintainer (T6/T7): P-11, P-12, P-13, the P-16 client check, `tools/list` coverage of the global limit, P-18 activation.
+
+**Running totals (budget tripwire check):** tasks 3 of 7 (tripwire 9) · LOC ≈ 3,155 (T1 1,144 + T2 ≈ 1,262 + T3 749; lockfile 303 not counted; tripwire 3,700) · review rounds T1 1, T2 3, T3 2 (two parallel lens reviewers per round). Under the tripwire, with ≈ 545 LOC of headroom against T4's ~520 estimate and T5's ~420. T4 is expected to cross 3,700; the stop is taken at T4's gate if it does.
+
+**Final verification:** VERIFIED; Reviewers A and B PASS. Continue gate: `auto-approved (pre-approved mode)`.

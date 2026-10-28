@@ -152,7 +152,7 @@ T1 core ──► T2 tools + handler ──► T3 CDK app + infra CI ──► T
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L (~420 LOC CDK, ~320 LOC checks, ~30 LOC CI) |
 | Depends on | T2 (`TOOL_DEFINITIONS`, handler path) |
 | Requirements | FR-4 (all), FR-6 (resources), NFR-1 (root unchanged), NFR-6 (discovery), NFR-7 (template scan), NFR-8 (config values) |

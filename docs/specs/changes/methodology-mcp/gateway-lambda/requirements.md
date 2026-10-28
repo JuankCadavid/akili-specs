@@ -180,7 +180,7 @@ The handler SHALL take a Gateway Lambda-target event and context, strip the targ
   - one Lambda function whose code is that directory unchanged, Node 22 runtime, handler `bin/mcp-lambda.handler`, reserved concurrency **5** (D-3), and a published version plus an alias `live`;
   - a log group for it with **14-day** retention (D-7);
   - a Cognito user pool with self sign-up, email as the only sign-in alias and attribute, email verification required, no federation (D-1, D-5), and a managed-login domain;
-  - one **public** app client: no secret, authorization-code grant with PKCE, callback `http://localhost:<fixed port>/callback`, `openid` and `email` scopes (D-2);
+  - one **public** app client: no secret, authorization-code grant only, with PKCE used by the client (Cognito does not enforce PKCE for public clients, P-15; amended 2026-10-27 at T3, the client's PKCE use is checked at T6), callback `http://localhost:<fixed port>/callback`, `openid` and `email` scopes (D-2);
   - an AgentCore Gateway, `protocolType MCP`, `CUSTOM_JWT` with the user pool's OIDC discovery URL and `allowedClients` = that client;
   - a Lambda target named `akili` on the `live` alias, with the core's seven tool definitions inline;
   - Gateway rate limits of **60 requests/minute per `$.context.jwt.sub`** and **20 requests/second** global (D-3);
