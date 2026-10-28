@@ -33,7 +33,7 @@ Use this documentation when you want the human-facing reference. The installable
 
 Every `/akili-archive` closes with the **Kaizen Loop** — a bounded retrospective (Measure → Learn → Standardize → Record, via the packaged `kaizen` skill) that writes one entry file per spec under `docs/specs/kaizen/`. Its pending standardizations are applied later on the apply-capable branch (the pinned integration branch when one exists, otherwise the default branch — never both) through the skill's Apply Mode, which refreshes the `## Active Lessons` digest so the next spec starts smarter. See [flow.md](flow.md#8-the-kaizen-loop).
 
-Anytime commands run outside the spec loop:
+Anytime commands run outside the spec loop; `/akili-seo` and `/akili-marketing` together are the growth track, a documentation grouping rather than a command:
 
 | Command | Use it to | Reference |
 |---|---|---|
