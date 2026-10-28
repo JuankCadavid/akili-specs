@@ -22,7 +22,7 @@
 | Parent Spec | `changes/methodology-mcp` (`family.md` row 1, **Must**, `active`) |
 | Type | **Change** |
 | Deliverable | `software` (Lambda handler + content core in the npm package; CDK app and deploy workflow in the repo) |
-| Approval Mode | `gated`. Owner brief, 2026-10-27: *"Local commits only, no AWS commands, then stop and report."* |
+| Approval Mode | `gated` for the final spec approval. Owner mandate, 2026-10-27 7:05 PM: *"Answer process gates yourself with the recommended option. Rules: local commits only, NO push, NO AWS commands of any kind (no deploy, no sts, nothing), never write the AWS account ID or role ARNs into the repo, docs in English."* Routine process gates are logged as `auto-approved (owner mandate)` |
 | Requirement source | Owner direction of 2026-10-27, quoted in the parent proposal's amendment; parent §10.2–§10.6 evidence. No Jira, no Figma |
 | Target AWS account | As set by `docs/infrastructure.md` → *Rule: AWS target account* (profile and region there; the account ID is never written in this public repo) |
 | Depends on | none. This chunk owns the shared content core (`family.md`, *Why row 1 stands alone*) |
@@ -30,7 +30,7 @@
 | Release | minor (new shipped modules), plus the first AWS rollout after an explicit owner OK |
 | Evidence | AWS docs via the `aws-mcp` documentation tools, and Claude Code docs at `code.claude.com/docs/en/mcp`, both read 2026-10-27; repo citations at `5b6c4f3` |
 | Date | 2026-10-27 |
-| Status | **Draft — awaiting approval** (and the §12 decisions) |
+| Status | **Approved** by Juan Carlos, 2026-10-27 7:05 PM, with **all recommended defaults for D-0..D-9** (§12, *Decision record*) |
 
 ## 2. Intent
 
@@ -293,6 +293,23 @@ Gateway figures are from [AgentCore pricing](https://aws.amazon.com/bedrock/agen
 | D-7 | Privacy | Store emails (needs a short privacy note on the docs page) · log retention days | Emails in Cognito only; logs 14 days without bodies; one privacy paragraph in the docs |
 | D-8 | **Go-ahead to create AWS resources** | (i) sandbox spike; (ii) the OIDC deploy role (fixing or replacing the reported-broken one); (iii) production stack | Each a separate explicit OK, in that order |
 | D-9 | Prereleases (`next`) | Not deployed · a separate `next` gateway | Not deployed |
+
+### Decision record (owner, 2026-10-27 7:05 PM)
+
+Juan Carlos approved this proposal with every recommended default above:
+
+| # | Decided |
+|---|---|
+| D-0 | (a) `gateway-lambda` stands alone and owns the content core |
+| D-1 | Open self sign-up with email verification |
+| D-2 | Pre-registered public client ID for v1 (no WAF); DCR only after the spike proves it, by a later decision |
+| D-3 | 60 requests/minute per user · 20 requests/second global · Lambda reserved concurrency 5 |
+| D-4 | $20/month budget: alarm at 80 %, automatic block (global rate 0) at 100 % |
+| D-5 | Email + password only |
+| D-6 | Gateway default URL |
+| D-7 | Emails in Cognito only; logs 14 days without request bodies; one privacy paragraph in the docs |
+| D-8 | Separate explicit OKs, in order: (i) sandbox spike → (ii) OIDC deploy role → (iii) production stack |
+| D-9 | Prereleases are not deployed |
 
 ### Risks
 
