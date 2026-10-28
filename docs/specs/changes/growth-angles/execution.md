@@ -165,7 +165,7 @@
 
 ### T9 — CHANGELOG, sweep, dogfood (HITL)
 
-- **Status:** `[~]` · 2026-10-28 · CHANGELOG + sweep PASS (attempt 1 of 3); **dogfood pending the maintainer**
+- **Final status:** `[x]` · 2026-10-28 · CHANGELOG + sweep PASS (attempt 1 of 3); **dogfood waived by the maintainer, deferred to the published 2.38.0** (see *Maintainer decision*)
 - **Requirements covered:** FR-9, NFR-1, NFR-2, NFR-4, NFR-5 (dogfood observations pending)
 - **Skills / effort:** Implementer `sonnet`; Reviewer `opus`
 - **Attempt 1** — files: `CHANGELOG.md` (`[Unreleased]`: 8 Added, 4 Changed, 2 Notes bullets; no version or date in the heading; figure bullets separable for the planned second PR; states `` `assets/akili-flow-animated.svg` (136694 bytes) ``, Nico Azero credit, `Release class: minor`), `test/flow-figure-animated-contract.test.js` (byte-size test: first section in document order stating a size, exact equality kept; sibling test: only sections released before 2.37.2, numeric compare, title reworded to "no section released before 2.37.2 …").
@@ -177,3 +177,6 @@
 - **Open for the maintainer:** (1) `assets/akili-flow.svg.nodes` (15 lines, Archify node-id sidecar) was committed in T8 without being planned or logged and shipped in the npm package; nothing read it. **Maintainer decision 2026-10-28: removed, and its CHANGELOG clause dropped;** checks re-run after removal (below). (2) **Maintainer decision 2026-10-28: single PR planned**, so the "1195 tests" Notes line stands.
 - **spawns:** Implementer 19 calls, 110,704 tokens, ended complete; Reviewer 11 calls, 97,848 tokens, ended complete (PASS)
 - **Running totals vs budget:** tasks 9/9 · review rounds 15 / tripwire 21
+- **Maintainer decision (2026-10-28 6:21 PM and 6:30 PM, Bogota), recorded verbatim:** Juan Carlos waived the manual T9 dogfood. His words: "Haz el release 2.38.0 y publícalo en npm para probar directamente" and "Saca la 2.38.0 estable directo, incluyendo el código del MCP de dev". Context: his attempt ran against the old globally installed 2.37.0 command (`~/.claude/commands/akili-marketing.md` shadowed the scratch install, so it showed 6 modes); the `brand` mode worked on real data; steps 2–8 of the new behavior were **not observed**; the dogfood moves to the published 2.38.0.
+- **Consequence for the *Observes* column (tasks.md §3):** every T9 observation (FR-1, FR-2, FR-3 post/refusal, FR-6) is unobserved in this spec; the evidence for those clauses is the pinned text contracts (T5, T6, T7 tests) only. The open T4 advisory (the `Angle:` value when a map exists but the request names no approved angle) carries over to the published-version dogfood.
+- **Gate:** T9 closed under the maintainer's waiver; release, publish and the merge into `dev` are the maintainer's.
