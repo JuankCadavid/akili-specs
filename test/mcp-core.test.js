@@ -151,8 +151,11 @@ test("FR-1 building the catalog reads file metadata only: the single read is pac
     built = core.createCore({ packageDir: REPO_ROOT });
   });
   assert.equal(built.keys().length, realCore.keys().length);
-  assert.equal(calls.length, 1, `reads during build: ${JSON.stringify(calls)}`);
-  assert.equal(path.basename(calls[0][1]), "package.json");
+  // Count readFileSync only: on Node 18 readFileSync calls fs.openSync internally, so the
+  // spy sees an extra openSync on the same path that is not a second read.
+  const reads = calls.filter(([fn]) => fn === "readFileSync");
+  assert.equal(reads.length, 1, `reads during build: ${JSON.stringify(calls)}`);
+  assert.equal(path.basename(reads[0][1]), "package.json");
 });
 
 // ---------------------------------------------------------------------------
