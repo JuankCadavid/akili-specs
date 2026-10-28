@@ -118,6 +118,7 @@ npm run release:status
 - [ ] Tag the release, for example `v0.2.0` (already pushed in *Publish*).
 - [ ] Create a GitHub release using `releases/v0.2.0.md`.
 - [ ] Include publish/install instructions in the release body.
+- [ ] After `gh release create`, confirm the `MCP Deploy` run for vX.Y.Z is green (it skips with a green note until the deploy role exists; see [infrastructure.md](infrastructure.md)).
 
 ## Slack Notification
 

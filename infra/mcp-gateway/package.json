@@ -1,0 +1,17 @@
+{
+  "name": "akili-mcp-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CDK app (synth only here) for the remote AKILI MCP on AgentCore Gateway + Lambda",
+  "scripts": {
+    "synth": "cdk synth",
+    "check": "node --test \"checks/*.check.js\""
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.274.0",
+    "constructs": "10.8.1"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1146.1"
+  }
+}
