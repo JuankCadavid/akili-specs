@@ -145,6 +145,8 @@ Use the `product-manager-toolkit` skill's **Customer Interview Guide** and **Hyp
 
 Ask only what is needed to avoid unstable assumptions.
 
+- **Marketing seeds (optional):** when `docs/marketing/brand-voice.md` reads `filled: yes`, offer its foundations (customer, offer, positioning) and the objections and beliefs of pillar sections in `docs/marketing/angles.md` that are validly `approved` per `/akili-marketing` `## Invariants`, as **proposed defaults** that cite the file. Whatever the user does not confirm lands as an Assumption carrying that citation, never as settled fact. A `filled: no` brand voice, a `draft` pillar section and any post are never a source.
+
 **Thin-seed protocol (Brand-new mode):** a one-line seed — *"necesito una app para vender carros"* — cannot support a PRD, and the two failure modes are opposite: an unbounded interrogation that exhausts the user, or a fully fabricated product the Step 9 gate rubber-stamps in one "approve". The second is the dangerous one: **everything downstream treats the PRD as constitution, so invented details become binding** — a fabricated PRD is not a draft, it is a false constitution that `/akili-specify` and `/akili-execute` will faithfully obey. Run this instead:
 
 1. **Sufficiency check.** A seed is thin when it leaves ≥2 of these undecided: **(a)** who the users/actors are and which product shape this is (the car-sales seed alone spans C2C marketplace, dealer inventory platform, and classifieds — three different products), **(b)** the 2–4 core v1 flows, **(c)** how success is measured / monetization, **(d)** stack or platform preference, **(e)** hard constraints (region, compliance, integrations).
@@ -191,6 +193,8 @@ Create or enhance `docs/prd.md` as a concise living document.
 7. Acceptance Criteria
 8. Assumptions, Dependencies, & Constraints
 9. Open Questions
+
+After the nine required sections, the PRD may carry an optional **Customer Objections & Beliefs** section. Fill it only from material the user supplied (interviews, sales notes, a filled brand voice, an approved angles map) and cite the source; with no such material, omit it or write `none supplied`, never invent entries (thin-seed rule).
 
 When `docs/prd.md` already exists, preserve useful content and upgrade weak sections to follow the rules above.
 

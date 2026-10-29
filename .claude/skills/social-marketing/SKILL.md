@@ -17,7 +17,7 @@ Write native, human-sounding drafts for LinkedIn, Instagram and Facebook from a 
 
 This skill drafts only and never publishes; approval counts only when it comes in the user's own words, as `/akili-marketing` defines it.
 
-Three upstream skill packs by Sergey Bulaev (MIT, pins in `source`) are merged and rewritten here. `LICENSE` carries the upstream notice; every file under `references/` names what it was adapted from.
+Three upstream skill packs by Sergey Bulaev (MIT, pins in `source`) are merged and rewritten here. `LICENSE` carries the upstream notice; every file under `references/` names what it was adapted from. The angle method in `references/angles-framework.md` follows the structure of Nico Azero's content method (video *Así creo 6.480 reels con Claude en 3h*), written in AKILI's own words.
 
 ## When to use
 
@@ -63,10 +63,11 @@ The `## Invariants` of `/akili-marketing` sit above this list. The full table wi
 
 | Mode | Purpose | References loaded |
 |---|---|---|
-| `brand` | Interview, then write the brand voice file | `brand-voice-template.md`, `voice-rules.md`, `untrusted-content.md` |
-| `campaign` | Plan pillars, mix and cadence for a period | `planning-and-calendar.md`, `brand-voice-template.md`, `voice-rules.md`, platform files in scope |
+| `brand` | Interview, then write the brand voice file | `brand-voice-template.md`, `angles-framework.md` (foundations), `voice-rules.md`, `untrusted-content.md` |
+| `angles` | Write the angle map, one pillar section at a time | `angles-framework.md`, `brand-voice-template.md`, `voice-rules.md`, `untrusted-content.md` |
+| `campaign` | Plan pillars, mix and cadence for a period | `planning-and-calendar.md`, `angles-framework.md`, `brand-voice-template.md`, `voice-rules.md`, platform files in scope |
 | `calendar` | Read plans and posts into a dated table | `planning-and-calendar.md` |
-| `post` | Draft one post per platform | `voice-rules.md`, `hook-formulas.md`, `humanizer.md`, `brand-voice-template.md`, `untrusted-content.md`, platform files in scope |
+| `post` | Draft one post per platform | `voice-rules.md`, `angles-framework.md`, `hook-formulas.md`, `humanizer.md`, `brand-voice-template.md`, `untrusted-content.md`, platform files in scope |
 | `review` | Audit a draft without editing it | `humanizer.md`, `voice-rules.md`, `untrusted-content.md`, platform files in scope |
 | `repurpose` | Rebuild owned content as native posts | `repurposing.md`, `hook-formulas.md`, `humanizer.md`, `voice-rules.md`, `untrusted-content.md`, platform files in scope |
 

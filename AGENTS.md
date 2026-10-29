@@ -13,6 +13,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - `bin/persona.js` holds the pure persona functions behind `doctor --agents` (`parsePersona`, `sectionStates`, `applyFix`, `migratePersona`, the digest helpers); `bin/akili.js` and `scripts/release.js` require it. `test/` holds the `node:test` suite and its fixtures (`npm test`; `.gitattributes` keeps `test/fixtures/**` byte-exact so CRLF and LF fixtures survive any checkout; `test/routing-pty.test.js` drives the CLI on a real pseudo-terminal through `expect` — present on macOS, installed by the Linux CI step, absent on Windows where the suite skips with a printed reason; a failed run's transcripts are kept under `AKILI_PTY_LOG_DIR` and uploaded by the Linux CI legs as `pty-transcripts-*`); it is not shipped in the package.
 - `scripts/` contains helper scripts, including `scripts/release.js`, which prepares controlled npm package releases.
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
+- This repository holds the methodology only and has no cloud infrastructure. The hosted AKILI MCP service lives in a separate private repository: do not add MCP server, AWS or deploy code here.
 - `README.md` documents installation and methodology usage.
 - Default Branch: master
 - Integration Branch: dev

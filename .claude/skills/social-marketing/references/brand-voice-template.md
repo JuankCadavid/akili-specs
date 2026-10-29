@@ -9,6 +9,7 @@ This file defines the shape of `docs/marketing/brand-voice.md`, the interview th
 | Condition | Behavior |
 |---|---|
 | File present, `filled: yes` | Load it and apply it above the generic rules (see precedence in `voice-rules.md`) |
+| File present, `filled: yes`, written before the foundations existed (none of *Ideal customer*, *Ideal follower*, *Offer*, *Message*) | Stays `filled: yes`; the foundations read as empty and the file is not rewritten. `brand` or `angles` offers to add them |
 | File absent | Treated as `filled: no` |
 | `filled` holds anything other than `yes` or `no`, or is missing | Treated as `filled: no` |
 | `filled: no` | Offer to run `brand` first. If the user declines, draft with the generic rules and record `Voice: generic — no brand voice on file` in every artifact produced |
@@ -44,6 +45,24 @@ Copy this block into `docs/marketing/brand-voice.md` and fill it. Keep each sect
 - Who the account is (role, what it does, one line):
 - Who reads it (the ideal reader):
 
+## Ideal customer
+- Who: (one line; add `source:` to any line pre-filled from the PRD)
+- Pains: (the customer's own words)
+- Desires:
+- Context: (where and when the problem shows up)
+
+## Ideal follower
+- Who follows the account and why: (may differ from the customer)
+
+## Offer
+- Result: (what the customer gets)
+- What makes it unique:
+- Next step: (see *CTA and primary link*, not repeated here)
+
+## Message
+- Positioning: (one sentence)
+- Narrative: (two or three lines; tone stays in *Voice fingerprint* and *Per-platform tone*)
+
 ## Content pillars
 - (two to four recurring themes, each with the one job it does)
 
@@ -72,6 +91,8 @@ Two to four real lines or short posts that sound most like the account. Drafts m
 Facts the drafts may draw on: dated turning points, numbers with a referent, positions, names that are free to use, and subjects that are off limits. See *Story bank* below.
 ```
 
+The four foundation sections (*Ideal customer*, *Ideal follower*, *Offer*, *Message*) are inputs to the `angles` mode; `angles-framework.md` owns what they give the angles. They are not part of the `filled` check.
+
 Fields a draft depends on: *Always / Never* and *Off limits* are read as hard limits (rank 1 in the precedence table); *Language* sets the copy language; *Timezone* sets calendar times; *Per-platform tone* adjusts the register per platform without changing the facts.
 
 ## Filling it: two routes
@@ -85,9 +106,10 @@ Fields a draft depends on: *Always / Never* and *Off limits* are read as hard li
 5. Ask for language and timezone outright; do not infer them.
 6. Settle limits directly: who and what may be named, and which subjects stay out entirely. A line the user declines is recorded as a limit and not raised again.
 7. Keep vivid phrasing verbatim. A paraphrase loses what made it usable.
-8. Write the file, set `filled: yes`, `source: interview` and today's date, and name any section still thin.
+8. Ask for each empty foundation (*Ideal customer*, *Ideal follower*, *Offer*, *Message*) one question at a time; a foundation already pre-filled is confirmed, not re-asked.
+9. An unanswered foundation line stays empty (see the rule below). Write the file, set `filled: yes`, `source: interview` and today's date, and name any section still thin.
 
-Never fill a gap with a plausible answer: an unverified number in the file becomes an unverified number in a post. Leave the line empty.
+Never fill a gap with a plausible answer, foundation lines included: an unverified number in the file becomes an unverified number in a post. Leave the line empty.
 
 ### From samples
 
@@ -123,6 +145,8 @@ Optional, kept as the last section of `brand-voice.md`. It holds what the accoun
 | Recurring stories | The three or four already told aloud, in two lines each |
 | Names | Free to name / never name / ask first |
 | Off limits | Subjects kept out regardless of how well they would perform |
+
+*Positions* may seed beliefs and *Scars* (the *Turning points and scars* part) may seed objections for the `angles` mode, each cited as the part it came from.
 
 Drafting rules: take a concrete detail from here before asking; if the bank has none that fits, ask or leave the claim out. A draft never introduces a figure that appears nowhere in the bank, the brief or the user's message.
 

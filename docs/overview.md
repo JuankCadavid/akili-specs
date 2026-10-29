@@ -26,7 +26,7 @@ The spec loop, in order, for one bounded change.
 
 ### Any time
 
-These run outside the per-spec loop.
+These run outside the per-spec loop. `/akili-seo` and `/akili-marketing` form the **growth track**: a documentation grouping of two commands, not a command of its own.
 
 | Command | Use it to | Page |
 |---|---|---|
@@ -35,7 +35,7 @@ These run outside the per-spec loop.
 | `/akili-resume` | Resume work after a session break: a multi-spec dashboard with phase, progress, blockers and the next command; no arguments | [commands/akili-resume.md](commands/akili-resume.md) |
 | `/akili-seo <site-domain>` | Set up Google Search Console ownership and audit SEO: `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/` | [commands/akili-seo.md](commands/akili-seo.md) |
 | `/akili-security [<path>…]` | Audit a repository for security vulnerabilities behind a plan gate. Full findings stay in the run directory (always outside the target); the only tracked repository content written is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. Confirmed findings are routed to `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`. Not supported on native Windows: run it from WSL, Linux or macOS | [commands/akili-security.md](commands/akili-security.md) |
-| `/akili-marketing <mode> [args]` | Draft LinkedIn, Instagram and Facebook social marketing as reviewable Markdown under `docs/marketing/` (brand voice, campaigns, calendar, posts); drafts only, it never publishes, and each post ends at a copy-paste block you place by hand | [commands/akili-marketing.md](commands/akili-marketing.md) |
+| `/akili-marketing <mode> [args]` | Draft LinkedIn, Instagram and Facebook social marketing as reviewable Markdown under `docs/marketing/` (brand voice, angles, campaigns, calendar, posts); drafts only, it never publishes, and each post ends at a copy-paste block you place by hand | [commands/akili-marketing.md](commands/akili-marketing.md) |
 | `/akili-review [<pr> \| <base>..<head> \| --staged]` | Review a pull request, a commit range or staged changes against its specs: a filtered and tiered diff, lens reviewers, verified findings. It posts one summary comment only when asked (`--comment`) or from CI, and only through the packaged scripts; it never edits, approves or blocks. Runs in CI too ([docs/ci/README.md](ci/README.md)) | [commands/akili-review.md](commands/akili-review.md) |
 
 ## Skills by purpose
@@ -158,6 +158,7 @@ Every command runs without these; each row says what you lose.
 | Task | A small executable unit linked to requirements and design sections |
 | Archive | Completed AKILI-SPECS history moved under `docs/specs/archive/` by `/akili-archive` |
 | Slash command | A command prompt you invoke by name, such as `/akili-specify`; the host tool loads it from a Markdown file |
+| Growth track | The documentation grouping of `/akili-seo` and `/akili-marketing`; not a command. Customer facts flow from the PRD into the brand voice and angles, and a filled brand voice and approved angles come back as cited defaults in `/akili-constitution` (see [flow](flow.md#2c-social-marketing-akili-marketing)) |
 | Anytime command | A command that runs outside the per-spec loop: `/akili-resume`, `/akili-audit`, `/akili-quick`, `/akili-seo`, `/akili-security`, `/akili-marketing`, `/akili-review` |
 | Skill | A packaged Markdown guide an agent loads when a task needs domain-specific guidance |
 | Binding | How a skill loads: `core`, `conditional` or `stack` (see *Skills by purpose*) |
@@ -204,6 +205,7 @@ Every command runs without these; each row says what you lose.
 | Audit a repository for security vulnerabilities | `/akili-security` |
 | Audit a site's SEO | `/akili-seo <site-domain>` |
 | Draft LinkedIn, Instagram or Facebook posts | `/akili-marketing <mode> [args]` |
+| Map content angles for a pillar | `/akili-marketing angles [<pillar>]` |
 | Review a pull request or diff | `/akili-review [<pr> \| <base>..<head> \| --staged]` |
 | Install AKILI into my tool | `akili init` |
 | Choose models per phase | `akili routing` |

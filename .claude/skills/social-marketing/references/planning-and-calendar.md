@@ -36,8 +36,8 @@ These are starting guesses from upstream, label `heuristic`. The user's own anal
 1. Read `brand-voice.md` first (voice, language, timezone, pillars). Without one, record `Voice: generic — no brand voice on file`.
 2. Gather the goal, audience, platforms (only LinkedIn, Instagram and Facebook; record any other as out of scope), dates and the offer, if any.
 3. Validate the pillar mix: sums to 100%, none above about 50%.
-4. For each slot choose: platform, format, pillar, hook formula (`hook-formulas.md`, not repeated more than twice in a week), a one-line angle, a goal, and a target date and time.
-5. Take angles from the user, the brief or the brand voice's story bank first. A slot with no real material is marked `needs input`, not filled with an invented anecdote.
+4. For each slot choose: platform, format, pillar, hook formula (`hook-formulas.md`, not repeated more than twice in a week), a goal, and a target date and time, plus: **Angle** (one approved angle ID, optionally a second, or `needs input`; IDs and the map are defined in `angles-framework.md`), **Approach** (one of the five in `angles-framework.md`), and **Hooks** (three candidates, each a formula ID from `hook-formulas.md` plus a one-line draft).
+5. Take each slot's angle from the angles map (`angles-framework.md`), never from a pillar section the map does not hold as approved. Real material from the user, the brief or the story bank feeds the hooks and details. A slot with no approved angle reads `needs input`, not an invented anecdote.
 6. Run the balance check, then show the plan.
 
 ### Balance check
@@ -47,11 +47,12 @@ These are starting guesses from upstream, label `heuristic`. The user's own anal
 - [ ] No pillar above about 50%; promotion at most one or two
 - [ ] No formula repeated more than twice
 - [ ] Each platform's slots respect its cadence guess, or the user's own number
-- [ ] Every slot has a pillar, a goal and a source for its angle
+- [ ] Every slot has a pillar, a goal and a source for its angle, or `needs input`
+- [ ] Every slot names an approved angle or `needs input`
 
 ### Plan shape
 
-`plan.md` holds: pillars with their share, the format mix per platform, and a numbered list (`#`, working title, platform or platforms, format, target date, post file once drafted). The weekly goal is a saves-plus-shares or comments target, named in the plan; likes are not a plan target.
+`plan.md` holds: pillars with their share, the format mix per platform, and a numbered list (`#`, working title, platform or platforms, format, `Angle`, `Approach`, `Hooks`, target date, post file once drafted). `Angle` is an ID, an optional second ID, or `needs input`; `Approach` is one of the five; `Hooks` are three candidates, each a formula ID from `hook-formulas.md` plus a one-line draft. The weekly goal is a saves-plus-shares or comments target, named in the plan; likes are not a plan target.
 
 ## Calendar rules
 
@@ -75,12 +76,12 @@ Each calendar ends with a `Flags` list: same-slot collisions, missing post files
 
 ## Worked shape (one week, LinkedIn and Instagram)
 
-| Day | Platform | Format | Pillar | Formula | Angle | Goal |
-|---|---|---|---|---|---|---|
-| Tue | LinkedIn | Text | Educational | H1 | `{result the user supplied}` | Saves |
-| Wed | Instagram | Carousel | Educational | H5 | `{list from the brief}` | Saves |
-| Thu | LinkedIn | Text | Story | H4 | `{dated moment from the story bank}` | Comments |
-| Fri | Instagram | Single image | Engagement | H3 | `{shared moment}` | Comments |
-| Sat | Instagram | Video brief | Story | H6 | `{before/after from the user}` | Follows |
+| Day | Platform | Format | Pillar | Formula | Angle | Approach | Goal |
+|---|---|---|---|---|---|---|---|
+| Tue | LinkedIn | Text | Educational | H1 | `{approved angle ID}` | Expert | Saves |
+| Wed | Instagram | Carousel | Educational | H5 | `{approved angle ID}` | Bridge | Saves |
+| Thu | LinkedIn | Text | Story | H4 | `{approved angle ID}` | Connection | Comments |
+| Fri | Instagram | Single image | Engagement | H3 | `needs input` | `{chosen once an angle exists}` | Comments |
+| Sat | Instagram | Video brief | Story | H6 | `{approved angle ID}` | Differentiator | Follows |
 
-Slots in braces are filled only from user material.
+Slots in braces are filled only from user material or the approved angles map.

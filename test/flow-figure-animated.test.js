@@ -82,6 +82,14 @@ test("overlay: 10 traces and 8 outlines, each invisible by opacity attribute", (
   for (const el of overlayEls) assert.match(el, /\sopacity="0"/);
 });
 
+// @akili-spec changes/growth-angles (FR-8): the growth link adds no motion
+test("overlay: no element references the growth link g1, by id or by its route", () => {
+  const g1 = staticSvg.match(/<path\b[^>]*data-edge-id="g1"[^>]*\sd="([^"]*)"/) || staticSvg.match(/<path\b[^>]*\sd="([^"]*)"[^>]*data-edge-id="g1"/);
+  assert.ok(g1, "static SVG has no g1 path");
+  assert.doesNotMatch(overlayMarkup, /\bg1\b/);
+  for (const el of overlayEls) assert.ok(!el.includes(g1[1]), "an overlay element reuses the g1 route");
+});
+
 test("overlay: isolated from static rules (mo- classes only, no data-edge/node/animate)", () => {
   for (const el of overlayEls) assert.match(el, /^<(?:path|rect) class="mo-[a-z]"/);
   assert.doesNotMatch(groups.join(""), /data-(edge|node|animate)/);

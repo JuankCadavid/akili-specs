@@ -10,6 +10,36 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - No unreleased changes yet.
 
+## [2.38.0] - 2026-10-29
+
+### Added
+
+- **`/akili-marketing` has a seventh mode, `angles [<pillar>]`, that writes `docs/marketing/angles.md`, a map of customer angles, one pillar section at a time.** Each pillar holds up to 9 problems, 9 desires, 9 objections and 9 beliefs, never padded, each citing one source and carrying an ID such as `KB-P2`; a slot without material reads `needs input`. The mode shows each pillar section as a card and stops; a pillar counts as `approved` only on the user's explicit approval of that exact section, and a change to any of its four lists sets it back to `draft`. `## Invariants` gained exactly one sentence for this. The map is a menu: no mode drafts a post for every angle times every approach.
+- **The method lives in the packaged `social-marketing` skill, which now ships 13 files (was 12).** The new `references/angles-framework.md` owns the five foundations, the four angle types, the ID scheme, the sourcing rule, the map shape and the five approaches (Expert, Bridge, Differentiator, Social proof, Connection). **It follows the structure of Nico Azero's content method, taught in his video *Así creo 6.480 reels con Claude en 3h*, written in AKILI's own words; the video was not fetched and none of its content is reproduced.** The credit is repeated in `SKILL.md`, `docs/commands/akili-marketing.md` and `docs/skills/social-marketing.md`.
+- **`brand` captures four brand-voice foundations**, *Ideal customer*, *Ideal follower*, *Offer* and *Message*, in `references/brand-voice-template.md`; pillars and tone are reused, not duplicated. An unanswered foundation line stays empty, and a `filled: yes` file written before the foundations existed stays `filled: yes` and is not rewritten.
+- **`brand` pre-fills the foundations from the PRD and never re-asks a confirmed question.** When `docs/prd.md` exists it reads *Target Personas*, *Problem Statement* and, if present, *Customer Objections & Beliefs*, cites the section on each pre-filled line, asks the user to confirm or edit, and asks only what the PRD does not answer. It never writes to the PRD; when the PRD and the brand voice name different customers, both are shown with their citations.
+- **`/akili-constitution` offers two growth-track links.** Step 2 offers a `filled: yes` brand voice's foundations and the objections and beliefs of validly `approved` pillar sections as proposed defaults that cite the file; what the user does not confirm lands as an Assumption. Step 3 allows an optional **Customer Objections & Beliefs** section after the nine required ones, filled only from material the user supplied with its source, otherwise omitted or `none supplied`.
+- **The docs name the growth track.** `/akili-seo` and `/akili-marketing` are described as the growth track, a documentation grouping of two anytime commands and not a command, so the count of seven anytime commands does not change. `docs/flow.md` adds a data-flow table, the `docs/marketing/angles.md` artifacts row and the seven-mode list; `docs/overview.md`, `docs/README.md`, `docs/commands/akili-marketing.md` and `docs/skills/social-marketing.md` follow.
+- **The lifecycle figure draws the growth track.** `assets/akili-flow.svg` and `assets/akili-flow.png` were regenerated with Archify (a generation tool, not shipped) with a group labelled "Growth track" around `/akili-seo` and `/akili-marketing` and a dashed edge from `/akili-constitution` to `/akili-marketing`.
+- **The animated figure is regenerated: `assets/akili-flow-animated.svg` (136694 bytes)** (was 134935). The growth link adds no motion.
+
+### Changed
+
+- **`campaign` and `post` select an approved angle, an approach and a hook.** A `plan.md` slot carries `Angle` (an approved ID, optionally a second, or `needs input`), `Approach` and three `Hooks`; a post header records `Angle:` (or `none — no angles map`) and `Approach:`, shows three hook candidates, and only the chosen hook reaches the card. A request citing an angle from a pillar section that is not validly `approved` is refused, and `social proof` needs a real fact. The `brand` mode now suggests `angles` as a next step.
+- **The `README.md` figure alt text and the `docs/flow.md` figure alt text say that SEO and marketing form a growth track.** The `README.md` change is net 0 lines.
+- **Tests.** New `test/growth-track.test.js`; changed `test/akili-marketing-command.test.js`, `test/social-marketing-skill.test.js`, `test/social-marketing-install.test.js` and `test/install-cursor.test.js` (245 packaged skill files, was 244).
+- **Figure tests.** `test/flow-figure-contract.test.js` pins the "Growth track" group, the dashed `/akili-constitution` to `/akili-marketing` edge and the new alt wording; `test/flow-figure-animated.test.js` pins that no overlay element reuses the growth link. In `test/flow-figure-animated-contract.test.js` the byte-size check now holds the newest section that states a size to the committed file, and the "no released section" check covers only sections released before 2.37.2, so both stay true after the release cut.
+
+### Removed
+
+- **The methodology MCP server and its AWS infrastructure leave this repository before any release; they move to a separate private repository for the hosted AKILI MCP service.** Removed: `bin/mcp-core.js` (the local read-only server and its seven tools), `bin/mcp-lambda.js`, `infra/mcp-gateway/`, `scripts/mcp-deploy-guard.js`, `.github/workflows/mcp-deploy.yml`, `docs/mcp.md`, `docs/infrastructure.md`, the `methodology-mcp` spec folder, the four `test/mcp-*.test.js` files with `test/fixtures/mcp/`, the CI syntax checks for those files and the `infra` CI job, and the `MCP Deploy` step of `docs/release-checklist.md`. `docs/README.md` drops the two links; `AGENTS.md` now states that this repository has no cloud infrastructure.
+- **Who is affected.** No published version ever shipped these files (they reached `dev` after 2.37.2), so nothing changes for npm users and no install step, CLI command or packaged skill referenced them. Only someone running `node bin/mcp-core.js` or `bin/mcp-lambda.js` from a `dev` checkout loses them; the AKILI MCP will be offered as a hosted service on akili.com.co instead.
+- **`README.md`** points the "MCP client with nothing installed" row at akili.com.co (net 0 lines). `.mcp.json.example` (the `gsc` server reference for `/akili-seo`) is unrelated and stays.
+
+### Notes
+
+- **Release class: minor** (a new mode and new behavior in an existing command, a new reference file and new constitution options; no new command or install target; the MCP removal touches no released file).
+- **Tests.** The whole suite is 1195 tests, all passing (1348 before the MCP removal; the 153 removed tests moved with the MCP code).
 ## [2.37.2] - 2026-10-27
 
 ### Added

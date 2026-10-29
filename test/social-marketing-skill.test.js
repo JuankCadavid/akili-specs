@@ -4,7 +4,7 @@
 //
 // Locks the packaged `social-marketing` skill: the exact file set, the
 // attribution a licence obligation requires, the stripped vendor vocabulary and
-// the installed payload. The 12 names below are literals on purpose -- reading
+// the installed payload. The 13 names below are literals on purpose -- reading
 // the expected list from the directory under test would assert the directory
 // against itself. Reads return "" / [] for a missing path so a missing skill
 // fails an assertion instead of throwing ENOENT.
@@ -27,6 +27,7 @@ const PINS = {
 };
 
 const REFERENCES = [
+  "angles-framework.md",
   "brand-voice-template.md",
   "facebook.md",
   "hook-formulas.md",
@@ -110,7 +111,7 @@ test("LICENSE keeps the upstream copyright notice and MIT permission sentence", 
   );
 });
 
-test("file set is exactly the 12 expected names", () => {
+test("file set is exactly the 13 expected names", () => {
   assert.deepEqual(listTree(SKILL_DIR), EXPECTED_FILES);
 });
 
@@ -131,7 +132,7 @@ test("SKILL.md carries the standalone never-publish line", () => {
 test("SKILL.md Integration table names every mode and loads only existing references", () => {
   const text = read(path.join(SKILL_DIR, "SKILL.md"));
   const section = (text.split(/^## AKILI-SPECS Integration$/m)[1] || "").split(/^## /m)[0];
-  for (const mode of ["brand", "campaign", "calendar", "post", "review", "repurpose"]) {
+  for (const mode of ["brand", "angles", "campaign", "calendar", "post", "review", "repurpose"]) {
     assert.match(section, new RegExp("^\\| `" + mode + "` \\|", "m"), `row for ${mode}`);
   }
   const named = [...section.matchAll(/`([a-z-]+\.md)`/g)].map((m) => m[1]);
@@ -139,7 +140,49 @@ test("SKILL.md Integration table names every mode and loads only existing refere
   for (const n of named) assert.ok(REFERENCES.includes(n), `${n} is a shipped reference`);
 });
 
-test("install --tool claude lands the same 12 files, byte-identical, in a temp target", (t) => {
+test("SKILL.md angles, campaign and post rows load angles-framework.md; the body credits the method", () => {
+  const text = read(path.join(SKILL_DIR, "SKILL.md"));
+  const section = (text.split(/^## AKILI-SPECS Integration$/m)[1] || "").split(/^## /m)[0];
+  for (const mode of ["angles", "campaign", "post"]) {
+    const row = section.split("\n").find((l) => l.startsWith("| `" + mode + "` |")) || "";
+    assert.ok(row.includes("`angles-framework.md`"), `${mode} row loads angles-framework.md`);
+  }
+  const body = text.split(/^## AKILI-SPECS Integration$/m)[0];
+  assert.match(body, /Nico Azero/, "SKILL.md body credits the method");
+  assert.ok(body.includes("references/angles-framework.md"), "SKILL.md body points to the reference");
+});
+
+test("angles-framework.md carries the credit, four types, five approaches, sourcing rule, ID scheme and map shape", () => {
+  const text = read(path.join(SKILL_DIR, "references", "angles-framework.md"));
+  // Every literal is checked inside the section that owns it: the worked example
+  // repeats the approach names and the map blocks, so whole-file matching would
+  // pass with the owning row deleted.
+  const sec = (heading) => (text.split("\n## " + heading + "\n")[1] || "").split(/^## /m)[0];
+  const head = text.split("\n").slice(0, 4).join("\n");
+  assert.match(head, /^AKILI-authored/m, "AKILI-authored line in the first lines");
+  assert.ok(head.includes("Nico Azero") && head.includes("Así creo 6.480 reels con Claude en 3h"), "method credit names the author and the video");
+  const types = sec("The four angle types");
+  for (const t of ["Problem", "Desire", "Objection", "Belief"]) assert.match(types, new RegExp("^\\| " + t + " \\| [PDOB] \\| ", "m"), `${t} type row`);
+  const approaches = sec("The five approaches");
+  assert.ok(approaches.includes("| Approach | What it does | Do not use when |"), "approach table has the do-not-use column");
+  const rows = {
+    Expert: "| Expert | Teaches something",
+    Bridge: "| Bridge | Starts at",
+    Differentiator: "| Differentiator | Shows what is different",
+    "Social proof": "| Social proof | Uses a real case",
+    Connection: "| Connection | Tells the owner",
+  };
+  for (const [a, lead] of Object.entries(rows)) assert.ok(approaches.includes("\n" + lead), `${a} approach row (method table)`);
+  assert.ok(approaches.includes("never invent a testimonial, client name or figure"), "Social proof row forbids invented testimonials, client names and figures");
+  assert.ok(sec("How many, and where they come from").includes("**Up to nine per type, never padded.**"), "sourcing rule: up to nine, never padded");
+  assert.ok(sec("ID scheme").includes("`<CODE>-<type letter><n>`"), "ID scheme literal");
+  const shape = sec("The shape of `angles.md`");
+  assert.ok(shape.includes("`## Approaches applied`") && shape.includes("`## Open questions`"), "map shape blocks");
+  assert.ok(shape.includes("follow `/akili-marketing` `## Invariants`"), "status and approval pointed to the command");
+  assert.ok(shape.includes("This file does not restate those rules."), "map-shape section does not restate the invariants");
+});
+
+test("install --tool claude lands the same 13 files, byte-identical, in a temp target", (t) => {
   const home = mkTmp(t, "sms-install-");
   const target = path.join(home, "claude");
   const result = spawnSync(

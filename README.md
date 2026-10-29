@@ -35,7 +35,7 @@ After each change, it learns what to do better next time.
 - Every change planned in writing and traceable to a requirement.
 - Built-in review and tests before anything is called done.
 - A method that learns from every finished change.
-- Extras for security audits, SEO, video, diagrams and social marketing: see the [overview](docs/overview.md).
+- Extras for security audits, video, diagrams and a growth track (`/akili-seo`, `/akili-marketing`): see the [overview](docs/overview.md).
 
 | Term | Meaning |
 |---|---|
@@ -50,7 +50,7 @@ After each change, it learns what to do better next time.
   <a href="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png">
     <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow.png">
-    <img alt="The AKILI flow: set up the project once, then each change is proposed, specified, built, tested, validated and archived; seven commands run any time, among them a security audit and a pull-request review that can also run in CI."
+    <img alt="The AKILI flow: set up the project once, then each change is proposed, specified, built, tested, validated and archived; seven commands run any time, among them a security audit and a pull-request review that can also run in CI; two of them, SEO and marketing, form a growth track."
          src="https://raw.githubusercontent.com/JuankCadavid/akili-specs/master/assets/akili-flow-animated.svg" width="900">
     </picture>
   </a>
@@ -153,6 +153,7 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |
 | know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
 | compare AKILI with OpenSpec | [docs/openspec-comparison.md](docs/openspec-comparison.md) |
+| use AKILI from an MCP client with nothing installed (hosted AKILI MCP service, not live yet) | [akili.com.co](https://akili.com.co) |
 
 ## Contributing and license
 
