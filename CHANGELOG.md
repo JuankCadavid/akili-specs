@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.38.0] - 2026-10-29
+
 ### Added
 
 - **`/akili-marketing` has a seventh mode, `angles [<pillar>]`, that writes `docs/marketing/angles.md`, a map of customer angles, one pillar section at a time.** Each pillar holds up to 9 problems, 9 desires, 9 objections and 9 beliefs, never padded, each citing one source and carrying an ID such as `KB-P2`; a slot without material reads `needs input`. The mode shows each pillar section as a card and stops; a pillar counts as `approved` only on the user's explicit approval of that exact section, and a change to any of its four lists sets it back to `draft`. `## Invariants` gained exactly one sentence for this. The map is a menu: no mode drafts a post for every angle times every approach.
@@ -34,7 +40,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **Release class: minor** (a new mode and new behavior in an existing command, a new reference file and new constitution options; no new command or install target; the MCP removal touches no released file).
 - **Tests.** The whole suite is 1195 tests, all passing (1348 before the MCP removal; the 153 removed tests moved with the MCP code).
-
 ## [2.37.2] - 2026-10-27
 
 ### Added
