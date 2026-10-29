@@ -1266,8 +1266,11 @@ function changelogSectionsBetween(changelogPath, fromVersion, toVersion) {
   const sections = [];
   let current = null;
 
-  const isNewer = (a, b) =>
-    a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) > 0;
+  const isNewer = (a, b) => {
+    // 🛡️ Sentinel: Validate string type from external JSON to prevent TypeError DoS
+    if (typeof a !== "string" || typeof b !== "string") return false;
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) > 0;
+  };
 
   for (const line of lines) {
     const match = line.match(/^##\s+\[([^\]]+)\]/);
@@ -2380,6 +2383,8 @@ async function getLatestVersion() {
 }
 
 function isNewerVersion(latestVersion) {
+  // 🛡️ Sentinel: Validate string type from external JSON to prevent TypeError DoS
+  if (typeof latestVersion !== "string") return false;
   return (
     latestVersion &&
     latestVersion !== currentVersion &&
