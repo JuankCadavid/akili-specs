@@ -185,3 +185,18 @@ ADVISORY (attempt 2): a later phase after a consented download that failed (`una
 | Consumers | `test/impeccable-bridge.test.js` validate regex ``Exit `0` passes; exit `2` is \*\*FAIL\*\*`` no longer matches (T8 amends) |
 | spawns | Implementer not reported by host (8 tool uses, 81,391 tokens), ended complete; Reviewer not reported by host (5 tool uses, 76,223 tokens), ended complete |
 | Requirements covered | FR-4 consumers (validate, test, audit), FR-6, FR-8, FR-9 (validate, D-2), FR-10 Q2, FR-14 |
+
+### T6: Wire constitution, specify, propose and the fallback skills — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` effort medium; Reviewer `opus` effort medium (parallel wave with T4, T5) |
+| Files changed | `.claude/commands/akili-constitution.md`, `akili-specify.md`, `akili-propose.md`, `.claude/skills/ui-ux-pro-max/SKILL.md`, `.claude/skills/frontend-design/SKILL.md` (+14 lines in total) |
+| Red run | `grep -c "skill only"`: constitution `1`, specify `1` |
+| Implementer verification | After, all five files: `skill only`, "`installed` or `skill only`", `Unevaluated (Impeccable absent)`, `npx impeccable detect`, `never copies Impeccable`, "Impeccable is installed/absent/not installed" → 0; `impeccable-bridge` named 4/5/1 (constitution/specify/propose); waiver row has five columns (Rule, Scope, Reason, Approver, Date); `git diff --check` clean. `node --test test/impeccable-bridge.test.js`: 3 pass, 3 fail, all T8-owned |
+| Evidence re-run | VERIFIED (Leader inline): per-file sweep 0, bridge 4/5/1/1/2, no line pointers, `git diff --check` exit 0 |
+| Reviewer verdict | **PASS** — both disqualifiers clear; four §7.2 rows stated or pointed at by named row; a pointer satisfies FR-4 given FR-14 and the bridge's own "states its own row in one line and points at this section"; DD-10 roles unchanged; nothing contradicts the bridge. The "ui-ux-pro-max no longer leads" assertion is not reached by the automated run until T8; it was confirmed by hand (0 hits) |
+| Not Done / Assumptions (verbatim gist; assumptions only) | Engine-state columns (`ready`, `consent needed`, `declined`) are not restated; each command points at the bridge table (DD-9, FR-14) |
+| Note | T5 (tables) and T6 (pointers) take the two readings of the same §7.2 sentence; both passed. The amendment proposed at T5 would make both conformant by name |
+| spawns | Implementer not reported by host (8 tool uses, 80,686 tokens), ended partial (assumptions only); Reviewer not reported by host (6 tool uses, 78,237 tokens), ended complete |
+| Requirements covered | FR-4 consumers (constitution, specify, execute via tasks), FR-12 (constitution row shape), FR-14, DD-10 |

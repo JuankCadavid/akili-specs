@@ -127,7 +127,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~50 LOC prose, 5 files) |
 | Depends on | T3 |
 | Requirements | FR-4 consumers clause (constitution, specify, execute-via-tasks rows); FR-12 constitution writes the row shape; FR-14 point-not-restate; DD-10 |
