@@ -2472,6 +2472,7 @@ async function getLatestVersion() {
 function isNewerVersion(latestVersion) {
   return (
     latestVersion &&
+    typeof latestVersion === 'string' &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
   );
