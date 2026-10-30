@@ -186,9 +186,15 @@ When a spec includes meaningful UI/UX behavior, verify more than raw functionali
 - accessibility basics
 - visual consistency with `docs/ux-ui/design.md`
 
-- design-detector findings, when `impeccable-bridge` Step 0 reports the detector available: plan a **design-detector suite** that runs `DO_NOT_TRACK=1 npx impeccable detect --json` on the rendered pages and the changed UI source, and records the command, target, exit code and findings by rule id as evidence (exit `2` and `1` are reported for `/akili-validate`'s gate, not judged here)
+- design-detector findings: load `impeccable-bridge`, run its Step 0 and record the skill source and engine state; its *Who does what in each state* table (`/akili-test` detector suite row) decides the suite:
 
-If Impeccable is absent, use `ui-ux-pro-max` (catalog) and `frontend-design` plus the UX/UI design document as the fallback reference, and note the detector suite as not run.
+  | State | Consequence here |
+  |---|---|
+  | Skill source `vendored` / `user-installed` | Plan a **design-detector suite** per the bridge's *Detector gate* (launcher form, scan matrix at both viewports) |
+  | Skill source `missing` | Plan it only if an engine exists; otherwise note the suite as not run and use `ui-ux-pro-max` (catalog), `frontend-design` and the UX/UI design document as the fallback reference |
+  | Engine `ready` / `installed (consented)` | The suite runs; record the command, target, viewport, exit code and findings by rule id as evidence (non-`0` results are reported for `/akili-validate`'s gate, not judged here) |
+  | Engine `consent needed` | Ask once per session through the bridge's *Engine consent* before planning, or record the suite as `Unevaluated` |
+  | Engine `declined` / `unavailable` | Record `Unevaluated (engine not installed)` and the reason; the suite is not run |
 
 ---
 

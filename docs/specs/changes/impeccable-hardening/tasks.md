@@ -108,7 +108,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~60 LOC prose, 3 files) |
 | Depends on | T3 |
 | Requirements | FR-4 consumers clause (validate, test, audit rows); FR-6 (no `npx` form); FR-8 (validate + test passes); FR-9 (validate, D-2 HITL fold check + `WARN`); FR-10 Q2 (validate gains no performance gate); FR-14 "point, don't restate" |

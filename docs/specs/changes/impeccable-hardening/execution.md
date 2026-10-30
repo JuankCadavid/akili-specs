@@ -170,3 +170,18 @@ ADVISORY (attempt 2): a later phase after a consented download that failed (`una
 | Decisions | `design.md` §7.3 carry ended (carried to T1 attempt 2 and T3 attempt 2 Reviewer briefs) |
 | Issues encountered | `test/impeccable-bridge.test.js` pins the old wording and is expected red until T8. Falsifiers (gate reorder, `declined` row deletion, `npx impeccable detect` reinsert) run after T8 |
 | Budget (running) | tasks 2/9 closed (T2 `[~]` Pivot) · authored LOC ~440 (T1 277 + bridge +163; T2 test uncommitted) / ~1,250 · review rounds 4/~16 — within budget |
+
+### T5: Wire validate, test and audit commands — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` effort medium; Reviewer `opus` effort medium (parallel wave with T4, T6) |
+| Files changed | `.claude/commands/akili-validate.md` (+12 −6), `akili-test.md` (+9 −3), `akili-audit.md` (+11 −3) |
+| Red run | `npx impeccable detect`: validate 1 / test 1 / audit 1; `Unevaluated (Impeccable absent)`: validate 1 / test 0 / audit 1 |
+| Implementer verification | After: those patterns, `npx`, `skill only` and the old absent/state wording → 0 in all three files; `impeccable-bridge` named 2/2/1; `git diff --check` clean. Validate: Step 0, a five-row state table, FR-9 D-2 `WARN (unverified first visit)` with a manual fold check at the HITL pause, "This review adds no performance gate". Test: a five-row table pointing at *Detector gate*. Audit: item 1 records skill source and engine state; item 4 is a five-row, report-only table; the checklist asks for the scan matrix. Per-cell map: `<scratchpad>/t5-map.md` |
+| Evidence re-run | VERIFIED (Leader inline): per-file `npx impeccable detect`/`Unevaluated (Impeccable absent)`/`npx`/`skill only`/line pointers → 0; bridge 2/2/1; `git diff --check` exit 0 |
+| Reviewer verdict | **PASS** — all 15 cells (3 commands × 5 value groups) have a stated consequence matching the bridge; FR-6, FR-8, FR-9 D-2 (verbatim), FR-10 Q2 met; no bridge command string restated |
+| Spec tension (Reviewer, verbatim) | "This is still in tension with design §7.2 ('The commands state their row in one line each') and DD-9. **Proposed amendment (one line, design §7.2 / DD-9):** 'A command states its row as one pointer line, or as a per-value consequence table when that is the only way to satisfy FR-4's per-value obligation; it never restates a bridge command string or a rule's wording.'" Presented to JC at this gate (KZ-changes--persona-upgrade-3); answer to be recorded here |
+| Consumers | `test/impeccable-bridge.test.js` validate regex ``Exit `0` passes; exit `2` is \*\*FAIL\*\*`` no longer matches (T8 amends) |
+| spawns | Implementer not reported by host (8 tool uses, 81,391 tokens), ended complete; Reviewer not reported by host (5 tool uses, 76,223 tokens), ended complete |
+| Requirements covered | FR-4 consumers (validate, test, audit), FR-6, FR-8, FR-9 (validate, D-2), FR-10 Q2, FR-14 |
