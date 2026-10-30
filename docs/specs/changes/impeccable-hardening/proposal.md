@@ -15,7 +15,7 @@
 | Source | `~/akili-audits/2026-10-30-akili-web-design.md`: the design evaluation of `https://akili.com.co`, in particular *Methodology flow notes* → *Gaps in akili-specs found during this run* (12 gaps, cited below as G1–G12) |
 | Source questions | Requirement source and visual source were both supplied by the brief (the report; no UI in this repository). The Jira/Figma questions were not asked. Under `gated` mode this is logged rather than silently skipped; **confirmed by the maintainer at approval** (2026-10-30 10:38) |
 | Visual | None (no UI in this repository) |
-| Depends on | `changes/impeccable-design`, shipped in v2.39.0 (`CHANGELOG.md` `## [2.39.0]`) and still unarchived under `docs/specs/changes/` |
+| Depends on | `changes/impeccable-design`, shipped in v2.39.0 (`CHANGELOG.md` `## [2.39.0]`) and archived 2026-10-30 to `docs/specs/archive/2026-10-30-changes--impeccable-design/` (Q4) |
 | Parallel-safe | yes with `mcp-separation` and `review-intensity-trial-terms`, except the shared `CHANGELOG.md` `Unreleased` block |
 | Branch | `JuankCadavid/impeccable-hardening` (worktree at `c268314`, equal to `origin/dev`), local only: no push, no PR, no publish |
 
