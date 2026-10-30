@@ -346,3 +346,11 @@ Correction closure: forward sweep for "one line each" in the spec documents → 
 ADVISORY (T3b): `config.local.json` is also honoured upstream (local wins); "remain the user's choices" reads as AKILI never writing them; the docs keep `Unverified:` for the compiled 0.1.18 engine matching the contract.
 
 Budget (running): tasks 8/11 closed (T2 at P-15) · authored LOC 968 / ~1,365 (T2 test 320 committed in `fd22e1c` not yet counted: with it 1288) · review rounds 15/~19
+
+## Budget decision — 2026-10-30 12:20 (UTC-5)
+
+Raised by the Leader before T8, as a tripwire forecast rather than a trip. Actuals after T3b: 1,288 authored LOC (968 + T2's 320-line test) against ~1,365; projection with T8 (~280) and T9 (~40) ≈ 1,610, about 18% over. The cause is rework and the Pivot: T2b came to 247 LOC against ~100, and T2 grew with the post-Pivot cases. Review rounds 15/~19, with ~18 projected.
+
+JC, verbatim: "aprueba el nuevo tope de unas 1.650 líneas. P-15 sigue pendiente; JC hará la prueba desde cero y te paso el resultado."
+
+New ceiling: **~1,650 authored LOC** (`tasks.md` Document Control, `design.md` §12). Tasks (11) and rounds (~19) unchanged. Run state: T8 waits for T2 `[x]`, which waits for P-15. No task is eligible until then.
