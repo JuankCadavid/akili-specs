@@ -44,14 +44,29 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    calls for an environment-provided skill stops at the gate when that skill is missing, prints the
    install route, and never falls back to a hand-built substitute.
 
-**Impeccable** (`pbakaus/impeccable`, Apache-2.0) is the second environment-provided skill AKILI routes to, through the packaged bridge `impeccable-bridge`. It is optional and has **no STOP gate**: the bridge detects it (installed, skill only, absent), and when it is absent every design step runs on the packaged fallback (`ui-ux-pro-max` + `frontend-design` + `stitch-design`) and records the gap. AKILI never copies Impeccable files, never installs it without the user's consent, and prefixes detector runs with `DO_NOT_TRACK=1`. Its root `PRODUCT.md`/`DESIGN.md` are derived views of `docs/ux-ui/design.md`, the single design source of truth.
+### Vendored third-party (verbatim)
+
+A second, narrower category for a skill AKILI ships **unmodified from its upstream**, because AKILI's design steps need every install to carry the same instructions. It is not the loophole in the environment-provided rule above: that rule stays as written for `orchestration`, `playwright-cli`, `hyperframes` and `archify`, and none of them may be copied on the strength of this category.
+
+A skill belongs here only when all four rules hold:
+
+1. **Unmodified upstream build.** The folder is a copy of the upstream's own build, byte-identical to it.
+2. **Frontmatter-only modification, declared.** The one permitted change is the AKILI governance block (`metadata`: author, source, adapted-by, adapted-for, binding) in the vendored `SKILL.md`, and `NOTICE` states it.
+3. **Three provenance files beside the skill.** `LICENSE` (upstream's, preserved), `NOTICE` (upstream's notices plus the modification statement, and that AKILI is not affiliated with the upstream project), and `UPSTREAM.md` (source, commit, versions, vendoring date, per-file checksums).
+4. **A hash-locked test, and a pin that moves only through the script.** `npm test` fails, naming the file, when any vendored byte differs from `UPSTREAM.md`; hand edits are caught, not trusted. The pin moves only through `scripts/sync-impeccable.js` (maintainer-only, from a local upstream checkout, no network); the pin check at release is in [`release-checklist.md`](../release-checklist.md).
+
+Adapted skills (`adapted-by`, body edited) are not in this category; they follow the acceptance checklist below. A vendored skill still declares a `metadata.binding` and still needs its `docs/skills/<name>.md` page and README row.
+
+**Current member: `impeccable`** (Paul Bakaus, Apache-2.0, `pbakaus/impeccable`). Its page is [`impeccable.md`](impeccable.md); the AKILI rules around it (skill source, engine gate, detector gate, fallback) live in `impeccable-bridge`, never in the vendored folder.
+
+**Supersession.** Impeccable moved here from *Environment-provided skills*. This supersedes `changes/impeccable-design` NFR-1 (its no-vendoring rule, as applied to Impeccable) and the paragraph that recorded it in this file. Reports and specs written under the earlier rule describe the state at their time and are not rewritten.
 
 ### Current assignment
 
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security), `social-marketing` (marketing), `pr-review` (review) |
-| `conditional` | `ui-ux-pro-max` (catalog), `impeccable-bridge` (lead design skill), `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:
@@ -108,4 +123,5 @@ The same checklist applies in reverse: when a skill loses its integration points
 
 | Date | Change | Reason |
 |---|---|---|
+| 2026-10-30 | `impeccable` moved from *Environment-provided skills* to *Vendored third-party (verbatim)* | Design steps need every install to carry the same Impeccable instructions; spec `changes/impeccable-hardening` (FR-14) |
 | 2026-07-20 | `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-react`, `gsap-frameworks`, `gsap-performance`, `gsap-utils` → fused into `gsap-animation` | 8 sibling skills, ~104 KB, zero command wiring; one `conditional` skill with `references/` preserves the content and is actually loaded |

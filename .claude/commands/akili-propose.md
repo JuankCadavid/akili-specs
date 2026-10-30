@@ -133,7 +133,7 @@ If the change has any UI surface AND the user provides **no** Figma link, image,
 - If the user accepts, load `stitch-design` and generate the mockup for the primary screens/flows in scope. Persist the artifacts under the spec so `/akili-specify` can consume them:
   - Save the generated screens under `docs/specs/$SPEC_PATH/mockup/` (or reference the `.stitch/designs` location if the skill writes there).
   - Record the exact paths and any `.stitch/DESIGN.md` reference in the proposal's **Visual Reference** section (see Step 2).
-- When Impeccable is installed (`impeccable-bridge` Step 0), its direction picker is an alternative: `shape` plus a comp-led (mockup-first) or code-led direction. Mockup-first uses image generation, so ask before spending the user's credit. Record the chosen direction in the Visual Reference.
+- When the Impeccable skill source is `vendored` or `user-installed` (`impeccable-bridge` Step 0), its direction picker is offered as an alternative; when `missing`, it is not offered (`impeccable-bridge` → *Who does what in each state*). The picker is: `shape` plus a comp-led (mockup-first) or code-led direction. Mockup-first uses image generation, so ask before spending the user's credit. Record the chosen direction in the Visual Reference.
 - If the user declines, note "no visual reference" in the proposal and continue. Do not block the proposal on a mockup.
 
 **Design evaluation as a source.** A report from `/akili-audit design` (`docs/specs/audits/design-*.md`) is a valid requirement source: cite it in Document Control, carry its P1/P2 findings in scope as the Problem table (one row per finding, citing the report), and leave P3 items out of scope unless the user asks.

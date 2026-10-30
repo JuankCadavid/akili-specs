@@ -116,7 +116,7 @@ For every requirement in `requirements.md`, verify:
 Use skills as needed:
 
 - **Stack skills come from the project's `## Skill Map`** (root `AGENTS.md`/`CLAUDE.md`) — load the entries matching the code under validation; do not assume a fixed list.
-- Conditional skills by situation: `impeccable-bridge` (lead design skill; fallback `ui-ux-pro-max` + `frontend-design` when Impeccable is absent) for UX/UI-heavy validation; `systematic-debugging` when failures or inconsistencies appear.
+- Conditional skills by situation: `impeccable-bridge` (lead design skill; fallback `ui-ux-pro-max` + `frontend-design` only when its skill source is `missing`) for UX/UI-heavy validation; `systematic-debugging` when failures or inconsistencies appear.
 
 Check for:
 
@@ -131,13 +131,19 @@ Check for:
 
 **4R lens sweep (advisory):** Sweep the implementation through the four execution review lenses — **readability, reliability, resilience, risk** (see `.agents/reviewer.md`). Findings that are not spec violations are reported as **advisory** notes in the validation report (they inform remediation and future specs, but only spec violations drive PASS/WARN/FAIL). Also carry forward any unresolved `ADVISORY` findings recorded in `execution.md` so they surface in the report instead of dying in the audit trail.
 
-**UI design review (UI-heavy specs).** Load `impeccable-bridge`, record its Step 0 state, and with the app running:
+**UI design review (UI-heavy specs).** Load `impeccable-bridge`, run its Step 0 (skill source and engine gate), record both values, and with the app running act on this row of its *Who does what in each state* table (`/akili-validate` design gate):
 
-1. Run Impeccable `critique` and `audit` on each screen in scope, judged against the screen's page mode in `docs/ux-ui/design.md` or the spec's `design.md`.
-2. Run the detector gate: `DO_NOT_TRACK=1 npx impeccable detect --json <dev-server URL>` and on the changed UI source. Exit `0` passes; exit `2` is **FAIL** unless each finding is fixed or waived with a reason (upstream ignore, or a *Design Waivers* row in `docs/ux-ui/design.md`); exit `1` is `Unevaluated`, which is reported and never counts as a pass.
-3. Record in the validation report a **Design Review** section: Impeccable state, the detector command, target, exit code, findings by rule id, waivers, and the critique/audit findings with what was fixed.
+| State | Consequence here |
+|---|---|
+| Skill source `vendored` / `user-installed` | Impeccable leads: run `critique` and `audit` on each screen in scope, judged against the screen's page mode in `docs/ux-ui/design.md` or the spec's `design.md` |
+| Skill source `missing` | Run the same review with `ui-ux-pro-max` + `frontend-design`; run the detector only if an engine exists; continue, no STOP |
+| Engine `ready` / `installed (consented)` | Gate active: run the bridge's *Detector gate* (scan matrix at both viewports, first-visit pass for Persuade and Operate screens) on the dev server URL and the changed UI source. Its *Exit codes* table decides: a `2` not fixed or waived is **FAIL**; `Unevaluated` rows are reported and never count as a pass |
+| Engine `consent needed` | Ask once per session through the bridge's *Engine consent*, then take the row the answer selects |
+| Engine `declined` / `unavailable` | Detector rows read `Unevaluated (engine not installed)` with the reason; the design gate cannot be `PASS` on them: it is `WARN`, and the report says why |
 
-When Impeccable is absent, run the same review with `ui-ux-pro-max` + `frontend-design`, mark the detector rows `Unevaluated (Impeccable absent)`, and continue.
+First-visit pass without browser automation: the bridge's *First-visit pass* rule holds. The HITL pause asks the user for a manual fold check at both viewports and records the result; without one the design gate is `WARN (unverified first visit)`, never `PASS`.
+
+Record in the validation report a **Design Review** section: skill source and engine state, the scan matrix, waivers, and the critique/audit findings with what was fixed. This review adds no performance gate.
 
 ### Phase 6: Design Conformance
 

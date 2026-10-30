@@ -862,8 +862,91 @@ function makeOwnershipPolicy(ownership, args) {
   return policy;
 }
 
-function logForeignSkip(entryPath) {
-  console.log(`  ${colors.yellow}skip foreign${colors.reset} ${entryPath}`);
+function logForeignSkip(entryPath, detail) {
+  console.log(`  ${colors.yellow}skip foreign${colors.reset} ${entryPath}${detail ? ` ${detail}` : ""}`);
+}
+
+// @akili-spec changes/impeccable-hardening T2b (P-7 Option A)
+// The policy for a target WITHOUT an ownership record (Claude Code, OpenCode,
+// Antigravity, Codex, Cursor). It judges one entry, `impeccable`, and passes
+// every other name through as "owned" so today's skip-or-overwrite rules apply
+// unchanged. impeccable is AKILI's when the existing folder holds UPSTREAM.md
+// (the marker the vendored copy ships); anything else is the developer's own
+// install and is skipped whole. `install --force` takes it over: moved aside
+// (one atomic rename), replaced by the copy, then the aside copy is deleted;
+// policy.restore() puts it back when the copy fails.
+const IMPECCABLE_ENTRY = "impeccable";
+function makeImpeccableForeignPolicy(args, targetDir) {
+  const takeoverDir = path.join(path.dirname(targetDir), ".akili-takeover");
+  let pending = null; // { asidePath, entryPath }
+  const policy = (name, entryPath) => {
+    if (name !== IMPECCABLE_ENTRY) return "owned";
+    try {
+      fs.lstatSync(entryPath);
+    } catch (e) {
+      if (e && (e.code === "ENOENT" || e.code === "ENOTDIR")) return "write";
+      throw e;
+    }
+    if (fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) return "owned";
+    if (!args.forceExplicit) return "foreign";
+    if (!args.dryRun) {
+      pending = { asidePath: moveEntryAside(entryPath, takeoverDir, name), entryPath };
+    }
+    return "takeover";
+  };
+  policy.detail = (entryPath) => {
+    try {
+      const head = fs.readFileSync(path.join(entryPath, "SKILL.md"), "utf8").split(/\r?\n/);
+      if (head[0] !== "---") return "";
+      for (let i = 1; i < head.length && head[i] !== "---"; i += 1) {
+        const m = /^version:\s*["']?([^"'\s]+)["']?\s*$/.exec(head[i]);
+        if (m) return m[1];
+      }
+    } catch (e) {
+      // unreadable: no version
+    }
+    return "";
+  };
+  policy.finish = () => {
+    if (!pending) return;
+    const { asidePath } = pending;
+    pending = null;
+    try {
+      removeEntryNoFollow(asidePath);
+    } catch (e) {
+      console.log(
+        `  ${colors.red}warning${colors.reset} could not delete the replaced foreign entry (${(e && e.code) || e}); it may be partly removed and is kept at ${asidePath}`
+      );
+      return;
+    }
+    try {
+      fs.rmdirSync(takeoverDir); // only succeeds when empty
+    } catch (e) {
+      // Other moved-aside entries remain
+    }
+  };
+  policy.restore = () => {
+    if (!pending) return;
+    const { asidePath, entryPath } = pending;
+    pending = null;
+    try {
+      if (fs.existsSync(entryPath) || isSymlink(entryPath)) removeEntryNoFollow(entryPath);
+      fs.renameSync(asidePath, entryPath);
+    } catch (e) {
+      console.log(
+        `  ${colors.red}warning${colors.reset} could not put the foreign entry back (${(e && e.code) || e}); it is kept at ${asidePath}`
+      );
+    }
+  };
+  return policy;
+}
+
+function isSymlink(p) {
+  try {
+    return fs.lstatSync(p).isSymbolicLink();
+  } catch (e) {
+    return false;
+  }
 }
 
 function logBlocked(entryPath) {
@@ -926,7 +1009,7 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
     if (policy) {
       decision = policy(entry.name, targetPath);
       if (decision === "foreign") {
-        logForeignSkip(targetPath);
+        logForeignSkip(targetPath, policy.detail ? policy.detail(targetPath) : "");
         foreignSkipped += 1;
         continue;
       }
@@ -963,7 +1046,12 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
 
     if (!args.dryRun) {
       removeTargetSymlinks(sourcePath, targetPath);
-      copyTreeSync(sourcePath, targetPath);
+      try {
+        copyTreeSync(sourcePath, targetPath);
+      } catch (e) {
+        if (takeover && policy.restore) policy.restore(); // T2b: leave the foreign entry whole
+        throw e;
+      }
       if (takeover) policy.finish();
     }
     if (exists || takeover) overwritten += 1;
@@ -1149,7 +1237,9 @@ function installTool(tool, args) {
   if (shouldInclude("skills", args)) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, policy));
+      // @akili-spec changes/impeccable-hardening T2b: no ownership record -> judge only `impeccable`.
+      const skillsPolicy = policy || makeImpeccableForeignPolicy(args, targetSkills);
+      add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, skillsPolicy));
     }
   }
 
@@ -1386,7 +1476,7 @@ function runUpdate(args) {
     console.log(`  Package: updated from v${versionBefore} (${installLabel}; new version could not be read)`);
   }
   const updatedTools = args.resolvedTools || selectedTools(args);
-  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""}${args.foreignSkipped > 0 ? ` (${args.foreignSkipped} foreign skipped for grokbot)` : ""} (see Install Summary above)`);
+  console.log(`  Files: reinstalled with --force for ${updatedTools.join(", ")}${args.autoDetected ? " (auto-detected)" : ""}${args.foreignSkipped > 0 ? ` (${args.foreignSkipped} foreign skipped${updatedTools.includes("grokbot") ? " for grokbot" : ""})` : ""} (see Install Summary above)`);
   const updateHints = verifyHints(updatedTools).map((h) => `akili doctor --tool ${doctorHintFor(h, args)}`);
   if (updateHints.length === 1) {
     console.log(`  Verify: ${colors.cyan}${updateHints[0]}${colors.reset}`);

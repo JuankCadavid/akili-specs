@@ -204,12 +204,12 @@ When `docs/prd.md` already exists, preserve useful content and upgrade weak sect
 
 Create or enhance `docs/ux-ui/design.md` as the UI/UX system blueprint.
 
-**Lead design skill:** load `impeccable-bridge` and run its Step 0 detection.
+**Lead design skill:** load `impeccable-bridge` and run its Step 0 (*Skill source and engine gate*); record the skill source it names.
 
-- Impeccable `installed` or `skill only` → it leads visual direction and craft; feed its `init`/`document` from `docs/prd.md` and this document so the root `PRODUCT.md`/`DESIGN.md` are derived views, never a second authority. Use `ui-ux-pro-max` only as a reference catalog (palettes, font pairings, styles by industry).
-- Impeccable `absent` → fallback chain: `ui-ux-pro-max` (catalog) + `frontend-design` (direction and craft) + `stitch-design` (mockups); record the gap.
+- Skill source `vendored` or `user-installed` → Impeccable leads; `init`/`document` produce the derived `PRODUCT.md`/`DESIGN.md` from `docs/prd.md` and this document, never a second authority. Use `ui-ux-pro-max` only as a reference catalog. The engine states (`ready`, `consent needed`, `declined`, `unavailable`) follow the Step 4 row of `impeccable-bridge` → *Who does what in each state*; they never select the fallback.
+- Skill source `missing` → the fallback chain in `impeccable-bridge` → *Fallback (skill source `missing`)*; record the gap.
 
-**This document is the single design source of truth** (see `impeccable-bridge` → *Design source of truth*). Record a page mode (Persuade, Operate, Read or Experience) for each screen in the Screen Inventory, and accepted detector exceptions under Design Decisions as a *Design Waivers* list (rule, reason, who approved).
+**This document is the single design source of truth** (see `impeccable-bridge` → *Design source of truth*). Record a page mode (Persuade, Operate, Read or Experience) for each screen in the Screen Inventory, and accepted detector exceptions under Design Decisions as a *Design Waivers* list, one row per waiver with five columns: Rule, Scope, Reason, Approver, Date (`impeccable-bridge` → *Design Waivers*).
 
 **Conditional skill:** load `diagram-design` and fill the UX/UI slots whose condition holds.
 
