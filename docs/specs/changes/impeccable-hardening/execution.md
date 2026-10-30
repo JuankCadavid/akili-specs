@@ -384,3 +384,26 @@ Verbatim: "P-15 se valida en la práctica. Tras publicar, re-hará la auditoría
 ADVISORY (T8): no test locks NFR-5 (no line-number pointers; 0 today); the constitution/specify/propose pointer regex is loose (`skill source` lowercase); the cli.md count tests do not block-list a stale `30 packaged`.
 
 Budget (running): tasks 10/11 closed · authored LOC 1,429 / ~1,650 (1,288 + 141) · review rounds 16/~19
+
+### T9: CHANGELOG, full verification and the re-walk — PASS (attempt 2); re-walk deferred to the post-release audit
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` (2 spawns); Reviewer `opus` effort high (full) |
+| Files changed | `CHANGELOG.md` `## [Unreleased]`: Added ×5, Changed ×3, Notes ×5 (+19 −1) |
+| Verification (Leader, tree quiet, no agent active) | `npm test` → `# tests 1233 # pass 1233 # fail 0`. `npm run verify:cli` → `Summary: 14 commands \| 31 skills \| 8 resources (akili-specs v2.39.0)`. `npm run pack:dry-run` → `package size: 3.6 MB`, `unpacked size: 8.1 MB`, `total files: 407`; `origin/dev` (2.39.0) → 2.8 MB / 5.8 MB / 345. Exact (`--json`): unpacked 5,826,881 → 8,102,266 = **+2,275,385 B ≤ +2.5 MB (NFR-4 PASS)**; packed 2,755,162 → 3,589,026; Reviewer re-run after the CHANGELOG edit 8,102,412 / 3,589,089. `git diff --check` clean. `install --tool all --dry-run` → `would install …/skills/impeccable` for Claude, OpenCode, Antigravity (3 roots), Codex/Cursor (shared `.agents/skills`); `TOTAL installed 7`; Grok Bot (not in `all`) checked by the Reviewer with `--tool grokbot --target <scratch>`. `doctor --tool all` on the maintainer HOME (2.39.0 installed) → `MISSING impeccable` per tool, `ok 52 \| missing 1`: expected, 2.39.0 never shipped the skill |
+| Attempt 1 | Reviewer **FAIL**: (1) proposed waivers stated without the report-only scope; (2) the first-visit WARN omitted the manual fold check; (3) exact byte figures not reproducible once the CHANGELOG itself changes. Rework folded the Reviewer's Grok Bot advisory into the same installer sentence (a factual precision fix to T9's own text, not new scope) |
+| Attempt 2 | Reviewer **PASS**: each fix matches the bridge (*Design Waivers*, *First-visit pass*) and `bin/akili.js` (`ownershipRecord` only on Grok Bot, no `.detail`); rounded size figures match both runs; 62nd file is `docs/skills/impeccable.md`; release class minor confirmed |
+| Re-walk | **Deferred** by JC (12:23): the verdict becomes the post-release real audit of akili.com.co with the npm version, together with P-15. Not performed here |
+| spawns | Implementer ×2 not reported by host (5 + 5 tool uses, 84,475 + 59,933 tokens), ended complete; Reviewer not reported by host (26 + 2 tool uses, 117,882 + 121,570 tokens), ended complete |
+| Requirements covered | NFR-6 (four commands + install dry-run), NFR-4 (measured), NFR-1 |
+
+### Budget actuals vs design §12
+
+| Line | Budget | Actual |
+|---|---|---|
+| Tasks | 11 | 11 closed |
+| Authored LOC | ~1,650 (raised from ~1,365 by JC 12:20) | ~1,448 (1,429 + T9 19) |
+| Review rounds | ~19 | 18 (T8 1, T9 2) |
+
+PR strategy (Leader decision under JC's 12:23 release authorisation): the approved two-PR split (PR 1 = T1, T2, T8 counts) is not cut. The commits interleave (T3 `12c84fd` precedes T2 `fd22e1c`), and a PR 1 without T8's count and fixture updates would be red in CI. One PR into `dev` carries the whole spec.

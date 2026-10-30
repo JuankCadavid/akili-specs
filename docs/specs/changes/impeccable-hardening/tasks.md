@@ -225,7 +225,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` (re-walk deferred to the post-release audit, JC 12:23) |
 | Size | S (~40 LOC + verification) |
 | Depends on | T8 |
 | Requirements | NFR-6 (all four commands + `install --tool all --dry-run`), NFR-4 (measure the size), NFR-1, requirements §8 substitute: the re-walk plus one held-out case |
