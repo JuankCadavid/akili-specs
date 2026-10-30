@@ -6,7 +6,10 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 
 ```text
 /akili-audit
+/akili-audit design [<url|path>]
 ```
+
+`design` mode evaluates the design of an existing product instead of auditing drift: it loads `impeccable-bridge`, runs Impeccable `critique`/`audit` and the detector (`npx impeccable detect --json`), and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`. Without Impeccable it falls back to `ui-ux-pro-max` + `frontend-design` and marks the detector rows `Unevaluated`.
 
 ## Behavior
 
@@ -49,10 +52,11 @@ The command's own verification checklist confirms **this run's** report file und
 - Before `/akili-archive` to verify spec alignment
 - When onboarding to an existing project to assess documentation health
 - Periodically to prevent specification rot
+- `design` mode: before redesigning an existing product, or to review an inherited UI
 
 ## Skills
 
-`systematic-debugging` applies when discrepancies suggest implementation bugs rather than documentation gaps.
+`systematic-debugging` applies when discrepancies suggest implementation bugs rather than documentation gaps. `impeccable-bridge` (with `ui-ux-pro-max` and `frontend-design` as fallback) applies in `design` mode.
 
 ## Source
 
