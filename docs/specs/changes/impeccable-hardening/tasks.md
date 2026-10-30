@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/impeccable-hardening` |
-| Status | Phase 3: awaiting approval |
+| Status | **Approved** by Juan Carlos Cadavid, 2026-10-30 11:28 (UTC-5), with the two-PR strategy. Spec complete; ready for `/akili-execute` |
 | Requirements / Design | `requirements.md` rev 2 (approved 11:02), `design.md` (approved 11:19, no Review Design), 2026-10-30 UTC-5 |
 | Baseline | AKILI `89457ba`; upstream `df3a4ab`. `npm test` → 1201 pass, 0 fail (archive run, `b6575d8`) |
 | Commit prefix | `[SPEC:changes/impeccable-hardening]`. Local commits only: no push, PR, tag or publish |
