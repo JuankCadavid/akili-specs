@@ -204,10 +204,12 @@ When `docs/prd.md` already exists, preserve useful content and upgrade weak sect
 
 Create or enhance `docs/ux-ui/design.md` as the UI/UX system blueprint.
 
-**Preferred skill chain:**
+**Lead design skill:** load `impeccable-bridge` and run its Step 0 detection.
 
-- `ui-ux-pro-max` if available
-- otherwise `frontend-design` + `stitch-design`
+- Impeccable `installed` or `skill only` → it leads visual direction and craft; feed its `init`/`document` from `docs/prd.md` and this document so the root `PRODUCT.md`/`DESIGN.md` are derived views, never a second authority. Use `ui-ux-pro-max` only as a reference catalog (palettes, font pairings, styles by industry).
+- Impeccable `absent` → fallback chain: `ui-ux-pro-max` (catalog) + `frontend-design` (direction and craft) + `stitch-design` (mockups); record the gap.
+
+**This document is the single design source of truth** (see `impeccable-bridge` → *Design source of truth*). Record a page mode (Persuade, Operate, Read or Experience) for each screen in the Screen Inventory, and accepted detector exceptions under Design Decisions as a *Design Waivers* list (rule, reason, who approved).
 
 **Conditional skill:** load `diagram-design` and fill the UX/UI slots whose condition holds.
 

@@ -116,7 +116,7 @@ For every requirement in `requirements.md`, verify:
 Use skills as needed:
 
 - **Stack skills come from the project's `## Skill Map`** (root `AGENTS.md`/`CLAUDE.md`) — load the entries matching the code under validation; do not assume a fixed list.
-- Conditional skills by situation: `ui-ux-pro-max` (fallback `frontend-design`) for UX/UI-heavy validation; `systematic-debugging` when failures or inconsistencies appear.
+- Conditional skills by situation: `impeccable-bridge` (lead design skill; fallback `ui-ux-pro-max` + `frontend-design` when Impeccable is absent) for UX/UI-heavy validation; `systematic-debugging` when failures or inconsistencies appear.
 
 Check for:
 
@@ -130,6 +130,14 @@ Check for:
 - security and authorization boundaries for protected flows
 
 **4R lens sweep (advisory):** Sweep the implementation through the four execution review lenses — **readability, reliability, resilience, risk** (see `.agents/reviewer.md`). Findings that are not spec violations are reported as **advisory** notes in the validation report (they inform remediation and future specs, but only spec violations drive PASS/WARN/FAIL). Also carry forward any unresolved `ADVISORY` findings recorded in `execution.md` so they surface in the report instead of dying in the audit trail.
+
+**UI design review (UI-heavy specs).** Load `impeccable-bridge`, record its Step 0 state, and with the app running:
+
+1. Run Impeccable `critique` and `audit` on each screen in scope, judged against the screen's page mode in `docs/ux-ui/design.md` or the spec's `design.md`.
+2. Run the detector gate: `DO_NOT_TRACK=1 npx impeccable detect --json <dev-server URL>` and on the changed UI source. Exit `0` passes; exit `2` is **FAIL** unless each finding is fixed or waived with a reason (upstream ignore, or a *Design Waivers* row in `docs/ux-ui/design.md`); exit `1` is `Unevaluated`, which is reported and never counts as a pass.
+3. Record in the validation report a **Design Review** section: Impeccable state, the detector command, target, exit code, findings by rule id, waivers, and the critique/audit findings with what was fixed.
+
+When Impeccable is absent, run the same review with `ui-ux-pro-max` + `frontend-design`, mark the detector rows `Unevaluated (Impeccable absent)`, and continue.
 
 ### Phase 6: Design Conformance
 

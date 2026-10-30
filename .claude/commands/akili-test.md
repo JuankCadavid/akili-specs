@@ -120,7 +120,7 @@ The Leader decides the count from the spec's depth and the independence of the s
    - **Integration/E2E suites additionally get the `## Local Environment` contract** from `docs/infrastructure.md` (start, seed/reset, health-check commands and URLs) so Testers never guess how to bring the stack up. Run the contract's **pre-check at planning time** — if the primary route is unavailable (e.g. Docker daemon off), resolve it with the user (start it, or use the fallback route) before spawning suites, not mid-suite. If no contract exists, note the gap in the test report and recommend `/akili-constitution` (Step 6B).
    - **The slice carries a reference-section entry for each reference document** — `docs/trd/trd.md` and `docs/ux-ui/design.md`: the path the project uses (the Leader resolves it, legacy paths included) and the named sections, or the word `none`. An omitted entry is not a valid empty state. `none` is the expected value for a suite with no UI behavior and no scenario in the slice that cites that document. A suite that covers meaningful UI/UX behavior names the design sections it checks visual consistency against instead — `none` is not valid for that suite.
 3. Apply the **Deployment Rule** to decide inline vs delegated, and parallel vs sequential.
-4. **Select each suite's skills and effort as Leader — you own both decisions.** The ownership rules are canonical in `.agents/leader.md` → *Delegation Discipline* (task/Skill-Map lists are overridable defaults; deviations recorded — here, in the test report's Summary). Suite-specific flavor: `systematic-debugging` for failure-heavy suites, `ui-ux-pro-max` for UI-heavy E2E; effort `low` for a trivial single-assertion suite, `xhigh` for complex integration/concurrency suites. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the suite's context slice.
+4. **Select each suite's skills and effort as Leader — you own both decisions.** The ownership rules are canonical in `.agents/leader.md` → *Delegation Discipline* (task/Skill-Map lists are overridable defaults; deviations recorded — here, in the test report's Summary). Suite-specific flavor: `systematic-debugging` for failure-heavy suites, `impeccable-bridge` for UI-heavy E2E (with `ui-ux-pro-max` as catalog); effort `low` for a trivial single-assertion suite, `xhigh` for complex integration/concurrency suites. Where the tool exposes a per-spawn effort knob, set it; otherwise steer depth in the suite's context slice.
 
 ### Phase 2: Execute Suites (Tester per suite)
 
@@ -186,7 +186,9 @@ When a spec includes meaningful UI/UX behavior, verify more than raw functionali
 - accessibility basics
 - visual consistency with `docs/ux-ui/design.md`
 
-If `ui-ux-pro-max` is unavailable, use `frontend-design` plus the UX/UI design document as the fallback reference.
+- design-detector findings, when `impeccable-bridge` Step 0 reports the detector available: plan a **design-detector suite** that runs `DO_NOT_TRACK=1 npx impeccable detect --json` on the rendered pages and the changed UI source, and records the command, target, exit code and findings by rule id as evidence (exit `2` and `1` are reported for `/akili-validate`'s gate, not judged here)
+
+If Impeccable is absent, use `ui-ux-pro-max` (catalog) and `frontend-design` plus the UX/UI design document as the fallback reference, and note the detector suite as not run.
 
 ---
 
