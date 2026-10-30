@@ -166,7 +166,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~170 LOC prose, ~10 files) |
 | Depends on | T1, T3 |
 | Requirements | FR-14 governance, attribution and disclosure clauses; FR-2 release-checklist step; NFR-2 (no implied affiliation); NFR-7 |

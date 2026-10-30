@@ -254,3 +254,23 @@ Correction closure: forward sweep for `9 tasks`, `~1,250`, `~16 review`, `**9**`
 **P-15:** not yet checked by JC (11:56). The exact steps were given to the maintainer. It stays open at the T2 pause.
 
 **Spec tension from T5:** the §7.2/DD-9 amendment proposal awaits JC's answer.
+
+### T7: Governance, docs, README and counts — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` effort high; Reviewer `opus` effort high (parallel with T2b) |
+| Files changed | `docs/skills/governance.md`, `docs/skills/impeccable.md` (new), `docs/skills/{README,impeccable-bridge,ui-ux-pro-max,frontend-design}.md`, `docs/overview.md`, `docs/commands/akili-audit.md`, `docs/cli.md`, `README.md`, `docs/release-checklist.md` |
+| Red run | `grep -c "30 packaged skills" docs/cli.md` → `4` |
+| Implementer verification | `30 packaged skills` 0 / `31 packaged skills` 4; `ls .claude/skills \| wc -l` → 31; `find .claude/skills/impeccable -type f \| wc -l` → 61 (58 checksum lines). Sweep: 0 for the four FR-14 patterns and the "never/not vendored" family; `skill only` has 2 unrelated prose hits (`.claude/templates/leader.md:101` "Load that skill only when…", `docs/flow.md:681` "loads the skill only when…"). No shipped doc points into `docs/specs/changes/impeccable*`. `node --test test/docs-overview.test.js` 13/13; `git diff --check` clean |
+| P-13 | **Settled: false.** Update check: upstream `docs/CLI-CONTRACT.md`, section `context.mjs -> impeccable context`, bullets *Update cache* and *Env vars read* — skipped only by `IMPECCABLE_NO_UPDATE_CHECK` or `updateCheck: false`. Telemetry: `README.md` "Telemetry." paragraph — `DO_NOT_TRACK` stops the anonymous record, not the catalog fetch. Cited in `docs/skills/impeccable.md`; the compiled 0.1.18 engine is marked `Unverified:` |
+| Evidence re-run | VERIFIED (Leader inline): counts reproduced with `git grep`; 0 pointers into this spec; docs-overview 13 pass 0 fail; `git diff --check` exit 0 |
+| Reviewer verdict | **PASS** — every aggregate and factual claim was quote-checked at HEAD ("all six targets" by `install --tool all --dry-run` plus a Grok Bot dry run; 31; 61/58; pin values; P-13 citations at the quoted upstream sections). No AKILI authorship of Impeccable; non-affiliation on every attribution surface; docs agree with the amended FR-3. `akili-marketing-docs.test.js` test 8 is red on "30 skills", which T8 owns |
+| spawns | Implementer not reported by host (30 tool uses, 149,596 tokens), ended partial (assumptions only); Reviewer not reported by host (23 tool uses, 123,360 tokens), ended complete |
+| Requirements covered | FR-14 (governance, attribution, disclosure), FR-2 (release-checklist step), FR-3 (docs of the amended behavior), NFR-2, NFR-7 |
+
+ADVISORY (T7): `npx impeccable telemetry off` is quoted as upstream fact, not an FR-6 prescription; suggest noting it fetches the npm CLI and that the config key is the no-download route. The bridge's *Privacy and consent* still reads UNVERIFIED for P-13, and with only `DO_NOT_TRACK=1` a `ready` engine's `context` call can reach `impeccable.style/api/version`; adding `IMPECCABLE_NO_UPDATE_CHECK=1` changes behavior and is a spec-gap question for JC, not a T7 fix. `docs/cli.md` `--force` lines do not mention the `impeccable` foreign rule. `docs/skills/impeccable-bridge.md` "the vendored launcher" should read "the skill's launcher" for `user-installed`. `config.local.json` is also honoured upstream.
+
+Decisions: execute-time spec edit — `design.md` §11 P-13 *Settled by* records the outcome (false, cited), per T7's done criterion. The launcher-prefix question went to JC at 2026-10-30 as options (i) disclose only / (ii) add `IMPECCABLE_NO_UPDATE_CHECK=1`; the answer will be recorded here. Carry the P-13 edit to the next Reviewer brief (T2b review already in flight; carried to T8).
+
+T8 note (Leader): the FR-14 negative sweep keyed on the bare string `skill only` hits two unrelated prose lines. T8's brief must key that pattern on the state value (`` `skill only` `` in backticks, or the three-state phrasing) rather than exclude files.
