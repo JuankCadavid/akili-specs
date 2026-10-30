@@ -247,11 +247,14 @@ If the design could be mistaken for a template → restart.
 
 ## 8. Integration With Other Skills
 
-* **page-cro** → Layout hierarchy & conversion flow
-* **copywriting** → Typography & message rhythm
-* **marketing-psychology** → Visual persuasion & bias alignment
-* **branding** → Visual identity consistency
-* **ab-test-setup** → Variant-safe design systems
+In AKILI, Impeccable (through `impeccable-bridge`) is the lead design skill. This skill is the **fallback for direction and craft** when Impeccable is absent, and a quick DFII check otherwise.
+
+* **impeccable-bridge** → Lead design skill; when Impeccable is installed, follow it for direction, craft and review
+* **ui-ux-pro-max** → Reference catalog for palettes, font pairings and UX rules
+* **stitch-design** → Mockups when the user wants a visual before specifying
+* **gsap-animation** → Motion beyond CSS transitions
+
+Every direction decision is recorded in `docs/ux-ui/design.md`, the single design source of truth.
 
 ---
 
