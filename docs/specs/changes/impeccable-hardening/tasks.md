@@ -51,7 +51,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S–M (~60 LOC code + ~40 LOC tests) |
 | Origin | Pivot P-7, Option A, approved by JC 2026-10-30 11:56 (UTC-5) |
 | Depends on | T1 |
