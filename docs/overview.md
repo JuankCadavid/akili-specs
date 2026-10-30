@@ -60,13 +60,14 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | Skill | Binding | Use it for |
 |---|---|---|
 | [`angular-developer`](skills/angular-developer.md) | stack | Angular architecture, components, services, signals, forms, routing, testing, CLI |
-| [`frontend-design`](skills/frontend-design.md) | conditional | Distinctive frontend UI and UX implementation (fallback when `ui-ux-pro-max` is unavailable), and for UI validation and testing support |
+| [`frontend-design`](skills/frontend-design.md) | conditional | Distinctive frontend UI and UX implementation (fallback for direction and craft when Impeccable is absent), and for UI validation and testing support |
 | [`gsap-animation`](skills/gsap-animation.md) | conditional | All GSAP animation work: a router `SKILL.md` plus per-topic references |
+| [`impeccable-bridge`](skills/impeccable-bridge.md) | conditional | The lead design skill: the bridge to the Impeccable skill you install yourself, for direction, critique/audit and the `impeccable detect` gate in `/akili-validate`, plus `/akili-audit design` reports on existing products; falls back to `ui-ux-pro-max` + `frontend-design`; it never vendors Impeccable |
 | [`react-doctor`](skills/react-doctor.md) | stack | React diagnostics after changes |
 | [`shadcn-ui`](skills/shadcn-ui.md) | stack | shadcn/ui components, forms, themes, Tailwind integration |
 | [`stitch-design`](skills/stitch-design.md) | conditional | Stitch prompt enhancement and design generation workflows (fallback UI chain with `frontend-design`) |
 | [`tailwind-design-system`](skills/tailwind-design-system.md) | stack | Tailwind CSS v4 tokens, component systems, responsive patterns |
-| [`ui-ux-pro-max`](skills/ui-ux-pro-max.md) | conditional | UI/UX design intelligence, palettes, typography, accessibility: the preferred UI/UX skill |
+| [`ui-ux-pro-max`](skills/ui-ux-pro-max.md) | conditional | UI/UX design intelligence, palettes, typography, accessibility: the reference catalog under `impeccable-bridge`, and the fallback lead when Impeccable is absent |
 | [`vercel-react-best-practices`](skills/vercel-react-best-practices.md) | stack | React and Next.js performance and architecture guidance |
 
 ### Backend and architecture
@@ -142,6 +143,7 @@ Every command runs without these; each row says what you lose.
 | [CodeGraph](https://www.npmjs.com/package/@colbymchenry/codegraph) | `/akili-constitution` discovery scans, `/akili-audit` drift detection, `/akili-execute` and `/akili-test` worker briefs | Commands fall back to `Glob` and `Grep`; reports flag the lower-confidence scan |
 | GitHub CLI (`gh`) | PR strategy in `/akili-execute` delivery, external-PR review flows | Manual PR creation and review in the browser |
 | Python 3 with `google-auth` and `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | The rest of `/akili-seo` still runs; setup steps are in [CLI: `/akili-seo` Setup](cli.md#akili-seo-setup) |
+| Impeccable (installed by you, optional) | `impeccable-bridge`, for UI work and `/akili-audit design` | Design steps run on `ui-ux-pro-max` + `frontend-design`; detector rows read `Unevaluated` |
 | HyperFrames (installed by you) | `video-production`, for specs with `Deliverable: video` | A video spec stops at the skill's availability gate and prints the install route |
 | [Archify](https://github.com/tt-a1i/archify) by tt-a1i (MIT licence): `npx skills add tt-a1i/archify` | `diagram-design`, for interactive diagram views | Install it yourself; AKILI references it and never ships or installs it. Without it, diagrams stay inline Mermaid and every command works unchanged |
 

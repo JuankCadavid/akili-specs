@@ -44,12 +44,14 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    calls for an environment-provided skill stops at the gate when that skill is missing, prints the
    install route, and never falls back to a hand-built substitute.
 
+**Impeccable** (`pbakaus/impeccable`, Apache-2.0) is the second environment-provided skill AKILI routes to, through the packaged bridge `impeccable-bridge`. It is optional and has **no STOP gate**: the bridge detects it (installed, skill only, absent), and when it is absent every design step runs on the packaged fallback (`ui-ux-pro-max` + `frontend-design` + `stitch-design`) and records the gap. AKILI never copies Impeccable files, never installs it without the user's consent, and prefixes detector runs with `DO_NOT_TRACK=1`. Its root `PRODUCT.md`/`DESIGN.md` are derived views of `docs/ux-ui/design.md`, the single design source of truth.
+
 ### Current assignment
 
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security), `social-marketing` (marketing), `pr-review` (review) |
-| `conditional` | `ui-ux-pro-max`, `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `conditional` | `ui-ux-pro-max` (catalog), `impeccable-bridge` (lead design skill), `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:

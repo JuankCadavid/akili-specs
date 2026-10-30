@@ -7,7 +7,7 @@ Guides distinctive, production-grade frontend interfaces with intentional aesthe
 ## Use When
 
 - Designing or implementing web UI, pages, dashboards, or components.
-- Creating a visual direction when `ui-ux-pro-max` is unavailable or too broad.
+- Creating a visual direction when Impeccable is absent (fallback of [`impeccable-bridge`](impeccable-bridge.md)), or a quick DFII check alongside it.
 - Reviewing UI for generic patterns, accessibility, responsiveness, or polish.
 - Translating UX intent into frontend code.
 
