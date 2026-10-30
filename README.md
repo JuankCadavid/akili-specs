@@ -149,6 +149,7 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | follow the whole flow, step by step | [docs/flow.md](docs/flow.md) |
 | look up one command | [docs/commands/README.md](docs/commands/README.md) |
 | look up one skill | [docs/skills/README.md](docs/skills/README.md) |
+| review the design of a product, new or existing, with Impeccable | [docs/skills/impeccable-bridge.md](docs/skills/impeccable-bridge.md) |
 | use the terminal tool or fix an install | [docs/cli.md](docs/cli.md) |
 | pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |
 | know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
