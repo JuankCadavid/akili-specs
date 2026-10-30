@@ -135,10 +135,18 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
 
 `/akili-audit design [<url|path>]` evaluates the design of a product that already exists — built with AKILI or not — and writes a findings report with prioritized fixes. It is report-only, like the drift audit.
 
-1. Load `impeccable-bridge` and follow `references/design-evaluation.md` (steps E0–E7). Record the Step 0 state (`installed`, `skill only`, `absent`).
+1. Load `impeccable-bridge` and follow `references/design-evaluation.md` (steps E0–E7). Run its Step 0 (skill source and engine gate) and record both values.
 2. Target: the given URL (rendered rules need one) or path; with no argument, the project's running dev server, else the UI source folders. A target you cannot reach is reported, never guessed.
 3. Reference: `docs/ux-ui/design.md` when present; when absent, the evaluation infers the current design from the product and says so — it never writes the baseline doc (that belongs to `/akili-constitution`).
-4. Run Impeccable `critique` and `audit` per screen, and the detector `DO_NOT_TRACK=1 npx impeccable detect --json <target>` (exit `0` clean, `2` findings, `1` could not scan → `Unevaluated`). When Impeccable is absent, run the checklist review with `ui-ux-pro-max` + `frontend-design` and mark detector rows `Unevaluated (Impeccable absent)`.
+4. Act on the `/akili-audit design` row of the bridge's *Who does what in each state* table, report-only:
+
+   | State | Consequence here |
+   |---|---|
+   | Skill source `vendored` / `user-installed` | Run Impeccable `critique` and `audit` per screen |
+   | Skill source `missing` | Run the checklist review with `ui-ux-pro-max` + `frontend-design`; detector only if an engine exists |
+   | Engine `ready` / `installed (consented)` | Run the bridge's *Detector gate* on the target: scan matrix at both viewports, first-visit pass for Persuade and Operate screens; its *Exit codes* table reads each result |
+   | Engine `consent needed` | Ask once per session through the bridge's *Engine consent*, then take the row the answer selects |
+   | Engine `declined` / `unavailable` | Detector rows read `Unevaluated (engine not installed)` with the reason |
 5. Write `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with the reference template: findings rated **P1** (broken or inaccessible), **P2** (inconsistent or off-direction), **P3** (polish), each with screen, evidence, rule id when the detector raised it, and a fix.
 6. Route the fixes in the report and in the summary to the user: a small, low-risk fix → `/akili-quick`; anything larger, or a group of related P1/P2 findings → `/akili-propose`, which accepts the report as its requirement source.
 
@@ -148,7 +156,7 @@ A `design-*.md` file is never a drift report: the drift *Reading reports back* r
 
 ## Verification Checklist
 
-In **design mode**, confirm instead: the `design-*.md` report exists and is non-empty; it states the Impeccable state, the target, the detector command and exit code (or `Unevaluated` with the reason); every finding has a priority, evidence and a routed fix; and nothing outside `docs/specs/audits/` was edited.
+In **design mode**, confirm instead: the `design-*.md` report exists and is non-empty; it states the skill source and engine state, the target, the scan matrix (command, viewport, exit code per pass, or `Unevaluated` with the reason); every finding has a priority, evidence and a routed fix; and nothing outside `docs/specs/audits/` was edited.
 
 For the drift audit, before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
 

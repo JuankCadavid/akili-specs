@@ -111,11 +111,11 @@ test("@akili-spec changes/akili-marketing FR-12: the command is in every README/
   assert.ok(hasLine(read("docs/flow.md"), "### 2c. Social Marketing (`/akili-marketing`)"), "docs/flow.md section 2c");
 });
 
-test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (14 commands, 30 skills), none stale", () => {
+test("@akili-spec changes/akili-marketing FR-12: docs/cli.md states the updated totals (14 commands, 31 skills), none stale", () => {
   // docs/cli.md enumerates no commands by name; it states totals, which FR-12 requires updated.
   const cli = read("docs/cli.md");
   assert.ok(hasLine(cli, "(the 14 commands, installed as skills"), "cli.md command total");
-  assert.ok(hasLine(cli, "(the 30 packaged skills"), "cli.md skill total");
+  assert.ok(hasLine(cli, "(the 31 packaged skills"), "cli.md skill total");
   assert.doesNotMatch(cli, /\bthe 12 commands\b|\b12 command skills\b|\b27 packaged skills\b|\b28 packaged skills\b|\bthe 13 commands\b|\b13 command skills\b|\b13 commands\b/, "no stale 12/13 command or 27/28 skill total");
 });
 

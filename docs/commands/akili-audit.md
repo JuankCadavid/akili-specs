@@ -9,7 +9,7 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 /akili-audit design [<url|path>]
 ```
 
-`design` mode evaluates the design of an existing product instead of auditing drift: it loads `impeccable-bridge`, runs Impeccable `critique`/`audit` and the detector (`npx impeccable detect --json`), and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`. Without Impeccable it falls back to `ui-ux-pro-max` + `frontend-design` and marks the detector rows `Unevaluated`.
+`design` mode evaluates the design of an existing product instead of auditing drift: it loads `impeccable-bridge`, runs Impeccable `critique`/`audit` and the detector through the bridge's detector gate, and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`. When no Impeccable skill is found it falls back to `ui-ux-pro-max` + `frontend-design`; when the engine is not ready the detector rows read `Unevaluated`.
 
 ## Behavior
 

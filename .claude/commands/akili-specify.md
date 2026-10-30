@@ -229,8 +229,8 @@ If the feature is architecturally significant (a new module or service, a new in
 
 If the work includes meaningful UI/UX impact, load `impeccable-bridge` (lead design skill) and follow its phase map: record the page mode of each screen in scope and the chosen direction in `design.md`, and treat `docs/ux-ui/design.md` as the design source of truth.
 
-- Impeccable `installed` or `skill only` → it leads direction (`shape`); `ui-ux-pro-max` is a reference catalog only
-- Impeccable `absent` → `ui-ux-pro-max` (catalog) + `frontend-design` + `stitch-design`, as before
+- Skill source `vendored` or `user-installed` → Impeccable leads direction (`shape`); `ui-ux-pro-max` is a reference catalog only. Engine states follow the Step 2.1 row of `impeccable-bridge` → *Who does what in each state*.
+- Skill source `missing` → the fallback in `impeccable-bridge` → *Fallback (skill source `missing`)*, and the direction is recorded as before.
 
 If the work involves animation (scroll effects, transitions, motion design), load `gsap-animation` and read the reference file matching the task.
 
@@ -459,9 +459,9 @@ Task quality rules:
 
 Preferred UI/UX skill rule:
 
-- list `impeccable-bridge` on every UI-heavy task (the Implementer then loads Impeccable's craft floor when installed)
+- list `impeccable-bridge` on every UI-heavy task (skill source `vendored` or `user-installed` → the Implementer loads Impeccable's craft floor; `missing` → `frontend-design`, per `impeccable-bridge` → *Who does what in each state*)
 - add `ui-ux-pro-max` only when the task needs catalog options (palette, font pairing, style by industry)
-- when Impeccable is absent, `frontend-design` and/or `stitch-design` remain the fallback
+- when the Impeccable skill source is `missing`, `frontend-design` and/or `stitch-design` remain the fallback
 
 #### Step 3.3 — Present & Approve
 

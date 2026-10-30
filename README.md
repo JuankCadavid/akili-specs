@@ -149,7 +149,7 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | follow the whole flow, step by step | [docs/flow.md](docs/flow.md) |
 | look up one command | [docs/commands/README.md](docs/commands/README.md) |
 | look up one skill | [docs/skills/README.md](docs/skills/README.md) |
-| review the design of a product, new or existing, with Impeccable | [docs/skills/impeccable-bridge.md](docs/skills/impeccable-bridge.md) |
+| review a product's design with Impeccable, or see the third-party skill AKILI ships, its licence and pin | [docs/skills/impeccable-bridge.md](docs/skills/impeccable-bridge.md), [docs/skills/impeccable.md](docs/skills/impeccable.md) |
 | use the terminal tool or fix an install | [docs/cli.md](docs/cli.md) |
 | pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |
 | know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
@@ -161,4 +161,4 @@ Every option and example: [docs/cli.md](docs/cli.md).
 Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md); releases follow [docs/release-checklist.md](docs/release-checklist.md).
 Created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Released under the [MIT License](LICENSE).
 Every command and every agent template carries this authorship notice.
-The license lets you use, modify and redistribute AKILI, provided the copyright and attribution notices are kept.
+The license lets you use, modify and redistribute AKILI, provided the copyright and attribution notices are kept. **Third-party component.** AKILI ships [Impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus (Apache-2.0) as the `impeccable` skill, vendored unmodified apart from a declared frontmatter block, with its `LICENSE` and `NOTICE` beside it. AKILI-SPECS is not affiliated with the Impeccable project; see [docs/skills/impeccable.md](docs/skills/impeccable.md).

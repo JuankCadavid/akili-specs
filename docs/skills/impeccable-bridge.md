@@ -2,9 +2,9 @@
 
 ## Purpose
 
-AKILI-authored **bridge** that makes Impeccable the lead design skill of AKILI-SPECS. It decides which design skill leads, where each design activity lives in the AKILI flow, and what counts as a pass. It teaches no design rules itself: when Impeccable is installed, its own skill owns every rule and command and is always read first.
+The **AKILI layer** over the vendored [`impeccable`](impeccable.md) skill. It decides which design skill leads, where each design activity lives in the AKILI flow, when Impeccable's engine may be reached, and what counts as a pass. It teaches no design rules itself: Impeccable's own skill owns every rule, command and reference and is always read first.
 
-Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Inspired by Impeccable by Paul Bakaus (Apache-2.0, `pbakaus/impeccable`); no Impeccable text is included, and the skill is not an Impeccable product.
+Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Leads with Impeccable by Paul Bakaus (Apache-2.0, `pbakaus/impeccable`); no Impeccable text is included in the bridge, and AKILI-SPECS is not affiliated with the Impeccable project.
 
 ## Use When
 
@@ -15,15 +15,18 @@ Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Inspir
 
 `conditional` — loaded by the UI steps of `/akili-constitution`, `/akili-propose`, `/akili-specify`, `/akili-execute` (via `tasks.md`), `/akili-test` and `/akili-validate`, and by `/akili-audit design`.
 
-## Detection, No STOP
+## Skill source and engine
 
-| State | Meaning | What runs |
+At every design step the bridge records two separate values. The rules, locations and consequences live in `SKILL.md` under *Step 0 — Skill source and engine gate*; this page does not restate them.
+
+| Value | What it says | Possible readings |
 |---|---|---|
-| `installed` | Impeccable skill and CLI present | Impeccable leads; detector gate active |
-| `skill only` | Skill present, no CLI | Impeccable leads; detector rows `Unevaluated` |
-| `absent` | Neither | `ui-ux-pro-max` (catalog) + `frontend-design` + `stitch-design`; gap recorded |
+| Skill source | Which Impeccable skill leads | `vendored (<version>)` (the AKILI copy), `user-installed (<version>)` (your own copy, never overwritten without `install --force`), or `missing` |
+| Engine state | Whether Impeccable's detector engine can run | `ready`, `installed (consented)`, `consent needed`, `declined`, `unavailable` |
 
-AKILI never installs Impeccable without your consent. Install routes: `npx impeccable install`, or `/plugin marketplace add pbakaus/impeccable` in Claude Code; update with `npx impeccable update`.
+Only `missing` selects the fallback (`ui-ux-pro-max` + `frontend-design` + `stitch-design`, gap recorded). An engine that is not ready never does: the skill still leads and the detector rows read `Unevaluated`. There is no STOP.
+
+**Nothing downloads the engine, Lighthouse or a browser without your explicit yes**, in every approval mode; the question and its fields are in *Engine consent*. Using Impeccable directly, outside an AKILI command, is not gated: see [Using it outside AKILI](impeccable.md#using-it-outside-akili), which also records what upstream documents for its update check and telemetry.
 
 ## Design Source of Truth
 
@@ -31,11 +34,15 @@ AKILI never installs Impeccable without your consent. Install routes: `npx impec
 
 ## Detector Gate
 
-`DO_NOT_TRACK=1 npx impeccable detect --json <target>` — exit `0` passes, `2` fails unless every finding is fixed or waived, `1` is `Unevaluated`. Rules on rendered pages need a URL target.
+The bridge's *Detector gate* section owns the launcher form, the scan matrix (desktop and mobile), the first-visit pass for Persuade and Operate screens, the exit-code readings, and *Design Waivers*. The detector runs through the vendored launcher, not `npx`.
 
 ## Existing-Product Evaluation
 
-`/akili-audit design` follows `references/design-evaluation.md` (steps E0–E7) and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`.
+`/akili-audit design` follows `references/design-evaluation.md` (steps E0–E7, with the baseline checks and the performance step) and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`.
+
+## Optional upstream routes
+
+The vendored skill arrives with `akili install`; nothing else is required. For a newer upstream than the vendored pin, the bridge's *Install routes (optional)* section lists the upstream installer, the Claude Code plugin and the update command. None runs without your consent.
 
 ## Source
 
