@@ -200,3 +200,57 @@ ADVISORY (attempt 2): a later phase after a consented download that failed (`una
 | Note | T5 (tables) and T6 (pointers) take the two readings of the same §7.2 sentence; both passed. The amendment proposed at T5 would make both conformant by name |
 | spawns | Implementer not reported by host (8 tool uses, 80,686 tokens), ended partial (assumptions only); Reviewer not reported by host (6 tool uses, 78,237 tokens), ended complete |
 | Requirements covered | FR-4 consumers (constitution, specify, execute via tasks), FR-12 (constitution row shape), FR-14, DD-10 |
+
+### T4: Extend `references/design-evaluation.md` — PASS (attempt 2)
+
+**Attempt 1** (2026-10-30, Implementer `sonnet` effort high; Reviewer `opus` effort high; parallel wave with T5, T6)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/skills/impeccable-bridge/references/design-evaluation.md` (+93 −16) |
+| Red run | `grep -c "median"` → `0`; `grep -c "Score source"` → `0` |
+| Implementer verification | `median` 4, `Score source` 3; the sweep (`npx impeccable detect`, `Unevaluated (Impeccable absent)`, `skill only`, `never copies Impeccable`, `installed`, `absent`) → 0; line pointers 0; `git diff --check` clean. Clause map: `<scratchpad>/t4-map.md` |
+| Implementer judgment calls | `E3b` name kept, no renumbering; `Unevaluated (<n> of 3 runs completed)`; `out of scope` rows not counted among P1–P3; `First-visit pass` column; E3b also barred beside the E3 capture |
+| Evidence re-run | VERIFIED (Leader inline): `median` 4, `Score source` 3, sweep 0, line pointers 0, `Unevaluated (Lighthouse unavailable)` 1, `at least 3` 1, each of the 8 §5.4 header fields present once, `git diff --check` exit 0 |
+| Reviewer verdict | **FAIL** (3 issues, verbatim below). Coverage of FR-10, FR-11, FR-13, §5.4 and the §7.2 audit row was complete; all five judgment calls were accepted as not changing what a requirement means |
+| spawns | Implementer not reported by host (12 tool uses, 104,499 tokens), ended complete; Reviewer not reported by host (12 tool uses, 88,109 tokens), ended complete |
+
+Reviewer FAIL report (verbatim issues):
+
+> 1. **Discovered Issue:** The E3b row "Resolve, never install" ends with "Lighthouse and a browser are never downloaded without an explicit yes, in any approval mode". This is a paraphrase of the bridge's *Engine consent* section ("Nothing downloads or installs the engine, Lighthouse or a browser without an explicit yes, in every approval mode") and of its *Privacy and consent* section. **Violated Rule:** Task disqualifier "any restatement of a bridge rule instead of a pointer". FR-14 says "These SHALL point at the bridge and SHALL NOT restate". DD-9 adds: "A rule restated in six places drifts". **Remediation:** Replace the sentence with a pointer: "Downloading Lighthouse or a browser follows the bridge's *Privacy and consent*."
+> 2. **Discovered Issue:** E5 says "`Proposed waiver (<clause>)` findings are not P1-P3 and are counted in `Proposed waivers`". The `Waived?` footnote repeats it: "Rows marked `Proposed waiver` … are not P1-P3 findings". Both restate the *Counting* row of the bridge's *Design Waivers* section, which is the bridge's to own under FR-12. **Violated Rule:** Same disqualifier. FR-14 states "`impeccable-bridge` … SHALL own FR-4 to FR-9 and FR-12". **Remediation:** In E5, keep "Match findings against *Design Waivers* as the bridge says (including its *Counting* row)" and drop the restated consequence. In the footnote, keep the five values and point to the bridge for Proposed-waiver counting. The `out of scope` half of the footnote can stay because it is this file's own rule. The checklist line checking that count stays as well.
+> 3. **Discovered Issue:** E3 says "(Read screens get none; say so per screen)". That restates the bridge's *First-visit pass* bullet: "**Read** screens need no first-visit pass; the report says so for that screen". **Violated Rule:** Same disqualifier. **Remediation:** Delete the parenthetical. The `First-visit pass` column value `not required (Read)` already captures the outcome in the template.
+
+ADVISORY (attempt 1): E3b cites "root `AGENTS.md`, *Concurrency*", which exists only in this repository; installed projects carry it in `.agents/leader.md` → *Concurrency protocol*. Judgment call 5 is an obligation FR-10 does not state, but it is inert because E3b already runs after E3. `Unevaluated (no URL)` and `n/a` fall under FR-13's `Unevaluated (<reason>)`.
+
+**Attempt 2** (2026-10-30, Implementer `sonnet` effort xhigh; Reviewer `opus` effort xhigh)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/skills/impeccable-bridge/references/design-evaluation.md` (+93 −16 vs HEAD) |
+| Fixes (verbatim) | (1) "Downloading Lighthouse or a browser follows the bridge's *Privacy and consent*"; (2) E5 "Match findings against *Design Waivers* as the bridge says (including its *Counting* row)"; footnote "Proposed-waiver counting follows the bridge's *Design Waivers*; `out of scope` rows are not P1-P3 findings."; (3) the "(Read screens get none…)" parenthetical deleted. `[advisory-grade]`: E3b concurrency citation now "(`.agents/leader.md`, *Concurrency protocol*)" |
+| Evidence re-run | VERIFIED (Leader inline): `median` 4, `Score source` 3, `Unevaluated (Lighthouse unavailable)` 1, `at least 3` 1; old patterns, line pointers, "Read screens get none", "never downloaded without", "root `AGENTS.md`" → 0; all 8 header fields once; `Concurrency protocol` heading exists in `.claude/templates/leader.md`; `git diff --check` exit 0 |
+| Reviewer verdict | **PASS** — attempt-1 issues resolved; FR-10, FR-11, FR-13 and the FR-14 reference clause re-walked term by term; every pointer target exists in the committed bridge; the two flagged checklist lines stay (they verify columns this file owns) |
+| spawns | Implementer not reported by host (6 tool uses, 68,761 tokens), ended complete; Reviewer not reported by host (6 tool uses, 75,828 tokens), ended complete |
+
+ADVISORY (attempt 2): a project that skipped `/akili-constitution` has no `.agents/leader.md` (not a regression; the old target had the same limit); the stderr checklist line could end "(bridge *Exit codes*)".
+
+**T4 summary:** PASS, 2 attempts, 2 Reviewer verdicts (FAIL, PASS). Requirements covered: FR-10, FR-11, FR-13, FR-14 (reference clause), NFR-5, NFR-8 (mobile Lighthouse). Judgment calls accepted by the Reviewer: `E3b`, `Unevaluated (<n> of 3 runs completed)`, `out of scope` outside P1–P3, `First-visit pass` column, E3b barred beside E3 (inert).
+
+## Pivot Record: T2 — decision (2026-10-30 11:56 UTC-5)
+
+JC chose **Option A**, approved the budget delta (9 → 10 tasks, about +100 LOC, about +2 review rounds) and said: "Enmienda el spec, agrega T2b y sigue." A and A′ name the same change (the installer treats an existing `impeccable/` without AKILI's `UPSTREAM.md` as foreign on the five targets without an ownership record, skips it whole and reports it with its version, and `--force` replaces it whole). The written T2b follows that content.
+
+Amendments, made by the Leader at this decision:
+
+| File | Change |
+|---|---|
+| `requirements.md` | §4 installer row qualified: the policy exists only where there is an ownership record. FR-3 gains a bullet: "On a target with no ownership record (Claude Code, OpenCode, Antigravity, Codex, Cursor), an existing `impeccable/` is AKILI's only when it holds AKILI's `UPSTREAM.md`; otherwise it is foreign. A foreign folder is skipped whole and reported as foreign with its version when readable. `install --force` replaces it whole (moved aside, then copied), never merged" |
+| `design.md` | P-7 *Settled by*: false at T2 and settled by T2b. §7.4 install-test row: foreign cases on Grok Bot and Claude Code. New §7.4 row *Installer (T2b)*. §12: 10 tasks, ~1,350 LOC, ~18 rounds |
+| `tasks.md` | Budget line; dependency graph `T1 ──► T2b ──► T2`; new **T2b**; T2 depends on T1 and T2b, and its scope adds the Claude Code foreign case; coverage-map FR-3 row |
+
+Correction closure: forward sweep for `9 tasks`, `~1,250`, `~16 review`, `**9**` and "existing installer policy" across the spec folder found no stale budget or ownership claim (the one `**9**` hit is the baseline `skill only` count). Backward: the Glossary *Skill source* row ("a foreign same-name skill AKILI did not overwrite") stays true. The `git diff` of the three files shows only removals that the amendment replaced. The T2 brief will be re-issued after T2b, carrying the amended text.
+
+**P-15:** not yet checked by JC (11:56). The exact steps were given to the maintainer. It stays open at the T2 pause.
+
+**Spec tension from T5:** the §7.2/DD-9 amendment proposal awaits JC's answer.

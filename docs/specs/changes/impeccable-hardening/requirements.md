@@ -59,7 +59,7 @@ Today (AKILI at `b6575d8`, upstream at `df3a4ab`):
 | The skill's Setup runs the launcher (`context`) once per session and defines a *Launcher unavailable* path | upstream `.claude/skills/impeccable/SKILL.md` → *Setup* |
 | The npm CLI answers the engine handshake | `npx --no-install impeccable engine-probe` → `impeccable-engine 0.1.18`, exit 0 |
 | Detector 4.8.0 flags `--viewport`, `--no-consent-hiding`, `--no-overlay-hiding`, `--no-design-system`; exit `1` covers a partial scan | `impeccable detect --help` (4.8.0) |
-| The installer skips a foreign same-name entry and takes it over only on `install --force` | `bin/akili.js`, the ownership-policy comment above `copyDirectoryContents` ("owned" / "foreign" / "takeover") |
+| The installer skips a foreign same-name entry and takes it over only on `install --force` | `bin/akili.js`, the ownership-policy comment above `copyDirectoryContents` ("owned" / "foreign" / "takeover"). That policy exists only on a target with an ownership record (Grok Bot); the other five targets get the `impeccable` rule of FR-3 (amended 2026-10-30, Pivot P-7, Option A approved by JC 11:56 UTC-5) |
 | `npm pack` keeps executable bits on shipped scripts | `tar -tvzf` of `npm pack` → `-rwxr-xr-x … security-audit/validate-findings.cjs` |
 | The current gate command, three states, viewport, overlay, performance and template gaps | revision 1 evidence: `SKILL.md` *Step 0*/*Detector gate*/*Fallback*; `design-evaluation.md` *Steps*/*Report template*; `akili-audit.md` *Design Evaluation Mode*; `akili-validate.md` *UI design review*; `akili-test.md` detector suite bullet |
 
@@ -120,6 +120,7 @@ The repository SHALL contain `scripts/sync-impeccable.js`. It is maintainer-only
 `akili install` SHALL deliver `impeccable/` to all six targets (Claude Code, OpenCode, Antigravity, Codex, Cursor, Grok Bot) wherever the target receives skills, with the launcher executable (`sh`) after install.
 
 - An existing `impeccable` skill AKILI did not install is a **foreign** entry: it is skipped and reported (its version when readable), and replaced only by an explicit `install --force` takeover, under the installer's existing ownership rule.
+- On a target with no ownership record (Claude Code, OpenCode, Antigravity, Codex, Cursor), an existing `impeccable/` is AKILI's only when it holds AKILI's `UPSTREAM.md`; otherwise it is foreign. A foreign folder is skipped whole and reported as foreign with its version when readable. `install --force` replaces it whole (moved aside, then copied), never merged (amended 2026-10-30, Pivot P-7, Option A approved by JC 11:56 UTC-5).
 - `akili doctor` SHALL count `impeccable` like any other packaged skill.
 
 #### Scenario: Developer already has Impeccable
