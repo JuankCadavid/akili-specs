@@ -365,3 +365,22 @@ Verbatim: "P-15 se valida en la práctica. Tras publicar, re-hará la auditoría
 | T2 | Closed `[x]` on this decision |
 | T9 re-walk | Its verdict becomes the post-release verification with the real audit (JC). T9 still runs the full command set and records the budget |
 | Release | Push, PRs into `dev` with green CI, `npm run release:minor` (2.40.0), `dev` → `master`, tag `v2.40.0`, sync `master` → `dev`. Stop before `npm publish`; no GitHub Release. No force-push |
+
+### T8: Test amendments and the negative sweep — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` effort medium; Reviewer `opus` (checklist) |
+| Files changed | `test/impeccable-bridge.test.js` (rewrite: v2.0 frontmatter + vendored files, FR-4 values, engine states, exit table, gate order, launcher form with `IMPECCABLE_NO_UPDATE_CHECK=1`, viewports, D-2, D-3, five-row per-command tables, pointers, DD-9 no restatement, negative sweep), `test/install-cursor.test.js` (`247 + 58 + 3`, comments 31/45/322), `test/fixtures/doctor-codex-baseline.txt` (`OK impeccable`, `ok 52` → `ok 53`), `test/akili-marketing-docs.test.js` (30 → 31), `test/diagram-design.test.js` (30 → 31), `docs/skills/governance.md`, `README.md`; +141 −32 |
+| Leader scope note | Baseline before T8 had 11 reds, 4 outside the P-9 list (missed consumers of T7): `docs-overview-contract.test.js` governance item 5, `diagram-design.test.js` conditional-row order and cli.md count, `growth-track.test.js` README net growth 5 > 2 vs `8991113`, plus the planned `akili-marketing-docs`. Fixed in the docs so the older specs' contracts hold (governance rule 5 merged into rule 4, `ui-ux-pro-max` first in the conditional row, README rows merged to net +2); only the count regex in `diagram-design.test.js` changed, a count amendment like `akili-marketing-docs` |
+| Red run | Sweep against the pre-T5 tree `12c84fd`: `stale pre-hardening phrasing:` / `.claude/commands/akili-audit.md:138: \`skill only\` (the old detection state)` |
+| Falsifiers | (a) `npx impeccable detect` re-inserted into `akili-test.md` → sweep names `.claude/commands/akili-test.md:219` (Reviewer re-ran: `:218`, plus the DD-9 check). (b) cursor count 247 → install-cursor shared-root test fails. Gate step renumbered → gate-order test fails ("missing: 3. **Ready.**"). `declined` row deleted from `akili-audit.md` → "five per-value rows, got 4". All reverted |
+| Implementer verification | `# tests 1233 # pass 1233 # fail 0`; `git diff --check` clean |
+| Evidence re-run | VERIFIED (Leader inline): `# tests 1233 # pass 1233 # fail 0`; `git diff --check` clean; sweep `git grep` over `.claude docs README.md` minus `docs/specs`, `.claude/skills/impeccable`: 0 / 0 / 0 / 0 |
+| Reviewer verdict | **PASS** (8/8): sweep scope exact with file:line; `OK impeccable` lands and `doctor --tool codex` prints `CODEX HEALTHY ok 53` on a real temp install (FR-3 doctor-count gate, forward pointer closed); computed counts; bridge assertions complete; no `docs/specs/changes` read; CRLF-safe; doc fixes lose no fact; falsifier re-run restored byte-identically |
+| spawns | Implementer not reported by host (27 tool uses, 116,909 tokens), ended complete; Reviewer not reported by host (18 tool uses, 97,642 tokens), ended complete |
+| Requirements covered | FR-11/FR-14 sweep, FR-3 doctor count, FR-4, FR-6 (amended), FR-7, FR-8/9, FR-12 D-3, NFR-6 |
+
+ADVISORY (T8): no test locks NFR-5 (no line-number pointers; 0 today); the constitution/specify/propose pointer regex is loose (`skill source` lowercase); the cli.md count tests do not block-list a stale `30 packaged`.
+
+Budget (running): tasks 10/11 closed · authored LOC 1,429 / ~1,650 (1,288 + 141) · review rounds 16/~19

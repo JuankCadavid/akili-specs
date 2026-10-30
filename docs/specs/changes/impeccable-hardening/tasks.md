@@ -206,7 +206,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~280 LOC tests + fixture) |
 | Depends on | T2, T3b, T4, T5, T6, T7 |
 | Requirements | FR-11 scenario "No surviving old phrasing" (FR-14 version: four patterns, zero hits); FR-4 consumer clause; FR-7; FR-8/FR-9 presence; FR-12 D-3; NFR-5, NFR-6 |

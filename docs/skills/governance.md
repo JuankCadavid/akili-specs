@@ -48,13 +48,12 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
 
 A second, narrower category for a skill AKILI ships **unmodified from its upstream**, because AKILI's design steps need every install to carry the same instructions. It is not the loophole in the environment-provided rule above: that rule stays as written for `orchestration`, `playwright-cli`, `hyperframes` and `archify`, and none of them may be copied on the strength of this category.
 
-A skill belongs here only when all five rules hold:
+A skill belongs here only when all four rules hold:
 
 1. **Unmodified upstream build.** The folder is a copy of the upstream's own build, byte-identical to it.
 2. **Frontmatter-only modification, declared.** The one permitted change is the AKILI governance block (`metadata`: author, source, adapted-by, adapted-for, binding) in the vendored `SKILL.md`, and `NOTICE` states it.
 3. **Three provenance files beside the skill.** `LICENSE` (upstream's, preserved), `NOTICE` (upstream's notices plus the modification statement, and that AKILI is not affiliated with the upstream project), and `UPSTREAM.md` (source, commit, versions, vendoring date, per-file checksums).
-4. **A hash-locked test.** `npm test` fails, naming the file, when any vendored byte differs from `UPSTREAM.md`; hand edits are caught, not trusted.
-5. **Sync through the script.** The pin moves only through `scripts/sync-impeccable.js` (maintainer-only, from a local upstream checkout, no network); the pin check at release is in [`release-checklist.md`](../release-checklist.md).
+4. **A hash-locked test, and a pin that moves only through the script.** `npm test` fails, naming the file, when any vendored byte differs from `UPSTREAM.md`; hand edits are caught, not trusted. The pin moves only through `scripts/sync-impeccable.js` (maintainer-only, from a local upstream checkout, no network); the pin check at release is in [`release-checklist.md`](../release-checklist.md).
 
 Adapted skills (`adapted-by`, body edited) are not in this category; they follow the acceptance checklist below. A vendored skill still declares a `metadata.binding` and still needs its `docs/skills/<name>.md` page and README row.
 
@@ -67,7 +66,7 @@ Adapted skills (`adapted-by`, body edited) are not in this category; they follow
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security), `social-marketing` (marketing), `pr-review` (review) |
-| `conditional` | `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `ui-ux-pro-max` (catalog), `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work), `gsap-animation` (animation work), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
 Rules of thumb:
