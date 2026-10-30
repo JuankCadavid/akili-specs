@@ -110,7 +110,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~10 LOC prose) |
 | Origin | P-13 settled false at T7; option (ii) approved by JC 2026-10-30 12:13 (UTC-5) |
 | Depends on | T3 |

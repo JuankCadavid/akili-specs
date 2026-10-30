@@ -327,3 +327,22 @@ Verbatim: "punto 2, opción (ii), agregar IMPECCABLE_NO_UPDATE_CHECK=1. Punto 3,
 | P-15 | Still pending; JC runs the scratch install. T2 stays `[~]` |
 
 Correction closure: forward sweep for "one line each" in the spec documents → 0. The superseded launcher form `DO_NOT_TRACK=1 <skill-dir>` survives only in the bridge and `docs/skills/impeccable.md`, which T3b changes. The `git diff` of the three spec documents shows only removals that the amendments replaced. Carried as named conformance checks to the T3b and T8 Reviewers.
+
+### T3b: Switch off the engine update check in every AKILI launcher run — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date / models | 2026-10-30; Implementer `sonnet` effort medium; Reviewer `opus` effort medium |
+| Files changed | `.claude/skills/impeccable-bridge/SKILL.md` (*Launcher form* block and Windows sentence; *Privacy and consent* first bullet), `docs/skills/impeccable.md` (*Consequence*), +4 lines |
+| Red run | `grep -c "IMPECCABLE_NO_UPDATE_CHECK" .claude/skills/impeccable-bridge/SKILL.md` → `0` |
+| Changed sentences (verbatim) | Launcher form: `DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>`; "on Windows call `scripts/impeccable.cmd` with both variables set in its environment. `DO_NOT_TRACK=1` is dropped only when the user opted in to telemetry (*Privacy and consent*); `IMPECCABLE_NO_UPDATE_CHECK=1` is never dropped." Prefix rule: "Prefix every launcher run an AKILI step makes or directs, including Impeccable's Setup `context` call, with `IMPECCABLE_NO_UPDATE_CHECK=1`, unconditionally. Also prefix `DO_NOT_TRACK=1` unless the user opted in to telemetry; record the choice." plus the cited P-13 fact (the `UNVERIFIED` marker removed). Docs: "… which `IMPECCABLE_NO_UPDATE_CHECK=1` does; AKILI runs set that switch on every launcher run" |
+| Implementer verification | bridge `IMPECCABLE_NO_UPDATE_CHECK` 3, docs 2; each `DO_NOT_TRACK=1` bridge hit (lines 149, 152, 209) sits beside the switch; bridge `UNVERIFIED` 0; commands `scripts/impeccable` 0; `git diff --check` clean. Quote-checked against `CLI-CONTRACT.md` *Update cache* and *Env vars read* |
+| Evidence re-run | VERIFIED (Leader inline): same counts; only the two scoped files modified |
+| Reviewer verdict | **PASS** — FR-6 as amended met term by term; telemetry opt-in meaning unchanged; cited claim matches the contract; both disqualifiers clear; DD-9/§7.2 as amended hold (no command restates the launcher string) |
+| Not Done / Assumptions | `proposal.md` keeps the pre-amendment launcher form (a point-in-time proposal; not edited, Leader decision) |
+| spawns | Implementer not reported by host (6 tool uses, 73,884 tokens), ended partial (assumptions only); Reviewer not reported by host (3 tool uses, 68,013 tokens), ended complete |
+| Requirements covered | FR-6 (amended), NFR-1 |
+
+ADVISORY (T3b): `config.local.json` is also honoured upstream (local wins); "remain the user's choices" reads as AKILI never writing them; the docs keep `Unverified:` for the compiled 0.1.18 engine matching the contract.
+
+Budget (running): tasks 8/11 closed (T2 at P-15) · authored LOC 968 / ~1,365 (T2 test 320 committed in `fd22e1c` not yet counted: with it 1288) · review rounds 15/~19

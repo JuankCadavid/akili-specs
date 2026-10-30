@@ -146,10 +146,10 @@ The gate is active only when the engine state is `ready` or `installed (consente
 ### Launcher form
 
 ```
-DO_NOT_TRACK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>
+DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>
 ```
 
-`<skill-dir>` is the folder holding the `impeccable` `SKILL.md`; on Windows call `scripts/impeccable.cmd`. `IMPECCABLE_BIN` stays pinned from Step 0. Use no `npx` form for the detector or for Lighthouse unless it carries `--no-install`. The one exception is the optional upstream routes under *Install routes*, which are never run without consent.
+`<skill-dir>` is the folder holding the `impeccable` `SKILL.md`; on Windows call `scripts/impeccable.cmd` with both variables set in its environment. `DO_NOT_TRACK=1` is dropped only when the user opted in to telemetry (*Privacy and consent*); `IMPECCABLE_NO_UPDATE_CHECK=1` is never dropped. `IMPECCABLE_BIN` stays pinned from Step 0. Use no `npx` form for the detector or for Lighthouse unless it carries `--no-install`. The one exception is the optional upstream routes under *Install routes*, which are never run without consent.
 
 ### Scan matrix
 
@@ -206,7 +206,7 @@ Example: `design.md` approves rounded top borders on colored cards (clause A-06)
 
 ## Privacy and consent
 
-- Prefix every launcher run with `DO_NOT_TRACK=1` unless the user opted in to telemetry; record the choice. `"telemetry": false` in `.impeccable/config.json` disables it for the project. Whether the engine's update check honors `DO_NOT_TRACK=1`: UNVERIFIED — confirm at source before relying on it.
+- Prefix every launcher run an AKILI step makes or directs, including Impeccable's Setup `context` call, with `IMPECCABLE_NO_UPDATE_CHECK=1`, unconditionally. Also prefix `DO_NOT_TRACK=1` unless the user opted in to telemetry; record the choice. On Windows set the same variables in the environment of `scripts/impeccable.cmd`. The engine's update check ignores `DO_NOT_TRACK`; only `IMPECCABLE_NO_UPDATE_CHECK` (or `updateCheck: false` in `.impeccable/config.json`) switches it off (upstream `docs/CLI-CONTRACT.md`, section `context.mjs` -> `impeccable context`, bullets *Update cache* and *Env vars read*; detail in `docs/skills/impeccable.md`). `"telemetry": false` and `updateCheck: false` in `.impeccable/config.json` remain the user's choices for the project.
 - Downloading the engine, Lighthouse or a browser needs explicit consent in every approval mode (*Engine consent*).
 - The design hook runs outside model approval in some hosts. Offer it; never enable it silently.
 - Mockup-first direction uses image generation and may spend the user's API credit: ask before each use.
