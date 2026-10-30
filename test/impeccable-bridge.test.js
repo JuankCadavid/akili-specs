@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = path.resolve(__dirname, "..");
-const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), "utf8");
+const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), "utf8").replace(/\r\n/g, "\n");
 const BRIDGE = [".claude", "skills", "impeccable-bridge"];
 
 test("@akili-spec changes/impeccable-design FR-1/FR-2: bridge skill ships with MIT frontmatter, conditional binding and attribution, never vendoring Impeccable", () => {
