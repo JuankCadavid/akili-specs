@@ -175,7 +175,7 @@ No AKILI step SHALL invoke the launcher (any verb, including Impeccable's Setup 
 
 ### FR-6: Detector invocation
 
-The detector SHALL run as `DO_NOT_TRACK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>` (`impeccable.cmd` on Windows), only after FR-5 passes.
+The detector SHALL run as `DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>` (`impeccable.cmd` on Windows, with both variables set in its environment), only after FR-5 passes. Every other launcher run an AKILI step makes or directs, including Impeccable's Setup `context` call, SHALL carry `IMPECCABLE_NO_UPDATE_CHECK=1`, because the engine's update check does not honor `DO_NOT_TRACK` (P-13) (amended 2026-10-30, P-13 option (ii), approved by JC 12:13 UTC-5).
 
 - The package MUST NOT prescribe `npx impeccable …` or `npx lighthouse …` without `--no-install`.
 - The printed upstream routes (`npx impeccable install` / `update`) remain only as optional advice for a newer upstream than the pin, and are never run without consent.
@@ -323,7 +323,7 @@ The design-evaluation template SHALL add the following fields, and the design-mo
 | A consumer leaves an engine or skill-source value to a fall-through | A per-command text-contract test plus a Reviewer walk of each branching step |
 | A rule is not executable on a real project | **No automated gate here.** Substitute: a validate-time re-walk of the 2026-10-30 run, plus one held-out case the text does not cite (a `user-installed` skill on a project with no `design.md`), judged at the HITL pause |
 | Base-directory path resolution on non-Claude hosts | **Partial:** the install-layout test proves file placement only. Live agent behavior on OpenCode/Codex/Cursor/Antigravity/Grok is an **accepted risk** (R3), recorded for the first real run on each host |
-| Live engine behavior (the download, the update check honoring `DO_NOT_TRACK`) | **Accepted risk** (R7): not exercised by tests, because tests never touch the network |
+| Live engine behavior (the download; the update check is now switched off by `IMPECCABLE_NO_UPDATE_CHECK=1`, per upstream `docs/CLI-CONTRACT.md`) | **Accepted risk** (R7): not exercised by tests, because tests never touch the network. The prefix itself is asserted in the bridge text (T8) (amended 2026-10-30, P-13 option (ii), approved by JC 12:13 UTC-5) |
 
 ## 9. Requirement ID Index
 

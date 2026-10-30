@@ -315,3 +315,15 @@ Budget (running): tasks 7/10 closed (T1, T2b, T3, T4, T5, T6, T7; T2 at its P-15
 ADVISORY (T2): the `package.json` `files` check matches four literal spellings (a future glob would slip past; `npm pack --dry-run --json` would be exact). The header comment still says the foreign case is tested on Grok Bot only. `Version 2.0` is checked anywhere in `LICENSE`, and `LICENSE` is not hash-locked. The install test passes if at least one `impeccable/` is found, so a missing Antigravity root of three would go unnoticed. NFR-4's pin is relative here; the absolute pin is `install-cursor.test.js` (T8).
 
 **Forward pointer → T8 (record; carry into the T8 brief):** FR-3 "`akili doctor` SHALL count `impeccable` like any other packaged skill" has no gate yet. The coverage map gives T2 presence, mode, six targets and foreign only. The gate is the `OK impeccable` line T8 adds to `test/fixtures/doctor-codex-baseline.txt`, which lists only `OK impeccable-bridge` today. T8's Reviewer must confirm that line lands.
+
+## JC decisions — 2026-10-30 12:13 (UTC-5)
+
+Verbatim: "punto 2, opción (ii), agregar IMPECCABLE_NO_UPDATE_CHECK=1. Punto 3, aprobada la enmienda de una línea en §7.2/DD-9. P-15 sigue pendiente: JC hará la prueba desde cero. Sigue con lo que no dependa de eso. Commits locales OK, sin push ni PR."
+
+| Decision | Spec change (Leader, at this gate) |
+|---|---|
+| P-13 option (ii) | `requirements.md` FR-6: launcher form `DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 …`, and every other AKILI launcher run (including Setup's `context`) carries `IMPECCABLE_NO_UPDATE_CHECK=1`; §8 R7 row updated. `design.md` P-13 *Settled by* records the choice. New task **T3b** (bridge + `docs/skills/impeccable.md`), T8 now depends on it. Budget 11 tasks · ~1,365 LOC · ~19 rounds (+1 task, +~15 LOC, +1 round), stated to JC in this gate's report |
+| §7.2 / DD-9 amendment (T5 spec tension) | `design.md` §7.2 sentence and DD-9 now read: "A command states its row as one pointer line, or as a per-value consequence table when that is the only way to satisfy FR-4's per-value obligation; it never restates a bridge command string or a rule's wording". T5 (tables) and T6 (pointers) both conform by name |
+| P-15 | Still pending; JC runs the scratch install. T2 stays `[~]` |
+
+Correction closure: forward sweep for "one line each" in the spec documents → 0. The superseded launcher form `DO_NOT_TRACK=1 <skill-dir>` survives only in the bridge and `docs/skills/impeccable.md`, which T3b changes. The `git diff` of the three spec documents shows only removals that the amendments replaced. Carried as named conformance checks to the T3b and T8 Reviewers.

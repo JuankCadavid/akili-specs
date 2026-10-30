@@ -10,7 +10,7 @@
 | Baseline | AKILI `89457ba`; upstream `df3a4ab`. `npm test` → 1201 pass, 0 fail (archive run, `b6575d8`) |
 | Commit prefix | `[SPEC:changes/impeccable-hardening]`. Local commits only: no push, PR, tag or publish |
 | Baseline readings (run 2026-10-30, `grep -rnF <p> .claude docs README.md --exclude-dir=specs \| wc -l`) | `npx impeccable detect` → **6**; `Unevaluated (Impeccable absent)` → **3**; `skill only` → **9**; `never copies Impeccable` → **1**; `390x844` → 0; `no-consent-hiding` → 0; `Proposed waiver` → 0; `engine-probe` → 0; `ls .claude/skills/impeccable` → `No such file or directory` |
-| Budget (design §12) | 10 tasks · ~1,350 authored LOC · ~18 review rounds (was 9 · ~1,250 · ~16; +T2b (amended 2026-10-30, Pivot P-7, Option A approved by JC 11:56 UTC-5)). `/akili-execute` stops and escalates when actuals exceed it |
+| Budget (design §12) | 11 tasks · ~1,365 authored LOC · ~19 review rounds (+T3b, P-13 option (ii) (amended 2026-10-30, P-13 option (ii), approved by JC 12:13 UTC-5)); before that 10 tasks · ~1,350 authored LOC · ~18 review rounds (was 9 · ~1,250 · ~16; +T2b (amended 2026-10-30, Pivot P-7, Option A approved by JC 11:56 UTC-5)). `/akili-execute` stops and escalates when actuals exceed it |
 | PR strategy | **PR 1** (T1, T2, T8 counts part): the vendored skill and its locks. **PR 2** (T3–T7, T8 rest, T9): the AKILI layer, commands, docs and release notes. Both target `dev` (proposed only; no PR opened in this cycle) |
 
 ## Dependency graph
@@ -18,6 +18,7 @@
 ```text
 T1 ──► T2b ──► T2 ──► T8 ──► T9
 T1 ──► T3 ──► T4
+T3 ──► T3b ──► T8
         T3 ──► T5
         T3 ──► T6
 T1,T3 ─► T7
@@ -105,6 +106,26 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 | Done criteria | Every FR/clause listed above is quoted to its sentence in `execution.md`; the falsifiers run after T8 |
 | Skills | `impeccable-bridge`, `cognitive-doc-design` |
 
+### T3b: Switch off the engine update check in every AKILI launcher run
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` |
+| Size | XS (~10 LOC prose) |
+| Origin | P-13 settled false at T7; option (ii) approved by JC 2026-10-30 12:13 (UTC-5) |
+| Depends on | T3 |
+| Requirements | FR-6 (as amended: `IMPECCABLE_NO_UPDATE_CHECK=1` beside `DO_NOT_TRACK=1` on the detector and on every other launcher run, including Setup's `context`); NFR-1 |
+| Design | §11 P-13 (settled) |
+| Scope | `.claude/skills/impeccable-bridge/SKILL.md` (the *Launcher form* command block and the *Privacy and consent* prefix rule; Windows wording for setting both variables); `docs/skills/impeccable.md` (the *Consequence* sentence: AKILI runs set the switch). No other file |
+| Tests | T8 asserts the prefix in the bridge |
+| Falsifier | Drop `IMPECCABLE_NO_UPDATE_CHECK=1` from the bridge's launcher form → T8's launcher-form assertion fails |
+| Red run | Baseline observed 2026-10-30: `grep -c "IMPECCABLE_NO_UPDATE_CHECK" .claude/skills/impeccable-bridge/SKILL.md` → `0` |
+| Disqualifier | A launcher example or prefix rule in the bridge that still carries `DO_NOT_TRACK=1` alone; the docs claiming the update check is off without naming the switch |
+| Consumers | `test/impeccable-bridge.test.js` (T8); the commands point at the launcher form and restate no command string |
+| Review | `checklist` |
+| Done criteria | `IMPECCABLE_NO_UPDATE_CHECK` present in both bridge sites and in the docs sentence; no `DO_NOT_TRACK=1`-only launcher form left |
+| Skills | `impeccable-bridge` |
+
 ### T4: Extend `references/design-evaluation.md`
 
 | Field | Value |
@@ -187,7 +208,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 |---|---|
 | Status | `[ ]` |
 | Size | M (~280 LOC tests + fixture) |
-| Depends on | T2, T4, T5, T6, T7 |
+| Depends on | T2, T3b, T4, T5, T6, T7 |
 | Requirements | FR-11 scenario "No surviving old phrasing" (FR-14 version: four patterns, zero hits); FR-4 consumer clause; FR-7; FR-8/FR-9 presence; FR-12 D-3; NFR-5, NFR-6 |
 | Design | §7.4 rows 2 and 4; DD-9; P-9 |
 | Scope | `test/impeccable-bridge.test.js` (replace the FR-3/FR-4 detection test; add the gate-order, exit-table, matrix, D-2, D-3 assertions; per-command engine-consequence assertions; a negative sweep over `.claude/` + `docs/` + `README.md`, excluding `docs/specs/` and `.claude/skills/impeccable/`, for `npx impeccable detect`, `Unevaluated (Impeccable absent)`, `skill only`, `never copies Impeccable`); `test/install-cursor.test.js` (247 → computed 308, i.e. 247 + 58 + 3; 30 → 31; comments); `test/akili-marketing-docs.test.js` (30 → 31); `test/fixtures/doctor-codex-baseline.txt` (+ `OK impeccable` in sorted position) |
