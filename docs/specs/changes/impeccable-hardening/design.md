@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/impeccable-hardening` |
 | Depth | Standard (upper end) |
-| Status | Phase 2: awaiting approval |
+| Status | **Approved** by Juan Carlos Cadavid, 2026-10-30 11:19 (UTC-5), without Review Design. Phase 3 in progress |
 | Requirements | `requirements.md` revision 2, approved 2026-10-30 11:02 (UTC-5) |
 | Verified at | AKILI `f548bc6`; upstream `pbakaus/impeccable` `df3a4ab` (read-only clone in the session scratchpad) |
 | Skills applied | `software-architect` (vendoring is a new dependency and a supply-chain boundary), `impeccable-bridge` (the subject) |
