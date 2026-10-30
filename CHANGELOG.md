@@ -10,6 +10,18 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - No unreleased changes yet.
 
+## [2.39.0] - 2026-10-30
+
+### Added
+
+- **Impeccable is AKILI's lead design skill, reached through the new packaged bridge `impeccable-bridge` (30 packaged skills, was 29).** The bridge detects Impeccable (`installed`, `skill only`, `absent`), maps it to each phase, and falls back to `ui-ux-pro-max` + `frontend-design` + `stitch-design` when it is absent, with no STOP. Impeccable (`pbakaus/impeccable`, Apache-2.0, by Paul Bakaus) is never vendored: you install it yourself with `npx impeccable install`; the bridge is AKILI-authored (MIT) and credits it.
+- **`/akili-audit design [<url|path>]` evaluates the design of an existing product.** It runs Impeccable `critique`/`audit` and `npx impeccable detect --json`, and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`. `/akili-propose` accepts the report as a requirement source.
+- **`/akili-validate` has a UI design-review step with a detector quality gate**: exit `0` passes, exit `2` fails unless each finding is fixed or waived, exit `1` is `Unevaluated`. `/akili-test` plans a design-detector suite as evidence.
+
+### Changed
+
+- **`docs/ux-ui/design.md` is the single design source of truth.** Impeccable's `PRODUCT.md`/`DESIGN.md` and `.stitch/DESIGN.md` are derived views or mockup inputs. `/akili-constitution` and `/akili-specify` record a page mode per screen and design waivers there.
+- **`ui-ux-pro-max` is now a reference catalog** (palettes, font pairings, UX rules), and `frontend-design` is the fallback for direction and craft.
 ## [2.38.0] - 2026-10-29
 
 ### Added

@@ -25,14 +25,14 @@ Reference these guidelines when:
 
 ## AKILI-SPECS Integration
 
-This is AKILI's preferred UI/UX skill — commands reference it as "`ui-ux-pro-max` if available" (fallback: `frontend-design` + `stitch-design`).
+In AKILI this skill is a **reference catalog**: palettes, font pairings, styles by industry and the priority-ranked UX rules below. The lead design skill is Impeccable, reached through `impeccable-bridge`; when Impeccable is absent, this skill plus `frontend-design` (direction and craft) and `stitch-design` (mockups) is the fallback chain.
 
 | AKILI moment | How to use this skill |
 |---|---|
-| `/akili-constitution` Step 4 | Drive `docs/ux-ui/design.md`: design tokens, palettes, typography, accessibility expectations |
-| `/akili-specify` design phase | Shape UI states, responsive behavior, and component architecture in `design.md` |
-| `/akili-execute` UI tasks | The Implementer loads it for UI-heavy tasks listed in `tasks.md` |
-| `/akili-test` / `/akili-validate` | The Tester/validator checks accessibility and UX rules (priority 1–4 categories) against the built screens |
+| `/akili-constitution` Step 4 | Supply catalog options (palettes, font pairings, accessibility expectations) for `docs/ux-ui/design.md`; leads only when Impeccable is absent |
+| `/akili-specify` design phase | Look up options for UI states, responsive behavior and components when the direction needs them |
+| `/akili-execute` UI tasks | The Implementer loads it when a task needs catalog options |
+| `/akili-test` / `/akili-validate` / `/akili-audit design` | Rule source for the checklist review (priority 1–4 categories); the main review when Impeccable is absent |
 
 Design-token decisions made with this skill are recorded in `docs/ux-ui/design.md` — the Reviewer audits diffs against that document, not against this skill.
 
