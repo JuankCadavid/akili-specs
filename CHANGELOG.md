@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.40.0] - 2026-10-30
+
 ### Added
 
 - **Impeccable 4.8.0 is now vendored verbatim under `.claude/skills/impeccable/`, installed into all six targets (31 packaged skills, was 30).** It is Impeccable by Paul Bakaus (`pbakaus/impeccable`, Apache-2.0) at upstream commit `df3a4ab` (engine 0.1.18): 58 upstream files plus `LICENSE`, `NOTICE` and `UPSTREAM.md` (the pin and a sha256 per file), 61 files in all. The only change to upstream is an AKILI `metadata` block added to the `SKILL.md` frontmatter. AKILI-SPECS is not affiliated with the Impeccable project. The pin moves only through the maintainer script `scripts/sync-impeccable.js`, which is not shipped; `docs/release-checklist.md` has a step that compares the pin with upstream's latest release.
@@ -27,7 +33,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Disclosure.** The engine gate governs AKILI steps only. Invoking `/impeccable` directly, outside an AKILI command, follows upstream behavior, including the launcher's first-run engine download.
 - **Package size.** Measured with `npm pack --dry-run` against 2.39.0: about +834 KB packed (2.76 MB → 3.59 MB) and +2.28 MB unpacked (5.83 MB → 8.10 MB), 62 more files (345 → 407: the 61 vendored files and `docs/skills/impeccable.md`).
 - **Not yet verified:** whether Claude Code lists the vendored skill after a real install is checked by the maintainer's re-audit after release.
-
 ## [2.39.0] - 2026-10-30
 
 ### Added
