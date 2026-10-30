@@ -1,313 +1,345 @@
-# Requirements: Harden the Impeccable integration
+# Requirements: Ship Impeccable inside AKILI, and harden its design gates
 
 ## 1. Document Control
 
 | Field | Value |
 |---|---|
 | Spec Path | `changes/impeccable-hardening` |
-| Depth | **Standard**. Methodology text across one skill, one reference, five commands, two docs pages and one test file. There is no CLI or installer code, but every design evaluation and UI validation gate reads this text |
+| Depth | **Standard**, upper end. It vendors a third-party skill (licensing, installer delivery to six targets) and edits one AKILI skill, one reference, six commands, governance, docs and tests. There is no installer code change |
 | Type | Change |
 | Deliverable | `software` |
-| Approval Mode | `gated`. The maintainer instructed on 2026-10-30 10:38: "Continúa con /akili-specify changes/impeccable-hardening y detente en su gate de aprobación". This run stops at the Phase 1 gate (Step 1.3) |
-| Status | Phase 1: awaiting approval |
+| Approval Mode | `gated`. This run stops at the Phase 1 gate (Step 1.3) |
+| Status | Phase 1, **revision 2**: awaiting approval. Revision 1 (`676b5d9`) was returned with **Adjust** by the maintainer on 2026-10-30 at 10:48. The adjustment: Impeccable must ship inside AKILI with its instructions |
 | Date | 2026-10-30 |
-| Proposal | `proposal.md`, **Approved** 2026-10-30 10:38 (UTC-5). Q1: `/akili-validate` requires the first-visit pass. Q2: no performance gate in `/akili-validate`. Q3: mobile viewport `390x844` by default, overridden by `docs/ux-ui/design.md`. Q4: `changes/impeccable-design` archived first (done, `b6575d8`) |
-| Source | `~/akili-audits/2026-10-30-akili-web-design.md` (gaps G1–G12 and the report body). The Jira/Figma questions were skipped, with maintainer confirmation |
-| Format source | `docs/specs/archive/2026-10-26-changes--akili-review/requirements.md`. This repo has no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, as run 2026-10-30) |
-| Verified at | `b6575d8` |
-| Release | Behavior change to an existing skill and commands, with no new command → **patch** (semver discipline), recorded only. No release, push, PR or publish in this cycle |
+| Proposal | `proposal.md` revision 2 (awaiting approval). Q1–Q4 from revision 1 carry over. D-1 to D-3 are recommended in proposal §12 and reflected below |
+| Source | `~/akili-audits/2026-10-30-akili-web-design.md` (G1–G12); upstream `pbakaus/impeccable` at `df3a4ab` (read-only clone in the session scratchpad) |
+| Format source | `docs/specs/archive/2026-10-26-changes--akili-review/requirements.md`. There is no `docs/specs/general-setup/` (as run 2026-10-30) |
+| Verified at | AKILI `b6575d8` (plus spec commits); upstream `df3a4abe7d08` |
+| Release | **Minor 2.40.0** (D-1), recorded only. No release, push, PR or publish in this cycle |
+| Supersedes | `changes/impeccable-design` NFR-1 ("no file from `pbakaus/impeccable` is copied into the package") and its three skill-presence states |
 
 ## 2. Executive Summary
 
-The bridge and its consumers get rules that match what the first real run met. The key changes:
+AKILI ships Impeccable's own skill, `impeccable` (Apache-2.0, 4.8.0), unmodified and hash-locked, with its license and notices. Every install therefore carries the same design instructions.
 
-- Detection records the skill and the detector separately, giving four states.
-- The detector is invoked one way only, and that way never installs.
-- Exit `1` is `Unevaluated` whatever caused it.
-- Every URL is scanned at desktop and mobile width. Persuade and Operate screens also get a first-visit pass that keeps consent banners and overlays on the page.
-- Design mode adds a multi-run Lighthouse step and a stale-baseline check.
-- The report template gains fields that keep exclusions, waivers and score provenance visible.
+`impeccable-bridge` becomes the AKILI layer around it. It owns:
 
-`/akili-validate` gains the mobile and first-visit passes, but no performance gate.
+- the phase map and the design source of truth;
+- a consent gate before Impeccable's launcher may download its engine binary;
+- the gates the first dogfood run showed were missing: a mobile pass, a first-visit pass with overlays visible, exit-code readings, a multi-run Lighthouse step, baseline checks, waivers, and report fields.
+
+The detector runs through the vendored launcher, never `npx`.
 
 ## 3. Glossary
 
 | Term | Meaning |
 |---|---|
-| Skill probe | The bridge's search for the Impeccable skill (project, global and plugin locations) |
-| Detector probe | The bridge's check that the Impeccable detector CLI runs without installing anything |
-| Resolution source | Where the detector probe found the CLI: `project` (the project's `node_modules/.bin`), `PATH`, or `npx cache` |
-| Resolved invocation | The exact command prefix the detector probe succeeded with. Every detector run in the same phase reuses it |
-| Scan matrix | The set of detector passes per URL: `desktop`, `mobile`, and, for Persuade/Operate screens, `first-visit` |
-| First-visit pass | A URL scan in a fresh browser context with no stored consent, with consent banners and overlays kept on the page, plus a fold screenshot and a primary-CTA hit-test |
-| Primary CTA | The single main action of a Persuade or Operate screen, as named in `docs/ux-ui/design.md` or the spec's `design.md`, or inferred and listed under *Assumptions* |
-| Capture conditions | Browser locale, reduced-motion setting, viewport and consent state of a pass |
-| Design Waiver | A row in `docs/ux-ui/design.md` → *Design Waivers* that approves a detector finding as intended |
-| Proposed waiver | A finding that design mode judges to match an approved pattern that has no *Design Waivers* row. Design mode is report-only, so it proposes the row instead of writing it |
-| Report-only mode | `/akili-audit design`: it writes only its report under `docs/specs/audits/` (or a recorded user-directed path) |
-| Unevaluated | A check that did not produce a usable reading. It is never a pass |
+| Vendored skill | `.claude/skills/impeccable/`: upstream's `.claude` build, byte-identical except for the declared frontmatter block |
+| Upstream pin | The upstream commit, skill version and engine version recorded in `UPSTREAM.md` |
+| Frontmatter block | The AKILI governance keys added to the vendored `SKILL.md` frontmatter (binding, source, adapted-by). They are the only modification, and `NOTICE` declares them |
+| Launcher | `<skill-dir>/scripts/impeccable` (`impeccable.cmd` on Windows). It runs the engine and, as its last resort, downloads it |
+| Engine | Impeccable's native binary (`0.1.18` at the pin). It serves `context`, `detect` and the other verbs |
+| Engine probe | A check of the launcher's non-download locations: `IMPECCABLE_BIN`, the sibling `bin/<os>-<arch>/`, `~/.impeccable/bin/impeccable`, the version-pinned cache `~/.impeccable/bin/<version>/`, and `impeccable` on `PATH`, each confirmed with `engine-probe` |
+| Engine consent | The user's explicit yes to let the launcher download the engine (source, size and checksum check stated). It is asked at most once per session |
+| Skill source | Which Impeccable skill leads: `vendored (<version>)`, `user-installed (<version>)` (a foreign same-name skill AKILI did not overwrite), or `missing` |
+| Scan matrix, first-visit pass, capture conditions, primary CTA | As in revision 1: desktop and mobile passes; a fresh-context scan with consent banners and overlays kept, plus a fold screenshot and a CTA hit-test; locale, reduced motion, viewport and consent state; the main action of a Persuade/Operate screen |
+| Design Waiver, Proposed waiver, Report-only mode, Unevaluated | As in revision 1 |
 
 ## 4. System Context & Scope
 
-Today (at `b6575d8`):
+Today (AKILI at `b6575d8`, upstream at `df3a4ab`):
 
 | Fact | Evidence (as run) |
 |---|---|
-| Detection has three states, and `absent` is defined as "neither found" | `.claude/skills/impeccable-bridge/SKILL.md` *Step 0 — Detection*, state table |
-| The detector consequence of `absent` and of the fallback section is `Unevaluated (Impeccable absent)`, regardless of the detector probe | `SKILL.md` *Fallback behavior*; `.claude/commands/akili-audit.md` *Design Evaluation Mode* item 4; `.claude/commands/akili-validate.md` *UI design review*, closing paragraph |
-| The probe uses `npx --no-install impeccable --version`; the gate uses `DO_NOT_TRACK=1 npx impeccable detect --json` | `SKILL.md` *Step 0* (Detector CLI row) vs *Detector gate*; the same gate string appears in `akili-audit.md`, `akili-validate.md`, `akili-test.md`, `docs/skills/impeccable-bridge.md` and `docs/commands/akili-audit.md` (`grep -rn "npx impeccable detect" .claude docs` excluding `docs/specs/`, run 2026-10-30) |
-| `npx --no-install <missing package>` exits `1`, the same code the detector uses for "could not scan" | `npx --no-install definitely-not-a-pkg-xyz --version` → exit 1 (run 2026-10-30, macOS, npm bundled with the local Node) |
-| Detector 4.8.0 supports `--viewport <WxH>` (default `1280x800`), `--no-consent-hiding`, `--no-overlay-hiding`, `--no-design-system`; exit `1` takes precedence in a partial multi-target scan | `DO_NOT_TRACK=1 npx --no-install impeccable detect --help`, impeccable `4.8.0` from this machine's npx cache (run 2026-10-30) |
-| `/akili-constitution` and `/akili-specify` route on "`installed` or `skill only`" vs "`absent`" | `.claude/commands/akili-constitution.md` *Lead design skill* bullets; `.claude/commands/akili-specify.md` Step 2.1 bullets |
-| Constitution records *Design Waivers* as "(rule, reason, who approved)" | `akili-constitution.md` paragraph after *Lead design skill* |
-| E0–E7 have no performance step, no staleness check and no viewport or overlay instruction | `.claude/skills/impeccable-bridge/references/design-evaluation.md` *Steps* |
-| The text-contract test pins the literal `npx impeccable detect --json` | `test/impeccable-bridge.test.js`, test "FR-3/FR-4: detection states …" |
+| AKILI ships no `impeccable` skill; the bridge routes to an externally installed one | `ls .claude/skills \| grep -x impeccable` → no output; `.claude/skills/impeccable-bridge/SKILL.md` *Roles* |
+| Governance forbids vendoring Impeccable | `docs/skills/governance.md` → *Environment-provided skills*, rule 1 and the *Impeccable* paragraph |
+| The npm package `impeccable@4.8.0` contains no skill text | its `package.json` `"files"`: `cli/bin/`, `skill/scripts/engine-checksums.txt`, `LICENSE` |
+| Upstream's `.claude` build is 58 files, 2.2 MB | `find .claude/skills/impeccable -type f \| wc -l` → `58`; `du -sh` → `2.2M` (upstream clone) |
+| The launcher downloads the engine when no candidate answers; with `IMPECCABLE_LAUNCHER_PROBE` set it refuses to download | `scripts/impeccable` "Last resort" block; the `probing` branch: "Inside another launcher's probe: no download" |
+| The skill's Setup runs the launcher (`context`) once per session and defines a *Launcher unavailable* path | upstream `.claude/skills/impeccable/SKILL.md` → *Setup* |
+| The npm CLI answers the engine handshake | `npx --no-install impeccable engine-probe` → `impeccable-engine 0.1.18`, exit 0 |
+| Detector 4.8.0 flags `--viewport`, `--no-consent-hiding`, `--no-overlay-hiding`, `--no-design-system`; exit `1` covers a partial scan | `impeccable detect --help` (4.8.0) |
+| The installer skips a foreign same-name entry and takes it over only on `install --force` | `bin/akili.js`, the ownership-policy comment above `copyDirectoryContents` ("owned" / "foreign" / "takeover") |
+| `npm pack` keeps executable bits on shipped scripts | `tar -tvzf` of `npm pack` → `-rwxr-xr-x … security-audit/validate-findings.cjs` |
+| The current gate command, three states, viewport, overlay, performance and template gaps | revision 1 evidence: `SKILL.md` *Step 0*/*Detector gate*/*Fallback*; `design-evaluation.md` *Steps*/*Report template*; `akili-audit.md` *Design Evaluation Mode*; `akili-validate.md` *UI design review*; `akili-test.md` detector suite bullet |
 
-**In scope:** proposal §5 (bridge skill, design-evaluation reference, five commands, two docs pages, tests, CHANGELOG `Unreleased`).
-**Out of scope:** proposal §6 *Non-Goals*. Specifically: CLI/installer code, any akili.com.co fix, upstream Impeccable changes, any write by design mode outside its report, a performance gate in `/akili-validate` (Q2), PSI/CrUX integration, and the root `AGENTS.md` *Skill Usage* line (recorded as kaizen pending item P3 of `changes--impeccable-design`, so not taken into this spec).
+**In scope:** proposal revision 2, §5.
+**Out of scope:** proposal §6. That excludes, in particular: an engine binary in the package; per-host skill builds; edits to Impeccable's instructions; a performance gate in `/akili-validate` (Q2); PSI/CrUX; removing `frontend-design`/`ui-ux-pro-max`; and the root `AGENTS.md` *Skill Usage* line (kaizen pending item P3 of `changes--impeccable-design`).
 
 ## 5. Stakeholders / Personas
 
 | Persona | Need |
 |---|---|
-| Agent running `/akili-audit design` | One unambiguous state, one command form, and a fixed pass list, so no step requires improvising |
-| Agent running `/akili-validate` on a UI spec | A gate that sees what a first-time mobile visitor sees and that never passes on an unusable reading |
-| Project owner | No package download without consent; exclusions and approved patterns respected; numbers that can be compared between runs |
-| AKILI maintainer | One rule set across the skill, commands and docs, with tests that fail if an old phrasing returns |
+| Developer running AKILI on a UI project | Impeccable's instructions present after `akili install`, with no second installer and no surprise download |
+| Agent running a design step | One known skill source, one engine state, one command form, and a fixed pass list |
+| Project owner | Consent before binaries arrive; exclusions and approved patterns respected; comparable numbers |
+| Paul Bakaus / Impeccable (upstream author) | License, notices and authorship kept intact; the AKILI modification declared; no implied affiliation |
+| AKILI maintainer | Cheap, verifiable upstream syncs; no drift between vendored files and the pin |
 
 ## 6. Functional Requirements
 
-### FR-1: Two independent probes, four detection states
+### FR-1: Vendored `impeccable` skill, verbatim
 
-The bridge SHALL record the skill probe and the detector probe separately and derive exactly one of four states:
+The package SHALL ship `.claude/skills/impeccable/` containing upstream's `.claude/skills/impeccable/` build at the upstream pin, plus three AKILI-provided files:
 
-| State | Skill probe | Detector probe | Routing | Detector consequence |
-|---|---|---|---|---|
-| `installed` | found | found | Impeccable leads | gate active |
-| `skill only` | found | not found | Impeccable leads | rows `Unevaluated (detector unavailable)` |
-| `detector only` | not found | found | fallback (`ui-ux-pro-max` catalog + `frontend-design` + `stitch-design`) | gate active |
-| `absent` | not found | not found | fallback | rows `Unevaluated (detector unavailable)` |
+| File | Content |
+|---|---|
+| `LICENSE` | Upstream's Apache-2.0 `LICENSE`, unaltered |
+| `NOTICE` | Upstream `NOTICE.md` content unaltered (including the ehmo MIT credit), then an AKILI section stating: vendored from `https://github.com/pbakaus/impeccable` at `<commit>` (skill `<version>`, engine `<version>`); the only modification is the frontmatter block (keys listed); AKILI-SPECS is not affiliated with the Impeccable project |
+| `UPSTREAM.md` | Source URL, commit, skill version, engine version, vendor date, and one `sha256  path` line per upstream file |
 
-Routing SHALL follow the skill probe only, and the detector consequence SHALL follow the detector probe only. Install routes are printed once when the skill probe fails, with no install performed.
+- The vendored `SKILL.md` frontmatter SHALL keep every upstream key and value (`name`, `description`, `version`, `user-invocable`, `argument-hint`, `license`) and add a `metadata` block: `author: Paul Bakaus`, `source`, `adapted-by`, `adapted-for: AKILI-SPECS`, `binding: conditional`.
+- No other byte of an upstream file SHALL differ from the pin.
+- The engine binary (`scripts/bin/**`) SHALL NOT be shipped.
 
-#### Scenario: Cached CLI without the skill
+#### Scenario: Verbatim check
 
-- GIVEN no Impeccable skill in any probed location
-- AND the detector probe succeeds from the npx cache
-- WHEN any phase runs Step 0
-- THEN the recorded state is `detector only`
-- AND the fallback skills lead
-- AND the detector gate runs
-- BUT it must NOT record `absent` or mark detector rows `Unevaluated (Impeccable absent)`
+- GIVEN the shipped package
+- WHEN each file listed in `UPSTREAM.md` is hashed (for `SKILL.md`, after removing the frontmatter block)
+- THEN every hash matches its `UPSTREAM.md` line
+- BUT it must NOT contain a file under `.claude/skills/impeccable/` that is neither listed in `UPSTREAM.md` nor one of the three AKILI files
+- AND IT MUST contain `LICENSE` whose text begins with "Apache License" and "Version 2.0"
 
-#### Scenario: Skill without CLI
+### FR-2: Upstream sync and pin hygiene
 
-- GIVEN the skill is found and the detector probe fails
-- WHEN Step 0 runs
-- THEN the state is `skill only`, Impeccable leads, and detector rows read `Unevaluated (detector unavailable)`
+The repository SHALL contain `scripts/sync-impeccable.js`. It is maintainer-only and not in `package.json` `files`.
 
-**Consumers.** Every command that branches on the state (`/akili-constitution`, `/akili-specify`, `/akili-audit design`, `/akili-validate`, `/akili-test`) SHALL state what `detector only` does there. A step written for three states MUST NOT leave `detector only` to a fall-through.
+- Given a local upstream checkout and a commit, the script copies its `.claude/skills/impeccable/` build, applies the frontmatter block, writes `LICENSE`/`NOTICE`, and rewrites `UPSTREAM.md`.
+- It SHALL refuse to run when the checkout is dirty or the commit is not checked out.
+- It SHALL NOT download anything; the maintainer provides the checkout.
+- `docs/release-checklist.md` SHALL gain one step: compare the pin with upstream's latest release tag and record either "current" or the decision to sync or defer.
 
-### FR-2: Reproducible detector resolution
+#### Scenario: Local edit creeps in
 
-The detector probe SHALL try, in order: the project's `node_modules/.bin/impeccable`; `impeccable` on `PATH`; `npx --no-install impeccable`. It SHALL record the resolution source, the version, and the resolved invocation.
+- GIVEN a contributor edits a vendored reference file by hand
+- WHEN `npm test` runs
+- THEN the vendor test fails, naming the file whose hash differs from `UPSTREAM.md`
 
-- A resolution from the npx cache alone SHALL be recorded as valid for this run and flagged `non-reproducible (npx cache)`, with the install routes printed for a durable setup.
-- Every detector run in the same phase SHALL use the resolved invocation.
-- Detection results SHALL NOT be persisted or reused across runs or phases. Each phase probes again.
+### FR-3: Delivery to every install target
 
-#### Scenario: Resolution recorded
+`akili install` SHALL deliver `impeccable/` to all six targets (Claude Code, OpenCode, Antigravity, Codex, Cursor, Grok Bot) wherever the target receives skills, with the launcher executable (`sh`) after install.
 
-- GIVEN the CLI is resolvable only through the npx cache
-- WHEN Step 0 runs
-- THEN the report records `Detector: 4.8.0 via npx cache (non-reproducible)` (or equivalent wording with source and version)
-- AND IT MUST name the resolved invocation that later passes reuse
+- An existing `impeccable` skill AKILI did not install is a **foreign** entry: it is skipped and reported (its version when readable), and replaced only by an explicit `install --force` takeover, under the installer's existing ownership rule.
+- `akili doctor` SHALL count `impeccable` like any other packaged skill.
 
-### FR-3: The detector is never invoked in a form that can install
+#### Scenario: Developer already has Impeccable
 
-Every detector invocation the package prescribes SHALL use the resolved invocation from FR-2. When that invocation is `npx`, it SHALL be `npx --no-install`. Every run SHALL be prefixed with `DO_NOT_TRACK=1` unless the user opted in to telemetry.
+- GIVEN `~/.claude/skills/impeccable/` installed by the developer (version 4.9.0)
+- WHEN `akili install --tool claude` runs without `--force`
+- THEN the developer's folder is untouched and the install output names it as foreign
+- AND the skill source reads `user-installed (4.9.0)` at the next design step
 
-- The package MUST NOT contain a prescribed detector or Lighthouse command of the form `npx impeccable …` or `npx lighthouse …` without `--no-install`. The printed install routes (`npx impeccable install`, `npx impeccable update`) are the only exception: they are printed for the user and never run without consent.
+### FR-4: Skill source and engine states
 
-#### Scenario: Package missing
+At every design step the bridge SHALL record two things.
 
-- GIVEN the CLI is not in any resolution location
-- WHEN a phase reaches the detector gate
-- THEN no command that downloads a package runs
-- AND the detector rows read `Unevaluated (detector unavailable)`
+**Skill source.** `vendored (<version>)` | `user-installed (<version>)` | `missing`. Impeccable leads whenever the source is not `missing`. When it is `missing`, the fallback (`ui-ux-pro-max` catalog + `frontend-design` + `stitch-design`) leads, and the gap is recorded.
 
-### FR-4: Exit codes and `Unevaluated`
+**Engine state:**
 
-The gate SHALL read exit codes as follows:
+| Engine state | When | Consequence |
+|---|---|---|
+| `ready (<location>)` | The engine probe answers at one of its locations | Detector gate active |
+| `consent needed` | The probe found nothing, and the platform is supported | Ask once per session (FR-5) |
+| `installed (consented)` | The user said yes and the launcher's download succeeded | Detector gate active |
+| `declined` | The user said no, or did not answer | The skill takes its own *Launcher unavailable* path; detector rows `Unevaluated (engine not installed)` |
+| `unavailable (<reason>)` | Unsupported platform, no network, a checksum refusal, or a failed download | The same as `declined`, with the reason |
+
+- Every command that branches on these (`/akili-constitution`, `/akili-specify`, `/akili-execute` UI tasks, `/akili-test`, `/akili-validate`, `/akili-audit design`) SHALL state what each value does there, with no three-state wording left over.
+- The state is probed per phase and SHALL NOT be persisted across runs.
+
+#### Scenario: Cached npm CLI only (the 2026-10-30 machine)
+
+- GIVEN no `impeccable` on `PATH`, no `~/.impeccable/bin/` engine, and `IMPECCABLE_BIN` unset
+- WHEN a design step starts
+- THEN the skill source is `vendored (4.8.0)` and Impeccable leads
+- AND the engine state is `consent needed`
+- BUT it must NOT record `absent` or route to the fallback skills
+
+### FR-5: Engine consent gate
+
+No AKILI step SHALL invoke the launcher (any verb, including Impeccable's Setup `context`) before the engine state is `ready` or `installed (consented)`.
+
+- The consent question SHALL name: the source (`https://github.com/pbakaus/impeccable/releases`, tag `engine-v<version>`), the approximate size, the sha256 check against `engine-checksums.txt`, the destination (`~/.impeccable/bin/<version>/` or `IMPECCABLE_HOME`), and the no-download alternatives (`IMPECCABLE_BIN` pointing at an existing engine, e.g. the npm CLI).
+- Under `Approval Mode: pre-approved`, consent is **not** implied. Downloading a binary is an outward-facing action, so it always stops for the user.
+- The bridge SHALL tell the agent that until the engine is ready, Impeccable's Setup follows its own *Launcher unavailable* path.
+
+#### Scenario: Consent declined
+
+- GIVEN engine state `consent needed`
+- WHEN the user declines
+- THEN no network request is made by the launcher
+- AND the skill reads `PRODUCT.md`/`DESIGN.md` directly, per its *Launcher unavailable* path
+- AND detector rows read `Unevaluated (engine not installed)`
+
+### FR-6: Detector invocation
+
+The detector SHALL run as `DO_NOT_TRACK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>` (`impeccable.cmd` on Windows), only after FR-5 passes.
+
+- The package MUST NOT prescribe `npx impeccable …` or `npx lighthouse …` without `--no-install`.
+- The printed upstream routes (`npx impeccable install` / `update`) remain only as optional advice for a newer upstream than the pin, and are never run without consent.
+
+### FR-7: Exit codes
 
 | Exit | Reading |
 |---|---|
 | `0` | pass |
-| `2` | fail, unless every primary finding is fixed or waived (FR-9). If all are waived, it passes, and the report lists each waiver |
-| `1` | `Unevaluated`, never a pass, whatever the cause: an unreachable target, a partial multi-target scan, a missing package under `--no-install`, or an unknown flag on an older detector |
+| `2` | fail, unless every primary finding is fixed or waived (FR-12). If all are waived, it passes, and the report lists each waiver |
+| `1` | `Unevaluated`, whatever the cause: an unreachable target, a partial multi-target scan, or an unknown flag on another engine version |
+| `127` | `Unevaluated (engine not available)`: the launcher found and fetched no engine |
 | any other | `Unevaluated` |
 
-- The report SHALL record the first line of stderr for every non-zero exit other than `2`.
-- Findings returned alongside an exit `1` SHALL be reported, but the pass reads `Unevaluated`.
+The first stderr line SHALL be recorded for every non-zero exit other than `2`. Findings returned with exit `1` SHALL be listed, but the pass stays `Unevaluated`.
 
-#### Scenario: Partial scan
+### FR-8: Desktop and mobile passes
 
-- GIVEN a scan of 6 URLs where one URL times out and five return findings
-- WHEN the detector exits `1`
-- THEN the pass is `Unevaluated` with the stderr line recorded, and the five URLs' findings are still listed
-- BUT it must NOT be reported as a fail-with-findings or as a pass
+Every detector URL scan, in `/akili-audit design` and the `/akili-validate` design gate, SHALL run a `desktop` pass (default `1280x800`) and a `mobile` pass (`--viewport <mobile>`). `/akili-test`'s detector suite SHALL plan both.
 
-### FR-5: Desktop and mobile passes for every URL
+- `<mobile>` = the mobile viewport declared in `docs/ux-ui/design.md` when present, else `390x844` (Q3); the report records the value and its source.
+- Source scans stay a single pass.
 
-Every detector URL scan, in `/akili-audit design` and in `/akili-validate`'s design gate, SHALL run a `desktop` pass (detector default, `1280x800`) and a `mobile` pass (`--viewport <mobile>`).
+### FR-9: First-visit pass (Persuade and Operate screens)
 
-- `<mobile>` SHALL be the mobile viewport declared in `docs/ux-ui/design.md` when it declares one, otherwise `390x844` (Q3). The report records which value was used and where it came from.
-- `/akili-test`'s detector suite SHALL plan the same two passes.
-- Source-path scans take no viewport and stay a single pass.
+`/akili-audit design` and the `/akili-validate` design gate (Q1) SHALL run, at both FR-8 viewports, for every Persuade/Operate screen:
 
-#### Scenario: Mobile finding only
+1. a detector scan with `--no-consent-hiding --no-overlay-hiding`;
+2. a fresh browser context with no stored consent;
+3. a fold screenshot and a hit-test at the primary CTA's center. The pass fails when the topmost element is neither the CTA nor its descendant.
 
-- GIVEN a page whose tap targets fail only below 400 px width
-- WHEN design mode or the validate gate scans it
-- THEN the mobile pass reports the finding
-- AND a desktop-only result MUST NOT be presented as the page's verdict
+- Capture conditions SHALL be recorded per pass.
+- **Without browser automation (D-2):** the screenshot and hit-test read `Unevaluated (no browser automation)` and the detector part still runs. In `/akili-validate`, the HITL pause then asks for a manual fold check, and its result is recorded. Without one, the design gate is `WARN (unverified first visit)` and never `PASS`.
+- A rejected flag reads `Unevaluated (engine <version> lacks <flag>)`.
 
-### FR-6: First-visit pass for Persuade and Operate screens
+#### Scenario: CTA covered on first visit (the 2026-10-30 P1)
 
-For every screen whose page mode is Persuade or Operate, `/akili-audit design` and `/akili-validate`'s design gate (Q1) SHALL run a `first-visit` pass at both viewports from FR-5:
-
-1. A detector URL scan with `--no-consent-hiding --no-overlay-hiding`.
-2. A fresh browser context with no stored consent or cookies.
-3. A fold screenshot and a hit-test at the center of the primary CTA. The pass fails when the topmost element at that point is not the CTA or a descendant of it.
-
-- Capture conditions (locale, reduced motion, viewport, consent state) SHALL be recorded for every pass.
-- When no browser automation is available for the screenshot and the hit-test, those two checks read `Unevaluated (no browser automation)`, and the detector part of the pass still runs.
-- When the detector rejects either flag (an older version), the detector part of the pass reads `Unevaluated (detector <version> lacks <flag>)`.
-
-#### Scenario: CTA covered by consent banner (the 2026-10-30 P1)
-
-- GIVEN a Persuade home page whose hero CTA is covered by a consent banner on first visit at 390×844
+- GIVEN a Persuade home page whose hero CTA sits under a consent banner on first visit at 390×844
 - WHEN the first-visit pass runs
-- THEN the hit-test at the CTA center returns the banner, and the pass reports a P1 (design mode) or a FAIL (validate)
-- BUT the default (consent-hiding) passes alone MUST NOT be presented as covering the first visit
+- THEN the hit-test returns the banner, which is a P1 (design mode) or a FAIL (validate)
+- BUT the consent-hiding default passes MUST NOT be presented as covering the first visit
 
 #### Scenario: Read screen
 
-- GIVEN a screen whose page mode is Read
+- GIVEN a Read-mode screen
 - WHEN design mode runs
 - THEN no first-visit pass is required, and the report says so for that screen
 
-### FR-7: Performance step (design mode only)
+### FR-10: Performance step (design mode only)
 
-`/akili-audit design` SHALL add a performance step for each URL target:
+`/akili-audit design` SHALL, per URL:
 
-- **Resolution.** Resolve Lighthouse without installing, in the same order as FR-2 (project bin, `PATH`, `npx --no-install`). If it does not resolve, the step reads `Unevaluated (Lighthouse unavailable)`.
-- **Runs.** At least **3** mobile runs per URL, reporting the median and the range (min–max) of the performance score and LCP.
-- **Spread.** When the range is wider than the difference any recommended fix is expected to make, the report says the number cannot serve as a baseline or gate.
-- **Concurrency.** The step SHALL NOT run while a delegated agent is active (AGENTS.md *Concurrency*).
-- `/akili-validate` SHALL NOT gain a performance gate in this spec (Q2).
+- **Resolution.** Resolve Lighthouse without installing: the project's `node_modules/.bin`, then `PATH`, then `npx --no-install lighthouse`. Otherwise the step reads `Unevaluated (Lighthouse unavailable)`.
+- **Runs.** At least **3** mobile runs, reporting the median and range of the score and LCP.
+- **Spread.** When the range is wider than the effect a recommended fix targets, state that the number cannot serve as a baseline or gate.
+- **Concurrency.** Never run while a delegated agent is active.
+- `/akili-validate` SHALL NOT gain a performance gate (Q2).
 
 #### Scenario: Bimodal score
 
-- GIVEN three runs scoring 92, 89 and 64
-- WHEN the step reports
-- THEN it shows median 89 and range 64–92
-- BUT it must NOT report a single run's score as the page's score
+- GIVEN runs scoring 92, 89 and 64
+- THEN the report shows median 89 and range 64–92
+- BUT it must NOT report one run as the page score
 
-### FR-8: Baseline checks at context time (E1)
+### FR-11: Baseline checks (E1)
 
-When `docs/ux-ui/design.md` exists, design mode SHALL, before reviewing screens:
+When `docs/ux-ui/design.md` exists, design mode SHALL, before screen review:
 
-1. **Staleness.** Compare the last commit date of `docs/ux-ui/design.md` with the newest commit touching the UI source directories. When the UI is newer, the report header SHALL carry `Baseline possibly stale` with both dates and the newer UI commits (up to 5).
-2. **Page modes.** When the Screen Inventory has no page-mode column, or a screen in scope has no mode, flag it as baseline drift, and list the inferred modes under *Assumptions*.
-3. **Derived context.** When root `PRODUCT.md`/`DESIGN.md` are absent, note that the detector ran without design-system context, and that design-system rules (e.g. `overused-font`) may report patterns the authority approves.
-4. **Non-git.** When the target has no git history, the staleness check reads `Unevaluated (no git history)`.
+1. **Staleness.** Compare its last commit date with the newest commit touching the UI source directories. When the UI is newer, add a `Baseline possibly stale` header line listing both dates and up to 5 newer commits. Without git history, the check reads `Unevaluated (no git history)`.
+2. **Page modes.** Flag a missing page-mode column, or a screen in scope with no mode, as baseline drift, and list the inferred modes under *Assumptions*.
+3. **Derived context.** Note when root `PRODUCT.md`/`DESIGN.md` are absent, because the detector then lacks design-system context, and design-system rules may flag approved patterns.
 
 #### Scenario: Redesign after the baseline
 
-- GIVEN `docs/ux-ui/design.md` last committed 2026-10-17 and a hero redesign committed 2026-10-28
-- WHEN design mode runs E1
-- THEN the report header shows `Baseline possibly stale (design.md 2026-10-17; UI 2026-10-28)` with the redesign commit listed
+- GIVEN `design.md` last committed 2026-10-17 and a hero redesign on 2026-10-28
+- THEN the header reads `Baseline possibly stale (design.md 2026-10-17; UI 2026-10-28)` and lists the redesign commit
 
-### FR-9: Approved exceptions (Design Waivers)
+### FR-12: Design Waivers
 
-`docs/ux-ui/design.md` → *Design Waivers* rows SHALL carry: rule id, scope (selector, file or value), reason, approver, and date. `/akili-constitution` SHALL write new rows in that shape.
-
-- Every mode SHALL match detector findings against these rows. A match is reported as `waived (design.md)`, not as a defect. A waiver whose scope matches nothing in the run SHALL be listed as `unused`.
-- In report-only mode, a finding that matches a pattern the authority approves but that has no waiver row SHALL be reported as `Proposed waiver` with the authority clause cited, and never written.
-- Upstream ignores (`.impeccable/config.json`, inline `impeccable-disable`) remain valid waivers when they carry a reason.
+- **Row shape.** `docs/ux-ui/design.md` → *Design Waivers* rows SHALL carry rule id, scope (selector, file or value), reason, approver and date. `/akili-constitution` SHALL write new rows in that shape.
+- **Matching.** Every mode SHALL match findings against the rows. A match reads `waived (design.md)`. A row matching nothing reads `unused`. Upstream ignores with a reason stay valid.
+- **Proposed waivers.** In report-only mode, a finding that matches an authority-approved pattern with no row reads `Proposed waiver (<clause>)` and is never written.
+- **Counting (D-3).** Proposed waivers SHALL NOT count toward P1–P3. The report header SHALL show `Proposed waivers: N`.
 
 #### Scenario: Approved rounded top border
 
-- GIVEN `design.md` approves rounded top borders on colored cards (A-06) and has no *Design Waivers* row for `border-accent-on-rounded`
-- WHEN design mode reports detector results
-- THEN those findings show `Proposed waiver (A-06)`
-- BUT they must NOT be counted as P1–P3 defects
+- GIVEN `design.md` A-06 approves rounded top borders on colored cards, with no waiver row
+- THEN `border-accent-on-rounded` findings read `Proposed waiver (A-06)` and the header counts them
+- BUT they must NOT appear among P1–P3
 - AND IT MUST NOT write the waiver row
 
-### FR-10: Report template fields
+### FR-13: Report template fields
 
-The design-evaluation report template SHALL add:
+The design-evaluation template SHALL add the following fields, and the design-mode checklist SHALL accept a recorded user-directed location:
 
 | Field | Content |
 |---|---|
-| Out of scope | Sections or screens the owner excluded, with the detector hits inside them counted by rule id. They are never dropped silently |
-| Score source | `Impeccable critique` or `fallback checklist`. Fallback scores MUST NOT be trended against Impeccable scores |
-| Detector | State, resolution source and version, resolved invocation, and the scan-matrix table (pass × URL → exit, finding count) |
-| Capture conditions | Per pass (FR-6) |
-| Performance | The FR-7 table, or `Unevaluated (<reason>)` |
-| Baseline | The FR-8 result |
-| Report location | The default path, or a user-directed path with who directed it |
-| Detector Results `Waived?` column | Values `no`, `waived (design.md)`, `waived (upstream ignore)`, `Proposed waiver (<clause>)`, `out of scope` |
+| Impeccable | Skill source + engine state (FR-4) |
+| Detector | The launcher invocation, the engine version and location, and the scan-matrix table (pass × URL → exit, count) |
+| Score source | `Impeccable critique` or `fallback checklist`; the two are never trended together |
+| Out of scope | Owner exclusions, with their detector hits counted by rule id |
+| Capture conditions | Per FR-9 |
+| Performance | The FR-10 table or `Unevaluated (<reason>)` |
+| Baseline | The FR-11 result |
+| Proposed waivers | Count (FR-12) |
+| Report location | Default path, or a user-directed path and who directed it |
+| `Waived?` column | `no`, `waived (design.md)`, `waived (upstream ignore)`, `Proposed waiver (<clause>)`, `out of scope` |
 
-The design-mode checklist SHALL accept a recorded user-directed report location in place of `docs/specs/audits/`.
+### FR-14: Bridge re-scope, governance and attribution
 
-### FR-11: One rule set across consumers
-
-The bridge SHALL own the rules of FR-1 to FR-6 and FR-9, and the design-evaluation reference SHALL own FR-7, FR-8 and FR-10. Commands and docs SHALL point at the bridge rather than restate its command strings. Where a command or doc names a state, a command form or an `Unevaluated` reason, it MUST match the bridge.
+- **Bridge.** `impeccable-bridge` SHALL keep its name and `conditional` binding, and SHALL own FR-4 to FR-9 and FR-12. Its *Roles* table SHALL name the vendored `impeccable` as the lead. Its install-route section SHALL describe the vendored skill and the optional upstream route.
+- **Reference.** `design-evaluation.md` SHALL own FR-10, FR-11 and FR-13.
+- **Commands and docs.** These SHALL point at the bridge and SHALL NOT restate its command strings.
+- **Governance.** `docs/skills/governance.md` SHALL add the category *Vendored third-party (verbatim)*, with rules: an unmodified upstream build, declared frontmatter-only modification, `LICENSE` + `NOTICE` + `UPSTREAM.md`, a hash-locked test, and a sync via the script. Impeccable SHALL be moved there from *Environment-provided skills*, and the record SHALL state that `changes/impeccable-design` NFR-1 is superseded.
+- **Attribution.** `docs/skills/README.md` and a new `docs/skills/impeccable.md` SHALL name Paul Bakaus as author, Apache-2.0, the pin, and that AKILI is not affiliated. `README.md` SHALL list the third-party component.
+- **Disclosure.** The docs SHALL state that invoking `/impeccable` directly, outside an AKILI command, follows upstream behavior, including the launcher's first-run engine download (proposal R1).
 
 #### Scenario: No surviving old phrasing
 
-- GIVEN the shipped package
-- WHEN `npx impeccable detect` (without `--no-install`) and `Unevaluated (Impeccable absent)` are searched across `.claude/` and `docs/` (excluding `docs/specs/`)
+- WHEN `.claude/` and `docs/` (excluding `docs/specs/`) are searched for `npx impeccable detect`, `Unevaluated (Impeccable absent)`, the state triple `installed`/`skill only`/`absent` in a state table, and "never copies Impeccable files"
 - THEN there are zero hits
 
 ## 7. Non-Functional Requirements
 
 | ID | Requirement |
 |---|---|
-| NFR-1 | Nothing in the package installs, downloads or updates Impeccable, Lighthouse or a browser without explicit user consent |
-| NFR-2 | Impeccable stays unvendored; no upstream rule text is reproduced (`changes/impeccable-design` NFR-1 stands) |
-| NFR-3 | The rules are version-tolerant: a missing flag or capability on a different detector version yields `Unevaluated` with the reason, never a silent pass |
-| NFR-4 | Command prose never points at a rule by line number (KZ-005) |
-| NFR-5 | `npm test`, `npm run verify:cli`, `npm run pack:dry-run` and `git diff --check` pass; no test depends on `docs/specs/changes/<this spec>` (KZ-changes--archify-diagrams-1) |
-| NFR-6 | Cost stays bounded: the 8-screen cap stands, first-visit passes are limited to Persuade/Operate screens, and Lighthouse runs on mobile only by default |
-| NFR-7 | Docs and CHANGELOG are in English; aggregate claims ("every invocation …") are falsified by grep before they are written (KZ-002) |
+| NFR-1 | Nothing downloads or installs the engine, Lighthouse or a browser without explicit user consent, in every approval mode |
+| NFR-2 | Apache-2.0 §4 compliance: the license is included, notices are kept, the modification is declared, and no AKILI or upstream trademark use implies affiliation |
+| NFR-3 | Version tolerance: another engine version's missing flag or capability yields `Unevaluated` with the reason, never a silent pass |
+| NFR-4 | Size: package growth stays at or below +2.5 MB unpacked (pin baseline: +2.2 MB); the vendor test pins the file count |
+| NFR-5 | Command prose never points at a rule by line number (KZ-005) |
+| NFR-6 | `npm test`, `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` pass; `node bin/akili.js install --tool all --dry-run` lists `impeccable`; no test depends on `docs/specs/changes/<this spec>` |
+| NFR-7 | English docs; aggregate claims are falsified by grep before they are written (KZ-002) |
+| NFR-8 | Cost: the 8-screen cap stands; first-visit passes cover Persuade/Operate only; Lighthouse runs on mobile by default |
 
 ## 8. Defect Classes and Gates
 
 | Defect class | Gate |
 |---|---|
-| An old phrasing survives (installing command form, `Impeccable absent` reason, three-state list) | A negative text-contract test over `.claude/` and `docs/`, plus a sweep keyed on each superseded phrase and its paraphrases before Review (KZ-changes--kaizen-loop-closure-2) |
-| A consumer branches on three states and leaves `detector only` to a fall-through | A text-contract test per consuming command for the `detector only` wording, plus a Reviewer walk of each state-branching step |
-| Two surfaces state contradictory rules (bridge vs command vs doc) | Reviewer conformance against FR-11 |
-| A prescribed flag or exit code does not exist in the real tool | The Premise Ledger rows verified against `detect --help` (4.8.0); NFR-3 covers other versions |
-| A rule is not executable by an agent on a real project | **No automated gate in this repo.** Substitute: a validate-time walkthrough that re-walks the 2026-10-30 run against the shipped text, plus at least one **held-out** case the text does not cite (e.g. `skill only` on a project without `design.md`), judged at the HITL pause |
-| Live behavior on a real UI project | **Accepted risk**: not testable in this repository. Recorded for the next real `/akili-audit design` run |
+| A vendored file drifts from upstream (a hand edit, or a partial sync) | The FR-1 hash test (automated) |
+| Missing license, notice or attribution | Vendor test assertions on `LICENSE`, `NOTICE`, `UPSTREAM.md`, frontmatter keys, and the docs rows |
+| The skill is not delivered, or the launcher is not executable on a target | An install test into a temp dir for each of the six targets, checking presence and file mode (POSIX) |
+| An AKILI step can reach the launcher before consent | A text-contract test that each consuming command routes through the bridge gate, plus a Reviewer walk of every launcher mention. **Limit:** upstream text invoked directly outside AKILI is not gated (R1, disclosed) |
+| Old phrasing survives | The negative text-contract test (FR-14 scenario) plus a paraphrase sweep before Review |
+| A consumer leaves an engine or skill-source value to a fall-through | A per-command text-contract test plus a Reviewer walk of each branching step |
+| A rule is not executable on a real project | **No automated gate here.** Substitute: a validate-time re-walk of the 2026-10-30 run, plus one held-out case the text does not cite (a `user-installed` skill on a project with no `design.md`), judged at the HITL pause |
+| Base-directory path resolution on non-Claude hosts | **Partial:** the install-layout test proves file placement only. Live agent behavior on OpenCode/Codex/Cursor/Antigravity/Grok is an **accepted risk** (R3), recorded for the first real run on each host |
+| Live engine behavior (the download, the update check honoring `DO_NOT_TRACK`) | **Accepted risk** (R7): not exercised by tests, because tests never touch the network |
 
 ## 9. Requirement ID Index
 
-| ID | Title | Gaps covered |
+| ID | Title | Covers |
 |---|---|---|
-| FR-1 | Two probes, four states | G1, G3 |
-| FR-2 | Reproducible resolution | user gap 10, C5 |
-| FR-3 | Never install | G2, user gap 8 |
-| FR-4 | Exit codes | user gap 2 |
-| FR-5 | Desktop + mobile | G4, Q3 |
-| FR-6 | First-visit pass | G5, C14, Q1 |
-| FR-7 | Performance step | G7, C15, Q2 |
-| FR-8 | Baseline checks | G6, G8, G12 |
-| FR-9 | Design Waivers | G9, user gap 9 |
-| FR-10 | Template fields | G10, G11, C16 |
-| FR-11 | One rule set | all |
-| NFR-1..7 | — | — |
+| FR-1 | Vendored skill, verbatim | Maintainer intent (10:48), D1–D3 |
+| FR-2 | Sync and pin hygiene | R5 |
+| FR-3 | Delivery to six targets | D4, R4, R6 |
+| FR-4 | Skill source + engine states | G1, G3, gap 10 |
+| FR-5 | Engine consent gate | G2, gap 8, R1 |
+| FR-6 | Detector invocation | G2, gap 10 |
+| FR-7 | Exit codes | gap 2 |
+| FR-8 | Desktop + mobile | G4, Q3 |
+| FR-9 | First-visit pass | G5, Q1, D-2 |
+| FR-10 | Performance step | G7, Q2 |
+| FR-11 | Baseline checks | G6, G8, G12 |
+| FR-12 | Design Waivers | G9, gap 9, D-3 |
+| FR-13 | Template fields | G10, G11 |
+| FR-14 | Bridge, governance, attribution | all |
+| NFR-1..8 | — | — |
