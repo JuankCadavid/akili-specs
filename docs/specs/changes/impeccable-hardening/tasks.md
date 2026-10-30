@@ -51,7 +51,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` (Pivot P-7, awaiting JC) |
 | Size | M (~220 LOC test) |
 | Depends on | T1 |
 | Requirements | FR-1 "Verbatim check" scenario (BUT no unlisted file; AND IT MUST Apache header); FR-2 "Local edit creeps in" scenario; FR-3 delivery to six targets + exec bit + doctor count; NFR-2, NFR-4, NFR-6 (script not shipped) |
@@ -70,7 +70,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~200 LOC prose) |
 | Depends on | T1 |
 | Requirements | FR-4 (both state tables, the "Cached npm CLI only" scenario + its BUT), FR-5 (all clauses, pre-approved stop, "Consent declined" scenario), FR-6, FR-7 (table, stderr line, exit-1 findings), FR-8, FR-9 (steps 1–3, capture conditions, D-2, flag rejection, both scenarios), FR-12 (row shape, matching, `unused`, Proposed, D-3, scenario), FR-14 bridge clause |

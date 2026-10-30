@@ -63,3 +63,110 @@ ADVISORY (attempt 2): no detection of `--assume-unchanged`/`--skip-worktree` fla
 | Issues encountered | 8 `npm test` failures, all T8-owned consumers: install-cursor (247 → 308), docs-overview ×3, doctor-codex baseline fixture ×2 (incl. grokbot NFR-1, same fixture), `impeccable-bridge.test.js` "Impeccable must not be vendored". `git diff --check` flags vendored upstream bytes only (`reference/harden.md`, `scripts/impeccable.cmd`); vendored bytes are never altered |
 | Budget (running) | tasks 1/9 · authored LOC 277 (script + `.gitattributes`) / ~1,250 · review rounds 2/~16 — within budget |
 | Gate | Routine continue (owner brief); next: T2 (HITL P-15 at its pause) and T3 (independent of T2) |
+
+### T2: Vendor and install locks — `[~]` blocked (Pivot P-7)
+
+**Attempt 1** (2026-10-30, Implementer `sonnet` effort medium, parallel with T3)
+
+| Field | Value |
+|---|---|
+| Files changed | `test/impeccable-vendor.test.js` (new, untracked; uncommitted pending the Pivot) |
+| Implementer verification | `node --test test/impeccable-vendor.test.js` → `# tests 20  # pass 20  # fail 0`; `git diff --check` clean |
+| Red run | Pre-T1 worktree (`90b35db`): `not ok 1 - ... FR-1 every UPSTREAM.md line matches its vendored file's raw bytes` / `error: "ENOENT: no such file or directory, open '.../pre-t1/.claude/skills/impeccable/UPSTREAM.md'"` (an absence red; the behavioural reds are the falsifiers) |
+| Falsifiers | (a) space appended to `reference/polish.md` → `hash mismatch for reference/polish.md` (1 fail). (b) `extra.md` added → `files not in UPSTREAM.md: extra.md` and `62 !== 61` (2 fail). (c) `chmod 644 scripts/impeccable` → `'644' !== '755'` plus six install tests `… scripts/impeccable is not executable` `0 !== 73` (7 fail). (d) `  binding: conditional` deleted → `no '  binding: conditional' under metadata:` (1 fail). Reverted; tree clean, launcher `100755` |
+| Judgment calls (verbatim from the report) | LICENSE check is `trimStart().startsWith("Apache License")` because upstream's title line is space-indented. Foreign test seeds `.grokbot/workflows/impeccable/SKILL.md` (`version: 4.9.0`) because "non-grokbot targets have no ownership record. There, an existing foreign `impeccable/` would only get 'skip existing' per file and could still receive new files" |
+| Evidence re-run / Reviewer | Not run — the loop stopped on Pivot Detection (Step 2.4) |
+| spawns | Implementer not reported by host (13 tool uses, 94,858 tokens), ended complete |
+
+## Pivot Record: T2
+
+**Blocker.** Premise P-7 is false. Design §11 P-7 claimed "Skills reach every target through `copyDirectoryContents(SOURCE_SKILLS, …)` with the owned/foreign/takeover policy". Its "If false" column read: "FR-3's foreign protection needs installer code (High)". Leader verification at `62d999f`:
+
+- `bin/akili.js` `installTool`: `if (paths.ownershipRecord) { … policy = makeOwnershipPolicy(ownership, args); }`. Without an ownership record, `policy` stays `null`.
+- `copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, policy)`: with no policy, entries are copied per file. Existing files are skipped, missing files are written, and `--force` overwrites.
+- Only Grok Bot has an ownership record (changes/grokbot-target), so P-7 holds for 1 of 6 targets.
+
+**Effect.** FR-3 says "An existing `impeccable` skill AKILI did not install is a **foreign** entry: it is skipped and reported (its version when readable), and replaced only by an explicit `install --force` takeover". Its scenario says: "GIVEN `~/.claude/skills/impeccable/` installed by the developer (version 4.9.0) … THEN the developer's folder is untouched and the install output names it as foreign". Neither holds on Claude Code, OpenCode, Antigravity, Codex or Cursor. On those targets, AKILI would add `LICENSE`, `NOTICE`, `UPSTREAM.md` and any 4.8.0-only files into the developer's 4.9.0 folder. `--force` would overwrite it with no takeover step. No approved task owns installer code: T2 is test-only.
+
+**Alternatives.**
+
+| Option | Change | Cost |
+|---|---|---|
+| A (Leader recommendation) | New task **T2b**: the installer treats an existing `impeccable/` on a target without an ownership record as foreign unless it carries AKILI's `UPSTREAM.md`. A foreign folder is skipped as a whole and reported with its `version`. `install --force` replaces it whole, never merged. T2's foreign test then covers one non-grokbot target (claude) as well | About +60 LOC of code and +40 LOC of tests; +1 task; +1 to 2 review rounds. Touches `bin/akili.js` (installer safety) |
+| B | Amend FR-3 to the installer's existing per-file behavior on the five targets, and keep the foreign policy for Grok Bot only | No code. Accepts a mixed 4.8.0/4.9.0 folder and an unguarded `--force` overwrite of the developer's skill, which FR-3 was written to prevent |
+| C | Extend the ownership record to all six targets | Out of scope: a change to the installer contract for every skill |
+
+**Requested.** JC's choice of A, B or C (with any edits). Under A, also approve the budget delta (tasks 9 → 10, LOC +~100, rounds +~2). After approval: amend `requirements.md` FR-3 / `design.md` P-7 + §7.4 / `tasks.md`, close with the two-direction sweep, and re-issue the T2 brief.
+
+### Pivot Record: T2 — correction (2026-10-30, same session, before JC's answer)
+
+The *Effect* paragraph above overstated the gap. The T2 Implementer's claim ("could still receive new files") was adopted without reading the copy loop; the T3 Reviewer contradicted it, and the Leader then read `bin/akili.js` `copyDirectoryContents` and `copyTreeSync` at `62d999f`:
+
+- No policy (five targets): each top-level entry is checked once — `if (exists && !takeover && !args.force) { console.log("skip existing " + targetPath); … continue; }`. An existing `impeccable/` folder is **skipped whole and left untouched**. Nothing merges into it without `--force`.
+- With `--force`: `copyTreeSync` recurses with `mkdirSync(…, { recursive: true })` and overwrites file by file. The developer's files that AKILI does not ship stay in place, so the result is a merged folder rather than a whole replacement.
+
+Corrected effect on Claude Code, OpenCode, Antigravity, Codex and Cursor:
+
+| FR-3 obligation | Holds? |
+|---|---|
+| Developer's folder untouched without `--force` | **Yes** |
+| "skipped and reported" | Reported as `skip existing <path>`, not as foreign |
+| "(its version when readable)" in the install output | No (the bridge reports `user-installed (<version>)` at the design step) |
+| "replaced only by an explicit `install --force` takeover, under the installer's existing ownership rule" | `--force` is the existing rule on these targets, but it merges rather than replaces |
+
+Revised alternatives (these supersede the table above):
+
+| Option | Change | Cost |
+|---|---|---|
+| **B′ (Leader recommendation)** | Amend FR-3 and its scenario to the existing rule on targets without an ownership record. The folder is skipped whole as `skip existing <path>` and stays untouched, and `--force` overwrites per the existing rule. Foreign naming with the version applies where an ownership record exists (Grok Bot). The bridge already reports `user-installed (<version>)`. T2's foreign test adds a claude-target assertion: bytes untouched and the `skip existing` line present | No code; amendments to `requirements.md` FR-3, `design.md` P-7 and the coverage-map row; about +10 test LOC |
+| A′ | New task T2b: for `impeccable/` on targets without an ownership record, report `skip foreign <path> (version <v>)` and make `--force` replace the folder whole (move aside, then copy) | +1 task, about +60 LOC including tests, +1–2 rounds; touches `bin/akili.js` |
+| C | Ownership record for all targets | Out of scope |
+
+### T3: Rewrite `impeccable-bridge/SKILL.md` as the AKILI layer — PASS (attempt 2)
+
+**Attempt 1** (2026-10-30, Implementer `sonnet` effort high, parallel with T2; Reviewer `opus` effort high)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/skills/impeccable-bridge/SKILL.md` (full rewrite, 217 lines) |
+| Red run | Baseline `grep -c "engine-probe"` → `0`; `grep -c "skill only"` → `1` |
+| Implementer verification | `engine-probe` → 2; `skill only`, `npx impeccable detect`, `Unevaluated (Impeccable absent)`, `never copies Impeccable`, `absent`, `not vendored`, `never vendored`, `[Ll]ine [0-9]` → 0 each; `git diff --check` clean. Clause map: `<scratchpad>/t3-map.md` |
+| Not Done / Assumptions (verbatim gist; assumptions only, no owed item, no blocker) | Vendored vs user-installed is told apart by an `UPSTREAM.md` beside `impeccable/SKILL.md` ("the design does not say how"). The probe candidate carries `.exe` on Windows, and "supported platform" = macOS/Linux/Windows on arm64/x64, from the launcher's os/arch mapping. P-13 is marked `UNVERIFIED` in Privacy. The NFR-8 8-screen cap and mobile Lighthouse are left to T4's `design-evaluation.md`. `test/impeccable-bridge.test.js` is red until T8 |
+| Evidence re-run | VERIFIED (Leader inline; all counts reproduced; `git diff --check` exit 0) |
+| Reviewer verdict | **FAIL** (3 issues, verbatim below) |
+| spawns | Implementer not reported by host (15 tool uses, 113,162 tokens), ended partial (assumptions field); Reviewer not reported by host (26 tool uses, 120,406 tokens), ended complete |
+
+Reviewer FAIL report (verbatim issues):
+
+> **Issue 1.** Discovered issue: The Step 0 location list misses where `akili install` actually puts the vendored copy. It leaves out OpenCode `~/.config/opencode/skills` (and `./.config/opencode/skills` with `--local`). It leaves out Antigravity `~/.gemini/skills` and `~/.gemini/antigravity-cli/skills` (and their local forms), per `TOOL_REGISTRY` and `baseOpencode`/`baseAntigravity` in `bin/akili.js`. It also leaves out the Grok Bot workflows root. It lists `.opencode/skills` and `.agent/skills`, which are not installer destinations. The list was carried over from v1. On those hosts a vendored install reads `missing`, so the fallback skills lead. Violated rule: FR-4 ("Impeccable leads whenever the source is not `missing`") and the BUT clause of its scenario (no routing to the fallback). It also contradicts the bridge's own line 16 ("installed to every target"). Remediation: Look first for the `impeccable/` folder next to this bridge's own folder, wherever the host installed AKILI skills. Then check the listed project and global roots, using the installer's real per-target skill roots.
+>
+> **Issue 2.** Discovered issue: Line 137 says "Use no `npx` form … for anything else in this package unless it carries `--no-install`; the package prescribes none". The install-routes table on lines 207 and 209 gives `npx impeccable install` and `npx impeccable update` with no `--no-install`. The file contradicts itself. "Prescribes none" is also false at HEAD: `akili-audit.md:141`, `akili-validate.md:137` and `akili-test.md:189` still carry `npx impeccable detect`. That is T5's work, but the sentence asserts it as a fact today. Violated rule: FR-6, whose second bullet keeps the upstream routes as optional advice; the restriction covers prescribing detector and Lighthouse runs. Remediation: Limit line 137 to the detector and Lighthouse. Name the exception: the optional upstream routes under *Install routes*, never run without consent. Drop "the package prescribes none".
+>
+> **Issue 3.** Discovered issue: Line 16 says Impeccable is shipped "**vendored, byte-identical**" with no qualifier. Line 217 and the Glossary say "byte-identical except for the declared frontmatter block", and the vendored `SKILL.md` does carry that `metadata` block. Violated rule: NFR-2 (the modification must be declared) and the Glossary's definition of *Vendored skill*. The line also restates a superseded phrasing in the file (KZ-changes--kaizen-loop-closure-2). Remediation: Change it to "byte-identical except for a declared frontmatter block (see `NOTICE`)".
+
+ADVISORY (attempt 1): the consent field for no-download alternatives omits FR-5's "e.g. the npm CLI" and the `npm i -g impeccable` wording, and "engine binary" may read as excluding the npm CLI. `ready (<location>)` in the table differs from `ready (<location>, engine <version>)` in Step 0 (inherited FR-4 vs §7.1). KZ-004: no rule says what a later phase records after an earlier decline in the same session. The scripted install route omits upstream's `-y`. P-13 stays UNVERIFIED (the upstream `README.repo.md` confirms `DO_NOT_TRACK=1` for telemetry only). The `UPSTREAM.md` marker assumption was accepted as sound.
+
+**Attempt 2** (2026-10-30, Implementer `sonnet` effort xhigh; Reviewer `opus` effort xhigh)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/skills/impeccable-bridge/SKILL.md` |
+| Fixes (verbatim) | Issue 1: Step 0 "Locations, in order:" — (1) "**Next to this bridge.** The `impeccable/` folder beside this bridge's own folder, wherever the host installed AKILI skills…"; (2) a per-target root table from `TOOL_REGISTRY`/`baseOpencode`/`baseAntigravity`; (3) plugin-namespaced command; "A root given to `akili install` through a `--*-target` flag is not in the table; the folder beside this bridge (1) covers it." Issue 2: "Use no `npx` form for the detector or for Lighthouse unless it carries `--no-install`. The one exception is the optional upstream routes under *Install routes*, which are never run without consent." Issue 3: "AKILI ships Impeccable **vendored, byte-identical except for a declared frontmatter block (see `NOTICE`)**" |
+| `[advisory-grade]` additions | declined re-probe sentence; state-table `ready (<location>, engine <version>)`; FR-5's "e.g. the npm CLI" wording in the no-download alternatives row |
+| Implementer verification | `engine-probe` 2; `skill only`, `npx impeccable detect`, `Unevaluated (Impeccable absent)`, `never copies Impeccable`, `never vendored`, `not vendored`, `[Ll]ine [0-9]` → 0; `git diff --check` clean |
+| Not Done / Assumptions (verbatim gist; assumptions only) | Project roots for Antigravity and Grok Bot were read from the `--local` bases in `bin/akili.js`, not from an installer run. A `--*-target` root relies on the "next to this bridge" check |
+| Evidence re-run | VERIFIED (Leader inline): counts reproduced, plus `.opencode/skills`/`.agent/skills` → 0; `install --tool all --local --dry-run` places `impeccable-bridge` at `./.claude/skills`, `./.config/opencode/skills`, `./.gemini/config/skills`, `./.gemini/skills`, `./.gemini/antigravity-cli/skills`, `./.agents/skills` ×2, matching the table |
+| Reviewer verdict | **PASS** — all three attempt-1 issues resolved; FR-4…FR-9, FR-12, FR-14, NFR-1/3/5 re-walked; all 35 §7.2 cells present; every enumerated state has a consequence; upstream claims checked against `scripts/impeccable` and upstream `SKILL.md`; nothing contrary to the amended §7.3 cell |
+| spawns | Implementer not reported by host (11 tool uses, 93,178 tokens), ended partial (assumptions only); Reviewer not reported by host (9 tool uses, 97,540 tokens), ended complete |
+
+ADVISORY (attempt 2): a later phase after a consented download that failed (`unavailable (<reason>)`) has no stated re-probe outcome, and a literal reading could relabel it as `declined`. The probe trusts a sibling `bin/<os>-<arch>` engine whatever its version (pinning `IMPECCABLE_BIN` makes it agree with the launcher). Recorded only; not a task.
+
+**T3 summary**
+
+| Field | Value |
+|---|---|
+| Final status | PASS, 2 Implementer attempts, 2 Reviewer verdicts (FAIL, PASS) |
+| Requirements covered | FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-12, FR-14 (bridge clause), NFR-1, NFR-3, NFR-5; clause map at `<scratchpad>/t3-map.md` |
+| Decisions | `design.md` §7.3 carry ended (carried to T1 attempt 2 and T3 attempt 2 Reviewer briefs) |
+| Issues encountered | `test/impeccable-bridge.test.js` pins the old wording and is expected red until T8. Falsifiers (gate reorder, `declined` row deletion, `npx impeccable detect` reinsert) run after T8 |
+| Budget (running) | tasks 2/9 closed (T2 `[~]` Pivot) · authored LOC ~440 (T1 277 + bridge +163; T2 test uncommitted) / ~1,250 · review rounds 4/~16 — within budget |
