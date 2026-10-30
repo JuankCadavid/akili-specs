@@ -152,7 +152,7 @@ The bridge holds this table once. The commands state their row in one line each 
 
 | Input | `--from <upstream checkout>` (required); `--commit <sha>` (must equal `HEAD` of the checkout) |
 |---|---|
-| Refuses | A dirty checkout; a HEAD that differs from `--commit`; a missing `.claude/skills/impeccable/`; any network use (the script imports no network module) |
+| Refuses | A dirty checkout; a HEAD that differs from `--commit`; a checkout with no `.claude/skills/impeccable/` build (amended 2026-10-30 at T1: the folder meant is the checkout's, since *Does* creates this repo's); any network use (the script imports no network module) |
 | Does | Deletes `.claude/skills/impeccable/` in this repo; copies the build, preserving modes; inserts the frontmatter block; copies `LICENSE`; writes `NOTICE` (upstream `NOTICE.md` + AKILI statement); writes `UPSTREAM.md` |
 | Prints | Old vs new pin, file count delta, size delta, and a reminder to update CHANGELOG and the counts tests |
 

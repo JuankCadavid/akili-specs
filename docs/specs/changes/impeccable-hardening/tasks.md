@@ -32,7 +32,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~200 LOC script + generated tree) |
 | Depends on | — |
 | Requirements | FR-1 (all clauses, both scenarios), FR-2 (script clauses, "refuse dirty", "no download"), FR-3 (exec bit at source), NFR-2, NFR-4 |

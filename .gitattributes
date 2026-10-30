@@ -18,3 +18,10 @@ test/fixtures/** -text
 # Declaring both figures byte-exact keeps their committed LF on every platform.
 assets/akili-flow.svg -text
 assets/akili-flow-animated.svg -text
+
+# changes/impeccable-hardening T1, DD-6 / NFR-3 Cross-platform.
+#
+# The vendored Impeccable tree is hash-locked in UPSTREAM.md and
+# `impeccable.cmd` must stay CRLF (cmd.exe parses by byte offset). Declaring
+# the tree byte-exact keeps every committed byte intact on Windows CI.
+.claude/skills/impeccable/** -text
