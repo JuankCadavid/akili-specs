@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated`. This run stops at the Phase 1 gate (Step 1.3) |
-| Status | Phase 1, **revision 2**: awaiting approval. Revision 1 (`676b5d9`) was returned with **Adjust** by the maintainer on 2026-10-30 at 10:48. The adjustment: Impeccable must ship inside AKILI with its instructions |
+| Status | Phase 1, **revision 2: approved** by Juan Carlos Cadavid, 2026-10-30 11:02 (UTC-5), with D-1 (minor 2.40.0), D-2 and D-3 as recommended. Phase 2 in progress. Revision 1 (`676b5d9`) was returned with **Adjust** by the maintainer on 2026-10-30 at 10:48. The adjustment: Impeccable must ship inside AKILI with its instructions |
 | Date | 2026-10-30 |
 | Proposal | `proposal.md` revision 2 (awaiting approval). Q1–Q4 from revision 1 carry over. D-1 to D-3 are recommended in proposal §12 and reflected below |
 | Source | `~/akili-audits/2026-10-30-akili-web-design.md` (G1–G12); upstream `pbakaus/impeccable` at `df3a4ab` (read-only clone in the session scratchpad) |

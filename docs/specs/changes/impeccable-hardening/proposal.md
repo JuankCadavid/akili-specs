@@ -16,7 +16,7 @@ The 12 hardening gaps from the first dogfood run (revision 1) remain in scope. T
 | Type | Change |
 | Deliverable | software (a vendored third-party skill, a methodology skill, prompts, docs, tests) |
 | Approval Mode | gated |
-| Status | **Revision 2: awaiting approval.** Revision 1 was approved 2026-10-30 10:38 (UTC-5) with Q1 yes, Q2 no, Q3 `design.md` override with `390x844` default, and Q4 yes (done, `b6575d8`). Those decisions carry over. Revision 2 follows the maintainer's 10:48 clarification: "él esperaba que Impeccable … quedara DENTRO de la metodología con sus instrucciones, y que al correr AKILI simplemente se use ese skill … decide tú la estructura correcta" |
+| Status | **Revision 2: approved**, Juan Carlos Cadavid, 2026-10-30 11:02 (UTC-5), with D-1, D-2 and D-3 as recommended. Revision 1 was approved 2026-10-30 10:38 (UTC-5) with Q1 yes, Q2 no, Q3 `design.md` override with `390x844` default, and Q4 yes (done, `b6575d8`). Those decisions carry over. Revision 2 follows the maintainer's 10:48 clarification: "él esperaba que Impeccable … quedara DENTRO de la metodología con sus instrucciones, y que al correr AKILI simplemente se use ese skill … decide tú la estructura correcta" |
 | Requested by | Juan Carlos Cadavid (maintainer), 2026-10-30 |
 | Source | `~/akili-audits/2026-10-30-akili-web-design.md` (gaps G1–G12), plus the upstream repository `pbakaus/impeccable` cloned read-only at `df3a4abe7d0840d5f60324812c432e00b66a4e75` (2026-10-30) |
 | Source questions | Jira/Figma skipped because the brief supplied the source; confirmed by the maintainer at approval of revision 1 |
