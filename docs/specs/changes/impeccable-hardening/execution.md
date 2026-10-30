@@ -354,3 +354,14 @@ Raised by the Leader before T8, as a tripwire forecast rather than a trip. Actua
 JC, verbatim: "aprueba el nuevo tope de unas 1.650 líneas. P-15 sigue pendiente; JC hará la prueba desde cero y te paso el resultado."
 
 New ceiling: **~1,650 authored LOC** (`tasks.md` Document Control, `design.md` §12). Tasks (11) and rounds (~19) unchanged. Run state: T8 waits for T2 `[x]`, which waits for P-15. No task is eligible until then.
+
+## JC decision — 2026-10-30 12:23 (UTC-5): P-15 and release
+
+Verbatim: "P-15 se valida en la práctica. Tras publicar, re-hará la auditoría de akili.com.co con la versión de npm. Registra P-15 como pendiente de verificación post-release, cierra T2, ejecuta T8 y T9 completos, y deja el T9 re-walk como verificación con la auditoría real. JC autoriza push, PRs y release minor 2.40.0 siguiendo el flujo de release del repo (como 2.38.0 y 2.39.0): PRs a dev con CI verde y merge, npm run release:minor, dev→master, tag v2.40.0, sync master→dev. Sin force-push ni pasos destructivos. Detente antes del npm publish y no crees el GitHub Release. Si CI falla con un arreglo no trivial, detente y reporta."
+
+| Item | Record |
+|---|---|
+| P-15 | **Pending post-release verification**, owner JC: after `npm publish` of 2.40.0, JC re-runs the akili.com.co design audit with the npm version, which exercises Claude Code listing and loading `impeccable` from a real install. Not observed in this cycle; T2's other done criteria are met (Reviewer PASS above) |
+| T2 | Closed `[x]` on this decision |
+| T9 re-walk | Its verdict becomes the post-release verification with the real audit (JC). T9 still runs the full command set and records the budget |
+| Release | Push, PRs into `dev` with green CI, `npm run release:minor` (2.40.0), `dev` → `master`, tag `v2.40.0`, sync `master` → `dev`. Stop before `npm publish`; no GitHub Release. No force-push |

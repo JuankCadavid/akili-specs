@@ -72,7 +72,7 @@ There are no cycles. T5, T6 and T7 are parallel-safe after T3: each edits disjoi
 
 | Field | Value |
 |---|---|
-| Status | `[~]` (Pivot P-7 settled: Option A; resumes after T2b) |
+| Status | `[x]` (P-15 pending post-release verification, JC 2026-10-30 12:23 UTC-5) |
 | Size | M (~220 LOC test) |
 | Depends on | T1, T2b (amended 2026-10-30, Pivot P-7, Option A approved by JC 11:56 UTC-5) |
 | Requirements | FR-1 "Verbatim check" scenario (BUT no unlisted file; AND IT MUST Apache header); FR-2 "Local edit creeps in" scenario; FR-3 delivery to six targets + exec bit + doctor count; NFR-2, NFR-4, NFR-6 (script not shipped) |
