@@ -38,7 +38,7 @@ Linear: every task appends to `test/design-eval-followup.test.js`, and T1–T3 e
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~6 LOC prose, ~60 LOC tests) |
 | Depends on | — |
 | Requirements | FR-1 (five SHALL bullets; scenario 1 THEN, AND, BUT, AND IT MUST; scenario 2 THEN, BUT; P-16 scenario BUT "identification must NOT depend on the CTA's text"); NFR-1, NFR-3, NFR-5 |
