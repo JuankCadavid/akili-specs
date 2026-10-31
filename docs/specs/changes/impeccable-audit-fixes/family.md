@@ -15,7 +15,7 @@
 | # | Spec Path | Depends on | Parallel-safe | Status |
 |---|---|---|---|---|
 | 1 | `changes/impeccable-audit-fixes/design-eval-contract` | none | yes | done (archived 2026-10-31 to `docs/specs/archive/2026-10-31-changes--impeccable-audit-fixes--design-eval-contract/`) |
-| 2 | `changes/impeccable-audit-fixes/design-eval-followup` | none | yes | pending (row added with JC's approval, 2026-10-31: the W-1, W-2 and W-4 follow-up from child 1's validation report) |
+| 2 | `changes/impeccable-audit-fixes/design-eval-followup` | none | yes | done (archived 2026-10-31 to `docs/specs/archive/2026-10-31-changes--impeccable-audit-fixes--design-eval-followup/`; row added with JC's approval the same day) |
 | 3 | `changes/impeccable-audit-fixes/install-stale-skills` | none | yes | pending |
 
 **Closed-set rule:** this table is the exhaustive child set of the spec family. No AKILI command creates a child spec folder without a prior row here, and adding a row is a HITL-approved manifest edit.
