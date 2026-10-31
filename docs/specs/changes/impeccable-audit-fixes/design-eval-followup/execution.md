@@ -46,3 +46,20 @@
 - **spawns:** Implementer (sonnet) 12 calls, 96791 tokens, ended complete; Reviewer (opus): not reported by host at write time, ended complete (PASS)
 - **Running totals:** tasks 2/4 · LOC ~125 / ~210 · review rounds 2 / ~7. Under budget
 - **Gate:** `auto-approved (pre-approved mode)`
+
+### T3 — FR-2, byte-exact strip and the reference command in *Verify*
+
+- **Status:** PASS, 2026-10-31, 1 attempt
+- **Files changed:** `.claude/skills/impeccable-bridge/SKILL.md` (Step 0 *Verify*: byte-exact clause, non-conformance clause, `node -e` reference command, after the kept range sentence); `test/design-eval-followup.test.js` (5 tests)
+- **First step (executed before the edit, from `.claude/skills/impeccable`):** `SKILL.md` → `a2ba4387401c11dc28fd58d4962df1a8dd39d5c3b1fdca45549171c6c26d6e4e`; copy with `\n` appended → `6fccc12fd4b318c61b0c4d44c5ca24d979d373fcc68f09138917480f74dc6244`
+- **Red run:** `# pass 16 # fail 5`: `not ok 17 … 'byte-exact'`, `not ok 18 … 'non-conformance'`, `not ok 19 … 'known case'`, `not ok 20`/`21 … 'a backticked node -e reference command ships in Verify'`
+- **Falsifiers (executed, restored):** (1) `join('\n')+'\n'` in the shipped command → `not ok 21 … expected: 'a2ba4387…', actual: '6fccc12f…'`; (2) delete "or removes" → `not ok 18 … 'non-conformance'`
+- **Verification (Implementer):** consumers 136/136; `npm test` 1336/1336; vendored diff empty; `git diff --check` clean; no temp files left
+- **Evidence re-run (Leader, inline):** `npm test` → `# tests 1336 # pass 1336 # fail 0`. **VERIFIED**
+- **Reviewer (opus):** PASS. FR-2 walked term by term. The Reviewer extracted the shipped command and ran it under `sh`, `zsh` and `bash` with `set -H`: all three print `a2ba4387…`; the newline copy prints `6fccc12f…`. Quoting rule checked programmatically. The behavioral test runs the extracted string (not a plumbing test); whole-line matching holds (lines 8 and 14)
+- **ADVISORY (recorded, not acted on):** (Rel) no `metadata:` line → a wrong hash rather than an error; harmless, it reads `modified`; (Rel) a CRLF checkout reads `modified` (out of scope); (R) the long *Verify* paragraph could put the command on its own line
+- **Not Done / Assumptions:** P-8, `cmd.exe`/PowerShell quoting unverified (accepted risk); Node 18 settled by the CI legs after a push. No owed item → no continuation
+- **Requirements covered:** FR-2 (all), NFR-3
+- **spawns:** Implementer (sonnet) 12 calls, 92388 tokens, ended complete; Reviewer (opus): not reported by host at write time, ended complete (PASS)
+- **Running totals:** tasks 3/4 · LOC ~175 / ~210 · review rounds 3 / ~7. Under budget
+- **Gate:** `auto-approved (pre-approved mode)`

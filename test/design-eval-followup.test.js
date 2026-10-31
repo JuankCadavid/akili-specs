@@ -110,3 +110,48 @@ test("Guard: this test file reads no file under the spec folder", () => {
   assert.ok(!new RegExp(`["']${D}["']\\s*,\\s*["']${S}["']`).test(src), "no path-segment read of the spec folder");
   assert.ok(src.includes("@akili-spec changes/impeccable-audit-fixes/design-eval-followup"), "header comment present");
 });
+
+const verifyPara = () => slice(slice(bridge(), "## Step 0", "### Engine state"), "**Verify.**", "2. **Engine probe");
+// The shipped reference command: the backticked span that starts with `node -e`.
+const refCommand = () => {
+  const m = /`(node -e [^`]*)`/.exec(verifyPara());
+  assert.ok(m, "a backticked `node -e` reference command ships in Verify");
+  return m[1];
+};
+// The JS between the command's outer double quotes.
+const refCode = () => {
+  const c = refCommand();
+  const i = c.indexOf('"');
+  const j = c.lastIndexOf('"');
+  assert.ok(i >= 0 && j > i, "the command has outer double quotes");
+  return c.slice(i + 1, j);
+};
+
+test("FR-2: the strip is byte-exact and keeps a missing final newline", () => {
+  const v = verifyPara();
+  assert.ok(v.includes("byte-exact"), "byte-exact");
+  assert.ok(v.includes("a missing final newline included"), "missing final newline");
+});
+
+test("FR-2: a tool that adds or removes any other byte does not conform", () => {
+  assert.ok(verifyPara().includes("adds or removes any other byte does not conform"), "non-conformance");
+});
+
+test("FR-2: the known case is a strip that appends a final newline", () => {
+  assert.ok(verifyPara().includes("appends a final newline"), "known case");
+});
+
+test("FR-2: the reference command has no quote-hostile character inside its outer double quotes", () => {
+  const code = refCode();
+  for (const ch of ['"', "$", "`", "%", "!"]) {
+    assert.ok(!code.includes(ch), `no ${ch} inside the command`);
+  }
+});
+
+test("FR-2: executing the shipped command on the vendored SKILL.md prints the UPSTREAM.md hash", () => {
+  const cwd = path.join(ROOT, ".claude", "skills", "impeccable");
+  const m = /^([0-9a-f]{64}) {2}SKILL\.md$/m.exec(read(".claude", "skills", "impeccable", "UPSTREAM.md"));
+  assert.ok(m, "UPSTREAM.md lists a SKILL.md hash");
+  const out = require("node:child_process").execFileSync(process.execPath, ["-e", refCode(), "SKILL.md"], { cwd, encoding: "utf8" });
+  assert.strictEqual(out.trim(), m[1]);
+});
