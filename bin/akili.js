@@ -2470,8 +2470,9 @@ async function getLatestVersion() {
 }
 
 function isNewerVersion(latestVersion) {
+  // 🛡️ Sentinel: Strictly validate the type of external JSON payloads before invoking type-specific methods like .localeCompare() to prevent unhandled TypeError exceptions and potential DoS
   return (
-    latestVersion &&
+    typeof latestVersion === "string" &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
   );
