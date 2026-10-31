@@ -30,6 +30,12 @@ const ready = () => slice(step0(), "3. **Ready.**", "4. **Consent.**");
 const consentStep = () => slice(step0(), "4. **Consent.**", "**The gate, stated once:**");
 const engineConsent = () => slice(bridge(), "### Engine consent", "### Who does what");
 const launcherForm = () => slice(bridge(), "### Launcher form", "### Scan matrix");
+const scanMatrix = () => slice(bridge(), "### Scan matrix", "### First-visit pass");
+const firstVisit = () => slice(bridge(), "### First-visit pass", "### Exit codes");
+const ctaItem = () => slice(firstVisit(), "3. A fold screenshot", "4. When the product has a consent banner");
+const outcomes = () => ctaItem().slice(index(ctaItem(), "- Outcomes, checked in this order:"));
+const bannerItem = () => slice(firstVisit(), "4. When the product has a consent banner", "- The consent-hiding");
+const priorityBullet = () => slice(firstVisit(), "- On Persuade and Operate screens,", "- Record the capture conditions");
 
 test("FR-1: after a consented download the pin is the written binary, `.exe` on Windows, probed directly", () => {
   const c = consentStep();
@@ -141,6 +147,101 @@ test("FR-2 (BUT): another copy is never selected", () => {
 test("FR-2 (AND IT MUST): a modified copy still leads and the report states it as an environment finding, never a design finding", () => {
   const v = verify();
   assert.ok(v.includes("A `modified` copy still leads; the report states it as an environment finding, never a design finding."), "modified copy leads");
+});
+
+test("FR-3: every viewport is WxH; a design.md value without a height reads incomplete (<value>) and the default is used; desktop is declarable", () => {
+  const m = scanMatrix();
+  assert.ok(m.includes("Every viewport is `WxH`. A `docs/ux-ui/design.md` value with a width but no height is recorded as `incomplete (<value>)`, and the default is used."), "WxH and incomplete");
+  assert.ok(m.includes("`desktop` takes its value from *Responsive Behavior* in `docs/ux-ui/design.md` when declared, else `1280x800`"), "declarable desktop");
+  assert.ok(m.includes("else `390x844`"), "mobile default survives");
+});
+
+test("FR-3: the scan matrix keeps two passes; the detector item runs at the two scan-matrix viewports only", () => {
+  const m = scanMatrix();
+  assert.ok(m.includes("The matrix stays at **two** passes: the short-height pair is browser-only"), "two passes");
+  assert.ok(/\| `desktop` \(default `1280x800`\) \*\*and\*\* `mobile` \(`--viewport <mobile>`\) \|/.test(m), "desktop and mobile passes");
+  assert.doesNotMatch(m, /four|short-height pair \(.*--viewport/i, "no four-pass matrix");
+  const f = firstVisit();
+  assert.ok(f.includes("item 1 at the two scan-matrix viewports"), "item 1 at two viewports");
+  assert.ok(f.includes("items 2 to 4 at **every first-visit viewport**"), "items 2-4 at every first-visit viewport");
+});
+
+test("FR-3: the first-visit pass adds the short-height pair 1366x768 and 375x667, overridable, each viewport recorded with its source; no automation reads Unevaluated", () => {
+  const f = firstVisit();
+  assert.ok(f.includes("`desktop`, `mobile` and the **short-height pair**, default `1366x768` (desktop) and `375x667` (mobile), overridable in `docs/ux-ui/design.md`"), "the pair");
+  assert.ok(f.includes("The report records each first-visit viewport with its source."), "each viewport with its source");
+  assert.ok(f.includes("the short-height captures included"), "no-automation covers the pair");
+  assert.ok(f.includes("asks for a manual fold check at every first-visit viewport"), "manual check at every viewport");
+});
+
+test("FR-3 (BUT): the first visit is never passed on the 1280x800 pass alone; 'at both viewports' is retired", () => {
+  const f = firstVisit();
+  assert.ok(f.includes("never reported as passed on the strength of the `1280x800` pass alone"), "not on 1280x800 alone");
+  assert.ok(!f.includes("at **both** viewports"), "retired phrase");
+});
+
+test("FR-4: the CTA is identified in order (declared, defined style only, first main action), the method is recorded and a non-declared CTA is an assumption", () => {
+  const c = ctaItem();
+  const a = index(c, "(1) the CTA declared for the screen in the Screen Inventory's `Primary CTA` column of `docs/ux-ui/design.md`");
+  const b = index(c, "(2) only when `docs/ux-ui/design.md` defines a Primary CTA style, the first element in `main` with that style");
+  const d = index(c, "(3) the first `main a|button`");
+  assert.ok(a < b && b < d, "three steps in order");
+  assert.ok(c.includes("Record the method (`declared`, `primary style` or `first main action`)"), "method recorded");
+  assert.ok(c.includes("list a non-declared CTA under *Assumptions*"), "assumption");
+});
+
+test("FR-4: visibility comes from computed style plus the bounding box, never offsetParent; the hit-test is at the box centre", () => {
+  const c = ctaItem();
+  assert.ok(c.includes("computed style (`display`, `visibility`, `opacity`) plus the bounding box against the viewport, never from `offsetParent`"), "measurement");
+  assert.ok(c.includes("The hit-test is at the box centre."), "hit-test at the centre");
+});
+
+test("FR-4: five outcomes, checked in order, with the descendant tolerance; the old failure sentence is retired", () => {
+  const o = outcomes();
+  assert.ok(/\(a\)[^;]*`Unevaluated \(no CTA found\)`; \(b\)[^;]*`Unevaluated \(CTA not visible: <style>\)`; \(c\)[^;]*`below fold \(y=<top>\)`; \(d\)[^;]*`pass`; \(e\)[^;]*`covered \(<topmost element>\)`/.test(o), "(a) to (e) in order with their values");
+  assert.ok(o.includes("the CTA or one of its descendants"), "descendant tolerance");
+  assert.ok(o.includes("(c) the box centre is at or below the viewport's bottom edge (a box top at or below that edge included)"), "below fold is the centre rule");
+  assert.ok(!firstVisit().includes("The pass **fails** when the topmost element"), "old failure sentence retired");
+});
+
+test("FR-4: covered and below fold are P1 in /akili-audit design and FAIL in /akili-validate unless a first-visit Design Waivers row covers the screen and viewport", () => {
+  const p = priorityBullet();
+  assert.ok(p.includes("a **FAIL** in `/akili-validate`"), "FAIL in validate");
+  assert.ok(p.includes("unless a *Design Waivers* row with Rule `first-visit` covers that screen and viewport"), "first-visit waiver");
+  assert.ok(p.includes("An `Unevaluated` outcome is never a pass"), "Unevaluated is never a pass");
+  assert.ok(p.includes("`WARN (unverified first visit)`"), "WARN");
+});
+
+test("FR-4 (THEN): below fold is a P1, like covered, at any first-visit viewport", () => {
+  assert.ok(priorityBullet().includes("`covered` or `below fold` at any first-visit viewport is a **P1** in `/akili-audit design`"), "below fold is P1");
+});
+
+test("FR-4 (BUT): below fold is never reported as covered and never counted as an overlay defect", () => {
+  assert.ok(outcomes().includes("`below fold` is never reported as `covered` and never counted as an overlay defect"), "below fold is not covered");
+});
+
+test("FR-5: with a consent banner each capture asserts it is visible, by the item 3 measurement", () => {
+  const b = bannerItem();
+  assert.ok(b.includes("(named in `docs/ux-ui/design.md`, or found in the UI source)"), "where the banner is named");
+  assert.ok(b.includes("each capture asserts it is visible, using the item 3 measurement applied to the banner"), "visible assertion");
+});
+
+test("FR-5: a banner that is not rendered reads Unevaluated (consent banner not rendered: <reason>)", () => {
+  assert.ok(bannerItem().includes("the capture reads `Unevaluated (consent banner not rendered: <reason>)`"), "unevaluated value");
+});
+
+test("FR-5: the remedy is a build rendering the banner with test identifiers, never production ones", () => {
+  assert.ok(bannerItem().includes("a build that renders the banner with **test** identifiers, never production ones"), "remedy");
+});
+
+test("FR-5: the detector's first-visit flags are banner evidence only where the capture confirmed the banner on screen", () => {
+  const b = bannerItem();
+  assert.ok(b.includes("count as banner evidence only where the capture confirmed the banner on screen"), "evidence rule");
+  assert.ok(b.includes("otherwise the report states that the detector pass added no first-visit evidence"), "otherwise clause");
+});
+
+test("FR-5 (BUT): a capture whose banner is not rendered never reads pass", () => {
+  assert.ok(bannerItem().includes("and never reads `pass`"), "never pass");
 });
 
 test("Guard: this test file reads no file under the spec folder", () => {

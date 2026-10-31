@@ -74,3 +74,72 @@
 - Final verification: `npm test` `# tests 1249 / # pass 1249 / # fail 0`.
 - Running totals vs budget: tasks 1/11; authored LOC ≈ 171 (bridge 13+/4− long lines, tests 154) against T1's ~155 and a spec ceiling of ~900; review rounds 2/~18. Within budget.
 - Continue gate: auto-approved (JC mandate).
+
+### T2: Bridge *Detector gate*: viewports, first-visit procedure, CTA, outcomes, banner
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Attempts | 1 |
+| Requirements covered | FR-3 (`WxH`/`incomplete`, two passes, the short-height pair with override and source, the scenario's BUT); FR-4 (CTA order, measurement, the five A2 outcomes, P1/FAIL unless a `first-visit` waiver, THEN/BUT, method recorded); FR-5 (three bullets, THEN/BUT/AND IT MUST) |
+| Skills | `impeccable-bridge`, `tdd` (as listed) |
+| Effort | `high` (verdict rules) |
+
+**Attempt 1**
+
+- Files changed: `.claude/skills/impeccable-bridge/SKILL.md` (12+/7−, *Detector gate* only), `test/design-eval-contract.test.js` (+101, 15 assertions, tests 16–30).
+- Implementer verification:
+  - Red before the edit: `# tests 31 / # pass 16 / # fail 15`. The 15 failures are tests 16–30, on their text or on new markers that were absent (for example `missing: 4. When the product has a consent banner`).
+  - Green: 31/31.
+  - 17 executed mutations, each red only on its own assertion. The four task falsifiers:
+    - Swapping (c) and (d): red on 22.
+    - Deleting "or one of its descendants": red on 22.
+    - Removing "only when `docs/ux-ui/design.md` defines a Primary CTA style": red on 20.
+    - "`pass`" for a missing banner: red on 30.
+  - The J-1 mutation, "box centre" changed to "box top": red on 22.
+  - Against the `HEAD` bridge, exactly tests 16–30 fail.
+  - `npm test` 1264/1264. `impeccable-bridge`/`impeccable-vendor` 33/33. Vendored diff empty.
+- **FR-4 scenario walkthrough** (Implementer, against the shipped sentence):
+  - Case: `/es/` at 375x667, CTA top 650, height ≥ 34.
+  - Neither (a) nor (b) applies. The centre is ≥ 667, so "(c) the box centre is at or below the viewport's bottom edge (a box top at or below that edge included): `below fold (y=<top>)`" fires, giving `below fold (y=650)`.
+  - (d) and (e) are not reached.
+  - The priority bullet says "`covered` or `below fold` at any first-visit viewport is a **P1** in `/akili-audit design` and a **FAIL** in `/akili-validate`", so the finding is P1.
+  - The Reviewer re-walked it with the same result.
+- Evidence re-run (Leader, inline): **VERIFIED**. 31/31; `npm test` `# tests 1264 / # pass 1264 / # fail 0`; vendored diff empty; `git diff --check` clean; `grep -c "at **both** viewports"` in the bridge → 0.
+- Leader-executed mutations for the two folded AND-clause lines (from the Reviewer's advisory):
+  - Deleting "The report records each first-visit viewport with its source." gives `not ok 18 - FR-3: the first-visit pass adds the short-height pair 1366x768 and 375x667, overridable, each viewport recorded with its source; no automation reads Unevaluated`.
+  - Deleting "Record the method (…)" gives `not ok 20 - FR-4: the CTA is identified in order (declared, defined style only, first main action), the method is recorded and a non-declared CTA is an assumption`.
+  - Restored afterwards; 0 fail.
+- Reviewer (opus, resumed context): **PASS**. "T2 matches FR-3, FR-4 and FR-5 and all seven §7.2 rows. I walked every bullet and scenario clause term by term and found no dropped obligation." The Reviewer re-ran 64/64. The disqualifiers all hold.
+- runtime events: none.
+
+**Decisions made**
+
+- The Reviewer raised a "spec tension" on test counts: `tasks.md` T2 has 15 (FR-3 ×4, FR-4 ×6), while design §7.6 has FR-3 ×6 and FR-4 ×7. **Leader adjudication: not a tension, no amendment.** §7.6 counts per requirement across the spec; `tasks.md` splits them by task:
+  - FR-3's other two assertions belong to T5 (`Viewports` line with source) and T8 (validate "every first-visit viewport").
+  - FR-4's seventh belongs to T5 (`CTA (method)` in the template).
+  - The design total of 68 stands. T2's in-bridge AND lines are pinned inside tests 18 and 20, with their reds quoted above.
+
+**Not Done / Assumptions (Implementer, verbatim, judged as assumptions, no owed item):**
+
+- "Test count per requirement follows tasks.md: FR-3 ×4, FR-4 ×6, FR-5 ×5. The FR-4 AND clause (record the method) and the no-automation FR-3 clause sit inside assertion 20 and assertion 18. Design §7.6 lists 7 for FR-4 and 6 for FR-3, but the brief fixed the total at 15."
+- "*Responsive Behavior* as the heading `desktop` is read from comes verbatim from design §7.2. I did not check that the constitution template names that heading, because that is a T6 concern." The Reviewer confirmed it exists as item 9 of the *Required structure* in `akili-constitution.md`.
+- "I added a few words beyond the minimum, all drawn from the design and requirements text. The capture-conditions bullet now lists per-capture fields: CTA method and banner state `visible` / `not rendered: <reason>` / `none in product` (design §5.2). The no-automation bullet now says "(the short-height captures included)". The priority bullet carries the BUT sentence about `1280x800`."
+
+**ADVISORY (recorded, not tasks):**
+
+- RELIABILITY: confirm the folded AND-clause reds. Done by the Leader above.
+- READABILITY: `akili-validate.md` still says "manual fold check at both viewports". This is T8's scope.
+- RESILIENCE: outcome (c) tests only the bottom edge. A centre beyond the right or top edge falls through to (d)/(e). This is outside the A2 text, so it is a candidate for a future spec, not this one.
+
+- Phrase-family sweep: `both viewports|topmost element|hit-test|\bfold\b|fold check|first-visit|first visit` over `.claude docs README.md` (minus `docs/specs/` and the vendored folder). Every hit was read:
+  - Bridge hits are T2 text or still true.
+  - `akili-validate.md:144` belongs to T8.
+  - The "scan matrix at both viewports" lines (`akili-audit.md:147`, `akili-validate.md:140`, `akili-test.md:193`) are still true.
+  - Reference `:3, :147, :152` belong to T4/T5. `docs/skills/impeccable-bridge.md:37` belongs to T10.
+  - The rest are unrelated (`above fold` in marketing and ui-ux-pro-max, "fold unrelated cleanup").
+- spawns: Implementer (sonnet) 18 calls, 125139 tokens, ended complete; Reviewer (opus, resumed) 4 calls, 120733 tokens cumulative, ended complete (PASS).
+- Final verification: `npm test` `# tests 1264 / # pass 1264 / # fail 0`.
+- Running totals vs budget: tasks 2/11; authored LOC ≈ 291 (T1 ≈ 171, T2 ≈ 120: bridge 12+/7−, tests 101) against the ~900 ceiling; review rounds 3/~18. Within budget.
+- Continue gate: auto-approved (JC mandate).

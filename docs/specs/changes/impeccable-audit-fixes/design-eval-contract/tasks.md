@@ -59,7 +59,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~55 LOC prose, ~95 LOC tests) |
 | Depends on | T1 |
 | Requirements | FR-3 (`WxH` and `incomplete`, scan matrix keeps two passes, the short-height pair with override and source, the scenario's BUT); FR-4 (CTA order, measurement, five outcomes per A2, P1/FAIL unless a `first-visit` waiver, the scenario's THEN and BUT); FR-5 (all three SHALL bullets, the scenario's THEN, BUT and AND IT MUST) |

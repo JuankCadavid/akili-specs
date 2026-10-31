@@ -167,23 +167,28 @@ IMPECCABLE_BIN=<pinned path> DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-
 | Source scan | Source files: pattern rules only | One pass |
 | URL scan | The running dev server or deployed URL (for example `http://localhost:5173`); rendered-page rules (contrast, tiny text) need a URL | `desktop` (default `1280x800`) **and** `mobile` (`--viewport <mobile>`) |
 
-- Every detector URL scan, in `/akili-audit design` and the `/akili-validate` design gate, runs both passes. `/akili-test`'s detector suite plans both.
-- `<mobile>` is the mobile viewport declared in `docs/ux-ui/design.md` when present, else `390x844`. The report records the value and its source.
+- Every detector URL scan, in `/akili-audit design` and the `/akili-validate` design gate, runs both passes. `/akili-test`'s detector suite plans both. The matrix stays at **two** passes: the short-height pair is browser-only (see *First-visit pass*).
+- Every viewport is `WxH`. A `docs/ux-ui/design.md` value with a width but no height is recorded as `incomplete (<value>)`, and the default is used.
+- `desktop` takes its value from *Responsive Behavior* in `docs/ux-ui/design.md` when declared, else `1280x800`. `<mobile>` is the mobile viewport declared in `docs/ux-ui/design.md` when present, else `390x844`. The report records each value and its source.
 - Report the scan matrix as a table: pass × URL → exit code, finding count.
 
 ### First-visit pass (Persuade and Operate screens)
 
-`/akili-audit design` and the `/akili-validate` design gate run, at **both** viewports, for every Persuade and Operate screen:
+`/akili-audit design` and the `/akili-validate` design gate run, for every Persuade and Operate screen, item 1 at the two scan-matrix viewports and items 2 to 4 at **every first-visit viewport**: `desktop`, `mobile` and the **short-height pair**, default `1366x768` (desktop) and `375x667` (mobile), overridable in `docs/ux-ui/design.md`. The report records each first-visit viewport with its source.
 
 1. A detector scan with `--no-consent-hiding --no-overlay-hiding`.
 2. A fresh browser context with no stored consent.
-3. A fold screenshot and a hit-test at the primary CTA's center (the main action of the screen). The pass **fails** when the topmost element is neither the CTA nor its descendant.
+3. A fold screenshot and a hit-test at the centre of the primary CTA's box (the main action of the screen).
+   - Identification, in order: (1) the CTA declared for the screen in the Screen Inventory's `Primary CTA` column of `docs/ux-ui/design.md` (a selector or attribute); (2) only when `docs/ux-ui/design.md` defines a Primary CTA style, the first element in `main` with that style; (3) the first `main a|button`. Record the method (`declared`, `primary style` or `first main action`) in the capture conditions, and list a non-declared CTA under *Assumptions*.
+   - Measurement: visibility comes from computed style (`display`, `visibility`, `opacity`) plus the bounding box against the viewport, never from `offsetParent`. The hit-test is at the box centre.
+   - Outcomes, checked in this order: (a) no candidate: `Unevaluated (no CTA found)`; (b) computed style hides it, or its box has zero size: `Unevaluated (CTA not visible: <style>)`; (c) the box centre is at or below the viewport's bottom edge (a box top at or below that edge included): `below fold (y=<top>)`; (d) the hit-test returns the CTA or one of its descendants: `pass`; (e) otherwise, the hit-test returns another element: `covered (<topmost element>)`. `below fold` is never reported as `covered` and never counted as an overlay defect.
+4. When the product has a consent banner (named in `docs/ux-ui/design.md`, or found in the UI source), each capture asserts it is visible, using the item 3 measurement applied to the banner. If it is not rendered, the capture reads `Unevaluated (consent banner not rendered: <reason>)` and never reads `pass`; the report names the remedy: a build that renders the banner with **test** identifiers, never production ones. The detector's first-visit flags count as banner evidence only where the capture confirmed the banner on screen; otherwise the report states that the detector pass added no first-visit evidence.
 
 - The consent-hiding default passes are never presented as covering the first visit.
-- A hero CTA under a consent banner at `390x844` returns the banner from the hit-test: that is a P1 in design mode and a FAIL in validate.
-- Record the capture conditions per pass: locale, reduced motion, viewport and consent state.
+- On Persuade and Operate screens, `covered` or `below fold` at any first-visit viewport is a **P1** in `/akili-audit design` and a **FAIL** in `/akili-validate`, unless a *Design Waivers* row with Rule `first-visit` covers that screen and viewport. An `Unevaluated` outcome is never a pass: in `/akili-validate` the gate reads `WARN (unverified first visit)` until a manual or automated capture gives an outcome. A screen's first visit is never reported as passed on the strength of the `1280x800` pass alone: every first-visit viewport reports its own outcome.
+- Record the capture conditions per capture (screen × first-visit viewport): locale, reduced motion, viewport, consent state, CTA method and banner state (`visible`, `not rendered: <reason>`, `none in product`).
 - **Read** screens need no first-visit pass; the report says so for that screen.
-- **Without browser automation:** the screenshot and hit-test read `Unevaluated (no browser automation)` and the detector part still runs. In `/akili-validate` the HITL pause asks for a manual fold check and records its result. Without one, the design gate is `WARN (unverified first visit)` and never `PASS`. Use whatever browser automation the host has; Impeccable's `live-browser.js` is its own interactive tool, not AKILI's measurement harness.
+- **Without browser automation:** the screenshot and hit-test read `Unevaluated (no browser automation)` at every first-visit viewport (the short-height captures included) and the detector part still runs. In `/akili-validate` the HITL pause asks for a manual fold check at every first-visit viewport and records its result. Without one, the design gate is `WARN (unverified first visit)` and never `PASS`. Use whatever browser automation the host has; Impeccable's `live-browser.js` is its own interactive tool, not AKILI's measurement harness.
 - **A rejected flag** (an engine version that lacks it) reads `Unevaluated (engine <version> lacks <flag>)`, never a silent pass.
 
 ### Exit codes
