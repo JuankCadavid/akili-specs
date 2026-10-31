@@ -97,7 +97,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~55 LOC prose, ~85 LOC tests) |
 | Depends on | T3 |
 | Requirements | FR-6 (the mapping table); FR-7 (E2b and E4 point at the bridge section); FR-8 (both SHALL clauses, BUT); FR-9 (both bullets, the scenario's BUT and AND IT MUST, the failure state); FR-10 (the SHALL, BUT `none`); FR-11 (E1 drift routed, BUT nothing written); FR-12 (E2 template coverage) |

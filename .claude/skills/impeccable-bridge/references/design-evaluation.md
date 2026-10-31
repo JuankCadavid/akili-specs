@@ -8,10 +8,11 @@ Used by `/akili-audit design [<url|path>]`. Report-only: no project file is edit
 |---|---|
 | E0 | **Skill source and engine.** Run the bridge's *Step 0 — Skill source and engine gate*. Record both values in the `Impeccable` header field. The audit's row of *Who does what in each state* says what each state means for this step |
 | E1 | **Context and baseline checks** (below). Read `docs/prd.md` and `docs/ux-ui/design.md` if present, then run the three baseline checks |
-| E2 | **Target.** A given URL or path; otherwise the dev-server URL from the TRD or `package.json` scripts plus the UI source directories. Name up to **8** key screens; more only on request. Record any **owner exclusion** (a path, screen or element the owner said to leave out) for `Out of scope` |
+| E2 | **Target.** A given URL or path; otherwise the dev-server URL from the TRD or `package.json` scripts plus the UI source directories. Name up to **8** key screens, chosen so every distinct template in the UI source (a layout or page component, for example `BlogPost.astro`) appears once while the cap allows; templates left out are named in the `Coverage` header field as a declared risk. More screens only on request. Record any **owner exclusion** (a path, screen or element the owner said to leave out) for `Out of scope` |
+| E2b | **Assessment A inline**, only as the bridge's *Suppressed in `/akili-audit design`* allows. Otherwise skip this step: Assessment A is delegated at E4 |
 | E3 | **Detector.** Run the bridge's *Detector gate*: the *Scan matrix* on the URL and the source, and the *First-visit pass* for each Persuade and Operate screen. Record each result as a row of the *Scan matrix* and *Capture conditions* tables, with exit code and findings by rule id. Exit codes read as the bridge's *Exit codes* table says |
 | E3b | **Performance** (below). Runs after E3 has finished and before any delegated agent starts |
-| E4 | **Review.** Per key screen, run Impeccable `critique` (heuristic scores) and `audit` (accessibility, performance, responsive, theming, anti-patterns), judged against that screen's page mode. When the skill source is `missing`, run the same checks with `ui-ux-pro-max` rules and `frontend-design` (the bridge's *Fallback* section). Set `Score source` from what produced the scores |
+| E4 | **Review.** Per key screen, run Impeccable `critique` (heuristic scores) and `audit` (accessibility, performance, responsive, theming, anti-patterns), judged against that screen's page mode. When the skill source is `missing`, run the same checks with `ui-ux-pro-max` rules and `frontend-design` (the bridge's *Fallback* section). Set `Score source` from what produced the scores. `critique` follows the bridge's *Suppressed in `/akili-audit design`*. When E4 delegates, the brief must (1) reproduce that list; (2) give the sub-agent no E3 output; (3) require the finding count first, then the findings as text in bounded parts; (4) forbid file output. The parent compares the received findings with the stated count before writing the report and fetches any shortfall; it never writes a report with fewer findings than the stated count |
 | E5 | **Prioritize.** Every finding gets a priority and a route (below). Match findings against *Design Waivers* as the bridge says (including its *Counting* row) |
 | E6 | **Write** the report to the default path `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md`, unless the user directed another location (below) |
 | E7 | **Offer routes**: P1/P2 fixes small enough for one file go to `/akili-quick`; the rest are bundled into one `/akili-propose` whose Source is this report; or keep the report |
@@ -23,7 +24,7 @@ Run these only when `docs/ux-ui/design.md` exists, before any screen review. Wit
 | # | Check | Result |
 |---|---|---|
 | 1 | **Staleness.** Compare the last commit date of `docs/ux-ui/design.md` with the newest commit touching the UI source directories (those E2 resolves) | UI newer: `Baseline possibly stale (design.md <date>; UI <date>)` plus up to **5** newer commits, newest first. Not newer: `current`. No git history (not a repository, or no commits for either side): `Unevaluated (no git history)` |
-| 2 | **Page modes.** Is there a page-mode column, and does every in-scope screen carry a mode? | A missing column, or a screen with no mode: baseline drift. List the inferred modes under *Assumptions*. Otherwise `ok` |
+| 2 | **Baseline shape.** Does `docs/ux-ui/design.md` have a page-mode column, a mode on every in-scope screen, a *Design Waivers* list, and clause IDs? | Any one missing is baseline drift: `Page modes: drift (<what>; routed to /akili-constitution)`. List the inferred modes under *Assumptions*. Drift is reported and nothing is written: the backfill belongs to `/akili-constitution`. Without clause IDs, a proposed waiver cites `§<section> l.<line>`. Otherwise `ok` |
 | 3 | **Derived context.** Do root `PRODUCT.md` and `DESIGN.md` exist? | Missing: note that the detector lacks design-system context, so its design-system rules may flag approved patterns. Present: `ok` |
 
 Example: `design.md` last committed 2026-10-17 and a hero redesign committed 2026-10-28 give `Baseline possibly stale (design.md 2026-10-17; UI 2026-10-28)`, followed by the redesign commit.
@@ -35,14 +36,22 @@ Lighthouse measures a rendered page, so the step needs a URL. Mobile is the defa
 | Rule | Content |
 |---|---|
 | Scope | Per audited URL, within the E2 cap of 8 key screens |
-| Resolve, never install | In order: the project's `node_modules/.bin`, then `PATH`, then `npx --no-install lighthouse`. None found: the step reads `Unevaluated (Lighthouse unavailable)`. Downloading Lighthouse or a browser follows the bridge's *Privacy and consent* |
+| Resolve, never install | In order: the project's `node_modules/.bin`, then `PATH`, then `npx --no-install lighthouse`, then `npm ci` from the project's lockfile, recorded in `Install`. `npm ci` needs all three: Lighthouse is declared in the project's `devDependencies`; `node_modules` is **absent** and git-ignored (a fresh worktree); the bridge's *Privacy and consent* consent is given, the question saying that `npm ci` installs every devDependency and runs their install scripts. Never when Lighthouse is not declared or `node_modules` exists. A failed `npm ci` reads `Unevaluated (Lighthouse unavailable: npm ci failed: <first stderr line>)`. None found: the step reads `Unevaluated (Lighthouse unavailable)`. Downloading Lighthouse or a browser follows the bridge's *Privacy and consent* |
 | No URL | A path-only target with no reachable URL reads `Unevaluated (no URL)` |
 | Runs | At least **3** mobile runs per URL. Report the **median** and the **range** of the score and of LCP |
-| Too few runs | Fewer than 3 completed runs (a run failed or timed out) reads `Unevaluated (<n> of 3 runs completed)`. The partial numbers may be listed, never reported as the page score |
+| Run validity | A run counts as completed when its JSON exists, has no `runtimeError`, and has a performance score, whatever the exit code. Record each run's exit code and first stderr line. A JSON with a `runtimeError` never counts |
+| Too few runs | Fewer than 3 completed runs (see *Run validity*) reads `Unevaluated (<n> of 3 runs completed)`. The partial numbers may be listed, never reported as the page score |
 | One run is never the score | Runs scoring 92, 89 and 64 report median 89 and range 64-92. Reporting any single run as the page score is a defect of the report |
 | Spread | When the range is wider than the effect a recommended fix targets, the report states that the number cannot serve as a baseline or gate. With no performance fix recommended the column reads `n/a` |
 | Concurrency | **Never run while a delegated agent is active, and never beside the E3 detector or browser capture.** A measurement competes for ports, build output and CPU, so one taken beside another process is wrong, not slow (`.agents/leader.md`, *Concurrency protocol*). Run it in the quiet window after E3, and start any delegated agent for E4 only after it ends |
+| Machine load | Record once per E3b run, immediately before its first Lighthouse run: the load average and the other listening development servers (port and process name). Sources are listed after this table. Nothing listening reads `none`; no source on the host reads `unavailable (<reason>)` |
 | No gate | `/akili-validate` gains no performance gate. This step is design-mode evidence only |
+
+**Machine-load sources:**
+
+- **Load average:** `uptime` on macOS and Linux.
+- **Listeners:** `lsof -nP -iTCP -sTCP:LISTEN`, or `ss -ltnp` on Linux.
+- **Dev server:** a listener whose process is `node`, `bun`, `deno`, `python`, `ruby`, `php` or `java`, or whose port is 3000–9999. The audit's own server is excluded.
 
 Report one row per URL in the *Performance* table of the template.
 
@@ -62,6 +71,17 @@ A user-directed path replaces the default; the report is written once, at that p
 | P1 | Blocks the main task or fails accessibility (contrast, keyboard, focus, tiny text), or breaks on narrow screens |
 | P2 | Hurts comprehension, hierarchy or trust on a key screen; generic or inconsistent visual system |
 | P3 | Polish: spacing, rhythm, motion, consistency |
+
+Impeccable's `critique` and `audit` use P0–P3. The report keeps P1–P3 and maps them:
+
+| Impeccable priority | AKILI priority |
+|---|---|
+| P0 | P1, tagged `blocking` |
+| P1 | P1 |
+| P2 | P2 |
+| P3 | P3 |
+
+A finding that is both `blocking` and inaccessible stays one P1. The report has no P0 section.
 
 ## Report template
 

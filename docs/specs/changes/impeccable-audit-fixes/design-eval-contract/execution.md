@@ -218,3 +218,60 @@
 - Final verification: `npm test` `# tests 1274 / # pass 1274 / # fail 0`.
 - Running totals vs budget: tasks 3/11; authored LOC ≈ 396 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105: bridge 25+/2−, tests 78) against the ~900 ceiling; review rounds 5/~18. Within budget. LOC is running above the per-task estimates for tests (T1–T3 estimated ~245 tests, actual ~333) and below them for prose. Watching against the ceiling.
 - Continue gate: auto-approved (JC mandate).
+
+### T4: Reference steps: E1, E2, E2b, E3b, E4, *Priorities*
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Attempts | 1 |
+| Requirements covered | FR-6 (mapping table); FR-7 (E2b and E4 point at the bridge section); FR-8 (brief items, parent count check, BUT); FR-9 (`npm ci` conditions, *Run validity*, BUT, AND IT MUST, failure state); FR-10 (load, sources, dev-server filter, BUT `none`); FR-11 (E1 *Baseline shape* routing, BUT nothing written, `§<section> l.<line>`); FR-12 (E2 template coverage) |
+| Skills | `impeccable-bridge`, `tdd` (as listed) |
+| Effort | `high` |
+
+**Attempt 1**
+
+- Files changed: `.claude/skills/impeccable-bridge/references/design-evaluation.md` (25+/5−, five scoped sites), `test/design-eval-contract.test.js` (+69, 13 tests).
+- Implementer verification:
+  - Red: `# pass 41 / # fail 13`, all on missing reference text (six on missing row or section markers such as `missing: | Run validity |`).
+  - Green: 54/54.
+  - 40 clause-level mutations, each red on exactly one test. The four task falsifiers:
+    - "`node_modules` is **absent**" removed: FR-9 preconditions red.
+    - "has no `runtimeError`" changed to "exits 0": FR-9 run-validity red.
+    - Dev-server filter removed: FR-10 sources red.
+    - Count-first clause removed: the FR-7/FR-8 brief test red.
+  - One weak pin ("clause IDs", satisfied elsewhere in the row) was tightened and re-run red.
+  - All 13 fail against the `HEAD` reference.
+  - `npm test` 1287/1287. Vendored diff empty. `impeccable-bridge`/`impeccable-vendor` 33/33.
+- Evidence re-run (Leader, inline): **VERIFIED**. 54/54; `npm test` `# tests 1287 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus, fresh spawn): **PASS**. "All five scoped sites in `.claude/skills/impeccable-bridge/references/design-evaluation.md` match design §7.4 nearly word for word … I checked FR-6, FR-7 (pointer part), FR-8, FR-9, FR-10, FR-11 (E1 part) and FR-12 (E2 part) clause by clause, including each BUT and AND IT MUST, and found nothing dropped."
+  - The disqualifiers are clear: NFR-3 holds, NFR-2 holds (E4 says only "reproduce that list"), and the *Concurrency* row is unchanged.
+- runtime events: none.
+
+**Decisions made**
+
+- The Reviewer ruled that the template's `Page modes: … drift (<what>; inferred modes under Assumptions)` value belongs to T5 (the T5 Scope names the template's `Page modes` values). T4 does not widen.
+
+**Not Done / Assumptions (Implementer, verbatim):**
+
+- "The report template still reads `drift (<what>; inferred modes under Assumptions)` and has no `Coverage` or `Machine load` field. That is T5, as scoped."
+- "FR-7's pointer part has no test of its own, because the spec's count of 13 has no FR-7 line. Assertion 2 covers the E2b and E4 pointers together with the FR-8 brief items, and I named it 'FR-7/FR-8'."
+
+**Forward pointer to T5 (from the Reviewer's advisory; T5's own scope):** update the template's `Page modes` drift value to the E1 form (`routed to /akili-constitution`), and add the `Install` and `Machine load` sub-lines, so the template matches the E1 and E3b rules.
+
+**ADVISORY (recorded, not tasks):**
+
+- READABILITY: the E3b row label *Resolve, never install* now sits over a rule that allows a consented `npm ci`. Design §7.4 keeps the name, so this could be a later quick rename.
+- READABILITY: the `§<section> l.<line>` fallback is in both E1 and the bridge's *Design Waivers*. Both copies are spec-mandated and must stay in sync.
+- RISK: the dev-server filter (ports 3000–9999) will also list unrelated local services. The field is informational and changes no gate.
+
+- Phrase-family sweep: the keys `8 key screens|up to \*\*8|never install|failed run|P0|Too few runs|offsetParent` over `.claude docs README.md` (minus `docs/specs/` and the vendored folder). Every hit was read:
+  - The reference hits are T4 text or still true.
+  - Bridge `offsetParent` is T2's.
+  - `product-manager-toolkit` P0 is unrelated.
+  - `docs/skills/impeccable-bridge.md:29` still agrees with the consented `npm ci` (Reviewer).
+- spawns: Implementer (sonnet) 20 calls, 124230 tokens, ended complete; Reviewer (opus): not reported by host, ended complete (PASS).
+- Final verification: `npm test` `# tests 1287 / # pass 1287 / # fail 0`.
+- Running totals vs budget: tasks 4/11; authored LOC ≈ 490 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105, T4 ≈ 94) against the ~900 ceiling; review rounds 6/~18. Within budget.
+- Continue gate: auto-approved (JC mandate).

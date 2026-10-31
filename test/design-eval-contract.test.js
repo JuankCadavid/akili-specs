@@ -322,6 +322,75 @@ test("FR-11: a waiver row's Reason cites the clause, a first-visit waiver uses R
   assert.ok(ex.includes("With no clause IDs in the baseline, a proposed waiver cites `\u00a7<section> l.<line>`"), "fallback citation");
 });
 
+// --- Reference (design-evaluation.md): steps, E1, E3b, Priorities ---
+const ref = () => read(...BRIDGE, "references", "design-evaluation.md");
+const stepRow = (id) => slice(slice(ref(), "## Steps", "## E1 - Baseline checks"), `| ${id} |`, "\n");
+const e1Shape = () => slice(ref(), "| 2 | **Baseline shape.**", "\n");
+const e3b = () => slice(ref(), "## E3b - Performance", "## E6 - Report location");
+const e3bRow = (n) => slice(e3b(), `| ${n} |`, "\n");
+const has = (s, ...parts) => parts.forEach((p) => assert.ok(s.includes(p), `missing: ${p}`));
+const SUPP = "the bridge's *Suppressed in `/akili-audit design`*";
+
+test("FR-6: Priorities maps Impeccable P0 to P1 tagged `blocking` and P1-P3 to themselves; a blocking inaccessible finding is one P1", () => {
+  const p = slice(ref(), "## Priorities", "## Report template");
+  has(slice(p, "| Impeccable priority |", "\n\n"), "| P0 | P1, tagged `blocking` |", "| P1 | P1 |", "| P2 | P2 |", "| P3 | P3 |");
+  has(p, "both `blocking` and inaccessible stays one P1");
+});
+
+test("FR-7/FR-8: E4's delegated brief reproduces the bridge list, gives no E3 output, requires the count first, bounded text parts and no file output; E2b and E4 point at the bridge section", () => {
+  has(stepRow("E4"), SUPP, "(1) reproduce that list", "(2) give the sub-agent no E3 output", "(3) require the finding count first, then the findings as text in bounded parts", "(4) forbid file output");
+  has(stepRow("E2b"), SUPP);
+});
+
+test("FR-8: the parent compares the received findings to the stated count before writing and fetches any shortfall", () => {
+  has(stepRow("E4"), "compares the received findings with the stated count before writing the report and fetches any shortfall");
+});
+
+test("FR-8 (BUT): a report is never written short of the stated count", () => {
+  has(stepRow("E4"), "never writes a report with fewer findings than the stated count");
+});
+
+test("FR-9: npm ci resolves Lighthouse only when it is declared in devDependencies and node_modules is absent and git-ignored; never otherwise", () => {
+  has(e3bRow("Resolve, never install"), "then `npm ci` from the project's lockfile", "Lighthouse is declared in the project's `devDependencies`", "`node_modules` is **absent** and git-ignored (a fresh worktree)", "Never when Lighthouse is not declared or `node_modules` exists");
+});
+
+test("FR-9: npm ci needs the bridge's consent, the question saying it installs every devDependency and runs install scripts, and is recorded in Install", () => {
+  has(e3bRow("Resolve, never install"), "the bridge's *Privacy and consent* consent is given", "installs every devDependency and runs their install scripts", "recorded in `Install`");
+});
+
+test("FR-9: a run counts as completed when its JSON exists, has no `runtimeError` and has a performance score, whatever the exit code; exit code and first stderr line are recorded", () => {
+  const r = e3bRow("Run validity");
+  has(r, "its JSON exists, has no `runtimeError`, and has a performance score, whatever the exit code", "Record each run's exit code and first stderr line");
+  has(e3bRow("Too few runs"), "completed runs (see *Run validity*)");
+});
+
+test("FR-9 (BUT): a run whose JSON has a runtimeError never counts; a failed npm ci reads Unevaluated (Lighthouse unavailable: npm ci failed", () => {
+  has(e3bRow("Run validity"), "A JSON with a `runtimeError` never counts");
+  has(e3bRow("Resolve, never install"), "A failed `npm ci` reads `Unevaluated (Lighthouse unavailable: npm ci failed: <first stderr line>)`");
+});
+
+test("FR-10: Machine load is recorded once per E3b run before the first Lighthouse run, from uptime, lsof or ss, with the dev-server filter and the audit's own server excluded", () => {
+  has(e3bRow("Machine load"), "immediately before its first Lighthouse run", "the load average and the other listening development servers (port and process name)");
+  const s = slice(e3b(), "**Machine-load sources:**", "Report one row per URL");
+  has(s, "`uptime`", "`lsof -nP -iTCP -sTCP:LISTEN`, or `ss -ltnp` on Linux", "a listener whose process is `node`, `bun`, `deno`, `python`, `ruby`, `php` or `java`, or whose port is 3000–9999", "The audit's own server is excluded");
+});
+
+test("FR-10 (BUT): with no dev server listening the record reads `none`; with no source on the host it reads `unavailable (<reason>)`", () => {
+  has(e3bRow("Machine load"), "Nothing listening reads `none`", "no source on the host reads `unavailable (<reason>)`");
+});
+
+test("FR-11: E1 Baseline shape reports a missing page-mode column, screen mode, Design Waivers list or clause IDs as drift routed to /akili-constitution", () => {
+  has(e1Shape(), "a page-mode column", "a mode on every in-scope screen", "a *Design Waivers* list, and clause IDs?", "`Page modes: drift (<what>; routed to /akili-constitution)`");
+});
+
+test("FR-11 (BUT): Baseline shape writes nothing; without clause IDs a proposed waiver cites `§<section> l.<line>`", () => {
+  has(e1Shape(), "nothing is written", "Without clause IDs, a proposed waiver cites `§<section> l.<line>`");
+});
+
+test("FR-12: E2 chooses key screens so every distinct template appears once while the cap allows and names the rest under Coverage as a declared risk", () => {
+  has(stepRow("E2"), "every distinct template in the UI source (a layout or page component, for example `BlogPost.astro`) appears once while the cap allows", "templates left out are named in the `Coverage` header field as a declared risk");
+});
+
 test("Guard: this test file reads no file under the spec folder", () => {
   // The forbidden path is built from fragments so this source never contains it.
   const D = "do" + "cs";
