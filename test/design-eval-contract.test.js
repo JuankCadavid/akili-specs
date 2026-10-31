@@ -459,6 +459,73 @@ test("FR-13: propose's design-evaluation source sentence follows the recorded Re
   assert.ok(sentence.includes("or the path recorded in its `Report location` field"), "Report location clause");
 });
 
+// FR-16 sweep: the retired phrases stay out of every shipped file. Scope is .claude/ + docs/ + README.md;
+// only the spec history and the vendored upstream folder are excluded. Paths are built from fragments (Guard).
+const SWEEP_DOCS = "do" + "cs";
+const SWEEP_SPECS = "sp" + "ecs";
+const sweepSkip = [path.join(SWEEP_DOCS, SWEEP_SPECS), path.join(".claude", "skills", "impeccable")];
+const sweepOutside = `outside \`${SWEEP_DOCS}/${SWEEP_SPECS}/audits/\``;
+const sweepFiles = () => {
+  const files = [];
+  const walk = (rel) => {
+    for (const e of fs.readdirSync(path.join(ROOT, rel), { withFileTypes: true })) {
+      const r = path.join(rel, e.name);
+      if (e.isDirectory()) {
+        if (!sweepSkip.includes(r)) walk(r);
+      } else if (e.isFile()) files.push(r);
+    }
+  };
+  walk(".claude");
+  walk(SWEEP_DOCS);
+  files.push("README.md");
+  return files;
+};
+// Every line of every text file in scope that satisfies `pred`, as `file:line`.
+const sweepLines = (pred) => {
+  const hits = [];
+  for (const f of sweepFiles()) {
+    const buf = fs.readFileSync(path.join(ROOT, f));
+    if (buf.includes(0)) continue; // binary
+    buf.toString("utf8").replace(/\r\n/g, "\n").split("\n").forEach((line, i) => {
+      if (pred(line)) hits.push(`${f.split(path.sep).join("/")}:${i + 1}`);
+    });
+  }
+  return hits;
+};
+
+test("FR-16: the sweep walker reaches every file in scope and excludes only the two named folders", () => {
+  const files = sweepFiles();
+  const has = (...p) => files.includes(path.join(...p));
+  assert.ok(files.length > 100, `sweep reached the shipped tree (${files.length} files)`);
+  for (const f of [[".claude", "commands", "akili-validate.md"], [...BRIDGE, "SKILL.md"], [...BRIDGE, "references", "design-evaluation.md"], [SWEEP_DOCS, "skills", "impeccable-bridge.md"], ["README.md"]]) assert.ok(has(...f), `in scope: ${f.join("/")}`);
+  assert.ok(!files.some((f) => sweepSkip.some((d) => f.startsWith(d + path.sep))), "only the two named folders are excluded");
+});
+
+for (const [n, phrase] of [
+  [1, "fold check at both viewports"],
+  [2, "run, at **both** viewports"],
+  [3, "(clause A-06)"],
+  [5, "The pass **fails** when the topmost element"],
+  [6, "A hero CTA under a consent banner at `390x844`"],
+]) {
+  test(`FR-16 pattern ${n}: no shipped file keeps "${phrase}"`, () => {
+    const hits = sweepLines((l) => l.includes(phrase));
+    assert.deepStrictEqual(hits, [], `retired phrase at:\n${hits.join("\n")}`);
+  });
+}
+
+test("FR-16 pattern 4: the retired `run` first-visit value is gone from every shipped file", () => {
+  const hits = sweepLines((l) => l.includes("`run` | `not required (Read)`") || l.includes("(`run`, `not required (Read)`"));
+  assert.deepStrictEqual(hits, [], `retired value at:\n${hits.join("\n")}`);
+});
+
+test("FR-16 pattern 7: every line limiting edits to the audits folder names the user-directed exception", () => {
+  const all = sweepLines((l) => l.includes(sweepOutside));
+  const bad = sweepLines((l) => l.includes(sweepOutside) && !l.includes("user-directed"));
+  assert.ok(all.some((h) => h.startsWith(".claude/commands/akili-audit.md:")) && all.some((h) => h.startsWith(".claude/skills/impeccable-bridge/references/design-evaluation.md:")), `both design-mode lines found: ${all.join(", ")}`);
+  assert.deepStrictEqual(bad, [], `missing the user-directed exception at:\n${bad.join("\n")}`);
+});
+
 test("Guard: this test file reads no file under the spec folder", () => {
   // The forbidden path is built from fragments so this source never contains it.
   const D = "do" + "cs";

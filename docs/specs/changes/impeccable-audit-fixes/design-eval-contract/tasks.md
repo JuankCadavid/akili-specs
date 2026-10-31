@@ -211,7 +211,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~20 LOC prose, ~70 LOC tests) |
 | Depends on | T9 |
 | Requirements | FR-16 (every shipped restatement matches); FR-13 (docs report location); FR-2 (docs readings: "(verified or modified)") |

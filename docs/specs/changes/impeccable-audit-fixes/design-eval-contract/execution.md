@@ -437,3 +437,66 @@
 - spawns: Implementer (sonnet) 17 calls, 100402 tokens, ended complete; Implementer rework (sonnet) 4 calls, 107474 tokens cumulative, ended complete; Reviewer (opus) 7 calls, 82427 tokens, ended fail (T6, T7) / pass (T8, T9); Reviewer resume (opus): not reported by host, ended complete (PASS).
 - Running totals vs budget: tasks 9/11. Authored LOC ≈ 603 against the ~900 ceiling: T1–T5 ≈ 558, plus T6–T9 ≈ 45 (commands ≈ 14 changed prose lines, measured as word-level edits on single-line paragraphs; tests +31). Review rounds 13/~18 (T6 2, T7 2, T8 1, T9 1). Within budget.
 - Continue gate: auto-approved (JC mandate).
+
+### T10: Docs restatements and the retired-phrase sweep test
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Attempts | 1 |
+| Requirements covered | FR-16 (every shipped restatement matches; the seven-pattern sweep); FR-13 (docs report location); FR-2 (docs readings "(verified or modified)") |
+| Skills | `cognitive-doc-design`, `tdd` (as listed) |
+| Effort | `high` |
+
+**Attempt 1**
+
+- Files changed:
+  - `docs/skills/impeccable-bridge.md` (3/3): the readings cell, the detector summary, and the design-mode sentence.
+  - `docs/commands/akili-audit.md` (1/1): the report-location line.
+  - `test/design-eval-contract.test.js` (+67): 7 pattern assertions and 1 walker-reach assertion.
+  - `docs/skills/impeccable.md` was checked and left unchanged. Grep `both viewports|fold|topmost|CTA|first-visit|user-directed|Report location|audits/design|outside|P0|verified|false positive` found 7 hits (`:14`, `:36`, `:40`, `:42`, `:53`, `:58`); none is a restatement site.
+- Pattern baseline check (blobs at `8268cb7`): each pattern matches at least one Document Control site:
+  - 1: `akili-validate.md:144`
+  - 2: bridge `:167`
+  - 3: bridge `:205`
+  - 4: reference `:97`, `:152` (the literal baseline text; the `\|` in `design.md` is table escaping)
+  - 5: bridge `:171`
+  - 6: bridge `:174`
+  - 7: reference `:154`, `akili-audit.md:159` (red at baseline on `:159`)
+- Implementer verification: green 72/72. Falsifiers were executed one at a time and restored after each:
+
+  | Mutation | Red output |
+  |---|---|
+  | Pattern 1 re-added to `akili-validate.md` | `retired phrase at: .claude/commands/akili-validate.md:224` |
+  | Pattern 2 re-added to the bridge | red, naming `SKILL.md:271` |
+  | Pattern 3 re-added to the bridge | red, naming `SKILL.md:271` |
+  | Pattern 4a re-added to the reference | `retired value at: …design-evaluation.md:192` |
+  | Pattern 4b re-added to the reference | `retired value at: …design-evaluation.md:192` |
+  | Pattern 5 re-added to the bridge | red, naming `SKILL.md:271` |
+  | Pattern 6 re-added to the bridge doc | red, naming `docs/skills/impeccable-bridge.md:52` |
+  | Pattern 7a: `user-directed` stripped from `akili-audit.md:159` | `missing the user-directed exception at: .claude/commands/akili-audit.md:159` |
+  | Pattern 7b: offending line added | red, naming `docs/commands/akili-audit.md:65` |
+  | Walker: `README.md` dropped | `'in scope: README.md'` |
+  | Walker: `docs` root dropped | `'in scope: docs/skills/impeccable-bridge.md'` |
+  | Walker: `.claude/commands` excluded | `'in scope: .claude/commands/akili-validate.md'` |
+
+  `npm test` 1305/1305 (1297 + 7 + 1). Vendored diff empty. Consumers (`docs-overview`, `akili-review-contract-coverage`, `impeccable-bridge`) green.
+- Evidence re-run (Leader, inline): **VERIFIED**. 72/72; `npm test` `# tests 1305 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus, fresh spawn): **PASS**. "All three edited doc sentences and their unchanged neighbours say what the shipped bridge, the E6 step in the reference and `akili-audit.md` step 5 say, no stronger and no weaker. The sweep test has exactly the FR-16 / design §7.6 scope and seven patterns, every pattern hits its baseline site, and none of the disqualifiers applies."
+  - The Reviewer re-ran the baseline hits with `git grep -F` at `8268cb7`, and re-ran 72/72.
+  - Judged omissions: the fresh-browser-context step is omitted, not misstated. The four readings for five outcomes are exact, since (a) and (b) are both `Unevaluated`. The Persuade/Operate scope is carried by the summary's first sentence.
+- runtime events: none.
+
+**Not Done / Assumptions (Implementer, verbatim):** "Pattern 7 in the test scans every in-scope file, not only `akili-audit.md` and the reference. That is stricter than the spec, and it is green today." "Pattern 4 matches the two actual baseline strings with no backslash." "The test builds the excluded prefix and the `outside` phrase from fragments."
+
+**ADVISORY (recorded, not tasks):**
+
+- RELIABILITY: pattern 7 scans every in-scope file. If a future non-design line legitimately carries the phrase, narrow the scan to the two named files.
+- RESILIENCE: the walker skips symlinks silently. There are none in scope today; this matches the precedent walker.
+
+- Phrase-family sweep (DD-12): `both viewports|fold|topmost|\brun\b|Report location|audits/design|P0|verified|user-directed` over `docs README.md`. All hits were read, then re-read with word-bounded terms. The edited sites match their sources; the rest are unrelated ("fold placement" in marketing, "Last verified", the verb "run", drift-mode `docs/specs/audits/`).
+- spawns: Implementer (sonnet) 21 calls, 120100 tokens, ended complete; Reviewer (opus): not reported by host, ended complete (PASS).
+- Final verification: `npm test` `# tests 1305 / # pass 1305 / # fail 0`.
+- Running totals vs budget: tasks 10/11; authored LOC ≈ 674 (T1–T9 ≈ 603; T10 ≈ 71) against the ~900 ceiling; review rounds 14/~18. Within budget.
+- Continue gate: auto-approved (JC mandate).
