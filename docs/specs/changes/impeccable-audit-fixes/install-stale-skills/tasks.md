@@ -36,7 +36,7 @@ T1 ──► T2 ──► T3 ──► T4
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~60 code, ~120 tests) |
 | Depends on | — |
 | Requirements | FR-1 (5 SHALL bullets; scenario 1 THEN/AND IT MUST via the pure function; scenario 2 THEN/BUT); NFR-3, NFR-5 |
