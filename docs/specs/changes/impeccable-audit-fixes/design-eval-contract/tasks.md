@@ -52,7 +52,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 | Disqualifier | Any of these voids the evidence: an assertion passes against the baseline bridge (it pins a string that already exists); an assertion reads the whole file instead of the named section; a `HOME` change appears for any call other than the download call; `test/impeccable-bridge.test.js` goes red at `:63`, `:64` or `:73` (the pinned `export`, download and launcher-form strings must survive); the vendored diff is non-empty |
 | Consumers | `test/impeccable-bridge.test.js:40, 45` (`vendored (<version>)`), `:63-64` (Step 0 strings), `:73` (launcher-form substring), `:104` (no bridge strings in commands): all must stay green (P-10). `docs/skills/impeccable-bridge.md:24` readings table (updated in T10) |
 | Review | `full`: engine-isolation and consent rules other agents execute |
-| Done criteria | 14 assertions green, each with its quoted mutation red. P-15 and P-20 settled and recorded. `npm test` green (1233 + 14). The phrase-family sweep for "pinned from Step 0", "export", "HOME" and "Destination" has its hits read. The vendored diff is empty |
+| Done criteria | 16 assertions green (14 at approval; +2 from the §7.1 amendments), each with its quoted mutation red. P-15 and P-20 settled and recorded. `npm test` green (1233 + 16). The phrase-family sweep for "pinned from Step 0", "export", "HOME" and "Destination" has its hits read. The vendored diff is empty |
 | Skills | `impeccable-bridge` (subject), `tdd` |
 
 ### T2: Bridge *Detector gate*: viewports, first-visit procedure, CTA, outcomes, banner
@@ -90,7 +90,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 | Disqualifier | Any of these voids the evidence: `false positive` is allowed in `/akili-validate`; the suppression section allows inline Assessment A without the sub-agent condition (it contradicts `critique.md:8-9`, P-18); `Proposed waivers do **not** count toward P1` or `` `Proposed waivers: N` `` disappears (`impeccable-bridge.test.js:83-84`) |
 | Consumers | `test/impeccable-bridge.test.js:49` (slices *Exit codes* up to `## Design Waivers`: the heading must keep its exact text), `:83-84`. Readers of *Design Waivers* (P-14): `akili-constitution.md:212` (T6), reference `:15, :135` (T4, T5) |
 | Review | `full`: report-only safety and a value that could swallow findings |
-| Done criteria | 9 assertions green with their quoted mutation reds. `## Design Waivers` heading byte-identical. The phrase-family sweep for "A-06", "clause", "waived" and "snapshot" has its hits read. `npm test` green |
+| Done criteria | 10 assertions green (9 at approval; +1 from the §7.3 amendment) with their quoted mutation reds. `## Design Waivers` heading byte-identical. The phrase-family sweep for "A-06", "clause", "waived" and "snapshot" has its hits read. `npm test` green |
 | Skills | `impeccable-bridge`, `tdd` |
 
 ### T4: Reference steps: E1, E2, E2b, E3b, E4, *Priorities*

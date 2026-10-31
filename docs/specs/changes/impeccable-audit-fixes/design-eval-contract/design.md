@@ -223,7 +223,7 @@ The table below maps each clause to its assertions, and it is also the Reviewer'
 | FR-15 | No test: the file is not shipped (DD-10). The T6 Reviewer checks its three items | 0 |
 | FR-16 | Retired-phrase sweep (seven patterns, listed below the table) | 7 |
 | Guard | The new test reads no `docs/specs/` file | 1 |
-| **Total** | | **71** (68 at approval; +2 in T1 and +1 in T3 from the 2026-10-31 execute-time amendments) |
+| **Total** | | **71** clause assertions (68 at approval; +2 in T1 and +1 in T3 from the 2026-10-31 execute-time amendments). The shipped file holds 72 tests: the 71 plus T10's walker-reach test, which pins the sweep's scope rather than a clause |
 
 The FR-16 sweep runs over `.claude/`, `docs/` and `README.md`, minus `docs/specs/` and the vendored folder. Its seven patterns:
 
@@ -313,7 +313,7 @@ n/a: there is no UI in this repository. The rules govern UI evaluation in projec
 | Measure | Estimate | Basis |
 |---|---|---|
 | Tasks | **11** (re-derived at Phase 3, approved by JC 2026-10-31: the six groups below split per rules file and at ~8 edit sites per task, Step 3.2; see `tasks.md`). Groups: | T1: bridge *Step 0*, *Engine consent*, *Launcher form* (FR-1, FR-2). T2: bridge *Detector gate*, *Design Waivers*, *Suppressed in `/akili-audit design`* (FR-3 to FR-5, FR-7, FR-14). T3: reference (FR-6 to FR-12, FR-14 template). T4: commands (FR-3, FR-4, FR-11, FR-13). T5: tests (§7.6). T6: docs, CHANGELOG, `upstream-request.md`, full verification (FR-15, FR-16) |
-| Authored LOC | **~870**, ceiling **~900** (approved by JC 2026-10-31 at the tasks gate), made up of: rules prose ~330 (bridge ~150, reference ~130, commands ~30, docs ~20); `upstream-request.md` ~70; CHANGELOG ~20; **tests ~450** (68 assertions × ~6 LOC, plus ~40 for the sweep walker; per clause, KZ-bugfix--init-ctrlc-abort-2) | The §7.6 map: 68 assertions |
+| Authored LOC | **~870**, ceiling **~900** (approved by JC 2026-10-31 at the tasks gate), made up of: rules prose ~330 (bridge ~150, reference ~130, commands ~30, docs ~20); `upstream-request.md` ~70; CHANGELOG ~20; **tests ~450** (68 assertions at approval, 71 after the execute-time amendments in §7.6, × ~6 LOC, plus ~40 for the sweep walker; per clause, KZ-bugfix--init-ctrlc-abort-2) | The §7.6 map: 68 assertions |
 | Review rounds | **~18** (re-derived at Phase 3, approved by JC 2026-10-31; was ~13): 2 for each `full` task (7 tasks = 14), 1 for each `checklist` task (4) | Rules documents: 2 rounds per task (Step 2.4) |
 
 Depth check: this is the upper end of Standard. The design has more than 400 LOC, so the tasks gate will propose 2 PRs: the rules (T1–T4), then the tests and docs (T5–T6).

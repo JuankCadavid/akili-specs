@@ -565,7 +565,7 @@
 | Measure | Budget | Actual |
 |---|---|---|
 | Tasks | 11 | 11 `[x]` (T1, T6, T7, T11 on attempt 2; the rest on attempt 1) |
-| Authored LOC | ~870, ceiling ~900 | **721** added lines, measured with `git diff --numstat 3961990 HEAD` excluding `docs/specs/`, plus `upstream-request.md`: tests 537 (`test/design-eval-contract.test.js`, 72 tests); bridge 50; reference 56; commands 5; docs 4; CHANGELOG 12; `upstream-request.md` 57. The per-task running totals above were estimates and summed to ≈ 743. This measured figure supersedes them. The rules prose lines are long, single-line paragraphs |
+| Authored LOC | ~870, ceiling ~900 | **721** added lines, measured with `git diff --numstat 3961990 HEAD` excluding `docs/specs/`, plus `upstream-request.md`: tests 537 (`test/design-eval-contract.test.js`, 72 tests); bridge 50; reference 56; commands 5; docs 4; CHANGELOG 12; `upstream-request.md` 57. The per-task running totals above were estimates and summed to ≈ 743. This measured figure supersedes them. The rules prose lines are long, single-line paragraphs. `/akili-test` later added `test/design-eval-contract-coverage.test.js` (93 lines, 10 tests), bringing the spec total to 814, still under the ~900 ceiling (validation W-6) |
 | Review rounds (Reviewer verdicts) | ~18 | 16 |
 | Test suite | baseline 1233 | 1305 / 1305 pass (+72) |
 | HALT / Pivot / tripwire | — | none |
