@@ -500,3 +500,83 @@
 - Final verification: `npm test` `# tests 1305 / # pass 1305 / # fail 0`.
 - Running totals vs budget: tasks 10/11; authored LOC ≈ 674 (T1–T9 ≈ 603; T10 ≈ 71) against the ~900 ceiling; review rounds 14/~18. Within budget.
 - Continue gate: auto-approved (JC mandate).
+
+### T11: CHANGELOG, `upstream-request.md`, full verification
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-31 |
+| Requirements covered | FR-15 (`upstream-request.md`: three reproducible items, M1, M5b and M14, a draft that has not been filed); FR-16 (the CHANGELOG `Unreleased` entry restates the shipped rules and counts 14 audit gaps plus the installer item handled separately); NFR-5 |
+| Skills | `cognitive-doc-design` (as listed) |
+| Effort | attempt 1 `high`; attempt 2 `high` (already at the T2 ceiling side of the default; no further bump needed for a two-clause rewording) |
+
+**Attempt 1**
+
+- Files changed:
+  - `CHANGELOG.md` (12+/1−): `### Changed`, 7 bold-lead bullets, and `### Notes` (release class patch; the upstream request, cited without a path, per DD-10).
+  - `docs/specs/changes/impeccable-audit-fixes/design-eval-contract/upstream-request.md` (new, 57 lines, not shipped): a "DRAFT, not filed" that JC files.
+    - M1 cites the launcher lines re-read at HEAD: `scripts/impeccable` `:90-91`, `:122-124`, `:127-128`; `impeccable.cmd` `:29-31`, `:51`, `:60`.
+    - M5b quotes `detect --help`, re-run 2026-10-31 on engine 0.1.18 (darwin-arm64; `engine-probe` printed `impeccable-engine 0.1.18`, exit 0).
+    - M5b's custom-banner behaviour and M14's 96-hit count are marked `UNVERIFIED — confirm at source before relying on it`.
+- Implementer verification:
+  - Task falsifier: `/akili-audit design` was removed from Unreleased, and `node --test test/impeccable-bridge.test.js` stayed `# tests 10 # pass 10 # fail 0`, because the slice reaches into `## [2.40.0]`. The removal was restored. This shows that the CHANGELOG's gate is the quote-check, as designed.
+  - `npm test` 1305/1305; `npm run verify:cli` "14 commands | 31 skills | 8 resources (akili-specs v2.40.0)"; `npm run pack:dry-run` 407 files with 0 `docs/specs` entries; `git diff --check` clean; the spec-path grep is empty; `git diff --stat 8268cb7 -- .claude/skills/impeccable/` is empty.
+- Evidence re-run (Leader, inline): **VERIFIED**. `npm test` `# tests 1305 / # fail 0`; the `verify:cli` summary as above; `pack:dry-run` `grep -c docs/specs` gave 0; `git diff --check` clean; the spec-path grep is empty; the vendored diff since `8268cb7` is empty.
+- Reviewer (opus, fresh spawn): **FAIL**. Verbatim issues:
+  1. "The clause "**The first-visit pass is stricter.** It runs at every first-visit viewport: `desktop`, `mobile` and a new short-height pair…" overstates the shipped text. Bridge *First-visit pass* (SKILL.md:191) runs "item 1 [the detector scan with `--no-consent-hiding --no-overlay-hiding`] at the two scan-matrix viewports and items 2 to 4 at **every first-visit viewport**". Bridge :182 says "the short-height pair is browser-only"." Violated: FR-16; the §7 KZ-002 defect class.
+  2. "The clause "a delegated E4 brief must state the finding count first and return bounded text" misquotes the reference. Reference E4 (design-evaluation.md:15) says the brief must "(3) require the finding count first, then the findings as text in bounded parts" … The sub-agent's return states the count. The brief cannot know the count, so it does not state it." Violated: FR-16; KZ-002.
+  - The Reviewer confirmed that `upstream-request.md` meets FR-15 and that its launcher citations match HEAD.
+- runtime events: none.
+
+**Attempt 2** (by message, carrying the verbatim FAIL and the Attempt History)
+
+- `CHANGELOG.md` only. Clause 1 now reads "Its browser captures run at every first-visit viewport: `desktop`, `mobile` and a new short-height pair (default `1366x768` and `375x667`). The short-height pair is browser-only, so the detector scan matrix stays at two passes." Clause 2 now reads "a delegated E4 brief must require the finding count first and the findings as text in bounded parts, and forbid file output. The parent checks the received findings against that count before writing." The neighbouring sentences were re-quote-checked.
+- Implementer verification: `npm test` 1305/1305; `git diff --check` clean; the spec-path grep is empty.
+- Evidence re-run (Leader, inline): **VERIFIED** (the same three checks).
+- Reviewer (opus, resumed): **PASS**. "Both FAIL issues from the last round are closed. I quote-checked the full Unreleased entry … at HEAD again."
+- runtime events: none.
+
+**Decisions made**
+
+- Release class **patch**, recorded in the CHANGELOG Notes. It follows design §9 and proposal Option A, as the Reviewer confirmed. No release is made in this cycle (JC mandate).
+
+**Not Done / Assumptions (Implementer, verbatim):** "I classified the release as patch in the CHANGELOG Notes, following the proposal's Option A. The Leader should confirm." It is confirmed against design §9. "I did not run a custom-banner or `aria-hidden` fixture scan for M5b and M14." Those two are marked `UNVERIFIED` in the draft.
+
+**ADVISORY (recorded, not tasks):**
+
+- RISK: "A separate change handles the installer item" is in the present tense. The sibling is approved but not specified; "will handle" would be unambiguous. This is a candidate for `/akili-validate` or a quick edit before release.
+- READABILITY: "each launcher reads `~/.impeccable/bin/impeccable[.exe]` first" drops the bridge's qualifier "before `IMPECCABLE_HOME`".
+- RELIABILITY: the proposal's M1 citation (`:90-92`, `:122-127`) differs from the draft's (`:90-91`, `:122-124`, `:127-128`). The draft matches HEAD.
+
+- Final phrase-family sweep (DD-12: fold, viewport count, CTA failure test, `run`, report location, P0). Every hit was read:
+  - The "scan matrix at both viewports" lines are still true.
+  - The `audits/design` sites all carry the E6 default or a user-directed path.
+  - The new `topmost element`/fold text is correct.
+  - The P0 hits are the new mapping or an unrelated skill.
+  - The retired `run` pattern has no hit.
+  - The historical `## [2.40.0]` entries are left as written.
+- spawns: Implementer (sonnet) 16 calls, 108978 tokens, ended complete; Implementer rework (sonnet) 4 calls, 113291 tokens cumulative, ended complete; Reviewer (opus) 16 calls, 94403 tokens, ended fail; Reviewer resume (opus): not reported by host, ended complete (PASS).
+- Final verification: `npm test` `# tests 1305 / # pass 1305 / # fail 0`.
+- Running totals vs budget: tasks 11/11; authored LOC ≈ 743 (T1–T10 ≈ 674; T11 ≈ 69: CHANGELOG 12, `upstream-request.md` 57) against the ~900 ceiling; review rounds 16/~18. Within budget.
+
+## Summary
+
+| Measure | Budget | Actual |
+|---|---|---|
+| Tasks | 11 | 11 `[x]` (T1, T6, T7, T11 on attempt 2; the rest on attempt 1) |
+| Authored LOC | ~870, ceiling ~900 | ≈ 743, of which ≈ 474 is tests (`test/design-eval-contract.test.js`, 72 tests) and the rest rules prose, docs, CHANGELOG and the upstream draft |
+| Review rounds (Reviewer verdicts) | ~18 | 16 |
+| Test suite | baseline 1233 | 1305 / 1305 pass (+72) |
+| HALT / Pivot / tripwire | — | none |
+
+- **Execute-time spec edits** (each recorded in its task entry, each auto-approved under JC's mandate as the recommended option, and none changing an approved requirement's meaning):
+  - `design.md` §7.1 rows 1 and 4 (T1).
+  - §7.3 *False positive* row (T3).
+  - §7.6 counts 68 → 71 and `tasks.md` T1/T3 *Tests* fields.
+- **Final checks at HEAD:** `npm test` 1305/1305; `npm run verify:cli` clean; `npm run pack:dry-run` 407 files, no `docs/specs`; `git diff --check` clean; no shipped file cites the spec path; `git diff --stat 8268cb7 -- .claude/skills/impeccable/` is empty (NFR-1).
+- **Carried to `/akili-validate`:**
+  - P-16, the CTA order on a real Persuade page: a HITL walkthrough with a held-out case, owner JC.
+  - The defect class "a rule an agent cannot follow", via a walkthrough of the 2.40.0 audit scenarios.
+  - The T11 present-tense advisory.
+- **Commits:** local only, `[SPEC:changes/impeccable-audit-fixes/design-eval-contract]`. No push, PR, merge, tag, publish or release (JC mandate).

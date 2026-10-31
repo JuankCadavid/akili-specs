@@ -230,7 +230,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~90 LOC: CHANGELOG ~20, `upstream-request.md` ~70) |
 | Depends on | T10 |
 | Requirements | FR-15 (three reproducible items: M1 launcher order, M5b detector first-visit flags and custom banners, M14 `aria-hidden` occlusion; a draft, not filed); FR-16 (the CHANGELOG counts 14 audit gaps plus the installer item handled by the sibling spec); NFR-5 |
