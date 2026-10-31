@@ -26,6 +26,9 @@ const bridge = () => read(...BRIDGE, "SKILL.md");
 const firstVisit = () => slice(bridge(), "### First-visit pass", "### Exit codes");
 const ctaItem = () => slice(firstVisit(), "3. A fold screenshot", "4. When the product has a consent banner");
 const identification = () => slice(ctaItem(), "- Identification, in order:", "- Measurement:");
+const consentStep = () => slice(slice(bridge(), "## Step 0", "### Engine state"), "4. **Consent.**", "**The gate, stated once:**");
+const engineConsent = () => slice(bridge(), "### Engine consent", "### Who does what");
+const launcherForm = () => slice(bridge(), "### Launcher form", "### Scan matrix");
 const bannerItem = () => slice(firstVisit(), "4. When the product has a consent banner", "- The consent-hiding");
 
 test("FR-1: the banner state is recorded as `not rendered: <reason>`, apart from the CTA outcome", () => {
@@ -58,6 +61,44 @@ test("FR-1: the test-ID remedy applies whatever the CTA outcome", () => {
 
 test("FR-1: CTA identification never depends on the CTA's text", () => {
   assert.ok(!/\btext\b/i.test(identification()), "item 3 identification names no text match");
+});
+
+test("FR-3: the download call runs with `IMPECCABLE_BIN` unset", () => {
+  assert.ok(consentStep().includes("also runs with `IMPECCABLE_BIN` unset"), "bin unset");
+});
+
+test("FR-3: the download call drops every PATH entry under ~/.impeccable, resolved against the real home before the override", () => {
+  const c = consentStep();
+  assert.ok(c.includes("every `PATH` entry removed whose resolved path lies under `~/.impeccable`"), "path filter");
+  assert.ok(c.includes("resolved against the user's real home before the home override"), "resolution order");
+});
+
+test("FR-3: the reason ships", () => {
+  assert.ok(consentStep().includes("each launcher runs `IMPECCABLE_BIN` and then an `impeccable` on `PATH` before it downloads"), "reason");
+});
+
+test("FR-3 (BUT): no other call overrides, unsets or filters; every call after the pin carries the pin, PATH and home", () => {
+  const c = consentStep();
+  assert.ok(c.includes("No other call overrides the home variable, unsets `IMPECCABLE_BIN` or filters `PATH`"), "no other call");
+  assert.ok(c.includes("every call after the pin carries the pinned `IMPECCABLE_BIN` with the user's `PATH` and home variable"), "after the pin");
+  assert.ok(!c.includes("No other call changes it"), "retired sentence gone");
+});
+
+test("FR-3 (AND IT MUST): the record carries the widened override field", () => {
+  const c = consentStep();
+  assert.ok(c.includes("`Download home override: <variable>=<dir>; IMPECCABLE_BIN unset; PATH entries removed: <entries, or none> (one call)`"), "record shape");
+  assert.ok(c.includes("PATH entries removed:"), "PATH entries field");
+  assert.ok(/field reads `none` when there is no exclusion/.test(c), "none without exclusion");
+});
+
+test("FR-3: the Engine consent Home override row names IMPECCABLE_BIN and PATH", () => {
+  assert.match(engineConsent(), /\| Home override \|[^\n]*, with `IMPECCABLE_BIN` unset and no `PATH` entry under `~\/\.impeccable` \|/);
+});
+
+test("FR-3 (BUT): Launcher form gains no environment change", () => {
+  const l = launcherForm();
+  assert.ok(!l.includes("env -u"), "no env -u");
+  assert.ok(!/\bPATH=/.test(l), "no PATH=");
 });
 
 test("Guard: this test file reads no file under the spec folder", () => {

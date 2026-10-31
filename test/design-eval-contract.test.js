@@ -57,7 +57,7 @@ test("FR-1: Engine consent says IMPECCABLE_HOME alone does not isolate and names
     c.includes("`IMPECCABLE_HOME` alone does not isolate: without the pin, each launcher reads `~/.impeccable/bin/impeccable[.exe]` first, before `IMPECCABLE_HOME`."),
     "destination note",
   );
-  assert.match(c, /\| Home override \| Under an exclusion, the download call alone runs with `HOME` \(or `USERPROFILE`\) set to an empty directory inside `IMPECCABLE_HOME` \|/);
+  assert.match(c, /\| Home override \| Under an exclusion, the download call alone runs with `HOME` \(or `USERPROFILE`\) set to an empty directory inside `IMPECCABLE_HOME`, with `IMPECCABLE_BIN` unset and no `PATH` entry under `~\/\.impeccable` \|/);
 });
 
 test("FR-1: the Exclusion paragraph skips location 3 and resolved ~/.impeccable paths, requires an outside IMPECCABLE_HOME, and states the state-file limit", () => {
@@ -94,7 +94,7 @@ test("FR-1: every launcher call carries IMPECCABLE_BIN= as an inline prefix (she
 
 test("FR-1 (BUT): the home variable never changes for any call other than the one download call, nor after the pin", () => {
   const c = consentStep();
-  assert.ok(c.includes("No other call changes it, and no call after the pin does."), "no other call, none after the pin");
+  assert.ok(c.includes("No other call overrides the home variable, unsets `IMPECCABLE_BIN` or filters `PATH`; every call after the pin carries the pinned `IMPECCABLE_BIN` with the user's `PATH` and home variable."), "no other call, none after the pin");
   const l = launcherForm();
   assert.doesNotMatch(l, /\bHOME=|USERPROFILE=/, "the launcher form never sets a home variable");
 });
@@ -103,7 +103,7 @@ test("FR-1 (AND IT MUST): the report records Excluded: and IMPECCABLE_BIN: (and 
   assert.ok(exclusion().includes("Record `Excluded: ~/.impeccable`"), "Excluded field");
   const c = consentStep();
   assert.ok(c.includes("`IMPECCABLE_BIN: <pinned path>`"), "IMPECCABLE_BIN field");
-  assert.ok(c.includes("`Download home override: <variable>=<dir> (one call)`"), "Download home override field");
+  assert.ok(c.includes("`Download home override: <variable>=<dir>; IMPECCABLE_BIN unset; PATH entries removed: <entries, or none> (one call)`"), "Download home override field");
 });
 
 test("FR-2: the Verify paragraph hashes every UPSTREAM.md file, with SKILL.md minus its metadata: block (up to, not including, the closing fence)", () => {

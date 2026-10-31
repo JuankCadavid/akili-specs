@@ -57,7 +57,7 @@ Linear: every task appends to `test/design-eval-followup.test.js`, and T1–T3 e
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~8 LOC prose, ~50 LOC tests) |
 | Depends on | T1 |
 | Requirements | FR-3 (four SHALL bullets, the no-other-call sentence, the record; scenario THEN, AND, BUT, AND IT MUST); NFR-2, NFR-3 |
