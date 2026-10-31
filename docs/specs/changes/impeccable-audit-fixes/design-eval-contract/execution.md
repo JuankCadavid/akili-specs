@@ -143,3 +143,78 @@
 - Final verification: `npm test` `# tests 1264 / # pass 1264 / # fail 0`.
 - Running totals vs budget: tasks 2/11; authored LOC ≈ 291 (T1 ≈ 171, T2 ≈ 120: bridge 12+/7−, tests 101) against the ~900 ceiling; review rounds 3/~18. Within budget.
 - Continue gate: auto-approved (JC mandate).
+
+### T3: Bridge *Design Waivers* and new *Suppressed in `/akili-audit design`*
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1, plus one post-PASS amendment continuation, re-reviewed PASS) |
+| Date | 2026-10-31 |
+| Attempts | 1 (no FAIL) |
+| Requirements covered | FR-7 (list, Assessment A isolation, THEN/BUT/AND IT MUST); FR-14 bridge half (value, closed list, never P1–P3, audit only, BUT `low-contrast`, AND evidence, exit `2` reading per amended §7.3); FR-11 (Reason cites the clause, `§<section> l.<line>` fallback); FR-4 (`first-visit` waiver row) |
+| Skills | `impeccable-bridge`, `tdd` (as listed) |
+| Effort | `high` |
+
+**Attempt 1**
+
+- Files changed: `.claude/skills/impeccable-bridge/SKILL.md` (25+/2−: row-shape cell, new **False positive** row and closed-list table, example `8-06` with the `§<section> l.<line>` fallback, new `## Suppressed in /akili-audit design` between *Phase map* and *Detector gate*), `test/design-eval-contract.test.js` (+71, 9 tests).
+- Implementer verification:
+  - Red before the edit: 9 fail. FR-7 ×4 and FR-14 ×4 failed on missing section or row markers; FR-11 failed on its assertion.
+  - Green: 40/40.
+  - 30 clause-level mutations, each red. The task falsifiers:
+    - A `low-contrast` row added: "FR-14 (BUT)" red (`closed list rule ids`).
+    - "Inline is allowed only when no sub-agent tool exists: " changed to "Inline is allowed: ": the FR-7 isolation test red (`'inline condition'`).
+    - The `Questions skipped:` line replaced: its test red (`'Questions skipped line'`).
+  - Exactly the 9 new tests fail against `HEAD`.
+  - `npm test` 1273/1273. Vendored diff empty.
+  - `## Design Waivers` is unchanged. `Proposed waivers do **not** count toward P1` and `` `Proposed waivers: N` `` survive.
+- Evidence re-run (Leader, inline): **VERIFIED**. 40/40; `npm test` `# tests 1273 / # pass 1273 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus, fresh spawn): **PASS**. "T3 changes all four §7.3 sites. Each obligation in FR-7, FR-14 (bridge half), FR-11 (waiver citation and `§<section> l.<line>`) and the FR-4 `first-visit` waiver row appears in the bridge text, and a section-scoped assertion pins each one."
+  - The Reviewer raised a **spec tension**: design §7.5 lists "the exit-code row `2`" as a consumer of `false positive` ("counts as waived only in the audit's reading of the scan matrix"), but no §7 row implemented it.
+  - Proposed one-line amendment to the §7.3 *False positive* row: "For exit `2`, the audit's reading of the scan matrix counts it as waived; validate's reading is unchanged".
+- runtime events: none.
+
+**Amendment continuation** (by message to the same Implementer, one owed item)
+
+- Files changed: the same row in `SKILL.md` gained the amended sentence verbatim (cumulative 25+/2−). The test file gained test 37, scoped to the row (cumulative +78, 10 tests).
+- Implementer verification:
+  - Red before the edit: `error: 'exit 2 reading'`.
+  - Deleting either clause: `not ok 37 - FR-14: for exit 2 the audit's reading …` red. Restored.
+  - Fails against `HEAD`. 41/41. `npm test` 1274/1274. Vendored diff empty.
+- Evidence re-run (Leader, inline): **VERIFIED**. 41/41; `npm test` `# tests 1274 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus, resumed): **PASS**. "The only change from the first diff is that sentence, added byte-for-byte at the end of the bridge's *False positive* row, plus one new row-scoped test."
+  - Leaving the *Exit codes* table untouched is conformant. The exit-`2` cell already points at *Design Waivers*, which now holds the exception, and editing that cell would widen T3 and touch a cell `impeccable-bridge.test.js` pins.
+- continuations: 1 (the exit-`2` sentence from the approved §7.3 amendment).
+
+**Decisions made**
+
+- Execute-time spec edit, `design.md` §7.3 *False positive* row (2026-10-31). Added "For exit `2`, the audit's reading of the scan matrix counts it as waived; validate's reading is unchanged". Reason: to implement design §7.5's exit-code row, a spec tension resolved with the Reviewer's recommended amendment (auto-approved under JC's mandate). FR-14's meaning is unchanged.
+- Count alignment (2026-10-31), from the Reviewer's TRACEABILITY advisory:
+  - `design.md` §7.6 is now FR-1 8, FR-2 7 and FR-14 6, total **71**. It was 68 at approval; the change carries +2 from T1's amendments and +1 from T3's.
+  - `tasks.md` T1 Tests is now (16) and T3 Tests (10).
+- The Implementer folded the FR-4 `first-visit` row shape into the FR-11 test. The Reviewer accepted it: T3 lists FR-4 among its requirements.
+
+**Not Done / Assumptions (Implementer, verbatim):**
+
+- "Reviewer attention (not widened): the bridge exit-`2` row still reads "fixed or waived". Design §7.5 says `false positive` counts as waived in the audit's scan-matrix reading, but §7.3 lists no change to that row, so I left it alone." Resolved by the §7.3 amendment above.
+- "The FR-11 test also pins the `first-visit` waiver row shape (FR-4 waiver exception). The task's 9-test list has no separate test for it, so I added it there to keep the count at 9."
+- "The `false positive` row reaches `low-contrast` through the clause "(`low-contrast` is never on it)", and the test pins both that text and the closed-list rule-id array."
+- Structural: the closed-list table sits between the waivers table and the Example, because a table cannot live inside a cell.
+
+**ADVISORY (recorded, not tasks):**
+
+- READABILITY: the bridge frontmatter `description` does not name the report-only suppression.
+- RISK: the False positive row is one cell of about 90 words. Split it if a second closed-list rule lands.
+- READABILITY: the exit `2` cell could name the `false positive` reading. This needs a spec change; the *Design Waivers* pointer already reaches the exception.
+
+- Phrase-family sweep: the keys `A-06|clause|waived|snapshot|false positive|Questions skipped|live-server|Proposed waiver|Design Waivers|.impeccable/critique|Persist the Snapshot` over `.claude docs README.md` (minus `docs/specs/` and the vendored folder). Every hit was read:
+  - `A-06` is gone (FR-16 pattern 3 is clean).
+  - Reference `:15, :85, :135, :146, :153` belong to T4/T5.
+  - `akili-constitution.md:212` belongs to T6.
+  - `docs/skills/impeccable-bridge.md:37` and the CHANGELOG belong to T10/T11.
+  - The rest are unrelated.
+  - The continuation's sweep for `` exit `2` `` and `fixed or waived` returned three bridge hits, all consistent.
+- spawns: Implementer (sonnet) 23 calls, 126169 tokens, ended complete; Implementer continuation (sonnet) 6 calls, 133713 tokens cumulative, ended complete; Reviewer (opus) 9 calls, 87394 tokens, ended complete (PASS + tension); Reviewer resume (opus) 2 calls, 90712 tokens cumulative, ended complete (PASS).
+- Final verification: `npm test` `# tests 1274 / # pass 1274 / # fail 0`.
+- Running totals vs budget: tasks 3/11; authored LOC ≈ 396 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105: bridge 25+/2−, tests 78) against the ~900 ceiling; review rounds 5/~18. Within budget. LOC is running above the per-task estimates for tests (T1–T3 estimated ~245 tests, actual ~333) and below them for prose. Watching against the ceiling.
+- Continue gate: auto-approved (JC mandate).

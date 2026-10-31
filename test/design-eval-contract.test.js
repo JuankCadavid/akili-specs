@@ -36,6 +36,10 @@ const ctaItem = () => slice(firstVisit(), "3. A fold screenshot", "4. When the p
 const outcomes = () => ctaItem().slice(index(ctaItem(), "- Outcomes, checked in this order:"));
 const bannerItem = () => slice(firstVisit(), "4. When the product has a consent banner", "- The consent-hiding");
 const priorityBullet = () => slice(firstVisit(), "- On Persuade and Operate screens,", "- Record the capture conditions");
+const waivers = () => slice(bridge(), "## Design Waivers", "## Privacy and consent");
+const waiverRow = (name) => slice(waivers(), `| ${name} |`, "\n");
+const closedList = () => slice(waivers(), "| Rule id | Allowed `false positive` reason |", "\n\n");
+const suppressed = () => slice(bridge(), "## Suppressed in `/akili-audit design`", "## Detector gate");
 
 test("FR-1: after a consented download the pin is the written binary, `.exe` on Windows, probed directly", () => {
   const c = consentStep();
@@ -242,6 +246,80 @@ test("FR-5: the detector's first-visit flags are banner evidence only where the 
 
 test("FR-5 (BUT): a capture whose banner is not rendered never reads pass", () => {
   assert.ok(bannerItem().includes("and never reads `pass`"), "never pass");
+});
+
+test("FR-7: the suppression section lists the three skipped critique steps (snapshot, live-server or any inject, closing user questions)", () => {
+  const t = suppressed();
+  assert.ok(t.includes("persisting the snapshot (`.impeccable/critique/`)"), "snapshot step");
+  assert.ok(t.includes("starting `live-server` or any inject"), "live-server step");
+  assert.ok(t.includes("the closing user questions"), "closing questions step");
+});
+
+test("FR-7: the skipped questions are replaced by the literal line Questions skipped: report-only (/akili-audit design)", () => {
+  assert.ok(suppressed().includes("`Questions skipped: report-only (/akili-audit design)`"), "Questions skipped line");
+});
+
+test("FR-7: Assessment A runs isolated with no detector output; inline only when no sub-agent tool exists, between E2 and E3, marked degraded", () => {
+  const t = suppressed();
+  assert.ok(t.includes("Assessment A runs as an isolated sub-agent given no detector output"), "isolated, no detector output");
+  assert.ok(t.includes("Inline is allowed only when no sub-agent tool exists"), "inline condition");
+  assert.ok(t.includes("it then runs between E2 and E3"), "inline position");
+  assert.ok(t.includes("`Score source` records `degraded (single-context: <reason>)`"), "degraded record");
+  assert.ok(t.includes("`\u26a0\ufe0f DEGRADED: single-context (<reason>)`"), "upstream banner");
+});
+
+test("FR-7 (BUT): a literal executor skips Persist the Snapshot citing this list, never writes .impeccable/critique/ and never starts live-server; a delegated brief reproduces the list", () => {
+  const t = suppressed();
+  assert.ok(t.includes("skips *Persist the Snapshot*, citing this list"), "skip citing the list");
+  assert.ok(t.includes("never writes `.impeccable/critique/` and never starts `live-server`"), "no write, no server");
+  assert.ok(t.includes("A delegated critique brief reproduces this list"), "brief carries the list");
+});
+
+test("FR-14: Design Waivers has a False positive row allowed only for the closed list, with decorative, aria-hidden as the text-occlusion reason", () => {
+  const r = waiverRow("False positive");
+  assert.ok(r.includes("`false positive (<reason>; <evidence>)`"), "value shape");
+  assert.ok(r.includes("only for a rule on the closed list below"), "closed list only");
+  assert.ok(r.includes("Any other rule needs a waiver or stays a finding"), "other rules");
+  const c = closedList();
+  assert.match(c, /\| `text-occlusion` \| `decorative, aria-hidden`: the occluded text sits inside an element with `aria-hidden="true"` \|/);
+});
+
+test("FR-14: false positive exists only in /akili-audit design, is counted in False positives: N and never appears among P1-P3", () => {
+  const r = waiverRow("False positive");
+  assert.ok(r.includes("only in `/akili-audit design`"), "audit only");
+  assert.ok(r.includes("`/akili-validate` has no `false positive`: a finding there is fixed or waived"), "validate excluded");
+  assert.ok(r.includes("counted in `False positives: N` in the report header and never appears among P1\u2013P3"), "counted apart");
+});
+
+test("FR-14: for exit 2 the audit's reading of the scan matrix counts a false positive as waived; validate's reading is unchanged", () => {
+  assert.ok(
+    waiverRow("False positive").includes("For exit `2`, the audit's reading of the scan matrix counts it as waived; validate's reading is unchanged"),
+    "exit 2 reading",
+  );
+});
+
+test("FR-14 (BUT): the closed list holds exactly one rule, text-occlusion; low-contrast is never on it", () => {
+  const rows = closedList().split("\n").filter((l) => l.startsWith("| `"));
+  assert.deepStrictEqual(rows.map((l) => l.split("|")[1].trim()), ["`text-occlusion`"], "closed list rule ids");
+  assert.ok(waiverRow("False positive").includes("`low-contrast` is never on it"), "low-contrast stated");
+  assert.ok(waivers().includes("Adding a row changes the bridge, so it needs a spec"), "adding a row needs a spec");
+});
+
+test("FR-14 (AND IT MUST): a false positive requires evidence naming the aria-hidden ancestor's selector", () => {
+  const c = closedList();
+  assert.ok(c.includes("the selector of that `aria-hidden` ancestor"), "evidence cell");
+  assert.ok(waiverRow("False positive").includes("Each value needs the evidence the closed list names; without it the hit stays a finding"), "no evidence, no value");
+});
+
+test("FR-11: a waiver row's Reason cites the clause, a first-visit waiver uses Rule first-visit and Scope <screen> @ <WxH>, the example cites 8-06 and, without clause IDs, a proposed waiver cites section and line", () => {
+  const w = waivers();
+  const shape = waiverRow("Row shape");
+  assert.ok(shape.includes("the clause it rests on is cited in the reason (`per 8-06`)"), "clause in Reason");
+  assert.ok(shape.includes("A first-visit waiver uses Rule `first-visit` and scope `<screen> @ <WxH>`"), "first-visit row");
+  const ex = w.slice(index(w, "Example:"));
+  assert.ok(ex.includes("(clause 8-06)") && ex.includes("`Proposed waiver (8-06)`"), "example cites 8-06");
+  assert.ok(!ex.includes("A-06"), "A-06 retired");
+  assert.ok(ex.includes("With no clause IDs in the baseline, a proposed waiver cites `\u00a7<section> l.<line>`"), "fallback citation");
 });
 
 test("Guard: this test file reads no file under the spec folder", () => {

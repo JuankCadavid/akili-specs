@@ -158,7 +158,7 @@ No CLI, installer or code API changes. Upstream contracts consumed:
 | Section | Rule | FR |
 |---|---|---|
 | *Design Waivers*, row shape | Adds the `first-visit` Rule with Scope `<screen> @ <WxH>`, and the clause citation in **Reason** (§5.3) | FR-4, FR-11 |
-| *Design Waivers*, new row **False positive** | `false positive (<reason>; <evidence>)` is allowed only for a rule on the closed list (§5.4), and only in `/akili-audit design`. It is counted in `False positives: N` and never among P1–P3. Any other rule needs a waiver or stays a finding | FR-14 |
+| *Design Waivers*, new row **False positive** | `false positive (<reason>; <evidence>)` is allowed only for a rule on the closed list (§5.4), and only in `/akili-audit design`. It is counted in `False positives: N` and never among P1–P3. Any other rule needs a waiver or stays a finding. For exit `2`, the audit's reading of the scan matrix counts it as waived; validate's reading is unchanged (amended 2026-10-31, T3 Reviewer, to implement §7.5's exit-code row) | FR-14 |
 | *Design Waivers*, example | `(clause A-06)` becomes `(clause 8-06)`. Adds: with no clause IDs, a proposed waiver cites `§<section> l.<line>` | FR-11 |
 | New section *Suppressed in `/akili-audit design`* (after *Phase map*) | In report-only mode, an agent following Impeccable's `critique` skips three steps: persisting the snapshot (`.impeccable/critique/`); starting `live-server` or any inject; the closing user questions. It ends with the line `Questions skipped: report-only (/akili-audit design)` instead. Assessment A runs as an isolated sub-agent given no detector output. Inline is allowed only when no sub-agent tool exists: it then runs between E2 and E3, and `Score source` records `degraded (single-context: <reason>)`, which carries upstream's banner. A delegated critique brief reproduces this list | FR-7 |
 
@@ -206,8 +206,8 @@ The table below maps each clause to its assertions, and it is also the Reviewer'
 
 | Requirement | Clauses → assertions | n |
 |---|---|---|
-| FR-1 | Pin after download (with the `.exe` note); `IMPECCABLE_HOME` alone does not isolate; the exclusion paragraph (location 3, the resolved-path rule, an outside `IMPECCABLE_HOME`); the one-call home change naming `HOME` and `USERPROFILE`; the inline `IMPECCABLE_BIN=` prefix on every call; BUT no home change after the pin; AND the `Excluded:` and `IMPECCABLE_BIN:` header fields | 7 |
-| FR-2 | The hash rule with the `metadata:` range; the `verified` and `modified` values; `Copy` and `Home`; other copies; BUT "never select another copy"; "environment finding, never a design finding" | 6 |
+| FR-1 | Pin after download (with the `.exe` note); `IMPECCABLE_HOME` alone does not isolate; the exclusion paragraph (location 3, the resolved-path rule, an outside `IMPECCABLE_HOME`); the one-call home change naming `HOME` and `USERPROFILE`; the inline `IMPECCABLE_BIN=` prefix on every call; BUT no home change after the pin; AND the `Excluded:` and `IMPECCABLE_BIN:` header fields | 8 |
+| FR-2 | The hash rule with the `metadata:` range; the `verified` and `modified` values; `Copy` and `Home`; other copies; BUT "never select another copy"; "environment finding, never a design finding" | 7 |
 | FR-3 | `WxH` and `incomplete (`; the scan matrix keeps two passes; `1366x768` and `375x667` with override and source; validate says "every first-visit viewport"; BUT a P1 at any first-visit viewport, not on `1280x800` alone; AND each viewport is listed with its source | 6 |
 | FR-4 | The CTA order (three steps, in order, step 2 conditional); computed style plus box, "never `offsetParent`"; the five outcomes in order, with the descendant tolerance; P1 or FAIL unless a `first-visit` waiver; THEN `below fold` is P1; BUT `below fold` is not `covered` and not an overlay defect; AND the method is recorded | 7 |
 | FR-5 | The banner-visible assertion; `Unevaluated (consent banner not rendered`; test identifiers, never production ones; detector evidence only where confirmed; BUT never `pass` without the banner | 5 |
@@ -219,11 +219,11 @@ The table below maps each clause to its assertions, and it is also the Reviewer'
 | FR-11 | `<n>-<nn>` in constitution Step 4; E1 drift routing; `§<section> l.<line>`; BUT nothing written | 4 |
 | FR-12 | Template coverage and `Coverage`; BUT the field names every uncovered template | 2 |
 | FR-13 | Audit step 5 and the checklist accept the E6 path; the propose sentence names the recorded location | 2 |
-| FR-14 | The closed-list row; `False positives: N`; never P1–P3, audit only; BUT `low-contrast` is not on the list; AND the evidence names the `aria-hidden` ancestor | 5 |
+| FR-14 | The closed-list row; `False positives: N`; never P1–P3, audit only; BUT `low-contrast` is not on the list; AND the evidence names the `aria-hidden` ancestor | 6 |
 | FR-15 | No test: the file is not shipped (DD-10). The T6 Reviewer checks its three items | 0 |
 | FR-16 | Retired-phrase sweep (seven patterns, listed below the table) | 7 |
 | Guard | The new test reads no `docs/specs/` file | 1 |
-| **Total** | | **68** |
+| **Total** | | **71** (68 at approval; +2 in T1 and +1 in T3 from the 2026-10-31 execute-time amendments) |
 
 The FR-16 sweep runs over `.claude/`, `docs/` and `README.md`, minus `docs/specs/` and the vendored folder. Its seven patterns:
 

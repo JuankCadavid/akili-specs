@@ -148,6 +148,20 @@ On conflict `docs/ux-ui/design.md` wins and the difference is reported as **Visu
 | `critique`, `audit` (and `polish`, `harden`, `clarify` when findings call for them) | `/akili-validate` UI design review | Findings either fixed or waived with a reason before the spec passes |
 | Design evaluation of an existing product | `/akili-audit design` | `references/design-evaluation.md` (it owns the report template, the performance step and the baseline checks) |
 
+## Suppressed in `/akili-audit design`
+
+`/akili-audit design` is report-only. An agent following Impeccable's `critique` skill there skips three steps and cites this list:
+
+| Skipped step | Why |
+|---|---|
+| persisting the snapshot (`.impeccable/critique/`) | It writes into the repo |
+| starting `live-server` or any inject | It starts a server or edits a project file |
+| the closing user questions | The report is the deliverable; the run ends with `Questions skipped: report-only (/akili-audit design)` instead |
+
+A literal executor reaching the snapshot step skips *Persist the Snapshot*, citing this list: it never writes `.impeccable/critique/` and never starts `live-server`.
+
+Assessment A runs as an isolated sub-agent given no detector output. Inline is allowed only when no sub-agent tool exists: it then runs between E2 and E3, and `Score source` records `degraded (single-context: <reason>)`, which carries upstream's `⚠️ DEGRADED: single-context (<reason>)` banner. A delegated critique brief reproduces this list.
+
 ## Detector gate
 
 The gate is active only when the engine state is `ready` or `installed (consented)` (*Engine state*). In every other state the detector rows read `Unevaluated (engine not installed)` and nothing here runs.
@@ -211,12 +225,21 @@ A waiver is either an upstream ignore with a reason (an `impeccable-disable` com
 
 | Rule | How it works |
 |---|---|
-| Row shape | Rule id, scope (selector, file or value), reason, approver, date. `/akili-constitution` writes new rows in this shape |
+| Row shape | Rule id, scope (selector, file or value), reason, approver, date. `/akili-constitution` writes new rows in this shape; the clause it rests on is cited in the reason (`per 8-06`). A first-visit waiver uses Rule `first-visit` and scope `<screen> @ <WxH>` |
 | Matching | Every mode matches findings against the rows. A match reads `waived (design.md)`. A row matching nothing reads `unused` |
 | Proposed waiver | In report-only mode (`/akili-audit design`), a finding that matches an authority-approved pattern with **no** row reads `Proposed waiver (<clause>)`. It is never written to the authority |
 | Counting | Proposed waivers do **not** count toward P1–P3. The report header shows `Proposed waivers: N` |
+| False positive | `false positive (<reason>; <evidence>)` is allowed only for a rule on the closed list below, and only in `/akili-audit design`; `/akili-validate` has no `false positive`: a finding there is fixed or waived. It is counted in `False positives: N` in the report header and never appears among P1–P3. Any other rule needs a waiver or stays a finding (`low-contrast` is never on it). Each value needs the evidence the closed list names; without it the hit stays a finding. For exit `2`, the audit's reading of the scan matrix counts it as waived; validate's reading is unchanged |
 
-Example: `design.md` approves rounded top borders on colored cards (clause A-06) with no waiver row. `border-accent-on-rounded` findings read `Proposed waiver (A-06)` and are counted in the header, they do not appear among P1–P3, and the row is not written.
+Closed list for `false positive`:
+
+| Rule id | Allowed `false positive` reason | Required evidence |
+|---|---|---|
+| `text-occlusion` | `decorative, aria-hidden`: the occluded text sits inside an element with `aria-hidden="true"` | the selector of that `aria-hidden` ancestor |
+
+The list starts with one row. Adding a row changes the bridge, so it needs a spec.
+
+Example: `design.md` approves rounded top borders on colored cards (clause 8-06) with no waiver row. `border-accent-on-rounded` findings read `Proposed waiver (8-06)` and are counted in the header, they do not appear among P1–P3, and the row is not written. With no clause IDs in the baseline, a proposed waiver cites `§<section> l.<line>` instead (for example `Proposed waiver (§7 l.144)`).
 
 ## Privacy and consent
 
