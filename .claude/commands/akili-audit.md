@@ -147,7 +147,7 @@ Summarize the conformance score, key discrepancies found, and recommended remedi
    | Engine `ready` / `installed (consented)` | Run the bridge's *Detector gate* on the target: scan matrix at both viewports, first-visit pass for Persuade and Operate screens; its *Exit codes* table reads each result |
    | Engine `consent needed` | Ask once per session through the bridge's *Engine consent*, then take the row the answer selects |
    | Engine `declined` / `unavailable` | Detector rows read `Unevaluated (engine not installed)` with the reason |
-5. Write `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with the reference template: findings rated **P1** (broken or inaccessible), **P2** (inconsistent or off-direction), **P3** (polish), each with screen, evidence, rule id when the detector raised it, and a fix.
+5. Write the report at the reference's E6 location (the default `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md`, or the user-directed path) with the reference template: findings rated **P1** (broken or inaccessible), **P2** (inconsistent or off-direction), **P3** (polish), each with screen, evidence, rule id when the detector raised it, and a fix.
 6. Route the fixes in the report and in the summary to the user: a small, low-risk fix → `/akili-quick`; anything larger, or a group of related P1/P2 findings → `/akili-propose`, which accepts the report as its requirement source.
 
 A `design-*.md` file is never a drift report: the drift *Reading reports back* rule reads only `drift-*.md`.
@@ -156,7 +156,7 @@ A `design-*.md` file is never a drift report: the drift *Reading reports back* r
 
 ## Verification Checklist
 
-In **design mode**, confirm instead: the `design-*.md` report exists and is non-empty; it states the skill source and engine state, the target, the scan matrix (command, viewport, exit code per pass, or `Unevaluated` with the reason); every finding has a priority, evidence and a routed fix; and nothing outside `docs/specs/audits/` was edited.
+In **design mode**, confirm instead: the report exists at its E6 location (the default `design-*.md` path or the recorded user-directed path) and is non-empty; it states the skill source and engine state, the target, the scan matrix (command, viewport, exit code per pass, or `Unevaluated` with the reason); every finding has a priority, evidence and a routed fix; and nothing outside `docs/specs/audits/` was edited, except a recorded user-directed report location and a recorded consented `npm ci`.
 
 For the drift audit, before presenting the summary, confirm each of these. Report any that fail rather than closing the command silently.
 

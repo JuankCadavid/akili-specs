@@ -428,6 +428,37 @@ test("FR-14: the header carries `False positives: N`, Waived? adds `false positi
   assert.ok(!checklist().includes("(`run`,"), "the retired value is not in the checklist");
 });
 
+test("FR-11/FR-4/FR-3: constitution Step 4 names clause IDs <n>-<nn>, the Primary CTA column and WxH scan viewports", () => {
+  const c = read(".claude", "commands", "akili-constitution.md");
+  const step4 = slice(c, "### Step 4:", "### Step 5:");
+  for (const n of ["<n>-<nn>", "Primary CTA", "WxH"]) assert.ok(step4.includes(n), `Step 4 names ${n}`);
+  for (const n of ["a selector or attribute naming the main action", "or `—`", "the class, token or attribute that marks it", "`desktop`, `mobile` and the short-height pair, each `WxH`", "optional; defaults apply when absent"]) {
+    assert.ok(step4.includes(n), `Step 4 states ${n}`);
+  }
+});
+
+test("FR-13: audit design step 5 and the design-mode checklist both name the user-directed report location", () => {
+  const a = read(".claude", "commands", "akili-audit.md");
+  const step5 = slice(a, "5. Write ", "6. Route the fixes");
+  const check = slice(a, "In **design mode**, confirm instead:", "For the drift audit");
+  for (const [n, t] of [["step 5", step5], ["checklist", check]]) assert.ok(t.includes("user-directed"), `${n} names the user-directed location`);
+  assert.ok(check.includes("the report exists at its E6 location (the default `design-*.md` path or the recorded user-directed path) and is non-empty"), "existence item accepts the E6 location");
+  assert.ok(step5.includes("design-<YYYY-MM-DD>[-<safe-branch>][-N].md"), "default path survives");
+});
+
+test("FR-3: validate's manual fold check covers every first-visit viewport", () => {
+  const v = read(".claude", "commands", "akili-validate.md");
+  const sentence = slice(v, "First-visit pass without browser automation", "\n");
+  assert.ok(sentence.includes("a manual fold check at every first-visit viewport"), "every first-visit viewport");
+  assert.ok(!sentence.includes("at both viewports"), "the two-viewport wording is retired");
+});
+
+test("FR-13: propose's design-evaluation source sentence follows the recorded Report location", () => {
+  const p = read(".claude", "commands", "akili-propose.md");
+  const sentence = slice(p, "**Design evaluation as a source.**", "\n");
+  assert.ok(sentence.includes("or the path recorded in its `Report location` field"), "Report location clause");
+});
+
 test("Guard: this test file reads no file under the spec folder", () => {
   // The forbidden path is built from fragments so this source never contains it.
   const D = "do" + "cs";

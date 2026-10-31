@@ -341,3 +341,99 @@
 - Final verification: `npm test` `# tests 1293 / # pass 1293 / # fail 0`.
 - Running totals vs budget: tasks 5/11; authored LOC ≈ 558 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105, T4 ≈ 94, T5 ≈ 68) against the ~900 ceiling; review rounds 7/~18. Within budget. The remaining estimate is T6–T11 ≈ 355 LOC, which projects to about 913 against a ceiling of about 900: at the edge. The tripwire is checked at each finalize.
 - Continue gate: auto-approved (JC mandate).
+
+### T6–T9: Command pointers (one Implementer spawn and one Reviewer spawn, with a verdict per task)
+
+**Delegation note:** these are four `checklist` tasks, each touching one command file and adding one assertion to the shared test file. One Implementer did them strictly in order (red, edit, green, falsifier and `HEAD` check per task) and reported each separately. One Reviewer gave a verdict per task. They share one commit because the test file is shared; each task's evidence is recorded below.
+
+#### T6: `/akili-constitution` Step 4: clause IDs, `Primary CTA` column, scan viewports
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-31 |
+| Requirements covered | FR-11 bullet 1 (clause IDs `<n>-<nn>`, cited in a waiver's Reason); FR-4 (the `Primary CTA` column as a selector or attribute or `—`, and the optional Primary CTA style); FR-3 (scan viewports `WxH` under *Responsive Behavior*, optional) |
+| Skills / Effort | `impeccable-bridge`, `tdd`; attempt 1 `medium`, attempt 2 `high` |
+
+- Attempt 1:
+  - Files: `.claude/commands/akili-constitution.md` (1/1; the paragraph is a single line) and a test (+6).
+  - Red: `error: 'Step 4 names <n>-<nn>'`. Falsifier (the `<n>-<nn>` sentence deleted) went red. Fails against `HEAD`. Consumers (`impeccable-bridge`, `diagram-design`, `growth-track`, `tasks-gate`) 108/108; `diagram-design` is still on exactly 3 lines.
+  - Evidence re-run (Leader): **VERIFIED** (64/64; 1297/1297).
+  - Reviewer (opus): **FAIL**, verbatim: "The Step 4 paragraph adds the `Primary CTA` column but never says what goes in a cell. It only says "the main action of each Persuade and Operate screen". It is missing the value shape (a selector or attribute) and the `—` for screens that have none. … The optional Primary CTA style is also missing its shape (the class, token or attribute that marks it). Smaller gap: *Responsive Behavior* says "the scan viewports as `WxH` pairs". It does not name `desktop`, `mobile` and the `short-height` pair, or say the entry is optional with defaults when absent." Violated: FR-4 *CTA identification*; design §5.3 rows *Screen Inventory*, *Primary CTA style*, *Scan viewports*.
+- Attempt 2 (by message, with the verbatim FAIL and the Attempt History):
+  - The paragraph now states "a selector or attribute naming the main action of each Persuade and Operate screen, or `—` for a screen with none (never prose such as "Sign-up button")", "the class, token or attribute that marks it", and "`desktop`, `mobile` and the short-height pair, each `WxH` (optional; defaults apply when absent)".
+  - The assertion pins five more phrases. Red before the edit: `error: 'Step 4 states a selector or attribute naming the main action'`. Mutation (the `—` clause deleted): `error: 'Step 4 states or `—`'`.
+  - Consumers green; `diagram-design` is still on 3 lines.
+  - Evidence re-run (Leader): **VERIFIED** (64/64; 1297/1297; vendored diff empty; `git diff --check` clean).
+  - Reviewer (opus, resumed): **PASS**. "Step 4 now meets every §5.3 row and the FR-4 CTA identification wording."
+- runtime events: none.
+
+#### T7: `/akili-audit` design step 5 and Verification Checklist
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-31 |
+| Requirements covered | FR-13 (step 5 and the checklist accept the E6 user-directed path; "nothing outside `docs/specs/audits/`" carries the exception; the scenario's BUT) |
+| Skills / Effort | `impeccable-bridge`, `tdd` (the Leader added `impeccable-bridge` to the listed `tdd` so the worker could read the E6 section name); attempt 1 `medium`, attempt 2 `high` |
+
+- Attempt 1:
+  - Files: `.claude/commands/akili-audit.md` (2/2) and a test (+8). Step 5 names "the reference's E6 location (the default `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md`, or the user-directed path)". The checklist "nothing outside" item gained the exception.
+  - Red: `error: 'step 5 names the user-directed location'`. Falsifier went red (`'checklist names the user-directed location'`).
+  - Consumers (`impeccable-bridge`, `akili-security-command`, `akili-review-contract-coverage`) 181/181.
+  - The test pins `design-<YYYY-MM-DD>[-<safe-branch>][-N].md` without its `docs/specs/audits/` prefix, because the Guard forbids that literal in the test source.
+  - Evidence re-run: **VERIFIED**.
+  - Reviewer: **FAIL**, verbatim: "In the design-mode *Verification Checklist*, the existence item still reads "the `design-*.md` report exists and is non-empty". Only the "nothing outside `docs/specs/audits/`" item gained the exception. A user-directed report such as `/tmp/report.md` is not a `design-*.md` file, so the checklist's first condition still rejects the FR-13 scenario." Violated: FR-13 and its scenario; T7 Scope; design §7.4 Checklist row.
+- Attempt 2:
+  - The existence item now reads "the report exists at its E6 location (the default `design-*.md` path or the recorded user-directed path) and is non-empty", with one more pin.
+  - Red: `error: 'existence item accepts the E6 location'`. Reverting the wording went red again.
+  - The drift-mode item and the "A `design-*.md` file is never a drift report" line are unchanged. Consumers 220/220 (with T6's).
+  - Evidence re-run: **VERIFIED**.
+  - Reviewer (resumed): **PASS**. "The design-mode existence item reads "the report exists at its E6 location … and is non-empty", so the `/tmp/report.md` scenario passes."
+- runtime events: none.
+
+#### T8: `/akili-validate` first-visit fold-check sentence
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Requirements covered | FR-3 bullet 4 (the manual fold check covers every first-visit viewport) |
+| Skills / Effort | `impeccable-bridge`, `tdd` (the Leader added `impeccable-bridge` to the listed `tdd` so the worker could read the *First-visit pass* section name); `medium` |
+
+- Files: `.claude/commands/akili-validate.md` (1/1: "a manual fold check at every first-visit viewport (the bridge's *First-visit pass*)") and a test (+6).
+- Red: `error: 'every first-visit viewport'`. The falsifier (restoring "at both viewports") went red with the same error. Fails against `HEAD`.
+- Consumers (`impeccable-bridge`, `video-production`) 106/106.
+- Evidence re-run: **VERIFIED**.
+- Reviewer: **PASS**. "T8 and T9 match their design rows word for word."
+- runtime events: none.
+- Note: the sentence names *First-visit pass* twice, as the brief worded it.
+
+#### T9: `/akili-propose` design-evaluation source sentence
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Requirements covered | FR-13 (one report-location rule everywhere) |
+| Skills / Effort | `impeccable-bridge`, `tdd` (the Leader added `impeccable-bridge` to the listed `tdd` so the worker could read the reference's E6 `Report location` field name); `medium` |
+
+- Files: `.claude/commands/akili-propose.md` (1/1: "(`docs/specs/audits/design-*.md`, or the path recorded in its `Report location` field)") and a test (+7).
+- Red: `error: 'Report location clause'`. The falsifier (the clause deleted) went red. Fails against `HEAD`.
+- Consumers (`akili-review-contract-coverage`, `impeccable-bridge`) 94/94; the carve-out line is untouched.
+- Evidence re-run: **VERIFIED**.
+- Reviewer: **PASS**.
+- runtime events: none.
+
+#### Shared record for T6–T9
+
+- End-of-run checks: `npm test` `# tests 1297 / # pass 1297 / # fail 0`; vendored diff empty; `git diff --check` clean; no bridge command string in any command (grep returns 0 new hits).
+- Phrase-family sweep: the keys `both viewports|fold check|outside \`docs/specs/audits/\`|audits/design|user-directed|clause|Primary CTA` over `.claude/commands docs README.md`. Every hit was read:
+  - The edited sites are done.
+  - The "scan matrix at both viewports" lines (`akili-audit.md:147`, `akili-validate.md:140`, `akili-test.md:193`) are still true.
+  - The methodology's own uses of "clause" are unrelated.
+  - `docs/commands/akili-audit.md:12` and `docs/skills/impeccable-bridge.md:41` belong to T10.
+- ADVISORY: suppressed by the Reviewer persona's checklist mode (diff under 50 LOC).
+- spawns: Implementer (sonnet) 17 calls, 100402 tokens, ended complete; Implementer rework (sonnet) 4 calls, 107474 tokens cumulative, ended complete; Reviewer (opus) 7 calls, 82427 tokens, ended fail (T6, T7) / pass (T8, T9); Reviewer resume (opus): not reported by host, ended complete (PASS).
+- Running totals vs budget: tasks 9/11. Authored LOC ≈ 603 against the ~900 ceiling: T1–T5 ≈ 558, plus T6–T9 ≈ 45 (commands ≈ 14 changed prose lines, measured as word-level edits on single-line paragraphs; tests +31). Review rounds 13/~18 (T6 2, T7 2, T8 1, T9 1). Within budget.
+- Continue gate: auto-approved (JC mandate).

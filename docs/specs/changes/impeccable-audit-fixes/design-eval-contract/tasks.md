@@ -135,7 +135,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~8 LOC prose, ~8 LOC tests) |
 | Depends on | T5 |
 | Requirements | FR-11 (the template gives approved clauses stable IDs `<section>-<nn>`, here `<n>-<nn>`; waiver rows cite them); FR-4 (the declared-CTA source: the `Primary CTA` column, the optional Primary CTA style); FR-3 (the short-height pair overridable in `docs/ux-ui/design.md`) |
@@ -154,7 +154,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~4 LOC prose, ~8 LOC tests) |
 | Depends on | T6 |
 | Requirements | FR-13 (step 5 and the checklist accept the E6 user-directed path; "nothing outside `docs/specs/audits/`" carries the same exception; the scenario's BUT) |
@@ -173,7 +173,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~1 LOC prose, ~6 LOC tests) |
 | Depends on | T7 |
 | Requirements | FR-3 ("`/akili-validate`'s manual fold check covers all four first-visit viewports") |
@@ -192,7 +192,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~1 LOC prose, ~6 LOC tests) |
 | Depends on | T8 |
 | Requirements | FR-13 (the report location is one rule everywhere; FR-16 restatement) |
