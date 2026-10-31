@@ -53,7 +53,9 @@ Severe findings remain after round two, and the judges disagree on B-J6. Per the
 
 JUDGMENT: ESCALATED ⚠️
 
-## Escalation resolved by JC (2026-10-31)
+## Escalation resolved (2026-10-31)
+
+Provenance: the driver chose the option in the session at about 14:15. JC approved it at 2026-10-31 14:23 (UTC-5), transmitted by the driver with JC's words: "Apruebo el 1 y acepto tu opcion del 2" (option 1 = "Simplify both").
 
 Answer: **"Simplify both (Recommended)"**.
 - **Hints.** The hints name `akili update` / `install --force` and tell the user to repeat this run's `--tool`, `--local` and `--target` flags; no flags are rebuilt. This removes R2-1, R2-2, R2-3, D-1, D-2 and D-3.

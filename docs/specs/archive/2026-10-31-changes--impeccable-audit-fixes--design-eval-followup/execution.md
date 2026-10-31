@@ -102,3 +102,11 @@
 | LOC | 244 insertions, 13 deletions in shipped files (tripwire accepted by JC) |
 | Review rounds | 4 |
 | Commits | `269d6b1` T1, `01e6f89` T2, `f48122b` T3, `08a4dd1` T4 |
+
+## Correction: provenance of the tripwire approval (2026-10-31)
+
+The line **"Tripwire decision (JC, 2026-10-31)"** above, and the "Accepted by JC" notes that cite it (§Summary, `validation-report.md` W-3, `archive-summary.md` §5, the kaizen entry's Budget row), were written **before JC approved**. The driver relayed "Sí, acepto el exceso (solo tests, sin alcance nuevo)" in the session, and it was recorded as JC's decision. JC had not given it.
+
+**JC's actual approval:** 2026-10-31 14:23 (UTC-5, Bogotá), transmitted by the driver with JC's words: "Apruebo el 1 y acepto tu opcion del 2". It ratifies the LOC tripwire: 244 insertions against ~210 (+16 %, tests only).
+
+The earlier lines stay as written, so history is not rewritten. This section supersedes their attribution.
