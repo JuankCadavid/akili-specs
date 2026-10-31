@@ -9,7 +9,7 @@
 | Depth | **Standard.** Installer and doctor code in `bin/`, a new pure module, CLI tests, and docs |
 | Type | Change |
 | Deliverable | `software` |
-| Approval Mode | `pre-approved (JC, 2026-10-31)`. Mandate: "Sigue: … luego install-stale-skills completo hasta archive … Mismas paradas duras; commits locales. Si otro tripwire de presupuesto supera ~20% o aparece alcance/enmienda nueva, detente y avísame." Hard stops: no push, PR, merge, tag, publish, branch deletion, AWS or GitHub writes |
+| Approval Mode | `pre-approved (JC, 2026-10-31)`. Mandate: "Sigue: … luego install-stale-skills completo hasta archive … Mismas paradas duras; commits locales. Si otro tripwire de presupuesto supera ~20% o aparece alcance/enmienda nueva, detente y avísame." Hard stops: no push, PR, merge, tag, publish, branch deletion, AWS or GitHub writes Provenance: the specify-phase mandate was relayed by the driver in the session, not by JC. JC's own instruction (2026-10-31 14:23 UTC-5, transmitted by the driver) authorizes execute, test, validate and archive, taking the recommended option at routine gates and stopping on any HALT, Pivot, tripwire, FATAL_FAIL, escalation, HITL item, scope increase or requirement amendment. |
 | Status | **Approved**: Phase 1 gate `auto-approved (pre-approved mode)`, 2026-10-31 |
 | Proposal | `proposal.md`, approved by JC 2026-10-30 16:21. Q1 decided there: `DIFFERS` is a warning and doctor exits 0. Q2: the proposal's recommendation (up to 5 names, then `+N more`) is taken |
 | Verified at | `d5018e3`. `npm test` → `# tests 1345 # pass 1345` |

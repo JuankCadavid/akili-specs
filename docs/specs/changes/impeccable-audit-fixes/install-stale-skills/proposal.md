@@ -10,7 +10,7 @@
 | Parent Spec | `changes/impeccable-audit-fixes` (family manifest `family.md`) |
 | Type | Change (the skip is designed behavior, AGENTS.md *Development Rules*; what is missing is the distinction) |
 | Deliverable | software (`bin/akili.js` installer and doctor, tests, docs) |
-| Approval Mode | `pre-approved (JC, 2026-10-31)` from specify on: "Sigue: … luego install-stale-skills completo hasta archive … Mismas paradas duras; commits locales". Gated up to proposal approval |
+| Approval Mode | `pre-approved (JC, 2026-10-31)` from specify on: "Sigue: … luego install-stale-skills completo hasta archive … Mismas paradas duras; commits locales". Gated up to proposal approval Provenance: the specify-phase mandate was relayed by the driver in the session, not by JC. JC's own instruction (2026-10-31 14:23 UTC-5, transmitted by the driver) authorizes execute, test, validate and archive, taking the recommended option at routine gates and stopping on any HALT, Pivot, tripwire, FATAL_FAIL, escalation, HITL item, scope increase or requirement amendment. |
 | Status | **Approved**, Juan Carlos Cadavid, 2026-10-30 16:21 (UTC-5), with the recommendations accepted: a primary CTA below the fold on a Persuade/Operate screen = P1; short-height pair `1366x768` + `375x667`, overridable in `design.md`; `doctor` reports `DIFFERS` as a warning, exit 0 |
 | Requested by | Juan Carlos Cadavid (maintainer), 2026-10-30 |
 | Source | The brief, item (1) ("install --tool claude se salta … los archivos de skills desactualizados, solo update los reemplaza"). It is not one of the report's M1–M14 |
