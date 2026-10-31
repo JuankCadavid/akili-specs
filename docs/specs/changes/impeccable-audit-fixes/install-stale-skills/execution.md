@@ -44,3 +44,30 @@
 - **spawns:** Implementer (sonnet) 23 calls, 108851 tokens, ended complete; Reviewer (opus): not reported at write time, ended complete (PASS)
 - **Running totals:** tasks 2/4 · LOC 231 + 242 = 473 / ~650 · review rounds 2 / ~7
 - **Gate:** `auto-approved (pre-approved mode)`
+
+### T3 — Doctor `DIFFERS` (FR-3)
+
+- **Status:** PASS, 2026-10-31, 1 attempt
+- **Files changed:** `bin/akili.js` (+73 −13: `reportPresent`, `mergeLocations`, every-location compare for commands/skills/resources, `checkOwnedEntry` compare, foreign-`impeccable` exclusion, `differs` count, conditional row column, hint, closing-line precedence); `test/install-stale-skills.test.js` (+137, 9 doctor tests). `test/fixtures/doctor-codex-baseline.txt` untouched
+- **Red run:** baseline `grep -c DIFFERS bin/akili.js` → 0. 8/9 tests red on assertions (e.g. `The input did not match the regular expression /^ {2}DIFFERS impeccable-bridge \(SKILL\.md\)$/m`). The clean-install guard is green by design
+- **Falsifiers (executed, restored):** (1) exit block fires on differs → tests 10, 12, 13 `expected: 0 / actual: 1`; (2) only `skillDirs[0]` → test 14 red (`2:SKILL.md`); (3) always ` | differs N` → `install-cursor` test 11 (codex baseline byte-compare) red
+- **Verification (Implementer):** consumers 145/145; `npm test` 1377/1377; scratch `install --tool all` + `doctor --tool all` → exit 0, every tool HEALTHY with no differs column, "All checks passed"
+- **Evidence re-run (Leader, inline):** `npm test` → `# tests 1377 # pass 1377 # fail 0`. **VERIFIED**
+- **Reviewer (opus):** PASS. FR-3 walked term by term; exit code and status never move on differs; `--fix` never writes a DIFFERS entry; every location compared; the exclusion is the same predicate as `makeImpeccableForeignPolicy`; all four closing-line steps checked. The amended §7.2 `update` sentence was checked in a scratch run (update prints `Home:`, no class or hint)
+- **Judgment calls (accepted by the Reviewer):** a `Next steps:` header in precedence cases 2–3; only AKILI's copy compared in a mixed Antigravity case; the Grok Bot command label keeps `.md`
+- **ADVISORY (recorded, not acted on):** (R) §6 says the hint is "outside" the block, but in case 1 it prints inside it, before `exitCode = 1` (behavior correct); (R) the T2 hint's "them" for 1 entry, and the two hints word the flag clause differently; (Rel) a mixed Antigravity DIFFERS line drops the "not compared" note; (Res) a broken `impeccable` symlink: doctor `existsSync` vs install `lstat`
+- **Requirements covered:** FR-3, NFR-1, NFR-2 (antigravity, grokbot, claude, codex)
+- **spawns:** Implementer (sonnet) 18 calls, 108891 tokens, ended complete; Reviewer (opus): not reported at write time, ended complete (PASS)
+- **Running totals:** tasks 3/4 · **LOC 696 / ~650 (231 + 242 + 223), +7 %** · review rounds 3 / ~7
+
+## Budget Tripwire: LOC (after T3)
+
+| Measure | Budget (design §12) | Actual after T3 | Projected after T4 |
+|---|---|---|---|
+| Tasks | 4 | 3 closed | 4 |
+| Authored LOC | ~650 | **696 (+7 %)** | ~775 (+19 %; T4 estimated ~80) |
+| Review rounds | ~7 | 3 | 4 |
+
+**Cause:** tests. 535 test lines against ~400 estimated. Code is 167 against ~200. No scope was added: every test maps to a T1–T3 Tests field.
+
+**Status:** the tripwire fired at T3 finalize. JC's instruction (2026-10-31 14:23): stop and ask on any budget tripwire. The rule: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." **Not auto-approved.** T4 waits for JC.

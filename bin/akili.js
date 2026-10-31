@@ -1656,6 +1656,7 @@ function doctorTool(tool, args) {
   let missing = 0;
   let fixed = 0;
   let foreign = 0;
+  let differs = 0;
 
   console.log(`\n${colors.cyan}Checking ${tool.toUpperCase()}: ${toolTargetLabel(rootPath, roots, paths)}${colors.reset}`);
 
@@ -1673,7 +1674,31 @@ function doctorTool(tool, args) {
     }
   }
   // Returns true when the entry was handled here (ownership-managed tools).
-  const checkOwnedEntry = (label, name, restore) => {
+  // @akili-spec changes/impeccable-audit-fixes/install-stale-skills T3 (FR-3,
+  // DD-5): a present entry whose bytes differ from the package is a warning.
+  // It is counted apart from `ok`, never from `missing`, and --fix never
+  // writes it. `compare()` returns the compareEntry result.
+  const reportPresent = (label, compare, suffix) => {
+    const result = compare();
+    if (result.state === "differs") {
+      differs += 1;
+      console.log(`  ${colors.yellow}DIFFERS${colors.reset} ${label} (${formatDiffers(result.differing)})`);
+    } else {
+      okCount += 1;
+      console.log(`  ${colors.green}OK${colors.reset} ${label}${suffix || ""}`);
+    }
+  };
+  // Folds the per-location results of one entry into one, prefixing each name
+  // with its location index (1-based, in the registry's order) when more than
+  // one location holds the entry.
+  const mergeLocations = (located) => {
+    const differing = [];
+    for (const { index, result } of located) {
+      for (const name of result.differing) differing.push(located.length > 1 ? `${index + 1}:${name}` : name);
+    }
+    return { state: differing.length ? "differs" : "identical", differing };
+  };
+  const checkOwnedEntry = (label, name, restore, compare) => {
     if (!ownership) return false;
     const entryPath = path.join(skillDirs[0], name);
     const state = classifyEntry(entryPath, ownership);
@@ -1681,8 +1706,7 @@ function doctorTool(tool, args) {
       console.log(`  ${colors.yellow}FOREIGN${colors.reset} ${label}`);
       foreign += 1;
     } else if (state === "owned" && fs.existsSync(path.join(entryPath, "SKILL.md"))) {
-      okCount += 1;
-      console.log(`  ${colors.green}OK${colors.reset} ${label}`);
+      reportPresent(label, () => compare(entryPath));
     } else if (!args.fix) {
       console.log(`  ${colors.red}MISSING${colors.reset} ${label}`);
       missing += 1;
@@ -1705,15 +1729,24 @@ function doctorTool(tool, args) {
       const cmdEntry = command.replace(/\.md$/, "");
       if (
         checkOwnedEntry(command, cmdEntry, (entryPath) =>
-          copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(entryPath, "SKILL.md"), { force: true, dryRun: false })
+          copySingleFile(path.join(SOURCE_COMMANDS, command), path.join(entryPath, "SKILL.md"), { force: true, dryRun: false }),
+          (entryPath) => compareEntry(path.join(SOURCE_COMMANDS, command), path.join(entryPath, "SKILL.md"))
         )
       ) {
         continue;
       }
       const ok = hasInstalledCommand(paths.commands, skillDirs, command);
       if (ok) {
-        okCount += 1;
-        console.log(`  ${colors.green}OK${colors.reset} ${command}`);
+        const locations = paths.commands.map((dir) => path.join(dir, command));
+        if (paths.commandsAsSkills) locations.push(...skillDirs.map((dir) => path.join(dir, cmdEntry, "SKILL.md")));
+        reportPresent(command, () =>
+          mergeLocations(
+            locations
+              .map((target, index) => ({ target, index }))
+              .filter(({ target }) => fs.existsSync(target))
+              .map(({ target, index }) => ({ index, result: compareEntry(path.join(SOURCE_COMMANDS, command), target) }))
+          )
+        );
       } else {
         if (args.fix) {
           // No paths.commands[0] access when the tool has no raw commands dir
@@ -1744,15 +1777,28 @@ function doctorTool(tool, args) {
     for (const skill of listSkills()) {
       if (
         checkOwnedEntry(skill, skill, (entryPath) =>
-          copyDirectoryContents(path.join(SOURCE_SKILLS, skill), entryPath, { force: true, dryRun: false })
+          copyDirectoryContents(path.join(SOURCE_SKILLS, skill), entryPath, { force: true, dryRun: false }),
+          (entryPath) => compareEntry(path.join(SOURCE_SKILLS, skill), entryPath)
         )
       ) {
         continue;
       }
       const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
-        okCount += 1;
-        console.log(`  ${colors.green}OK${colors.reset} ${skill}`);
+        // DD-8: install and update never replace an `impeccable/` without
+        // UPSTREAM.md, so a DIFFERS there could never clear: it is not compared.
+        let notCompared = false;
+        const located = [];
+        skillDirs.forEach((dir, index) => {
+          const entryPath = path.join(dir, skill);
+          if (!fs.existsSync(entryPath)) return;
+          if (skill === IMPECCABLE_ENTRY && !fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) {
+            notCompared = true;
+            return;
+          }
+          located.push({ index, result: compareEntry(path.join(SOURCE_SKILLS, skill), entryPath) });
+        });
+        reportPresent(skill, () => mergeLocations(located), notCompared ? " (not AKILI's copy; not compared)" : "");
       } else {
         if (args.fix) {
           for (const targetSkills of skillDirs) {
@@ -1837,8 +1883,7 @@ function doctorTool(tool, args) {
     for (const check of resourceChecks) {
       const ok = fs.existsSync(check.dest);
       if (ok) {
-        okCount += 1;
-        console.log(`  ${colors.green}OK${colors.reset} ${check.dest}`);
+        reportPresent(check.dest, () => compareEntry(check.src, check.dest));
       } else {
          if (args.fix) {
           copySingleFile(check.src, check.dest, { force: true, dryRun: false });
@@ -1852,7 +1897,7 @@ function doctorTool(tool, args) {
     }
   }
 
-  return { rootPath, ok: okCount, missing, fixed, foreign, recordState: ownership ? ownership.state : null };
+  return { rootPath, ok: okCount, missing, fixed, foreign, differs, recordState: ownership ? ownership.state : null };
 }
 
 // Environment dependencies the methodology recommends but never requires.
@@ -2367,6 +2412,13 @@ function runDoctor(args) {
   // @akili-spec changes/grokbot-target — T3 (DD-9): foreign entries are not
   // missing (--fix cannot repair them), but they fail the run all the same.
   const foreignTotal = results.reduce((acc, r) => acc + r.foreign, 0);
+  // @akili-spec changes/impeccable-audit-fixes/install-stale-skills T3 (FR-3,
+  // DD-5): DIFFERS is a warning. It feeds the hint and the closing line only,
+  // never `process.exitCode` or the per-tool status.
+  const differsTotal = results.reduce((acc, r) => acc + r.differs, 0);
+  const differsHint = () =>
+    `  - ${differsTotal} ${differsTotal === 1 ? "entry differs" : "entries differ"} from the package: run ${colors.cyan}akili update${colors.reset} to replace ${differsTotal === 1 ? "it" : "them"} (local edits are overwritten; use the same --tool, --local and --target flags as this run).`;
+  const differsSee = () => `${differsTotal} ${differsTotal === 1 ? "entry differs" : "entries differ"} from the package (see above).`;
 
   console.log(`\n${colors.cyan}${"─".repeat(56)}${colors.reset}`);
   console.log(`${colors.cyan}Doctor Summary${colors.reset} — akili-specs v${currentVersion}`);
@@ -2377,7 +2429,7 @@ function runDoctor(args) {
         : r.fixed > 0
         ? `${colors.cyan}REPAIRED${colors.reset}`
         : `${colors.green}HEALTHY${colors.reset}`;
-    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}${r.recordState ? ` | foreign ${r.foreign}` : ""}`);
+    console.log(`  ${r.tool.toUpperCase().padEnd(12)} ${status}  ${colors.green}ok ${r.ok}${colors.reset} | ${colors.red}missing ${r.missing}${colors.reset} | fixed ${r.fixed}${r.recordState ? ` | foreign ${r.foreign}` : ""}${r.differs > 0 ? ` | differs ${r.differs}` : ""}`);
     console.log(`  ${"".padEnd(12)} → ${r.rootPath}`);
   }
 
@@ -2404,9 +2456,17 @@ function runDoctor(args) {
         `  - Ownership record (${ownershipRecordPath(paths)}): restore the record; or run ${colors.cyan}${grokbotCommand("doctor", roots.skillsRoot, paths.resources)}${colors.reset} first to see which same-name entries belong to other authors, then delete the record and run ${colors.cyan}${installCmd}${colors.reset}, knowing that every AKILI-named entry will be replaced.`
       );
     }
+    if (differsTotal > 0) console.log(differsHint());
     process.exitCode = 1;
   } else if (fixedTotal > 0) {
     console.log(`\nAll issues repaired: ${fixedTotal} file(s) restored.`);
+    if (differsTotal > 0) {
+      console.log(differsSee());
+      console.log(`\n${colors.cyan}Next steps:${colors.reset}\n${differsHint()}`);
+    }
+  } else if (differsTotal > 0) {
+    console.log(`\nNo missing files. ${differsSee()}`);
+    console.log(`\n${colors.cyan}Next steps:${colors.reset}\n${differsHint()}`);
   } else {
     console.log(`\nAll checks passed. Your installation is complete and healthy.`);
   }

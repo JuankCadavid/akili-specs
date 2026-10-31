@@ -74,7 +74,7 @@ T1 ──► T2 ──► T3 ──► T4
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~80 code, ~110 tests) |
 | Depends on | T2 |
 | Requirements | FR-3 (7 SHALL bullets; scenario THEN/BUT/AND IT MUST); NFR-1, NFR-2 |

@@ -182,3 +182,140 @@ test("Home: is printed for a global run under HOME and absent with --local", (t)
   const local = install(home2, "claude", ["--local"]);
   assert.doesNotMatch(local.out, /Home:/);
 });
+
+// ---------------------------------------------------------------------------
+// T3 (FR-3): doctor reports DIFFERS as a warning. Exit code and status are the
+// same as for a run without it; --fix never overwrites a DIFFERS entry.
+// ---------------------------------------------------------------------------
+
+function doctor(home, tool, extra) {
+  return run(home, ["doctor", "--tool", tool, ...(extra || [])]);
+}
+
+function doctorRow(out, tool) {
+  const row = out.split("\n").find((l) => l.startsWith(`  ${tool.toUpperCase()} `));
+  assert.ok(row, `no ${tool} doctor row in:\n${out}`);
+  return row;
+}
+
+test("doctor: an edited skill is DIFFERS, row shows differs 1, hint, exit 0, HEALTHY, no all-clear", (t) => {
+  const home = claudeLocal(t);
+  fs.appendFileSync(path.join(home, ".claude", "skills", "impeccable-bridge", "SKILL.md"), "\nlocal edit\n");
+  const before = snapshot(path.join(home, ".claude"));
+  const d = doctor(home, "claude", ["--local"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /^ {2}DIFFERS impeccable-bridge \(SKILL\.md\)$/m);
+  assert.match(doctorRow(d.out, "claude"), /^ {2}CLAUDE\s+HEALTHY\s+ok \d+ \| missing 0 \| fixed 0 \| differs 1$/);
+  assert.match(
+    d.out,
+    /- 1 entry differs from the package: run akili update to replace it \(local edits are overwritten; use the same --tool, --local and --target flags as this run\)\./
+  );
+  assert.match(d.out, /No missing files\. 1 entry differs from the package \(see above\)\./);
+  assert.doesNotMatch(d.out, /All checks passed/);
+  assert.deepEqual(snapshot(path.join(home, ".claude")), before, "doctor without --fix must not write");
+});
+
+test("doctor: a clean install has no differs column and keeps the all-clear", (t) => {
+  const home = claudeLocal(t);
+  const d = doctor(home, "claude", ["--local"]);
+  assert.equal(d.status, 0, d.out);
+  assert.doesNotMatch(d.out, /differs|DIFFERS/);
+  assert.match(d.out, /All checks passed\. Your installation is complete and healthy\./);
+});
+
+test("doctor --fix leaves a DIFFERS file byte-unchanged, exit 0, no repaired line when nothing was missing", (t) => {
+  const home = claudeLocal(t);
+  const file = path.join(home, ".claude", "skills", "impeccable-bridge", "SKILL.md");
+  fs.appendFileSync(file, "\nLOCALMARK\n");
+  const before = snapshot(path.join(home, ".claude"));
+  const d = doctor(home, "claude", ["--local", "--fix"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /DIFFERS impeccable-bridge/);
+  assert.doesNotMatch(d.out, /All issues repaired/);
+  assert.deepEqual(snapshot(path.join(home, ".claude")), before, "--fix must not overwrite a DIFFERS entry");
+});
+
+test("doctor --fix that repaired something prints the repaired line, then the differing count", (t) => {
+  const home = claudeLocal(t);
+  fs.appendFileSync(path.join(home, ".claude", "skills", "impeccable-bridge", "SKILL.md"), "\nLOCALMARK\n");
+  fs.rmSync(path.join(home, ".claude", "skills", "tdd"), { recursive: true, force: true });
+  const d = doctor(home, "claude", ["--local", "--fix"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /All issues repaired: 1 file\(s\) restored\.\n1 entry differs from the package \(see above\)\./);
+  assert.match(fs.readFileSync(path.join(home, ".claude", "skills", "impeccable-bridge", "SKILL.md"), "utf8"), /LOCALMARK/);
+  assert.ok(fs.existsSync(path.join(home, ".claude", "skills", "tdd", "SKILL.md")));
+});
+
+test("doctor Antigravity --local: an edit only in the second skills dir is DIFFERS", (t) => {
+  const home = mkHome(t);
+  assert.equal(install(home, "antigravity", ["--local"]).status, 0);
+  const second = path.join(home, ".gemini", "skills", "impeccable-bridge", "SKILL.md");
+  assert.ok(fs.existsSync(second), "second skills dir copy missing");
+  fs.appendFileSync(second, "\nedit\n");
+  const d = doctor(home, "antigravity", ["--local"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /DIFFERS impeccable-bridge \(2:SKILL\.md\)/);
+  assert.match(doctorRow(d.out, "antigravity"), /differs 1$/);
+});
+
+test("doctor: a foreign impeccable/ (no UPSTREAM.md) is not compared", (t) => {
+  const home = claudeLocal(t);
+  const dir = path.join(home, ".claude", "skills", "impeccable");
+  fs.rmSync(path.join(dir, "UPSTREAM.md"), { force: true });
+  fs.appendFileSync(path.join(dir, "SKILL.md"), "\nmy own impeccable\n");
+  const d = doctor(home, "claude", ["--local"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /^ {2}OK impeccable \(not AKILI's copy; not compared\)$/m);
+  assert.doesNotMatch(d.out, /DIFFERS/);
+  assert.doesNotMatch(doctorRow(d.out, "claude"), /differs/);
+});
+
+test("doctor Grok Bot: an edited owned entry is DIFFERS (exit 0); a foreign one is still FOREIGN (exit 1)", (t) => {
+  const home = mkHome(t);
+  const wf = path.join(home, "wf");
+  const res = path.join(home, "res");
+  const args = ["--grokbot-target", wf, "--grokbot-resources-target", res];
+  const first = install(home, "grokbot", args);
+  assert.equal(first.status, 0, first.out);
+  fs.appendFileSync(path.join(wf, "akili-quick", "SKILL.md"), "\nedit\n");
+  fs.appendFileSync(path.join(wf, "tdd", "SKILL.md"), "\nedit\n");
+  const d = doctor(home, "grokbot", args);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /^ {2}DIFFERS akili-quick\.md \(SKILL\.md\)$/m);
+  assert.match(d.out, /^ {2}DIFFERS tdd \(SKILL\.md\)$/m);
+  assert.match(doctorRow(d.out, "grokbot"), /foreign 0 \| differs 2$/);
+  // A same-name entry nobody recorded stays FOREIGN, exit 1.
+  const home2 = mkHome(t);
+  const wf2 = path.join(home2, "wf");
+  fs.mkdirSync(path.join(wf2, "tdd"), { recursive: true });
+  fs.writeFileSync(path.join(wf2, "tdd", "SKILL.md"), "someone else's\n");
+  const args2 = ["--grokbot-target", wf2, "--grokbot-resources-target", path.join(home2, "res")];
+  const f = doctor(home2, "grokbot", args2);
+  assert.equal(f.status, 1, f.out);
+  assert.match(f.out, /FOREIGN tdd/);
+  assert.doesNotMatch(f.out, /DIFFERS tdd/);
+});
+
+test("doctor: an edited resource is DIFFERS", (t) => {
+  const home = claudeLocal(t);
+  const file = path.join(home, ".claude", "akili", "templates", "leader.md");
+  assert.ok(fs.existsSync(file), "resource missing");
+  fs.appendFileSync(file, "\nedit\n");
+  const d = doctor(home, "claude", ["--local"]);
+  assert.equal(d.status, 0, d.out);
+  assert.match(d.out, /^ {2}DIFFERS .*templates[\\/]leader\.md \(leader\.md\)$/m);
+  assert.match(doctorRow(d.out, "claude"), /differs 1$/);
+});
+
+test("doctor: one missing and one differing entry exit 1 and report both, hint once", (t) => {
+  const home = claudeLocal(t);
+  fs.appendFileSync(path.join(home, ".claude", "skills", "impeccable-bridge", "SKILL.md"), "\nedit\n");
+  fs.rmSync(path.join(home, ".claude", "skills", "tdd"), { recursive: true, force: true });
+  const d = doctor(home, "claude", ["--local"]);
+  assert.equal(d.status, 1, d.out);
+  assert.match(d.out, /MISSING tdd/);
+  assert.match(d.out, /DIFFERS impeccable-bridge/);
+  assert.match(doctorRow(d.out, "claude"), /INCOMPLETE.*differs 1$/);
+  assert.equal((d.out.match(/differs from the package: run akili update/g) || []).length, 1, d.out);
+  assert.doesNotMatch(d.out, /All checks passed|No missing files/);
+});
