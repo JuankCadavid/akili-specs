@@ -53,7 +53,7 @@ test("FR-13 (BUT): a user-directed path replaces the default and the report is w
 test("FR-16: the CHANGELOG Unreleased entry counts 14 audit gaps and hands the installer item to a separate change", () => {
   const c = read("CHANGELOG.md");
   const u = slice(c, "## [Unreleased]", "\n## [");
-  has(u, "address 14 gaps found in the first `/akili-audit design` run on 2.40.0", "A separate change, not yet shipped, will handle the installer item from the same audit.", "The vendored `impeccable/` skill is untouched.");
+  has(u, "address 14 gaps found in the first `/akili-audit design` run on 2.40.0", "The installer item from the same audit is handled by the install and doctor entry below.", "The vendored `impeccable/` skill is untouched.");
 });
 
 test("FR-16: the impeccable-bridge doc restates the verified skill source, the first-visit viewports, outcomes, priority, banner and false-positive rules", () => {

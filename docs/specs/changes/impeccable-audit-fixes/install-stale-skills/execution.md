@@ -71,3 +71,28 @@
 **Cause:** tests. 535 test lines against ~400 estimated. Code is 167 against ~200. No scope was added: every test maps to a T1–T3 Tests field.
 
 **Status:** the tripwire fired at T3 finalize. JC's instruction (2026-10-31 14:23): stop and ask on any budget tripwire. The rule: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." **Not auto-approved.** T4 waits for JC.
+
+**Decision (2026-10-31 16:51 UTC-5):** delegated by JC, option chosen by JC's assistant (Methodology). JC's words, transmitted verbatim: "Aprueba la versión que mejor se adapte a nuestras necesidades". On that delegation JC's assistant chose to **accept the overrun up to ~775 LOC** (the overrun is tests) and continue with T4, `/akili-test`, `/akili-validate` and `/akili-archive`. The run stops again if authored LOC exceed ~775.
+
+### T4 — Docs, CHANGELOG, pin (FR-5, FR-4 docs)
+
+- **Status:** PASS, 2026-10-31, 2 attempts
+- **Files changed:** `docs/cli.md` (+7 −7: install and doctor summary bullets, Grok Bot "Owned, present" row, exit rule, accepted-limits partial entry, Safety Rules, the update "Without `--force`" line); `CHANGELOG.md` (+2 −1: line 11 reworded, new `Unreleased` bullet); `test/design-eval-contract-coverage.test.js` (+1 −1, the `:56` pin); `test/install-stale-skills.test.js` (+37, 4 text tests)
+- **Red run:** 3 of the 4 new tests red on assertions (`docs/cli.md lacks (identical)`; the ownership row and accepted-limits assertion; the CHANGELOG entry). The "no `were preserved`" test was green at baseline: no shipped file held the phrase
+- **Falsifier (executed, restored):** the old "reads OK" accepted-limits wording → `The input was expected to not match the regular expression /already has its \`SKILL\.md\` reads OK/`
+- **Attempt 1 — Reviewer (opus, checklist): FAIL.** (1) `CHANGELOG.md:12` "A global install prints a `Home:` line" overclaims: `bin/akili.js:1560` prints it only for roots under home (scratch run with `--target` outside home printed none). (2) `docs/cli.md:217` "An `impeccable/` without `UPSTREAM.md` is not compared" overclaims: Grok Bot compares through `checkOwnedEntry`
+- **Attempt 2:** both sentences scoped as required; advisory A1 folded into T4's own Safety Rules sentence ("Each skipped existing entry (foreign entries excepted)"), a precision fix to the task's own text. Reviewer **PASS**
+- **Evidence re-run (Leader, inline):** `npm test` → `# tests 1381 # pass 1381 # fail 0`; `git diff --check` clean. Implementer: `npm run verify:cli` → `14 commands | 31 skills | 8 resources (akili-specs v2.40.0)`; `npm run pack:dry-run` → `total files: 408`. **VERIFIED**
+- **ADVISORY (recorded, not acted on):** (A2) the Safety Rules sentence, the `skipped N (identical I, differs D)` wording and the "`--fix` never overwrites" clause have no test pin. (A3, pre-existing) `docs/cli.md:486` "Without `--force`, existing files are skipped" is false for `update`, which always forces (`bin/akili.js:1498`); FR-5 assumed it true. Follow-up candidate, outside this spec
+- **Requirements covered:** FR-5, FR-4 (docs), NFR-4
+- **spawns:** Implementer (sonnet) 8 + 2 calls, ended complete; Reviewer (opus) 11 calls + 1 resume, ended complete (PASS)
+- **Running totals:** tasks 4/4 · **LOC 752 / ~650 (696 + 56), +16 %, within the ~775 ceiling accepted on 2026-10-31 16:51** · review rounds 5 / ~7
+
+## Execution Summary
+
+| Measure | Budget | Actual |
+|---|---|---|
+| Tasks | 4 | 4 closed, all Reviewer PASS |
+| Authored LOC | ~650 (ceiling ~775 after the 16:51 decision) | 752 (code 167, tests 572, docs 13) |
+| Review rounds | ~7 | 5 (T4 took 2) |
+| `npm test` | baseline 1345 | 1381 / 1381 |

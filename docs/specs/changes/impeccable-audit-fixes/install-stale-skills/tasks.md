@@ -93,7 +93,7 @@ T1 ──► T2 ──► T3 ──► T4
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~50 docs, ~30 tests) |
 | Depends on | T3 |
 | Requirements | FR-5 (every listed site); FR-4 docs half (`--local` per worktree); NFR-4 |

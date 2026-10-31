@@ -319,3 +319,40 @@ test("doctor: one missing and one differing entry exit 1 and report both, hint o
   assert.equal((d.out.match(/differs from the package: run akili update/g) || []).length, 1, d.out);
   assert.doesNotMatch(d.out, /All checks passed|No missing files/);
 });
+
+// T4 (FR-5): the shipped docs say what the code does.
+const ROOT4 = path.join(__dirname, "..");
+const text4 = (...p) => fs.readFileSync(path.join(ROOT4, ...p), "utf8");
+const line4 = (s, needle) => s.split("\n").find((l) => l.includes(needle)) || "";
+
+test("docs/cli.md names the skip classes, DIFFERS, the exit rule and --local per worktree", () => {
+  const c = text4("docs", "cli.md");
+  for (const s of ["(identical)", "(differs", "DIFFERS", "`DIFFERS` never makes doctor fail", "per git worktree"]) {
+    assert.ok(c.includes(s), `docs/cli.md lacks ${s}`);
+  }
+});
+
+test("docs/cli.md ownership row and accepted limit report DIFFERS, not OK", () => {
+  const c = text4("docs", "cli.md");
+  assert.match(line4(c, "| Owned, present |"), /DIFFERS/);
+  assert.doesNotMatch(c, /already has its `SKILL\.md` reads OK/);
+  assert.match(line4(c, "already has its `SKILL.md`"), /reads `DIFFERS`/);
+});
+
+test("CHANGELOG Unreleased has the install/doctor entry and the reworded sentence", () => {
+  const c = text4("CHANGELOG.md");
+  const u = c.slice(c.indexOf("## [Unreleased]"), c.indexOf("\n## [", c.indexOf("## [Unreleased]") + 5));
+  assert.ok(u.includes("`install` classifies every skipped entry"), "new entry missing");
+  assert.ok(u.includes("The installer item from the same audit is handled by the install and doctor entry below."));
+  assert.ok(!u.includes("not yet shipped"));
+});
+
+test("no shipped file keeps the old 'were preserved' line", () => {
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(d, e.name);
+    return e.isDirectory() ? (p.includes(path.join("docs", "specs")) ? [] : walk(p)) : [p];
+  });
+  const files = [...walk(path.join(ROOT4, "docs")), ...walk(path.join(ROOT4, "bin")), ...walk(path.join(ROOT4, ".claude")), path.join(ROOT4, "README.md")];
+  const hits = files.filter((f) => /\.(md|js|json)$/.test(f) && fs.readFileSync(f, "utf8").includes("were preserved"));
+  assert.deepEqual(hits, []);
+});
