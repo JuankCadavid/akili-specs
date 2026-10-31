@@ -52,3 +52,10 @@ Every round-1 ID is resolved, except as follows.
 Severe findings remain after round two, and the judges disagree on B-J6. Per the skill: escalate and stop. The FR-1 core (classification, skip labels, counts, `DIFFERS`, exit code) is clean in both judges' reports. Every open item is in the two refinements added at specify: hints that rebuild root flags, and the `Home:` rule.
 
 JUDGMENT: ESCALATED ⚠️
+
+## Escalation resolved by JC (2026-10-31)
+
+Answer: **"Simplify both (Recommended)"**.
+- **Hints.** The hints name `akili update` / `install --force` and tell the user to repeat this run's `--tool`, `--local` and `--target` flags; no flags are rebuilt. This removes R2-1, R2-2, R2-3, D-1, D-2 and D-3.
+- **`Home:`.** `Home:` prints when the run did not use `--local` and some printed root lies under `os.homedir()`. This removes R2-4 and R2-5: the Grok Bot box path never qualifies, and the root is printed beside the line.
+- **Re-judgment.** JC chose to proceed without a third judge round. The lineage stays `ESCALATED`, closed by a human decision, and the Reviewer gate at execute audits the shipped text.

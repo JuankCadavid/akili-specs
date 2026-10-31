@@ -6,7 +6,7 @@
 |---|---|
 | Spec Path | `changes/impeccable-audit-fixes/install-stale-skills` |
 | Requirements | `requirements.md` (Phase 1 gate `auto-approved (pre-approved mode)`, 2026-10-31; FR-2 to FR-5 sharpened after judgment-day) |
-| Revision | 3: judgment-day rounds 1 and 2 applied (`judgment.md`) |
+| Revision | 4: judgment-day rounds 1 and 2 applied, then JC's resolution of the escalation, "Simplify both" (2026-10-31; `judgment.md`) |
 | Status | Phase 2 gate: see `judgment.md` |
 | Approval Mode | `pre-approved (JC, 2026-10-31)` |
 | Verified at | `d5018e3` |
@@ -47,9 +47,9 @@ CLI output only:
 |---|---|
 | Install skip | `skip existing <path> (identical)` · `skip existing <path> (differs: <names>)` |
 | Install summary, per tool and TOTAL | `installed X \| overwritten Y \| skipped N (identical I, differs D)`. The parenthesis prints only when N > 0 |
-| Next steps, D > 0 | `- D existing entr(y\|ies) differ from the package (stale or locally edited): run <update cmd> or <install --force cmd> to replace them.` Both commands repeat the run's `--tool`, `--local` and every `--*-target` flag whose value differs from its default (`defaultPaths`), via one new helper `rootArgsFor(tool, args)` (DD-9, P-11) |
+| Next steps, D > 0 | `- D existing entr(y\|ies) differ from the package (stale or locally edited): run <update cmd> or <install --force cmd> to replace them.` The line ends: `(with the same --tool, --local and --target flags as this run)`. No flags are rebuilt (DD-9) |
 | Next steps, D = 0 and N > 0 | `- N existing entr(y\|ies) already match the package.` |
-| Install summary, home-derived root | `Home: <os.homedir()>`, printed once, only when at least one tool's root was computed from `os.homedir()`: no `--local`, no non-default target flag, no `CODEX_HOME`/`CURSOR_CONFIG_DIR`/`AKILI_GROKBOT_TARGET` override (P-12) |
+| Install summary, home-derived root | `Home: <os.homedir()>`, printed once, when `!args.local` and some printed `rootPath` lies under `os.homedir()` (path-prefix check on resolved paths). The root is printed beside it, so an env-overridden root under home is still shown truthfully (P-12) |
 | Doctor entry | `DIFFERS <label> (<names>)` |
 | Doctor summary row | Today's row, with ` \| differs N` appended only when N > 0 |
 | Doctor, D > 0 | A `Next steps:` hint `- N entr(y\|ies) differ from the package: run <update cmd> to replace them (local edits are overwritten).`, printed **outside** the `missing + foreign` block, so `process.exitCode` is untouched. Closing-line precedence: (1) missing or foreign → today's block, exit 1, plus the differs hint; (2) else fixed > 0 → "All issues repaired: …", then `N entr(y\|ies) differ from the package (see above).` when N > 0; (3) else N > 0 → `No missing files. N entr(y\|ies) differ from the package (see above).`; (4) else "All checks passed…", unchanged |
@@ -122,7 +122,7 @@ n/a: CLI only.
 | DD-6 | A symlinked target reads `differs` | Follow it | The installer writes real files and removes symlinks on overwrite |
 | DD-7 | Only print the doctor `differs` column when N > 0 | Always print it | `test/fixtures/doctor-codex-baseline.txt` is compared byte for byte with a healthy run (P-7) |
 | DD-8 | Do not compare a foreign `impeccable/` | Compare it | Neither `install` nor `update` replaces it (`forceExplicit` is install-only), so a `DIFFERS` there could never clear (P-10) |
-| DD-9 | Replace hints repeat the run's `--tool`, `--local` and non-default target flags through one helper `rootArgsFor` | A bare `akili update`; reusing `doctorHintFor` | A `--local` or target-flag install would otherwise be told to refresh the wrong root. `doctorHintFor` carries roots only for Grok Bot (P-11) |
+| DD-9 | Replace hints name the command and tell the user to repeat this run's `--tool`, `--local` and `--target` flags; no flag reconstruction | A `rootArgsFor` builder (rev 3) | JC's decision after the judgment-day escalation: rebuilding flags had three uncovered cases (bare `--target`, the Grok Bot resources root, multi-tool runs; P-11). The plain instruction is correct for every run, and the existing Grok Bot foreign hint (`grokbotCommand`) is unchanged |
 
 **Reversion challenge (Step 2.3).** DD-2 replaces the "preserved … Re-run with --force" line. *What does removing it break?* The `--force` hint survives in the D > 0 line, which is now precise. `grep -rn "were preserved" test/` → 0 hits. `test/install-grokbot.test.js` holds one `doesNotMatch(next, /preserved/)`, and that stays true (judge A, J-6). The old "All checks passed" line is kept for every run without `DIFFERS`, and `test/install-grokbot.test.js:770` pins it for a healthy run. Answer recorded; no change.
 

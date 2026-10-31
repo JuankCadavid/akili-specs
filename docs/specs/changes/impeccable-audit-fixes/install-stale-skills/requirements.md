@@ -92,7 +92,7 @@ When install skips an existing entry, or doctor checks a present one, the CLI SH
 
 - Every skip of an existing, non-foreign entry SHALL print the class after the path, as `skip existing <path> (identical)` or `skip existing <path> (differs: <names>)`. The `skip existing ` prefix stays, because tests and users key on it.
 - The per-tool summary SHALL keep `skipped N` and add `identical I, differs D`, where I + D = N.
-- The next-steps block SHALL replace "N existing file(s) were preserved. Re-run with --force to overwrite them." with one line, printed only when D > 0, that names D and the two ways to replace them: `akili update` or `install --force`, each repeating the run's own `--tool`, `--local` and every `--*-target` flag whose value differs from its default, so the command acts on the roots this run used.
+- The next-steps block SHALL replace "N existing file(s) were preserved. Re-run with --force to overwrite them." with one line, printed only when D > 0, that names D and the two ways to replace them: `akili update` or `install --force`, and saying to run it with the same `--tool`, `--local` and `--target` flags as this run. The CLI does not rebuild those flags (JC, 2026-10-31, after the judgment-day escalation).
 - When D = 0 and N > 0, it SHALL say the N skipped entries already match the package.
 - `--force` and `update` behavior SHALL NOT change. `--dry-run` SHALL classify too, reading and never writing.
 - Foreign, blocked and takeover entries keep their own lines and counts.
@@ -116,7 +116,7 @@ When install skips an existing entry, or doctor checks a present one, the CLI SH
 - For a present command, command-as-skill, skill or resource whose content `differs` (FR-1) at any location the install writes it to, doctor SHALL print `DIFFERS <label>`. For a directory it also prints the names (FR-1). This applies to owned Grok Bot entries too.
 - An entry the install itself treats as not AKILI's (an `impeccable/` without `UPSTREAM.md`, on a tool with no ownership record) SHALL NOT be compared, because neither `install` nor `update` replaces it. Doctor reports it as today.
 - `identical` entries keep `OK`. `MISSING`, `FOREIGN`, `STALE` and `FIXED` are unchanged.
-- The per-tool doctor summary row SHALL show `differs N` only when N > 0, so an all-identical row is unchanged. A hint SHALL name the replace command when N > 0, repeating the run's `--tool`, `--local` and non-default `--*-target` flags (as in FR-2).
+- The per-tool doctor summary row SHALL show `differs N` only when N > 0, so an all-identical row is unchanged. A hint SHALL name the replace command when N > 0, worded as in FR-2.
 - `DIFFERS` SHALL NOT change the exit code or the `HEALTHY`/`REPAIRED`/`INCOMPLETE` status (Q1: a warning, exit 0). A run whose only finding is `DIFFERS` SHALL NOT end with "All checks passed. Your installation is complete and healthy."; it names the differing count instead. When `--fix` repaired something in the same run, the existing "All issues repaired" line prints first, followed by the differing count.
 - `--fix` SHALL NOT overwrite a `DIFFERS` entry. It repairs missing entries only.
 
@@ -130,7 +130,7 @@ When install skips an existing entry, or doctor checks a present one, the CLI SH
 
 ### FR-4: Name the home a global install resolved from
 
-When a tool's root is computed from `os.homedir()` (no `--local`, no non-default `--*-target` flag, and no `CODEX_HOME`, `CURSOR_CONFIG_DIR` or `AKILI_GROKBOT_TARGET` override for that tool), the install summary SHALL print, once, the home directory it resolved from. A `--local`, explicit-target or env-overridden install SHALL NOT print it. `docs/cli.md` SHALL state that `--local` is the per-checkout route, including for a git worktree.
+When the run did not use `--local` and at least one root printed in the install summary lies under `os.homedir()`, the summary SHALL print `Home: <os.homedir()>` once. A `--local` run SHALL NOT print it. A run whose printed roots all lie outside the home directory (for example Grok Bot's box path) SHALL NOT print it either (JC, 2026-10-31). `docs/cli.md` SHALL state that `--local` is the per-checkout route, including for a git worktree.
 
 #### Scenario: A host that sets its own HOME
 
