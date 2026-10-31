@@ -89,3 +89,16 @@
 **Cause.** The tests. The new file is 230 lines against the ~170 estimate. The surplus comes from section helpers that were duplicated rather than imported, the sweep walker that was reimplemented because the existing one is private (judgment D-1), and the behavioral FR-2 test. The rules prose came in at ~10 changed bridge lines plus ~9 restatement lines, under its ~40 estimate. No scope was added: every assertion maps to a clause in design §7.5.
 
 **Status.** The tripwire fired at T4 finalize. Rule: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." **Not auto-approved.** T4 is closed on its Reviewer PASS. `/akili-test`, `/akili-validate` and `/akili-archive` wait for JC.
+
+**Tripwire decision (JC, 2026-10-31):** "Sí, acepto el exceso (solo tests, sin alcance nuevo)". Accepted: 244 insertions against ~210. Standing instruction for the rest of the mandate: stop again only if another budget tripwire exceeds ~20 %, or if new scope or a new amendment appears.
+
+## Summary
+
+| Measure | Value |
+|---|---|
+| Tasks | 4/4 `[x]`, every one closed on a Reviewer `PASS` at attempt 1. No `REVIEW_SKIPPED`, no `REVIEW_WAIVED`, no HALT, no Pivot, no checkpoint |
+| Evidence re-runs | 4 × `VERIFIED` (Leader inline) |
+| Tests | `npm test` 1315 → 1342 (+27: 9 FR-1, 7 FR-3, 5 FR-2, 6 FR-4) |
+| LOC | 244 insertions, 13 deletions in shipped files (tripwire accepted by JC) |
+| Review rounds | 4 |
+| Commits | `269d6b1` T1, `01e6f89` T2, `f48122b` T3, `08a4dd1` T4 |
