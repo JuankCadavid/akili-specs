@@ -91,18 +91,28 @@ A finding that is both `blocking` and inaccessible stays one P1. The report has 
 - **Date of Evaluation:** YYYY-MM-DD
 - **Target:** <URL and/or paths>
 - **Impeccable:** <skill source> + <engine state> (as recorded by the bridge's Step 0)
+  - Copy: <absolute path>
+  - Home: HOME=<resolved> (USERPROFILE=<resolved> on Windows)
+  - Other copies: <path (version)>, ... | none
+  - Excluded: ~/.impeccable | none
+  - IMPECCABLE_BIN: <pinned path (from the probe or the download)> | not set (no engine pinned)
+  - Download home override: <variable>=<dir> (one call) | none
 - **Detector:** `<launcher invocation>`, engine <version> at <location> | Unevaluated (<reason>)
-  - **Mobile viewport:** <WxH> (source: docs/ux-ui/design.md | default)
+  - **Viewports:** `desktop <WxH> (<source>)`, `mobile <WxH> (<source>)`, `short-height <WxH> + <WxH> (<source>)`; `<source>` is `docs/ux-ui/design.md`, `default` or `incomplete (<value>), default used`
   - Scan matrix: see below
-- **Score source:** Impeccable critique | fallback checklist (the two are never trended together)
+- **Coverage:** `all templates` | `<n> of <m> templates; not covered: <names>`
+- **Score source:** Impeccable critique | fallback checklist (the two are never trended together); `, degraded (single-context: <reason>)` is appended when Assessment A ran inline
 - **Design source of truth:** docs/ux-ui/design.md | none (inferred, see Assumptions)
 - **Baseline:** current | Baseline possibly stale (design.md <date>; UI <date>) | Unevaluated (no git history) | none (no docs/ux-ui/design.md)
   - Newer UI commits (up to 5): <sha date subject> | none
-  - Page modes: ok | drift (<what>; inferred modes under Assumptions)
+  - Page modes: ok | drift (<page-mode column missing | screens without a mode | Design Waivers list missing | clause IDs missing>; routed to /akili-constitution)
   - Derived context (`PRODUCT.md`/`DESIGN.md`): present | missing (the detector lacks design-system context)
 - **Out of scope:** <owner exclusion> - <N> detector hits (<rule id>: <count>, ...) | none
 - **Performance:** see table below | Unevaluated (<reason>)
+  - Install: none | npm ci (consented by <who>) | Unevaluated (Lighthouse unavailable: npm ci failed: <first stderr line>)
+  - Machine load: <load average 1/5/15>; other listening dev servers: <port process>, ... | none | unavailable (<reason>)
 - **Proposed waivers:** N
+- **False positives:** N
 - **Report location:** default | <path> (directed by <who>)
 - **Overall Design Score:** X/10
 
@@ -114,7 +124,7 @@ Two to four sentences: what works, the one thing to fix first.
 | Screen | Page mode | First-visit pass | Critique score | Audit issues (P1/P2/P3) |
 | :--- | :--- | :--- | :--- | :--- |
 
-`First-visit pass`: `run` | `not required (Read)` | `Unevaluated (<reason>)`.
+`First-visit pass`: `<WxH> <outcome>` per first-visit viewport, separated by `; `. An outcome is `pass`, `covered (<element>)`, `below fold (y=<n>)` or `Unevaluated (<reason>)`, optionally followed by ` waived (design.md)`. A Read screen reads `not required (Read)`. The value `run` is retired.
 
 ## Scan matrix
 
@@ -123,17 +133,21 @@ Two to four sentences: what works, the one thing to fix first.
 
 ## Capture conditions
 
-| Pass | Screen | Locale | Reduced motion | Viewport | Consent state |
-| :--- | :--- | :--- | :--- | :--- | :--- |
+| Screen | Viewport | Locale | Reduced motion | Consent state | CTA (method) | Banner |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+
+One row per first-visit capture (screen x first-visit viewport). `CTA (method)`: `declared`, `primary style`, `first main action`. `Banner`: `visible`, `not rendered: <reason>`, `none in product`.
 
 ## Performance
 
-| URL | Form factor | Runs | Score median (range) | LCP median (range) | Usable as baseline or gate? |
-| :--- | :--- | :--- | :--- | :--- | :--- |
+| URL | Form factor | Runs | Exit codes | Score median (range) | LCP median (range) | Usable as baseline or gate? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 
-`Usable as baseline or gate?`: `yes` | `no (range <N> wider than the targeted effect <M>)` | `n/a (no performance fix recommended)`. A URL that could not be measured carries `Unevaluated (<reason>)` instead of numbers.
+`Usable as baseline or gate?`: `yes` | `no (range <N> wider than the targeted effect <M>)` | `n/a (no performance fix recommended)`. `Exit codes`: one per run, with the first stderr line when non-zero. A URL that could not be measured carries `Unevaluated (<reason>)` instead of numbers.
 
 ## Findings
+
+Priorities follow *Priorities*; an Impeccable P0 appears as P1 tagged `blocking` (mapping table).
 
 ### P1
 - **[Finding]:** what is wrong, where, and why it matters for the screen's mode.
@@ -152,7 +166,7 @@ Two to four sentences: what works, the one thing to fix first.
 | Rule id | Count | Example location | Waived? |
 | :--- | :--- | :--- | :--- |
 
-`Waived?`: `no` | `waived (design.md)` | `waived (upstream ignore)` | `Proposed waiver (<clause>)` | `out of scope`. Proposed-waiver counting follows the bridge's *Design Waivers*; `out of scope` rows are not P1-P3 findings.
+`Waived?`: `no` | `waived (design.md)` | `waived (upstream ignore)` | `Proposed waiver (<clause>)` | `false positive (<reason>; <evidence>)` | `out of scope`. Proposed-waiver counting follows the bridge's *Design Waivers*; `out of scope` and `false positive` rows are not P1-P3 findings; `false positive` rows are counted apart in `False positives`.
 
 ## Assumptions
 Inferences made without a baseline, and the inferred page modes.
@@ -163,12 +177,14 @@ Ordered list; the first item is the first P1 fix.
 
 ## Checklist
 
-- [ ] The report file exists at the default path, or at the recorded user-directed location, and carries the date, `Impeccable` (skill source and engine state), `Detector` (or `Unevaluated` with the reason), `Score source`, `Baseline`, `Out of scope`, `Performance`, `Proposed waivers` and `Report location`.
-- [ ] The *Scan matrix* has one row per pass and target, and *Capture conditions* one row per first-visit pass.
+- [ ] The report file exists at the default path, or at the recorded user-directed location, and carries the date, `Impeccable` (skill source and engine state), `Detector` (or `Unevaluated` with the reason), `Score source`, `Baseline`, `Out of scope`, `Performance`, `Proposed waivers`, `False positives`, `Coverage`, `Viewports` and `Report location`.
+- [ ] The *Scan matrix* has one row per pass and target, and *Capture conditions* one row per first-visit capture (screen x viewport).
 - [ ] Every non-zero exit other than `2` carries its first stderr line.
 - [ ] *Performance* shows, per measured URL, at least 3 mobile runs with median and range, or `Unevaluated (<reason>)`; no single run stands as the page score; a spread wider than the targeted fix is flagged.
-- [ ] No performance measurement ran while a delegated agent was active.
+- [ ] No performance measurement ran while a delegated agent was active. The `Machine load` line is present.
 - [ ] Every finding has evidence, a fix and a route.
-- [ ] Every key screen has a page mode and a first-visit entry (`run`, `not required (Read)` or `Unevaluated`).
+- [ ] Every key screen has a page mode, and either a first-visit outcome per viewport or `not required (Read)`.
 - [ ] `Proposed waivers` equals the count of `Proposed waiver` rows, and none of them appears among P1-P3.
-- [ ] Nothing was written outside `docs/specs/audits/`, except a recorded user-directed report location.
+- [ ] `False positives` equals the count of `false positive` rows, and none of them appears among P1-P3.
+- [ ] `Coverage` names every uncovered template.
+- [ ] Nothing was written outside `docs/specs/audits/`, except a recorded user-directed report location and a recorded consented `npm ci`.

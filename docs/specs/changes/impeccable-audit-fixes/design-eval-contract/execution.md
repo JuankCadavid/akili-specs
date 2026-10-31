@@ -275,3 +275,69 @@
 - Final verification: `npm test` `# tests 1287 / # pass 1287 / # fail 0`.
 - Running totals vs budget: tasks 4/11; authored LOC ≈ 490 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105, T4 ≈ 94) against the ~900 ceiling; review rounds 6/~18. Within budget.
 - Continue gate: auto-approved (JC mandate).
+
+### T5: Reference report template and checklist
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-10-31 |
+| Attempts | 1 |
+| Requirements covered | FR-3 (AND: each viewport with its source); FR-4 (AND: `CTA (method)`); FR-6 (priority note; BUT no P0 section); FR-9 (`Install`, checklist exception); FR-10 (`Machine load` header line); FR-12 (BUT: `Coverage` names every uncovered template); FR-13 (the checklist accepts the E6 user-directed path); FR-14 (`False positives: N`, `Waived?` value) |
+| Skills | `impeccable-bridge`, `cognitive-doc-design`, `tdd` (as listed) |
+| Effort | `high` |
+
+**Attempt 1**
+
+- First step (consumer grep): `grep -rn "Screens Evaluated\|Capture conditions\|Report location" test/*.js` found one hit, `test/design-eval-contract.test.js` (the T4 `e3b` slice end marker `## E6 - Report location`, whose heading is unchanged). No other test pins the template.
+- Files changed: `.claude/skills/impeccable-bridge/references/design-evaluation.md` (31+/15−, seven scoped sites) and `test/design-eval-contract.test.js` (+37, 6 tests).
+- Forward pointers applied:
+  - From T4: `Page modes` reads the E1 drift form, and `Install` and `Machine load` are added under `Performance`.
+  - From T1 `[advisory-grade]`: `IMPECCABLE_BIN: <pinned path (from the probe or the download)> | not set (no engine pinned)`.
+- Implementer verification:
+  - Red: 5 of 6 failed on text. The FR-6 BUT "no P0 section" test is a negative assertion, so it is green at baseline and red only under mutation.
+  - Green: 60/60.
+  - Mutations (each red, then restored):
+
+    | Mutation | Red on test |
+    |---|---|
+    | `### P0` added | 57 |
+    | `False positives:` deleted | 59 |
+    | `Viewports` changed to `Mobile viewport` | 54 |
+    | `\| CTA (method) \|` removed | 55 |
+    | Priority note edited | 56 |
+    | Checklist `Coverage` item removed | 58 |
+    | `` `run` \| `` re-added | 54 |
+    | `**Coverage:**` renamed | 58 |
+    | `\| Exit codes \|` removed | 58 |
+    | `npm ci` exception removed | 59 |
+    | `Machine load` line removed | 58 |
+
+  - Retired-`run` greps: `grep -cF '(\`run\`, \`not required (Read)\`'` gives 0, and `grep -cF '\`run\` | \`not required (Read)\`'` gives 0.
+  - All 5 positive tests fail against the `HEAD` reference.
+  - `npm test` 1293/1293. Vendored diff empty. Bridge and vendor tests 33/33.
+- Evidence re-run (Leader, inline): **VERIFIED**. 60/60; `npm test` `# tests 1293 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus, fresh spawn): **PASS**. "I checked every row of design §5.1 and §5.2, the §7.4 Template row and both Checklist rows, the §7.5 rows 2, 3 and 9, and the FR clauses named in the brief, term by term against the diff. No field or value is missing."
+  - FR-13: the last item reads "except a recorded user-directed report location and a recorded consented `npm ci`", word for word with §7.4.
+  - The disqualifiers are clear.
+- runtime events: none (the Implementer's stray `cat > /tmp/x` stdin hang was stopped by the worker, changed nothing, and was cleaned up).
+
+**Decisions made (accepted deviations, recorded per the Reviewer's advisories):**
+
+- `Machine load` is folded into the existing no-measurement-while-delegated-agent checklist item instead of its own item, so the checklist has two new items, not three. The obligation is fully present.
+- *Capture conditions* drops its old `Pass` column. The table now holds only first-visit captures, so the column was redundant. §5.2 says only "Adds".
+- The `IMPECCABLE_BIN` value carries parentheticals beyond §5.1's bare `<pinned path> | not set`. Accepted: they name both pin sources, which closes T1's forward pointer.
+
+**Not Done / Assumptions (Implementer, verbatim):** "The `IMPECCABLE_BIN` wording as above. The `Waived?` footnote now also says `false positive` rows are counted in `False positives`. The header checklist item also names `Viewports`, `Coverage` and `False positives`."
+
+**ADVISORY (recorded, not tasks):**
+
+- RELIABILITY: the `Machine load` timing ("once per E3b run, immediately before its first Lighthouse run") lives in the E3b row (T4). The template line does not point to it.
+
+- Phrase-family sweep: the keys `first-visit entry|one row per first-visit pass|Mobile viewport|inferred modes|\brun\b \||Proposed waivers|Report location` over `.claude docs README.md` (minus `docs/specs/` and the vendored folder). 25 hits, all read.
+  - No stale hits remain for `first-visit entry`, `one row per first-visit pass` or `Mobile viewport`.
+  - The rest are T5's own text, still true, or "run" in other senses.
+- spawns: Implementer (sonnet) 22 calls, 127651 tokens, ended complete; Reviewer (opus): not reported by host, ended complete (PASS).
+- Final verification: `npm test` `# tests 1293 / # pass 1293 / # fail 0`.
+- Running totals vs budget: tasks 5/11; authored LOC ≈ 558 (T1 ≈ 171, T2 ≈ 120, T3 ≈ 105, T4 ≈ 94, T5 ≈ 68) against the ~900 ceiling; review rounds 7/~18. Within budget. The remaining estimate is T6–T11 ≈ 355 LOC, which projects to about 913 against a ceiling of about 900: at the edge. The tripwire is checked at each finalize.
+- Continue gate: auto-approved (JC mandate).

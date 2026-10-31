@@ -116,7 +116,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~45 LOC prose, ~40 LOC tests) |
 | Depends on | T4 |
 | Requirements | FR-3 (AND: each viewport with its source); FR-4 (AND: the CTA method recorded); FR-6 (the priority note; BUT no P0 section); FR-10 (the header line); FR-12 (BUT: `Coverage` names every uncovered template); FR-13 (the checklist accepts the E6 path); FR-14 (`False positives: N`); FR-9 (`Install`, the checklist exception) |

@@ -391,6 +391,43 @@ test("FR-12: E2 chooses key screens so every distinct template appears once whil
   has(stepRow("E2"), "every distinct template in the UI source (a layout or page component, for example `BlogPost.astro`) appears once while the cap allows", "templates left out are named in the `Coverage` header field as a declared risk");
 });
 
+const tpl = () => slice(ref(), "## Report template", "## Checklist");
+const checklist = () => ref().slice(index(ref(), "## Checklist"));
+
+test("FR-3 (AND IT MUST): the template lists each viewport with its source, the Screens Evaluated note is per viewport and `run` is retired", () => {
+  const t = tpl();
+  has(t, "- **Viewports:** `desktop <WxH> (<source>)`, `mobile <WxH> (<source>)`, `short-height <WxH> + <WxH> (<source>)`", "`docs/ux-ui/design.md`, `default` or `incomplete (<value>), default used`");
+  has(t, "`First-visit pass`: `<WxH> <outcome>` per first-visit viewport, separated by `; `", "`not required (Read)`", "`pass`, `covered (<element>)`, `below fold (y=<n>)` or `Unevaluated (<reason>)`", "`run` is retired");
+  assert.ok(!t.includes("Mobile viewport"), "the Mobile viewport sub-line is replaced");
+  assert.ok(!t.includes("`run` |"), "the `run` value is gone from the note");
+  has(slice(t, "- **Impeccable:**", "- **Detector:**"), "Copy:", "Home:", "Other copies:", "Excluded:", "IMPECCABLE_BIN: <pinned path (from the probe or the download)> | not set (no engine pinned)", "Download home override:");
+  has(slice(t, "  - Page modes:", "\n"), "drift (<page-mode column missing | screens without a mode | Design Waivers list missing | clause IDs missing>; routed to /akili-constitution)");
+});
+
+test("FR-4 (AND IT MUST): Capture conditions has one row per first-visit capture and records the CTA method and the banner state", () => {
+  const c = slice(tpl(), "## Capture conditions", "## Performance");
+  has(c, "| Screen | Viewport | Locale | Reduced motion | Consent state | CTA (method) | Banner |", "`declared`, `primary style`, `first main action`", "`visible`, `not rendered: <reason>`, `none in product`");
+});
+
+test("FR-6: the Findings section carries the priority note above P1", () => {
+  has(slice(tpl(), "## Findings", "### P1"), "Priorities follow *Priorities*; an Impeccable P0 appears as P1 tagged `blocking` (mapping table)");
+});
+
+test("FR-6 (BUT): the template has no P0 section", () => {
+  assert.ok(!/^#{2,4} P0/m.test(tpl()), "no P0 heading in the template");
+});
+
+test("FR-12/FR-9/FR-10: Coverage is a header field and the checklist requires it to name every uncovered template; Performance records Install, Machine load and Exit codes", () => {
+  has(tpl(), "- **Coverage:** `all templates` | `<n> of <m> templates; not covered: <names>`", "Install: none | npm ci (consented by <who>)", "Machine load:", "| Exit codes |");
+  has(checklist(), "`Coverage` names every uncovered template", "The `Machine load` line is present");
+});
+
+test("FR-14: the header carries `False positives: N`, Waived? adds `false positive (...)`, and the checklist ties the count to the rows, none in P1-P3", () => {
+  has(tpl(), "- **False positives:** N", "`false positive (<reason>; <evidence>)`");
+  has(checklist(), "`False positives` equals the count of `false positive` rows, and none of them appears among P1-P3", "except a recorded user-directed report location and a recorded consented `npm ci`");
+  assert.ok(!checklist().includes("(`run`,"), "the retired value is not in the checklist");
+});
+
 test("Guard: this test file reads no file under the spec folder", () => {
   // The forbidden path is built from fragments so this source never contains it.
   const D = "do" + "cs";
