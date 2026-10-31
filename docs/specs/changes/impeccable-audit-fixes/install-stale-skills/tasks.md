@@ -55,7 +55,7 @@ T1 ──► T2 ──► T3 ──► T4
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~60 code, ~140 tests) |
 | Depends on | T1 |
 | Requirements | FR-2 (6 SHALL bullets; both scenarios' THEN/BUT/AND IT MUST); FR-4 (the summary line; scenario THEN; the `--local` negative); FR-1 scenario 1 end-to-end; NFR-1, NFR-2, NFR-4 |

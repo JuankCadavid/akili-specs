@@ -8,6 +8,7 @@ const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
 const { parsePersona, sectionStates, resultExitCode, applyFix, migratePersona } = require("./persona.js");
+const { compareEntry, formatDiffers } = require("./install-compare.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
 // .cmd shims, and patched Node (CVE-2024-27980) throws EINVAL when spawning
@@ -953,6 +954,11 @@ function logBlocked(entryPath) {
   console.log(`  ${colors.red}blocked (invalid ownership record)${colors.reset} ${entryPath}`);
 }
 
+// @akili-spec changes/impeccable-audit-fixes/install-stale-skills — T2 (FR-2)
+function skipClassSuffix(cls) {
+  return cls.state === "identical" ? "(identical)" : `(differs: ${formatDiffers(cls.differing)})`;
+}
+
 function copySingleFile(sourcePath, targetPath, args) {
   ensureDirectory(path.dirname(targetPath), args.dryRun);
 
@@ -966,8 +972,9 @@ function copySingleFile(sourcePath, targetPath, args) {
   const exists = targetStat !== null;
 
   if (exists && !args.force) {
-    console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
-    return { installed: 0, overwritten: 0, skipped: 1 };
+    const cls = compareEntry(sourcePath, targetPath);
+    console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath} ${skipClassSuffix(cls)}`);
+    return { installed: 0, overwritten: 0, skipped: 1, identical: cls.state === "identical" ? 1 : 0, differs: cls.state === "differs" ? 1 : 0 };
   }
 
   const action = exists ? "overwrite" : "install";
@@ -979,8 +986,8 @@ function copySingleFile(sourcePath, targetPath, args) {
   }
 
   return exists
-    ? { installed: 0, overwritten: 1, skipped: 0 }
-    : { installed: 1, overwritten: 0, skipped: 0 };
+    ? { installed: 0, overwritten: 1, skipped: 0, identical: 0, differs: 0 }
+    : { installed: 1, overwritten: 0, skipped: 0, identical: 0, differs: 0 };
 }
 
 // `policy` is optional (T2). Without it this behaves exactly as before and
@@ -997,6 +1004,8 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let identical = 0;
+  let differs = 0;
   let foreignSkipped = 0;
   let blocked = 0;
   const written = [];
@@ -1031,8 +1040,11 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
     const takeover = decision === "takeover";
 
     if (exists && !takeover && !args.force) {
-      console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath}`);
+      const cls = compareEntry(sourcePath, targetPath);
+      console.log(`  ${colors.yellow}skip existing${colors.reset} ${targetPath} ${skipClassSuffix(cls)}`);
       skipped += 1;
+      if (cls.state === "identical") identical += 1;
+      else differs += 1;
       continue;
     }
 
@@ -1060,8 +1072,8 @@ function copyDirectoryContents(sourceDir, targetDir, args, policy) {
   }
 
   return policy
-    ? { installed, overwritten, skipped, foreignSkipped, blocked, written }
-    : { installed, overwritten, skipped };
+    ? { installed, overwritten, skipped, identical, differs, foreignSkipped, blocked, written }
+    : { installed, overwritten, skipped, identical, differs };
 }
 
 // Which parsed `args` fields feed each tool's `roots` object — data, not a
@@ -1155,6 +1167,8 @@ function installTool(tool, args) {
   let installed = 0;
   let overwritten = 0;
   let skipped = 0;
+  let identical = 0;
+  let differs = 0;
   let foreignSkipped = 0;
   let blocked = 0;
 
@@ -1186,6 +1200,8 @@ function installTool(tool, args) {
     installed += result.installed;
     overwritten += result.overwritten;
     skipped += result.skipped;
+    identical += result.identical || 0;
+    differs += result.differs || 0;
     foreignSkipped += result.foreignSkipped || 0;
     blocked += result.blocked || 0;
   };
@@ -1220,8 +1236,9 @@ function installTool(tool, args) {
             // skip); plain install leaves it alone, as the skill side does.
             if (decision === "owned" && !isRealDirectory(entryDir)) {
               if (!args.force) {
-                console.log(`  ${colors.yellow}skip existing${colors.reset} ${entryDir}`);
+                console.log(`  ${colors.yellow}skip existing${colors.reset} ${entryDir} (differs: SKILL.md)`);
                 skipped += 1;
+                differs += 1;
                 continue;
               }
               if (!args.dryRun) clearNonDirectoryEntry(entryDir);
@@ -1282,6 +1299,8 @@ function installTool(tool, args) {
     installed,
     overwritten,
     skipped,
+    identical,
+    differs,
     cleaned,
     foreignSkipped,
     blocked,
@@ -1485,8 +1504,15 @@ function runUpdate(args) {
   }
 }
 
+function isUnderHome(p) {
+  if (typeof p !== "string") return false;
+  const home = path.resolve(os.homedir());
+  const rel = path.relative(home, path.resolve(p));
+  return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
 function summaryCounts(result) {
-  return `${colors.green}installed ${result.installed}${colors.reset} | overwritten ${result.overwritten} | ${colors.yellow}skipped ${result.skipped}${colors.reset}${result.cleaned ? ` | legacy cleaned ${result.cleaned}` : ""}`;
+  return `${colors.green}installed ${result.installed}${colors.reset} | overwritten ${result.overwritten} | ${colors.yellow}skipped ${result.skipped}${colors.reset}${result.skipped > 0 ? ` (identical ${result.identical}, differs ${result.differs})` : ""}${result.cleaned ? ` | legacy cleaned ${result.cleaned}` : ""}`;
 }
 
 function runInstall(args) {
@@ -1510,10 +1536,12 @@ function runInstall(args) {
       installed: acc.installed + r.installed,
       overwritten: acc.overwritten + r.overwritten,
       skipped: acc.skipped + r.skipped,
+      identical: acc.identical + r.identical,
+      differs: acc.differs + r.differs,
       cleaned: acc.cleaned + r.cleaned,
       foreignSkipped: acc.foreignSkipped + r.foreignSkipped,
     }),
-    { installed: 0, overwritten: 0, skipped: 0, cleaned: 0, foreignSkipped: 0 }
+    { installed: 0, overwritten: 0, skipped: 0, identical: 0, differs: 0, cleaned: 0, foreignSkipped: 0 }
   );
   // @akili-spec changes/grokbot-target — T2: runUpdate and the next-steps
   // block (T4) read the total of foreign entries left alone.
@@ -1528,10 +1556,16 @@ function runInstall(args) {
   if (results.length > 1) {
     console.log(`  ${"TOTAL".padEnd(12)} ${summaryCounts(totals)}`);
   }
+  // @akili-spec changes/impeccable-audit-fixes/install-stale-skills — T2 (FR-4)
+  if (!args.local && results.some((r) => isUnderHome(r.rootPath))) {
+    console.log(`  Home: ${os.homedir()}`);
+  }
 
   console.log(`\n${colors.cyan}Next steps:${colors.reset}`);
-  if (totals.skipped > 0 && !args.force) {
-    console.log(`  - ${totals.skipped} existing file(s) were preserved. Re-run with ${colors.yellow}--force${colors.reset} to overwrite them.`);
+  if (totals.differs > 0 && !args.force) {
+    console.log(`  - ${totals.differs} existing ${totals.differs === 1 ? "entry differs" : "entries differ"} from the package (stale or locally edited): run ${colors.cyan}akili update${colors.reset} or ${colors.cyan}akili install --force${colors.reset} to replace them (with the same --tool, --local and --target flags as this run).`);
+  } else if (totals.skipped > 0 && !args.force) {
+    console.log(`  - ${totals.skipped} existing ${totals.skipped === 1 ? "entry already matches" : "entries already match"} the package.`);
   }
   if (tools.includes("opencode") && !args.dryRun) {
     console.log(`  - Restart ${colors.cyan}OpenCode${colors.reset} for installed commands and skills to be loaded.`);

@@ -76,7 +76,7 @@ CLI output only:
 | Next steps | The D > 0 and D = 0 lines (§6) replace the "preserved" line. Neither prints under `--force`, as today |
 | Home line | Printed once after the rows, under the P-12 rule |
 
-`--dry-run` reaches the same skip branches, and classification only reads (NFR-1). `update` forces, so it never reaches a skip branch, and its output is unchanged (P-9).
+`--dry-run` reaches the same skip branches, and classification only reads (NFR-1). `update` forces, so it never reaches a skip branch and prints no class or differs hint. Its Install Summary is the same summary as install, so it gains the `Home:` line under FR-4 like any install summary (P-9; execute-time edit 2026-10-31 after T2 Reviewer advisory).
 
 ### 7.3 Doctor (FR-3)
 
