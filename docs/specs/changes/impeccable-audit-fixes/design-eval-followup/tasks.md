@@ -96,7 +96,7 @@ Linear: every task appends to `test/design-eval-followup.test.js`, and T1–T3 e
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~12 LOC prose, ~30 LOC tests) |
 | Depends on | T3 |
 | Requirements | FR-4 (each restatement; retired sentences absent); NFR-2, NFR-4 |

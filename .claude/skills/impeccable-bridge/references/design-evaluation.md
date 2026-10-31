@@ -96,7 +96,7 @@ A finding that is both `blocking` and inaccessible stays one P1. The report has 
   - Other copies: <path (version)>, ... | none
   - Excluded: ~/.impeccable | none
   - IMPECCABLE_BIN: <pinned path (from the probe or the download)> | not set (no engine pinned)
-  - Download home override: <variable>=<dir> (one call) | none
+  - Download home override: <variable>=<dir>; IMPECCABLE_BIN unset; PATH entries removed: <entries, or none> (one call) | none
 - **Detector:** `<launcher invocation>`, engine <version> at <location> | Unevaluated (<reason>)
   - **Viewports:** `desktop <WxH> (<source>)`, `mobile <WxH> (<source>)`, `short-height <WxH> + <WxH> (<source>)`; `<source>` is `docs/ux-ui/design.md`, `default` or `incomplete (<value>), default used`
   - Scan matrix: see below

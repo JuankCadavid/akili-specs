@@ -63,3 +63,29 @@
 - **spawns:** Implementer (sonnet) 12 calls, 92388 tokens, ended complete; Reviewer (opus): not reported by host at write time, ended complete (PASS)
 - **Running totals:** tasks 3/4 · LOC ~175 / ~210 · review rounds 3 / ~7. Under budget
 - **Gate:** `auto-approved (pre-approved mode)`
+
+### T4 — FR-4, restatements, CHANGELOG and the sweep
+
+- **Status:** PASS, 2026-10-31, 1 attempt
+- **Files changed:** reference `design-evaluation.md` (template line `Download home override:`), `docs/skills/impeccable-bridge.md` (*Detector Gate* banner sentence), `CHANGELOG.md` `Unreleased` (*Engine isolation* clause, *first-visit* clause, new byte-exact bullet), `test/design-eval-contract-coverage.test.js:69` (pin), `test/design-eval-followup.test.js` (+73, 6 tests incl. a sweep walker with `CHANGELOG.md` in scope). Diff +79 / −5
+- **Red run:** `# pass 21 # fail 6` (tests 22–27, each an assertion); the sweep red listed `docs/skills/impeccable-bridge.md:37` and `CHANGELOG.md:13`
+- **Falsifiers (executed, restored):** (1) "No other call changes it." re-inserted → `not ok 27` (sweep) + `not ok 12` (FR-3); (2) old doc sentence → `not ok 23` + `not ok 27`
+- **Verification (Implementer):** `npm test` 1342/1342; `npm run verify:cli` ok (14 commands, 31 skills, 8 resources); `npm run pack:dry-run` ok (407 files, no `.tgz` left); `git diff --check` clean; vendored diff empty
+- **Evidence re-run (Leader, inline):** `npm test` → `# tests 1342 # pass 1342 # fail 0`; `verify:cli` ok; `git diff --check` clean. **VERIFIED**
+- **Reviewer (opus):** PASS. Each restatement was quoted against the bridge (KZ-002); the reference field matches `SKILL.md:80` character for character; pins `:53-57` untouched and green; sweep scope correct and red on the baseline
+- **ADVISORY (recorded, not acted on):** (Rel) the third retired pattern is backticked, so it never matches the un-backticked reference line; test 22 covers the line by shape; (R) the second pattern is a near-substring of live item 4 wording, and an anchoring comment would help
+- **Requirements covered:** FR-4, NFR-2, NFR-4
+- **spawns:** Implementer (sonnet) 14 calls, 91871 tokens, ended complete; Reviewer (opus): not reported by host at write time, ended complete (PASS)
+- **Running totals:** tasks 4/4 · review rounds 4 / ~7 · **LOC: 244 insertions + 13 deletions in shipped files (`git diff --stat 7e204b1 -- .claude CHANGELOG.md test docs/skills`) against ~210 budgeted: over by ~16 % on insertions**
+
+## Budget Tripwire: LOC
+
+| Measure | Budget (design §12) | Actual | Delta |
+|---|---|---|---|
+| Tasks | 4 | 4 | 0 |
+| Review rounds | ~7 | 4 | −3 |
+| Authored LOC | ~210 | 244 insertions, 13 deletions | +34 insertions (~+16 %) |
+
+**Cause.** The tests. The new file is 230 lines against the ~170 estimate. The surplus comes from section helpers that were duplicated rather than imported, the sweep walker that was reimplemented because the existing one is private (judgment D-1), and the behavioral FR-2 test. The rules prose came in at ~10 changed bridge lines plus ~9 restatement lines, under its ~40 estimate. No scope was added: every assertion maps to a clause in design §7.5.
+
+**Status.** The tripwire fired at T4 finalize. Rule: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." **Not auto-approved.** T4 is closed on its Reviewer PASS. `/akili-test`, `/akili-validate` and `/akili-archive` wait for JC.

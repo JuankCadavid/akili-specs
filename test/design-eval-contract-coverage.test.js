@@ -66,7 +66,7 @@ test("FR-16: the impeccable-bridge doc restates the verified skill source, the f
     "at every first-visit viewport: `desktop`, `mobile` and the short-height pair",
     "Each capture reads `pass`, `covered`, `below fold` or `Unevaluated`",
     "`covered` and `below fold` are a P1 in `/akili-audit design` and a FAIL in `/akili-validate`, unless a `first-visit` waiver covers that screen and viewport",
-    "A capture whose consent banner is not rendered reads `Unevaluated` and never `pass`",
+    "A consent banner that is not rendered turns only a would-be `pass` into `Unevaluated`; `covered` and `below fold` stand",
     "allowed only for a rule on its closed list and only in `/akili-audit design`",
     "*Suppressed in `/akili-audit design`* lists the three Impeccable `critique` steps",
   );

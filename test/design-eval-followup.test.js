@@ -155,3 +155,76 @@ test("FR-2: executing the shipped command on the vendored SKILL.md prints the UP
   const out = require("node:child_process").execFileSync(process.execPath, ["-e", refCode(), "SKILL.md"], { cwd, encoding: "utf8" });
   assert.strictEqual(out.trim(), m[1]);
 });
+
+// FR-4: the restatements follow the amended rules.
+const unreleased = () => slice(read("CHANGELOG.md"), "## [Unreleased]", "\n## [");
+const bullet = (lead) => {
+  const u = unreleased();
+  const i = index(u, lead);
+  const j = u.indexOf("\n- ", i);
+  return u.slice(i, j < 0 ? u.length : j);
+};
+
+test("FR-4: the reference template line carries the bridge's download-override shape", () => {
+  const ref = read(...BRIDGE, "references", "design-evaluation.md");
+  const line = "  - Download home override: <variable>=<dir>; IMPECCABLE_BIN unset; PATH entries removed: <entries, or none> (one call) | none";
+  assert.ok(ref.includes(line), "template line");
+  const field = "`Download home override: <variable>=<dir>; IMPECCABLE_BIN unset; PATH entries removed: <entries, or none> (one call)`";
+  assert.ok(bridge().includes(field), "bridge record sentence carries the same field value");
+});
+
+test("FR-4: the doc restates that a missing banner turns only a would-be pass into Unevaluated", () => {
+  const g = slice(read("docs", "skills", "impeccable-bridge.md"), "## Detector Gate", "## Existing-Product Evaluation");
+  assert.ok(g.includes("A consent banner that is not rendered turns only a would-be `pass` into `Unevaluated`; `covered` and `below fold` stand."));
+});
+
+test("FR-4: the CHANGELOG Engine isolation bullet names the unset and the PATH filter", () => {
+  assert.ok(bullet("- **Engine isolation and copy integrity.**").includes(
+    "under an exclusion only the one download call changes the home variable, unsets `IMPECCABLE_BIN` and drops excluded `PATH` entries"));
+});
+
+test("FR-4: the CHANGELOG first-visit bullet limits the banner rule to a would-be pass", () => {
+  assert.ok(bullet("- **The first-visit pass is stricter.**").includes(
+    "A consent banner must be seen on screen; when it is not, a would-be `pass` reads `Unevaluated (consent banner not rendered: <reason>)`, while `covered` and `below fold` stand"));
+});
+
+test("FR-4: the CHANGELOG has a bullet for the byte-exact strip and the reference command", () => {
+  const b = unreleased().split("\n- ").find((x) => x.includes("`node -e`")) || "";
+  for (const s of ["**The `SKILL.md` strip", "byte-exact", "missing final newline", "`node -e`", "prints the hash"]) assert.ok(b.includes(s), `new bullet lacks: ${s}`);
+});
+
+// FR-4 sweep: the retired strings stay out of every shipped file. Scope: .claude/, docs/, README.md and CHANGELOG.md;
+// excluded: the spec history and the vendored upstream folder. test/ is not walked, so these literals are never scanned.
+test("FR-4: no shipped file keeps a retired restatement (sweep includes CHANGELOG.md)", () => {
+  const D = "do" + "cs";
+  const S = "sp" + "ecs";
+  const skip = [path.join(D, S), path.join(".claude", "skills", "impeccable")];
+  const files = [];
+  const walk = (rel) => {
+    for (const e of fs.readdirSync(path.join(ROOT, rel), { withFileTypes: true })) {
+      const r = path.join(rel, e.name);
+      if (e.isDirectory()) {
+        if (!skip.includes(r)) walk(r);
+      } else if (e.isFile()) files.push(r);
+    }
+  };
+  walk(".claude");
+  walk(D);
+  files.push("README.md", "CHANGELOG.md");
+  const retired = [
+    "No other call changes it",
+    "reads `Unevaluated` and never `pass`",
+    "`Download home override: <variable>=<dir> (one call)`",
+    "otherwise the capture reads `Unevaluated (consent banner not rendered",
+  ];
+  assert.ok(files.includes("CHANGELOG.md"), "scope includes CHANGELOG.md");
+  const hits = [];
+  for (const f of files) {
+    const buf = fs.readFileSync(path.join(ROOT, f));
+    if (buf.includes(0)) continue;
+    buf.toString("utf8").replace(/\r\n/g, "\n").split("\n").forEach((line, i) => {
+      for (const s of retired) if (line.includes(s)) hits.push(`${f.split(path.sep).join("/")}:${i + 1}: ${s}`);
+    });
+  }
+  assert.deepStrictEqual(hits, []);
+});
