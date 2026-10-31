@@ -1,0 +1,76 @@
+# Execution: Close the design-evaluation gaps found in the 2.40.0 audit
+
+## Document Control
+
+| Field | Value |
+|---|---|
+| Spec Path | `changes/impeccable-audit-fixes/design-eval-contract` |
+| Started | 2026-10-31 |
+| Approval Mode | `gated` in the spec; JC mandate for this run (2026-10-31): "en cada gate de AKILI sigue con la opción recomendada, solo commits locales; sin push, PR, merge, tags, publish ni releases. Techo ~900 LOC". Routine continue gates are taken with the recommended option and logged `auto-approved (JC mandate)`. HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG` and destructive actions still stop |
+| Baseline | `3961990` (spec commit on top of `8268cb7`) |
+| Leader | Claude Opus 5.5 (T1) |
+| Workers | No Step 8E wrappers (`.claude/agents/` absent). Fallback sub-prompt workers read their persona from `.agents/`. Implementer: `sonnet` (T2). Reviewer: `opus` (a different model from the Implementer) |
+| Personas | `.agents/` is gitignored and was absent from this worktree. Copied from `/Users/jcadavid/Development/sdd-jc-methodology/.agents`, then `akili doctor --agents --fix --allow-branch` ran on the local, ignored copy: leader `primary-instructions` and `test-harness`, reviewer `audit-checklist`, tester `prove-behavior` FIXED (backups under `.agents/.backup/`). Leader `delegation` CUSTOM-EDITED and implementer `shared-file-discipline` UNLOCATED left as the maintainer's call (same state as `changes/impeccable-hardening`) |
+| Budget | 11 tasks · ~870 authored LOC (ceiling ~900) · ~18 review rounds (`tasks.md` Document Control) |
+| Commit prefix | `[SPEC:changes/impeccable-audit-fixes/design-eval-contract]`, local only |
+
+## Task Execution History
+
+### T1: Bridge *Step 0*, *Engine consent* and *Launcher form*; create the test file
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-10-31 |
+| Attempts | 2 |
+| Requirements covered | FR-1 (four bullets, scenario THEN/BUT/AND IT MUST, A1, A1-W); FR-2 (three bullets, "a `modified` copy still leads", scenario BUT/AND IT MUST); NFR-1, NFR-2, NFR-3 |
+| Skills | `impeccable-bridge`, `tdd` (as listed) |
+| Effort | attempt 1 `medium`-high; attempt 2 `high` (bump after FAIL) |
+
+**First step (premises settled before editing):**
+
+- **P-15 → verified.** Microsoft's `certutil` page (<https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil>) documents `certutil [options] -hashfile InFile [HashAlgorithm]` and lists `SHA256` among the hash algorithms. The Windows example is kept and cites the URL.
+- **P-20 → settled as a stated limit.** Upstream raw `docs/CLI-CONTRACT.md` (pbakaus/impeccable `main`), section `context.mjs -> impeccable context`: the engine may write `update-check.json`, `staleness-check.json` (env `IMPECCABLE_NO_STALENESS_CHECK`, not set by the bridge), `config.json` (via `impeccable telemetry off`), `hook-claims`, and a session index. The Exclusion paragraph says "The exclusion covers where the engine is found; it does not promise that no state files are written there", lists them, says `IMPECCABLE_NO_UPDATE_CHECK=1` switches off the update check only, and marks which files a detector run writes as `Unverified:`.
+
+**Attempt 1**
+
+- Files changed: `.claude/skills/impeccable-bridge/SKILL.md` (13+/4−, long prose lines), `test/design-eval-contract.test.js` (new, 142 lines, 14 tests).
+- Implementer verification: the red first run before the edit failed 13 of 14. Four failed on the assertion itself and nine on `missing: **Verify.**`, `**Exclusion.**` or `set the pin to`, because the feature was absent; none failed on setup. The Guard passed by design. Green 14/14. 32 executed mutations were each red on their own assertion. The four task falsifiers: F1, the inline-prefix sentence deleted, went red on test 5. F2, `USERPROFILE`→`HOME`, went red on test 4. F3, "Never select another copy" deleted, went red on test 12. F4, Verify moved into *Engine state*, went red on tests 8–13. Tests 1–13 fail against the `HEAD` bridge. `npm test` 1247/1247. Vendored diff empty.
+- Evidence re-run (Leader, inline): **VERIFIED**. 14/14; `npm test` `# tests 1247 / # pass 1247 / # fail 0`; `git diff --stat -- .claude/skills/impeccable/` empty; `git diff --check` clean.
+- Reviewer (opus): **FAIL**. Verbatim issues:
+  1. "In the bridge, the instruction to record `Copy`, `Home` and `Other copies`, and **Never select another copy**, sits inside the **Verify** paragraph. That paragraph opens with "Applies to a `vendored` copy". So when the selected copy is `user-installed` (no `UPSTREAM.md`), nothing tells the agent to record its absolute path, the resolved `HOME`/`USERPROFILE`, or the other copies. FR-2 makes only the hashing depend on `UPSTREAM.md`." Violated: FR-2 bullets 1 and 3 and the scenario's AND IT MUST. Spec tension: design §7.1 item 1 reads narrower than FR-2. Proposed amendment: scope "Applies to a `vendored` copy" to the hash rule only.
+  2. "Item 4 asks for an `IMPECCABLE_HOME` outside `~/.impeccable` only "when none is set". Suppose an exclusion is active and the user's `IMPECCABLE_HOME` already points inside `~/.impeccable` … the download writes under the excluded tree." Violated: FR-1 bullet 3 ("require an `IMPECCABLE_HOME` outside it for location 4 **and the download**"). Proposed amendment to design §7.1 item 4: append ", or the one set lies under `~/.impeccable`".
+- runtime events: none.
+
+**Attempt 2** (rework by message to the same Implementer; Attempt History and verbatim FAIL report carried)
+
+- Files changed: the same two files. `SKILL.md` stays at 13+/4−. The test file has 154 lines and 16 tests: test 10 pins "For any selected copy", and test 11 pins the inside-home clause.
+- Implementer verification: green 16/16. The new mutations are each red: test 10 on "For a vendored copy, record" and on "Hashing applies"; test 11 on the deleted inside-home clause and on the reverted "if none is given". Falsifiers 1–4 re-run and red. Tests 1–15 fail at baseline. `npm test` 1249/1249. Vendored diff empty. Sweep: "Applies to a `vendored`" has 0 hits; "when none is set" has one hit, the updated sentence.
+- Evidence re-run (Leader, inline): **VERIFIED**. 16/16; `npm test` `# tests 1249 / # pass 1249 / # fail 0`; vendored diff empty; `git diff --check` clean.
+- Reviewer (opus): **PASS**. "Both FAIL issues from the first review are closed, and the restructure dropped nothing. I re-walked FR-1 and FR-2 (every bullet and every scenario clause) and all six §7.1 rows, including the 2026-10-31 amendments to rows 1 and 4." Reviewer re-run 49/49 (`design-eval-contract`, `impeccable-bridge`, `impeccable-vendor`).
+- runtime events: none.
+
+**Decisions made**
+
+- Execute-time spec edit, `design.md` §7.1 row 1 (2026-10-31): the hash rule is vendored-only, and `Copy`, `Home` and `Other copies` are recorded for any selected copy. Reason: to match FR-2 bullets 1 and 3. This is a spec tension resolved at the gate with the Reviewer's one-line amendment, auto-approved under JC's mandate (recommended option). The approved requirement's meaning is unchanged.
+- Execute-time spec edit, `design.md` §7.1 row 4 (2026-10-31): "when none is set, or the one set lies under `~/.impeccable`". Reason: to match FR-1 bullet 3. Same basis.
+- Rework attempt 2 was sent by message to the surviving Implementer context, not to a fresh spawn: the full FAIL report went verbatim, with the Attempt History.
+
+**Not Done / Assumptions (Implementer, verbatim, judged as assumptions, no owed item, no blocker):**
+
+- "**`IMPECCABLE_BIN` header field.** I wrote the `Record IMPECCABLE_BIN: <pinned path>` and `Download home override` fields only in item 4, as design §7.1 says. A run that finds an engine at probe time and never downloads has no record instruction for `IMPECCABLE_BIN:` in item 3. That is a possible gap against the §5.1 values `<pinned path> | not set`. I did not widen item 3."
+- "**No fall-through for a missing sha256 tool.** The P-15 "If false" cell mentions `unavailable (no sha256 tool)`. §7.1 item 1 does not specify one and I added none."
+- "In *Launcher form*, "with both variables set in its environment" became "with `IMPECCABLE_BIN` and both variables set in its environment"."
+- Extra clauses, judged consistent with DD-1 and DD-3 by the Reviewer: Verify "the table keeps `vendored (<version>)`"; item 4 "with or without an exclusion"; *Launcher form* "never rely on an earlier `export` alone".
+
+**ADVISORY (final Reviewer verdict; recorded, not tasks):**
+
+- READABILITY: item 4 "when none is set, or the one set lies under `~/.impeccable`" would read more cleanly without the comma.
+- RELIABILITY: nothing records `IMPECCABLE_BIN: <path>` when a probe finds an engine (item 3). This is a forward pointer for T5 (§5.1 template values), `[advisory-grade]`: the template must not imply `not set` for a probe-pinned engine.
+- READABILITY: *Launcher form* "`IMPECCABLE_BIN` and both variables" could name all three variables.
+
+- Phrase-family sweep: `pinned from Step 0|export IMPECCABLE_BIN|HOME|Destination` over `.claude docs README.md` (minus `docs/specs/` and the vendored folder). All hits were read. Bridge hits are this task's edits; the others are unrelated (`HOME` in the security, review and CI docs and the Codex/Cursor homes; `Destination` in an Angular reference). Follow-up hits: `docs/skills/impeccable-bridge.md:24` (T10) and `CHANGELOG.md` (T11). Neither is stale.
+- spawns: Implementer (sonnet) 31 calls, 147398 tokens, ended complete; Implementer resume (sonnet) 6 calls, 158506 tokens cumulative, ended complete; Reviewer (opus) 8 calls, 92821 tokens, ended fail; Reviewer resume (opus): not reported by host, ended complete (PASS).
+- Final verification: `npm test` `# tests 1249 / # pass 1249 / # fail 0`.
+- Running totals vs budget: tasks 1/11; authored LOC ≈ 171 (bridge 13+/4− long lines, tests 154) against T1's ~155 and a spec ceiling of ~900; review rounds 2/~18. Within budget.
+- Continue gate: auto-approved (JC mandate).

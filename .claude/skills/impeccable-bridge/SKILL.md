@@ -55,6 +55,8 @@ A design step runs these in order. Nothing in steps 1 to 4 may call the launcher
 
    A root given to `akili install` through a `--*-target` flag is not in the table; the folder beside this bridge (1) covers it.
 
+   **Verify.** For any selected copy, `vendored` or `user-installed`, record `Copy` (the absolute path of the copy it selects), `Home` (what `~` resolved to: the agent process's `HOME`, or `USERPROFILE` on Windows) and `Other copies`: every other `impeccable/SKILL.md` found in the locations above, with its version, or `none`. **Never select another copy.** Hashing applies only to a `vendored` copy (`UPSTREAM.md` present); the table keeps `vendored (<version>)` as the skill-source reading, and verification extends the recorded value. Hash every file `UPSTREAM.md` lists with any sha256 tool: `shasum -a 256`, `sha256sum`, or `certutil -hashfile <file> SHA256` on Windows (Microsoft's `certutil` reference, https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil, documents `-hashfile InFile [HashAlgorithm]` and lists `SHA256`). Hash `SKILL.md` with its `metadata:` block removed, from the line `metadata:` up to, **not** including, the closing `---` fence. A file in the folder that is neither listed nor one of `LICENSE`, `NOTICE`, `UPSTREAM.md` counts as modified. Record `vendored (<version>, verified)` or `vendored (<version>, modified: <n> files: <first 3 names>)`. A `modified` copy still leads; the report states it as an environment finding, never a design finding.
+
 2. **Engine probe (no download).** Try these locations in order, calling each candidate **directly** with `engine-probe`, never through the launcher, so no download path is reachable during the probe. A candidate counts only if it prints `impeccable-engine <version>` and exits `0` (on Windows the candidate name carries `.exe`).
 
    | # | Location |
@@ -67,9 +69,15 @@ A design step runs these in order. Nothing in steps 1 to 4 may call the launcher
 
    Why direct: the launcher's own probe mode skips locations 3 and 5, so it would report an engine as missing when one exists. The launcher with `IMPECCABLE_BIN` set execs that binary first and never reaches its download block, which is why step 3 pins it.
 
-3. **Ready.** When a candidate answers, export `IMPECCABLE_BIN=<that candidate>` for **every** launcher call in the phase. Record `ready (<location>, engine <version>)`, and note a version different from `scripts/VERSION`.
+   **Exclusion.** When the user excludes `~/.impeccable`, skip location 3, and skip any other candidate whose resolved path lies under `~/.impeccable`, such as an `IMPECCABLE_BIN` or a `PATH` entry pointing there (the launchers do not test the path, so only this step enforces it). Location 4 counts only with an `IMPECCABLE_HOME` outside `~/.impeccable`. Record `Excluded: ~/.impeccable`. The exclusion covers where the engine is found; it does not promise that no state files are written there. Upstream's CLI contract lists state files the engine may write under `~/.impeccable` (an update-check cache, a staleness cache, hook claims, a session index and the user config), and `IMPECCABLE_NO_UPDATE_CHECK=1` switches off the update check only. `Unverified:` which of them a detector run writes with the compiled engine.
+
+3. **Ready.** When a candidate answers, export `IMPECCABLE_BIN=<that candidate>` for **every** launcher call in the phase. Shell state may not persist between an agent's tool calls, so every launcher call also carries `IMPECCABLE_BIN=<pinned path>` as an inline prefix (*Launcher form*). Record `ready (<location>, engine <version>)`, and note a version different from `scripts/VERSION`.
 
 4. **Consent.** When nothing answers and the platform is supported (the launcher resolves macOS, Linux or Windows on arm64 or x64), the state is `consent needed`: ask **once per session** (see *Engine consent*). Yes: run `<launcher> engine-probe` (this call is the download) and record `installed (consented)`, or `unavailable (<first stderr line>)`. On an unsupported platform, record `unavailable (<reason>)` and do not ask.
+
+   Under an exclusion, the consent question also asks for an `IMPECCABLE_HOME` outside `~/.impeccable` when none is set, or the one set lies under `~/.impeccable`; if no outside home is given, record `unavailable (excluded location, no IMPECCABLE_HOME)` and do not download. That one download call runs with the launcher's home variable set to an empty directory inside `IMPECCABLE_HOME`: `HOME` for `scripts/impeccable`, `USERPROFILE` for `scripts/impeccable.cmd`. No other call changes it, and no call after the pin does.
+
+   After the download succeeds, with or without an exclusion, set the pin to `${IMPECCABLE_HOME:-~/.impeccable}/bin/<VERSION>/impeccable` (`impeccable.exe` on Windows) for every later launcher call in the phase, then run `<pin> engine-probe` directly; a pin that does not answer records `unavailable (<first stderr line>)` instead. Record the header fields `IMPECCABLE_BIN: <pinned path>` and `Download home override: <variable>=<dir> (one call)`.
 
 **The gate, stated once:** no AKILI step invokes the launcher — any verb, including Impeccable's Setup `context` and the `build-phase` verbs its references call — before the engine state is `ready` or `installed (consented)`. Until then, Impeccable's Setup follows its own **Launcher unavailable** path (read `PRODUCT.md` and `DESIGN.md` directly, then continue; launcher failure alone blocks neither planning nor editing). The state is **probed per phase and never persisted across runs**.
 
@@ -94,7 +102,8 @@ Ask once per session, in one question that names all of:
 | Source | `https://github.com/pbakaus/impeccable/releases`, tag `engine-v<version>` (`<version>` from `scripts/VERSION`) |
 | Size | about 17 MB (darwin-arm64; other platforms similar) |
 | Check | sha256 of the download compared with `engine-checksums.txt` in the skill folder; a mismatch refuses the download |
-| Destination | `~/.impeccable/bin/<version>/` or `IMPECCABLE_HOME` |
+| Destination | `~/.impeccable/bin/<version>/` or `IMPECCABLE_HOME`. `IMPECCABLE_HOME` alone does not isolate: without the pin, each launcher reads `~/.impeccable/bin/impeccable[.exe]` first, before `IMPECCABLE_HOME`. |
+| Home override | Under an exclusion, the download call alone runs with `HOME` (or `USERPROFILE`) set to an empty directory inside `IMPECCABLE_HOME` |
 | No-download alternatives | `IMPECCABLE_BIN` pointing at an existing engine, e.g. the npm CLI; or a global `impeccable` the user installs themselves |
 
 **Consent is never implied.** Under `Approval Mode: pre-approved`, downloading a binary is an outward-facing action, so it **always stops for the user** like any other. Nothing downloads or installs the engine, Lighthouse or a browser without an explicit yes, in every approval mode. If the user declines, the launcher makes no network request and the state is `declined`. A later phase in the same session that probes again and still finds nothing records `declined` without asking again; a new session asks again.
@@ -146,10 +155,10 @@ The gate is active only when the engine state is `ready` or `installed (consente
 ### Launcher form
 
 ```
-DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>
+IMPECCABLE_BIN=<pinned path> DO_NOT_TRACK=1 IMPECCABLE_NO_UPDATE_CHECK=1 <skill-dir>/scripts/impeccable detect --json [flags] <targets>
 ```
 
-`<skill-dir>` is the folder holding the `impeccable` `SKILL.md`; on Windows call `scripts/impeccable.cmd` with both variables set in its environment. `DO_NOT_TRACK=1` is dropped only when the user opted in to telemetry (*Privacy and consent*); `IMPECCABLE_NO_UPDATE_CHECK=1` is never dropped. `IMPECCABLE_BIN` stays pinned from Step 0. Use no `npx` form for the detector or for Lighthouse unless it carries `--no-install`. The one exception is the optional upstream routes under *Install routes*, which are never run without consent.
+`<skill-dir>` is the folder holding the `impeccable` `SKILL.md`; on Windows call `scripts/impeccable.cmd` with `IMPECCABLE_BIN` and both variables set in its environment. `DO_NOT_TRACK=1` is dropped only when the user opted in to telemetry (*Privacy and consent*); `IMPECCABLE_NO_UPDATE_CHECK=1` is never dropped. Every call carries the Step 0 pin inline as `IMPECCABLE_BIN=<pinned path>`; never rely on an earlier `export` alone. Use no `npx` form for the detector or for Lighthouse unless it carries `--no-install`. The one exception is the optional upstream routes under *Install routes*, which are never run without consent.
 
 ### Scan matrix
 

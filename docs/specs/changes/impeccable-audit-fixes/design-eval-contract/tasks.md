@@ -39,7 +39,7 @@ The graph has no cycles. Every task appends assertions to the one new test file,
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~60 LOC prose, ~95 LOC tests) |
 | Depends on | — |
 | Requirements | FR-1 (all four SHALL bullets, the scenario's THEN, BUT and AND IT MUST, A1, A1-W); FR-2 (three SHALL bullets, "a `modified` copy still leads … environment finding", the scenario's BUT and AND IT MUST); NFR-1, NFR-2, NFR-3 |
