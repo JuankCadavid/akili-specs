@@ -209,7 +209,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~300 LOC — KZ-bugfix--init-ctrlc-abort-2) |
 | Depends on | T1–T8b |
 | Requirements | requirements §8 defect classes (all automated rows); NFR-1, NFR-2, NFR-3 |

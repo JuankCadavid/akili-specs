@@ -176,3 +176,32 @@ T5 closed: PASS (attempt 1) per its entry above. Running totals unchanged: tasks
 | spawns | Implementer 9 calls, 79,283 tokens, ended partial (assumption); Reviewer 7 calls, 80,398 tokens |
 
 Running totals (after wave 3): tasks 9/11 · LOC ~222/~650 · review rounds 10/~22. Continue gate: auto-approved (pre-approved mode).
+
+### T9: Contract tests — PASS (attempt 2)
+
+**Attempt 1** (Implementer `sonnet`, effort high; Reviewer `opus`)
+
+| Field | Value |
+|---|---|
+| Files changed | `test/design-skill-routing.test.js` (new, 207 lines, 9 tests) |
+| Red run (baseline `ac1d0db`, temporary worktree, removed) | 0 pass / 9 fail — tests 6 (sweep) and 7 (wiring) behavioural reds; tests 1–5, 8, 9 setup reds (matrix / Step 8D block absent at baseline) |
+| Falsifiers executed (red quoted, restored) | (a) row pasted into specify → test 1 `+ '.claude/commands/akili-specify.md: \| **foundation** \|'`; (b) `ui-ux-pro-max + frontend-design` cell → test 3; (c) heading `Rolez` → test 4; (d) `animate.md:66` in a card → test 5; (e) ``UI → `ui-ux-pro-max` `` in leader.md → test 6; (f) code-led sentence replaced → test 9; (g) `use shadcn-ui` in the specify rule → test 8 `+ [ 'shadcn-ui' ]` |
+| Verification | 9/9; `npm test` 1394/0; `git diff --check` clean |
+| Evidence re-run | VERIFIED (Leader inline: 9/9; 1394/0; temp worktree gone from `git worktree list`) |
+| Reviewer | `STATUS: FAIL` — (verbatim, abridged to the two issues) "1. … Test 5 (A-15b) … does not scan any persona text. The Implementer's reason for leaving personas out is factually wrong. `grep -cE '\.(md\|js):[0-9]+'` returns **0** for `.claude/templates/leader.md` and `.claude/templates/tester.md` … **Violated Rule:** `design.md` §7.3, *No line pointers* row … 2. … Test 2 (skill set, A-14) has no assertion-level red on record … **Violated Rule:** `tasks.md` T9: *Falsifier* \"Each §7.3 falsifier, **executed**\" …" |
+| spawns | Implementer 11 calls, 96,424 tokens, ended partial (assumptions); Reviewer 11 calls, 82,114 tokens |
+
+**Attempt 2** (Implementer `sonnet`, effort xhigh — bumped; Reviewer `opus`, fresh)
+
+| Field | Value |
+|---|---|
+| Files changed | `test/design-skill-routing.test.js` (226 lines): test 5 also scans whole `leader.md`, `tester.md`, `akili-propose.md`, `akili-seo.md`, bridge `SKILL.md`, four adapted skills (baseline pointer counts 0 each); comment on test 4 `bare()` |
+| Falsifiers executed | ` leader.md:25` in the leader UI example → `not ok 5 … '.claude/templates/leader.md holds no line pointer'`; `stitch-design` card deleted → `not ok 2 … cards name the eight` (and `not ok 1 … nine cards 8 !== 9`); `stitch-design` removed from `AGENTS.md` `## Design Skills` → `not ok 2 … AGENTS.md ## Design Skills names the eight`; all restored (`git diff --stat` empty) |
+| Verification | 9/9; `npm test` 1394/0; `git diff --check` clean |
+| Evidence re-run | VERIFIED (Leader inline: 9/9; 1394/0) |
+| Reviewer | `STATUS: PASS` — both issues resolved; every §7.3 falsifier has a quoted red except test 7 (wiring), whose baseline red is behavioural |
+| ADVISORY (recorded only) | Test 7 order check keys on the first `stitch-design` substring (cosmetic error text); tester.md scan guards pointers only; test 5's whole-file list is hand-maintained |
+| spawns | Implementer 7 calls, 73,506 tokens, ended partial (assumptions); Reviewer not reported by host |
+| Requirements covered | requirements §8 automated defect classes; NFR-1 – NFR-3 |
+
+Running totals (after T9): tasks 10/11 · LOC ~448/~650 · review rounds 12/~22. Continue gate: auto-approved (pre-approved mode).
