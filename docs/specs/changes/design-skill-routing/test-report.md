@@ -63,7 +63,7 @@ Not applicable. The behavioral substitute is the T10 held-out walkthrough (`exec
 | FR-4 | Direction settled; code-led; design.md else Pivot | contract | author: execute boundary | PASS | |
 | FR-4 | ENV-0 gap; never stops | contract | coverage: FR-14 (ENV-0 lead) | PASS | "never stops" is prose, not machine-checkable |
 | FR-5 | Light / full; BUT no redesign; AKILI scope limit | contract | coverage: FR-5 | PASS | |
-| FR-6 | Finish review not run; BUT no inline pass | contract | author: execute boundary | PASS | |
+| FR-6 | Finish review not run; BUT no inline pass | contract | author: execute boundary | PASS | Inline-pass ban now asserted (fix round R-3) |
 | FR-7 | No-GSAP project; native → no gsap | contract | coverage: FR-7 | PASS | |
 | FR-8 | Picker first; Stitch on request; BUT no Stitch unless asked | contract | author: wiring (order) | PASS | |
 | FR-8 | `missing` → Stitch → Claude Design → HTML | contract | coverage: FR-8 | PASS | |

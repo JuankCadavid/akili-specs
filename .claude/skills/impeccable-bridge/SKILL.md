@@ -20,7 +20,7 @@ AKILI ships Impeccable **vendored, byte-identical except for a declared frontmat
 | Skill | Role | Leads when |
 |---|---|---|
 | `impeccable` (vendored, or a user-installed copy) | **Lead**: visual direction, page mode, craft floor, rendered-page critique/audit/polish, detector | Skill source is `vendored (<version>)` or `user-installed (<version>)` |
-| `ui-ux-pro-max` (packaged) | **Reference catalog** only: palettes, font pairings, styles, chart types and anti-patterns by industry. Consulted for options; never the style authority | Never leads while the skill source is not `missing` |
+| `ui-ux-pro-max` (packaged) | **Reference catalog** only: palettes, font pairings, styles, chart types and anti-patterns by industry. Consulted for options; never the style authority | Never leads; at ENV-0 (skill source `missing`) it supports the `frontend-design` lead with catalog options |
 | `frontend-design` (packaged) | **Fallback craft guide** | Skill source is `missing` |
 | `stitch-design` (packaged) | Mockup generation through Stitch | A spec asks for a Stitch mockup |
 | `gsap-animation` (packaged) | Motion implementation, per the matrix | The matrix's *Motion* rule selects GSAP |
@@ -265,7 +265,7 @@ The vendored skill arrives with `akili install`; nothing here is required to use
 
 ## Fallback (skill source `missing`)
 
-Keyed on the **skill source**, not the engine: only `missing` falls back. Use `ui-ux-pro-max` for options (palette, font pairing, style by industry), `frontend-design` for direction and craft, `stitch-design` for mockups. The page-mode column, the source-of-truth rule and the design-evaluation report template still apply. Detector rows follow the engine state, never the skill source: with no engine they read `Unevaluated (engine not installed)`. An engine state of `consent needed`, `declined` or `unavailable` never selects the fallback.
+Keyed on the **skill source**, not the engine: only `missing` falls back. `frontend-design` leads direction and craft; `ui-ux-pro-max` supports with options (palette, font pairing, style by industry), `stitch-design` for mockups. The page-mode column, the source-of-truth rule and the design-evaluation report template still apply. Detector rows follow the engine state, never the skill source: with no engine they read `Unevaluated (engine not installed)`. An engine state of `consent needed`, `declined` or `unavailable` never selects the fallback.
 
 ## Attribution
 

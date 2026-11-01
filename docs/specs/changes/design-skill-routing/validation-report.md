@@ -1,5 +1,7 @@
 # Validation Report — Design Skill Routing
 
+> **Re-validation (2026-11-01, after the fix round): PASS — archive-ready.** JC decided (12:02 Bogotá, verbatim): "Sí: corrige R-1, R-2, R-3 y R-5 en una ronda pasándote un poco de 650, versión minor, M-1 a M-5 en propuesta aparte, y archiva". Fix round (`execution.md` → *Fix round*) resolved R-1 (FR-13), R-2 (FR-14), R-3 (FR-6, + test assertion), R-4 (release class minor), R-5 (figures) — independent `opus` Reviewer/re-validator: all PASS; `npm test` 1403/0. Remaining: NFR-4/NFR-7 accepted gaps; M-1 – M-5 deferred to a separate proposal; advisories A-1/A-2 recorded for that proposal. The original audit below is kept as run.
+
 **Verdict: WARN — close to archive-ready, not yet.** No behavioral or test defect: 11/11 tasks closed with Reviewer PASS, `npm test` 1403/0, build and pack checks green. One minor FAIL (a docs role line), three WARN conformance gaps and a release-class note need a decision, and the T10 walkthrough mismatches M-1–M-5 are an HITL item for JC. **Stopped for JC** (HITL items).
 
 ## 1. Document Control

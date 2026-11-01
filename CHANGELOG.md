@@ -32,7 +32,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - **Existing installs keep a differing `impeccable-bridge` folder until `akili install --force`.** Deployed personas upgrade with `akili doctor --agents --fix`.
-- **Release class: patch** (methodology text and tests only; no new command, install target or skill).
+- **Release class: minor** (new design-routing behavior: the routing matrix, the `Design route:` line on UI tasks and the Step 8D `### Design routing` block; no new command, install target or skill).
 - **Upstream request.** Three behaviors only Impeccable can fix (the launcher's `~/.impeccable` order, the detector's first-visit flags with custom banners, and `aria-hidden` occlusion) are drafted as a request, not filed. AKILI works around them with the rules above.
 
 ## [2.40.0] - 2026-10-30

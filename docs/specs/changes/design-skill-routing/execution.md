@@ -259,3 +259,16 @@ Running totals (after T10): tasks 11/11 · LOC ~448/~650 · review rounds 14/~22
 - **JC decision (verbatim):** Juan Carlos, 2026-11-01 12:02 PM Bogotá: "Sí: corrige R-1, R-2, R-3 y R-5 en una ronda pasándote un poco de 650, versión minor, M-1 a M-5 en propuesta aparte, y archiva".
 - Applied as: one fix round R-1 / R-2 / R-3 (+ test) / R-5; **budget ceiling raised by JC** — exceeding ~650 LOC accepted for this round; **R-4: release class minor**; **M-1 – M-5 deferred to a separate proposal** (not tasks of this spec); then re-validate and `/akili-archive`. No push.
 - R-5 spec-document figures are edited by the Leader (execute-time spec edits, carried to the fix-round Reviewer): `design.md` Premise Ledger count line, §7.2 and P-15 (seven commands read the bridge).
+
+### Fix round R-1/R-2/R-3/R-4/R-5 — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `docs/overview.md` (R-1, R-2b), `.claude/skills/ui-ux-pro-max/SKILL.md` (R-2a), `docs/skills/ui-ux-pro-max.md` (R-2), bridge `SKILL.md` *Roles* + *Fallback* (R-2c), `design-routing.md` "Used by" + *Build route* step 5 (R-5, R-3), `test/design-skill-routing.test.js` (+1 assertion in test 9, R-3), `test-report.md` §7 FR-6 note (R-3), `CHANGELOG.md` release class → minor (R-4) — 8 files, +13/−12; plus Leader spec edits `8fe51e3` (R-5 figures) |
+| Falsifier (R-3) | sentence deleted → `not ok 9 … error: 'no inline finish pass'`; restored → 9/0 |
+| Verification | `npm test` 1403/0; `git diff --check` clean; vendored diff empty; stale "leads" wording greps 0 |
+| Evidence re-run | VERIFIED (Leader inline: 1403/0, diff stat 8 files) |
+| Reviewer (`opus`, also re-validation) | `STATUS: PASS` — R-1 (FR-13), R-2 (FR-14), R-3 (FR-6), R-4, R-5 all PASS; archive-ready |
+| ADVISORY (recorded only; for the M-series follow-up proposal) | A-1: seven surfaces name the ENV-0 pair/trio without saying which leads (`akili-validate.md`, `docs/commands/akili-constitution.md`, `docs/skills/README.md`, `docs/overview.md`, `docs/skills/impeccable-bridge.md`, `docs/commands/akili-audit.md`, bridge `description:`) — not contradictions; A-2: bridge `description:` lists `ui-ux-pro-max` first |
+| spawns | Implementer 10 calls, 80,638 tokens, ended complete; Reviewer not reported by host |
+| Final totals | tasks 11/11 + fix round · authored LOC ~461 execute + 193 test coverage ≈ 654 (budget ~650, exceedance accepted by JC 12:02) · review rounds 15 |

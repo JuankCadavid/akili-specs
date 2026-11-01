@@ -1,6 +1,6 @@
 # Design Routing Matrix
 
-Used by every AKILI step that needs to know **which design skill leads which design activity**: `/akili-constitution`, `/akili-specify`, `/akili-propose`, `/akili-execute` UI tasks and the project `### Design routing` block. This file is the one place where the matrix rows and the expertise cards live; every other surface names this file and a section of it, never a line number and never a copied row. It decides routing only. Which AKILI phase runs an activity is the bridge's *Phase map*; engine and consent rules are the bridge's *Step 0 — Skill source and engine gate*.
+Used by every AKILI step that needs to know **which design skill leads which design activity**: `/akili-constitution`, `/akili-specify`, `/akili-propose`, `/akili-execute` UI tasks, `/akili-seo` (UX/UI recommendations) and the project `### Design routing` block. This file is the one place where the matrix rows and the expertise cards live; every other surface names this file and a section of it, never a line number and never a copied row. It decides routing only. Which AKILI phase runs an activity is the bridge's *Phase map*; engine and consent rules are the bridge's *Step 0 — Skill source and engine gate*.
 
 ## Decision rule
 
@@ -69,7 +69,7 @@ For a UI task in `/akili-execute`, with skill source `vendored` or `user-install
 2. **Load only what the task names.** The playbook reference(s) in the task's `Design route:` line, plus Setup, the craft floor and `polish`; never the whole reference folder.
 3. **Code-led, against the recorded direction.** The roll, any dealt structure and any comp were settled at specify and recorded in the spec's design. In execute there is no decision page, no `concept-seed`, no comp round, no image generation and no documenter (`docs/ux-ui/design.md` is the authority; `PRODUCT.md` and `DESIGN.md` stay derived). The questions `new-work` asks before building are answered from the spec's design; a question it does not answer is a spec gap, handled by the Pivot Protocol and never decided by the Implementer.
 4. **Craft floor.** Read it immediately before UI edits.
-5. **Finish review: not run (AKILI execute).** Impeccable forbids its finish review inside the build thread and its packet needs a roll and screenshots that execute does not produce. The Implementer reports `finish review: not run (AKILI execute)` and never presents the skip as a review; the AKILI Reviewer and `/akili-validate`'s design gate (critique and audit) judge the built result.
+5. **Finish review: not run (AKILI execute).** Impeccable forbids its finish review inside the build thread and its packet needs a roll and screenshots that execute does not produce. The Implementer reports `finish review: not run (AKILI execute)` and never presents the skip as a review; the AKILI Reviewer and `/akili-validate`'s design gate (critique and audit) judge the built result. Impeccable's degraded inline finish pass is never run in the build thread either.
 6. **`polish` within the AKILI scope limit.** Full and light are an AKILI scope limit on `polish`, not an upstream mode; upstream's rules apply inside it.
 
    | Limit | Pages | Covers | Fixes | Reports, does not fix |

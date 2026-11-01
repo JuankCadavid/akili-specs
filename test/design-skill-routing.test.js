@@ -223,4 +223,5 @@ test("@akili-spec changes/design-skill-routing FR-4: the Build route is code-led
   assert.ok(route.includes("answered from the spec's design"), "questions answered from design.md");
   assert.ok(route.includes("a spec gap, handled by the Pivot Protocol and never decided by the Implementer"), "else Pivot");
   assert.ok(route.includes("finish review: not run (AKILI execute)"), "finish review not run");
+  assert.ok(route.includes("degraded inline finish pass is never run in the build thread either"), "no inline finish pass");
 });
