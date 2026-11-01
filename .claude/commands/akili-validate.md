@@ -141,7 +141,7 @@ Check for:
 | Engine `consent needed` | Ask once per session through the bridge's *Engine consent*, then take the row the answer selects |
 | Engine `declined` / `unavailable` | Detector rows read `Unevaluated (engine not installed)` with the reason; the design gate cannot be `PASS` on them: it is `WARN`, and the report says why |
 
-First-visit pass without browser automation: the bridge's *First-visit pass* rule holds. The HITL pause asks the user for a manual fold check at both viewports and records the result; without one the design gate is `WARN (unverified first visit)`, never `PASS`.
+First-visit pass without browser automation: the bridge's *First-visit pass* rule holds. The HITL pause asks the user for a manual fold check at every first-visit viewport (the bridge's *First-visit pass*) and records the result; without one the design gate is `WARN (unverified first visit)`, never `PASS`.
 
 Record in the validation report a **Design Review** section: skill source and engine state, the scan matrix, waivers, and the critique/audit findings with what was fixed. This review adds no performance gate.
 
