@@ -652,8 +652,8 @@ which answers *when and how each skill loads*:
   `/akili-specify`'s Review Design gate, `cognitive-doc-design` for every human-facing document,
   `brainstorming` for exploration, `product-manager-toolkit` in `/akili-constitution`,
   `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`, `pr-review` in `/akili-review`.
-* **conditional** — loaded when the work touches its domain: `ui-ux-pro-max` / `frontend-design` /
-  `stitch-design` for UI work, `gsap-animation` for animation work, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing).
+* **conditional** — loaded when the work touches its domain: Impeccable (through `impeccable-bridge`) leads UI work and `ui-ux-pro-max` / `frontend-design` /
+  `stitch-design` / `gsap-animation` serve the activities the design routing matrix (`impeccable-bridge` → `references/design-routing.md`) assigns them, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing).
 * **stack** — framework/platform skills (`angular-developer`, `nestjs-expert`, `shadcn-ui`,
   `aws-serverless`, …) are never hardcoded into commands. `/akili-constitution` Step 8D writes a
   `## Skill Map` into the project's `AGENTS.md`/`CLAUDE.md` from the detected stack;

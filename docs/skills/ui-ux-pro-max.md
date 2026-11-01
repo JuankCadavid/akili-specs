@@ -6,6 +6,8 @@ Provides broad UI/UX design intelligence, including styles, palettes, font pairi
 
 AKILI-adapted: per-phase usage map (constitution → `docs/ux-ui/design.md`, specify → design phase, execute → UI tasks, test/validate → accessibility and UX rule checks); token decisions are recorded in `docs/ux-ui/design.md`, which is what the Reviewer audits. Binding: `conditional` — the reference catalog under [`impeccable-bridge`](impeccable-bridge.md) (palettes, font pairings, UX rules); it leads the fallback chain only when no Impeccable skill is found.
 
+Which activities consult it is decided in the routing matrix, `impeccable-bridge` → `references/design-routing.md`.
+
 ## Use When
 
 - Designing or reviewing UI/UX work.

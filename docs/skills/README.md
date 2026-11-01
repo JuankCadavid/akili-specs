@@ -54,7 +54,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 
 - Use the task-specific skills listed in `tasks.md` during `/akili-execute`; when a task lists none, derive them from the project's `## Skill Map`.
 - Use UI/UX skills when specs affect screens, flows, interactions, or accessibility (`impeccable` leads, through `impeccable-bridge`; `ui-ux-pro-max` is the reference catalog; `frontend-design` + `stitch-design` are the fallback when no Impeccable skill is found). `docs/ux-ui/design.md` is the single design source of truth.
-- Use `gsap-animation` for animation work, reading only the `references/` file matching the task.
+- Use `gsap-animation` for the animation implementation layer the design routing matrix assigns it (`impeccable-bridge` → `references/design-routing.md`), reading only the `references/` file matching the task.
 - Use `systematic-debugging` before proposing fixes for failures or unexpected behavior.
 - Use stack skills only when the repository or task actually uses that framework — the project Skill Map is the source of truth.
 - If a skill is unavailable in the host tool, fall back to the documented alternative and note the gap in the relevant report.

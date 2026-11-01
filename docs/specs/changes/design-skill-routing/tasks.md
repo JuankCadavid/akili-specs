@@ -171,7 +171,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC) |
 | Depends on | T1 |
 | Requirements | FR-13 (*AGENTS.md matches the matrix* incl. BUT no rows), NFR-1 |
@@ -190,7 +190,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S–M (~45 LOC across docs) |
 | Depends on | T1 |
 | Requirements | FR-13 (*No surviving old routing phrasing*), W-4 |

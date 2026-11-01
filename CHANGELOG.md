@@ -6,8 +6,19 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **A Design Routing Matrix, `impeccable-bridge/references/design-routing.md`,** maps each design activity and environment to one lead skill, the playbook, the craft floor and `polish`.
+- **A `Design route:` line on UI tasks** in `tasks.md` records the matrix pick for the task.
+- **`/akili-constitution` Step 8D scaffolds a `### Design routing` block** in the project `## Skill Map`, for projects with a user interface only.
+- **Repo `AGENTS.md` gains a `## Design Skills` section** naming the eight design skills and pointing at the matrix.
+
 ### Changed
 
+- **The bridge build row is now playbook, craft floor, then `polish`, code-led.**
+- **`/akili-specify` records an environment class and a motion rule;** `/akili-propose` offers the Impeccable picker first and Stitch on request; `/akili-seo` runs through the bridge.
+- **Leader and Tester persona skill examples** name the routed design skills.
+- **The AKILI sections of `ui-ux-pro-max`, `gsap-animation` and `frontend-design`** point at the matrix.
 - **The design-evaluation rules address 14 gaps found in the first `/akili-audit design` run on 2.40.0.** The changes are rules text in `impeccable-bridge`, its `references/design-evaluation.md`, `/akili-audit`, `/akili-validate`, `/akili-constitution` and `/akili-propose`, with a text-contract test (`test/design-eval-contract.test.js`). The vendored `impeccable/` skill is untouched. The installer item from the same audit is handled by the install and doctor entry below.
 - **`install` classifies every skipped entry, and `doctor` warns on stale ones.** Skip lines read `(identical)` or `(differs: <names>)`, the summary splits `skipped N (identical I, differs D)`, and next steps name `akili update` or `--force` only when something differs. `doctor` reports `DIFFERS` as a warning: exit code and status are unchanged and `--fix` never overwrites it. A global install whose roots lie under the home directory prints a `Home:` line. `docs/cli.md` documents `--local` per git worktree.
 - **Engine isolation and copy integrity.** After a consented download, the bridge pins `IMPECCABLE_BIN` to the binary it wrote and passes it inline on every launcher call, because `IMPECCABLE_HOME` alone does not isolate: each launcher reads `~/.impeccable/bin/impeccable[.exe]` first. A user exclusion of `~/.impeccable` is honored and recorded, and under an exclusion only the one download call changes the home variable, unsets `IMPECCABLE_BIN` and drops excluded `PATH` entries. Step 0 hashes the vendored copy against its `UPSTREAM.md` and records `vendored (<version>, verified)` or `modified`, plus the copy path, what `~` resolved to and any other copies, never selecting another one.
@@ -20,6 +31,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Notes
 
+- **Existing installs keep a differing `impeccable-bridge` folder until `akili install --force`.** Deployed personas upgrade with `akili doctor --agents --fix`.
 - **Release class: patch** (methodology text and tests only; no new command, install target or skill).
 - **Upstream request.** Three behaviors only Impeccable can fix (the launcher's `~/.impeccable` order, the detector's first-visit flags with custom banners, and `aria-hidden` occlusion) are drafted as a request, not filed. AKILI works around them with the rules above.
 

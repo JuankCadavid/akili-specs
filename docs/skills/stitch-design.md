@@ -4,6 +4,8 @@
 
 Supports Stitch design work, including prompt enhancement, design system synthesis, and high-fidelity screen generation or editing via Stitch MCP.
 
+When it is used, and when it is not, is decided in the routing matrix, `impeccable-bridge` → `references/design-routing.md`.
+
 ## Use When
 
 - Turning product intent into a high-fidelity UI prompt.

@@ -6,6 +6,8 @@ The **AKILI layer** over the vendored [`impeccable`](impeccable.md) skill. It de
 
 Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Leads with Impeccable by Paul Bakaus (Apache-2.0, `pbakaus/impeccable`); no Impeccable text is included in the bridge, and AKILI-SPECS is not affiliated with the Impeccable project.
 
+The routing matrix (`references/design-routing.md`) is the one place that says which design skill leads which activity.
+
 ## Use When
 
 - A spec has meaningful UI/UX impact (screens, flows, visual direction, accessibility).

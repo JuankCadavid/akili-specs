@@ -133,3 +133,46 @@ Running totals (after wave 2): tasks 6/11 closed + T5 held · LOC ~170/~650 (141
 - **Decision:** Option A — JC, 2026-11-01 11:08 AM UTC-5: "Opción A: enmienda FR-10 para que la sección de diseño se genere solo en proyectos con interfaz". Applied: `requirements.md` FR-10 amended + scenario *Project with no user interface* + §8a row; `design.md` §5.2 and DD-10; T5 closed `[x]` (Reviewer PASS stands; the shipped guard now conforms). Correction closure: forward sweep `grep -n "Design routing\` block\|### Design routing\|FR-10" requirements.md design.md tasks.md` — every hit updated or consistent (design §3 diagram label and §7.3 wiring row unaffected); backward sweep: tasks coverage table and T5 entry updated. Carried as a named conformance check ("FR-10 as amended 2026-11-01") into the T8b Reviewer brief.
 
 T5 closed: PASS (attempt 1) per its entry above. Running totals unchanged: tasks 7/11 · LOC ~170/~650 · review rounds 7/~22. Continue gate: auto-approved (pre-approved mode) after JC's E-2 decision.
+
+### Wave 3 (parallel, disjoint files): T8a, T8b — 2026-11-01
+
+### T8a: Repo `AGENTS.md` `## Design Skills` + CHANGELOG — PASS (attempt 2)
+
+**Attempt 1** (Implementer `sonnet`, effort medium; Reviewer `opus`)
+
+| Field | Value |
+|---|---|
+| Files changed | `AGENTS.md` (two `## Skill Usage` bullets removed; `## Design Skills` added: decision rule, eight role lines, pointer), `CHANGELOG.md` (`Unreleased`: new `### Added`; four bullets atop `### Changed`; one atop `### Notes`) |
+| Red run | Before `## Design Skills` 0, UI-work bullet 1; after 1 / 0; gsap bullet 0; each of the eight skills once in the section |
+| Verification | `git diff -U0 -- AGENTS.md` two hunks; `npm test` 1385/0; `git diff --check` clean |
+| Evidence re-run | VERIFIED (Leader inline, tree quiet: 1385/0; stale-phrase sweep over `.claude docs README.md AGENTS.md` empty) |
+| Reviewer | `STATUS: FAIL` — (verbatim) "1. **Discovered Issue:** `AGENTS.md` `## Design Skills` gives `frontend-design` the role \"craft floor and fallback for direction when Impeccable is missing.\" The craft floor belongs to Impeccable: its card in `.claude/skills/impeccable-bridge/references/design-routing.md` → *Expertise cards* reads \"Expert at: Direction, page mode, **craft floor**, …\" … **Violated Rule:** FR-13, scenario *AGENTS.md matches the matrix* … NFR-1 … **Remediation:** Change the line to something like \"`frontend-design` — fallback for direction and craft when Impeccable is missing (ENV-0 lead only).\" Optionally add \"craft floor\" to the `impeccable` line." All CHANGELOG claims checked against shipped files (KZ-002) |
+| ADVISORY | Pointer could name the matrix section; "UX rules" vs matrix decision rule 2; release class to be re-decided at release |
+| Not Done / Assumptions (verbatim) | "The existing `### Notes` bullet reads `Release class: patch`. With new Added items that class probably needs re-deciding at release time. I left it unchanged because it is outside T8a's scope." / "The one-line roles are my wording, taken from the existing skill descriptions." — assumptions only |
+| spawns | Implementer 7 calls, 72,537 tokens, ended partial (assumptions); Reviewer 8 calls, 77,743 tokens |
+
+**Attempt 2** (Implementer `sonnet`, effort high — bumped after the FAIL; Reviewer `opus`, fresh)
+
+| Field | Value |
+|---|---|
+| Files changed | `AGENTS.md`: `frontend-design` line → "fallback for direction and craft when Impeccable is missing (ENV-0 lead only)"; `impeccable` line adds "craft floor" |
+| Verification | each role line compared with its card; two hunks; `npm test` 1385/0; `git diff --check` clean |
+| Evidence re-run | VERIFIED (Leader inline: 1385/0; `grep -n craft AGENTS.md` → the two lines as reported) |
+| Reviewer | `STATUS: PASS` — the issue fixed; set = card set; no rows; FR-10 (as amended) wording in the CHANGELOG matches |
+| spawns | Implementer 5 calls, 59,170 tokens, ended complete; Reviewer not reported by host |
+| Requirements covered | FR-13 (*AGENTS.md matches the matrix*), NFR-1; CHANGELOG |
+
+### T8b: Docs match the matrix — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `docs/flow.md` §9; `docs/overview.md` (5 rows, role text only); `docs/skills/README.md` gsap bullet; `docs/skills/governance.md` (conditional-row parentheses; row still starts with `ui-ux-pro-max`); `docs/skills/{impeccable,impeccable-bridge,frontend-design,stitch-design,ui-ux-pro-max,gsap-animation}.md` (one pointer line each); `docs/commands/{akili-constitution,akili-propose,akili-specify}.md` |
+| Red run | ``grep -cF 'Use `gsap-animation` for animation work' docs/skills/README.md`` 1 → 0 |
+| Verification | stale-phrase loop empty; `diagram-design` + `docs-overview` 26/0; `npm test` 1385/0; `git diff --check` clean |
+| Not Done / Assumptions (verbatim) | "I left `docs/commands/akili-test.md` and `docs/commands/akili-audit.md` unchanged. Their `ui-ux-pro-max` / `frontend-design` mentions are a \"commonly used skills\" list and an `ENV-0` fallback statement, so they don't contradict the matrix." — Reviewer accepted |
+| Reviewer (`opus`) | `STATUS: PASS` — every doc sentence true of the shipped commands and matrix; FR-10 as amended (named conformance check) holds; Reviewer re-ran `diagram-design`, `docs-overview`, `docs-overview-contract` 45/0 |
+| ADVISORY (recorded only) | `docs/overview.md` / `ui-ux-pro-max` SKILL say it "leads only when the Impeccable skill source is `missing`" while the matrix's ENV-0 lead is `frontend-design` (wording tension in shipped skill text, FR-14/T7 territory — recorded, not a task); Stitch dropped from the constitution doc's Step 4 entry (omission, no contradiction); `docs/skills/README.md` keeps "`frontend-design` + `stitch-design` are the fallback" (ENV-0 statement) |
+| P-10 closure | `docs/commands/akili-test.md` (non-routing "commonly used skills" list) and `docs/commands/akili-audit.md` (ENV-0 fallback statements) left unchanged on purpose — recorded as ENV-0 / non-routing per P-10 |
+| spawns | Implementer 9 calls, 79,283 tokens, ended partial (assumption); Reviewer 7 calls, 80,398 tokens |
+
+Running totals (after wave 3): tasks 9/11 · LOC ~222/~650 · review rounds 10/~22. Continue gate: auto-approved (pre-approved mode).

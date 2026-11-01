@@ -60,15 +60,15 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | Skill | Binding | Use it for |
 |---|---|---|
 | [`angular-developer`](skills/angular-developer.md) | stack | Angular architecture, components, services, signals, forms, routing, testing, CLI |
-| [`frontend-design`](skills/frontend-design.md) | conditional | Distinctive frontend UI and UX implementation (fallback for direction and craft when no Impeccable skill is found), and for UI validation and testing support |
-| [`gsap-animation`](skills/gsap-animation.md) | conditional | All GSAP animation work: a router `SKILL.md` plus per-topic references |
+| [`frontend-design`](skills/frontend-design.md) | conditional | Distinctive frontend UI and UX implementation: the implementation layer the routing matrix assigns it, and the lead when no Impeccable skill is found; also UI validation and testing support |
+| [`gsap-animation`](skills/gsap-animation.md) | conditional | All GSAP animation work: a router `SKILL.md` plus per-topic references; the animation implementation layer in the routing matrix |
 | [`impeccable`](skills/impeccable.md) | conditional | Paul Bakaus's Impeccable design skill (Apache-2.0), shipped verbatim and hash-locked: the lead for visual direction, craft, critique, audit and polish. AKILI is not affiliated with the Impeccable project |
-| [`impeccable-bridge`](skills/impeccable-bridge.md) | conditional | The AKILI layer over `impeccable`: skill source, a consent gate before the engine can download, the detector gate in `/akili-validate`, and `/akili-audit design` reports on existing products; falls back to `ui-ux-pro-max` + `frontend-design` when no Impeccable skill is found |
+| [`impeccable-bridge`](skills/impeccable-bridge.md) | conditional | The AKILI layer over `impeccable`: skill source, a consent gate before the engine can download, the detector gate in `/akili-validate`, and `/akili-audit design` reports on existing products; owns the design routing matrix (`references/design-routing.md`); falls back to `ui-ux-pro-max` + `frontend-design` when no Impeccable skill is found |
 | [`react-doctor`](skills/react-doctor.md) | stack | React diagnostics after changes |
 | [`shadcn-ui`](skills/shadcn-ui.md) | stack | shadcn/ui components, forms, themes, Tailwind integration |
-| [`stitch-design`](skills/stitch-design.md) | conditional | Stitch prompt enhancement and design generation workflows (fallback UI chain with `frontend-design`) |
+| [`stitch-design`](skills/stitch-design.md) | conditional | Stitch prompt enhancement and design generation workflows (mockup generation on request, and the mockup fallback when no Impeccable skill is found; see the routing matrix) |
 | [`tailwind-design-system`](skills/tailwind-design-system.md) | stack | Tailwind CSS v4 tokens, component systems, responsive patterns |
-| [`ui-ux-pro-max`](skills/ui-ux-pro-max.md) | conditional | UI/UX design intelligence, palettes, typography, accessibility: the reference catalog under `impeccable-bridge`, and the fallback lead when no Impeccable skill is found |
+| [`ui-ux-pro-max`](skills/ui-ux-pro-max.md) | conditional | UI/UX design intelligence, palettes, typography, accessibility: the reference catalog under `impeccable-bridge`, consulted for the activities the routing matrix assigns it, and a fallback lead when no Impeccable skill is found |
 | [`vercel-react-best-practices`](skills/vercel-react-best-practices.md) | stack | React and Next.js performance and architecture guidance |
 
 ### Backend and architecture
