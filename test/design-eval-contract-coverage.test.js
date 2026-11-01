@@ -52,7 +52,8 @@ test("FR-13 (BUT): a user-directed path replaces the default and the report is w
 
 test("FR-16: the CHANGELOG Unreleased entry counts 14 audit gaps and hands the installer item to a separate change", () => {
   const c = read("CHANGELOG.md");
-  const u = slice(c, "## [Unreleased]", "\n## [");
+  // Stays true after the release script moves [Unreleased] into the dated 2.41.0 section.
+  const u = slice(c, (c.includes("\n## [2.41.0] - ") ? "## [2.41.0] - " : "## [Unreleased]"), "\n## [");
   has(u, "address 14 gaps found in the first `/akili-audit design` run on 2.40.0", "The installer item from the same audit is handled by the install and doctor entry below.", "The vendored `impeccable/` skill is untouched.");
 });
 

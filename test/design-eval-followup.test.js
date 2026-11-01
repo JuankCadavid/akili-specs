@@ -157,7 +157,8 @@ test("FR-2: executing the shipped command on the vendored SKILL.md prints the UP
 });
 
 // FR-4: the restatements follow the amended rules.
-const unreleased = () => slice(read("CHANGELOG.md"), "## [Unreleased]", "\n## [");
+// Stays true after the release script moves [Unreleased] into the dated 2.41.0 section.
+const unreleased = () => { const c = read("CHANGELOG.md"); return slice(c, (c.includes("\n## [2.41.0] - ") ? "## [2.41.0] - " : "## [Unreleased]"), "\n## ["); };
 const bullet = (lead) => {
   const u = unreleased();
   const i = index(u, lead);
