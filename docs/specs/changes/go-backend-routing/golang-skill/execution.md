@@ -209,3 +209,31 @@ No requirement text changes.
 | Status | `[~]`. The working tree holds T4's uncommitted attempt-1 diff (`CHANGELOG.md`, `test/golang-skill.test.js`). It is kept for the fix and not rolled back, because the FAIL is a one-anchor change. **Stopped for JC**; this stop is not logged `auto-approved` |
 
 **Quiet re-run (Leader, no agent active):** `npm test` → `# tests 1248`, `# pass 1248`, `# fail 0`. The concurrent `# fail 1` was contention, not a defect.
+
+**JC decision on the round cap (2026-11-01 11:08 UTC-5, verbatim):** "Sí: sube el tope de golang-skill a 9 rondas, acepto ~330 líneas y que siga hasta el archive". This is a HITL decision by JC, not an auto-approval. The new budget is 9 review rounds and ~330 LOC. The run stops again above 9 rounds, at clearly more than ~330 LOC, or on a HALT, Pivot, `FATAL_FAIL`, escalation, HITL item or requirement amendment.
+
+#### T4 attempt 2 — **PASS** (round 9)
+
+| Field | Value |
+|---|---|
+| Implementer (effort high) | `test/golang-skill.test.js` only. `section()` lost its end-of-file fallback (`let end = -1` … `assert.ok(end >= 0, \`section end not found: ${endRe}\`)`, lines 51–55); the Step 2.1 bound is now `/^#### Step 2\.2/` (line 133); the Step 5 and 8D bounds were unchanged and are now guarded |
+| Reds (verbatim) | Falsifier (c) re-run: `not ok 11 - … FR-3: golang-pro is in the four candidate pools` / `error: 'specify Step 2.1 fallback list'`. Guard proof (end regex set to `/^#### Step 9\.9 nope/`, reverted): `error: 'section end not found: /^#### Step 9\\.9 nope/'` |
+| Evidence re-run (Leader, quiet tree) | **VERIFIED**: `node --test test/golang-skill.test.js` 15/0; `npm test` 1248 pass / 0 fail; `git diff --check` clean; `git diff --stat HEAD -- .claude docs/commands` empty |
+| Reviewer (`opus`) | **PASS**: "Issue 1 is closed. Every section bound in the FR-3 test is now tight and guarded, and the change introduces no vacuous pass and no new defect." The Reviewer ran the test file itself (15/0) |
+| spawns | implementer (attempt 2) 3 calls, 101,473 tokens cumulative, ended complete; reviewer (attempt 2) `not reported by host` at entry time, ended complete |
+| Running totals vs budget | tasks 5/5 · LOC ≈280 authored (test 158, CHANGELOG ~10, docs/NOTICE/rows ≈110) vs ~330 (JC 11:08) · review rounds 9/9 (JC 11:08). Within the raised budget |
+| Phase gate | auto-approved (pre-approved mode) after PASS |
+
+## Summary (execute complete)
+
+| Task | Result | Rounds |
+|---|---|---|
+| T1 Security review | PASS attempt 2; JC HITL Option A (10:21) | 2 |
+| T2 Vendor folder | PASS attempt 2 | 2 |
+| T3a Command pools | PASS attempt 1 | 1 |
+| T3b Docs, counts, fixtures | PASS attempt 2 | 2 |
+| T4 Contract test, CHANGELOG | PASS attempt 2 | 2 |
+
+Budget: 5/5 tasks · ≈280 LOC · 9 review rounds. The round budget was raised twice by JC (10:44 → 8; 11:08 → 9, with ~330 LOC). All seven FAILs were authored-wording or test-anchor defects; none was a scope or design change. Final gates (quiet tree): `npm test` 1248/0, `npm run verify:cli` exit 0, `npm run pack:dry-run` lists golang-pro, `git diff --check` clean. Leader measurement-discipline breach recorded under T4 (one concurrent run, not used as evidence).
+
+Constitution Impact: none. No module was created or reshaped (a package content addition only); no child guide is needed. CodeGraph re-index is recommended at archive (new test file).

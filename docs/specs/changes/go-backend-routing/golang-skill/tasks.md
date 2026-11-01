@@ -9,7 +9,7 @@
 | Spec Path | `changes/go-backend-routing/golang-skill` |
 | Depth | Lite |
 | Approval Mode | pre-approved (JC, 2026-11-01 9:56 UTC-5) |
-| Budget | 5 tasks · ~260 LOC hand-written + 49,639 B vendored · 6 review rounds (design §10 said 4 tasks / 5 rounds; T3 split per the Step 3.2 rules-text rule, +1 task, +1 round). **Raised to 8 rounds by JC, 2026-11-01 10:44** (execution.md, Budget Tripwire) |
+| Budget | 5 tasks · ~260 LOC hand-written + 49,639 B vendored · 6 review rounds (design §10 said 4 tasks / 5 rounds; T3 split per the Step 3.2 rules-text rule, +1 task, +1 round). **Raised to 8 rounds by JC, 2026-11-01 10:44; to 9 rounds and ~330 LOC by JC, 2026-11-01 11:08** (execution.md) |
 | Baseline | `7067fe9`, `npm test` 1233 / 0 |
 | Phase 3 gate | auto-approved (pre-approved mode), 2026-11-01 |
 
@@ -123,7 +123,7 @@ Each line keeps its surrounding deferral wording. The five illustrative lists in
 
 | Field | Value |
 |---|---|
-| Status | [~] attempt 1 FAIL (pool-section end anchor), stopped at the 8-round cap; see execution.md |
+| Status | [x] PASS attempt 2 (round 9, budget raised by JC 11:08) |
 | Size | S |
 | Dependencies | T3a, T3b |
 | Requirements | FR-2 (body lock, provenance), FR-3 (pools), FR-4 (governance row, CHANGELOG), NFR-2 (no samber), NFR-3 |
