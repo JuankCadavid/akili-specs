@@ -60,11 +60,14 @@ test("NFR-1/NFR-2: a global --tool all re-install classifies every desktop targe
   edit(home, ".claude", "skills", "impeccable-bridge", "SKILL.md");
   edit(home, ".config", "opencode", "commands", "akili-quick.md");
   edit(home, ".gemini", "skills", "tdd", "SKILL.md");
-  // Shared Agent Skills root (Codex + Cursor): LF -> CRLF only, same text.
+  // Shared Agent Skills root (Codex + Cursor): line endings flipped, same text.
+  // The installed copy carries the checkout's endings (CRLF on Windows under
+  // core.autocrlf=true), so flip whichever form it has.
   const shared = path.join(home, ".agents", "skills", "akili-quick", "SKILL.md");
-  const lf = fs.readFileSync(shared, "utf8");
-  assert.ok(!lf.includes("\r\n") && lf.includes("\n"), "fixture must start LF");
-  fs.writeFileSync(shared, lf.replace(/\n/g, "\r\n"));
+  const orig = fs.readFileSync(shared, "utf8");
+  const lf = orig.replace(/\r\n/g, "\n");
+  assert.ok(lf.includes("\n"), "fixture must have line endings");
+  fs.writeFileSync(shared, orig.includes("\r\n") ? lf : lf.replace(/\n/g, "\r\n"));
   const before = snapshot(home);
   const r = run(home, ["install", "--tool", "all"]);
   assert.equal(r.status, 0, r.out);
