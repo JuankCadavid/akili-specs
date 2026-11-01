@@ -149,7 +149,7 @@ test("@akili-spec changes/go-backend-routing/golang-skill NFR-2: no samber path 
 });
 
 test("@akili-spec changes/go-backend-routing/golang-skill FR-2: .gitattributes marks the folder -text", () => {
-  assert.ok(repo(".gitattributes").split("\n").includes(".claude/skills/golang-pro/** -text"));
+  assert.ok(repo(".gitattributes").split(/\r?\n/).includes(".claude/skills/golang-pro/** -text"));
 });
 
 test("@akili-spec changes/go-backend-routing/golang-skill NFR-1 (advisory): folder under 60 KB", () => {
