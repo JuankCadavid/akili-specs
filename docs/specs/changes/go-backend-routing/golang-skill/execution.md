@@ -162,3 +162,29 @@ No requirement text changes.
 | spawns | implementer 6 calls, 65,253 tokens, ended complete; reviewer `not reported by host` at entry time, ended complete |
 | Running totals vs budget | tasks 3/5 · LOC ≈48 authored/~260 · review rounds 5/6. Within budget |
 | Phase gate | auto-approved (pre-approved mode) |
+
+### T3b — Docs page, inventory rows, counts and fixtures — **PASS (attempt 2)**
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-01 |
+| Requirements covered | FR-4 (page, rows, governance row, counts 32, samber AND IT MUST, BUT); FR-5 (install/doctor, existing tests, BUT no installer change). The CHANGELOG clause of FR-4 belongs to T4 |
+| Files changed | `docs/skills/golang-pro.md` (new), `docs/skills/README.md`, `docs/overview.md`, `docs/skills/governance.md:70`, `docs/cli.md` (31→32 ×4), `test/akili-marketing-docs.test.js`, `test/diagram-design.test.js`, `test/install-cursor.test.js` (`SKILL_FILE_EXPECTED = 247 + 58 + 3 + 8`, comments 32/316/330/46), `test/fixtures/doctor-codex-baseline.txt` (`OK golang-pro`, `ok 54`) |
+| Attempt 1 | Implementer (`sonnet`, medium). `npm test` 1233/0; the six T2 reds turned green. Dry-run lists `golang-pro` at 7 target paths. Doctor in a scratch HOME: `OK golang-pro` with `HEALTHY ok 54` on 5 targets. `git diff --stat bin/` empty. Falsifier: removing the `docs/overview.md` row → `not ok 3 - (a) docs/overview.md ## Skills by purpose …`, then restored. Reviewer (`opus`) **FAIL**, 2 issues: (1) the README row says "persona examples", which is false for golang-pro (0 hits in `.claude/templates/`); (2) the page lacked the Trust Hub source URL, audit date and flagged URL that JC's Option A requires |
+| Attempt 2 | Implementer (effort high): README cell → "Skill Map; constitution/specify stack lists"; page Security Record lines 37–39 now carry both URLs, "audited Oct 27, 2026", "2 flagged URLs and names 1", and the flagged URL as upstream's own Pages site, worded as in NOTICE. Reviewer (`opus`) **PASS**: "Both issues from attempt 1 are fixed. The new wording makes no claim that the T1 record or `NOTICE` does not support." |
+| Evidence re-run (Leader inline) | **VERIFIED** after each attempt: `npm test` 1233 pass / 0 fail; `git diff --check` clean; `git diff --stat bin/` empty. Leader sweep `grep -rn -E "\b31\b.{0,40}skill\|skill.{0,40}\b31\b"` (repo, excluding specs/releases/.git/node_modules/.agents) → only `CHANGELOG.md:17`, which is in the released `[2.40.0]` section and is historical |
+| Not Done / Assumptions (attempt 1, verbatim, adjudicated) | "The `CHANGELOG.md` `Unreleased` entry (FR-4) is outside T3b's scope…": correct, it is T4's scope. "I did not check for other statements of the packaged-skill total outside `docs/cli.md`…": settled by the Leader sweep above. The dry-run line attribution for `~/.agents/skills` ×2 is informational. Nothing owed, so no continuation |
+| ADVISORY (attempt 1, recorded only; it did not widen the task) | (RISK) "body is hash-locked" is a forward claim until T4 lands in the same PR. (READABILITY) the README inventory row sits after `kaizen` instead of in alphabetical order. (READABILITY) "never through command text" vs FR-3 "never load-directed". (READABILITY) the Author string differs between the row and the page (both follow P-5) |
+| spawns | implementer 9 calls, 77,154 tokens, ended partial (Not Done adjudicated); reviewer 10 calls, 90,753 tokens, ended fail; implementer (attempt 2) 3 calls, 80,441 tokens, ended complete; reviewer (attempt 2) `not reported by host` at entry time, ended complete |
+| Running totals vs budget | tasks 4/5 · LOC ≈110 authored/~260 · **review rounds 7/6 — BUDGET EXCEEDED** (see `## Budget Tripwire` below) |
+
+## Budget Tripwire: after T3b
+
+| Item | Value |
+|---|---|
+| Budget (tasks.md) | 5 tasks · ~260 LOC hand-written · **6 review rounds** |
+| Actual at T3b close | 4 tasks done · ≈110 LOC · **7 review rounds**: T1 2, T2 2, T3a 1, T3b 2 |
+| Delta | +1 round, with T4 (budget 1 round) still open → projected ≥ 8 |
+| Cause | Three tasks each needed one rework round, and all three FAILs were on authored wording, not on code. T1 FAILed because the security battery was never quoted in the record (the tool label was also wrong). T2 FAILed on a mislabelled requirement ID and an unsupported finding count in NOTICE. T3b FAILed on a false "persona examples" cell and a missing Trust Hub source and date. These are KZ-002 recurrences (aggregate and summary claims written ahead of the evidence). LOC is well under budget |
+| Action | **Stopped for JC.** Not logged `auto-approved`. Quoting the rule: "No mandate widens pre-approval: an owner brief that says "never stop" or "treat every gate as approved" pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." |
+| Leader recommendation | Continue with T4 and raise the round budget to 8. The overrun is wording review, not scope or design drift; LOC sits at ~42 % of budget, and T4 is the last task |

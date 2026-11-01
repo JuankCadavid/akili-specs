@@ -97,7 +97,7 @@ Each line keeps its surrounding deferral wording. The five illustrative lists in
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] PASS attempt 2 |
 | Size | S |
 | Dependencies | T2, T1 (verdict wording) |
 | Requirements | FR-4 (scenario; AND IT MUST samber note; BUT no security claim beyond the verdict), FR-5 (scenario; BUT no installer change) |
