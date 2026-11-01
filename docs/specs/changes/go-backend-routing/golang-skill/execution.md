@@ -127,3 +127,23 @@ No requirement text changes.
 | Decisions | The deficiency was in the Leader-owned log, so the Leader fixed it inline and no Implementer was re-spawned. JC chose Option A (verbatim above) |
 | Running totals vs budget | tasks 1/5 · LOC 0/~260 · review rounds 2/6 (T1 budgeted 1, +1 from the record FAIL). Within budget |
 | Phase gate | auto-approved (pre-approved mode) after PASS |
+
+### T2 — Vendor the folder with provenance — **PASS (attempt 2)**
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-01 |
+| Requirements covered | FR-2 (both scenarios, BUT, both AND IT MUST), NFR-1, NFR-2 |
+| Skills | `cognitive-doc-design` (NOTICE) |
+| Attempt 1 | Implementer (`sonnet`, medium). Files: `.claude/skills/golang-pro/{SKILL.md,LICENSE,NOTICE,references/concurrency.md,generics.md,interfaces.md,project-structure.md,testing.md}` (new), `.gitattributes` (+8 lines). Verification: 6 blob hashes = §4; strip-and-hash → `99ef50f7eba4c884af255a061143bbcf3c7f65e7`; 8 files; `text: unset`. Falsifier: "Senior"→"Junior" → strip-hash `ab28c8ea749f1607b6529ef0ba0b8c3079fd4cde`, reverted. Reviewer (`opus`) **FAIL**, 2 issues: (1) the `.gitattributes` label "FR-2 / NFR-1 Cross-platform" cites NFR-1, which is the size bound; (2) NOTICE "Finding \| One:" asserts a finding count the T1 record never states (KZ-002) |
+| Attempt 2 | Implementer (effort high). Files: `.gitattributes`, `NOTICE`. Label → `T2, FR-2 / DD-2 / P-9 Cross-platform.`. NOTICE L29 now attributes "Fail" to the skills.sh skill page and CRITICAL/date to the Trust Hub page. L30 now reads "`EXTERNAL_DOWNLOADS` (the finding quoted in the AKILI T1 record)". Reviewer (`opus`) **PASS**: "Both attempt-1 issues are closed, and the rewording adds no claim beyond the T1 record"; it quote-checked all 32 NOTICE lines |
+| Evidence re-run (Leader inline) | **VERIFIED** after each attempt: 6 blob hashes = §4; strip-and-hash `99ef50f…`; `find … -type f \| wc -l` → 8; apparent bytes `52775`; `git check-attr text` → `unset` |
+| Red run (observed, verbatim; `npm test` 1227 pass / 6 fail) | #485 "(a) … missing row for skill golang-pro"; #487 "(c) … missing inventory row for skill golang-pro"; #488 "(d) … docs/cli.md:327: "31 packaged skills" found 31, derived 32 skills" (also lines 339, 360, 377); #596 "expected 308 (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md) packaged skill files under .claude/skills; counted 316 instead"; #606 and #651 Codex doctor fixture diff `+ '  OK golang-pro'`, `ok 54` vs `ok 53` |
+| Disqualifier adjudication | #606 and #651 were not in the tasks.md predicted list. They are not missed consumers: design P-2 lists `test/fixtures/doctor-codex-baseline.txt` and its readers `install-cursor.test.js:880` and `install-grokbot.test.js:885`, and T3b already updates the fixture (53 → 54). The prediction list was incomplete; per Falsifiability item 8 the red is recorded as the observed value. The Reviewer accepted this |
+| NFR-1 adjudication | `du -sk` → 72, which is allocated APFS blocks. NFR-1 is stated in bytes ("under 60 KB (pinned files total 49,639 B)"); apparent size 52,775 B < 60 KB → holds. The T2 `du -sk` command is the wrong instrument; T4 measures bytes. The Reviewer accepted this |
+| Not Done / Assumptions (attempt 1, verbatim) | "I assumed 'last upstream metadata key' means `related-skills`. The `author` and `version` lines are unchanged." This is an assumption only, with no owed item, so no continuation |
+| spawns | implementer 9 calls, 77,345 tokens, ended complete; reviewer 9 calls, 83,325 tokens, ended fail; implementer (attempt 2) 4 calls, 83,507 tokens, ended complete; reviewer (attempt 2) `not reported by host` at entry time, ended complete |
+| ADVISORY | suppressed by the Reviewer (checklist mode) |
+| Running totals vs budget | tasks 2/5 · LOC ≈44 authored/~260 · review rounds 4/6. Within budget. **Watch:** the remaining budgeted rounds (T3a 2, T3b 1, T4 1) would reach 8; the tripwire stops the run at the first close that exceeds 6 |
+| Phase gate | auto-approved (pre-approved mode) after PASS |
+| Note | At this commit the suite is intentionally red (6 reds above); T3b turns it green |

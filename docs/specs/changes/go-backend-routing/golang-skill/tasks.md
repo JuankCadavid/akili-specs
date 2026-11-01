@@ -44,7 +44,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] PASS attempt 2 |
 | Size | S |
 | Dependencies | T1 = PASS |
 | Requirements | FR-2 (both scenarios; BUT no upstream line changed; AND IT MUST governance schema; AND IT MUST holder-name source), NFR-1, NFR-2 |
