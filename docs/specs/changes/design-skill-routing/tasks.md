@@ -38,7 +38,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~160 LOC) |
 | Depends on | — |
 | Requirements | FR-1 (both scenarios, BUT/AND clauses), FR-2 (ladder, both scenarios), FR-3, FR-4 (direction scenario: code-led, questions from `design.md`, Pivot; ENV-0 scenario), FR-5 (full/light as AKILI scope limit; light and full scenarios), FR-6 (scenario incl. BUT), FR-7 (both scenarios), FR-8 (both scenarios), FR-9 (supporting line), NFR-1, NFR-4, NFR-5, NFR-7 |
