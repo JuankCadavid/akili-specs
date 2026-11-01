@@ -156,3 +156,20 @@ test("@akili-spec changes/go-backend-routing/golang-skill NFR-1 (advisory): fold
   const total = walk(SKILL).reduce((s, p) => s + fs.statSync(p).size, 0);
   assert.ok(total < 60 * 1024, `total ${total} B`);
 });
+
+// /akili-test (Leader inline, author != tester): FR-4 AND IT MUST (samber note)
+// and BUT (no security claim beyond the T1 verdict) had no automated gate.
+test("@akili-spec changes/go-backend-routing/golang-skill FR-4: docs page carries the facts and the samber note, and bounds its security claim", () => {
+  const page = fs.readFileSync(path.join(ROOT, "docs", "skills", "golang-pro.md"), "utf8");
+  for (const fact of ["GitHub user Jeffallan", "MIT", "`stack`", PIN, '"Go 1.21+"']) {
+    assert.ok(page.includes(fact), `docs/skills/golang-pro.md lacks ${fact}`);
+  }
+  const samber = page.slice(page.indexOf("## Optional complement: samber"));
+  assert.ok(samber.startsWith("## Optional complement: samber"), "samber section missing");
+  assert.match(samber, /optional/i);
+  assert.match(samber, /samber's own installer/);
+  assert.ok(samber.includes("For best results, install all general-purpose skills together."), "samber install-together advice not quoted");
+  assert.match(samber, /AKILI never vendors it/);
+  assert.match(page, /claims no security property beyond the T1 verdict/);
+  assert.doesNotMatch(page, /\b(safe|secure|verified safe|no risk)\b/i, "page asserts a security property beyond the verdict");
+});
