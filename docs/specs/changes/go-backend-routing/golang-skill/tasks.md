@@ -71,7 +71,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] PASS attempt 1 |
 | Size | XS |
 | Dependencies | T2 |
 | Requirements | FR-3 (scenario; BUT no load-direct) |

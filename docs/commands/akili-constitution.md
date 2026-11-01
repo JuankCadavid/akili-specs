@@ -120,7 +120,7 @@ Skills the constitution itself draws on:
 - `cognitive-doc-design` (all baseline documents)
 - `impeccable-bridge` (Step 4 — UX/UI design; leads through Impeccable, with `ui-ux-pro-max` + `frontend-design` as the fallback when the skill source is `missing`)
 - `diagram-design` (Steps 3–5 — fills the PRD, UX/UI design and TRD diagram slots whose condition holds, as inline Mermaid; the TRD's C4 Context and C4 Container are always filled; an Archify interactive view is optional)
-- Stack skills matching the repo (Step 5 TRD and the Skill Map): `nestjs-expert`, `api-design-principles`, `error-handling-patterns`, `aws-serverless`, `shadcn-ui`, `tailwind-design-system`, `vercel-react-best-practices`, `angular-developer`, `ai-agent-development`
+- Stack skills matching the repo (Step 5 TRD and the Skill Map): `nestjs-expert`, `golang-pro`, `api-design-principles`, `error-handling-patterns`, `aws-serverless`, `shadcn-ui`, `tailwind-design-system`, `vercel-react-best-practices`, `angular-developer`, `ai-agent-development`
 
 ## Next Step
 

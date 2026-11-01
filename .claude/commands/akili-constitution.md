@@ -253,6 +253,7 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 **Use skills when relevant** (stack skills — load only the ones matching the project's stack; the same set feeds the `## Skill Map` in Step 8D):
 
 - `nestjs-expert`
+- `golang-pro`
 - `api-design-principles`
 - `error-handling-patterns`
 - `aws-serverless`
@@ -723,7 +724,7 @@ is how they reach the agents.
 **The scaffolded `## Skill Map` section must contain:**
 
 1. A table `Skill | Applies To | When to load` listing only the stack skills that match the
-   detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`,
+   detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`, `golang-pro`,
    `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`,
    `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development`.
    Projects may add their own.

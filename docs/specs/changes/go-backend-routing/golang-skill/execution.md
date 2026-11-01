@@ -147,3 +147,18 @@ No requirement text changes.
 | Running totals vs budget | tasks 2/5 · LOC ≈44 authored/~260 · review rounds 4/6. Within budget. **Watch:** the remaining budgeted rounds (T3a 2, T3b 1, T4 1) would reach 8; the tripwire stops the run at the first close that exceeds 6 |
 | Phase gate | auto-approved (pre-approved mode) after PASS |
 | Note | At this commit the suite is intentionally red (6 reds above); T3b turns it green |
+
+### T3a — Add `golang-pro` to the command candidate pools — **PASS (attempt 1)**
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-01 |
+| Requirements covered | FR-3 (scenario + BUT) |
+| Files changed | `.claude/commands/akili-constitution.md` (:256 Step 5, :727 Step 8D), `.claude/commands/akili-specify.md` (:244 Step 2.1), `docs/commands/akili-constitution.md` (:123); +4/−2 |
+| Verification | `grep -rn "golang-pro" .claude/commands docs/commands` → 4 hits; `grep -rn -E "load .golang-pro\|use .golang-pro" …` → 0; falsifier: 8D insertion removed → 3, restored → 4 |
+| Evidence re-run (Leader inline) | **VERIFIED**: 4 hits, 0 load-direct, `git diff --stat` 3 files +4/−2 |
+| Reviewer (`opus`, full) | **PASS**: "All four FR-3 pools now list `golang-pro` next to `nestjs-expert`, and nothing else changed. Each insertion sits inside a governance carve-out." The restatement sweep found no count or closed-set claim that the insertion contradicts. It noted that the Step 8D list including `react-doctor` while Step 5 and the docs list do not predates this task and is untouched. ADVISORY: none |
+| Not Done / Assumptions (verbatim) | "At site 2 the first line of the 8D paragraph is now about 112 characters, against about 100 for the others. I did not re-wrap it…". This is an assumption, nothing owed, so no continuation |
+| spawns | implementer 6 calls, 65,253 tokens, ended complete; reviewer `not reported by host` at entry time, ended complete |
+| Running totals vs budget | tasks 3/5 · LOC ≈48 authored/~260 · review rounds 5/6. Within budget |
+| Phase gate | auto-approved (pre-approved mode) |
