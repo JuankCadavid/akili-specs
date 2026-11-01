@@ -8,8 +8,8 @@
 | Depth | **Standard**. Methodology text across one skill reference, five commands, three adapted skills, docs and contract tests. No installer or `bin/` code change |
 | Type | Change |
 | Deliverable | `software` |
-| Approval Mode | `gated` |
-| Status | Phase 1 written 2026-11-01. **Phase 1 gate (Step 1.3): pending JC — not answered in this session.** Phase 2 (`design.md`) and its judgment-day review were drafted ahead of the gate on the relay instruction of 2026-11-01 ("requisitos, diseño y su revisión judgment-day, y detente en la siguiente puerta de aprobación de JC"); JC approves or adjusts both documents at the stop |
+| Approval Mode | `pre-approved (JC, 2026-11-01 10:04 UTC-5, via Grok Bot)` — routine gates only; HALT, Pivot, budget tripwire, `FATAL_FAIL`, escalation, HITL items, scope growth and requirement amendments stop. Wording quoted in `proposal.md` → *Approval Mode change*. Was `gated` until then |
+| Status | Phase 1 **approved — JC, 2026-11-01 10:04 UTC-5, via Grok Bot ("Requisitos: continuar")**. Revision 2 (same date) applies the judgment-day corrections JC ordered ("Corrige J-1 a J-5 y las advertencias sin volver a juzgar"), listed in §8a |
 | Date | 2026-11-01 |
 | Proposal | `proposal.md`, approved by JC 2026-11-01 09:41 UTC-5 (chat with Methodology), decisions D1–D5 |
 | Format source | `docs/specs/archive/2026-10-31-changes--impeccable-hardening/requirements.md`. There is no `docs/specs/general-setup/` (`ls docs/specs/general-setup` → `No such file or directory`, 2026-11-01) |
@@ -32,7 +32,7 @@ This spec adds one **Design Routing Matrix** (activity × environment → lead, 
 |---|---|
 | Design Routing Matrix | The single table mapping (activity, environment class) to a lead skill, supporting skills and what each must not decide |
 | Activity | One of: **foundation**, **direction**, **mockup**, **build-new**, **build-within-system**, **refine**, **motion**, **evaluate** |
-| Environment class | **E0** Impeccable skill source `missing` · **E1** no established visual world · **E2** established visual world (design system, component library or coherent identity in code) · **E3** native mobile surface |
+| Environment class | **ENV-0** Impeccable skill source `missing` · **ENV-1** no established visual world · **ENV-2** established visual world (design system, component library or coherent identity in code) · **ENV-3** native mobile surface. Named `ENV-*` so they never read as the `design-evaluation.md` steps `E0`–`E7` |
 | Established visual world | Impeccable's term: a coherent identity already in code, with or without a `DESIGN.md` (`impeccable/reference/new-work.md` → *Decide what is already true*) |
 | Playbook | The Impeccable command reference a task builds with (`new-work`, `layout`, `typeset`, `colorize`, `bolder`, `quieter`, `animate`, `harden`, `onboard`, `adapt`, `clarify`, `distill`, `extract`, `optimize`) |
 | Polish depth | **full** (Persuade, Experience screens) or **light** (Operate, Read screens) — decision D2 |
@@ -73,15 +73,15 @@ Today, at `883dfa9`:
 
 ### FR-1: One Design Routing Matrix
 
-The bridge SHALL ship one Design Routing Matrix covering every activity in the Glossary × every environment class E0–E3, naming per cell the lead skill, the supporting skills and what the supporting skills must not decide.
+The bridge SHALL ship one Design Routing Matrix covering every activity in the Glossary × every environment class ENV-0 – ENV-3, naming **one lead per cell**; the supporting skills SHALL be named once on the matrix's supporting line, and what each skill must not decide SHALL be on its expertise card.
 
 #### Scenario: Every packaged design skill is placed
 
 - GIVEN the packaged design skills `impeccable`, `impeccable-bridge`, `ui-ux-pro-max`, `frontend-design`, `stitch-design`, `gsap-animation`, `tailwind-design-system`, `shadcn-ui`
 - WHEN the matrix is read
 - THEN each skill appears in at least one cell or expertise card with a stated role
-- BUT it must NOT name two lead skills for the same cell
-- AND IT MUST name the E0 lead as the existing fallback (`frontend-design` for direction and craft), unchanged
+- BUT it must NOT name two lead skills for the same cell, nor leave a cell without a lead (a cell that does not apply names the activity to use instead)
+- AND IT MUST name the ENV-0 lead as the existing fallback (`frontend-design` for direction and craft), unchanged, with `ui-ux-pro-max` as support
 
 #### Scenario: Held once
 
@@ -98,16 +98,16 @@ Before design work on a spec, the design phase SHALL record the environment clas
 
 - GIVEN a project whose code has a component library or tokens that form a coherent identity, with or without `DESIGN.md`
 - WHEN `/akili-specify` classifies the screens
-- THEN they are E2 and the build activity is **build-within-system**
+- THEN they are ENV-2 and the build activity is **build-within-system**
 - AND IT MUST cite the evidence (a token file, a component directory, or `docs/ux-ui/design.md` sections)
-- BUT it must NOT classify E1 on the sole ground that `DESIGN.md` is missing
+- BUT it must NOT classify ENV-1 on the sole ground that `DESIGN.md` is missing
 
 #### Scenario: Precedence
 
 - GIVEN the Impeccable skill source is `missing`
 - WHEN any screen is classified
-- THEN it is E0, whatever its other evidence
-- AND a native iOS/Android/adaptive screen with the skill present is E3; a project with web and native screens is classified per screen
+- THEN it is ENV-0, whatever its other evidence
+- AND a native iOS/Android/adaptive screen with the skill present is ENV-3; a project with web and native screens is classified per screen
 
 ### FR-3: Expertise cards
 
@@ -126,29 +126,29 @@ A UI task in `/akili-execute` SHALL be built with the Impeccable playbook(s) its
 
 #### Scenario: Named playbook
 
-- GIVEN a UI task whose entry names the playbook `layout` and environment E2
+- GIVEN a UI task whose entry names the playbook `layout` and environment ENV-2
 - WHEN the Implementer runs it with skill source `vendored`
 - THEN it runs Impeccable's Setup, follows the `layout` reference, reads the craft floor immediately before UI edits, then runs `polish` at the task's depth
-- AND IT MUST record in `execution.md` the playbook(s), the polish depth and the polish result
+- AND IT MUST report the playbook(s), the polish depth and the polish result in its completion report, which the Leader logs in `execution.md` and names in the Reviewer brief
 - BUT it must NOT load Impeccable references the task does not name, beyond Setup, the craft floor and `polish`
 
 #### Scenario: Direction is settled before execute
 
 - GIVEN `design.md` records the approved direction
-- WHEN a playbook would open a new direction round (a decision page, a dealt structure, a replacement `DESIGN.md`)
-- THEN the Implementer does not open it and builds against the recorded direction
-- AND a direction the design does not settle is a spec gap handled by the Pivot Protocol, never decided by the Implementer
+- WHEN a playbook would open a new direction round (a decision page, a dealt structure, a comp round, a replacement `DESIGN.md`)
+- THEN the Implementer does not open it and builds **code-led** against the recorded direction, with no mockup or image generation
+- AND the questions a playbook asks before building are answered from the spec's `design.md`; a question `design.md` does not answer is a spec gap handled by the Pivot Protocol, never decided by the Implementer
 
 #### Scenario: Skill source missing
 
-- GIVEN skill source `missing` (E0)
+- GIVEN skill source `missing` (ENV-0)
 - WHEN the UI task runs
-- THEN the Implementer follows `frontend-design`, as today, and records the gap
+- THEN the Implementer follows `frontend-design`, as today, and its completion report records the gap (skill source `missing`)
 - BUT it must NOT fail or stop the task for the missing skill
 
 ### FR-5: Polish on every UI task (D2)
 
-Every UI task SHALL end with an Impeccable `polish` pass before the Reviewer is spawned — **full** on Persuade and Experience screens, **light** on Operate and Read screens.
+Every UI task SHALL end with an Impeccable `polish` pass before the Reviewer is spawned — **full** on Persuade and Experience screens, **light** on Operate and Read screens. Full and light are an **AKILI scope limit** on `polish`, not an upstream mode; upstream's own rules apply inside the limit.
 
 #### Scenario: Light pass
 
@@ -163,16 +163,19 @@ Every UI task SHALL end with an Impeccable `polish` pass before the Reviewer is 
 - WHEN `polish` runs full
 - THEN it covers the whole screen in task scope, including missing tokens the task may add to the design authority under its approved design
 
-### FR-6: Impeccable's finish review and the AKILI Reviewer
+### FR-6: Impeccable's finish review does not run inside AKILI execute
 
-When a playbook calls for Impeccable's finish reviewer, it SHALL run as evidence inside the Implementer's work (its subagent where the host provides it, otherwise Impeccable's degraded inline pass, disclosed), and the AKILI Reviewer SHALL remain the independent gate.
+*(Revision 2 — judgment J-1/S-1: upstream forbids the finish review inside the build thread and allows an in-thread substitute only on a harness with no subagent capability; its input packet also needs a roll and screenshots that execute does not produce.)*
 
-#### Scenario: Two reviews, one gate
+When a playbook calls for Impeccable's finish reviewer during `/akili-execute`, the Implementer SHALL NOT run it and SHALL report `finish review: not run (AKILI execute)`; the build's quality evidence SHALL be the `polish` pass, the AKILI Reviewer and the `/akili-validate` design gate (critique and audit).
 
-- GIVEN a `new-work` task whose finish review returned no blocking fix
-- WHEN the Implementer reports completion
-- THEN the AKILI Reviewer is still spawned per `/akili-execute` Step 2.3
-- BUT the finish review must NOT count as the AKILI review, and must NOT waive it
+#### Scenario: new-work task
+
+- GIVEN a task whose playbook is `new-work`
+- WHEN the Implementer reaches the finish-review step
+- THEN it skips it and reports `finish review: not run (AKILI execute)`
+- AND the AKILI Reviewer is spawned per `/akili-execute` Step 2.3 as for any task
+- BUT it must NOT run the degraded inline pass inside its own build thread, and must NOT present the skip as a review
 
 ### FR-7: Motion has one owner per concern
 
@@ -187,7 +190,7 @@ Impeccable's `animate` SHALL own motion purpose, choreography and reduced-motion
 
 #### Scenario: Native screen
 
-- GIVEN an E3 screen
+- GIVEN an ENV-3 screen
 - THEN motion follows the platform guidance Impeccable names, and `gsap-animation` is not loaded
 
 ### FR-8: Mockup route (D3)
@@ -220,7 +223,7 @@ When the Impeccable skill source is `vendored` or `user-installed`, `/akili-prop
 
 ### FR-10: Per-project Design routing block
 
-`/akili-constitution` Step 8D SHALL scaffold, under the project's `## Skill Map`, a `### Design routing` block resolved for that project: environment class(es) with evidence, design lead (Impeccable or the E0 fallback), implementation layers from the Skill Map, motion library, and mockup route.
+`/akili-constitution` Step 8D SHALL scaffold, under the project's `## Skill Map`, a `### Design routing` block resolved for that project: environment class(es) with evidence, design lead (Impeccable or the ENV-0 fallback), implementation layers from the Skill Map, motion library, and mockup route.
 
 #### Scenario: Safe Update
 
@@ -235,9 +238,9 @@ When the Impeccable skill source is `vendored` or `user-installed`, `/akili-prop
 
 #### Scenario: UI task entry
 
-- GIVEN a spec with a Persuade landing page on an E1 project
+- GIVEN a spec with a Persuade landing page on an ENV-1 project
 - WHEN tasks are written
-- THEN the landing task names `new-work` (or the narrower playbook the design settles), environment E1, polish depth full, and the skills `impeccable-bridge` plus any Skill Map stack skills
+- THEN the landing task names `new-work` (or the narrower playbook the design settles), environment ENV-1, polish depth full, and the skills `impeccable-bridge` plus any Skill Map stack skills
 - AND IT MUST NOT name `ui-ux-pro-max` unless the task needs catalog options
 
 ### FR-12: Other command entry points
@@ -259,7 +262,7 @@ This repository's `AGENTS.md` SHALL replace its UI-work bullet with a `## Design
 
 - GIVEN the shipped tree (`.claude/`, `docs/` outside `docs/specs/`, `README.md`, `AGENTS.md`)
 - WHEN it is searched for the superseded phrasings (the craft floor as the whole build rule; `frontend-design` as a general UI option; Stitch as the first mockup recommendation; `ui-ux-pro-max` leading UI recommendations; `gsap-animation` for any animation)
-- THEN none survives outside the E0 fallback statements
+- THEN none survives outside the ENV-0 fallback statements
 
 ### FR-14: Adapted skills point at the matrix
 
@@ -274,7 +277,7 @@ The AKILI integration sections of `ui-ux-pro-max`, `gsap-animation` and `fronten
 | NFR-3 | **Governance.** No command text load-directs a stack skill outside the three documented carve-outs (`docs/skills/governance.md` → *Rules of thumb*) |
 | NFR-4 | **Token economy.** A UI task loads Impeccable's Setup, the named playbook reference(s), the craft floor and `polish` — never the whole reference folder |
 | NFR-5 | **Tool-agnostic.** Invocation forms stay host-neutral (`/impeccable`, `$impeccable` in Codex); the matrix ships to all six install targets through the existing skill-folder copy |
-| NFR-6 | **No persona drift.** Leader, Implementer, Reviewer and Tester personas are not edited; the build route reaches the Implementer through the task's skill list and the bridge it loads |
+| NFR-6 | **Minimal persona change.** *(Revision 2 — judgment J-3.)* Personas are not restructured. Only the skill **example** lines that contradict the matrix change: the Leader's swap examples and the Tester's skill-loading example. The build route reaches the Implementer through the task (its `Design route:` line and skill list) and the bridge it loads |
 | NFR-7 | **Consent unchanged.** Image generation (comp-led) and engine download keep their existing consent rules in every approval mode |
 
 ## 8. Defect Classes and Gates
@@ -282,13 +285,25 @@ The AKILI integration sections of `ui-ux-pro-max`, `gsap-animation` and `fronten
 | Defect class | Gate |
 |---|---|
 | Matrix restated in a command, doc or skill (drift) | Contract test: matrix row signatures appear in exactly one file |
-| Superseded phrasing survives (FR-13 sweep) | Contract test over the shipped tree, keyed on the obligation phrasings and their paraphrases (KZ-changes--kaizen-loop-closure-2) |
+| Superseded phrasing survives (FR-13 sweep), persona examples included | Contract test over the shipped tree, keyed on the obligation phrasings and their paraphrases (KZ-changes--kaizen-loop-closure-2) |
 | A design skill missing from the matrix or from `AGENTS.md` | Contract test comparing the packaged design-skill set, the expertise cards and the `## Design Skills` list |
 | Expertise card cites a missing file or heading | Contract test resolving each card's evidence |
 | Stack skill load-directed in command text | Contract test over `.claude/commands/` for the stack-skill names without a Skill Map deferral |
 | Vendored Impeccable bytes changed | Existing `test/impeccable-vendor.test.js` |
 | **Agents do not follow the routing in practice** (wrong lead, playbook skipped, polish skipped) | **No automated check.** Substitute: a held-out walkthrough task — three project profiles not cited in the matrix text, routed by a fresh agent from the shipped text alone and compared with the expected cells — presented at the HITL pause. Residual risk accepted until a real UI spec runs through `/akili-execute` |
 | A routing cell is wrong design judgment (e.g. light polish too weak) | No automated check. Substitute: judgment-day on this design; JC's review at the Phase 2 gate. Accepted risk otherwise |
+
+## 8a. Revision 2 amendments (judgment-day, ordered by JC 2026-11-01 10:04 UTC-5)
+
+| Item | Change | Finding |
+|---|---|---|
+| Glossary and throughout | `E0`–`E3` → `ENV-0`–`ENV-3` | B-8 |
+| FR-1 | One lead per cell; supporting line; no empty cell | W-1 |
+| FR-4 | Evidence via completion report → Leader logs; code-led only; questions answered from `design.md`, else Pivot; ENV-0 gap reported | W-5, J-5, B-18 |
+| FR-5 | Full/light labelled an AKILI scope limit | B-12 |
+| FR-6 | Finish review not run in execute | J-1, S-1 |
+| NFR-6 | Persona example lines may change | J-3 |
+| §8 | Sweep covers persona examples | J-3 |
 
 ## 9. Requirement ID Index
 
@@ -299,7 +314,7 @@ The AKILI integration sections of `ui-ux-pro-max`, `gsap-animation` and `fronten
 | FR-3 | Expertise cards | §9 ADDED, G6 |
 | FR-4 | Build with Impeccable | §9 MODIFIED, G1 |
 | FR-5 | Polish on every UI task | D2 |
-| FR-6 | Finish review and AKILI Reviewer | discovered at specify (new-work spawns a finish reviewer AKILI does not ship) |
+| FR-6 | Finish review not run in execute | discovered at specify; revised by J-1 |
 | FR-7 | Motion owner per concern | §9 ADDED, G3 |
 | FR-8 | Mockup route | D3, G4 |
 | FR-9 | Stack skills as implementation layers | §9 ADDED, G2 |

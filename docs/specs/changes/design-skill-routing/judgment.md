@@ -7,7 +7,7 @@
 | Judges | A and B, blind, read-only, parallel, model `sonnet` (author: `opus` — author ≠ auditor) |
 | Skill resolution | `judgment-day` (packaged; `references/` not packaged → contract from SKILL.md); judges read `AGENTS.md`, `impeccable-bridge`, vendored `impeccable` references, tests, personas |
 | Orchestrator spot-checks | B-1/A-4 confirmed (`HOME=<empty> node bin/akili.js install --tool all --dry-run \| grep -c design-evaluation` → `0`; `grep -c impeccable-bridge` → `7`). A-5/B-5 confirmed (`test/impeccable-bridge.test.js:33` `version: "2\.0"`, `:37` file list). B-3's "quote not in vendored text" **refuted**: `new-work.md:41` contains "Never run the script for a local extension or a precisely specified narrow request" — its tier-mapping half stands (merged into J-5) |
-| Status | **Awaiting JC** — Decision gate "both judges confirm severe → ask before round-one correction" |
+| Status | **fixed, not re-judged** — J-1, J-2, J-3, J-4, J-5, W-1 – W-6 (and single-judge B-8, B-10, B-12, B-14, B-16, B-17, B-18, A-11, A-13, A-14, A-15b) fixed in `design.md`/`requirements.md` revision 2 |
 
 ## Counts
 
@@ -69,4 +69,20 @@
 
 ## Terminal state
 
-Not reached. Round-one correction needs JC's decision (Fix and Re-judge / Fix only / Continue / Stop / custom), including J-5's severity.
+**fixed, not re-judged** — fixed finding IDs: J-1, J-2, J-3, J-4, J-5, W-1, W-2, W-3, W-4, W-5, W-6; also applied: S-1 (with J-1), B-8, B-10, B-12, B-14, B-16, B-17, B-18, A-11, A-13, A-14, A-15b. Not `JUDGMENT: APPROVED`.
+
+**Provenance (exact):** decisión real de JC, 2026-11-01 10:04 AM UTC-5, vía Grok Bot: *"Corrige J-1 a J-5 y las advertencias sin volver a juzgar"*. J-5 treated as **severe** and fixed with the proposal in this file (code-led build without mockups, questions answered from `design.md`, unanswered ones to the Pivot Protocol), per the same decision.
+
+| Fix | Where |
+|---|---|
+| J-1, S-1 | FR-6 rewritten; DD-5; design §8.4 step 5; P-4 marked refuted |
+| J-2 | P-8 re-cited with a clean `HOME` |
+| J-3 | NFR-6 amended; `leader.md`/`tester.md` example lines in scope (§4); sweep patterns; P-13, P-18 |
+| J-4 | §4 and §7.3: two `impeccable-bridge.test.js` assertions updated; DD-12 |
+| J-5 | FR-4 direction scenario; DD-4; §8.4 step 3; P-16 |
+| W-1 | FR-1; §8.2 one lead per cell + supporting line |
+| W-2 | P-15, §7.2: six commands |
+| W-3 | This file exists; `design.md` Status rewritten |
+| W-4 | §4 docs list; P-10 widened |
+| W-5 | FR-4; §5.1 completion report → Leader logs; P-17 |
+| W-6 | §5.1 self-sufficient `Design route:` line + sizing note |

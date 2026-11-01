@@ -28,6 +28,12 @@
 | D4 | `shadcn-ui` origin verification goes to a separate spec | Q2 | same |
 | D5 | Dependency R1 cleared: PR #111 merged into `dev` (`6063d8c`) | R1 | same |
 
+### Approval Mode change (2026-11-01 10:04 UTC-5)
+
+`Approval Mode: pre-approved (JC, 2026-11-01 10:04 UTC-5, via Grok Bot)` from `requirements.md` Phase 1 onward. JC's wording, relayed: *"Corrige J-1 a J-5 y las advertencias sin volver a juzgar … Requisitos: continuar. Luego termina specify (tasks.md) y sigue con /akili-execute, /akili-test, /akili-validate y /akili-archive, tomando tus opciones recomendadas solo en gates rutinarios. Presupuesto ~650 LOC. DETENTE y repórtame ante cualquier HALT, Pivot, tripwire de presupuesto, FATAL_FAIL, escalada, ítem HITL, aumento de alcance o enmienda de requisitos."* Pre-approval covers routine gates only; the exceptions above always stop.
+
+**Scope reconciliation (judgment B-10).** The judgment-day fixes JC approved (J-3) bring two persona example lines into scope (`leader.md`, `tester.md`); the final edit set is the one in `design.md` §4: four commands (`akili-specify`, `akili-propose`, `akili-seo`, `akili-constitution`), two persona lines, `governance.md` prose, no `akili-execute` text. §10's "5 commands + 2 personas" was the pre-design estimate.
+
 ## 2. Intent
 
 AKILI should produce **distinctive, professional, non-generic** UI, and be rigorous about *why* a given skill leads a given step. Concretely:
