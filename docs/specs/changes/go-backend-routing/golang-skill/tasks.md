@@ -19,7 +19,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [~] content PASS, stopped on HITL item (scanner-flagged doc link, `SKILL.md:125`). See execution.md |
 | Size | S |
 | Dependencies | none |
 | Requirements | FR-1 (both scenarios; BUT no byte before verdict; AND IT MUST Trust Hub disposition) |
