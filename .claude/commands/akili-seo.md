@@ -153,10 +153,7 @@ Produce `docs/specs/$SPEC_PATH/seo-setup-report.md` documenting:
 
 Use `systematic-debugging` when results are inconsistent with site reality.
 
-Skill preference for any UX/UI recommendations:
-
-- `ui-ux-pro-max` if available
-- otherwise `frontend-design`
+Skill preference for any UX/UI recommendations: load `impeccable-bridge`. Impeccable leads UX/UI recommendations; `ui-ux-pro-max` is a reference catalog only (palettes, font pairings, styles). When the skill source is `missing`, follow the bridge's *Fallback* (`ui-ux-pro-max` for options, `frontend-design` for direction and craft).
 
 #### Step 2.1 — Sitemap audit
 

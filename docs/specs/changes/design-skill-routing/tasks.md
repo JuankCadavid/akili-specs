@@ -76,7 +76,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC) |
 | Depends on | T2 |
 | Requirements | FR-2 (recorded per screen with evidence), FR-4 (direction settled at specify; code-led execute), FR-7 (specify rule), FR-9 (no stack-skill load-direction), FR-11 (scenario incl. AND IT MUST NOT `ui-ux-pro-max`), NFR-3 |
@@ -95,7 +95,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~15 LOC; 2 files, ≤ 4 sites — bundled under the 8-site bound) |
 | Depends on | T2 |
 | Requirements | FR-8 (both scenarios, BUT no Stitch unless asked), FR-12 |
@@ -114,7 +114,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` — held for JC (E-2, FR-10 tension) |
 | Size | S (~25 LOC) |
 | Depends on | T2 |
 | Requirements | FR-10 (block fields; Safe Update scenario incl. BUT no matrix rows), FR-9, NFR-3 |

@@ -84,3 +84,49 @@ Evidence re-run for all three (Leader inline, after every Implementer finished; 
 | spawns | Implementer 10 calls, 75,649 tokens, ended partial (assumptions only); Reviewer 5 calls, 69,290 tokens |
 
 Running totals (after wave 1): tasks 4/11 · LOC ~141/~650 (119 + 22 insertions) · review rounds 4/~22. Continue gate: auto-approved (pre-approved mode).
+
+### Wave 2 (parallel, disjoint files): T3, T4, T5 — 2026-11-01
+
+Evidence re-run (Leader inline, tree quiet after all three finished): `npm test` → **1385 pass, 0 fail**; `git diff --check` clean; `Design route:` in specify 1; Stitch-first string in propose 0; "`ui-ux-pro-max` if available" in seo 0; `### Design routing` in constitution 4 — **VERIFIED**.
+
+### T3: `/akili-specify` — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/commands/akili-specify.md` (+6/−5): Step 2.1 UI paragraph (ENV class per screen with evidence; direction settled at specify), animation line (→ matrix *Motion*), Step 3.2 skill-inventory sentence, *Preferred UI/UX skill rule* (`Design route:` line, Done-criteria evidence, skills, ENV-0) |
+| Red run | Baseline (tasks.md Document Control, observed at specify): `Design route:` 0; gsap sentence 1; craft-floor phrase 1. The Implementer did not re-run the before-greps (read the old text at lines 235, 426, 462). After: 1 / 0 / 0; `design-routing` 5; stack skills only in the pre-existing no-map fallback list |
+| Verification | `impeccable-bridge.test.js` 10/0; `npm test` 1385/0; `git diff --check` clean |
+| Reviewer (`opus`) | `STATUS: PASS` — FR-2, FR-4, FR-7, FR-9/NFR-3, FR-11 conform; every named section exists; no rows restated; no spec tension |
+| spawns | Implementer 10 calls, 80,274 tokens, ended complete; Reviewer 7 calls, 71,867 tokens |
+
+### T4: `/akili-propose` mockup route + `/akili-seo` — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/commands/akili-propose.md` (*Mockup Fallback*: source-keyed bullets — picker first for `vendored`/`user-installed`, Stitch only on request; today's order for `missing`; pointer to *Mockup route*), `.claude/commands/akili-seo.md` (skill preference → `impeccable-bridge`) |
+| Red run | Before: Stitch-first string 1; seo string 1. After: 0 / 0; picker (line 132) before the first `stitch-design` bullet (134) |
+| Verification | `impeccable-bridge.test.js` 10/0; `git diff --check` clean; full `npm test` unconfirmed by the Implementer — covered by the Leader re-run (1385/0) |
+| Not Done / Assumptions | none (judgment call noted: the Claude Design bullet keeps its "If Stitch MCP is unavailable" wording and position) |
+| Reviewer (`opus`) | `STATUS: PASS` — FR-8 both scenarios incl. the BUT clause, FR-12, §8.6, DD-8; disqualifiers clear; the judgment call accepted (the placement predates T4) |
+| ADVISORY (recorded only) | The Claude Design / HTML-sketch bullets sit top-level after an unrelated paragraph — a `vendored` reader could read "If Stitch MCP is unavailable, fall back to Claude Design" as theirs; nesting them under `missing` needs approval and must not widen T4. "keep the existing image-credit question" reads as an editor's instruction. seo keeps its old label before the new text |
+| spawns | Implementer 11 calls, 78,912 tokens, ended complete; Reviewer not reported by host |
+
+### T5: `/akili-constitution` Step 8D `### Design routing` — Reviewer PASS, task held `[~]` (spec tension T-1)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/commands/akili-constitution.md` (+15/−2): item 4 with the six §5.2 fields, matrix pointer, "no matrix rows"; mode-policy bullets extended (Seed / Discovery / Safe Update) |
+| Red run | Before `### Design routing` 0; after 4 (all inside Step 8D) |
+| Verification | `impeccable-bridge.test.js` 10/0; `npm test` 1385/0; `git diff --check` clean |
+| Not Done / Assumptions (verbatim) | "I added \"when the project has UI\" to item 4 so UI-less projects don't get a block. This wording is mine, not from the spec." |
+| Reviewer (`opus`) | `STATUS: PASS` — all six fields, carve-out 1, Safe Update incl. BUT clause. **Spec tension (verbatim):** "FR-10's SHALL has no condition. Read literally, the guard narrows it. … every field FR-10 and §5.2 list assumes there is UI … A project with no screens cannot be classified, and its fallthrough rung (4, \"None of the above\" → ENV-1) would make the block claim an ENV-1 UI project. That is false routing. … Proposed amendment (one line, for FR-10 in requirements.md): \"…SHALL scaffold, **for a project with a user interface (any screen the ladder can classify)**, under the project's `## Skill Map`, a `### Design routing` block…; a project with no UI gets no block.\"" |
+| Status | `[~]` — the amendment changes an approved requirement's meaning: a **requirement amendment**, a stop under JC's brief. Held for JC (see *Escalation E-2*) |
+| spawns | Implementer 12 calls, 79,256 tokens, ended partial (assumption only); Reviewer 6 calls, 67,753 tokens |
+
+Running totals (after wave 2): tasks 6/11 closed + T5 held · LOC ~170/~650 (141 + 29 insertions) · review rounds 7/~22. Continue gate: **not auto-passed** — stopped for E-2.
+
+## Escalation E-2 (2026-11-01): spec tension T-1 — FR-10 has no UI condition
+
+- **What:** FR-10 says Step 8D SHALL scaffold `### Design routing` with no condition; the T5 Implementer added "when the project has UI"; the T5 Reviewer passed the task and reported the tension: without the guard, a UI-less project (a CLI or backend — this repository included) falls through the ladder to ENV-1 and gets a false UI routing block.
+- **Why it stops:** resolving it either amends FR-10 (a requirement amendment) or removes the guard (shipping the false-routing case). Both are JC's call under the brief.
+- **Options:** (A, recommended) amend FR-10: "…SHALL scaffold, for a project with a user interface (any screen the ladder can classify), under the project's `## Skill Map`, a `### Design routing` block…; a project with no UI gets no block" — T5 then closes `[x]` as is, and the docs (T8b) describe it; (B) keep FR-10 literal — T5 reworks to remove the guard (one rework attempt).
