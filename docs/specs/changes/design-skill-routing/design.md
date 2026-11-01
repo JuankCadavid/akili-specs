@@ -182,7 +182,7 @@ Skill-source values: `missing` → ENV-0; `vendored` and `user-installed` → EN
 | `gsap-animation` | Timelines, scroll-driven, runtime control, SVG morphing in GSAP | motion implementation | Whether motion exists, or its purpose | `gsap-animation/SKILL.md` → *Prefer GSAP over CSS animations when you need* |
 | `tailwind-design-system` (stack) | Tailwind v4 tokens, CSS-first theming, component variants | implementation layer | The aesthetic | `tailwind-design-system/SKILL.md` → *When to Use This Skill* |
 | `shadcn-ui` (stack) | shadcn/ui primitives, forms, theming in React | implementation layer | The aesthetic | `shadcn-ui/SKILL.md` → *When to Use* |
-| other UI stack skills (e.g. `angular-developer`, `vercel-react-best-practices`, `react-doctor`, via the Skill Map) | Framework idioms, performance, correctness | implementation layer | The aesthetic | `docs/skills/governance.md` → *Rules of thumb* |
+| other UI stack skills (e.g. `angular-developer`, `vercel-react-best-practices`, `react-doctor`, via the Skill Map) | Framework idioms, performance, correctness | implementation layer | The aesthetic | `docs/skills/governance.md` → *Current assignment* (`stack` row) |
 
 ### 8.4 Build route and polish limit (FR-4, FR-5, FR-6)
 
@@ -261,7 +261,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 | P-6 | `gsap-animation` states its own criteria for preferring GSAP over CSS | data-env | `grep -n "Prefer GSAP over CSS" …/gsap-animation/SKILL.md` → `26` | `883dfa9` | §8.5 (Low) | — |
 | P-7 | Impeccable inherits an established world; a missing `DESIGN.md` does not erase it | location | `grep -n "Established world" …/new-work.md` → `12` | `883dfa9` | DD-3 (High) | — |
 | P-8 | Bridge `references/` ship to every target (whole skill folder copied) | live-path | `HOME=$(mktemp -d) node bin/akili.js install --tool all --dry-run 2>&1 \| grep -c impeccable-bridge` → `7` (directory entries; `.agents` serves Codex and Cursor); the same run `\| grep -c design-evaluation` → `0` (files are not listed individually) | `a026208` | DD-1 needs an installer change (High) | — (re-cited, J-2) |
-| P-9 | Governance forbids load-directing stack skills in command text, three carve-outs | other | `docs/skills/governance.md` → *Rules of thumb*, `stack` bullet | `883dfa9` | DD-9 (Low) | — |
+| P-9 | Governance forbids load-directing stack skills in command text, three carve-outs | other | `docs/skills/governance.md` → *Current assignment*, the *Rules of thumb* list, `stack` bullet | `883dfa9` | DD-9 (Low) | — |
 | P-10 | Shipped files carrying superseded phrasings | consumer | rev. 1 greps (bridge `22`,`120`,`146`; `akili-specify.md:235`,`:426`,`:462`,`:464`; `akili-propose.md:132-136`; `akili-seo.md:158`; `AGENTS.md:51-52`; `flow.md:656`; `overview.md:63-71`; `docs/commands/akili-constitution.md:121`; `docs/commands/akili-propose.md:96`; `docs/skills/impeccable.md:9`) **plus** rev. 2: `grep -rn "gsap-animation\|stitch-design\|ui-ux-pro-max\|frontend-design" docs/skills/README.md docs/skills/governance.md docs/commands/akili-test.md docs/commands/akili-audit.md` (W-4) — each hit handled in its task or recorded as an ENV-0 statement | `a026208` | Old routing survives (High; sweep test) | — |
 | P-11 | Tests pinning design-skill text | consumer | `impeccable-bridge.test.js:33` (`version "2\.0"`), `:37` (bridge file list), `:53`, `:87-109`, `:122-124`, `:143-175`; `diagram-design.test.js:393-394` | `a026208` | Hidden red tests (High; J-4) | — |
 | P-12 | Impeccable carries native references | existence | `ls …/impeccable/reference \| grep -E "ios\|android\|native"` → 4 files | `883dfa9` | ENV-3 column (Low) | — |
@@ -276,9 +276,9 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 
 | Measure | Estimate |
 |---|---|
-| Tasks | 10 — matrix reference; bridge `SKILL.md`; `akili-specify`; `akili-propose` + `akili-seo`; `akili-constitution` 8D; persona examples; adapted skills (3); `AGENTS.md` + docs + CHANGELOG; contract tests; held-out walkthrough |
+| Tasks | 11 — matrix reference; bridge `SKILL.md`; `akili-specify`; `akili-propose` + `akili-seo`; `akili-constitution` 8D; persona examples; adapted skills (3); `AGENTS.md` + CHANGELOG; docs; contract tests; held-out walkthrough (the AGENTS.md/docs split was made at Phase 3 by the task-splitting rule) |
 | LOC | ~650 — ~350 prose (matrix ~160) + ~300 tests (KZ-bugfix--init-ctrlc-abort-2) — JC's budget |
-| Review rounds | ~20 (two per rules-document task) |
+| Review rounds | ~22 (two per task) |
 
 Depth: Standard holds. Each rules task edits one document (task-splitting rule).
 
