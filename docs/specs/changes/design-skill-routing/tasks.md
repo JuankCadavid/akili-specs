@@ -114,7 +114,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[~]` — held for JC (E-2, FR-10 tension) |
+| Status | `[x]` — closed after E-2 (FR-10 amended, JC, 2026-11-01 11:08 AM UTC-5: "Opción A: enmienda FR-10 para que la sección de diseño se genere solo en proyectos con interfaz") |
 | Size | S (~25 LOC) |
 | Depends on | T2 |
 | Requirements | FR-10 (block fields; Safe Update scenario incl. BUT no matrix rows), FR-9, NFR-3 |
@@ -263,6 +263,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 | FR-8 missing → today's order | T1, T4 |
 | FR-9 shadcn project; BUT no stack load-direction | T1 (supporting line, cards), T3, T5, T9 (governance) |
 | FR-10 block fields; Safe Update preserve; BUT no rows | T5, T9 |
+| FR-10 no-UI project → no block; BUT no ENV-1 fall-through (E-2) | T5 (guard shipped), T8b (docs) |
 | FR-11 UI task entry; AND IT MUST NOT `ui-ux-pro-max` unless catalog | T3 |
 | FR-12 seo via bridge | T4 |
 | FR-13 AGENTS.md matches; BUT no rows | T8a, T9 |

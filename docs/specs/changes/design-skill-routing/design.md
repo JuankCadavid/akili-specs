@@ -88,6 +88,8 @@ Form: `Design route: load impeccable-bridge → design-routing.md; playbook <cmd
 
 ### 5.2 `### Design routing` block (project `AGENTS.md`, under `## Skill Map`)
 
+Scaffolded only for a project with a user interface (FR-10 as amended by E-2, JC, 2026-11-01 11:08 AM UTC-5: "Opción A: enmienda FR-10 para que la sección de diseño se genere solo en proyectos con interfaz"); a project with no classifiable screen gets no block.
+
 Fields: environment class(es) with evidence · design lead (`impeccable` via `impeccable-bridge`, or the ENV-0 fallback) · implementation layers (the Skill Map stack skills that implement UI) · motion library (detected or `none`) · mockup route (picker first; Stitch on request; MCP availability per developer) · one line pointing at the matrix by name. No matrix rows.
 
 ## 6. API Design
@@ -230,7 +232,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 | DD-7 | Motion: purpose to Impeccable, library to the project, GSAP when CSS/WAAPI cannot express it | FR-7 | "Any animation → GSAP" |
 | DD-8 | Mockup: picker first, Stitch on request | FR-8, D3 | Stitch first |
 | DD-9 | Stack skills named only on the supporting line and cards, with Skill Map deferral | FR-9, NFR-3 | Stack-specific leads |
-| DD-10 | Project `### Design routing` under `## Skill Map` | FR-10 | A separate `## Design` section |
+| DD-10 | Project `### Design routing` under `## Skill Map`, UI projects only (E-2) | FR-10 | A separate `## Design` section |
 | DD-11 | Repo `AGENTS.md` `## Design Skills`: decision rule + one-line roles + pointer | FR-13 | Full matrix copy |
 | DD-12 | One new test file; two existing assertions updated | §8 defect classes, J-4 | Extend `impeccable-bridge.test.js` further |
 | DD-13 | `ENV-0`–`ENV-3` labels | B-8 | `E0`–`E3` (collide with `design-evaluation.md` steps) |

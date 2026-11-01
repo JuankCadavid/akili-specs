@@ -24,7 +24,7 @@ This spec adds one **Design Routing Matrix** (activity × environment → lead, 
 
 - every UI task names the Impeccable playbook it builds with, then runs the craft floor and a `polish` pass;
 - motion, mockups and stack skills (Tailwind, shadcn) each have one stated owner;
-- every project gets a resolved `### Design routing` block, and this repository's `AGENTS.md` gets a `## Design Skills` section.
+- every project with a user interface gets a resolved `### Design routing` block, and this repository's `AGENTS.md` gets a `## Design Skills` section.
 
 ## 3. Glossary
 
@@ -223,7 +223,14 @@ When the Impeccable skill source is `vendored` or `user-installed`, `/akili-prop
 
 ### FR-10: Per-project Design routing block
 
-`/akili-constitution` Step 8D SHALL scaffold, under the project's `## Skill Map`, a `### Design routing` block resolved for that project: environment class(es) with evidence, design lead (Impeccable or the ENV-0 fallback), implementation layers from the Skill Map, motion library, and mockup route.
+*(Amended — E-2, approved by JC, 2026-11-01 11:08 AM UTC-5: "Opción A: enmienda FR-10 para que la sección de diseño se genere solo en proyectos con interfaz".)* For a project with a user interface (any screen the environment ladder can classify), `/akili-constitution` Step 8D SHALL scaffold, under the project's `## Skill Map`, a `### Design routing` block resolved for that project: environment class(es) with evidence, design lead (Impeccable or the ENV-0 fallback), implementation layers from the Skill Map, motion library, and mockup route.
+
+#### Scenario: Project with no user interface
+
+- GIVEN a project with no screen the ladder can classify (a CLI, a library or a backend service)
+- WHEN `/akili-constitution` runs Step 8D
+- THEN no `### Design routing` block is scaffolded
+- BUT it must NOT fall through the ladder to ENV-1 and write a UI routing block for it
 
 #### Scenario: Safe Update
 
@@ -303,6 +310,7 @@ The AKILI integration sections of `ui-ux-pro-max`, `gsap-animation` and `fronten
 | FR-5 | Full/light labelled an AKILI scope limit | B-12 |
 | FR-6 | Finish review not run in execute | J-1, S-1 |
 | NFR-6 | Persona example lines may change | J-3 |
+| FR-10 (execute-time, E-2) | Block only for projects with a user interface; new scenario *Project with no user interface* — approved by JC, 2026-11-01 11:08 AM UTC-5: "Opción A: enmienda FR-10 para que la sección de diseño se genere solo en proyectos con interfaz" | T5 Reviewer spec tension T-1 |
 | §8 | Sweep covers persona examples | J-3 |
 
 ## 9. Requirement ID Index
