@@ -341,7 +341,9 @@ test("docs/cli.md ownership row and accepted limit report DIFFERS, not OK", () =
 
 test("CHANGELOG Unreleased has the install/doctor entry and the reworded sentence", () => {
   const c = text4("CHANGELOG.md");
-  const u = c.slice(c.indexOf("## [Unreleased]"), c.indexOf("\n## [", c.indexOf("## [Unreleased]") + 5));
+  // Stays true after the release script moves [Unreleased] into the dated 2.41.0 section.
+  const h = (c.includes("\n## [2.41.0] - ") ? "## [2.41.0] - " : "## [Unreleased]");
+  const u = c.slice(c.indexOf(h), c.indexOf("\n## [", c.indexOf(h) + 5));
   assert.ok(u.includes("`install` classifies every skipped entry"), "new entry missing");
   assert.ok(u.includes("The installer item from the same audit is handled by the install and doctor entry below."));
   assert.ok(!u.includes("not yet shipped"));

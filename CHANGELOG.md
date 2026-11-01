@@ -6,13 +6,19 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.41.0] - 2026-11-01
+
 ### Added
 
 - **A Design Routing Matrix, `impeccable-bridge/references/design-routing.md`,** maps each design activity and environment to one lead skill, the playbook, the craft floor and `polish`.
 - **A `Design route:` line on UI tasks** in `tasks.md` records the matrix pick for the task.
 - **`/akili-constitution` Step 8D scaffolds a `### Design routing` block** in the project `## Skill Map`, for projects with a user interface only.
 - **Repo `AGENTS.md` gains a `## Design Skills` section** naming the eight design skills and pointing at the matrix.
-- **`golang-pro` is now a packaged `stack` skill (32 packaged skills, was 31).** It is vendored from `Jeffallan/claude-skills` at commit `078a25cc5bfd8011459be7b91d004e900c1d02d3` under `.claude/skills/golang-pro/`, MIT: `SKILL.md`, five `references/` files, the upstream `LICENSE` byte-identical, and a `NOTICE` that names the holder, the source, the pin, the frontmatter-only change and non-affiliation. The only change to upstream is four `metadata` keys appended to the `SKILL.md` frontmatter (`source`, `adapted-by`, `adapted-for`, `binding: stack`).
+- **`golang-pro` is now a packaged `stack` skill (32 packaged skills, was 31).** It is vendored from `Jeffallan/claude-skills` at commit `078a25cc5bfd8011459be7b91d004e900c1d02d3` under `.claude/skills/golang-pro/`, under the MIT license. The folder holds `SKILL.md`, five `references/` files, the upstream `LICENSE` byte-identical, and a `NOTICE` that names the holder, the source, the pin, the frontmatter-only change and non-affiliation. The only change to upstream is four `metadata` keys appended to the `SKILL.md` frontmatter (`source`, `adapted-by`, `adapted-for`, `binding: stack`).
 - **It was security-reviewed at the pin, and skills.sh rates it "Fail".** The AKILI review (spec task T1) found no injection and no fetch-and-run instructions in the pinned files. skills.sh labels the skill "Fail" and its Trust Hub page states Risk Level CRITICAL (audited Oct 27, 2026), on the finding quoted in the AKILI T1 record, `EXTERNAL_DOWNLOADS`, on the documentation link in the last line of `SKILL.md`; the page counts 2 flagged URLs and names 1. By the maintainer's decision the link is kept byte-identical and inert: AKILI adds no instruction to open it, and `NOTICE` and `docs/skills/golang-pro.md` record the finding.
 - **`golang-pro` is offered in the four stack-skill candidate pools.** These are the `/akili-constitution` Step 5 list and its Step 8D `## Skill Map` candidates, the `/akili-specify` Step 2.1 fallback list, and the stack-skills line in `docs/commands/akili-constitution.md`. No command step tells an agent to load it. `docs/skills/golang-pro.md` documents it, and the skills inventory, overview and governance tables list it.
 - **`test/golang-skill.test.js` hash-locks the vendored folder.** It hashes raw bytes as git blobs: the five references and `LICENSE` equal their pinned SHAs, and `SKILL.md` minus the four added lines equals its pinned SHA. It also checks the frontmatter keys, the `NOTICE` facts, the four pools, the governance row, that nothing under `.claude/skills/` has `samber` in its path, and that the folder stays under 60 KB. `.gitattributes` marks the folder `-text` so Windows checkouts keep the bytes LF.
@@ -39,7 +45,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Existing installs keep a differing `impeccable-bridge` folder until `akili install --force`.** Deployed personas upgrade with `akili doctor --agents --fix`.
 - **Release class: minor** (new design-routing behavior: the routing matrix, the `Design route:` line on UI tasks and the Step 8D `### Design routing` block; a new vendored `stack` skill, `golang-pro`; no new command or install target).
 - **Upstream request.** Three behaviors only Impeccable can fix (the launcher's `~/.impeccable` order, the detector's first-visit flags with custom banners, and `aria-hidden` occlusion) are drafted as a request, not filed. AKILI works around them with the rules above.
-
 ## [2.40.0] - 2026-10-30
 
 ### Added
