@@ -1,6 +1,6 @@
 # Design: Go stack skill (`golang-pro`)
 
-> **Answer first.** No code changes. One new folder, copied from the pin. The `SKILL.md` frontmatter gets four added `metadata` keys, and `LICENSE` and `NOTICE` sit beside it. One list line goes into each of four candidate pools. The docs rows and the "31 → 32" counts are updated, the existing install and doctor counts and fixture follow the new inventory, and a new contract test locks the upstream body to the pin. The installer already copies every folder under `.claude/skills/` (P-3), so it needs no edit. Budget: 4 tasks · ~260 LOC (≈49 KB vendored text excluded) · 5 review rounds.
+> **Answer first.** No code changes. One new folder, copied from the pin. The `SKILL.md` frontmatter gets four added `metadata` keys, and `LICENSE` and `NOTICE` sit beside it. One list line goes into each of four candidate pools. The docs rows and the "31 → 32" counts are updated, the existing install and doctor counts and fixture follow the new inventory, and a new contract test locks the upstream body to the pin. The installer already copies every folder under `.claude/skills/` (P-3), so it needs no edit. Budget: 4 tasks · ~260 LOC (≈50 KB vendored upstream text excluded) · 5 review rounds.
 
 ## 1. Document Control
 
@@ -78,7 +78,7 @@ n/a — no UI.
 
 No DD reverts delivered behavior → Step 2.3 challenge not triggered.
 
-**Budget (Step 2.4):** 4 tasks · ~260 LOC hand-written (≈60 docs/rows/lists, ≈40 NOTICE + page, ≈10 count/fixture lines, ≈150 contract test) plus 49,639 B vendored · 5 review rounds (T1 1, T2 1, T3 2 because it edits command text, T4 1). Depth Lite holds: 4 small tasks, no logic. **Updated at Phase 3:** 5 tasks · 6 review rounds — T3 split into T3a (command pools) and T3b (docs/counts) per the Step 3.2 rules-text rule; LOC unchanged.
+**Budget (Step 2.4):** 4 tasks · ~260 LOC hand-written (≈60 docs/rows/lists, ≈40 NOTICE + page, ≈10 count/fixture lines, ≈150 contract test) plus 49,639 B upstream skill files + 1,056 B `LICENSE` vendored (corrected at `/akili-validate`) · 5 review rounds (T1 1, T2 1, T3 2 because it edits command text, T4 1). Depth Lite holds: 4 small tasks, no logic. **Updated at Phase 3:** 5 tasks · 6 review rounds — T3 split into T3a (command pools) and T3b (docs/counts) per the Step 3.2 rules-text rule; LOC unchanged.
 
 ## 11. Premise Ledger
 

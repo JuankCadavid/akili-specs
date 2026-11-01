@@ -1,6 +1,6 @@
 # Tasks: Go stack skill (`golang-pro`)
 
-> **Answer first.** Five tasks, serial: security verdict (T1) → vendor (T2) → command pools (T3a) → docs, counts, fixtures (T3b) → contract test, CHANGELOG, full verification (T4). After T2 the suite is red on purpose (new folder, no rows yet), and T3b turns it green. ~260 hand-written LOC plus 49,639 B vendored. One PR.
+> **Answer first.** Five tasks, serial: security verdict (T1) → vendor (T2) → command pools (T3a) → docs, counts, fixtures (T3b) → contract test, CHANGELOG, full verification (T4). After T2 the suite is red on purpose (new folder, no rows yet), and T3b turns it green. ~260 hand-written LOC plus 49,639 B upstream skill files + 1,056 B upstream `LICENSE` vendored ("49,639 B vendored" corrected at `/akili-validate`). One PR.
 
 ## 1. Document Control
 
@@ -9,7 +9,7 @@
 | Spec Path | `changes/go-backend-routing/golang-skill` |
 | Depth | Lite |
 | Approval Mode | pre-approved (JC, 2026-11-01 9:56 UTC-5) |
-| Budget | 5 tasks · ~260 LOC hand-written + 49,639 B vendored · 6 review rounds (design §10 said 4 tasks / 5 rounds; T3 split per the Step 3.2 rules-text rule, +1 task, +1 round). **Raised to 8 rounds by JC, 2026-11-01 10:44; to 9 rounds and ~330 LOC by JC, 2026-11-01 11:08** (execution.md) |
+| Budget | 5 tasks · ~260 LOC hand-written + 49,639 B upstream skill files + 1,056 B upstream `LICENSE` vendored ("49,639 B vendored" corrected at `/akili-validate`) · 6 review rounds (design §10 said 4 tasks / 5 rounds; T3 split per the Step 3.2 rules-text rule, +1 task, +1 round). **Raised to 8 rounds by JC, 2026-11-01 10:44; to 9 rounds and ~330 LOC by JC, 2026-11-01 11:08** (execution.md) |
 | Baseline | `7067fe9`, `npm test` 1233 / 0 |
 | Phase 3 gate | auto-approved (pre-approved mode), 2026-11-01 |
 

@@ -67,7 +67,7 @@ A project whose backend is Go should get the same stack guidance a NestJS or Ang
 | Affected | How |
 |---|---|
 | Go projects using AKILI | Skill Map can list `golang-pro`; Leader assigns it to Go tasks |
-| `.claude/skills/golang-pro/` | New folder (7 files) |
+| `.claude/skills/golang-pro/` | New folder (8 files: 6 upstream + `LICENSE` + `NOTICE`; corrected at `/akili-validate` 2026-11-01, was "7 files", contradicted by §13) |
 | `.claude/commands/akili-constitution.md`, `akili-specify.md` | One list line each, three places |
 | `docs/skills/*`, `docs/overview.md`, `CHANGELOG.md` | Rows and a page |
 | `changes/design-skill-routing` | Touches nearby lines in the same two commands; merge order either way |
