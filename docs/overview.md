@@ -79,6 +79,7 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | [`api-design-principles`](skills/api-design-principles.md) | stack | REST and GraphQL API design and review |
 | [`aws-serverless`](skills/aws-serverless.md) | stack | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK |
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
+| [`golang-pro`](skills/golang-pro.md) | stack | Go concurrency, gRPC/REST microservices, generics, pprof, table-driven testing |
 | [`nestjs-expert`](skills/nestjs-expert.md) | stack | NestJS modules, DI, guards, interceptors, testing, TypeORM/Mongoose |
 | [`software-architect`](skills/software-architect.md) | core | NFRs as measurable quality-attribute scenarios, tactics, robust-vs-lite tier sizing, architecture styles, GoF pattern selection, C4 views and ADRs |
 

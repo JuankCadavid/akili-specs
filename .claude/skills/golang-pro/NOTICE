@@ -1,0 +1,32 @@
+# Third-Party Notices
+
+This folder is vendored third-party work, used under its original MIT license.
+
+## Source
+
+| Field | Value |
+|---|---|
+| Skill | `golang-pro` |
+| Source | https://github.com/Jeffallan/claude-skills/tree/078a25cc5bfd8011459be7b91d004e900c1d02d3/skills/golang-pro |
+| Pinned commit | `078a25cc5bfd8011459be7b91d004e900c1d02d3` |
+| Copyright holder | GitHub user Jeffallan |
+| License | MIT, see `LICENSE` in this folder (the upstream repo-root file, byte-identical) |
+
+The upstream `LICENSE` names no copyright holder. The name above is taken from the upstream author metadata (`metadata.author: https://github.com/Jeffallan` in `SKILL.md`) and the repository owner.
+
+## AKILI-SPECS modification statement
+
+The only modification is in the `SKILL.md` frontmatter: four keys are appended at the end of the `metadata` block, `source`, `adapted-by`, `adapted-for` and `binding: stack`. No upstream line is changed, removed or reordered, and no other file is modified.
+
+The pin moves only through a new AKILI spec. There is no sync script.
+
+AKILI-SPECS is not affiliated with the upstream project.
+
+## Security review note
+
+| Item | Record |
+|---|---|
+| Third-party rating | Labelled "Fail" on skills.sh (https://skills.sh/jeffallan/claude-skills/golang-pro). The Trust Hub page (https://skills.sh/jeffallan/claude-skills/golang-pro/security/agent-trust-hub) states Risk Level: CRITICAL (audited Oct 27, 2026). |
+| Finding | `EXTERNAL_DOWNLOADS` (the finding quoted in the AKILI T1 record), on the documentation URL in the last line of `SKILL.md` (https://jeffallan.github.io/claude-skills/skills/language/golang-pro/, upstream's own GitHub Pages site). The page counts 2 flagged URLs and names 1. |
+| AKILI review | Spec `changes/go-backend-routing/golang-skill`, task T1, found no injection or fetch-and-run instructions in the pinned content. |
+| Handling | The link is kept byte-identical and inert. AKILI adds no instruction to open it. |
