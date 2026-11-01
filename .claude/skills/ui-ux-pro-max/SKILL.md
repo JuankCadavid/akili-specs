@@ -25,13 +25,13 @@ Reference these guidelines when:
 
 ## AKILI-SPECS Integration
 
-In AKILI this skill is a **reference catalog**: palettes, font pairings, styles by industry and the priority-ranked UX rules below. The lead design skill is Impeccable, reached through `impeccable-bridge`; when the Impeccable skill source is `missing`, this skill plus `frontend-design` (direction and craft) and `stitch-design` (mockups) is the fallback chain.
+In AKILI this skill is a **reference catalog**: palettes, font pairings, styles by industry and the priority-ranked UX rules below. The lead design skill is Impeccable, reached through `impeccable-bridge`; when the Impeccable skill source is `missing`, this skill plus `frontend-design` (direction and craft) and `stitch-design` (mockups) is the fallback chain. Which skill leads for a task, and what it loads, is decided by the routing matrix in `impeccable-bridge` → `references/design-routing.md`; this skill never overrides it.
 
 | AKILI moment | How to use this skill |
 |---|---|
 | `/akili-constitution` Step 4 | Supply catalog options (palettes, font pairings, accessibility expectations) for `docs/ux-ui/design.md`; leads only when the Impeccable skill source is `missing` |
 | `/akili-specify` design phase | Look up options for UI states, responsive behavior and components when the direction needs them |
-| `/akili-execute` UI tasks | The Implementer loads it when a task needs catalog options |
+| `/akili-execute` UI tasks | The Implementer loads it when a task's `Design route:` needs catalog options |
 | `/akili-test` / `/akili-validate` / `/akili-audit design` | Rule source for the checklist review (priority 1–4 categories); the main review when the Impeccable skill source is `missing` |
 
 Design-token decisions made with this skill are recorded in `docs/ux-ui/design.md` — the Reviewer audits diffs against that document, not against this skill.

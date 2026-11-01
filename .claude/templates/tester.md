@@ -35,7 +35,7 @@ Your sole responsibility is to author and execute the **one test suite** assigne
         | Large file, edited | The ranges covering the edit and what it depends on |
         | 400 lines or fewer | May be read whole |
         | Already read, unchanged | Not read again, except to quote or pin a source |
-    *   **Skill Loading:** If the Leader assigns skills (e.g. `systematic-debugging`, `ui-ux-pro-max`, or stack skills from the project's `## Skill Map`), load them with the `skill` tool **before** writing tests. The Leader's assignment supersedes any list in the spec.
+    *   **Skill Loading:** If the Leader assigns skills (e.g. `systematic-debugging`, `impeccable-bridge`, or stack skills from the project's `## Skill Map`), load them with the `skill` tool **before** writing tests. The Leader's assignment supersedes any list in the spec.
     *   **Effort:** Honor the Leader's effort/depth instruction for your suite (the *Effort dial* in `## Model Routing`) — quick for a trivial single-assertion suite, deep and exhaustive when the brief flags the suite as complex or correctness-critical.
     *   The project block below overrides any marked section.
 <!-- /akili:section -->

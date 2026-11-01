@@ -1,12 +1,12 @@
 ---
 name: impeccable-bridge
-description: "Trigger: UI design direction, visual craft, design review, critique, audit, polish, design evaluation of an existing product, /akili-audit design. The AKILI layer over the vendored Impeccable design skill: skill source, engine probe and consent gate, phase map, design source of truth, detector gate (scan matrix, first-visit pass, exit codes), Design Waivers, privacy, and fallback to ui-ux-pro-max + frontend-design when the skill source is missing."
+description: "Trigger: UI design direction, visual craft, design review, critique, audit, polish, build, design routing, design evaluation of an existing product, /akili-audit design. The AKILI layer over the vendored Impeccable design skill: skill source, engine probe and consent gate, phase map, design source of truth, detector gate (scan matrix, first-visit pass, exit codes), Design Waivers, privacy, and fallback to ui-ux-pro-max + frontend-design when the skill source is missing."
 license: MIT
 metadata:
   author: Juan Carlos Cadavid — jcadavid.com
   inspired-by: "Impeccable by Paul Bakaus (Apache-2.0) — https://github.com/pbakaus/impeccable"
   binding: conditional
-  version: "2.0"
+  version: "2.1"
 ---
 
 # Impeccable Bridge — AKILI Layer over Impeccable
@@ -23,6 +23,9 @@ AKILI ships Impeccable **vendored, byte-identical except for a declared frontmat
 | `ui-ux-pro-max` (packaged) | **Reference catalog** only: palettes, font pairings, styles, chart types and anti-patterns by industry. Consulted for options; never the style authority | Never leads while the skill source is not `missing` |
 | `frontend-design` (packaged) | **Fallback craft guide** | Skill source is `missing` |
 | `stitch-design` (packaged) | Mockup generation through Stitch | A spec asks for a Stitch mockup |
+| `gsap-animation` (packaged) | Motion implementation, per the matrix | The matrix's *Motion* rule selects GSAP |
+
+`references/design-routing.md` is the routing authority: which skill serves each design activity, per environment. Stack skills (for example `tailwind-design-system`, `shadcn-ui`) are implementation layers that reach agents through the project `## Skill Map`; they never lead the design.
 
 Load one lead only. Two design skills giving rules at once pull the agent in different directions; the catalog and the mockup tool supply inputs, the lead decides.
 
@@ -117,7 +120,7 @@ This table is held **once**, here. Each command states its own row in one line a
 | `/akili-constitution` Step 4 (lead design skill) | Impeccable leads; `init`/`document` produce the derived `PRODUCT.md`/`DESIGN.md` | Fallback chain | Context loader may run | The gate asks only if Impeccable's Setup is about to run | Impeccable's *Launcher unavailable* path |
 | `/akili-specify` Step 2.1 | Impeccable leads `shape` | Fallback | — | Same | Same |
 | `/akili-propose` Visual Reference | The direction picker is offered | Not offered | — | — | — |
-| `/akili-execute` UI tasks (via the task skill list) | The Implementer loads Impeccable's craft floor | `frontend-design` | — | Asks on first launcher use | Craft floor read directly |
+| `/akili-execute` UI tasks (via the task skill list) | The Implementer builds code-led with the task's `Design route:` playbook, reads the craft floor before edits and runs `polish` (`references/design-routing.md` → *Build route*) | `frontend-design` | — | Asks on first launcher use | Craft floor read directly |
 | `/akili-test` detector suite | The suite is planned | Planned only if an engine exists | Runs | Asks before planning, or records `Unevaluated` | `Unevaluated (engine not installed)` |
 | `/akili-validate` design gate | Critique/audit + detector + scan matrix + first-visit pass | Checklist review + detector if an engine exists | Gate active | Asks | Detector rows `Unevaluated`; the gate cannot `PASS` on them |
 | `/akili-audit design` | As validate, report-only | As validate | — | Asks | `Unevaluated` rows |
@@ -143,7 +146,7 @@ On conflict `docs/ux-ui/design.md` wins and the difference is reported as **Visu
 | `init` / `document` (context files) | `/akili-constitution` Step 4 | Produce the derived `PRODUCT.md`/`DESIGN.md` from the authority |
 | Page mode (Persuade, Operate, Read, Experience) | `/akili-constitution` Step 4, `/akili-specify` design | Record one mode per screen in `docs/ux-ui/design.md` (screen inventory) or in the spec's `design.md` |
 | `shape` and the direction picker (comp-led or code-led) | `/akili-propose` Visual Reference, `/akili-specify` design | The chosen direction is recorded as the Visual Reference; its approval is the design gate's approval, no second approval |
-| Craft floor before UI edits | `/akili-execute` UI tasks | The Implementer loads Impeccable for every UI task; the task's skill list names `impeccable-bridge` |
+| Build (playbook → craft floor → polish) | `/akili-execute` UI tasks | The Implementer builds code-led with the task's `Design route:` playbook, reads the craft floor before edits and runs `polish` (`references/design-routing.md` → *Build route*); the task's skill list names `impeccable-bridge` |
 | Detector suite | `/akili-test` | See *Detector gate*; evidence only |
 | `critique`, `audit` (and `polish`, `harden`, `clarify` when findings call for them) | `/akili-validate` UI design review | Findings either fixed or waived with a reason before the spec passes |
 | Design evaluation of an existing product | `/akili-audit design` | `references/design-evaluation.md` (it owns the report template, the performance step and the baseline checks) |

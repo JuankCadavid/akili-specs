@@ -42,3 +42,45 @@
 - **Why it stops:** fixing it edits a test file no approved task lists — a scope increase under JC's brief ("DETENTE … ante … aumento de alcance").
 - **Proposed one-line amendment:** add to T2's Scope "`test/install-cursor.test.js`: packaged skill-file count 308 → 309 (one new reference file), and any shared-root fixture the count drives", plus a Premise Ledger `consumer` row for it. No requirement changes.
 - **Decision:** approved — JC, 2026-11-01 10:41 AM UTC-5, vía Grok Bot: "Sí, aprueba la corrección del conteo a 309 y que siga hasta el archive". Applied: T2 Scope amended in `tasks.md`; Premise Ledger row P-19 added in `design.md` §11 (execute-time spec edit; carried as a named conformance check in the T2 and T3 Reviewer briefs).
+
+### Wave 1 (parallel, disjoint files): T2, T6, T7 — 2026-11-01
+
+Evidence re-run for all three (Leader inline, after every Implementer finished; tree quiet): `npm test` → **1385 pass, 0 fail**; `git diff --check` clean; `git diff --stat -- .claude/skills/impeccable` empty; superseded greps 0; `design-routing` in bridge 3, in each adapted skill 1 — **VERIFIED**.
+
+### T2: Point the bridge at the matrix (+ pinned assertions, + E-1 count) — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/skills/impeccable-bridge/SKILL.md` (+7/−4), `test/impeccable-bridge.test.js` (2 assertions), `test/install-cursor.test.js` (count 308 → 309, message/comments, 322 → 323) |
+| Skills | `impeccable-bridge` |
+| Red run (Implementer, before edits) | `impeccable-bridge.test.js` 9/1 at the file-list `deepStrictEqual` (extra `references/design-routing.md`; the version assertion follows it in the same test and was not reached); `install-cursor.test.js` 11/1 "expected 308 … counted 309 … 309 !== 308" |
+| Verification | superseded greps 0; `design-routing` 3; the two suites 22/22; `npm test` 1385/0; no fixture holds 308/322 |
+| Reviewer (`opus`) | `STATUS: PASS` — Roles / Who does what / Phase map / frontmatter as scoped, no matrix row restated; exactly two `impeccable-bridge.test.js` assertions changed; E-1 count per P-19; Reviewer re-ran the two suites 22/0. Named conformance check P-19 / T2 amendment: conforms |
+| ADVISORY (recorded only) | FR-9 says stack skills reach agents "only through the project `## Skill Map` and task skill lists"; the bridge line omits "only" and "task skill lists" (not a violation). Risk: *Held once* is guarded only by review until T9 |
+| Requirements covered | FR-1 *Held once*, FR-4 (execute row), FR-13 (bridge hits), NFR-1; E-1 |
+| spawns | Implementer 8 calls, 79,289 tokens, ended complete; Reviewer not reported by host |
+
+### T6: Persona skill examples — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `.claude/templates/leader.md` (1 line, *primary-instructions*), `.claude/templates/tester.md` (1 line, *context-alignment*) |
+| Red run | ``grep -cF 'UI → `ui-ux-pro-max`' .claude/templates/leader.md`` → 1 before, 0 after |
+| Verification | diff −2/+2, no `akili:section` change; `persona-digests` + `agents-doctor` 66/0; `npm test` 1385/0 (an earlier run during sibling edits showed 3 reds attributed to in-flight T2/T7 files; Leader quiet-tree re-run 1385/0) |
+| Reviewer (`opus`) | `STATUS: PASS` — only the two example lines; wording consistent with the matrix *Motion* and *evaluate* rows; `grep -nE 'ui-ux-pro-max\|gsap-animation\|frontend-design' .claude/templates/*.md` → none |
+| ADVISORY (recorded only) | Nested parenthesis in the Leader line (cosmetic); `digests.json` refresh is a release-step item |
+| Requirements covered | NFR-6 (rev. 2), FR-7, FR-13 (persona hits) |
+| spawns | Implementer 7 calls, 60,602 tokens, ended complete; Reviewer 5 calls, 66,220 tokens |
+
+### T7: Adapted skills point at the matrix — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Files changed | `ui-ux-pro-max/SKILL.md`, `gsap-animation/SKILL.md`, `frontend-design/SKILL.md` — AKILI sections only (+4/−4) |
+| Red run / falsifier | `design-routing` grep 0 each before, 1 each after; falsifier executed: removing `impeccable-bridge` from `frontend-design` → `impeccable-bridge.test.js` "FR-12/FR-13" red; restored → 0 fail |
+| Not Done / Assumptions (verbatim) | "The falsifier turned red on test 8, not on a test named after `frontend-design`. The `frontend-design` assertion appears to live inside that test." / "The ENV-0 wording uses the term as the brief gave it. I did not re-check its definition in the matrix's *Environment classification* section." — assumptions only, no owed item (not a continuation); the Reviewer checked ENV-0 against the matrix: matches |
+| Reviewer (`opus`) | `STATUS: PASS` — FR-14 pointers, ENV-0 consistent, GSAP criterion consistent with §8.5, upstream "recommend GSAP as the default" tension resolved for AKILI agents by the AKILI section |
+| Requirements covered | FR-14, FR-7, FR-3 |
+| spawns | Implementer 10 calls, 75,649 tokens, ended partial (assumptions only); Reviewer 5 calls, 69,290 tokens |
+
+Running totals (after wave 1): tasks 4/11 · LOC ~141/~650 (119 + 22 insertions) · review rounds 4/~22. Continue gate: auto-approved (pre-approved mode).

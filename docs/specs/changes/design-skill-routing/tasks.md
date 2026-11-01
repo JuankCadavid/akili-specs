@@ -57,7 +57,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~25 LOC) |
 | Depends on | T1 |
 | Requirements | FR-1 *Held once*, FR-4 (execute row), FR-13 sweep (bridge hits), NFR-1 |
@@ -133,7 +133,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~4 LOC; 2 lines) |
 | Depends on | T1 |
 | Requirements | NFR-6 (rev. 2), FR-13 sweep (persona hits), FR-7 |
@@ -152,7 +152,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~20 LOC; 3 sections) |
 | Depends on | T1 |
 | Requirements | FR-14, FR-7 (gsap), FR-3 (no over-claim) |
