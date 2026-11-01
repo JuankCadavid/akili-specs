@@ -747,14 +747,27 @@ is how they reach the agents.
    because the tool's binary serves the version-matched guide, so a vendored copy goes stale and
    starts instructing agents to call flags that no longer exist (see the packaged
    `docs/skills/governance.md` → *Environment-provided skills*).
+4. **A `### Design routing` block under `## Skill Map`, when the project has UI.** Resolve it from
+   the stack and design-system evidence, using the ladder in `impeccable-bridge` →
+   `references/design-routing.md` → *Environment classification*. Fields, one line each:
+   environment class(es) with the evidence path · design lead (`impeccable` via
+   `impeccable-bridge`, or the ENV-0 fallback) · implementation layers (the stack skills that
+   implement UI, named only from the Skill Map just built) · motion library (detected, or `none`) ·
+   mockup route (direction picker first; Stitch on request; MCP availability is per developer) ·
+   one line pointing at the matrix by name (`impeccable-bridge` → `references/design-routing.md`).
+   The block holds **no matrix rows**: the matrix stays in the skill, so the block never goes stale.
 
 **Mode-specific policy (mirror Step 8B):**
 
-- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack.
+- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack; resolve the
+  `### Design routing` block from that declared stack.
 - **Legacy (Discovery Setup):** build the map from the codebase scan evidence (frameworks, UI
   library, cloud tooling actually present). Do not list skills for frameworks the repo does not use.
+  Resolve the `### Design routing` block from the same scan evidence.
 - **Active AKILI-SPECS (Safe Update):** preserve an existing customized map; only add rows for
-  newly detected stack elements and remove rows the user confirms are obsolete.
+  newly detected stack elements and remove rows the user confirms are obsolete. Preserve a
+  customized `### Design routing` block; propose only newly detected evidence for it, never
+  restated matrix rows.
 
 ---
 

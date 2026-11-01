@@ -48,8 +48,6 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 
 - Use `systematic-debugging` for bugs, test failures, and unexpected behavior.
 - Use `tdd` for test-first implementation of logic-heavy tasks (algorithms, business rules, contracts); the `/akili-execute` Leader assigns it per task — expected values come from `requirements.md` scenarios, seams from `design.md`.
-- Use `frontend-design`, `ui-ux-pro-max`, `tailwind-design-system`, or `shadcn-ui` for UI work.
-- Use `gsap-animation` for animation work (read the matching `references/` file for the task).
 - Use `video-production` for specs whose Document Control records `Deliverable: video`; it runs the availability gate for the environment-provided `hyperframes` skills and maps video activities to AKILI phases (read the matching `references/` file for the task).
 - Use `judgment-day` for blind adversarial design reviews during `/akili-specify`.
 - Use `kaizen` for continuous-improvement retrospectives; `/akili-archive` loads it in its Kaizen Retrospective step.
@@ -66,6 +64,21 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `pr-review` for read-only pull-request and diff review (lenses, verified findings, one summary comment); `/akili-review` loads it, and it reviews only, never editing, approving or blocking.
 
 If a task document lists required or recommended skills, follow that list first.
+
+## Design Skills
+
+Impeccable decides what and why; the stack decides how. One lead skill per activity; the environment picks the column, the activity the row. Direction is settled before `/akili-execute`, which builds code-led. Every UI task ends with `polish`, and the AKILI Reviewer stays the gate.
+
+- `impeccable` — lead design skill: direction, craft floor, critique, audit, polish (vendored, verbatim).
+- `impeccable-bridge` — AKILI layer: engine gate, phase map, design source of truth, routing matrix.
+- `ui-ux-pro-max` — reference catalog: palettes, font pairings, UX rules.
+- `frontend-design` — fallback for direction and craft when Impeccable is missing (ENV-0 lead only).
+- `stitch-design` — Stitch mockups and screen generation, on request.
+- `gsap-animation` — GSAP motion and scroll-driven animation work.
+- `tailwind-design-system` — Tailwind v4 tokens and component patterns.
+- `shadcn-ui` — shadcn/ui component implementation.
+
+The routing matrix is `.claude/skills/impeccable-bridge/references/design-routing.md`.
 
 ## CodeGraph
 

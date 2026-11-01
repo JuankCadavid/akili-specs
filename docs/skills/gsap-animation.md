@@ -6,6 +6,8 @@ Unified GSAP animation skill — the fusion of the former 8 `gsap-*` sibling ski
 
 Original content by GSAP (GreenSock), MIT. Adapted for AKILI-SPECS by Juan Carlos Cadavid — jcadavid.com.
 
+Which activities it serves is decided in the routing matrix, `impeccable-bridge` → `references/design-routing.md`.
+
 ## Use When
 
 - A spec or task involves animation: tweens, timelines, scroll-driven effects, motion design, SVG animation.

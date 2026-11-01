@@ -175,7 +175,7 @@ Respecting **prefers-reduced-motion** matters for users with vestibular disorder
 
 ## AKILI-SPECS Integration
 
-Loaded **conditionally** by the methodology when animation is in scope:
+Loaded **conditionally** by the methodology when animation is in scope, and only when the *Motion* section of the routing matrix (`impeccable-bridge` → `references/design-routing.md`) selects GSAP: the project already uses GSAP, or the spec's design records it because CSS and the Web Animations API cannot express the effect cleanly. Impeccable's `animate` owns whether motion exists and its purpose; this skill owns GSAP implementation only.
 
 - **/akili-specify** — load when designing animation behavior in requirements/design docs (motion intent, reduced-motion rules, scroll behavior). Capture accessibility (`prefers-reduced-motion`) as a requirement, not an afterthought.
 - **/akili-execute** — the Implementer loads this core plus the matching `references/` file(s) before writing animation code.

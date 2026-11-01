@@ -227,12 +227,12 @@ Use `brainstorming` to explore trade-offs before writing.
 
 If the feature is architecturally significant (a new module or service, a new integration or data flow, a persistence or communication-topology change, or any stated NFR impact), load `software-architect` and apply its Decision Spine: NFR scenarios with measurable responses, tactics, robust-vs-lite sizing, pattern selection bound to named problems, and ADR-style design decisions. When a design decision overturns an existing TRD ADR, record it as **superseding** (name the old `ADR-NNN`; the archive sync writes the new entry and flips the old one to `superseded`) — never rewrite an accepted ADR in place.
 
-If the work includes meaningful UI/UX impact, load `impeccable-bridge` (lead design skill) and follow its phase map: record the page mode of each screen in scope and the chosen direction in `design.md`, and treat `docs/ux-ui/design.md` as the design source of truth.
+If the work includes meaningful UI/UX impact, load `impeccable-bridge` (lead design skill) and follow its phase map: record the page mode of each screen in scope and the chosen direction in `design.md`, and treat `docs/ux-ui/design.md` as the design source of truth. Next to each screen's page mode, record its environment class (`ENV-*`) with the evidence that decided it, classified per `impeccable-bridge` → `references/design-routing.md` → *Environment classification*. When a new world or a whole new surface is in scope, settle the direction here — including the roll and any locked comp or sketch — and record it in `design.md`, because `/akili-execute` is code-led and builds against it.
 
 - Skill source `vendored` or `user-installed` → Impeccable leads direction (`shape`); `ui-ux-pro-max` is a reference catalog only. Engine states follow the Step 2.1 row of `impeccable-bridge` → *Who does what in each state*.
 - Skill source `missing` → the fallback in `impeccable-bridge` → *Fallback (skill source `missing`)*, and the direction is recorded as before.
 
-If the work involves animation (scroll effects, transitions, motion design), load `gsap-animation` and read the reference file matching the task.
+If the work involves animation (scroll effects, transitions, motion design), route it per `design-routing.md` → *Motion*: Impeccable `animate` owns whether motion exists and its purpose; load `gsap-animation` only when the project uses GSAP or the design records it.
 
 If the design is architecturally significant (the same test as above), load `diagram-design` and fill the `design.md` slots the change alters.
 
@@ -423,7 +423,7 @@ Each task should include:
 - done criteria
 - relevant skills
 
-Skill inventory should use real, available skills only. Derive each task's required skills from the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) plus the conditional skills that match the task (`impeccable-bridge`, with `ui-ux-pro-max`/`frontend-design` as catalog/fallback, for UI, `gsap-animation` for animation).
+Skill inventory should use real, available skills only. Derive each task's required skills from the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) plus the conditional skills that match the task (`impeccable-bridge` for UI, routed by `impeccable-bridge` → `references/design-routing.md`; `gsap-animation` only where *Motion* there allows it).
 
 If `Deliverable: video`, every task of the spec lists `video-production` in its skills (task skill lists are the Leader's defaults at `/akili-execute`).
 
@@ -459,9 +459,10 @@ Task quality rules:
 
 Preferred UI/UX skill rule:
 
-- list `impeccable-bridge` on every UI-heavy task (skill source `vendored` or `user-installed` → the Implementer loads Impeccable's craft floor; `missing` → `frontend-design`, per `impeccable-bridge` → *Who does what in each state*)
+- every UI task's Scope carries a `Design route:` line (form in `design-routing.md` → *Design route line*), and its Done criteria carry that section's evidence sentence
+- its skills list `impeccable-bridge` plus the project's `## Skill Map` stack skills (the implementation layer, per `design-routing.md`)
 - add `ui-ux-pro-max` only when the task needs catalog options (palette, font pairing, style by industry)
-- when the Impeccable skill source is `missing`, `frontend-design` and/or `stitch-design` remain the fallback
+- at `ENV-0` (Impeccable skill source `missing`) the lead is `frontend-design`, per `impeccable-bridge` → *Who does what in each state*; `stitch-design` remains the mockup fallback
 
 #### Step 3.3 — Present & Approve
 

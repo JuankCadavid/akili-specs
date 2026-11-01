@@ -30,11 +30,11 @@ test("@akili-spec changes/impeccable-design FR-1/FR-2: bridge skill ships with M
   assert.match(s, /^---\nname: impeccable-bridge\n/);
   assert.match(s, /license: MIT/);
   assert.match(s, /binding: conditional/);
-  assert.match(s, /version: "2\.0"/);
+  assert.match(s, /version: "2\.1"/);
   assert.match(s, /pbakaus\/impeccable/);
   assert.match(s, /Apache-2\.0/);
   const files = fs.readdirSync(path.join(ROOT, ...BRIDGE), { recursive: true }).filter((f) => f.endsWith(".md")).sort();
-  assert.deepStrictEqual(files, ["SKILL.md", path.join("references", "design-evaluation.md")]);
+  assert.deepStrictEqual(files, ["SKILL.md", path.join("references", "design-evaluation.md"), path.join("references", "design-routing.md")]);
   const vendored = path.join(ROOT, ".claude", "skills", "impeccable");
   for (const f of ["SKILL.md", "LICENSE", "NOTICE", "UPSTREAM.md"]) assert.ok(fs.existsSync(path.join(vendored, f)), `vendored impeccable/${f} ships`);
   assert.match(s, /vendored \(<version>\)/);
