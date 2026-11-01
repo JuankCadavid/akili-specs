@@ -129,14 +129,16 @@ For **Feature / Change** and **Bug** requests, clarify the details. Ask the user
 
 If the change has any UI surface AND the user provides **no** Figma link, image, or existing design, offer to generate a mockup directly in the agent before specifying. This is **opt-in and recommended** — never mandatory. The user can always decline and continue without a visual.
 
-- Recommend generating the mockup with the `stitch-design` skill (Stitch MCP), which produces high-fidelity HTML + screenshots and can synthesize a `.stitch/DESIGN.md` source of truth.
-- If the user accepts, load `stitch-design` and generate the mockup for the primary screens/flows in scope. Persist the artifacts under the spec so `/akili-specify` can consume them:
-  - Save the generated screens under `docs/specs/$SPEC_PATH/mockup/` (or reference the `.stitch/designs` location if the skill writes there).
-  - Record the exact paths and any `.stitch/DESIGN.md` reference in the proposal's **Visual Reference** section (see Step 2).
-- When the Impeccable skill source is `vendored` or `user-installed` (`impeccable-bridge` Step 0), its direction picker is offered as an alternative; when `missing`, it is not offered (`impeccable-bridge` → *Who does what in each state*). The picker is: `shape` plus a comp-led (mockup-first) or code-led direction. Mockup-first uses image generation, so ask before spending the user's credit. Record the chosen direction in the Visual Reference.
+- **Impeccable skill source `vendored` or `user-installed`** (`impeccable-bridge` Step 0): offer Impeccable's direction picker first, comp-led (mockup-first) or code-led. Mockup-first uses image generation, so keep the existing image-credit question and ask before spending the user's credit; code-led does not need it. The picker's result is the Visual Reference that `/akili-specify`'s `shape` consumes, not a second direction round. Name Stitch as available on request, and generate with `stitch-design` only when the user asks.
+- **Impeccable skill source `missing`:** the picker is not offered (`impeccable-bridge` → *Who does what in each state*); use the order below: `stitch-design`, then Claude Design, then a self-contained HTML sketch.
+  - Offer to generate the mockup with the `stitch-design` skill (Stitch MCP), which produces high-fidelity HTML + screenshots and can synthesize a `.stitch/DESIGN.md` source of truth.
+  - If the user accepts, load `stitch-design` and generate the mockup for the primary screens/flows in scope. Persist the artifacts under the spec so `/akili-specify` can consume them:
+    - Save the generated screens under `docs/specs/$SPEC_PATH/mockup/` (or reference the `.stitch/designs` location if the skill writes there).
+    - Record the exact paths and any `.stitch/DESIGN.md` reference in the proposal's **Visual Reference** section (see Step 2).
+- The full route, including when Stitch is generated, lives in `impeccable-bridge` → `references/design-routing.md` → *Mockup route*.
 - If the user declines, note "no visual reference" in the proposal and continue. Do not block the proposal on a mockup.
 
-**Design evaluation as a source.** A report from `/akili-audit design` (`docs/specs/audits/design-*.md`) is a valid requirement source: cite it in Document Control, carry its P1/P2 findings in scope as the Problem table (one row per finding, citing the report), and leave P3 items out of scope unless the user asks.
+**Design evaluation as a source.** A report from `/akili-audit design` (`docs/specs/audits/design-*.md`, or the path recorded in its `Report location` field) is a valid requirement source: cite it in Document Control, carry its P1/P2 findings in scope as the Problem table (one row per finding, citing the report), and leave P3 items out of scope unless the user asks.
 - If Stitch MCP is unavailable, fall back to the **Claude Design MCP** (`claude-design`): generate the mockup there, save the exported screens (HTML/screenshots) under `docs/specs/$SPEC_PATH/mockup/`, and record the paths in the Visual Reference. If the server is not registered, suggest the user run:
   - `claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp`, then `/design-login` to authenticate (Claude Design is available on Pro/Max/Team/Enterprise plans).
 - If neither Stitch nor Claude Design is available, still offer to sketch a lightweight self-contained HTML mockup saved under `docs/specs/$SPEC_PATH/mockup/` so intent stays reviewable.

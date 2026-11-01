@@ -213,8 +213,8 @@ cp -R .claude/skills/* ~/.config/opencode/skills/
 
 Every command closes with a clear end-of-run summary:
 
-- **`install`** — an **Install Summary** with per-tool `installed | overwritten | skipped` counts (plus legacy cleanup), target paths, totals for multi-tool installs, a dry-run banner when `--dry-run` is used, and contextual next steps (`--force` hint, OpenCode restart, `akili doctor` verification). Legacy cleanup removes artifacts from older versions on every run: `sdd-*` command files, the `sdd-jc` resources directory, and skill directories that were removed from the package (e.g. the 8 `gsap-*` skills replaced by `gsap-animation`); `akili doctor` reports still-present legacy skills as `STALE` and `--fix` deletes them.
-- **`doctor`** — a **Doctor Summary** with a per-tool `HEALTHY | REPAIRED | INCOMPLETE` status, `ok | missing | fixed` counts, and repair suggestions (`--fix` or `akili update`).
+- **`install`** — an **Install Summary** with per-tool `installed | overwritten | skipped` counts (a skip count reads `skipped N (identical I, differs D)`; each skip line reads `skip existing <path> (identical)` or `(differs: <names>)`; plus legacy cleanup), target paths, totals for multi-tool installs, a dry-run banner when `--dry-run` is used, and contextual next steps (when D > 0 a hint naming `akili update` or `akili install --force` with the same `--tool`, `--local` and `--target` flags; when D = 0 "already match"; OpenCode restart; `akili doctor` verification). A non-`--local` run whose printed roots lie under the home directory also prints a `Home: <dir>` line. Legacy cleanup removes artifacts from older versions on every run: `sdd-*` command files, the `sdd-jc` resources directory, and skill directories that were removed from the package (e.g. the 8 `gsap-*` skills replaced by `gsap-animation`); `akili doctor` reports still-present legacy skills as `STALE` and `--fix` deletes them.
+- **`doctor`** — a **Doctor Summary** with a per-tool `HEALTHY | REPAIRED | INCOMPLETE` status, `ok | missing | fixed` counts, and repair suggestions (`--fix` or `akili update`). `DIFFERS` marks a present entry whose content differs from the package: a warning, shown as `differs N` in the row only when N > 0, with a hint naming `akili update`. It never changes the exit code or status, and `--fix` never overwrites it. On a tool without an ownership record (every tool except Grok Bot), an `impeccable/` without `UPSTREAM.md` is not compared.
 - **`update`** — an **Update Summary** with the version change (`before → after`), install type, and the verification command, after the changelog of what changed.
 - **`list`** — a totals line: commands, skills, resources, and the package version.
 
@@ -324,7 +324,7 @@ Codex install layout (global; `--local` maps both roots under `./`):
 ```text
 ~/.agents/skills/                 (Agent Skills root, shared with other tools honoring the standard)
   akili-archive/SKILL.md … akili-validate/SKILL.md   (the 14 commands, installed as skills — never a commands/ dir)
-  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 31 packaged skills, with their references/ trees)
+  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 32 packaged skills, with their references/ trees)
 ~/.codex/akili/                   (resources root)
   scripts/
   templates/                      (leader, implementer, reviewer, tester personas)
@@ -336,7 +336,7 @@ Cursor install layout (global; `--local` maps both roots under `./`):
 ```text
 ~/.agents/skills/                 (Agent Skills root, shared with Codex and other tools honoring the standard)
   akili-archive/SKILL.md … akili-validate/SKILL.md   (the 14 commands, installed as skills — never a commands/ dir)
-  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 31 packaged skills, with their references/ trees)
+  tdd/SKILL.md, kaizen/SKILL.md, …                    (the 32 packaged skills, with their references/ trees)
 $CURSOR_CONFIG_DIR/akili/ (or ~/.cursor/akili/)  (resources root)
   scripts/
   templates/                      (leader, implementer, reviewer, tester personas)
@@ -357,7 +357,7 @@ install/update so running sessions load new commands and skills.
 
 ## Shared and compatibility skill roots (Codex, Cursor, Claude Code)
 
-Codex and Cursor write their 14 command skills and 31 packaged skills into one shared root,
+Codex and Cursor write their 14 command skills and 32 packaged skills into one shared root,
 `~/.agents/skills` (or `./.agents/skills` under `--local`) — `--tool all` writes it once; a second
 install from either tool sees it already populated and skips. Because both tenants write into the
 same root, detecting *which* of them is installed cannot key on that root alone — see design DD-2
@@ -374,7 +374,7 @@ root wins); the IDE picker was not observed.
 
 ## Grok Bot (`--tool grokbot`)
 
-**Run the CLI in a shell on the Grok Bot box.** `akili install --tool grokbot` writes the 14 commands and 31 packaged skills straight into the folder Grok Bot reads, and never touches a folder AKILI did not write. From another machine, open a shell on the box and run it there — the CLI prints and runs no `rsync`, `ssh` or copy step, and no copy or transfer step opens a network connection (the usual npm update check is unaffected).
+**Run the CLI in a shell on the Grok Bot box.** `akili install --tool grokbot` writes the 14 commands and 32 packaged skills straight into the folder Grok Bot reads, and never touches a folder AKILI did not write. From another machine, open a shell on the box and run it there — the CLI prints and runs no `rsync`, `ssh` or copy step, and no copy or transfer step opens a network connection (the usual npm update check is unaffected).
 
 ```bash
 akili install --tool grokbot            # on the box
@@ -406,11 +406,11 @@ AKILI records the names it writes in `<resources root>/grokbot-owned.json`. A sa
 | Entry in the workflows root | `install` | `install --force` | `update` | `doctor` | `doctor --fix` |
 |---|---|---|---|---|---|
 | Absent | write, record | write, record | write, record | MISSING | write, record |
-| Owned, present | skip | overwrite | overwrite | OK (MISSING if its `SKILL.md` is gone) | restore a missing `SKILL.md` |
+| Owned, present | skip | overwrite | overwrite | OK, or DIFFERS when its content differs (MISSING if its `SKILL.md` is gone) | restore a missing `SKILL.md` |
 | Foreign | skip, `skip foreign` | **take over**: replace whole, record | skip — also with `update --force` | FOREIGN | untouched |
 
 - **Takeover is explicit:** only `akili install --tool grokbot --force` replaces a foreign entry. It moves the entry aside to `<resources root>/.takeover/`, records the name, copies AKILI's folder in, then deletes the moved-aside copy. A failure before the copy leaves the foreign entry whole in place; if only the final delete fails, a warning names the leftover path (outside the workflows root).
-- `doctor` exits non-zero when any item is MISSING or FOREIGN, and its Grok Bot summary row reads INCOMPLETE with a `foreign N` count.
+- `doctor` exits non-zero when any item is MISSING or FOREIGN (`DIFFERS` never makes doctor fail), and its Grok Bot summary row reads INCOMPLETE with a `foreign N` count.
 - A plain install with an invalid record and every AKILI entry already present prints `skip foreign` (never `blocked`) for every workflows entry, the warning, and exits 1; resources still print `skip existing`.
 
 ### Invalid or missing ownership record
@@ -423,12 +423,12 @@ If `grokbot-owned.json` exists but is not valid, AKILI folders read as foreign, 
 ### Accepted limits
 
 - **Ownership is by name (J-18).** If another author deletes an AKILI folder and recreates one with the same name while the record still lists it, `update` overwrites it.
-- **`doctor --fix` repairs a partial entry only when its `SKILL.md` is missing.** An install interrupted part-way leaves its entry recorded as owned (never foreign); a partial entry that already has its `SKILL.md` reads OK, so run `akili update` to repair it.
+- **`doctor --fix` repairs a partial entry only when its `SKILL.md` is missing.** An install interrupted part-way leaves its entry recorded as owned (never foreign); a partial entry that already has its `SKILL.md` reads `DIFFERS` (naming the missing files), so run `akili update` to repair it.
 - Other tools' skills sharing a root with Grok Bot (for example `--grokbot-target ~/.agents/skills`) read as foreign to it. This is documented, not prevented.
 
 ## Safety Rules
 
-- Existing files are skipped by default.
+- Existing files are skipped by default. Each skipped existing entry (foreign entries excepted) is classified identical or differs; `--local` is the per-checkout route, including for each git worktree.
 - Use `--force` to overwrite old installed files.
 - Use `--dry-run` before changing custom targets.
 - `update` is intentionally the same safe copy behavior as `install` unless `--force` is provided.
@@ -483,7 +483,7 @@ Update both:
 npx akili-specs update --tool both --force
 ```
 
-Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped.
+Use `--force` when you want packaged files to replace older installed files. Without `--force`, existing files are skipped and classified identical or differs; use `--local` to install per checkout, including per git worktree.
 
 Update Antigravity skills only:
 

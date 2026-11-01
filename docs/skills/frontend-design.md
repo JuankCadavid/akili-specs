@@ -4,6 +4,8 @@
 
 Guides distinctive, production-grade frontend interfaces with intentional aesthetics, responsive behavior, accessibility, and implementation-ready structure.
 
+Which activities it leads or serves is decided in the routing matrix, `impeccable-bridge` → `references/design-routing.md`.
+
 ## Use When
 
 - Designing or implementing web UI, pages, dashboards, or components.

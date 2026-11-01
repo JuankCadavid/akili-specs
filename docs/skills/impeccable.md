@@ -8,6 +8,8 @@ AKILI-SPECS is not affiliated with the Impeccable project. Impeccable is by Paul
 
 Impeccable owns the design rules, commands and references: visual direction, page mode, craft floor, critique, audit and polish. AKILI ships it so every install carries the same design instructions, whichever of the six targets you use.
 
+Which skill leads each design activity is decided in the routing matrix, `impeccable-bridge` → `references/design-routing.md`.
+
 ## Use When
 
 - A spec has UI/UX impact: the UI steps of the AKILI commands load [`impeccable-bridge`](impeccable-bridge.md), which tells the agent to lead with this skill.

@@ -209,7 +209,7 @@ Create or enhance `docs/ux-ui/design.md` as the UI/UX system blueprint.
 - Skill source `vendored` or `user-installed` → Impeccable leads; `init`/`document` produce the derived `PRODUCT.md`/`DESIGN.md` from `docs/prd.md` and this document, never a second authority. Use `ui-ux-pro-max` only as a reference catalog. The engine states (`ready`, `consent needed`, `declined`, `unavailable`) follow the Step 4 row of `impeccable-bridge` → *Who does what in each state*; they never select the fallback.
 - Skill source `missing` → the fallback chain in `impeccable-bridge` → *Fallback (skill source `missing`)*; record the gap.
 
-**This document is the single design source of truth** (see `impeccable-bridge` → *Design source of truth*). Record a page mode (Persuade, Operate, Read or Experience) for each screen in the Screen Inventory, and accepted detector exceptions under Design Decisions as a *Design Waivers* list, one row per waiver with five columns: Rule, Scope, Reason, Approver, Date (`impeccable-bridge` → *Design Waivers*).
+**This document is the single design source of truth** (see `impeccable-bridge` → *Design source of truth*). Record a page mode (Persuade, Operate, Read or Experience) for each screen in the Screen Inventory, and accepted detector exceptions under Design Decisions as a *Design Waivers* list, one row per waiver with five columns: Rule, Scope, Reason, Approver, Date (`impeccable-bridge` → *Design Waivers*). Give each approved clause a stable ID `<n>-<nn>` (section number, then a two-digit counter) as the first token of its line: never reuse one, backfill existing clauses in document order, and cite the ID in a waiver's Reason cell. Add a `Primary CTA` column to the Screen Inventory: a selector or attribute naming the main action of each Persuade and Operate screen, or `—` for a screen with none (never prose such as "Sign-up button"). Optionally add a Primary CTA style under *Component Inventory* (the class, token or attribute that marks it). The first-visit pass reads both (`impeccable-bridge` → *First-visit pass*). Under *Responsive Behavior* optionally list `desktop`, `mobile` and the short-height pair, each `WxH` (optional; defaults apply when absent).
 
 **Conditional skill:** load `diagram-design` and fill the UX/UI slots whose condition holds.
 
@@ -253,6 +253,7 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 **Use skills when relevant** (stack skills — load only the ones matching the project's stack; the same set feeds the `## Skill Map` in Step 8D):
 
 - `nestjs-expert`
+- `golang-pro`
 - `api-design-principles`
 - `error-handling-patterns`
 - `aws-serverless`
@@ -723,7 +724,7 @@ is how they reach the agents.
 **The scaffolded `## Skill Map` section must contain:**
 
 1. A table `Skill | Applies To | When to load` listing only the stack skills that match the
-   detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`,
+   detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`, `golang-pro`,
    `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`,
    `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development`.
    Projects may add their own.
@@ -747,14 +748,27 @@ is how they reach the agents.
    because the tool's binary serves the version-matched guide, so a vendored copy goes stale and
    starts instructing agents to call flags that no longer exist (see the packaged
    `docs/skills/governance.md` → *Environment-provided skills*).
+4. **A `### Design routing` block under `## Skill Map`, when the project has UI.** Resolve it from
+   the stack and design-system evidence, using the ladder in `impeccable-bridge` →
+   `references/design-routing.md` → *Environment classification*. Fields, one line each:
+   environment class(es) with the evidence path · design lead (`impeccable` via
+   `impeccable-bridge`, or the ENV-0 fallback) · implementation layers (the stack skills that
+   implement UI, named only from the Skill Map just built) · motion library (detected, or `none`) ·
+   mockup route (direction picker first; Stitch on request; MCP availability is per developer) ·
+   one line pointing at the matrix by name (`impeccable-bridge` → `references/design-routing.md`).
+   The block holds **no matrix rows**: the matrix stays in the skill, so the block never goes stale.
 
 **Mode-specific policy (mirror Step 8B):**
 
-- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack.
+- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack; resolve the
+  `### Design routing` block from that declared stack.
 - **Legacy (Discovery Setup):** build the map from the codebase scan evidence (frameworks, UI
   library, cloud tooling actually present). Do not list skills for frameworks the repo does not use.
+  Resolve the `### Design routing` block from the same scan evidence.
 - **Active AKILI-SPECS (Safe Update):** preserve an existing customized map; only add rows for
-  newly detected stack elements and remove rows the user confirms are obsolete.
+  newly detected stack elements and remove rows the user confirms are obsolete. Preserve a
+  customized `### Design routing` block; propose only newly detected evidence for it, never
+  restated matrix rows.
 
 ---
 

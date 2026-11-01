@@ -6,6 +6,8 @@ The **AKILI layer** over the vendored [`impeccable`](impeccable.md) skill. It de
 
 Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Leads with Impeccable by Paul Bakaus (Apache-2.0, `pbakaus/impeccable`); no Impeccable text is included in the bridge, and AKILI-SPECS is not affiliated with the Impeccable project.
 
+The routing matrix (`references/design-routing.md`) is the one place that says which design skill leads which activity.
+
 ## Use When
 
 - A spec has meaningful UI/UX impact (screens, flows, visual direction, accessibility).
@@ -21,7 +23,7 @@ At every design step the bridge records two separate values. The rules, location
 
 | Value | What it says | Possible readings |
 |---|---|---|
-| Skill source | Which Impeccable skill leads | `vendored (<version>)` (the AKILI copy), `user-installed (<version>)` (your own copy, never overwritten without `install --force`), or `missing` |
+| Skill source | Which Impeccable skill leads | `vendored (<version>, verified or modified)` (the AKILI copy, checked against its `UPSTREAM.md`), `user-installed (<version>)` (your own copy, never overwritten without `install --force`), or `missing` |
 | Engine state | Whether Impeccable's detector engine can run | `ready`, `installed (consented)`, `consent needed`, `declined`, `unavailable` |
 
 Only `missing` selects the fallback (`ui-ux-pro-max` + `frontend-design` + `stitch-design`, gap recorded). An engine that is not ready never does: the skill still leads and the detector rows read `Unevaluated`. There is no STOP.
@@ -34,11 +36,11 @@ Only `missing` selects the fallback (`ui-ux-pro-max` + `frontend-design` + `stit
 
 ## Detector Gate
 
-The bridge's *Detector gate* section owns the launcher form, the scan matrix (desktop and mobile), the first-visit pass for Persuade and Operate screens, the exit-code readings, and *Design Waivers*. The detector runs through the vendored launcher, not `npx`.
+The bridge's *Detector gate* section owns the launcher form, the scan matrix (desktop and mobile), the first-visit pass for Persuade and Operate screens, the exit-code readings, and *Design Waivers*. The first-visit pass runs the detector scan at the two scan-matrix viewports, and the CTA fold screenshot, the hit-test and the consent-banner check at every first-visit viewport: `desktop`, `mobile` and the short-height pair. Each capture reads `pass`, `covered`, `below fold` or `Unevaluated`; `covered` and `below fold` are a P1 in `/akili-audit design` and a FAIL in `/akili-validate`, unless a `first-visit` waiver covers that screen and viewport. A consent banner that is not rendered turns only a would-be `pass` into `Unevaluated`; `covered` and `below fold` stand. *Design Waivers* also owns `false positive`, allowed only for a rule on its closed list and only in `/akili-audit design`. *Suppressed in `/akili-audit design`* lists the three Impeccable `critique` steps that report-only mode skips. The detector runs through the vendored launcher, not `npx`.
 
 ## Existing-Product Evaluation
 
-`/akili-audit design` follows `references/design-evaluation.md` (steps E0–E7, with the baseline checks and the performance step) and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md` with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`.
+`/akili-audit design` follows `references/design-evaluation.md` (steps E0–E7, with the baseline checks and the performance step) and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md`, or a user-directed path, with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`.
 
 ## Optional upstream routes
 

@@ -247,7 +247,7 @@ If the design could be mistaken for a template → restart.
 
 ## 8. Integration With Other Skills
 
-In AKILI, Impeccable (through `impeccable-bridge`) is the lead design skill. This skill is the **fallback for direction and craft** when the Impeccable skill source is `missing`, and a quick DFII check otherwise.
+In AKILI, Impeccable (through `impeccable-bridge`) is the lead design skill. This skill is the **fallback for direction and craft** when the Impeccable skill source is `missing`, and a quick DFII check otherwise. It leads for a task only in an ENV-0 route, that is, when the Impeccable skill source is `missing`; the routing matrix in `impeccable-bridge` → `references/design-routing.md` decides.
 
 * **impeccable-bridge** → Lead design skill; when the skill source is `vendored` or `user-installed`, follow it for direction, craft and review
 * **ui-ux-pro-max** → Reference catalog for palettes, font pairings and UX rules

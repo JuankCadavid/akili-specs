@@ -25,3 +25,11 @@ assets/akili-flow-animated.svg -text
 # `impeccable.cmd` must stay CRLF (cmd.exe parses by byte offset). Declaring
 # the tree byte-exact keeps every committed byte intact on Windows CI.
 .claude/skills/impeccable/** -text
+
+# changes/go-backend-routing/golang-skill T2, FR-2 / DD-2 / P-9 Cross-platform.
+#
+# The vendored golang-pro tree is hash-locked by test/golang-skill.test.js
+# (git blob SHAs of the pinned upstream bytes). A Windows checkout that
+# rewrote LF to CRLF would change every hash, so the tree is declared
+# byte-exact and every committed byte stays intact on Windows CI.
+.claude/skills/golang-pro/** -text
