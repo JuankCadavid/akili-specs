@@ -19,7 +19,7 @@
 
 | Field | Value |
 |---|---|
-| Status | [~] content PASS, stopped on HITL item (scanner-flagged doc link, `SKILL.md:125`). See execution.md |
+| Status | [x] PASS attempt 2. JC chose Option A at the HITL item (2026-11-01 10:21). See execution.md |
 | Size | S |
 | Dependencies | none |
 | Requirements | FR-1 (both scenarios; BUT no byte before verdict; AND IT MUST Trust Hub disposition) |
