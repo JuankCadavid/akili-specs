@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.41.0] - 2026-11-01
+
 ### Added
 
 - **A Design Routing Matrix, `impeccable-bridge/references/design-routing.md`,** maps each design activity and environment to one lead skill, the playbook, the craft floor and `polish`.
@@ -39,7 +45,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Existing installs keep a differing `impeccable-bridge` folder until `akili install --force`.** Deployed personas upgrade with `akili doctor --agents --fix`.
 - **Release class: minor** (new design-routing behavior: the routing matrix, the `Design route:` line on UI tasks and the Step 8D `### Design routing` block; a new vendored `stack` skill, `golang-pro`; no new command or install target).
 - **Upstream request.** Three behaviors only Impeccable can fix (the launcher's `~/.impeccable` order, the detector's first-visit flags with custom banners, and `aria-hidden` occlusion) are drafted as a request, not filed. AKILI works around them with the rules above.
-
 ## [2.40.0] - 2026-10-30
 
 ### Added
