@@ -253,3 +253,9 @@ Running totals (after T10): tasks 11/11 · LOC ~448/~650 · review rounds 14/~22
 - Escalations: **E-1** (missed consumer `install-cursor.test.js` count) — approved by JC 10:41; **E-2** (FR-10 UI-only tension) — Option A approved by JC 11:08. No HALT, no Pivot, no FATAL_FAIL, budget within.
 - `npm test`: 1394 pass, 0 fail (baseline 1385 + 9 new).
 - Open for `/akili-validate` HITL: T10 mismatches M-1 – M-5.
+
+## Validation fix round (2026-11-01)
+
+- **JC decision (verbatim):** Juan Carlos, 2026-11-01 12:02 PM Bogotá: "Sí: corrige R-1, R-2, R-3 y R-5 en una ronda pasándote un poco de 650, versión minor, M-1 a M-5 en propuesta aparte, y archiva".
+- Applied as: one fix round R-1 / R-2 / R-3 (+ test) / R-5; **budget ceiling raised by JC** — exceeding ~650 LOC accepted for this round; **R-4: release class minor**; **M-1 – M-5 deferred to a separate proposal** (not tasks of this spec); then re-validate and `/akili-archive`. No push.
+- R-5 spec-document figures are edited by the Leader (execute-time spec edits, carried to the fix-round Reviewer): `design.md` Premise Ledger count line, §7.2 and P-15 (seven commands read the bridge).

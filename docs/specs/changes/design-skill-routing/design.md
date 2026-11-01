@@ -113,7 +113,7 @@ A missing `DESIGN.md` is never evidence for ENV-1. Recorded in the spec's `desig
 
 ### 7.2 Enumerated-value walk
 
-The design adds two enumerations (environment class, polish limit) and changes one row of the bridge's *Who does what in each state*. **Six commands** read the bridge (`grep -ln impeccable-bridge .claude/commands/*.md`); `/akili-execute` reaches it only through task skill lists (W-2).
+The design adds two enumerations (environment class, polish limit) and changes one row of the bridge's *Who does what in each state*. **Six commands** read the bridge at design time — **seven** after this spec, since `/akili-seo` now loads it (R-5, validation) (`grep -ln impeccable-bridge .claude/commands/*.md`); `/akili-execute` reaches it only through task skill lists (W-2).
 
 | Consumer | Reads | Effect |
 |---|---|---|
@@ -250,7 +250,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 
 ## 11. Premise Ledger
 
-**Count:** 19 rows · 19 verified · 0 `UNVERIFIED` (P-4 settled: refuted; P-19 added at execute, E-1).
+**Count:** 19 rows · 18 verified · 1 refuted (P-4) · 0 `UNVERIFIED` (P-19 added at execute, E-1; count corrected at validation, R-5).
 **Blast-radius triggers:** `live-path` (the path by which a UI task reaches the Implementer — P-13, P-16; skill delivery — P-8), `shared-state` (bridge tables read by six commands — P-15), `consumer` (phrasings that tests, docs and personas pin — P-10, P-11, P-18).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -269,7 +269,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 | P-12 | Impeccable carries native references | existence | `ls …/impeccable/reference \| grep -E "ios\|android\|native"` → 4 files | `883dfa9` | ENV-3 column (Low) | — |
 | P-13 | UI tasks reach the Implementer with the task scope; the Leader selects skills and its persona example swaps UI → `ui-ux-pro-max`, animation → `gsap-animation` | live-path | `akili-specify.md:462`; `akili-execute.md:191`; `sed -n 25p .claude/templates/leader.md` (full line read: "swap in the better match (UI → `ui-ux-pro-max`, animation → `gsap-animation`, …)") | `a026208` | DD-2 (High; J-3) | — |
 | P-14 | `polish` is refinement, never concealed redesign; one depth upstream | location | `…/polish.md:3`; *1. Establish the system* | `883dfa9` | DD-6 labelled an AKILI limit (Low) | — |
-| P-15 | Six commands read the bridge; execute only through task skill lists | shared-state | `grep -ln impeccable-bridge .claude/commands/*.md` → `akili-{audit,constitution,propose,specify,test,validate}.md` (6) | `a026208` | A consumer misreads the changed row (High) | — |
+| P-15 | Six commands read the bridge (at `a026208`; seven after this spec — `akili-seo` added, R-5); execute only through task skill lists | shared-state | `grep -ln impeccable-bridge .claude/commands/*.md` → `akili-{audit,constitution,propose,specify,test,validate}.md` (6) | `a026208` | A consumer misreads the changed row (High) | — |
 | P-16 | `new-work` asks the user before building, makes Persuade comp-led when image generation exists, requires `concept-seed` before code on a new world, and writes `DESIGN.md` at finish via the documenter | live-path | `new-work.md:18-20` (*Ask what will change the work*), `:48` (`concept-seed --scope direction`, "No substitute, no skip"), `:55` (comp-led/code-led contract), `:79` (DESIGN.md written at finish by the documenter) | `a026208` | DD-4 (High; J-5) | — |
 | P-17 | Only the Leader appends to `execution.md`; the Reviewer reads only brief-named entries | other | `akili-execute.md:37` (audit entry), `:161` (Leader appends FAIL findings); `.claude/templates/reviewer.md:26` | `a026208` | §5.1 evidence path (Low; W-5) | — |
 | P-18 | Tester persona skill example names `ui-ux-pro-max` | consumer | `.claude/templates/tester.md:38` | `a026208` | J-3 fix incomplete (Low) | — |
