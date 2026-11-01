@@ -228,7 +228,7 @@ No cycles. T3–T8b edit disjoint files and are parallel-safe after their parent
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (no shipped LOC; evidence in `execution.md`) |
 | Depends on | T9 |
 | Requirements | requirements §8 "Agents do not follow the routing" (substitute check); FR-2, FR-4, FR-7, FR-8 |

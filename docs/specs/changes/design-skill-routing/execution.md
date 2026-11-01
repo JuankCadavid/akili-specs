@@ -205,3 +205,51 @@ Running totals (after wave 3): tasks 9/11 · LOC ~222/~650 · review rounds 10/~
 | Requirements covered | requirements §8 automated defect classes; NFR-1 – NFR-3 |
 
 Running totals (after T9): tasks 10/11 · LOC ~448/~650 · review rounds 12/~22. Continue gate: auto-approved (pre-approved mode).
+
+### T10: Held-out routing walkthrough — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Walkthrough agent | `haiku` (different from the authors: Implementers `sonnet`, Leader/Reviewers `opus`), fresh context, read-only |
+| Full brief (uncut) | "You are a fresh read-only agent doing a routing walkthrough. NEVER read anything under `docs/specs/` (it contains the expected answers). Never edit files or change git state. Repo: `/Users/jcadavid/orca/workspaces/sdd-jc-methodology/design-skill-routing`. Read ONLY these shipped files: `.claude/skills/impeccable-bridge/references/design-routing.md` (the Design Routing Matrix); `.claude/skills/impeccable-bridge/SKILL.md`; `.claude/commands/akili-specify.md` (Step 2.1 UI paragraph and Step 3.2 *Preferred UI/UX skill rule* only). You may glance at `.claude/skills/impeccable/SKILL.md` *Commands* table to confirm command names. Assume the Impeccable skill source is `vendored` (Impeccable present). Route each of these three projects strictly from the text, citing the section you used for each answer: (a) A Vue 3 + Vuetify admin app adding a new \"Reports\" screen to its existing UI, with animated chart transitions. Vuetify is the component library and its built-in transitions are the only motion in the app. (b) An Astro marketing site with no design tokens and no component library, adding a new pricing page. (c) A Flutter mobile app (iOS and Android) adding a first-run onboarding flow. For each, return: environment class (ENV-0..ENV-3) and the evidence rung; page mode; lead skill + Impeccable playbook(s) for the build; polish limit (full/light); motion route (owner + library); mockup route (what is offered first); and whether `gsap-animation` or `ui-ux-pro-max` would be loaded and why. Then write the exact `Design route:` line the task would carry (form from the matrix's *Design route line* section). If the text is ambiguous or silent for any field, say so explicitly (\"text silent/ambiguous: …\") rather than guessing. Output a compact table per project plus the three `Design route:` lines. < 500 words." |
+| Walkthrough output (key cells, verbatim) | (a) "**ENV-2**, row 3"; build "`impeccable` **new-work**, code-led, at the surface tier from direction"; page mode "Text silent"; motion "Owner: `animate`. Library: text silent on whether Vuetify's built-in transitions count as \"the project's motion library\""; mockup "Impeccable direction picker anchored on the incumbent … Stitch only on request"; gsap "No"; ui-ux-pro-max "Only if a task needs catalog options". (b) "**ENV-1**, row 4"; "`impeccable` **init** … then `shape` + new-work *Create or replace the visual world* … Build: new-work, code-led"; motion "Not requested: `none`"; mockup "Impeccable direction picker (ENV-1). Run `init` first if PRODUCT.md is missing"; gsap "No". (c) "**ENV-3**, row 2"; "`impeccable` **new-work** with the platform reference … `onboard` is named only in the build-within-system cell"; motion "`animate` with platform motion. `gsap-animation` not loaded"; notes: "Native motion has no value in the Design route enum"; "`new-work` is not a row in Impeccable's Commands table" |
+| Comparison (attempt 2, as reviewed) | see below |
+
+Expected cells: tasks.md T10, committed in c22f160 before the run. Walkthrough: `haiku`, fresh context, shipped text only.
+
+
+| Field | (a) Vue+Vuetify Reports | (b) Astro pricing | (c) Flutter onboarding |
+|---|---|---|---|
+| ENV | ENV-2 / ENV-2 — MATCH | ENV-1 / ENV-1 — MATCH | ENV-3 / ENV-3 — MATCH |
+| Lead / playbook | expected `layout`/`typeset` (build-within-system) · got `new-work` code-led, surface tier (build-new) — **MISMATCH M-1**: the walkthrough's reading is the better-supported one (the ENV-2 direction cell names *Create a whole surface inside an established world*; build-new builds "at the surface tier the direction recorded"), so the **expected cell is probably wrong**; the real text gap is that the activity rows carry no definitions, so nothing marks where build-new ends and build-within-system begins | expected `new-work` code-led after direction at specify · got `init` → `shape` + new-work direction, build `new-work` code-led — MATCH | expected `new-work` + platform reference, `onboard` · got `new-work` + platform reference; `onboard` only in the ENV-2 build-within-system list — **MISMATCH M-2** (real gap: no ENV-3 cell names `onboard`) |
+| Page mode / polish | expected Operate → light · got unresolved ("text silent") — **MISMATCH M-3**: the matrix does point at Impeccable *Modes* (the `impeccable` card's evidence; bridge *Roles* names Impeccable lead for page mode), and *Modes* settles (a) as Operate; the weaker real gap is that the pointer exists only as card evidence — the bridge *Phase map* page-mode row does not name *Modes* as how to decide it. **Contributing factor:** the walkthrough brief limited the agent to Impeccable *Commands*, not *Modes* | expected Persuade → full · got unresolved — M-3 | expected by mode · got unresolved — M-3 |
+| Motion | expected `animate` → CSS/WAAPI or Vuetify transitions if they are the library · got the same ambiguity, stated — MATCH (ambiguity predicted) | expected `animate` → CSS/WAAPI · got `none` — **MISMATCH M-5** (expected-cell over-specification: the profile requests no motion and `animate` owns "whether motion exists"; the walkthrough's `none` is the defensible answer) | expected platform motion, no gsap · got same — MATCH; **M-4** (real, minor): the `Design route:` motion enum has no value naming platform motion, which the *Motion* table requires for ENV-3 |
+| Mockup | picker first — MATCH | picker first (init if PRODUCT.md missing) — MATCH | picker with platform reference — MATCH |
+| gsap / ui-ux-pro-max | not loaded / catalog only — MATCH | not loaded / catalog — MATCH | not loaded — MATCH |
+
+Falsifier outcome: no profile routed to two leads, to `ui-ux-pro-max` as lead, or to `gsap-animation` on (c).
+
+Mismatches to report at the `/akili-validate` HITL pause: M-1 (row definitions missing; expected cell probably wrong), M-2 (`onboard` unreachable at ENV-3 build-new), M-3 (page-mode decision pointer only as card evidence; brief limit contributed), M-4 (no platform-motion value in the line enum), M-5 (expected-cell over-specification). Not fixed in this spec: a fix would widen scope (advisory never becomes a task).
+
+| Field | Value |
+|---|---|
+| Attempt 1 Reviewer | `STATUS: FAIL` — (verbatim, abridged) "1. (b) Motion is a mismatch, but the comparison calls it a match … log it as M-5 … 2. M-3 says something the text contradicts … the `impeccable` expertise card cites `impeccable/SKILL.md → *Modes*` … 3. M-1 blames the text when the expected cell is the weaker reading …" — the Leader-authored comparison was corrected (attempt 2) |
+| Attempt 2 Reviewer | `STATUS: PASS` — all three corrections accurate against the shipped text; M-2 and M-4 confirmed; nothing suppressed |
+| ADVISORY (recorded only) | Full brief and walkthrough output belong in this entry (done above) |
+| HITL items carried to `/akili-validate` | **M-1 – M-5** (gaps in the shipped text, or expected-cell over-specification) — reported to JC at the validate HITL pause; not fixed in this spec (advisory never becomes a task) |
+| spawns | Walkthrough `haiku` 5 calls, 112,412 tokens, ended complete; Reviewer a1 5 calls, 77,297 tokens; Reviewer a2 not reported by host |
+| Requirements covered | requirements §8 substitute check for "agents do not follow the routing"; FR-2, FR-4, FR-7, FR-8 |
+
+Running totals (after T10): tasks 11/11 · LOC ~448/~650 · review rounds 14/~22. Continue gate: auto-approved (pre-approved mode).
+
+## Summary (execute complete — 2026-11-01)
+
+| Measure | Budget (design §12) | Actual |
+|---|---|---|
+| Tasks | 11 | 11/11 `[x]` (T5 held for E-2, closed after JC's decision) |
+| Authored LOC | ~650 | ~448 (matrix 119; tests 226; command/skill/persona/doc/AGENTS/CHANGELOG edits ~103 insertions) |
+| Review rounds | ~22 | 14 Reviewer verdicts (3 FAILs: T8a, T9, T10 — each fixed in attempt 2) |
+
+- Escalations: **E-1** (missed consumer `install-cursor.test.js` count) — approved by JC 10:41; **E-2** (FR-10 UI-only tension) — Option A approved by JC 11:08. No HALT, no Pivot, no FATAL_FAIL, budget within.
+- `npm test`: 1394 pass, 0 fail (baseline 1385 + 9 new).
+- Open for `/akili-validate` HITL: T10 mismatches M-1 – M-5.
