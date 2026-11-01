@@ -34,10 +34,11 @@
 | Decisions | Implementer deviations accepted (above) |
 | spawns | Implementer 27 calls, 108,715 tokens, ended complete; Reviewer not reported by host |
 | Running totals | tasks 1/11 · LOC 119/~650 · review rounds 1/~22 |
-| Continue gate | **Not auto-passed** — stopped for Escalation E-1 (scope) |
+| Continue gate | **Not auto-passed** — stopped for Escalation E-1 (scope); resumed on JC's decision (E-1 below) |
 
 ## Escalation E-1 (2026-11-01): missed consumer — packaged skill-file count
 
 - **What:** adding any file under `.claude/skills/` turns `test/install-cursor.test.js` red (`SKILL_FILE_EXPECTED = 247 + 58 + 3` → now 309; `SHARED_ROOT_FILE_COUNT` comment 322 → 323). The test's own message: "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated". Precedent: `changes/impeccable-hardening` T8 updated the same counts (`2823ea0`).
 - **Why it stops:** fixing it edits a test file no approved task lists — a scope increase under JC's brief ("DETENTE … ante … aumento de alcance").
 - **Proposed one-line amendment:** add to T2's Scope "`test/install-cursor.test.js`: packaged skill-file count 308 → 309 (one new reference file), and any shared-root fixture the count drives", plus a Premise Ledger `consumer` row for it. No requirement changes.
+- **Decision:** approved — JC, 2026-11-01 10:41 AM UTC-5, vía Grok Bot: "Sí, aprueba la corrección del conteo a 309 y que siga hasta el archive". Applied: T2 Scope amended in `tasks.md`; Premise Ledger row P-19 added in `design.md` §11 (execute-time spec edit; carried as a named conformance check in the T2 and T3 Reviewer briefs).

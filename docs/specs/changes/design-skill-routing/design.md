@@ -248,7 +248,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 
 ## 11. Premise Ledger
 
-**Count:** 18 rows · 18 verified · 0 `UNVERIFIED` (P-4 settled: refuted).
+**Count:** 19 rows · 19 verified · 0 `UNVERIFIED` (P-4 settled: refuted; P-19 added at execute, E-1).
 **Blast-radius triggers:** `live-path` (the path by which a UI task reaches the Implementer — P-13, P-16; skill delivery — P-8), `shared-state` (bridge tables read by six commands — P-15), `consumer` (phrasings that tests, docs and personas pin — P-10, P-11, P-18).
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -271,6 +271,7 @@ Skill source `vendored`/`user-installed`: offer the Impeccable direction picker 
 | P-16 | `new-work` asks the user before building, makes Persuade comp-led when image generation exists, requires `concept-seed` before code on a new world, and writes `DESIGN.md` at finish via the documenter | live-path | `new-work.md:18-20` (*Ask what will change the work*), `:48` (`concept-seed --scope direction`, "No substitute, no skip"), `:55` (comp-led/code-led contract), `:79` (DESIGN.md written at finish by the documenter) | `a026208` | DD-4 (High; J-5) | — |
 | P-17 | Only the Leader appends to `execution.md`; the Reviewer reads only brief-named entries | other | `akili-execute.md:37` (audit entry), `:161` (Leader appends FAIL findings); `.claude/templates/reviewer.md:26` | `a026208` | §5.1 evidence path (Low; W-5) | — |
 | P-18 | Tester persona skill example names `ui-ux-pro-max` | consumer | `.claude/templates/tester.md:38` | `a026208` | J-3 fix incomplete (Low) | — |
+| P-19 | `test/install-cursor.test.js` pins the packaged skill-file count (308 = 247 + 58 + 3), so any new file under `.claude/skills/` turns it red | consumer | `npm test` at `d460f50` → "expected 308 (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md) packaged skill files under .claude/skills; counted 309 instead"; `grep -n "SKILL_FILE_EXPECTED = 247 + 58 + 3" test/install-cursor.test.js` → `247` | `d460f50` | T2 cannot close green (High) | Missed at specify, found at T1 (Escalation E-1). Amendment to T2 approved by JC, 2026-11-01 10:41 AM UTC-5, vía Grok Bot: "Sí, aprueba la corrección del conteo a 309 y que siga hasta el archive" |
 
 ## 12. Budget (Step 2.4)
 
