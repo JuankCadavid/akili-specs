@@ -8,7 +8,7 @@
 | Depth | Standard (re-checked in §12) |
 | Type / Deliverable | Change / `software` |
 | Approval Mode | `gated` — every gate stops for JC; no push, PR or merge in this cycle |
-| Status | **Revision 2**, Phase 2. Revision 1 (`c5d8eb7`) went through judgment-day round 1 (`judgment.md`); JC chose **Fix only** (2026-11-02: "Corrige el alcance recomendado sin re-juzgar") for C-1 – C-7, B-J-5, B-J-6, B-J-10. This revision is **fixed, not re-judged** |
+| Status | **Revision 2**, Phase 2. Revision 1 (`c5d8eb7`) went through judgment-day round 1 (`judgment.md`); JC chose **Fix only** (2026-11-02: "Corrige el alcance recomendado sin re-juzgar") for C-1 – C-7, B-J-5, B-J-6, B-J-10. This revision is **fixed, not re-judged**. **Approved by JC 2026-11-02** ("Sí, aprueba el diseño y sigue a la fase 3 (tasks.md)") |
 | Requirements | `requirements.md` revision 2, approved by JC 2026-11-02 (commit `9cecfd6`) |
 | Verified at | `9cecfd6` (rev. 1 rows); rev. 2 rows at `95ef44d` — no shipped file differs from `d8a9744`, `origin/dev` |
 | Schema source | `.claude/skills/impeccable-bridge/references/design-routing.md` and its archived spec `docs/specs/archive/2026-11-01-changes--design-skill-routing/design.md` |
