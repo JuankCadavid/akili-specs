@@ -198,3 +198,17 @@ JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 6 / 9 · LOC 160 / ~650 · review rounds 9 / ~18 — within budget.
 - Gate: **STOP** — new amendment (JC: "para solo en enmiendas").
+
+## Amendments A-2 – A-4 (JC, 2026-11-02, gate after T6)
+
+JC answers (widget, verbatim option labels): A-3 → "Add 'project conventions' to rule 4"; A-2 → "Approve A-2 (Recommended)"; spec IDs → "Strip them (Recommended)".
+
+| ID | Change | Spec edits (Leader, at the moment of decision) | Shipped edits (delegated) |
+|---|---|---|---|
+| A-2 | `api-design-principles` card evidence gains *GraphQL Design Patterns* | `design.md` §8.4 card Evidence cell | none — already shipped in T1 |
+| A-3 | Third named source *project conventions* (the project's agent guides and the conventions its existing code follows, where the Skill Map names no skill for the stack or runtime) | `requirements.md` Glossary *Lead*; `design.md` Document Control, §5.1 Lead row, §8.1 rule 4, DD-4 (appended note) | `backend-routing.md` *Decision rule* 4 and *Backend route line* Lead row; `CHANGELOG.md` matrix clause |
+| A-4 | Spec-local IDs stripped from the cells that ship | `design.md` §8.3 rows *framework-selection / other stacks, significant* (B-J-5), *api-contract* (P-15), *implement / AI agent* (B-J-6); §8.1 rule 4 (DD-4) | `backend-routing.md`: rule 4 (DD-4), the fall-through paragraph (KZ-004), the three rows above |
+
+Correction-closure sweep (forward): `grep -n "two named sources\|Two named sources"` over the spec folder → only DD-4's historical lead sentence, which now carries the A-3 note; shipped surfaces with the old two-source wording: `backend-routing.md` rule 4 + *Backend route line* Lead row, `CHANGELOG.md` matrix clause. Backward: T8's *One lead* test reads Lead cells for `+`, `,`, ` or `, `/` — unaffected. Carried into the next Reviewer brief as named conformance checks.
+
+**Amendment edits — PASS (attempt 1).** Implementer (sonnet): `backend-routing.md` 6/6, `CHANGELOG.md` 1/1; `npm test` 1419/1419; install-cursor 12/12; ID grep empty; 19 rows. Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; ID grep empty; 19 rows. Reviewer (opus, resumed): **PASS** — "Amendments A-2 to A-4 are applied faithfully in the spec and on the shipped surfaces. All four named conformance checks hold"; correction-closure sweep clean both directions; no meaning change beyond JC's options. ADVISORY (recorded, not acted on): READABILITY — the *implement / other* row meets rule 4's *project conventions* condition but is led by *existing design*; nothing reads false ("may lead"). runtime events: none. spawns: Implementer 5 calls, 66217 tokens, ended complete; Reviewer (resumed) not reported by host per call. Review rounds running total: 10 / ~18.

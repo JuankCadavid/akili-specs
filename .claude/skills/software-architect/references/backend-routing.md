@@ -7,7 +7,7 @@ Used by every AKILI step that needs to know **which skill leads which backend de
 1. **The method skill decides what and why; the stack skill decides how in this language or framework.**
 2. **One lead per activity and context.** Supporting skills give inputs, not rules.
 3. **Context picks the row; the stack picks the support.** The architecturally significant test is `/akili-specify` Step 2.1's; Bug track sends diagnosis to `bug-diagnosis`; the stack comes from the project `## Skill Map`.
-4. **Two named sources may lead** when no skill is loaded for the decision: *existing design* (the TRD and the nearest existing module) and *the spec's scenarios* (`requirements.md`, run through the `/akili-test` Tester contract) (DD-4).
+4. **Three named sources may lead** when no skill is loaded for the decision: *existing design* (the TRD and the nearest existing module), *the spec's scenarios* (`requirements.md`, run through the `/akili-test` Tester contract) and *project conventions* (the project's agent guides and the conventions its existing code follows, where the Skill Map names no skill for the stack or runtime).
 5. **Decisions already in `design.md` bind the implement step.** A stack skill never reopens them; a conflict is a spec gap for the Pivot Protocol.
 6. **Where two stack skills apply** (NestJS on AWS Lambda), the framework skill supports code inside the application and the platform skill supports the handler, event source and infrastructure; for `implement` the line names the one matching the code the task touches.
 7. **A support idiom a stack lacks is skipped**, never substituted (a race detector outside Go).
@@ -25,7 +25,7 @@ The stack comes from the project `## Skill Map`.
 | AI agent | `ai-agent-development` (decisions) + the runtime skill the Skill Map lists for the agent's runtime (implementation) | framework and runtime selection, hosting choice, agent state, tools, memory and HITL inputs; it does not own SDK usage or deployment (its *Scope & Composition*) |
 | other | none — project conventions | — (falls through, below) |
 
-Stack value `other` falls through explicitly: its `implement` row leads with *existing design* and `framework-selection` uses the non-agent rows (KZ-004). A support idiom a stack does not have (a race detector outside Go, cold starts outside Lambda) is skipped, never substituted (B-J-6).
+Stack value `other` falls through explicitly: its `implement` row leads with *existing design* and `framework-selection` uses the non-agent rows. A support idiom a stack does not have (a race detector outside Go, cold starts outside Lambda) is skipped, never substituted.
 
 ## Matrix
 
@@ -36,16 +36,16 @@ The activity and the context pick the row; the stack picks the support. Each Lea
 | **architecture** | significant | `software-architect` | stack skill (feasibility, idiom); AI agent: `ai-agent-development` (state, tools, memory, HITL inputs) | The stack skill picks no style, NFR target or ADR |
 | **architecture** | not significant | existing design | stack skill (idiom) | No new style is introduced |
 | **framework-selection** | AI agent | `ai-agent-development` | `software-architect` (`agentic-ai.md` *Component Decision Axes*, NFR fit) | Includes the agent's hosting choice; the system's compute tier is `architecture` |
-| **framework-selection** | other stacks, significant | `software-architect` | stack skill (idiom fit) | No packaged Go, NestJS or AWS skill states framework-choice criteria (B-J-5); changing the stack itself is `architecture` |
+| **framework-selection** | other stacks, significant | `software-architect` | stack skill (idiom fit) | No packaged Go, NestJS or AWS skill states framework-choice criteria; changing the stack itself is `architecture` |
 | **framework-selection** | other stacks, not significant | existing design | stack skill (idiom fit) | Keep the framework already in use |
 | **module-design** | significant | `software-architect` | stack skill (layout: Go → `golang-pro` `references/project-structure.md`; NestJS modules) | The stack skill adds no pattern the design does not name |
 | **module-design** | not significant | existing design | stack skill (idiom) | Follow the nearest existing module |
-| **api-contract** | any | `api-design-principles` | stack skill (transport: Go handlers, Nest controllers, API Gateway) | The stack skill picks no resource model, versioning, status-code or error-body policy; for gRPC, `api-design-principles` leads versioning and compatibility only and proto idiom follows project conventions (P-15) |
+| **api-contract** | any | `api-design-principles` | stack skill (transport: Go handlers, Nest controllers, API Gateway) | The stack skill picks no resource model, versioning, status-code or error-body policy; for gRPC, `api-design-principles` leads versioning and compatibility only and proto idiom follows project conventions |
 | **error-model** | any | `error-handling-patterns` | stack skill (Go `%w` and no panic, Nest exception filters, Lambda error handling) | `error-handling-patterns` owns the handling philosophy, the error categories and recovery (circuit breaker, aggregation, graceful degradation); status codes and error body belong to `api-contract`; its language sections yield to the stack skill's MUST rules |
 | **implement** | Go | `golang-pro` | method skills as constraints already in `design.md` | No decision recorded in `design.md` is reopened |
 | **implement** | NestJS | `nestjs-expert` | method skills as constraints already in `design.md` | No decision recorded in `design.md` is reopened |
 | **implement** | AWS serverless | `aws-serverless` | method skills as constraints already in `design.md` | No decision recorded in `design.md` is reopened |
-| **implement** | AI agent | the agent's runtime skill (from the Skill Map; none → project conventions) | `ai-agent-development` (agent behavior constraints) | `ai-agent-development` writes no SDK or deployment code (B-J-6) |
+| **implement** | AI agent | the agent's runtime skill (from the Skill Map; none → project conventions) | `ai-agent-development` (agent behavior constraints) | `ai-agent-development` writes no SDK or deployment code |
 | **implement** | other | existing design | none — project conventions | No skill is recommended for install |
 | **test-first** | task lists `tdd`, Leader keeps it | `tdd` | stack skill (table-driven, `-race`, Jest/Supertest) | Expected values and seams come from `requirements.md` and `design.md`; a stack coverage target never overrides them or the Done criteria |
 | **test-suite** | `tdd` not listed, or dropped by the Leader | the spec's scenarios | stack skill (runner idiom, race detector, fuzzing) | A coverage target never replaces scenario coverage |
@@ -81,7 +81,7 @@ Every backend task carries one line in its Scope:
 |---|---|---|
 | Stack | `Go` · `NestJS` · `AWS serverless` · `AI agent` · `other` (a project may hold several; the line names the stack of the code the task touches) | project `## Skill Map` / `### Backend routing` |
 | Activity | The activities of the *Matrix* section, only those the task touches. Tests: `test-first` only when the task's skills list `tdd`, else `test-suite` | the spec's own `design.md` |
-| Lead | A skill name, or one of the two named sources (*existing design*, *the spec's scenarios*) | matrix row for (activity, context) |
+| Lead | A skill name, or one of the three named sources (*existing design*, *the spec's scenarios*, *project conventions*) | matrix row for (activity, context) |
 | Support | Skill name(s) or `none — project conventions` | matrix row + *Stack table* |
 
 A backend task is one whose scope touches server-side code, an API contract, an error model or backend tests. Its skill list names exactly the backend skills the line names; other skills are unaffected.
