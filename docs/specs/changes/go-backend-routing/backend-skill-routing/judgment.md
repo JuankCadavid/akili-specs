@@ -8,7 +8,7 @@
 | Mode | judgment_day, `/akili-specify` Step 2.5 **Review Design** (JC, 2026-11-02: "Aprueba A-1 y DD-7, y corre judgment-day") |
 | Judges | Two blind read-only judges, Sonnet (author: Opus 5.5 — author ≠ auditor), identical scope and criteria |
 | Round | 1 of 2 |
-| State | **open — awaiting JC decision on round-one correction** |
+| State | **closed — fixed, not re-judged** (C-1, C-2, C-3, C-4, C-5, C-6, C-7, B-J-5, B-J-6, B-J-10) |
 
 ## Premise Ledger attack
 
@@ -48,3 +48,24 @@ C-3, C-4, C-5: judges agree the defect is real and disagree on severity → per 
 | B-J-12 | suggestion | P-9 / P-11 line ranges imprecise (`:25`; `:761`, `:763-771`) |
 | B-J-14 | suggestion | FR-3 / FR-7 "no install recommendation" clauses untested |
 | B-J-15 | suggestion | Status-code / error-body boundary between `api-contract` and `error-model` not drawn |
+
+## Resolution
+
+JC, 2026-11-02 (widget): **Fix only** — "Corrige el alcance recomendado sin re-juzgar". Scope: C-1 – C-7, B-J-5, B-J-6, B-J-10. No round 2.
+
+| ID | Fix in `design.md` rev. 2 |
+|---|---|
+| C-1 | P-19 (coverage and golang-skill slices); DD-5 / DD-6 placement rules; both tests on *Must stay green* |
+| C-2 | Cards cite the headings that state each claim (P-16 re-read); "propagation" dropped; DD-9 reworded |
+| C-3 | §5.1 `tdd` ownership; §8.1 rule 8; `test-first` / `test-suite` contexts; Leader switch is a deviation record; test row |
+| C-4 | `implement` split per stack (DD-15); Skill-set test checks Matrix rows |
+| C-5 | P-13 grep widened; `docs/overview.md`, `docs/skills/README.md` added to T7; `AGENTS.md` `## Skill Usage` kept, with reason; P-21 |
+| C-6 | T1 names five count sites; post-edit grep for `317` / `331` |
+| C-7 | §2 counts (19 rows, ten docs files); count line with Impact split |
+| B-J-5 | `framework-selection` split: AI agent → `ai-agent-development`; others → `software-architect` / existing design (DD-14) |
+| B-J-6 | AI-agent `implement` led by the runtime skill; `ai-agent-development` supports; hosting choice under `framework-selection`; rule 7 (skip absent idioms) |
+| B-J-10 | P-20; §8.5 absent-file fallback; test row |
+
+Suspects not in scope stay `info`: A-J-6 (lessons partly applied in P-18), A-J-7, B-J-7 (partly addressed by DD-10's extra sentence and the names-only test), B-J-9 (version bump dropped as a side effect of §4), B-J-11 / B-J-12 (corrected while editing P-9 / P-11), B-J-14 (test row added), B-J-15 (boundary drawn in the `error-model` row).
+
+**fixed, not re-judged** — C-1, C-2, C-3, C-4, C-5, C-6, C-7, B-J-5, B-J-6, B-J-10.
