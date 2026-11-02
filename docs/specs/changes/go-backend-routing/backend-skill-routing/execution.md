@@ -333,6 +333,8 @@ Correction-closure sweep (forward): `grep -n "two named sources\|Two named sourc
 - Open for JC: T9 ambiguities A (retry not named in the error-model row/card), B (implement support cell vs line form), C (`implement` / other: *existing design* vs rule 4's *project conventions*), D (stack value across rule 6), E (idempotency; SQS redrive/visibility timeout). Persona drift in `.agents/leader.md` / `tester.md` (not fixed).
 - Not done in this cycle (per JC): no push, PR, merge, tag or publish.
 
+**Summary addendum (2026-11-02, validation W-1; the lines above are kept as written at T9 close):** review rounds 17 / ~18; amendments A-2 – A-6 approved by JC; ambiguities A and C closed by A-6 and A-5, B, D, E moved to *Follow-up proposal candidates*; `/akili-test` added `test/backend-skill-routing-coverage.test.js` (17 tests) → `npm test` 1450 pass / 0 fail; shipped diff 689 insertions / 17 deletions across 20 files (`git diff --shortstat 94215ce..HEAD -- . ':!docs/specs'`).
+
 ## Amendments A-5, A-6 (JC, 2026-11-02 1:51 PM Bogotá, closing gate)
 
 JC (verbatim, widget): "Arregla C y A como enmienda; B, D y E a propuesta aparte".
