@@ -55,3 +55,34 @@ spawns: Implementer 18 calls, 114445 tokens, ended complete; Implementer (resume
 **Final verification:** `npm test` 1419 pass, 0 fail; `node --test test/install-cursor.test.js` 12/12; `git diff --check` clean.
 
 **Running totals vs budget:** tasks 1 / 9 · LOC 114 (101 matrix + 13 test lines changed) / ~650 · review rounds 2 / ~18 — within budget.
+
+### Gate after T1 — JC decision (2026-11-02)
+
+JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo en enmiendas, fallos o al final".
+
+- Routine continue gates T2→T9 are pre-approved by JC; each is logged `auto-approved (JC gate decision after T1)`.
+- Stops still fire on: a new amendment / spec tension, a HALT, `FATAL_FAIL`, Pivot, budget tripwire, an unresolved test failure, and the end of the run. Leader reading of "fallos": an in-loop Reviewer `FAIL` that the rework loop resolves is routine; a HALT or a failure the loop cannot resolve stops.
+- Pending for the end gate (not answered at this gate): proposed amendment **A-2** (design §8.4 `api-design-principles` Evidence + `*GraphQL Design Patterns*`) and the spec-ID ADVISORY. Neither blocks T2–T8.
+
+### T2: `software-architect` *Routing* row — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Requirements covered | FR-9 (row; scenario via T1's *Go layering*; BUT `architecture-styles.md` unchanged), FR-1 *Held once*, NFR-2 |
+| Skills | `software-architect`; effort `low` |
+
+- Files changed: `.claude/skills/software-architect/SKILL.md` (+1 row, last row of *Routing — load the matching reference*).
+- Falsifier / Red run: `predicted — greenfield artifact (observed in T8)` — not executable before T8 exists.
+- Implementer verification: `git diff` one added line; `architecture-styles.md` and routed-skill diffs empty; `git diff --check` clean; `node --test test/diagram-design.test.js` 13/13; `npm test` 1419/1419.
+- Evidence re-run (Leader inline): VERIFIED — `npm test` 1419 pass / 0 fail; `git diff --check` clean; diff = one added row.
+- Reviewer (opus, resumed T1 context): **PASS** — "The row text matches the tasks.md T2 Scope character for character … Neither disqualifier fires." Ruled the paragraph under the table must stay unchanged (Scope "No other byte", NFR-2, DD-2).
+- runtime events: none.
+- ADVISORY: none.
+- Decisions: Reviewer reused by message (same spec context, fresh task); T3 Implementer spawned while the T2 Reviewer ran (disjoint file; the T2 commit is pathspec-scoped).
+- spawns: Implementer 6 calls, 67000 tokens, ended complete; Reviewer (resumed) 2 calls, 102666 tokens cumulative, ended complete
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 2 / 9 · LOC 115 / ~650 · review rounds 3 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).

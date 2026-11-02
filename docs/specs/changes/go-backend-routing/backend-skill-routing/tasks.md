@@ -57,7 +57,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~3 LOC) |
 | Depends on | T1 |
 | Requirements | FR-9 (scenario: *Routing* names the file; BUT `architecture-styles.md` unchanged), FR-1 *Held once*, NFR-2 |
