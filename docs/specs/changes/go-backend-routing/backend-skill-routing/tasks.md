@@ -152,7 +152,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~40 LOC, 10 files, one clause each) |
 | Depends on | T1 |
 | Requirements | FR-8 (`software-architect.md` and `governance.md` name the matrix; every other role-stating page does not contradict it), NFR-1 |

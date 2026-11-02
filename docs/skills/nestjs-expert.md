@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Guides NestJS architecture, modules, dependency injection, middleware, guards, interceptors, testing with Jest/Supertest, TypeORM/Mongoose integration, Passport authentication, and debugging DI issues.
+Supplies NestJS idiom and implementation (method decisions such as architecture, testing strategy and debugging are led per the backend routing matrix, `software-architect` → `references/backend-routing.md`): modules, dependency injection, middleware, guards, interceptors, testing with Jest/Supertest, TypeORM/Mongoose integration, Passport authentication, and debugging DI issues.
 
 ## Use When
 

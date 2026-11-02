@@ -212,3 +212,38 @@ JC answers (widget, verbatim option labels): A-3 → "Add 'project conventions' 
 Correction-closure sweep (forward): `grep -n "two named sources\|Two named sources"` over the spec folder → only DD-4's historical lead sentence, which now carries the A-3 note; shipped surfaces with the old two-source wording: `backend-routing.md` rule 4 + *Backend route line* Lead row, `CHANGELOG.md` matrix clause. Backward: T8's *One lead* test reads Lead cells for `+`, `,`, ` or `, `/` — unaffected. Carried into the next Reviewer brief as named conformance checks.
 
 **Amendment edits — PASS (attempt 1).** Implementer (sonnet): `backend-routing.md` 6/6, `CHANGELOG.md` 1/1; `npm test` 1419/1419; install-cursor 12/12; ID grep empty; 19 rows. Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; ID grep empty; 19 rows. Reviewer (opus, resumed): **PASS** — "Amendments A-2 to A-4 are applied faithfully in the spec and on the shipped surfaces. All four named conformance checks hold"; correction-closure sweep clean both directions; no meaning change beyond JC's options. ADVISORY (recorded, not acted on): READABILITY — the *implement / other* row meets rule 4's *project conventions* condition but is led by *existing design*; nothing reads false ("may lead"). runtime events: none. spawns: Implementer 5 calls, 66217 tokens, ended complete; Reviewer (resumed) not reported by host per call. Review rounds running total: 10 / ~18.
+
+### T7: Docs match the matrix — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Requirements covered | FR-8 (`software-architect.md`, `governance.md` name the matrix; other role-stating pages do not contradict it), NFR-1 |
+| Skills | `cognitive-doc-design`; effort `medium` → `high` on rework |
+
+**Attempt 1**
+- Files changed (10): `docs/skills/{software-architect,governance,nestjs-expert,aws-serverless,ai-agent-development,README}.md`, `docs/flow.md`, `docs/overview.md`, `docs/commands/{akili-specify,akili-constitution}.md` (+15/−9).
+- Falsifier executed (post-edit P-13 grep): 4 of 5 role-claim hits carry the routing qualifier; the NestJS line reworded off the pattern; `aws-serverless.md` "`/akili-constitution` for serverless architecture baseline." left (P-13-ruled consistent).
+- Implementer verification: docs-overview + golang-skill 29/29; `npm test` 1419/1419; first table cells unchanged.
+- Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; falsifier grep output matched.
+- Reviewer (opus): **FAIL** — verbatim:
+  > 1. **Discovered Issue:** In `docs/skills/governance.md`, "every other surface names the file and section and never copies a row" is false at HEAD. These surfaces name the file only, with no section: `AGENTS.md` (Design/Backend Skills pointers), `akili-constitution.md` Step 8D items 4 and 5, `docs/flow.md`, the new constitution-doc clause. **Violated Rule:** KZ-002. **Remediation Suggestion:** "every other surface names the file (and a section where it points into one), never a line number, and never copies a row".
+  > 2. **Discovered Issue:** The *Purpose* of `docs/skills/ai-agent-development.md` still calls the skill "The decision layer for building AI agents: … how to shape the agent (state, tools, memory, human-in-the-loop points, **multi-agent topology**)". Under the matrix, `software-architect` leads agent architecture and pattern choice … the page contradicts itself. P-13's grep pattern missed this sentence ("shape the agent"). **Violated Rule:** requirements FR-8; design DD-7. **Remediation Suggestion:** narrow that clause only.
+- Reviewer rulings: the aws-serverless baseline line, the `nestjs-expert` / `aws-serverless` table rows (capability lists, no role claim) and the `nestjs-expert.md` rewrite conform. ADVISORY: specify-doc "settles … next to it" reads oddly.
+- runtime events: none.
+
+**Attempt 2** (resumed Implementer; effort `high`)
+- Files changed: `governance.md` sentence; `ai-agent-development.md` Purpose; `docs/commands/akili-specify.md` advisory wording ("settles … and records it next to the decision"). Same 10 files, +16/−8.
+- Sweep of `ai-agent-development.md` + its overview/README rows: no other lead claim; Use When "Supporting agent architecture … multi-agent boundaries" and Core Rules "load this skill first" left (Reviewer ruled both consistent).
+- Implementer verification: 29/29; `npm test` 1419/1419.
+- Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; nothing under `.claude/`.
+- Reviewer (opus, resumed): **PASS** — "Both issues from attempt 1 are fixed … exactly three lines changed: the two fixes and the optional specify advisory."
+- runtime events: none.
+
+**Issues:** **P-13 premise gap** — the design's role-claim grep (`agent architecture|architecture decisions|…`) missed the `ai-agent-development.md` Purpose sentence ("how to shape the agent … multi-agent topology"); found by the Reviewer. Recorded for the kaizen retrospective.
+- spawns: Implementer 10 calls, 79142 tokens, ended fail; Implementer (resumed) 3 calls, 84297 tokens cumulative, ended complete; Reviewer (resumed ×2) not reported by host per call
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 7 / 9 · LOC ~190 / ~650 · review rounds 12 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).
