@@ -18,7 +18,7 @@
 | # | Spec Path | Depends on | Parallel-safe | Status |
 |---|---|---|---|---|
 | 1 | `changes/go-backend-routing/golang-skill` | none | no (shares the stack-skill candidate lists in `akili-constitution` Steps 5/8D and `akili-specify` Step 2.1 with `changes/design-skill-routing`; expected conflicts are one-line list merges) | done (archived 2026-11-01 to `docs/specs/archive/2026-11-01-changes--go-backend-routing--golang-skill/`) |
-| 2 | `changes/go-backend-routing/backend-skill-routing` | `changes/go-backend-routing/golang-skill` · `changes/design-skill-routing` (merged into `dev`) | no (same command steps, `leader.md` item 3, repo `AGENTS.md` and `docs/skills/governance.md` as `changes/design-skill-routing`) | active (specified 2026-11-02; requirements, design, tasks approved by JC; execute pending) |
+| 2 | `changes/go-backend-routing/backend-skill-routing` | `changes/go-backend-routing/golang-skill` · `changes/design-skill-routing` (merged into `dev`) | no (same command steps, `leader.md` item 3, repo `AGENTS.md` and `docs/skills/governance.md` as `changes/design-skill-routing`) | done (archived 2026-11-02 to `docs/specs/archive/2026-11-02-changes--go-backend-routing--backend-skill-routing/`) |
 
 **Closed-set rule:** this table is the exhaustive child set of the spec family. No AKILI command creates a child spec folder without a prior row here, and adding a row is a HITL-approved manifest edit.
 
