@@ -130,3 +130,36 @@ JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 4 / 9 · LOC 133 / ~650 · review rounds 5 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T5: Leader persona item 3 — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Requirements covered | FR-5 (take the matrix's lead; record a deviation from it; collision BUT names only; legacy task BUT never fail/block), FR-6 `tdd` switch (design §5.1), NFR-5, design §8.5 *Absent file* |
+| Skills | `cognitive-doc-design`; effort `high` → `xhigh` on rework |
+
+**Attempt 1**
+- Files changed: `.claude/templates/leader.md` (1/1 — item 3's first bullet in `primary-instructions`): swap example added to the parenthesis; one sentence after it.
+- Falsifier executed: **R5** `See leader.md:25.` appended → `design-skill-routing.test.js` "not ok 5 … A-15b: no file:line pointers in the matrix or the new text"; restored.
+- Implementer verification: `design-skill-routing` + `persona-digests` + `agents-doctor` 75/75; `npm test` 1419/1419; no pointer; UI example count 1; `digests.json` untouched (design §9).
+- Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; numstat 1/1; no `akili:section` line in the diff.
+- Reviewer (opus): **FAIL** — verbatim:
+  > 1. **Discovered Issue:** The FR-5 statement's second obligation, "record any deviation from it [the lead named by the matrix] with the existing skill-deviation record", is not in the shipped text. The existing record covers only deviations "from the task's list". A Leader can keep both colliding skills, so the list is unchanged, and still give the lead role to the skill the matrix does not name. No text then requires a record. **Violated Rule:** `requirements.md` FR-5 statement: "the Leader SHALL take the lead named by the matrix **and record any deviation from it with the existing skill-deviation record**." (KZ-changes--gate-falsifiability-2). **Remediation Suggestion:** Extend the new sentence: "…, and that switch, like naming a lead other than the matrix's, is a deviation, recorded by the one-line reason below; …". Change nothing else.
+- Reviewer rulings: positional "recorded by the one-line reason below" accepted (same-bullet, not a line pointer); FR-5 collision and legacy scenarios carried.
+- runtime events: none.
+
+**Attempt 2** (resumed Implementer; effort `xhigh`; Attempt History: "attempt 1 omitted FR-5's deviation-record clause — do not repeat")
+- Files changed: same bullet; sentence extended with "like naming a lead other than the matrix's, is a deviation".
+- Implementer verification: 75/75; `npm test` 1419/1419; numstat 1/1.
+- Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; numstat 1/1.
+- Reviewer (opus, resumed): **PASS** — "Issue 1 is fixed … covers FR-5's 'record any deviation from it with the existing skill-deviation record' even when the colliding skills both stay in the list."
+- runtime events: none. ADVISORY: none.
+
+**Decisions / issues:** **Scope gap** — `tasks.md` T5 Scope omitted FR-5's "record any deviation from it" clause; closed in attempt 2 by implementing the approved FR text (no requirement or design meaning changed → not an amendment; no stop under JC's gate decision). Recorded for the kaizen retrospective.
+- spawns: Implementer 8 calls, 73732 tokens, ended fail; Implementer (resumed) 2 calls, 75912 tokens cumulative, ended complete; Reviewer (resumed ×2) not reported by host per call
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 5 / 9 · LOC 135 / ~650 · review rounds 7 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).

@@ -114,7 +114,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (~6 LOC, 1 site) |
 | Depends on | T1 |
 | Requirements | FR-5 (collision scenario; BUT brief carries names only; legacy-task scenario incl. BUT no fail/block), FR-6 `tdd` switch (design §5.1), NFR-5 |
