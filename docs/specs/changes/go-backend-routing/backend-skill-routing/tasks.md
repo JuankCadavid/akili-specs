@@ -76,7 +76,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~20 LOC, 3 sites in one file) |
 | Depends on | T1 |
 | Requirements | FR-6 (scenario: endpoint task carries `Backend route:` with `api-design-principles` lead for the contract; AND skills list ⇔ line for backend skills; BUT no stack load-direction), FR-1 *Held once* (BUT no restated row, no line pointer), FR-3 stack-absent AND IT MUST NOT recommend installing, NFR-3, NFR-4, NFR-5 |

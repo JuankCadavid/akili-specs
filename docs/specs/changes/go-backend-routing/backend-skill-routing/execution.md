@@ -86,3 +86,25 @@ JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 2 / 9 · LOC 115 / ~650 · review rounds 3 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T3: `/akili-specify` — Step 2.1 pointer and Step 3.2 backend rule — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Requirements covered | FR-6 (pointer, `Backend route:` line, list ⇔ line, no stack load-direction), FR-1 *Held once*, FR-3 stack-absent, NFR-3, NFR-4, NFR-5 |
+| Skills | `cognitive-doc-design`; effort `high` |
+
+- Files changed: `.claude/commands/akili-specify.md` (+10 / −1): Step 2.1 pointer sentence after the fallback list (absent-file clause included); Step 3.2 inventory clause; new *Preferred backend skill rule:* block (4 bullets) before *Preferred UI/UX skill rule:*.
+- `binding: stack` list (computed): ai-agent-development, aws-serverless, api-design-principles, angular-developer, golang-pro, error-handling-patterns, nestjs-expert, shadcn-ui, react-doctor, vercel-react-best-practices, tailwind-design-system — zero hits in the added text.
+- Falsifiers executed (temporary edits, restored): **R3** gsap in the Step 2.1 sentence → `design-skill-routing-coverage.test.js` "not ok 4 … FR-7" ("Step 2.1 gates gsap: When the design has backend work…"); **R4** delete `` - `golang-pro` `` → `golang-skill.test.js` "not ok 11 … FR-3: golang-pro is in the four candidate pools". Third falsifier (rule after UI rule) not run; placement checked directly by the Reviewer.
+- Implementer verification: three consumer files 34/34; `npm test` 1419/1419; `git diff --check` clean; no `\.(md|js):\d+`, `| **` or `install` in added lines.
+- Evidence re-run (Leader inline): VERIFIED — `npm test` 1419/0; `git diff --check` clean; only the one file modified.
+- Reviewer (opus, resumed): **PASS** — "All three T3 scope edits … match the Scope, FR-6 and the design." Ruled Scope (c)'s "names no `binding: stack` skill and recommends no install" is a prohibition met by absence (DD-5, FR-3, NFR-3; restating would push against held-once).
+- runtime events: none. ADVISORY: none.
+- spawns: Implementer 11 calls, 80636 tokens, ended complete; Reviewer (resumed) not reported by host per call
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 3 / 9 · LOC 125 / ~650 · review rounds 4 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).
