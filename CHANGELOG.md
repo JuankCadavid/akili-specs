@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.42.0] - 2026-11-02
+
 ### Added
 
 - **A Backend Routing Matrix, `software-architect/references/backend-routing.md`,** maps each backend activity and context to one lead (a skill, or a named source: *existing design*, *the spec's scenarios* or *project conventions*) and its support skills, and holds one expertise card per backend skill. `software-architect` gains a *Routing* row that points to it.
@@ -17,7 +23,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - An install that holds an older `software-architect` folder keeps it under the skip policy and so lacks `backend-routing.md`; run `install --force` to get the matrix.
-
 ## [2.41.0] - 2026-11-01
 
 ### Added
