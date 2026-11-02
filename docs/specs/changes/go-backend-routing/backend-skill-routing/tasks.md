@@ -133,7 +133,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~30 LOC) |
 | Depends on | T1 |
 | Requirements | FR-8 (rule; scenario: section names the same skill set as the cards; BUT no restated rows), NFR-1, NFR-4, NFR-6 |

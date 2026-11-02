@@ -163,3 +163,38 @@ JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 5 / 9 · LOC 135 / ~650 · review rounds 7 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T6: Repo `AGENTS.md` `## Backend Skills` + CHANGELOG — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 2 |
+| Requirements covered | FR-8 (`## Backend Skills`: rule + nine roles + pointer; same skill set as the cards; BUT no rows), NFR-1, NFR-4, NFR-6 (CHANGELOG `--force` note, P-20) |
+| Skills | `cognitive-doc-design`; effort `medium` → `high` on rework |
+
+**Attempt 1**
+- Files changed: `AGENTS.md` (+16: `## Backend Skills` before `## CodeGraph`); `CHANGELOG.md` (+9/−1: `### Added` under `## [Unreleased]`, `### Notes` placeholder replaced by the `install --force` note).
+- Falsifier / Red run: `predicted — greenfield artifact (observed in T8)`.
+- Implementer verification: `design-skill-routing.test.js` 9/9; `npm test` 1419/1419; no `| **` or pointer hits. (Its name-set comparison was broken by a `sed`; Leader re-ran it correctly.)
+- Evidence re-run (Leader inline): VERIFIED — 1419/0; `git diff --check` clean; section name set = card name set (`diff` empty).
+- Reviewer (opus): **FAIL** — verbatim:
+  > 1. **Discovered Issue:** The CHANGELOG says the matrix "maps each backend activity and context to **one lead skill**, the support skills and the expertise cards." At HEAD, `backend-routing.md` → *Matrix* has seven of its 19 rows led by a named source, not a skill … Also, expertise cards are one per skill … so the clause puts them in the wrong place. **Violated Rule:** KZ-002 … Glossary *Lead*, amendment A-1 … DD-4. **Remediation Suggestion:** "maps each backend activity and context to one lead (a skill, or a named source: *existing design* or *the spec's scenarios*) and its support skills, and holds one expertise card per backend skill."
+- Reviewer rulings: the third rule-paragraph sentence (Skill Map / task lists) and the FR-2 one-lead sentence conform; omitting the Step 8D policy bullet from the CHANGELOG is acceptable.
+- runtime events: none.
+
+**Attempt 2** (resumed Implementer; effort `high`)
+- Files changed: `CHANGELOG.md` matrix clause only.
+- Implementer verification: quote-check against *Decision rule* 4 and *Expertise cards*; own census 6 named-source rows (the Reviewer's "seven" was an arithmetic slip — 4+1+1); `git diff --check` clean; `docs-overview.test.js` 13/13.
+- Evidence re-run (Leader inline): VERIFIED — `npm test` 1419/0; numstat AGENTS 16/0, CHANGELOG 9/1; Lead-column census: 12 skill-led, 5 *existing design*, 1 *the spec's scenarios*, 1 "the agent's runtime skill (from the Skill Map; none → project conventions)".
+- Reviewer (opus, resumed): **PASS** — "Issue 1 is fixed … matches *Decision rule* 4 and the Glossary *Lead* definition (A-1)."
+- runtime events: none.
+- ADVISORY: READABILITY — neither surface mentions the named-source leads; optional.
+
+**Spec tension raised by the Reviewer (→ JC, proposed amendment A-3):** design §8.3 row *implement / AI agent* Lead "the agent's runtime skill (from the Skill Map; none → project conventions)" introduces a third fallback lead, *project conventions*, that A-1 (Glossary *Lead*) and *Decision rule* 4 do not list; FR-1 BUT ("nor leave a row without a lead") holds only if it counts. Options: (a) reword the cell's fallback to *existing design*; (b) extend rule 4 + A-1 to name *project conventions*. Not a T6 defect.
+
+- spawns: Implementer 9 calls, 77816 tokens, ended fail; Implementer (resumed) 2 calls, 80197 tokens cumulative, ended complete; Reviewer (resumed ×2) not reported by host per call
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 6 / 9 · LOC 160 / ~650 · review rounds 9 / ~18 — within budget.
+- Gate: **STOP** — new amendment (JC: "para solo en enmiendas").
