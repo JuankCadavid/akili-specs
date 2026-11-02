@@ -41,7 +41,7 @@ It is wired so that:
 | Context | What selects a row's variant: **architecturally significant** or not (the `/akili-specify` Step 2.1 test), **Change** or **Bug** track, and the **stack** (Go · NestJS · AWS serverless · AI agent · other) from the project `## Skill Map` |
 | Method skill | A skill that owns a decision independent of language: `software-architect` (`core`), `systematic-debugging` (`core`), `tdd` (`conditional`), `api-design-principles` (`stack`), `error-handling-patterns` (`stack`). The role is set by this matrix, not by the binding |
 | Stack skill | In this spec, a skill that supplies language, framework or platform idiom: `golang-pro`, `nestjs-expert`, `aws-serverless`, `ai-agent-development` (all `binding: stack`). Not the same as `binding: stack`: two method skills above carry that binding too, which changes nothing in how they reach agents (Skill Map and task lists only) |
-| Lead | The one skill whose rule wins for that decision |
+| Lead | The one skill — or, where no skill is loaded for the decision, the named source (*existing design*: the TRD and the nearest existing module; *the spec's scenarios*: `requirements.md`) — whose rule wins for that decision (amendment A-1, approved by JC 2026-11-02: "Aprueba A-1 y DD-7, y corre judgment-day") |
 | Support | A skill that supplies inputs or idiom under the lead's decision, never a competing rule |
 | Expertise card | Per skill: expert at · supports · must not decide · evidence (a file and an exact heading of that skill's own text) |
 | `Backend route:` line | One line in a backend task's Scope naming the lead per activity the task touches and the support skills |
