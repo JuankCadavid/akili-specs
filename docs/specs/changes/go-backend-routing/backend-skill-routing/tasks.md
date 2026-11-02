@@ -171,7 +171,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~320 LOC — KZ-bugfix--init-ctrlc-abort-2) |
 | Depends on | T1–T7 |
 | Requirements | requirements §8 defect classes (all automated rows); FR-1, FR-3 (no install advice), FR-4, FR-5 (names only, legacy), FR-6, FR-7, FR-8, FR-9; NFR-1, NFR-3 |

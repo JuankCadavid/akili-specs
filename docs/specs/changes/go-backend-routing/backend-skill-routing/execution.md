@@ -247,3 +247,26 @@ Correction-closure sweep (forward): `grep -n "two named sources\|Two named sourc
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 7 / 9 · LOC ~190 / ~650 · review rounds 12 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T8: Contract tests — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Requirements covered | requirements §8 automated defect classes; FR-1, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9; NFR-1, NFR-3 |
+| Skills | `tdd`; effort `high` |
+
+- Files changed: `test/backend-skill-routing.test.js` (new, 229 LOC, 14 tests, each tagged `@akili-spec changes/go-backend-routing/backend-skill-routing <FR>`).
+- Falsifiers executed (temporary edits reverted with `git checkout --`), red per test: held once (row pasted into `akili-specify.md` → "signatures restated outside the matrix"); skill set (`aws-serverless` card deleted → cards name the nine; `implement`/AWS row deleted → "aws-serverless is named in a Matrix row"); activities (`performance`/not significant deleted → "performance has a not significant row"); one lead (`` `tdd` + `golang-pro` `` → 'no list separator'); stack lead closed (`golang-pro` leads `test-first` → 'stack lead … on an activity that may not have one'); card evidence (*Seams* → 'heading "Seams" exists in tdd/SKILL.md'); no line pointers (`SKILL.md:3` in a card → "matrix holds no line pointer"); wiring (specify 2.1 pointer, 8D heading, leader collision phrase, software-architect Routing row — each red; `project-structure.md` existence not mutated, ruled acceptable); governance (`api-design-principles` in the specify rule → 'specify rule names no stack skill'); legacy task, names only, `tdd` switch (leader + specify), absent file (specify + leader), no install advice — each red on clause deletion/insertion. 31 `not ok` lines in the Implementer's scratchpad log. The first leader-pointer falsifier stayed green (the absent-file clause also names `backend-routing.md`); the assertion was tightened to the collision phrase and re-run red.
+- Red run (baseline worktree `0af13bd`, removed afterwards): 0 pass / 14 fail — wiring, legacy, names-only, `tdd` switch, absent-file, governance and install tests red on missing clauses; tests 1–7 red via `ENOENT` (matrix absent). Reviewer ruling: the `ENOENT` reds are setup failures; the behavioral reds are the falsifier runs above.
+- Implementer verification: suite 14/14; `npm test` 1433/1433; `npm run verify:cli` green; `npm run pack:dry-run` green (419 files); `git diff --check` clean.
+- Evidence re-run (Leader inline): VERIFIED — `npm test` 1433 pass / 0 fail; `verify:cli` "14 commands | 32 skills | 8 resources"; pack "total files: 419"; `git diff --check` clean; no leftover worktree; the file reads `docs/specs` only to skip it.
+- Reviewer (opus, resumed): **PASS** — "All 14 design §7.2 rows have a test that asserts what the row says, and the row's falsifier would turn that test red … None of the disqualifiers fires."
+- runtime events: none.
+- ADVISORY: RELIABILITY — `bare()` in the card-evidence test is unnecessary (no cited heading holds markup); READABILITY — the governance regex matches `binding: stack` anywhere in `SKILL.md`, not only the frontmatter (only the frontmatter line matches today).
+- spawns: Implementer 18 calls, 115985 tokens, ended complete; Reviewer (resumed) not reported by host per call
+- Final verification: `npm test` 1433 pass, 0 fail.
+- Running totals vs budget: tasks 8 / 9 · LOC ~420 (≈190 prose + 229 tests) / ~650 · review rounds 13 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).
