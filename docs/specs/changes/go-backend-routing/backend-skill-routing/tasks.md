@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/go-backend-routing/backend-skill-routing` |
-| Status | Phase 3 draft, awaiting JC (2026-11-02), `gated` |
+| Status | **Approved by JC 2026-11-02** ("Sí, aprueba tasks.md y cierra specify"), `gated`; ready for `/akili-execute` |
 | Requirements / Design | `requirements.md` rev. 2 + A-1 (approved by JC 2026-11-02); `design.md` rev. 2 (fixed, not re-judged — `judgment.md`; approved by JC 2026-11-02: "Sí, aprueba el diseño y sigue a la fase 3 (tasks.md)") |
 | Baseline | `0af13bd`. `npm test` → **1419 pass, 0 fail** (run 2026-11-02) |
 | Baseline readings | `grep -rn "backend-routing\|Backend route\|Backend routing\|Backend Skills" .claude docs/*.md docs/skills docs/commands AGENTS.md README.md test` → only `golang-skill` spec-path strings (**0** routing hits); `grep -n "317\|331" test/install-cursor.test.js` → `:228`, `:244`, `:347` (+ `:249` constant, `:253` message) |

@@ -8,7 +8,7 @@
 |---|---|
 | Parent Spec Path | `changes/go-backend-routing` (slug derived from the free-text argument; it matches the worktree name) |
 | Created | 2026-11-01 |
-| Last Updated | 2026-11-01 (child 1 archived) |
+| Last Updated | 2026-11-02 (child 2 specified) |
 | Family Status | `open` (both proposals approved by JC, 2026-11-01 9:56 UTC-5: child 1 Option A, child 2 Option B, minor for both) |
 | Source | JC brief, 2026-11-01 (pasted into the session): Go skill + backend/architecture skill routing; Claude (Opus) to decide spec vs family |
 | Decided by | Claude (Opus 5.5), on JC's delegation in the brief |
@@ -18,7 +18,7 @@
 | # | Spec Path | Depends on | Parallel-safe | Status |
 |---|---|---|---|---|
 | 1 | `changes/go-backend-routing/golang-skill` | none | no (shares the stack-skill candidate lists in `akili-constitution` Steps 5/8D and `akili-specify` Step 2.1 with `changes/design-skill-routing`; expected conflicts are one-line list merges) | done (archived 2026-11-01 to `docs/specs/archive/2026-11-01-changes--go-backend-routing--golang-skill/`) |
-| 2 | `changes/go-backend-routing/backend-skill-routing` | `changes/go-backend-routing/golang-skill` · `changes/design-skill-routing` (merged into `dev`) | no (same command steps, `leader.md` item 3, repo `AGENTS.md` and `docs/skills/governance.md` as `changes/design-skill-routing`) | pending |
+| 2 | `changes/go-backend-routing/backend-skill-routing` | `changes/go-backend-routing/golang-skill` · `changes/design-skill-routing` (merged into `dev`) | no (same command steps, `leader.md` item 3, repo `AGENTS.md` and `docs/skills/governance.md` as `changes/design-skill-routing`) | active (specified 2026-11-02; requirements, design, tasks approved by JC; execute pending) |
 
 **Closed-set rule:** this table is the exhaustive child set of the spec family. No AKILI command creates a child spec folder without a prior row here, and adding a row is a HITL-approved manifest edit.
 
