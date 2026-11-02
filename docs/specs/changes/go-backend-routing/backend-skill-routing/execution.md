@@ -108,3 +108,25 @@ JC (verbatim, via widget): "Sigue con T2 a T9 sin pausar entre tareas; para solo
 - Final verification: `npm test` 1419 pass, 0 fail.
 - Running totals vs budget: tasks 3 / 9 · LOC 125 / ~650 · review rounds 4 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T4: `/akili-constitution` Step 8D — `### Backend routing` block — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Final status | `PASS` |
+| Attempts | 1 |
+| Requirements covered | FR-7 (rule; Django no-skill; no backend; Safe Update; coexists with Design routing), NFR-3, NFR-4 |
+| Skills | `cognitive-doc-design`; effort `high` |
+
+- Files changed: `.claude/commands/akili-constitution.md` (+8 / −0): Step 8D item 5 after item 4; one *Mode-specific policy* bullet after the Safe Update bullet.
+- Falsifier executed: **R2** `golang-pro` in item 5 → `design-skill-routing.test.js` "not ok 8 … FR-3: the rule paragraph and Step 8D item load-direct no stack skill" (`Step 8D item names no stack skill`); restored.
+- Implementer verification: three consumer files 34/34; `npm test` 1419/1419; `git diff --check` clean; additions only; no pointer, row or install advice.
+- Evidence re-run (Leader inline): VERIFIED — `npm test` 1419/0; `git diff --check` clean; numstat 8/0.
+- Reviewer (opus, resumed): **PASS** — "Neither disqualifier fires … item 4 and the three existing policy bullets have no `-` lines."
+- Implementer deviation (logged per Reviewer): added "A project with no server-side code gets no block." — not in the Scope text; states FR-7 *Project with no backend*'s own THEN. Reviewer ruled it does not widen scope.
+- runtime events: none. ADVISORY: none.
+- spawns: Implementer 11 calls, 75131 tokens, ended complete; Reviewer (resumed) not reported by host per call
+- Final verification: `npm test` 1419 pass, 0 fail.
+- Running totals vs budget: tasks 4 / 9 · LOC 133 / ~650 · review rounds 5 / ~18 — within budget.
+- Gate: auto-approved (JC gate decision after T1).

@@ -757,6 +757,12 @@ is how they reach the agents.
    mockup route (direction picker first; Stitch on request; MCP availability is per developer) ·
    one line pointing at the matrix by name (`impeccable-bridge` → `references/design-routing.md`).
    The block holds **no matrix rows**: the matrix stays in the skill, so the block never goes stale.
+5. **A `### Backend routing` block under `## Skill Map`, when the project has server-side code**
+   (any stack, packaged skill or not). A project with no server-side code gets no block. Fields,
+   one line each: stack(s) with the evidence path · stack support skill per stack, named only from
+   the Skill Map just built, or `none — project conventions` · one line pointing at the matrix by
+   name (`software-architect` → `references/backend-routing.md`).
+   The block holds **no matrix rows**: the matrix stays in the skill, so the block never goes stale.
 
 **Mode-specific policy (mirror Step 8B):**
 
@@ -769,6 +775,8 @@ is how they reach the agents.
   newly detected stack elements and remove rows the user confirms are obsolete. Preserve a
   customized `### Design routing` block; propose only newly detected evidence for it, never
   restated matrix rows.
+- The `### Backend routing` block follows the same three policies: declared stack (Seed), scan
+  evidence (Discovery), preserved and only newly detected evidence proposed (Safe Update).
 
 ---
 

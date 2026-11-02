@@ -95,7 +95,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S (~15 LOC, 2 sites) |
 | Depends on | T1 |
 | Requirements | FR-7 (rule; Django no-skill scenario incl. AND IT MUST NOT name an uninstalled skill; no-backend scenario; Safe Update scenario incl. BUT no restated rows; coexistence scenario incl. BUT `### Design routing` text unchanged), NFR-3, NFR-4 |
