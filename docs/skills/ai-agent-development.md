@@ -4,12 +4,12 @@
 
 ## Purpose
 
-The decision layer for building AI agents: which framework and runtime to use, how to shape the agent (state, tools, memory, human-in-the-loop points, multi-agent topology), where an agent workload runs on AWS, and how agent behavior becomes AKILI spec documents. It operates nothing — API signatures, SDK usage, service configuration, and deployment mechanics stay with the skills and docs that own them. Inspired by the LangChain/LangGraph documentation, the AWS Bedrock AgentCore documentation, and the Anthropic Claude Agent SDK documentation.
+The decision layer for building AI agents: which framework and runtime to use (it leads that choice), inputs on the agent's shape (state, tools, memory, human-in-the-loop points) under the backend routing matrix, where an agent workload runs on AWS, and how agent behavior becomes AKILI spec documents. It operates nothing — API signatures, SDK usage, service configuration, and deployment mechanics stay with the skills and docs that own them. Inspired by the LangChain/LangGraph documentation, the AWS Bedrock AgentCore documentation, and the Anthropic Claude Agent SDK documentation.
 
 ## Use When
 
 - Choosing or justifying an agent framework or runtime — LangGraph, Deep Agents, LangChain, Bedrock AgentCore, and the Claude Agent SDK as primary options; CrewAI and AutoGen at recognition level.
-- Designing agent architecture: state ownership, tools, memory lifetime, HITL pause points, subgraph and multi-agent boundaries.
+- Supporting agent architecture under the backend routing matrix (`software-architect` → `references/backend-routing.md`): state ownership, tools, memory lifetime, HITL pause points, subgraph and multi-agent boundaries.
 - Deciding where an agent workload runs on AWS.
 - Turning an agent feature into `requirements.md`, `design.md`, and `tasks.md`.
 

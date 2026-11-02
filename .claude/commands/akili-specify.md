@@ -251,6 +251,8 @@ Use additional stack skills as needed — prefer the project's `## Skill Map` (i
 - `angular-developer`
 - `ai-agent-development`
 
+When the design has backend work, settle each backend decision's lead from `software-architect` → `references/backend-routing.md` (read it by path, whether or not the design is architecturally significant) and record it next to the decision; when that file is absent, proceed as today and say so once.
+
 #### Step 2.2 — Write
 
 Generate `design.md` using `docs/specs/general-setup/design.md` as the format source. Apply relevant Active Lessons from `docs/specs/kaizen-log.md` and cite the lesson ID next to the design decision it shaped.
@@ -424,7 +426,7 @@ Each task should include:
 - done criteria
 - relevant skills
 
-Skill inventory should use real, available skills only. Derive each task's required skills from the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) plus the conditional skills that match the task (`impeccable-bridge` for UI, routed by `impeccable-bridge` → `references/design-routing.md`; `gsap-animation` only where *Motion* there allows it).
+Skill inventory should use real, available skills only. Derive each task's required skills from the project's `## Skill Map` (root `AGENTS.md`/`CLAUDE.md`) plus the conditional skills that match the task (`impeccable-bridge` for UI, routed by `impeccable-bridge` → `references/design-routing.md`; `gsap-animation` only where *Motion* there allows it; backend skills routed by `software-architect` → `references/backend-routing.md`).
 
 If `Deliverable: video`, every task of the spec lists `video-production` in its skills (task skill lists are the Leader's defaults at `/akili-execute`).
 
@@ -457,6 +459,13 @@ Task quality rules:
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure frontend tasks are atomic, focusing on specific UI components, layouts, styling, and states extracted from the design or mockup artifacts.
 - tasks should avoid broad instructions like "implement feature" without scoped subtasks
 - tasks may be grouped by phase, but dependencies must remain explicit
+
+Preferred backend skill rule:
+
+- every backend task's Scope carries a `Backend route:` line (form in `backend-routing.md` → *Backend route line*)
+- its skills list names exactly the routed backend skills that line names; other skills are unaffected
+- `test-first` appears on the line only when the task lists `tdd`; specify only recommends `tdd`, the Leader's final assignment decides, and the Leader adding or dropping `tdd` is a deviation record in `execution.md`
+- stack support comes from the project's `## Skill Map`; when it has none for the stack, the line says `none — project conventions`
 
 Preferred UI/UX skill rule:
 

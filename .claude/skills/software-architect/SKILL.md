@@ -64,6 +64,7 @@ Escalation triggers (any one, evidenced by a scenario): independent scaling of h
 | Selecting or justifying design patterns (22-pattern GoF-based catalog), SOLID/design principles, tactic→pattern bridge | `references/design-patterns.md` |
 | Documenting: C4 levels, choosing views per stakeholder, view template, ADR template, interface specs | `references/views-documentation.md` |
 | AI/LLM system architecture: agent patterns (single, ReAct, sequential, coordinator…), component decisions (framework, memory, tools, runtime), RAG/vector storage | `references/agentic-ai.md` |
+| Which skill leads a backend decision (architecture, framework, module design, API contract, error model, implementation, tests, debugging, performance) — read by `/akili-specify` and the Leader for any backend work, architecturally significant or not, without activating this skill | `references/backend-routing.md` |
 
 A full TRD normally needs `nfr-scenarios.md` + `architecture-styles.md`, and `views-documentation.md` when drawing views; load `design-patterns.md` only when module design starts, and `agentic-ai.md` only when the system embeds LLM/agent behavior.
 

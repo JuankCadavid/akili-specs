@@ -6,9 +6,17 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **A Backend Routing Matrix, `software-architect/references/backend-routing.md`,** maps each backend activity and context to one lead (a skill, or a named source: *existing design*, *the spec's scenarios* or *project conventions*) and its support skills, and holds one expertise card per backend skill. `software-architect` gains a *Routing* row that points to it.
+- **A `Backend route:` line on backend tasks** in `tasks.md`: `/akili-specify` Step 2.1 points to the matrix and Step 3.2 adds the *Preferred backend skill rule*.
+- **`/akili-constitution` Step 8D scaffolds a `### Backend routing` block** in the project `## Skill Map`, for projects with server-side code.
+- **The Leader persona (`.claude/templates/leader.md`) resolves backend skill collisions** from the matrix, in its skill-decision item 3.
+- **Repo `AGENTS.md` gains a `## Backend Skills` section** naming the nine backend skills and pointing at the matrix.
+
 ### Notes
 
-- No unreleased changes yet.
+- An install that holds an older `software-architect` folder keeps it under the skip policy and so lacks `backend-routing.md`; run `install --force` to get the matrix.
 
 ## [2.41.0] - 2026-11-01
 

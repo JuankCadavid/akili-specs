@@ -69,6 +69,8 @@ Adapted skills (`adapted-by`, body edited) are not in this category; they follow
 | `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work, routed per the design routing matrix), `gsap-animation` (animation implementation layer), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
 | `stack` | `angular-developer`, `golang-pro`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
 
+Routing matrices — design (`impeccable-bridge` → `references/design-routing.md`) and backend (`software-architect` → `references/backend-routing.md`) — are each held once, in the skill that owns the decisions; every other surface names the file (and a section where it points into one), never a line number, and never copies a row.
+
 Rules of thumb:
 
 - A skill earns `core` only when a command step would be *wrong* without it (a retrospective without `kaizen` is not the AKILI archive).
