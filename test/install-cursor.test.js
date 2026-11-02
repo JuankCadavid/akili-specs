@@ -225,7 +225,7 @@ const SKILL_FILE_COUNT = countFiles(SOURCE_SKILLS);
 const SKILL_DIR_COUNT = fs
   .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
   .filter((e) => e.isDirectory()).length;
-const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 317 = 331
+const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 318 = 332
 const RESOURCE_FILE_COUNT = 8; // gsc_verify.py, parse_tests.js, leader/implementer/reviewer/tester.md, digests.json, .mcp.json.example
 // The installer's OWN install/skip/overwrite counters (and the printed
 // "install "/"skip existing " lines) are per top-level operation, not per
@@ -241,16 +241,17 @@ const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 14 + 32 
 test(
   "@akili-spec changes/cursor-install-target FR-2/FR-4 (Codex and Cursor share one skills root): Codex installs fresh, Cursor skips every shared-root file while its own resources install",
   (t) => {
-    // 317 = 247 (the 30 skills before Impeccable) + 58 upstream Impeccable
+    // 318 = 247 (the 30 skills before Impeccable) + 58 upstream Impeccable
     // files + 3 AKILI provenance files (LICENSE, NOTICE, UPSTREAM.md) = 61 under
     // .claude/skills/impeccable/ (changes/impeccable-hardening, FR-3), + 1
     // impeccable-bridge/references/design-routing.md (changes/design-skill-routing),
-    // + 8 golang-pro files (6 upstream + LICENSE + NOTICE; changes/go-backend-routing/golang-skill).
-    const SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8;
+    // + 8 golang-pro files (6 upstream + LICENSE + NOTICE; changes/go-backend-routing/golang-skill),
+    // + 1 software-architect/references/backend-routing.md (changes/go-backend-routing/backend-skill-routing).
+    const SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8 + 1;
     assert.equal(
       SKILL_FILE_COUNT,
       SKILL_FILE_EXPECTED,
-      `expected ${SKILL_FILE_EXPECTED} (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
+      `expected ${SKILL_FILE_EXPECTED} (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro + 1 backend-routing.md) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
         "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"
     );
     assert.equal(COMMAND_COUNT, 14, `expected 14 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);
@@ -344,7 +345,7 @@ test(
 
     // File-level proof (the "every skill FILE skipped" half of the scenario,
     // not just every top-level directory operation): the shared root holds
-    // exactly the real 331 files (14 command SKILL.md + 317 packaged skill
+    // exactly the real 332 files (14 command SKILL.md + 318 packaged skill
     // files), and the Cursor block rewrote none of them -- content is
     // byte-identical to what the Codex block alone wrote.
     const sharedFileList = listRelativeFiles(skillsShared);

@@ -38,7 +38,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M (~170 LOC + 5 count sites) |
 | Depends on | — |
 | Requirements | FR-1 (both scenarios: every skill placed, held once; BUT two leads / no lead; AND stack lead only `implement` and `framework-selection`), FR-2 (rule; Go + `tdd` scenario incl. BUT coverage; NestJS bug scenario incl. BUT no fix before root cause), FR-3 (rule; not-significant scenario incl. BUT no new style; stack-absent scenario incl. AND no install advice), FR-4 (cards; BUT no line numbers / no over-claim), FR-9 (Go layering route), NFR-1, NFR-5, NFR-6, NFR-7 |
