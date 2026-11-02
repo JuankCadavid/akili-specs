@@ -270,3 +270,65 @@ Correction-closure sweep (forward): `grep -n "two named sources\|Two named sourc
 - Final verification: `npm test` 1433 pass, 0 fail.
 - Running totals vs budget: tasks 8 / 9 · LOC ~420 (≈190 prose + 229 tests) / ~650 · review rounds 13 / ~18 — within budget.
 - Gate: auto-approved (JC gate decision after T1).
+
+### T9: Held-out routing walkthrough (HITL) — evidence
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-02 |
+| Walker | fresh read-only agent, `opus` (authors: `sonnet` Implementers), no spec access; allowed text only: `backend-routing.md` (whole), `akili-specify.md` *Preferred backend skill rule:* block, `leader.md` item 3 |
+| Profiles | (a) Go paginated REST endpoint, flaky upstream with retries, `tdd` kept; (b) NestJS on AWS Lambda, SQS consumer double-processes (bug); (c) Python FastAPI (no packaged skill), new background-worker module, significant |
+| Source | walker's report in this session's transcript (T9 hand-back), lines quoted below |
+
+**Routes the walker wrote (verbatim):**
+- (a) `Backend route: stack Go; api-contract lead api-design-principles support golang-pro; error-model lead error-handling-patterns support golang-pro; implement lead golang-pro support api-design-principles, error-handling-patterns; test-first lead tdd support golang-pro`
+- (b) `Backend route: stack AWS serverless; bug-diagnosis lead systematic-debugging support aws-serverless, nestjs-expert; implement lead aws-serverless support error-handling-patterns; test-suite lead the spec's scenarios support aws-serverless` (walker: "If the confirmed root cause sits inside Nest service code, the stack becomes `NestJS` and implement becomes `lead nestjs-expert`.")
+- (c) `Backend route: stack other; architecture lead software-architect support none — project conventions; module-design lead software-architect support none — project conventions; implement lead existing design support none — project conventions; test-suite lead the spec's scenarios support none — project conventions`
+
+**Who decides — the walker's answers (verbatim from the T9 hand-back):**
+- (a) Retry / resilience: "`error-handling-patterns`. It 'owns the handling philosophy, the error categories and recovery (circuit breaker, aggregation, graceful degradation)'. `golang-pro` only supplies the `%w` idiom." · Error body and status codes: "`api-design-principles`, via the api-contract row: 'status codes and error body belong to `api-contract`'." · Test expected values: "`requirements.md`, never `tdd` or `golang-pro`." · Diagnosis: "not applicable."
+- (b) Diagnosis: "`systematic-debugging`. No fix may be proposed before the root cause." · Retry / resilience: "`error-handling-patterns`, if the error-model row is touched. The file says nothing on who leads SQS redrive or visibility-timeout configuration." · Error body: "not applicable, since there is no HTTP contract. If one were touched, `api-design-principles` would lead." · Test expected values: "the spec's scenarios. `tdd` is not listed, so the activity is `test-suite`."
+- (c) Retry / resilience: "`error-handling-patterns`, via the error-model row (context 'any'), with support `none — project conventions`." · Error body: "`api-design-principles`, only if an endpoint is touched." · Test expected values: "the spec's scenarios, from `requirements.md`." · Diagnosis: "not applicable." · Install: "none."
+
+**Comparison with the expected leads (tasks.md T9 Falsifier):**
+
+| Expected | Walker | Result |
+|---|---|---|
+| (a) `api-contract` lead `api-design-principles` | same | match |
+| (a) `error-model` lead `error-handling-patterns` (retry / circuit breaker) | same; retry assigned under "recovery" | match (ambiguity A below) |
+| (a) `test-first` lead `tdd` | same | match |
+| (a) `implement` lead `golang-pro` | same | match |
+| (b) `bug-diagnosis` lead `systematic-debugging`, support `nestjs-expert` and `aws-serverless` | same | match |
+| (b) no fix before root cause | "No fix before root cause; a stack skill's root-cause list is a hypothesis, not a diagnosis." | match |
+| (c) `architecture` / `module-design` lead `software-architect` | same | match |
+| (c) support `none — project conventions` | same | match |
+| (c) no install advice | "No skill is recommended for install" | match |
+| Who decides retries → `error-handling-patterns` (recovery) | (a)(b)(c) `error-handling-patterns` | match (ambiguity A: "retry" not named in the row) |
+| Who decides error body / status codes → `api-design-principles` (`api-contract`, DD-9 split) | (a) `api-design-principles`; (b)(c) same when an HTTP contract is touched | match |
+| Who decides test values → `requirements.md` / `design.md` (under `tdd` in (a)) | (a) `requirements.md`; (b)(c) the spec's scenarios | match |
+| Who decides diagnosis → `systematic-debugging` | (b) `systematic-debugging`; (a)(c) n/a | match |
+| Any stack lead outside `implement` / `framework-selection`, or two leads | none written; the walker **reported** one two-lead reading as an ambiguity (C) | no mismatch in the routes; ambiguity C presented to JC |
+
+**Ambiguities the walker reported (verbatim gist, for JC):**
+- **A — retry not named.** "'Retry' is never named as such. I counted it under 'recovery', but the shipped list (circuit breaker, aggregation, graceful degradation) does not include retry or backoff."
+- **B — implement support cell.** "The implement row's support is 'method skills as constraints already in `design.md`'. The line format allows only 'Skill name(s) or `none — project conventions`', so how to write that support is unspecified."
+- **C — two leads for `implement` / other (consequence of A-3).** "The matrix and the Stack table say 'its `implement` row leads with *existing design*'. Rule 4 says *project conventions* may lead 'where the Skill Map names no skill for the stack or runtime'. Both name sources fit a `other` stack, so the text gives two leads." (Same point as the Reviewer's amendment-pass ADVISORY.)
+- **D — stack value across rule 6's boundary.** For a NestJS-on-Lambda fix whose side depends on the root cause, the single Stack value is not determined before diagnosis.
+- **E — idempotency / at-least-once delivery** appear in no row or card. Walker on (b): "The file says nothing on who leads SQS redrive or visibility-timeout configuration."
+- Minor: "existing design" is thin for a brand-new module (rule 5 carries the significant design); architecture support "stack skill" → `none — project conventions` for `other` stacks is consistent but has no worked example.
+
+**T9 closure — PASS (evidence attempt 2).** Attempt 1 (Leader-written record) — Reviewer (opus) **FAIL**: "The T9 evidence does not record the walker's answers for who decides **error body** and **test values** … `tasks.md` T9 Scope says the walker … 'names who decides retries, error body, test values and diagnosis'" (KZ-changes--gate-falsifiability-2). Attempt 2 added the *Who decides* block verbatim from the hand-back and four comparison rows. Reviewer **PASS**: "Issue 1 is fixed … No mismatch is hidden, and no lead outside the matrix appears"; asked that the walker's SQS redrive / visibility-timeout gap be listed with E (done). Evidence re-run: n/a (no command verification — a walkthrough). runtime events: none. spawns: Walker (opus) 3 calls, 67073 tokens, ended complete; Reviewer (resumed ×2) not reported by host per call. Mismatches: **none**; ambiguities A–E presented to JC at the closing HITL pause.
+
+## Summary
+
+| Measure | Budget (design §12) | Actual |
+|---|---|---|
+| Tasks | 9 | 9 `[x]` + one amendment pass (A-2 – A-4) |
+| LOC (shipped, outside `docs/specs/`) | ~650 | 398 insertions / 17 deletions across 19 files (matrix 101, tests 229, rest prose) |
+| Review rounds | ~18 | 15 (T1 2, T2 1, T3 1, T4 1, T5 2, T6 2, amendments 1, T7 2, T8 1, T9 2) |
+
+- Final verification: `npm test` 1433 pass / 0 fail (1419 baseline + 14); `npm run verify:cli` green; `npm run pack:dry-run` green (419 files); `git diff --check` clean.
+- Amendments: A-2, A-3, A-4 approved by JC 2026-11-02 (gate after T6).
+- Rework causes for the retrospective: T1 dropped §5.1 Source column; T5 Scope omitted FR-5's deviation-record clause (Scope gap); T6 CHANGELOG over-claim (KZ-002); T7 governance over-claim (KZ-002) + P-13 grep premise gap; T9 Leader-written evidence dropped a Scope obligation (KZ-changes--gate-falsifiability-2).
+- Open for JC: T9 ambiguities A (retry not named in the error-model row/card), B (implement support cell vs line form), C (`implement` / other: *existing design* vs rule 4's *project conventions*), D (stack value across rule 6), E (idempotency; SQS redrive/visibility timeout). Persona drift in `.agents/leader.md` / `tester.md` (not fixed).
+- Not done in this cycle (per JC): no push, PR, merge, tag or publish.

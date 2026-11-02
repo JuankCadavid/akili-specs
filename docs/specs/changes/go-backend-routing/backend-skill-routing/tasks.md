@@ -190,7 +190,7 @@ No cycles. T2–T7 edit disjoint files and are parallel-safe after T1; this run 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | XS (no shipped LOC; evidence in `execution.md`) |
 | Depends on | T8 |
 | Requirements | requirements §8 "Agents do not follow the routing" (substitute check); FR-2, FR-3, FR-5, FR-6 |
