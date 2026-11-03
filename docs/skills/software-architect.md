@@ -21,6 +21,10 @@ Makes the agent operate as a **senior software architect** during TRD and design
 - **Every diagram has a legend**; C4 Context + Container are the default view set.
 - **Token frugality** — progressive disclosure via `references/` (NFR scenarios & tactics, architecture styles, design patterns, views & ADRs, agentic AI); conceptual designs only, no implementation code in documents.
 
+## Backend Routing Matrix
+
+It owns the backend routing matrix, `references/backend-routing.md`, which decides which skill leads each backend decision (its *Decision rule*, *Stack table*, *Matrix*, *Expertise cards* and *Backend route line* sections). Three named sources may lead when no skill is loaded for a decision: *existing design*, *the spec's scenarios* and *project conventions*. The matrix is read by path for any backend design, architecturally significant or not.
+
 ## Best Paired Commands
 
 - `/akili-constitution` — runs the full spine in Step 5; hands the tier decision to Step 6.

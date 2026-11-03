@@ -658,7 +658,8 @@ which answers *when and how each skill loads*:
   `aws-serverless`, …) are never hardcoded into commands. `/akili-constitution` Step 8D writes a
   `## Skill Map` into the project's `AGENTS.md`/`CLAUDE.md` from the detected stack;
   `/akili-specify` derives each task's required skills from that map; the Leader passes them to the
-  Implementer/Tester via dynamic skill loading.
+  Implementer/Tester via dynamic skill loading. For backend work, which skill leads each decision is
+  set by the backend routing matrix (`software-architect` → `references/backend-routing.md`); the stack skill supplies the idiom.
 
 Every skill preserves its original author and license; AKILI adaptation is recorded as `adapted-by`
 in the skill frontmatter. Curation by Juan Carlos Cadavid — jcadavid.com.

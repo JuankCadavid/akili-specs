@@ -80,6 +80,22 @@ Impeccable decides what and why; the stack decides how. One lead skill per activ
 
 The routing matrix is `.claude/skills/impeccable-bridge/references/design-routing.md`.
 
+## Backend Skills
+
+The method skill decides what and why; the stack skill decides how in this language or framework. One lead per activity and context; supporting skills give inputs, not rules. Stack skills reach agents through the project `## Skill Map` and per-task skill lists.
+
+- `software-architect` — style, NFR scenarios, tactics, patterns, ADRs, robust-vs-lite sizing.
+- `api-design-principles` — REST and GraphQL resource model, versioning, pagination, error responses.
+- `error-handling-patterns` — error-handling philosophies, error categories, circuit breaker, graceful degradation.
+- `tdd` — red-green loop, seams, test anti-patterns (assigned by the Leader).
+- `systematic-debugging` — root cause before fix, four phases.
+- `nestjs-expert` — stack skill: Nest modules, DI, controllers, guards, Jest/Supertest; leads `implement` on NestJS.
+- `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
+- `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
+- `ai-agent-development` — stack skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.
+
+The routing matrix is `.claude/skills/software-architect/references/backend-routing.md`.
+
 ## CodeGraph
 
 This repository has CodeGraph initialized under `.codegraph/` for faster semantic code exploration.

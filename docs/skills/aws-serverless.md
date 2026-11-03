@@ -6,7 +6,7 @@ Guides production-ready serverless applications on AWS, including Lambda, API Ga
 
 ## Use When
 
-- Designing or reviewing AWS serverless architecture.
+- Designing or reviewing AWS serverless implementation (Lambda handler, event source, infrastructure); architecture decisions are led per the backend routing matrix, `software-architect` → `references/backend-routing.md`.
 - Planning Lambda APIs, queues, topics, DynamoDB tables, or event flows.
 - Documenting serverless deployment and operational constraints.
 - Optimizing cold starts or reliability in serverless systems.

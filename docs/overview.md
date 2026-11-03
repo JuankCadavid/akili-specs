@@ -75,7 +75,7 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 
 | Skill | Binding | Use it for |
 |---|---|---|
-| [`ai-agent-development`](skills/ai-agent-development.md) | stack | Agent framework and runtime selection, agent architecture, AWS hosting choice, and the bridge from agent behavior to AKILI spec documents |
+| [`ai-agent-development`](skills/ai-agent-development.md) | stack | Leads agent framework and runtime selection (incl. AWS hosting choice) and supports agent architecture under the backend routing matrix; also the bridge from agent behavior to AKILI spec documents |
 | [`api-design-principles`](skills/api-design-principles.md) | stack | REST and GraphQL API design and review |
 | [`aws-serverless`](skills/aws-serverless.md) | stack | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK |
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
