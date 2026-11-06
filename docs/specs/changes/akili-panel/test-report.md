@@ -7,13 +7,13 @@
 | Spec Path | `changes/akili-panel` |
 | Status | **PASS.** Both `PRODUCT_BUG`s fixed and confirmed live; recorded gaps in section 9 |
 | Date | 2026-11-06 |
-| Tested at | First run: `5ac821f` plus this report's tests. Final re-test: `0788c8e` |
+| Tested at | First run: `5ac821f` plus this report's tests. Final re-test: `8098a44` |
 | Runtime | Claude Code **2.1.319** (the spec pins 2.1.318, NFR-6, D-10), macOS, Node 22.23.4 and Node 18.20.8 |
 | Leader / Testers | Leader `claude-opus-5-5`. Testers `opus`: no `akili-tester` wrapper exists, and the only Implementer model recorded in `execution.md` is `sonnet`, so author ≠ tester holds |
 
 ## 2. Summary
 
-**Final state at `0788c8e`:** all green, live `/clear` check passed.
+**Final state at `8098a44`:** all green, live `/clear` check passed.
 
 | Check | Result |
 |---|---|
