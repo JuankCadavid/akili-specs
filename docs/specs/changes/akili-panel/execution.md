@@ -282,3 +282,78 @@
   - Implementer `sonnet`: 44 calls, 143,824 tokens, ended complete.
   - Reviewer `opus`: 27 calls, 112,566 tokens, ended complete (PASS).
 - **Running totals vs budget:** tasks 2 / 9 · LOC ~627 / ~2,100 · review rounds 4 / 15. Within budget.
+
+### T3: `list` and `doctor` show the plugin — in progress
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:**
+  - `bin/akili.js`: +45 net. `runList` gets the `Plugins:` block and the plugin count. `doctorTool` gets the Claude plugin check and `LEAKED` for the other tools. `PLUGIN_COMPARE_OPTIONS` is added, and `copyPlugins` now passes it (T2's forward pointer, closed).
+  - `bin/install-compare.js`: `compareEntry` takes an optional ignore list, applied in `walkSource`.
+  - `test/install-akili-panel.test.js`: +20 tests.
+  - `test/install-compare.test.js`: +1 test.
+- **Implementer verification:**
+  - The four named suites: 90 / 90. `npm test`: 1491 / 1491.
+  - Red run: 11 tests red against the T2 code.
+  - Falsifiers (1)–(6), each observed red:
+    - (1) `not ok 38 - FR-3 list…`
+    - (2) 13 fail
+    - (3) `not ok 42 - FR-15 doctor ignores types/`
+    - (4) `not ok 41 - FR-4 differing plugin…`
+    - (5) LEAKED tests 44 / 46 / 48 / 50 / 52
+    - (6) `not ok 42`, `not ok 68 - ignore option…`
+- **`Not Done / Assumptions` (verbatim):**
+  - "Beyond the spec, `--fix` restores a missing plugin only when no `akili-panel` folder exists at all. A folder with no `plugin.json` is reported `MISSING` and left alone, since it could be someone else's. This is a judgment call. The cost is that a plugin whose `plugin.json` alone was deleted is not auto-fixed."
+  - "With an invalid Grok Bot record, `removeLeakedPlugin` removes nothing. Doctor then keeps printing `LEAKED`, even under `--fix`."
+  - The Implementer did not run `npm run pack:dry-run`. The Leader's re-run covers it.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - Suites 90 / 90; `npm test` 1491 / 1491.
+  - `node bin/akili.js list` prints `Plugins:\n  akili-panel`, then `Summary: 14 commands | 32 skills | 1 plugin | 8 resources (akili-specs v2.42.0)`.
+  - `npm pack --dry-run`: four `akili-panel` files and 0 `types/`.
+  - `git diff --check` is clean; the `.claude/commands` diff is empty.
+- **Reviewer verdict (opus, `full`): `FAIL`**, verbatim:
+
+> 1. **Discovered Issue:** When an `akili-panel/` folder exists in the Claude skills dir but has no `.claude-plugin/plugin.json`, doctor reports `MISSING akili-panel` and `--fix` never restores it. I reproduced it: install for claude, delete only `plugin.json`, run `doctor --tool claude --fix`. The output is `MISSING akili-panel`, `missing 1 | fixed 0`, and the hint "Run akili doctor --tool claude --fix to auto-repair the 1 missing file(s)". That hint points at the command that just failed. A plain `doctor` then exits 1, and nothing short of deleting the folder by hand clears it.
+>    * **Violated Rule:** `requirements.md` FR-4 statement says the plugin is present "when `<claude skills dir>/akili-panel/.claude-plugin/plugin.json` exists", and "As for a skill, `--fix` SHALL restore a **missing** plugin for Claude". Doctor already calls this entry missing by that definition. "As for a skill" means the skills loop in the same function, which restores whenever `SKILL.md` is absent, even when the folder exists. P-31's "writes only absent entries" points at `:1666`, which is the Grok Bot ownership path. Claude has no ownership record and no FOREIGN state in design §6.3 or §7.3. §7.4's foreign rule covers only non-Claude dirs.
+>    * **Remediation Suggestion:** In the Claude branch, when the folder exists without `plugin.json` and without `SKILL.md`, have `--fix` write only the plugin files that are absent at the target and never overwrite a file that is present. The plugin comes back as FR-4 requires, any edited file is then reported `DIFFERS` on the next run, and the "never written" clause still holds. A folder that carries `SKILL.md` can stay untouched, but give it its own line, not a bare `MISSING` with a promise that `--fix` will repair it. Add a test: delete `plugin.json` only, `--fix` brings it back, an edited README keeps its bytes. If the Leader prefers the current narrowing, it changes an FR-4 SHALL. That goes to JC through the Pivot Protocol, not into this loop.
+>
+> ADVISORY:
+> - RELIABILITY: Second assumption (invalid Grok Bot record). Leaving the copy matches the established rule: `dropOwned` throws on an invalid record, and `checkOwnedEntry` prints `BLOCKED`. So it is consistent and not a FAIL. But under `--fix` the line still reads plain `LEAKED`, and the summary still suggests `--fix`. Printing `BLOCKED akili-panel (invalid ownership record; nothing is written)`, as the skills path does, would explain why.
+> - READABILITY: A leaked copy is counted in `missing`, so the summary says "auto-repair the 1 missing file(s)" for something `--fix` removes. FR-4 only asks that it "counts a problem", so this is wording only.
+> - RISK: The `<n> plugins` plural (W-9) has no test, since only one plugin exists. The ternary is trivially right; a pure-function test would pin it.
+> - RELIABILITY: The foreign-folder test (`plg-doc-foreign-`) does not call `assertSkillsInstalled`. It creates the opencode skills path itself, so it is not vacuous, but it falls outside the disqualifier's pattern.
+
+- **Leader adjudication:** the issue is in scope and accepted; it follows FR-4's own text, so no Pivot is needed. The second assumption is consistent with the rule (advisory only).
+- **Spawns:** Implementer `sonnet`, 31 calls, 108,011 tokens, ended partial (`Not Done / Assumptions`). Reviewer `opus`, 11 calls, 86,523 tokens, ended complete (FAIL).
+- **Attempt 2:** effort raised from medium to high; the same worker, which still has its context, is resumed by message with the FAIL report verbatim.
+
+#### Attempt 2 — Reviewer `PASS`
+
+- **Files changed:** `bin/akili.js`. The Claude branch of `doctorTool` gains `copyPluginAbsentSync`, which on `--fix` writes only absent files, never overwrites, skips `.claude-plugin/types` and prints `FIXED akili-panel`. A folder that holds `SKILL.md` gets `BLOCKED akili-panel (the folder holds a SKILL.md, so it is not the plugin; nothing is written)` and counts as `foreign`. `test/install-akili-panel.test.js` gains three tests:
+  - `FR-4 folder without plugin.json: --fix restores the absent file and keeps an edited one (then DIFFERS)`
+  - `… restored from a package with types/: types/ is not written`
+  - `FR-4 folder with a SKILL.md and no plugin.json: BLOCKED line, nothing written, no auto-repair promise`
+- **Red against attempt 1:** `The input did not match the regular expression /FIXED\s+akili-panel/`, observed in all three tests.
+- **Implementer verification:**
+  - The four suites: 93 / 93. `npm test`: 1494 / 1494.
+  - The pack lists four `akili-panel` files.
+  - Falsifier (4) observed red again: `not ok 3 - FR-4 differing plugin: reported DIFFERS; --fix does not overwrite the edited file`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - The four suites: `# tests 93 # pass 93 # fail 0`. `npm test`: `# tests 1494 # pass 1494 # fail 0`.
+  - The pack count is 4; `git diff --check` is clean.
+  - Repro in a temp `HOME`: install for claude, delete `plugin.json`, append to `README.md`, then run `doctor --tool claude --fix`. It prints `FIXED akili-panel`. The next `doctor` prints `DIFFERS akili-panel (README.md)`, and the README keeps the edit.
+- **Reviewer verdict, round 2 (opus, `full`, re-audit of the whole diff because this is a rework): `PASS`.**
+  - "Round 1's FAIL is fixed and the rest of the diff still conforms."
+  - It walked FR-4 scenario by scenario, both BUT clauses included.
+  - The `BLOCKED` / `foreign` counting does not conflict with design §6.3, which says nothing about the case. It reuses the doctor's existing `foreign` contract ("not missing (`--fix` cannot repair them), but they fail the run all the same").
+- **ADVISORY (recorded; not acted on):**
+  - In the `BLOCKED` case, Claude has no `foreign` column, so `Next steps:` prints empty.
+  - `copyPluginAbsentSync` can print `FIXED` over a symlinked or non-directory node it skipped.
+  - The round-1 advisories still stand: `LEAKED` vs `BLOCKED` on an invalid Grok Bot record, the summary's `missing` wording, the plural test, and the foreign-folder test pattern.
+- **Decisions:**
+  - **Judgment call, recorded for `/akili-validate`:** a Claude-dir `akili-panel/` folder that holds a `SKILL.md` is not the plugin. Doctor reports it `BLOCKED` and `--fix` writes nothing there. This narrows FR-4's literal "restore a missing plugin" for that one case, under the installer-safety rule in `AGENTS.md`. The Reviewer judged it consistent with the spec, and design §6.3 says nothing about the case.
+  - Invalid Grok Bot record: the leaked copy is kept, matching `checkOwnedEntry` (advisory only).
+- **Spawns:**
+  - Implementer `sonnet`, attempt 2 (resumed): 6 calls, 121,033 tokens cumulative, ended complete.
+  - Reviewer `opus`, round 2 (resumed): 4 calls, 99,773 tokens cumulative, ended complete (PASS).
+- **Running totals vs budget:** tasks 3 / 9 · LOC ~1,060 / ~2,100 · review rounds 6 / 15. T3 was budgeted 2 rounds and used 2. Within budget.

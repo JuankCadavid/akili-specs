@@ -72,7 +72,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS attempt 2 (`execution.md` → T3) |
 | Size | M (~40 LOC code, ~120 LOC tests) |
 | Depends on | T2 |
 | Requirements | FR-3 (list scenario: under `Plugins:`, not under `Skills:`, summary `32 skills \| 1 plugin`), FR-4 (healthy after install incl. no `MISSING akili-panel`; missing plugin + `--fix` restores; differing plugin reported `DIFFERS` incl. BUT MUST NOT overwrite; other tools incl. BUT not counted as missing; leaked copy reported `LEAKED` + `--fix` removes), FR-15 (doctor compare ignores `types/`) |

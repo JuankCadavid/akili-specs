@@ -398,3 +398,191 @@ test("FR-13 the skill count is 32 and the plugin entry is not counted as a skill
   assert.equal(SKILLS.includes(PLUGIN), false);
   assert.equal(isPluginEntry(SOURCE_PLUGIN), true, "the scaffold is recognised by the two file checks");
 });
+
+// ------------------------------------------------------- T3: list and doctor
+// @akili-spec changes/akili-panel T3 (FR-3, FR-4, FR-15)
+
+// The lines between a "<heading>:" line and the next blank line.
+function block(stdout, heading) {
+  const lines = stdout.split("\n");
+  const start = lines.findIndex((l) => l.trim() === `${heading}:`);
+  assert.ok(start >= 0, `output has a "${heading}:" heading; got:\n${stdout}`);
+  const out = [];
+  for (let i = start + 1; i < lines.length && lines[i].trim() !== ""; i++) out.push(lines[i].trim());
+  return out;
+}
+
+// The doctor section of one tool: from its "Checking <TOOL>:" line to the next one.
+function section(stdout, tool) {
+  const lines = stdout.split("\n");
+  const start = lines.findIndex((l) => l.startsWith(`Checking ${tool.toUpperCase()}:`));
+  assert.ok(start >= 0, `doctor output has a Checking ${tool.toUpperCase()} section; got:\n${stdout}`);
+  let end = lines.findIndex((l, i) => i > start && l.startsWith("Checking "));
+  if (end < 0) end = lines.length;
+  return lines.slice(start, end).join("\n");
+}
+
+test("FR-3 list: akili-panel is under Plugins:, not Skills:; summary reads 32 skills | 1 plugin", (t) => {
+  const home = mkTmp(t, "plg-list-");
+  const run = runAkili(home, ["list"]);
+  assert.equal(run.status, 0, run.stderr);
+  assert.deepEqual(block(run.stdout, "Plugins"), [PLUGIN]);
+  const skills = block(run.stdout, "Skills");
+  assert.equal(skills.length, 32, "Skills: lists the 32 skills");
+  assert.equal(skills.includes(PLUGIN), false, "akili-panel is not under Skills:");
+  assert.match(run.stdout, /Summary: \d+ commands \| 32 skills \| 1 plugin \| \d+ resources \(akili-specs v/);
+  assert.ok(run.stdout.indexOf("Skills:") < run.stdout.indexOf("Plugins:"), "Plugins: comes after Skills:");
+  assert.ok(run.stdout.indexOf("Plugins:") < run.stdout.indexOf("Resources:"), "Plugins: comes before Resources:");
+});
+
+test("FR-4 healthy after install --tool all: no MISSING akili-panel; Claude section shows it present", (t) => {
+  const home = mkTmp(t, "plg-doc-healthy-");
+  assert.equal(runAkili(home, ["install", "--tool", "all"]).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const run = runAkili(home, ["doctor", "--tool", "all"]);
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  assert.equal(/MISSING\s+akili-panel/.test(run.stdout), false, "no MISSING akili-panel line");
+  assert.match(section(run.stdout, "claude"), /OK akili-panel/);
+});
+
+test("FR-4 missing plugin: reported MISSING, restored by --fix", (t) => {
+  const home = mkTmp(t, "plg-doc-missing-");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"]).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const dest = path.join(home, ".claude", "skills", PLUGIN);
+  fs.rmSync(dest, { recursive: true, force: true });
+  const report = runAkili(home, ["doctor", "--tool", "claude"]);
+  assert.match(report.stdout, /MISSING\s+akili-panel/);
+  assert.notEqual(report.status, 0, "a missing plugin is a problem");
+  assert.equal(fs.existsSync(dest), false, "doctor without --fix writes nothing");
+  const fix = runAkili(home, ["doctor", "--tool", "claude", "--fix"]);
+  assert.match(fix.stdout, /FIXED\s+akili-panel/);
+  assert.deepEqual(walkFiles(dest), walkFiles(SOURCE_PLUGIN), "the packaged four files are back");
+  const after = runAkili(home, ["doctor", "--tool", "claude"]);
+  assert.equal(after.status, 0, after.stdout);
+});
+
+test("FR-4 differing plugin: reported DIFFERS; --fix does not overwrite the edited file", (t) => {
+  const home = mkTmp(t, "plg-doc-differs-");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"]).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const readme = path.join(home, ".claude", "skills", PLUGIN, "README.md");
+  fs.writeFileSync(readme, "locally edited\n");
+  const fix = runAkili(home, ["doctor", "--tool", "claude", "--fix"]);
+  assert.match(fix.stdout, /DIFFERS\s+akili-panel \(README\.md\)/);
+  assert.equal(fs.readFileSync(readme, "utf8"), "locally edited\n", "--fix never writes a differing plugin");
+});
+
+test("FR-15 doctor ignores types/: a package with a generated types/ and an installed copy with its own types/ read present, not DIFFERS", (t) => {
+  const copy = copyPackage(t); // the source side carries .claude-plugin/types/
+  const home = mkTmp(t, "plg-doc-types-");
+  const bin = path.join(copy, "bin", "akili.js");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"], { bin }).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const installedTypes = path.join(home, ".claude", "skills", PLUGIN, ".claude-plugin", "types");
+  fs.mkdirSync(installedTypes, { recursive: true });
+  fs.writeFileSync(path.join(installedTypes, "index.d.ts"), "export {};\n");
+  const run = runAkili(home, ["doctor", "--tool", "claude"], { bin });
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  assert.match(section(run.stdout, "claude"), /OK akili-panel/);
+  assert.equal(/DIFFERS\s+akili-panel/.test(run.stdout), false, "types/ is not compared");
+  // the skip-existing compare of a second install ignores it too
+  const again = runAkili(home, ["install", "--tool", "claude"], { bin });
+  const skip = again.stdout.split("\n").find((l) => l.includes("skip existing") && l.includes(path.join(".claude", "skills", PLUGIN)));
+  assert.ok(skip && skip.includes("(identical)"), `second install reads the plugin identical; got: ${skip}`);
+});
+
+for (const tool of NON_CLAUDE) {
+  test(`FR-4 doctor --tool ${tool}: names no akili-panel when no leaked copy is present`, (t) => {
+    const home = mkTmp(t, `plg-doc-other-${tool}-`);
+    assert.equal(runAkili(home, ["install", "--tool", tool]).status, 0);
+    assertSkillsInstalled(home, SKILL_DIRS[tool], tool);
+    const run = runAkili(home, ["doctor", "--tool", tool]);
+    assert.equal(run.status, 0, run.stdout + run.stderr);
+    assert.equal(run.stdout.includes(PLUGIN), false, `doctor --tool ${tool} must not name akili-panel:\n${run.stdout}`);
+  });
+
+  test(`FR-4 doctor --tool ${tool}: a leaked copy is reported LEAKED and removed by --fix`, (t) => {
+    const home = mkTmp(t, `plg-doc-leak-${tool}-`);
+    assert.equal(runAkili(home, ["install", "--tool", tool]).status, 0);
+    assertSkillsInstalled(home, SKILL_DIRS[tool], tool);
+    for (const rel of SKILL_DIRS[tool]) seedLeak(path.join(home, rel));
+    if (tool === "grokbot") writeRecord(home, [...readRecord(home).folders, PLUGIN]);
+    const report = runAkili(home, ["doctor", "--tool", tool]);
+    const leaked = report.stdout.split("\n").filter((l) => /LEAKED\s+akili-panel/.test(l));
+    assert.equal(leaked.length, SKILL_DIRS[tool].length, `one LEAKED line per seeded copy; got:\n${report.stdout}`);
+    assert.notEqual(report.status, 0, "a leaked copy is a problem");
+    for (const rel of SKILL_DIRS[tool]) assert.ok(fs.existsSync(path.join(home, rel, PLUGIN)), "doctor without --fix removes nothing");
+    const fix = runAkili(home, ["doctor", "--tool", tool, "--fix"]);
+    assert.match(fix.stdout, /REMOVED[^\n]*akili-panel/);
+    for (const rel of SKILL_DIRS[tool]) assert.equal(fs.existsSync(path.join(home, rel, PLUGIN)), false, `${rel} copy removed`);
+    if (tool === "grokbot") {
+      const record = readRecord(home);
+      assert.equal(record.folders.includes(PLUGIN), false, "record drops akili-panel");
+      assert.ok(record.folders.includes("tdd"), "the record keeps its other names");
+    }
+    assert.equal(runAkili(home, ["doctor", "--tool", tool]).status, 0, "clean after --fix");
+  });
+}
+
+test("FR-4 doctor leaves a foreign akili-panel folder alone (no LEAKED)", (t) => {
+  const home = mkTmp(t, "plg-doc-foreign-");
+  assert.equal(runAkili(home, ["install", "--tool", "opencode"]).status, 0);
+  const dir = path.join(home, ".config", "opencode", "skills", PLUGIN);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "SKILL.md"), "---\nname: akili-panel\n---\n");
+  const run = runAkili(home, ["doctor", "--tool", "opencode", "--fix"]);
+  assert.equal(run.stdout.includes("LEAKED"), false);
+  assert.ok(fs.existsSync(path.join(dir, "SKILL.md")), "foreign folder kept");
+});
+
+// T3 rework 2 (FR-4): a folder that exists without plugin.json is a missing
+// plugin; --fix writes the absent files only and never overwrites a present one.
+test("FR-4 folder without plugin.json: --fix restores the absent file and keeps an edited one (then DIFFERS)", (t) => {
+  const home = mkTmp(t, "plg-doc-partial-");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"]).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const dest = path.join(home, ".claude", "skills", PLUGIN);
+  const manifest = path.join(dest, ".claude-plugin", "plugin.json");
+  const readme = path.join(dest, "README.md");
+  fs.rmSync(manifest);
+  fs.writeFileSync(readme, "locally edited\n");
+  const report = runAkili(home, ["doctor", "--tool", "claude"]);
+  assert.match(report.stdout, /MISSING\s+akili-panel/);
+  const fix = runAkili(home, ["doctor", "--tool", "claude", "--fix"]);
+  assert.match(fix.stdout, /FIXED\s+akili-panel/);
+  assert.ok(fs.readFileSync(manifest).equals(fs.readFileSync(path.join(SOURCE_PLUGIN, ".claude-plugin", "plugin.json"))), "plugin.json is back");
+  assert.equal(fs.readFileSync(readme, "utf8"), "locally edited\n", "a present file is never overwritten");
+  const after = runAkili(home, ["doctor", "--tool", "claude"]);
+  assert.match(after.stdout, /DIFFERS\s+akili-panel \(README\.md\)/);
+  assert.equal(/MISSING\s+akili-panel/.test(after.stdout), false);
+});
+
+test("FR-4 folder without plugin.json restored from a package with types/: types/ is not written", (t) => {
+  const copy = copyPackage(t);
+  const home = mkTmp(t, "plg-doc-partial-types-");
+  const bin = path.join(copy, "bin", "akili.js");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"], { bin }).status, 0);
+  const dest = path.join(home, ".claude", "skills", PLUGIN);
+  fs.rmSync(path.join(dest, ".claude-plugin", "plugin.json"));
+  assert.match(runAkili(home, ["doctor", "--tool", "claude", "--fix"], { bin }).stdout, /FIXED\s+akili-panel/);
+  assert.deepEqual(walkFiles(dest), walkFiles(SOURCE_PLUGIN), "exactly the packaged four, no types/");
+});
+
+test("FR-4 folder with a SKILL.md and no plugin.json: BLOCKED line, nothing written, no auto-repair promise", (t) => {
+  const home = mkTmp(t, "plg-doc-skillmd-");
+  assert.equal(runAkili(home, ["install", "--tool", "claude"]).status, 0);
+  assertSkillsInstalled(home, SKILL_DIRS.claude, "claude");
+  const dest = path.join(home, ".claude", "skills", PLUGIN);
+  fs.rmSync(path.join(dest, ".claude-plugin"), { recursive: true });
+  fs.writeFileSync(path.join(dest, "SKILL.md"), "---\nname: akili-panel\n---\n");
+  const before = walkFiles(dest);
+  for (const extra of [[], ["--fix"]]) {
+    const run = runAkili(home, ["doctor", "--tool", "claude", ...extra]);
+    assert.match(run.stdout, /BLOCKED\s+akili-panel \(.*nothing is written\)/, run.stdout);
+    assert.equal(/MISSING\s+akili-panel/.test(run.stdout), false, "no bare MISSING");
+    assert.equal(/auto-repair/.test(run.stdout), false, "no promise --fix can repair it");
+    assert.notEqual(run.status, 0, "still a problem");
+    assert.deepEqual(walkFiles(dest), before, "nothing written");
+  }
+});
