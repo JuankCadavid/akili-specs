@@ -679,3 +679,64 @@ Review rounds are projected at ~16–18 against 15.
 - **Spawns:**
   - Implementer `sonnet`, attempt 2 (resumed): 4 calls, 181,347 tokens cumulative, ended complete.
   - Reviewer `opus`, round 2 (resumed): 3 calls, 175,840 tokens cumulative, ended complete (PASS).
+
+### T6: Engine-kit tests (`claude plugin test`) — in progress (ran in parallel with T7: disjoint files, `.tsx` outside `npm test`)
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:** `.claude/skills/akili-panel/tests/panel.test.tsx`, new (229 LOC, 13 tests).
+- **Runtime:** `claude --version` → `2.1.319 (Claude Code)`; the types bundle read is 2.1.318.
+- **Implementer verification:** `claude plugin test` → 13 pass / 0 fail.
+- **Falsifiers:** all six observed red. Two (the dropped `pending` guard and the 60 s timeout) first went red by timeout; after the test was rewritten as `void press` + `clk.settle()`, they were re-observed as assertion reds.
+- **Evidence re-run (Leader-inline): `VERIFIED`.** `claude plugin test .claude/skills/akili-panel` → `13 pass 0 fail Ran 13 tests across 1 file.`; `npm test` 1602/1602.
+- **Reviewer (opus, `checklist`): `FAIL`**, verbatim:
+
+> 1. **Discovered Issue:** `pressNext()` (`tests/panel.test.tsx:143-147`) mounts only on `surface: 'terminal'`. The four FR-7 tests (lines 149-217) use it, so pressing Next is never exercised on desktop, and Next is the pane's only interactive element. The Implementer's claim "Mounts run on ['terminal','desktop']" holds only for the open test and the two FR-16 tests. **Violated Rule:** `tasks.md` T6 Disqualifier says "a mount on one surface only", and the T6 Scope says "mounts the pane with `$.ui.mount` on `['terminal', 'desktop']`; presses Next". `requirements.md` NFR-5 requires mounting on terminal and desktop. `reference.md:81` says to loop the body over `['terminal','desktop'] as const`. **Remediation Suggestion:** Give `pressNext($, clk, surface)` a surface argument. Generate each FR-7 test per surface with ``for (const surface of SURFACES) test(`… (${surface})`, …)``, so every engine is fresh. Then re-observe the dropped `pending` guard and B1 falsifiers as reds on both surfaces and quote them.
+>
+> Q4 object identity: acceptable, not a spec gap; record it as a known gap and do not claim identity as tested (T5's static contract test covers it). Q6 version gap 2.1.318 types vs 2.1.319 runtime: not material; quote both.
+> ADVISORY:
+> - Reliability: the throwing-observer test does not throw in the observer body itself, and no falsifier was observed for it.
+> - Readability: the Skill-tool test does not check `value.path`.
+> - Risk: `tests/panel.test.tsx` ships in the npm package into users' plugin folder (design §4 lists it there).
+
+- **Spawns:** Implementer `sonnet` 22 calls / 103,156 tokens, complete. Reviewer `opus` 13 calls / 82,049 tokens, complete (FAIL).
+- **Attempt 2:** effort raised from high to xhigh; the same worker is resumed with the report verbatim.
+
+### T7: Governance carve-out — in progress
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:** `docs/skills/governance.md` (+16 / −1).
+- **Implementer verification:** docs-overview 32/32; `npm test` 1602/1602.
+- **Evidence re-run (Leader-inline): `VERIFIED`** (same commands). The Leader's re-run read the −1 line as a diff-alignment artifact, as the Implementer described it. **That was wrong:** the line was the `## Frontmatter Schema` heading (Reviewer issue 1).
+- **Reviewer (opus, `full`): `FAIL`**, verbatim:
+
+> 1. **Discovered Issue:** The diff deletes the `## Frontmatter Schema` heading. The `-` line in the hunk has no matching `+`. Old headings had it at :80; the new file goes from `## Plugin entries are not skills` (:80) straight to `## Adaptation Levels` (:118). As a result, "Every packaged skill carries this frontmatter…" and the YAML schema now sit under the plugin carve-out, which says "the rules in this file do not apply to it". That makes the file contradict itself. It also breaks the *Frontmatter Schema* section that other documents cite by name (e.g. `docs/specs/archive/2026-11-01-changes--go-backend-routing--golang-skill/requirements.md:91` and the akili-review and akili-security archives). **Violated Rule:** `tasks.md` T7 Scope ("one short section… No other file" change) and the Reviewer checklist item *Stability & Integrity* (unrelated content must be kept). It also hits the brief's self-contradiction disqualifier. **Remediation Suggestion:** Put back `## Frontmatter Schema` followed by one blank line, directly before "Every packaged skill carries this frontmatter". Remove the extra blank line left at the end of the new section. Confirm with `git show HEAD:docs/skills/governance.md | grep -n '^#'` compared against the working tree: the only difference should be one added heading.
+> 2. **Discovered Issue:** The sentence "A copy found in any other tool's skills folder is reported as leaked and is not kept" is not true of the shipped code: plain `akili doctor` reports `LEAKED` and keeps the copy (`bin/akili.js:2025-2029`). Only `install` (`:1431`) and `doctor --fix` remove it. `removeLeakedPlugin` returns early and keeps the copy when a Grok Bot ownership record is invalid (`:1102`). Detection only covers a folder whose manifest `name` is `akili-panel` (`isLeakedPlugin`, `:1084-1093`), not any copy. **Violated Rule:** KZ-002. **Remediation Suggestion:** Replace the sentence with: "If a copy turns up in another tool's skills folder, `akili doctor` reports it as `LEAKED`, and `akili install` or `akili doctor --fix` removes it. An invalid Grok Bot ownership record blocks the removal."
+
+- **Spawns:** Implementer `sonnet` 7 calls / 62,368 tokens, complete. Reviewer `opus` 8 calls / 62,408 tokens, complete (FAIL).
+- **Attempt 2:** effort raised from medium to high; the same worker is resumed with the report verbatim.
+
+#### T6 attempt 2 — Reviewer `PASS`
+
+- **Fix:** `pressNext($, clk, surface)` takes a surface argument. The four FR-7 tests are generated per surface (lines 149, 162, 180, 195), which gives 17 tests.
+- **Falsifiers observed red on both surfaces** (temp copy):
+  - Dropped `pending` guard: 6 fail (double-press and both A1 tests × terminal/desktop), each `Expected: 1 Received: 2`.
+  - B1 kept spec recorded only in the observer: 2 fail, `… records the kept spec (B1) (terminal)` / `(desktop)`, each `Expected: ["spec:/proj"] Received: []`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - `claude plugin test .claude/skills/akili-panel` → `17 pass 0 fail Ran 17 tests across 1 file.`
+  - The two remaining `surface: 'terminal'` hits are `session.start` fields, not mounts.
+- **Reviewer round 2 (opus, `checklist`): `PASS`.** The round-1 issue is fixed. Every `$.ui.mount` runs on both surfaces and all reds are assertion reds. No Disqualifier is hit.
+- **Recorded:**
+  - **Known gap: FR-9 object identity is NOT tested.** The kit's `command.run` bottom re-wraps the result (`{ text, ref: undefined }`). It is covered at runtime by `text` + `args` equality, and statically by T5's contract test (`return ran` only). Do not claim identity as tested.
+  - **Versions:** runtime `claude` **2.1.319**; the types bundle read is 2.1.318. The Reviewer judged this not material.
+  - **Forward-pointer evidence:**
+    - (b) A kit stand-in `fs.list` rejection `Error('ENOENT: …')` draws "No docs/specs/ folder yet." The host's real shape is still `UNVERIFIED`; T9 checks it.
+    - The spec tension: `/akili-panel` answers before `command.register` runs in the kit. The kit does not refuse unregistered names, so this is not host proof.
+- **ADVISORY (recorded; not acted on):**
+  - The throwing-observer test never throws in the observer body; no falsifier was observed for it.
+  - The Skill test does not check `value.path`.
+  - **`tests/panel.test.tsx` ships in the npm package**, into users' plugin folder, because `.claude/skills` is in `files`. Design §4 lists `tests/` inside the plugin entry. Raised to JC at the T9 stop.
+- **Spawns:**
+  - Implementer `sonnet`, attempt 2 (resumed): 2 calls, 107,985 tokens cumulative, ended complete.
+  - Reviewer `opus`, round 2 (resumed): 1 call, 87,939 tokens cumulative, ended complete (PASS).

@@ -129,7 +129,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS attempt 2 (`execution.md` → T6) |
 | Size | M (~200 LOC) |
 | Depends on | T5 |
 | Requirements | FR-7 (press runs `/akili-…` with the shown args; double press queues one; `pending` clears when the run settles, stays set across a long turn (mocked clock advanced past 60 s, a second press queues nothing), and clears on a main-loop `turn.start` naming the command when the promise never settles (A1); a press records the kept spec (B1)), FR-8 (`/akili-panel` opens pane `akili` titled `Akili`; the not-placed reply), NFR-8 (no `fs.*` call while `$.ui.panes()` lists no `akili`), FR-9 (the observer returns the result it got from `next` unchanged; a throwing observer still lets the command through), FR-16 (empty states drawn), NFR-5 (terminal and desktop) |
