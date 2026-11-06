@@ -239,6 +239,8 @@ type Rig = {
   texts: Record<string, string>
   panes: { id: string; title: string; isFocused: boolean; isPlaced: boolean }[]
   usage: Record<string, unknown>
+  panesHang?: boolean
+  panesHung?: number
   kv: Map<string, any>
   fs: string[]
   store: string[]
@@ -278,7 +280,7 @@ function rig($: any, on: any, tree: Record<string, string[]>, opts: { placed?: b
     if (opts.openThrows) throw new Error(opts.openThrows)
     return { value: opts.placed === false ? { isPlaced: false, reason: 'no surface' } : { isPlaced: true } }
   })
-  on('ui.panes', () => ({ value: r.panes }))
+  on('ui.panes', () => { if (r.panesHang) { r.panesHung = (r.panesHung ?? 0) + 1; return new Promise(() => {}) } return { value: r.panes } })
   on('fs.list', (_: any, e: any) => {
     r.fs.push(`list ${e.path}`)
     const hit = r.tree[e.path]
@@ -887,4 +889,22 @@ for (const surface of SURFACES) test(`FR-16 narrow pane: every drawn string and 
     expect(lines[0]).toMatch(/…/)
     await ui.unmount()
   }
+})
+
+test('FR-9 BUT: with $.ui.panes() never settling, session.end clear resolves, and /akili-panel and a Skill call still run', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  const seen: any[] = []
+  on('tool.call', (_: any, e: any) => { seen.push([e.tool, e.skill, e.args]); return { result: {}, text: 'skill ran' } })
+  await opened($, r)
+  r.panesHang = true
+  let ended = false
+  void $.session.end({ reason: 'clear', sessionId: 's1' } as any).then(() => { ended = true })
+  await r.clk.settle()
+  expect(ended).toBe(true)
+  expect((r.panesHung ?? 0) > 0).toBe(true) // control: the plugin's own work did reach the hung call
+  const reply: any = await $.command.run({ command: 'akili-panel', args: '' })
+  expect(reply.text).toBe('Akili pane opened.')
+  const got: any = await $.tool.call({ tool: 'Skill', skill: 'akili-test', args: SPEC })
+  expect(got.text).toBe('skill ran')
+  expect(seen).toEqual([['Skill', 'akili-test', SPEC]])
 })

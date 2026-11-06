@@ -18,7 +18,7 @@
 | Check | Result |
 |---|---|
 | `npm test` | **1740 pass, 0 fail**, 0 skipped |
-| `claude plugin test .claude/skills/akili-panel` | **63 pass, 0 fail** |
+| `claude plugin test .claude/skills/akili-panel` | **64 pass, 0 fail** |
 | `claude plugin validate`, plugin and repo root | `✔ Validation passed` |
 | `npm run verify:cli` | `14 commands \| 32 skills \| 1 plugin \| 8 resources` |
 | `npm run pack:dry-run` | exit 0, `total files: 427`, 0 `marketplace.json` or `.claude-plugin/types` lines |
@@ -176,7 +176,7 @@ Recorded here, none accepted by JC yet beyond closing T9.
 | 8 | Live resume; whether a resume raises `session.start` | Needs a real session; not in the types | `/clear` now observed live; resume is not |
 | 9 | P-27 (Cursor, T9 step 11) | Skipped as optional | Not observed |
 
-| 10 | `await afterClear($)` inline survives the kit | No `ui.panes` hang case in the rig | Reviewer's hang probe on the shipped code |
+| 10 | Closed: `await afterClear($)` inline now reds `FR-9 BUT: with $.ui.panes() never settling, session.end clear resolves, and /akili-panel and a Skill call still run` | — | Kit test added by `tester-plugin` |
 
 ### Advisories (recorded, not acted on)
 
