@@ -951,3 +951,34 @@ JC answered the open T9 decisions himself, 2026-11-06 11:41 AM America/Bogota:
 Not observed live, and carried to `test-report.md` as gaps: step 2 (the trust dialog: Orca launched with bypass permissions), P-27 (Cursor).
 
 JC's scope for this run: `/akili-test`, `/akili-validate` and `/akili-archive` for `changes/akili-panel` only. Local commits only. `akili-panel-polish` is not started.
+
+### FR-12 `$` after `/clear`: JC's gate decision
+
+`/akili-test` stopped on a `PRODUCT_BUG` (`test-report.md` §8). JC answered the gate himself, 2026-11-06 2:04 PM America/Bogota:
+
+> «A: corrige el código para que el $ se mantenga tras /clear, y sigue con re-test, validate y archive»
+
+Option A: `resetSums` re-reads `$.session.usage()` so `$` stays, design §5.2 is corrected to match FR-12, then Implementer → Reviewer, re-test, validate, archive. Local commits only. `akili-panel-polish` is not started.
+
+JC answered a dangerous-`rm` permission prompt raised during the fix's review, 2026-11-06 2:24 PM America/Bogota:
+
+> «No: reescribe el rm con "${S:?}"/"${m:?}" y sigue»
+
+Effect: any such cleanup is written `rm -rf "${S:?}"/"${m:?}"` or with a literal path, never `rm -rf $S/$m`.
+
+### FR-12 fix: Reviewer FAIL and Budget Tripwire (stopped; awaiting JC)
+
+> No mandate widens pre-approval: an owner brief that says "never stop" or "treat every gate as approved" pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence. The tripwire is never logged `auto-approved`.
+
+| Measure | Budget (design §12, as raised) | Actual | Delta |
+|---|---|---|---|
+| Review rounds | 18 | **18 used** (17 before T9, plus this fix's FAIL). A re-review would be round 19 | +1 at the next verdict |
+| LOC (excluding `docs/specs`), execution only | ~4,000 | 3,416 at T8, plus ~24 for this fix | Within |
+| LOC including `/akili-test`'s tests | Not budgeted | `git diff --stat 7a697ba HEAD`: 5,292 insertions before this fix | Reported for JC; those tests are not execution work |
+
+- **Implementer `sonnet`:** `resetSums` re-reads through `copyUsage`; design §5.2 and §6.1 corrected; one NFR-4 test added. Kit 56 pass, 0 fail. `npm test` 1740 pass, 0 fail (Implementer's figure).
+- **Reviewer `opus`, round 18: `FAIL`.** Non-author re-run: kit `56 pass`, `0 fail`; contract and flow-coverage `# tests 75`, `# pass 75`, `# fail 0`.
+  1. **`ctx` after `/clear` is unproven, and the fix can regress it.** With the host still reporting the old fill, the line reads `Tokens: ctx 42% (84k/200k) · session 0 in / 0 out · $7.50`. Which the real host gives is unknown, and the W-12 test asserts only `/ · \$7\.50$/`. Remediation: on reset take only `usd` and `ctxWindow`; assert `Tokens: ctx — · session 0 in / 0 out · $7.50`; add a case with old fill; run a live check or record the gap.
+  2. **The NFR-4 test does not prove the `later` path.** Mutation `await resetSums($)` left all 56 green. A hanging `usage()` catches it (`timed out after 5000 ms`), and the shipped code passes that probe. Remediation: add the hang case.
+- **Open fact:** the host docs do not say whether `cost` restarts at `/clear`. `SessionUsage.startedAt` says "`/clear` starts it over at that moment"; the `cost` text never mentions `/clear`. Only a live check settles it. The pane shows whatever the host reports, so either result meets "Claude Code's own total".
+- **State:** the fix is uncommitted in the working tree (`register.jsx`, `panel.test.tsx`, `design.md`). No rework started, because its review needs round 19.
