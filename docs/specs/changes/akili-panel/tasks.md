@@ -148,7 +148,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS attempt 2 (`execution.md` → T7) |
 | Size | S (~25 LOC prose) |
 | Depends on | T3 |
 | Requirements | FR-13 (carve-out statement: no `SKILL.md`, no `metadata.binding`, author and license in `plugin.json`, documented outside the skill inventory; skill counts exclude plugins; scenario: count stays 32) |

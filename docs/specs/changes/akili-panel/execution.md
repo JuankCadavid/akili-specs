@@ -740,3 +740,23 @@ Review rounds are projected at ~16–18 against 15.
 - **Spawns:**
   - Implementer `sonnet`, attempt 2 (resumed): 2 calls, 107,985 tokens cumulative, ended complete.
   - Reviewer `opus`, round 2 (resumed): 1 call, 87,939 tokens cumulative, ended complete (PASS).
+
+#### T7 attempt 2 — Reviewer `PASS`
+
+- **Fixes:**
+  1. `## Frontmatter Schema` is restored, followed by one blank line, and the extra blank line is gone.
+  2. The leak sentence is replaced with the Reviewer's wording (line 91).
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - The heading diff between HEAD and the working tree is exactly `> ## Plugin entries are not skills`.
+  - `git diff -U0 | grep -c '^-[^-]'` → `0`.
+  - The diff stat is `docs/skills/governance.md | 16 ++++++++++++++++`.
+  - docs-overview: `# pass 32 # fail 0`.
+  - `npm test`: `# tests 1602 # pass 1602 # fail 0`.
+  - `git diff --check` is clean.
+- **Reviewer round 2 (opus, `full`): `PASS`.**
+  - FR-13 checks out term by term, and every claim matches `bin/akili.js` (`isPluginEntry :515-521`, the Claude-only copy at `:1432`, `LEAKED` at `:2028`, removal at `:1431` and `:2025`, the blocked removal at `:1102`, `Plugins:` at `:1794`).
+  - No disqualifier is hit, and the placement is accepted.
+- **Leader note (kaizen):** in attempt 1 the Leader's own re-run accepted the Implementer's "diff-alignment artifact" claim for a deleted heading. A re-run must read every removed line in a rules document; the `-U0` removed-line count is now part of it.
+- **Spawns:**
+  - Implementer `sonnet`, attempt 2 (resumed): 2 calls, 65,898 tokens cumulative, ended complete.
+  - Reviewer `opus`, round 2 (resumed): 1 call, 65,049 tokens cumulative, ended complete (PASS).
