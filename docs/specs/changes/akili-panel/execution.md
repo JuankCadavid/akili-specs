@@ -982,3 +982,18 @@ Effect: any such cleanup is written `rm -rf "${S:?}"/"${m:?}"` or with a literal
   2. **The NFR-4 test does not prove the `later` path.** Mutation `await resetSums($)` left all 56 green. A hanging `usage()` catches it (`timed out after 5000 ms`), and the shipped code passes that probe. Remediation: add the hang case.
 - **Open fact:** the host docs do not say whether `cost` restarts at `/clear`. `SessionUsage.startedAt` says "`/clear` starts it over at that moment"; the `cost` text never mentions `/clear`. Only a live check settles it. The pane shows whatever the host reports, so either result meets "Claude Code's own total".
 - **State:** the fix is uncommitted in the working tree (`register.jsx`, `panel.test.tsx`, `design.md`). No rework started, because its review needs round 19.
+
+### Budget Tripwire: FR-12 fix — closed by JC
+
+- **Decided by:** JC, 2026-11-06 2:44 PM America/Bogota: «1A y 2A: sube a 20 rounds, haz el rework y la prueba en vivo de /clear en Orca»
+- **Effect (1A):** the review budget rises to **20 rounds**. Rework: on `/clear`, only `usd` and `ctxWindow` come from the re-read, so `ctx —` is guaranteed; tests pin `ctx —` and add the old-fill and hang cases; then re-review and re-test.
+- **Effect (2A):** live `/clear` check in Orca: pane open, one response, `/clear`, read the token line before the next prompt.
+- Recorded in `tasks.md` Document Control and `design.md` §12.
+
+### FR-12 fix: rework and Reviewer PASS
+
+- **Implementer `sonnet`, attempt 2:** `resetSums` clears the fill before any read, then writes only `ctxWindow` and `usd` from the re-read. W-12 pins the full line; old-fill and hang tests added; design §5.2 and §6.1 restated.
+- **Reviewer `opus`, round 19: `PASS`.** Non-author re-run: kit `58 pass`, `0 fail`; contract and flow-coverage `# tests 75`, `# pass 75`, `# fail 0`. Mutation `await resetSums($)` reds the hang test (`timed out after 5000 ms`). The PASS is at kit level; real host behaviour waits for the live check.
+- **ADVISORY (recorded; not acted on):** a re-read that resolves after a real measure overwrites the newer figures until the next measure.
+- **Running totals:** review rounds 19 of 20; execution LOC within ~4,000.
+

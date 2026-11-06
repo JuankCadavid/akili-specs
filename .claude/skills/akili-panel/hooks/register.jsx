@@ -108,7 +108,11 @@ async function copyUsage($, measured) {
 
 async function resetSums($) {
   await update($, tokens, () => ({ in: 0, out: 0 }))
-  await update($, usage, () => ({}))
+  // The fill (ctxPercent, ctxTokens) goes first, so a failed or hanging re-read leaves no stale fill; `usd` stays until it answers.
+  await update($, usage, (u) => { const { ctxPercent, ctxTokens, ...rest } = u || {}; return rest })
+  const measured = await $.session.usage()
+  const fresh = usageFrom(measured.context, measured.cost)
+  await update($, usage, () => (typeof fresh.usd === 'number' ? { ctxWindow: fresh.ctxWindow, usd: fresh.usd } : { ctxWindow: fresh.ctxWindow }))
 }
 
 // A Next run settled or was seen starting: release the guard, but only the press that set it (A1).

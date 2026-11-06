@@ -264,7 +264,7 @@ function rig($: any, on: any, tree: Record<string, string[]>, opts: { placed?: b
   on('store.delete', (_: any, e: any) => { r.kv.delete(e.key); return { value: undefined } })
   on('command.register', (_: any, e: any) => { r.registered.push(e.name); return { value: { command: e.name } } })
   on('session.root', () => ({ value: ROOT }))
-  on('session.usage', () => ({ value: r.usage }))
+  on('session.usage', () => { if (r.usage.throws) throw new Error('usage down'); if (r.usage.hangs) return new Promise(() => {}); return { value: r.usage } })
   on('session.start', (_: any, e: any) => ({ cwd: e.cwd }))
   on('session.end', (_: any, e: any) => ({ sessionId: e.sessionId }))
   on('session.measure', (_: any, e: any) => ({ changed: e.changed }))
@@ -715,7 +715,57 @@ test('FR-12 after /clear AND: the $ part stays Claude Code\'s own total (W-12)',
   await r.clk.settle()
   await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toMatch(/ · \$7\.50$/)
+  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+})
+
+test('FR-12 after /clear: a host still reporting the old fill still shows ctx —', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.usage = { context: { window: 200000, tokens: 84000, percent: 42 }, cost: { usd: 7.5 } }
+  await opened($, r)
+  await $.session.measure(measure(7.5) as any)
+  await r.clk.settle()
+  expect(await tokenLine($)).toMatch(/ctx 42% \(84k\/200k\)/)
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.settle()
+  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+})
+
+test('NFR-4: a $.session.usage() that never settles delays nothing and leaves no stale fill', async ($, on) => {
+  let ran = 0
+  on('tool.call', () => { ran++; throw new Error('engine says no') })
+  const r = rig($, on, oneSpec())
+  r.usage = { context: { window: 200000, tokens: 84000, percent: 42 }, cost: { usd: 7.5 } }
+  await opened($, r)
+  await $.session.measure(measure(7.5) as any)
+  await $.turn.complete(turn('t1', { input_tokens: 5000, output_tokens: 700 }))
+  await r.clk.settle()
+  r.usage = { hangs: true }
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.settle()
+  const reply: any = await $.command.run({ command: 'akili-panel', args: '' })
+  expect(reply.text).toBe('Akili pane opened.')
+  try { await $.tool.call({ tool: 'Skill', skill: 'akili-test', args: SPEC }) } catch { /* the outcome is not the plugin's */ }
+  await r.clk.settle()
+  expect(ran).toBe(1)
+  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+})
+
+test('NFR-4: $.session.usage() rejecting during the reset leaves commands and tool calls alone, the sums at 0', async ($, on) => {
+  let ran = 0
+  on('tool.call', () => { ran++; throw new Error('engine says no') })
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  await $.turn.complete(turn('t1', { input_tokens: 5000, output_tokens: 700 }))
+  await r.clk.settle()
+  r.usage = { throws: true }
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.settle()
+  const reply: any = await $.command.run({ command: 'akili-panel', args: '' })
+  expect(reply.text).toBe('Akili pane opened.')
+  try { await $.tool.call({ tool: 'Skill', skill: 'akili-test', args: SPEC }) } catch { /* the outcome is not the plugin's */ }
+  await r.clk.settle()
+  expect(ran).toBe(1)
+  expect(await tokenLine($)).toMatch(/session 0 in \/ 0 out/)
 })
 
 test('FR-12 after a resume followed by session.start: the $ part is the host\'s total, the sums 0', async ($, on) => {
