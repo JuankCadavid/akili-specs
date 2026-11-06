@@ -5,17 +5,29 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/akili-panel` |
-| Status | **FAIL: 1 `PRODUCT_BUG` open (pane body lost after `/clear`, found live).** The first bug, `$` after `/clear`, is fixed. Awaiting JC's decision; `/akili-validate` not started |
+| Status | **PASS.** Both `PRODUCT_BUG`s fixed and confirmed live; recorded gaps in section 9 |
 | Date | 2026-11-06 |
-| Tested at | First run: `5ac821f` plus this report's tests. Re-check after the fix: `55321a4` |
+| Tested at | First run: `5ac821f` plus this report's tests. Final re-test: `0788c8e` |
 | Runtime | Claude Code **2.1.319** (the spec pins 2.1.318, NFR-6, D-10), macOS, Node 22.23.4 and Node 18.20.8 |
 | Leader / Testers | Leader `claude-opus-5-5`. Testers `opus`: no `akili-tester` wrapper exists, and the only Implementer model recorded in `execution.md` is `sonnet`, so author ≠ tester holds |
 
 ## 2. Summary
 
-**Latest state (after the FR-12 fix at `55321a4`):** `npm test` 1740 pass, 0 fail; `claude plugin test` **58 pass, 0 fail**. Automated checks are green, but the live `/clear` check failed: see section 8. The full `/akili-test` re-run is not complete, because this bug is open.
+**Final state at `0788c8e`:** all green, live `/clear` check passed.
 
-The table below is the first run.
+| Check | Result |
+|---|---|
+| `npm test` | **1740 pass, 0 fail**, 0 skipped |
+| `claude plugin test .claude/skills/akili-panel` | **63 pass, 0 fail** |
+| `claude plugin validate`, plugin and repo root | `✔ Validation passed` |
+| `npm run verify:cli` | `14 commands \| 32 skills \| 1 plugin \| 8 resources` |
+| `npm run pack:dry-run` | exit 0, `total files: 427`, 0 `marketplace.json` or `.claude-plugin/types` lines |
+| `git diff --check`; `.claude/commands` diff against `7a697ba` | clean; empty |
+| Live `/clear` check (Claude Code 2.1.319) | PASS, section 8 |
+
+Re-test run inline by the Leader: suites unchanged, no new authoring. The tests for the two fixes were written by the Implementer and audited with mutations by the Reviewer, not by a Tester.
+
+The table below is the first run, at `5ac821f`.
 
 | Check | Result |
 |---|---|
@@ -97,7 +109,7 @@ AP = `test/install-akili-panel.test.js`, CC = `test/akili-panel-cli-coverage.tes
 | FR-12 | Line format, shortening, fresh session | unit + kit | Cover; Kit | PASS | `9999` reads `10k` |
 | FR-12 | After `/clear` or a resume: sums reset | kit | Kit | PASS | |
 | FR-12 | After `/clear`: `$` stays Claude Code's total; `ctx —` | kit + live | Kit W-12, old-fill, hang; live check | PASS (fixed at `55321a4`) | Live: host restarts its cost, `$0.01` became `$0.00` |
-| **NFR-3, FR-6, FR-7** | **Pane keeps its body after `/clear`** | live | Live `/clear` check, section 8 | **FAIL** | `PRODUCT_BUG`; no automated test yet |
+| NFR-3, FR-6, FR-7 | Pane keeps its body after `/clear` | kit + live | Kit `NFR-3 after /clear` tests; live check | PASS (fixed at `0788c8e`) | A wiped `view` atom is covered live only |
 | FR-13 | Skill inventory unchanged; carve-out | static | `test/docs-overview.test.js`; AP; CC | PASS | |
 | FR-14 | Validate; root folder not packed | command + integration | `claude plugin validate .`; CC | PASS | Live `/plugin install` not run (gap 7) |
 | FR-15 | Generated types | integration | AP; CC | PASS | |
@@ -112,7 +124,9 @@ AP = `test/install-akili-panel.test.js`, CC = `test/akili-panel-cli-coverage.tes
 
 ## 8. Remediation
 
-### Open `PRODUCT_BUG`: pane body lost after `/clear`
+### Fixed: pane body lost after `/clear`
+
+JC's 1A, fixed at `0788c8e`, Reviewer PASS at round 20. Repeated live check: the full body stays at 2 s, 8 s and 36 s after `/clear`, with `Tokens: ctx — · session 0 in / 0 out · $0.00`; deleting `tasks.md` afterwards moved the pane to `specify ▶` within 17 s. Original finding:
 
 Run 2026-11-06 ~14:50–14:53 America/Bogota, Orca tab `Akili /clear live check`, Claude Code 2.1.319, `--model haiku`, scratch `/tmp/akili-clear`, code at `55321a4`, no bypass.
 
@@ -128,7 +142,7 @@ Run 2026-11-06 ~14:50–14:53 America/Bogota, Orca tab `Akili /clear live check`
 |---|---|
 | Violated | NFR-3 (never stale by more than 30 s); FR-6, FR-7 (both blocks and the Next button) |
 | Recovery | Only `/akili-panel`. Neither the 30 s timer nor a new response restores it |
-| Likely cause, not confirmed | `/clear` wipes the session atoms `view` and `opened` while the host keeps the pane; `opened` false stops every refresh (`register.jsx:34`) |
+| Likely cause, never confirmed; the fix holds either way | `/clear` wipes the session atoms `view` and `opened` while the host keeps the pane; `opened` false stops every refresh (`register.jsx:34`) |
 | Why it was missed | T9 never ran `/clear`; the kit keeps atoms across its simulated `session.end` |
 
 ### Fixed: `$` disappears after `/clear`
@@ -161,6 +175,8 @@ Recorded here, none accepted by JC yet beyond closing T9.
 | 7 | Live `/plugin install` from the marketplace (FR-14) | Needs a published repo | `claude plugin validate .` only |
 | 8 | Live resume; whether a resume raises `session.start` | Needs a real session; not in the types | `/clear` now observed live; resume is not |
 | 9 | P-27 (Cursor, T9 step 11) | Skipped as optional | Not observed |
+
+| 10 | `await afterClear($)` inline survives the kit | No `ui.panes` hang case in the rig | Reviewer's hang probe on the shipped code |
 
 ### Advisories (recorded, not acted on)
 
