@@ -1,0 +1,108 @@
+'use strict';
+
+// @akili-spec changes/akili-panel T5
+// A static read of the plugin's hooks module (register.jsx). A PRESENCE check: it cannot prove an
+// observer is fail-open at run time or that the pane draws; those are T6 (engine kit) and T9 (live).
+// Rules come from design §6.1 (as amended after T1) and requirements FR-7..FR-12, NFR-4, DD-17.
+// It reads only plugin files, never docs/specs/ (KZ-changes--archify-diagrams-1).
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const FILE = process.env.AKILI_PANEL_REGISTER
+  || path.join(__dirname, '..', '.claude', 'skills', 'akili-panel', 'hooks', 'register.jsx');
+const src = fs.readFileSync(FILE, 'utf8');
+
+// Hook registrations: each block starts at `  on(` inside `register`.
+const blocks = src.slice(src.indexOf('export const register')).split(/\n {2}on\(/).slice(1)
+  .map((text) => ({ text, event: /^'([\w.]+)'/.exec(text)[1], own: /command: 'akili-panel'/.test(text.split('\n')[0]) }));
+const passing = blocks.filter((b) => b.event !== 'ui.render' && !b.own);
+
+// The body of a top-level function: from its declaration to the first line starting with `}`.
+function bodyOf(re) {
+  const m = re.exec(src);
+  assert.ok(m, `${re} not found`);
+  const rest = src.slice(m.index);
+  return rest.slice(0, rest.search(/\n\}/));
+}
+
+test('registers akili-panel, and only akili-panel (FR-8)', () => {
+  const names = [...src.matchAll(/\$\.command\.register\(\s*\{\s*name:\s*(['"])([^'"]+)\1/g)].map((m) => m[2]);
+  assert.deepEqual(names, ['akili-panel']);
+  assert.equal((src.match(/\$\.command\.register\(/g) || []).length, 1, 'a register call with a non-literal name');
+});
+
+test('no project write, no prompt or transcript write, no process (FR-10, DD-17)', () => {
+  const fsCalls = [...src.matchAll(/\$\.fs\.(\w+)/g)].map((m) => m[1]);
+  assert.ok(fsCalls.length > 0);
+  for (const call of fsCalls) assert.ok(['list', 'exists', 'read'].includes(call), `$.fs.${call}`);
+  for (const banned of ['$.prompt.', '$.session.append', '$.process']) assert.ok(!src.includes(banned), banned);
+});
+
+test('every hook but /akili-panel passes the event on first and returns its result (W-4, NFR-4)', () => {
+  assert.ok(!/\bnext\(\s*\{/.test(src), 'next({ ... }) rewrites an event');
+  assert.deepEqual(blocks.map((b) => b.event).sort(), [
+    'command.run', 'command.run', 'session.end', 'session.measure', 'session.start',
+    'tool.call', 'turn.complete', 'turn.start', 'ui.render']);
+  for (const b of passing) {
+    const first = b.text.indexOf('await next(e)');
+    assert.ok(first > 0, `${b.event}: no await next(e)`);
+    assert.ok(/const ran = await next\(e\)/.test(b.text), `${b.event}: result not kept`);
+    assert.equal((b.text.match(/\bawait\b/g) || []).length, 1, `${b.event}: awaits besides next(e): work runs in the dispatch`);
+    for (const line of b.text.split('\n')) {
+      const call = /\b(startSession|afterRun|afterTurnStart|addTurn|copyUsage|resetSums|runRefresh)\(/.exec(line);
+      if (call) assert.ok(/later\(\$, \(\) => $/.test(line.slice(0, call.index)), `${b.event}: ${call[1]} outside later()`);
+    }
+    assert.deepEqual([...b.text.matchAll(/\breturn\b[^\n]*/g)].map((m) => m[0]), ['return ran'], `${b.event}: returns something else`);
+  }
+});
+
+test('every command.run and tool.call hook has a .catch that answers next(e) (W-4)', () => {
+  const gated = passing.filter((b) => b.event === 'command.run' || b.event === 'tool.call');
+  assert.equal(gated.length, 2);
+  for (const b of gated) assert.ok(/\}\)\.catch\(passOn\)/.test(b.text), `${b.event}: no .catch`);
+  assert.ok(/const passOn = \(\$, e, next\) => next\(e\)/.test(src));
+});
+
+test('the tool.call hook acts only on akili- skills (design 6.1)', () => {
+  const call = blocks.find((b) => b.event === 'tool.call').text;
+  assert.ok(/if \(\/\^akili-\/\.test\(String\(e\.skill \|\| ''\)\)\) later\(/.test(call));
+});
+
+test('pending is written only through update (W-5)', () => {
+  assert.ok(!/\$\.state\.set/.test(src), '$.state.set');
+  assert.ok(/update\(\$, pending, \(cur\) =>/.test(bodyOf(/async function press\(/)));
+});
+
+test('disk is read only in the refresh, which checks the pane is up first (W-10)', () => {
+  const io = bodyOf(/const ioOver = /);
+  assert.equal([...src.matchAll(/\$\.fs\./g)].length, [...io.matchAll(/\$\.fs\./g)].length, '$.fs outside ioOver');
+  assert.equal((src.match(/ioOver\(/g) || []).length, 1, 'ioOver used once');
+  const once = bodyOf(/async function refreshOnce\(/);
+  assert.ok(once.indexOf('paneIsUp($)') >= 0 && once.indexOf('paneIsUp($)') < once.indexOf('ioOver($)'));
+  assert.ok(bodyOf(/async function paneIsUp\(/).includes('$.ui.panes()'));
+});
+
+test('ui.render reads atoms only, and $.command.run is only in the press handler (NFR-1, DD-8)', () => {
+  const render = blocks.find((b) => b.event === 'ui.render').text;
+  for (const banned of ['$.fs', '$.process', '$.state.set', '$.store', '$.command.run']) assert.ok(!render.includes(banned), banned);
+  assert.equal((src.match(/\$\.command\.run\(/g) || []).length, 1);
+  assert.ok(bodyOf(/async function press\(/).includes('$.command.run('));
+});
+
+test('amended hooks: turn.start passes the event on first; a press runs and records the kept spec (A1, B1)', () => {
+  const start = blocks.find((b) => b.event === 'turn.start').text;
+  assert.ok(start.indexOf('await next(e)') < start.indexOf('afterTurnStart'));
+  const press = bodyOf(/async function press\(/);
+  assert.ok(press.includes('$.command.run(') && /later\(\$, \(\) => afterRun\(\$, next\.command, next\.args\)\)/.test(press));
+  assert.ok(/^async function afterRun[^]*?recordKept/m.test(src));
+});
+
+test('the /akili-panel hook answers for itself without next (FR-8, DD-7)', () => {
+  const own = blocks.find((b) => b.own).text;
+  assert.ok(!own.includes('next'));
+  assert.ok(!/\$\.ui\.open/.test(blocks.filter((b) => b.event === 'session.start')[0].text), 'opened unasked');
+  assert.ok(!bodyOf(/async function startSession\(/).includes('$.ui.open'), 'opened unasked');
+});

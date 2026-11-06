@@ -55,6 +55,9 @@ export const STRINGS = Object.freeze({
   readError: (path, reason) => `Could not read ${path}: ${reason}`,
   moreActive: (n) => `(${n} more active)`,
   detached: (sha) => `detached @${sha}`,
+  paneOpened: 'Akili pane opened.',
+  paneNotShown: (reason) => `Akili pane not shown: ${reason}`,
+  runRefused: (command, reason) => `Could not run /${command}: ${reason}`,
 })
 
 // FR-7: the state -> command table, as data. `args: 'spec'` means "the displayed spec".

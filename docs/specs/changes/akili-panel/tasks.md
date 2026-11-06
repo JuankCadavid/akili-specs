@@ -110,7 +110,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS attempt 2 (`execution.md` → T5; one spec tension for JC) |
 | Size | L (~250 LOC code, ~80 LOC contract test, ~20 LOC types) |
 | Depends on | T4; T1's P-25 verdict applied to DD-9 |
 | Requirements | FR-7 (press scenario incl. AND nothing added; a press records the kept spec (B1); run refused incl. BUT pane kept; double press incl. AND no fixed bound (A1)), FR-8 (open; `Akili pane not shown: <reason>` when not placed; one command only incl. AND IT MUST NOT register others; never unasked), FR-9 (typed, Skill-tool, plugin failure incl. BUT not blocked/delayed/changed), FR-10 (no writes), FR-11 (io over `$.fs` with absolute paths; no process), FR-12 (sources: `turn.complete` incl. subagents, `session.measure`, reset on `/clear` and resume), FR-16 (render of every state), NFR-1, NFR-3, NFR-4, NFR-5, NFR-8 |
