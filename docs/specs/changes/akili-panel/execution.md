@@ -212,3 +212,73 @@
   - Reviewer `opus`, round 2: 10 calls, 115,629 tokens, ended complete (FAIL).
   - Reviewer `opus`, round 3 (resumed): 2 calls, 121,414 tokens cumulative, ended complete (PASS).
 - **Running totals vs budget (design §12):** tasks 1 / 9 · LOC 0 (spec edits only) / ~2,100 · review rounds 3 / 15. T1 was budgeted 1 round and used 3: two FAILs, both closed. The total stays under budget, so the tripwire has not been passed. The overrun is noted for kaizen.
+
+### T2: Installer recognizes plugin entries and installs them for Claude only — `PASS` (attempt 1)
+
+- **Date:** 2026-11-05.
+- **Requirements covered:** FR-1 (all four scenarios), FR-2 (update; upgrade from an old installer), FR-13 (count stays 32, the test half), FR-15 (`.gitignore`, pack, install).
+- **Skills and models:** skill `tdd`. Implementer `sonnet` at effort `high`, raised from medium because the task touches the install path of all six targets. Reviewer `opus` (`full`, lens checklist).
+
+#### Attempt 1
+
+- **Files changed:** 12 files, +615 / −12.
+  - `bin/akili.js` (+151): `isPluginEntry`, `listSkills` / `listPlugins`, a silent `"plugin"` policy verdict composed in front of the inner policy, `copyPlugins` / `copyPluginTreeSync` (skips `.claude-plugin/types`), and `removeLeakedPlugin`.
+  - `package.json`: `files` negation `!.claude/skills/*/.claude-plugin/types`.
+  - `.gitignore`: same pattern.
+  - Existing tests: `test/install-cursor.test.js`, `test/install-grokbot.test.js`, `test/install-grokbot-edge.test.js` and `test/docs-overview.test.js` now apply the two-file predicate.
+  - New: `test/install-akili-panel.test.js` (400 lines, 24 tests).
+  - New scaffold under `.claude/skills/akili-panel/`: `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.jsx` (empty `register`), `README.md`.
+- **Red run (observed, before the change):** 16 of the 24 new tests fail. Examples:
+  - `opencode: .config/opencode/skills holds exactly the skills`
+  - `… akili-panel must be removed: true !== false`
+  - `types/ is not copied: true !== false`
+  - `git check-ignore must report … as ignored (exit 0); got 1`
+
+  The existing cursor, grokbot and stale-skills suites have 27 failures. Baseline reds R1–R3 are as recorded in Document Control.
+- **Falsifiers (observed red, each run against every target suite, then reverted):**
+
+  | # | Mutation | Failures | Example |
+  |---|---|---|---|
+  | 1 | Policy is a pass-through | 26 | `opencode: .config/opencode/skills holds exactly the skills (plus command-skills)` |
+  | 2 | `isPluginEntry` always returns false | 42 | `doctor --tool cursor` (`FR-3 (Healthy install scenario)`) and the doctor `MISSING` tests |
+  | 3 | Leak removal disabled | 7 | `opencode: …/skills/akili-panel must be removed: true !== false` |
+  | 4 | Folder identified by name only | 3 | `.config/opencode/skills/akili-panel must not be removed (no plugin.json)` |
+  | 5 | `files` negation dropped | 1 | FR-15 temp-copy pack test; the pack lists `.claude/skills/akili-panel/.claude-plugin/types/claude-code/index.d.ts` |
+
+- **Implementer verification:**
+  - `npm test`: 1474 pass, 0 fail (baseline 1450).
+  - `npm run verify:cli`: green, `Summary: 14 commands | 32 skills | 8 resources`.
+  - `git diff --check`: clean.
+  - `git diff --stat 7a697ba -- .claude/commands`: empty.
+  - `node scripts/ci/install-layout-regression.js`: exit 0, with no edit.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - Task test command: `# tests 118 # pass 118 # fail 0`.
+  - `npm test`: `# tests 1474 # pass 1474 # fail 0`.
+  - `npm pack --dry-run` lists the four scaffold files:
+    - `npm notice 274B .claude/skills/akili-panel/.claude-plugin/plugin.json`
+    - `36B …/hooks/hooks.json`
+    - `238B …/hooks/register.jsx`
+    - `682B …/README.md`
+
+    `grep -c "types/"` returns 0.
+  - `claude plugin validate .claude/skills/akili-panel`: `✔ Validation passed`. One advisory says the README has no marketplace install line; T8 owns the marketplace file.
+  - Layout regression: exit 0.
+- **Reviewer verdict (opus, `full`): `PASS`.**
+  - The diff meets FR-1, FR-2, FR-13 and FR-15, and follows design §7.1–§7.4, DD-10, DD-16 and DD-18. There are no failing issues.
+  - **Byte-identical output for non-Claude users.** The Reviewer extracted the `7a697ba` installer and diffed stdout and the installed file lists for `opencode`, `antigravity`, `codex`, `cursor` and `grokbot` (`--force`, `--dry-run` and `--skills-only` included). They are byte-identical. For `claude` and `all`, the only difference is the plugin line and its four files.
+  - **§7.4 checks:** a symlink, a malformed manifest, a different `name`, or a folder holding `SKILL.md` are each left alone. The `REMOVED` line appears once per dir. Codex and Cursor share one root and the copy is removed once. Grok Bot's record entry is dropped before the folder. Removal runs with `--skills-only` and not with `--commands-only`.
+  - **KZ-004:** no branch in §7.3 lets the plugin fall through.
+- **ADVISORY (4R, recorded; not acted on):**
+  1. A copy kept because the Grok Bot record is invalid has no `kept akili-panel` line of its own.
+  2. A name the record lists whose folder is already gone stays in `folders`.
+  3. The FR-2 static check reads a fixed 6000-character slice of the source.
+  4. A dev checkout that has a generated `types/` can read `differs` on skip-existing. T3 adds the ignore list that closes this.
+  5. The README's marketplace line points at a file that does not exist yet; T8 adds it.
+  6. Exclude the pre-existing `.run/` from commits.
+- **Decisions:**
+  - Execute-time correction to `tasks.md` T2 Falsifier (2), per the Reviewer and design §9: `docs-overview` re-implements the predicate, so it cannot go red when `bin/akili.js`'s `isPluginEntry` is mutated. Falsifier (2) still has observed reds, the 42 install and doctor failures. This is a factual fix to the task text and no requirement changes.
+  - **Forward pointer to T3:** the plugin copy's skip-existing compare must pass the new `compareEntry` ignore list (`.claude-plugin/types`). Advisory 4 depends on it.
+- **Spawns:**
+  - Implementer `sonnet`: 44 calls, 143,824 tokens, ended complete.
+  - Reviewer `opus`: 27 calls, 112,566 tokens, ended complete (PASS).
+- **Running totals vs budget:** tasks 2 / 9 · LOC ~627 / ~2,100 · review rounds 4 / 15. Within budget.

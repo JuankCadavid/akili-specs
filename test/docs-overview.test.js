@@ -27,9 +27,19 @@ function inventory() {
     .filter((f) => f.endsWith(".md"))
     .map((f) => f.slice(0, -3))
     .sort();
+  // @akili-spec changes/akili-panel T2: a plugin entry (.claude-plugin/plugin.json,
+  // no SKILL.md) is not a skill (FR-13); same two file checks as the installer.
+  const skillsRoot = path.join(REPO_ROOT, ".claude", "skills");
   const skills = fs
-    .readdirSync(path.join(REPO_ROOT, ".claude", "skills"), { withFileTypes: true })
+    .readdirSync(skillsRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
+    .filter(
+      (d) =>
+        !(
+          fs.existsSync(path.join(skillsRoot, d.name, ".claude-plugin", "plugin.json")) &&
+          !fs.existsSync(path.join(skillsRoot, d.name, "SKILL.md"))
+        )
+    )
     .map((d) => d.name)
     .sort();
   return { commands, skills };
