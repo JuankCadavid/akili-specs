@@ -30,11 +30,12 @@ const ioOver = ($) => ({
   read: (p) => $.fs.read(p),
 })
 
+// The host's record decides, not `opened`: /clear can wipe the session atoms while the pane stays up (the
+// docs say nothing of what survives it), so a placed `akili` pane restores `opened`, and one gone clears it.
 async function paneIsUp($) {
-  if (!(await read($, opened))) return false
-  if ((await $.ui.panes()).some((pane) => pane.id === PANE)) return true
-  await update($, opened, () => false)
-  return false
+  const up = (await $.ui.panes()).some((pane) => pane.id === PANE && pane.isPlaced)
+  if (up !== (await read($, opened))) await update($, opened, () => up)
+  return up
 }
 
 async function refreshOnce($) {
@@ -124,11 +125,25 @@ async function afterTurnStart($, text) {
   await clearPending($, cur.since)
 }
 
+// One 30 s timer at most: a start cancels the one before it. Held in the module, so a reload that loses it
+// can leave a second one running; refreshes coalesce (DD-5), so that costs a read, not a wrong figure.
+let timer = null
+function startTimer($) {
+  try { if (timer) timer.cancel() } catch (err) { /* already gone */ }
+  timer = $.clock.every(TICK_MS, () => { void runRefresh($).catch(() => {}) })
+}
+
+// After /clear (no session.start follows it): make sure a timer runs, and bring the body back now.
+async function afterClear($) {
+  startTimer($)
+  await runRefresh($)
+}
+
 async function startSession($) {
   await $.command.register({ name: 'akili-panel', description: 'Open the Akili side pane' })
   await update($, pending, () => null)
   await copyUsage($, await $.session.usage())
-  $.clock.every(TICK_MS, () => { void runRefresh($).catch(() => {}) })
+  startTimer($)
 }
 
 // ------------------------------------------------------------ the Next press (FR-7, DD-8, B1)
@@ -208,6 +223,7 @@ export const register = (on) => {
   on('session.end', async ($, e, next) => {
     const ran = await next(e)
     if (e.reason === 'clear' || e.reason === 'resume') later($, () => resetSums($))
+    if (e.reason === 'clear') later($, () => afterClear($))
     return ran
   })
 

@@ -1017,3 +1017,34 @@ Run 2026-11-06 ~14:50–14:53 America/Bogota, Orca tab `Akili /clear live check`
 - **Why earlier gates missed it:** T9 never ran `/clear`, and the kit keeps atoms across its simulated `session.end`.
 - **State:** `/akili-validate` and `/akili-archive` not run. Review rounds 19 of 20.
 
+### Pane body after `/clear`: JC's gate decisions
+
+JC answered both gates himself, 2026-11-06 3:00 PM America/Bogota:
+
+> «1A: corrige el panel vacío en v1 y repite la prueba en vivo»
+
+> «2A: acepta el reinicio del $ y aclara FR-12»
+
+- **1A:** fix the blank pane in v1 (detect the pane is still up and refresh), with a new test, at review round 20, then repeat the live `/clear` check in the `Akili /clear live check` tab. A budget beyond 20 rounds stops the run.
+- **2A:** `$`'s amount restarting at `/clear` is accepted as Claude Code's own figure; FR-12's `$` clause is clarified in `requirements.md`.
+
+### Pane body fix: Implementer, live check and Reviewer PASS
+
+- **Implementer `sonnet`:** `paneIsUp` asks `$.ui.panes()` first (`isPlaced`) and keeps `opened` in step; `startTimer` cancels the earlier timer before starting one; `afterClear` restarts the timer and refreshes, through `later`, on `session.end` with reason `clear`. Docs and design updated. Red on a scratch copy of the old code: `60 pass`, `3 fail`. Green: `63 pass`, `0 fail`.
+- **Root cause:** not confirmed. The host docs say only that no `session.start` follows `/clear` (`reference.md:27`); they do not say whether atoms or timers survive it. The fix holds under each answer.
+- **Live `/clear` check repeated** in the `Akili /clear live check` tab, 2026-11-06 ~18:35, Claude Code 2.1.319, on this exact `register.jsx`. It ran before round 20, so a failure could still be reworked; the code did not change after it.
+
+  | Moment | Token line | Pane body |
+  |---|---|---|
+  | After one response | `Tokens: ctx 6% (56k/1.0M) · session 56k in / 69 out · $0.01` | Full |
+  | After `/clear`, at 2 s, 8 s and 36 s | `Tokens: ctx — · session 0 in / 0 out · $0.00` | **Full**: header, phases, `Next: /akili-execute changes/demo-spec` |
+
+  Falsifier after `/clear`: deleting `tasks.md` moved the pane to `specify ▶` and `Next: /akili-specify changes/demo-spec` within 17 s; restoring it returned `execute ▶`. So the refresh is alive, not a stale paint.
+- **Reviewer `opus`, round 20: `PASS`.** Non-author re-run: kit `63 pass`, `0 fail`; contract and flow-coverage `# tests 75`, `# pass 75`, `# fail 0`. Mutations p1, p2, p4 red.
+- **ADVISORY (recorded; not acted on):**
+  - `await afterClear($)` inline survives all 63 tests: nothing pins that `later` path. The shipped code passes a hang probe.
+  - Resume was not run live; if a resume wipes `view`, the body stays blank until the next tick (within NFR-3).
+  - `opened` no longer decides anything and could be dropped later. The comment at `register.jsx:128-129` overstates coalescing across a hot reload.
+- **Factual correction:** design §5.2 `usage` row aligned to FR-12's clarified `$` wording, as the Reviewer noted.
+- **Running totals:** review rounds **20 of 20**. Execution LOC within ~4,000.
+

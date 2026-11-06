@@ -255,7 +255,7 @@ type Rig = {
 const AKILI_PANE = { id: 'akili', title: 'Akili', isFocused: true, isPlaced: true }
 
 function rig($: any, on: any, tree: Record<string, string[]>, opts: { placed?: boolean; openThrows?: string; texts?: Record<string, string>; hangKeys?: boolean; storeThrows?: boolean; noClock?: boolean } = {}): Rig {
-  const r: Rig = { tree, texts: opts.texts ?? {}, panes: [AKILI_PANE], usage: {}, kv: new Map(), fs: [], store: [], sets: [], runs: [], toasts: [], opens: [], closes: [], registered: [], writes: [], clk: undefined }
+  const r: Rig = { tree, texts: opts.texts ?? {}, panes: [opts.placed === false ? { ...AKILI_PANE, isPlaced: false } : AKILI_PANE], usage: {}, kv: new Map(), fs: [], store: [], sets: [], runs: [], toasts: [], opens: [], closes: [], registered: [], writes: [], clk: undefined }
   if (opts.noClock) on('clock.after', () => { throw new Error('clock down') })
   else r.clk = mock.clock(on)
   on('store.get', (_: any, e: any) => { r.store.push(`get ${e.key}`); return { value: r.kv.get(e.key) } })
@@ -613,6 +613,71 @@ test('NFR-3: an edit made outside the session shows within 30 s, with no event a
   const late = await drawn($)
   expect(late.next).toBe('Next: /akili-test changes/demo')
   await late.ui.unmount()
+})
+
+// /clear raises session.end and no session.start, and the docs do not say what the session atoms keep. The test
+// `$` cannot write the plugin's atoms, so it makes the state a wipe leaves: `opened` false while the host still
+// lists the pane (a tick that found it gone, then the pane back). Only a refresh the pane check lets through
+// can then show the changed tree.
+const TASKS_DONE = { [`${ROOT}/docs/specs/changes/demo/tasks.md`]: '| Status | [x] |\n' }
+const FULL_DEMO = ['proposal.md', 'requirements.md', 'design.md', 'tasks.md']
+
+async function staleOpened($: any, r: Rig) {
+  r.panes = []
+  await r.clk.advance(31000)
+  r.panes = [AKILI_PANE]
+  r.tree[`${ROOT}/docs/specs/changes/demo`] = FULL_DEMO
+}
+
+for (const surface of ALL_SURFACES.slice(0, 2)) test(`NFR-3 after /clear: the body comes back with no user action (${surface})`, async ($, on) => {
+  const r = rig($, on, oneSpec(), { texts: TASKS_DONE })
+  await opened($, r)
+  await staleOpened($, r)
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.settle()
+  const { ui, lines, next } = await drawn($, surface)
+  expect(lines[0]).not.toBe('Akili')
+  expect(lines.filter((l) => /propose|specify|execute|test|validate|archive/.test(l)).length).toBe(6)
+  expect(next).toBe('Next: /akili-test changes/demo')
+  await ui.unmount()
+})
+
+test('NFR-3: a pane the host still lists is refreshed by the timer within 30 s, opened or not', async ($, on) => {
+  const r = rig($, on, oneSpec(), { texts: TASKS_DONE })
+  await opened($, r)
+  await staleOpened($, r)
+  await r.clk.advance(30000)
+  await r.clk.settle()
+  const { ui, next } = await drawn($)
+  expect(next).toBe('Next: /akili-test changes/demo')
+  await ui.unmount()
+})
+
+test('FR-8, NFR-8 after /clear: a closed pane stays closed, reads no disk, and is not reopened', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  r.panes = []
+  const opensBefore = r.opens.length
+  const fsBefore = r.fs.length
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.advance(65000)
+  expect(r.fs.length).toBe(fsBefore)
+  expect(r.opens.length).toBe(opensBefore)
+})
+
+test('NFR-3 after /clear: repeated clears leave one timer, not a stack', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const a = r.fs.length
+  await r.clk.advance(30000)
+  await r.clk.settle()
+  const oneTick = r.fs.length - a // the reads one timer makes in 30 s
+  expect(oneTick > 0).toBe(true)
+  for (let i = 0; i < 3; i++) { await $.session.end({ reason: 'clear', sessionId: 's1' } as any); await r.clk.settle() }
+  const b = r.fs.length
+  await r.clk.advance(30000)
+  await r.clk.settle()
+  expect(r.fs.length - b).toBe(oneTick)
 })
 
 test('NFR-8: a closed pane reads no disk; the kept spec and the sums are still recorded, and show on reopen', async ($, on) => {

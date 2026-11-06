@@ -40,7 +40,7 @@ Which spec is shown: the one named by the last `/akili-*` command or Skill-tool 
 ## Limits
 
 - Pressing the button twice queues one run. If Claude Code refuses the run, a message reads `Could not run /<command>: <reason>` and the pane is unchanged.
-- Session token figures restart after `/clear` or a resume. The `$` figure stays Claude Code's own total.
+- Session token figures restart after `/clear` or a resume. The `$` figure is Claude Code's own: it restarts after `/clear` and, after a resume, counts from the first launch.
 - It changes no command: an `/akili-*` command runs with the same name, arguments and result with or without the plugin.
 
 Authored by Juan Carlos Cadavid, MIT License.

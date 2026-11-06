@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated`. Every phase gate stops for JC. Not pre-approved |
-| Status | Draft for JC's review. **Judgment-day closed `fixed, not re-judged`** (`judgment.md`): round 1 fixed J-1 … J-5; JC answered the review gate «Fix only» (2026-11-05 ~20:07 America/Bogota), so the same pass fixed A-1, A-2 and the warnings both judges raised (W-1 … W-14). No re-judgment. Proposal approved by JC 2026-11-05 ~19:08 America/Bogota (quote and decisions D1–D8 in `proposal.md` → *Decisions After Approval*). JC delegated the open decisions and authorized writing the full specify set; the Phase 1 gate is passed under that mandate and recorded here. The design / tasks gate: **Design / tasks approved by JC (Juan Carlos Cadavid), 2026-11-05 ~20:27 America/Bogota:** «Apruebo diseño y tasks, sigue con /akili-execute changes/akili-panel». Approval Mode stays `gated`. **Amended after the T1 Pivot** (A1, B1, C1, D1) on JC's decision, 2026-11-05 ~20:50 America/Bogota: «Apruebo A1, B1, C1 y D1, incluida la prueba en ~/.claude/skills/akili-probe/» (`execution.md` → *Pivot Record: T1*) |
+| Status | **FR-12 `$` clause clarified on JC's decision, 2026-11-06 3:00 PM America/Bogota:** «2A: acepta el reinicio del $ y aclara FR-12». Draft for JC's review. **Judgment-day closed `fixed, not re-judged`** (`judgment.md`): round 1 fixed J-1 … J-5; JC answered the review gate «Fix only» (2026-11-05 ~20:07 America/Bogota), so the same pass fixed A-1, A-2 and the warnings both judges raised (W-1 … W-14). No re-judgment. Proposal approved by JC 2026-11-05 ~19:08 America/Bogota (quote and decisions D1–D8 in `proposal.md` → *Decisions After Approval*). JC delegated the open decisions and authorized writing the full specify set; the Phase 1 gate is passed under that mandate and recorded here. The design / tasks gate: **Design / tasks approved by JC (Juan Carlos Cadavid), 2026-11-05 ~20:27 America/Bogota:** «Apruebo diseño y tasks, sigue con /akili-execute changes/akili-panel». Approval Mode stays `gated`. **Amended after the T1 Pivot** (A1, B1, C1, D1) on JC's decision, 2026-11-05 ~20:50 America/Bogota: «Apruebo A1, B1, C1 y D1, incluida la prueba en ~/.claude/skills/akili-probe/» (`execution.md` → *Pivot Record: T1*) |
 | Date | 2026-11-05 |
 | Proposal | `proposal.md`, Option A (plugin entry inside `.claude/skills/`) |
 | Format source | `docs/specs/archive/2026-11-02-changes--go-backend-routing--backend-skill-routing/requirements.md`. There is no `docs/specs/general-setup/` in this repo (`ls docs/specs/general-setup` → `No such file or directory`, 2026-11-05) |
@@ -437,7 +437,7 @@ Numbers SHALL be shortened: below 1,000 as is, then `k` (one decimal under 10k),
 
 - WHEN the person runs `/clear`, or the session is resumed
 - THEN the session figures start again from 0
-- AND the `$` part stays Claude Code's own total, which for a resumed session counts from its first launch (W-12)
+- AND the `$` part stays on the line as Claude Code's own figure: its amount restarts at `/clear` (observed live 2026-11-06: `$0.01` became `$0.00`), and for a resumed session it counts from its first launch (W-12)
 
 ### FR-13: Governance carve-out
 
