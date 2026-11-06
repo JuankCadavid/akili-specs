@@ -2565,6 +2565,7 @@ async function getLatestVersion() {
 
 function isNewerVersion(latestVersion) {
   return (
+    typeof latestVersion === 'string' &&
     latestVersion &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
