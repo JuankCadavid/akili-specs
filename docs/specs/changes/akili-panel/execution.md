@@ -760,3 +760,82 @@ Review rounds are projected at ~16–18 against 15.
 - **Spawns:**
   - Implementer `sonnet`, attempt 2 (resumed): 2 calls, 65,898 tokens cumulative, ended complete.
   - Reviewer `opus`, round 2 (resumed): 1 call, 65,049 tokens cumulative, ended complete (PASS).
+
+### T8: Marketplace file and user docs — in progress
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:**
+
+  | File | Change |
+  |---|---|
+  | `.claude-plugin/marketplace.json` | new, 18 lines; source `./.claude/skills/akili-panel` |
+  | `docs/plugins/akili-panel.md` | new, 70 lines |
+  | `AGENTS.md` | ±1 |
+  | `CHANGELOG.md` | +7/−1; `### Added` and an upgrade note |
+  | `docs/cli.md` | +3/−3 |
+  | `docs/release-checklist.md` | +1 |
+  | `README.md` | ±1 |
+
+- **Implementer verification:** `claude plugin validate .` passed; pack grep 0; docs-overview 32/32; `npm test` 1602/1602; `verify:cli` OK.
+- **Falsifiers:**
+  - **(1) not red.** With `source` set to `./akili-panel` or `./nope/deeper`, `validate .` still passes, because it checks format only. A bare `nope` fails with `must start with "./"`.
+  - **(2) red:** `npm notice 449B .claude-plugin/marketplace.json` (count 1). Reverted.
+- **Deviation (README):** a new paragraph failed `test/growth-track.test.js:126` (`README net growth 4 > 2`), so the Claude Code sentence was folded into the existing "Other tools…" line instead.
+- **Evidence re-run (Leader-inline): `VERIFIED`** (same commands).
+- **Reviewer (opus, `full`): `FAIL`.** It confirmed that every factual sentence matches the truth sources. The 10-row Next table covers FR-7's 11 rows plus the FR-16 case, equivalently. The README deviation is acceptable, given `git diff --numstat 8991113 HEAD -- README.md` is already at net +2. `AGENTS.md` line 40 does not contradict the carve-out. The issue, verbatim:
+
+> 1. **Discovered Issue:** No check shows that the marketplace `source` `./.claude/skills/akili-panel` resolves and installs. Validate passes with `./akili-panel` and with `./nope/deeper`, so it says nothing about the source path. The FR-14 obligation is therefore backed only by a format check. On top of that, the T8 falsifier prediction ("validate reports source not found") is now known to be false, but it is not yet corrected or logged.
+>    - **Violated Rule:** `requirements.md` FR-14 ("…with its source at `./.claude/skills/akili-panel`, so `/plugin install akili-panel --marketplace JuankCadavid/akili-specs` can install it"); `reviewer.md` §3 (evidence from a check that cannot test the property is a FAIL or an explicitly recorded gap, never a pass).
+>    - **Remediation Suggestion:** Run the real check locally. Nothing has to be pushed, because `--marketplace` accepts a path. Use a temp `HOME` with `claude plugin install akili-panel --marketplace <worktree path>` and confirm the plugin lands. Then set `source` to `./nope/deeper` and confirm the install fails; that negative result becomes the corrected falsifier 1. If the command cannot run outside a session, record an explicit gap in `execution.md` and hand it to T9. Either way, log the corrected falsifier as a factual task-text correction.
+>
+> ADVISORY:
+> - Risk: the release-checklist version-bump step sits after "Confirm all intended repo changes are committed…".
+> - Readability: "once that file is pushed there" should name the default branch (`master`).
+> - Readability: the README sentence is about 55 words.
+> - Readability: the dogfood note is not in the root README.
+
+- **Spawns:**
+  - Implementer `sonnet`: 28 calls, 98,962 tokens, ended complete.
+  - Reviewer `opus`: 19 calls, 101,830 tokens, ended complete (FAIL).
+- **Attempt 2:** effort xhigh. It runs the real install check under a throwaway `HOME`, which never touches the user's `~/.claude`.
+
+#### T8 attempt 2: real marketplace install check
+
+- **Method.** Every command ran under a throwaway `HOME=<tmp>` with `CLAUDE_CONFIG_DIR=<tmp>/.claude` and the nesting env stripped. No login was needed.
+- **Positive check.**
+  - `claude plugin marketplace add <worktree>` → `✔ Successfully added marketplace: akili-specs (declared in user settings)`
+  - `claude plugin install akili-panel@akili-specs` → `✔ Successfully installed plugin: akili-panel@akili-specs (scope: user)`
+  - Installed files: `<tmp>/.claude/plugins/cache/akili-specs/akili-panel/1.0.0/.claude-plugin/plugin.json` and `…/hooks/register.jsx`.
+- **Negative check (the corrected falsifier 1).** A temp marketplace copy with `source` set to `./nope/deeper` gives `✘ Failed to install plugin "akili-panel@akili-neg": Source path does not exist: <tmp>/mk/nope/deeper`. The repo's `marketplace.json` was never edited (`cmp` identical).
+- **Real config untouched.** The Implementer's stamps: `~/.claude/plugins` entry count 16 before and after. `~/.claude.json` mtime moved, but before any install ran; this live session rewrites that file, so the stamp is noisy. The Leader checked directly:
+  - `grep -l "akili-specs\|akili-neg\|akili-panel"` over `~/.claude/settings.json` and `~/.claude/plugins/*.json` finds nothing.
+  - No `akili` entry exists in `~/.claude/plugins/cache`.
+  - The only mention in `~/.claude.json` is the pre-existing repository name `"juankcadavid/akili-specs"`; it is not a marketplace registration.
+  - The temp dirs are deleted.
+- **Execute-time task-text correction (factual).** `tasks.md` T8 Falsifier: a missing source fails at `claude plugin install` (`Source path does not exist`), not at `claude plugin validate .`, which checks format only.
+- **Files changed (repo):** none. This attempt is evidence only, and the docs diff from attempt 1 is unchanged.
+- **Reviewer round 2 (opus, `full`): `PASS`.**
+  - FR-14 is now backed by a real install and a real negative.
+  - The corrected Falsifier text is accurate.
+  - The docs diff is byte-identical to round 1, so the round-1 confirmations stand: the truth trace, DD-19, DD-18, DD-14, the README deviation, and `AGENTS.md`.
+- **ADVISORY (recorded; not acted on):**
+  - The documented one-step form `--marketplace JuankCadavid/akili-specs` (GitHub source) stays unproven until the file is on `master`. Run it once as a post-release smoke check.
+  - The release-checklist bump step should sit above the "committed" line.
+  - The page should say "default branch" instead of "pushed there".
+  - The README sentence is long.
+- **Decisions:**
+  - **README deviation accepted:** `test/growth-track.test.js:126` caps README net growth, and it was already at +2 against `8991113`, so the Claude Code text is one sentence folded into the existing line.
+  - **Falsifier 1 corrected** as a factual task-text fix.
+- **Spawns:**
+  - Implementer `sonnet`, attempt 2 (resumed): 5 calls, 105,695 tokens cumulative, ended complete.
+  - Reviewer `opus`, round 2 (resumed): 2 calls, 105,742 tokens cumulative, ended complete (PASS).
+- **Running totals vs the raised budget:**
+
+  | Measure | Used | Budget |
+  |---|---|---|
+  | Tasks | 8 | 9 |
+  | LOC (excluding `docs/specs`) |  159 files changed, 3416 insertions(+), 23 deletions(-) | ~4,000 |
+  | Review rounds (T1 3, T2 1, T3 2, T4 3, T5 2, T6 2, T7 2, T8 2) | 17 | 18 |
+
+  Within budget. T9 is budgeted at 1 round, and JC is its gate.

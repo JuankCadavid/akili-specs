@@ -167,14 +167,14 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — PASS attempt 2 (`execution.md` → T8) |
 | Size | M (~180 LOC) |
 | Depends on | T5, T7 |
 | Requirements | FR-14 (marketplace file; source `./.claude/skills/akili-panel`; not packed; scenario: `claude plugin validate .`), FR-2 (CHANGELOG upgrade note), FR-1 (README trust note for a project-folder plugin), FR-16 / D7 (docs in English), FR-13 (docs place the plugin outside the skill inventory) |
 | Design | §4 docs rows; DD-12, DD-13, DD-14 (version step), DD-18 (upgrade note), DD-19 (one route); P-8, P-10, P-27 |
 | Scope | Root `.claude-plugin/marketplace.json`; `docs/plugins/akili-panel.md` (what it shows, each mark, the Next table, install via `akili install --tool claude` and via `/plugin install akili-panel --marketplace JuankCadavid/akili-specs`, Claude Code ≥ 2.1.318, Claude only); `README.md` (one short Claude Code paragraph linking the page); `docs/cli.md` (`list` `Plugins:` block, doctor plugin row, Install Targets: Claude only; the four "32 packaged skills" lines stay); `AGENTS.md` *Repository Purpose* bullet on `.claude/skills/` names the plugin entry; `CHANGELOG.md` `[Unreleased]` → `### Added`, plus the upgrade note "run `akili install --tool all` (and `--tool grokbot` where used) once after updating" (DD-18); `docs/release-checklist.md`: one step to bump the plugin's `version` when its files changed (W-7); README and the plugin page: one delivery route (DD-19) and the trust note (W-13) |
 | Tests | `claude plugin validate .` at the repo root (local); `npm run pack:dry-run \| grep -c "\.claude-plugin/marketplace.json"` → 0; `node --test test/docs-overview.test.js test/docs-overview-contract.test.js`; `npm test` |
-| Falsifier | Set the marketplace `source` to `./akili-panel` → `claude plugin validate .` reports the plugin source not found (prediction; observed in T8); add `.claude-plugin` to `package.json` `files` → the pack grep returns 1 |
+| Falsifier | Set the marketplace `source` to a missing path (`./nope/deeper`) → `claude plugin install` from the marketplace fails with `Source path does not exist` (*corrected at execute, T8: `claude plugin validate .` checks the source format only and passes with a missing path, so the prediction it would report "not found" was false; the real check is an install under a throwaway `HOME`*); add `.claude-plugin` to `package.json` `files` → the pack grep returns 1 |
 | Red run | `predicted — greenfield artifact (observed in T8)`: at specify `ls .claude-plugin` → `No such file or directory` |
 | Disqualifier | A docs sentence describing behaviour T5 did not ship (KZ-002): every claim in `docs/plugins/akili-panel.md` is checked against `flow.mjs`'s strings table and the T6 tests, not written from this design |
 | Consumers | `test/docs-overview.test.js` (d) "N packaged skills" sweep over docs; `test/docs-overview-contract.test.js` |

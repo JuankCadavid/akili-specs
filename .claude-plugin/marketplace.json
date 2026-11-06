@@ -1,0 +1,17 @@
+{
+  "name": "akili-specs",
+  "owner": {
+    "name": "Juan Carlos Cadavid",
+    "url": "https://jcadavid.com"
+  },
+  "metadata": {
+    "description": "Claude Code plugins that ship with the AKILI-SPECS methodology."
+  },
+  "plugins": [
+    {
+      "name": "akili-panel",
+      "source": "./.claude/skills/akili-panel",
+      "description": "A Claude Code side pane that shows where the active AKILI spec stands and offers a Next button."
+    }
+  ]
+}

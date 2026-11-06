@@ -6,9 +6,15 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **`akili-panel`, a Claude Code plugin: a side pane that shows where the active spec stands and offers a Next button.** `akili install --tool claude` copies it to `~/.claude/skills/akili-panel/`; no other target receives it. A plugin entry is not a skill, so skill counts exclude it. `akili list` shows it under `Plugins:`, and `akili doctor` checks it for Claude Code only. The page is `docs/plugins/akili-panel.md`.
+- **A root `.claude-plugin/marketplace.json`** lists it for `/plugin install akili-panel --marketplace JuankCadavid/akili-specs`. The npm package does not include that file.
+- **`docs/skills/governance.md` gains *Plugin entries are not skills*.**
+
 ### Notes
 
-- No unreleased changes yet.
+- **Upgrading:** run `akili install --tool all` (and `--tool grokbot` where used) once after updating. An older installer, still running during `akili update`, can copy `akili-panel` into other tools' skills folders. `akili doctor` reports such a copy as `LEAKED`, and the new `install` or `doctor --fix` removes it.
 
 ## [2.42.0] - 2026-11-02
 

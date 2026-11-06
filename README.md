@@ -86,7 +86,7 @@ npx akili-specs doctor
 
 Restart your AI tool, then type `/akili-` and the AKILI commands appear (in Codex, type `$akili-`).
 
-Other tools, flags, manual install, updating and troubleshooting: see [docs/cli.md](docs/cli.md).
+Other tools, flags, manual install, updating and troubleshooting: see [docs/cli.md](docs/cli.md). Claude Code only: the `akili-panel` side-pane plugin, installed by `akili install --tool claude` or the plugin marketplace, not both, and loaded in a project folder only after you trust the project: see [docs/plugins/akili-panel.md](docs/plugins/akili-panel.md).
 
 ## Your first spec
 
