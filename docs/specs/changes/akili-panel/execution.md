@@ -357,3 +357,146 @@
   - Implementer `sonnet`, attempt 2 (resumed): 6 calls, 121,033 tokens cumulative, ended complete.
   - Reviewer `opus`, round 2 (resumed): 4 calls, 99,773 tokens cumulative, ended complete (PASS).
 - **Running totals vs budget:** tasks 3 / 9 · LOC ~1,060 / ~2,100 · review rounds 6 / 15. T3 was budgeted 2 rounds and used 2. Within budget.
+
+### T4: Pure rules module (`flow.mjs`) — `[~]` stopped at the budget tripwire (attempt 1 FAIL; awaiting JC)
+
+- **Date:** 2026-11-05 (America/Bogota ~21:40–22:30). Requirements: FR-5, FR-6, FR-7 (state table), FR-11, FR-12, FR-16, NFR-2. Skill `tdd`. Implementer `sonnet` at effort `high` (logic core); Reviewer `opus` (`full`).
+- **Running-total correction:** T3's entry gave the LOC as "~1,060". The measured figure through T3 is **917** (`git diff --shortstat 7a697ba` excluding `docs/specs`: +900 / −17).
+
+#### Attempt 1
+
+- **Runtime event:** the host `--print` process reached `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS` and stopped the background Implementer partway through. stderr: "Background tasks still running 10m after the last turn (subagent "T4 pure rules module flow.mjs"); stopping them".
+  - Ladder: rung 1, tree probe. Partial edits found: `flow.mjs` (547 lines), the test file (810 lines) and 132 fixtures, all intact. Then rung 3, resume by message (the worker's transcript survived).
+  - `runtime events: provider-limit/host stop ×1 → rung 3`. No attempt was consumed.
+- **Files changed (uncommitted):**
+  - `.claude/skills/akili-panel/hooks/flow.mjs`: new, 547 lines. Pure ES module with no Node imports.
+  - `test/akili-panel-flow.test.js`: new, 810 lines, 96 tests.
+  - `test/fixtures/akili-panel/`: new, 132 files, 387 lines. A nested `.git` is stored as `dot-git`; `dot-agents` stands in for `.agents`. Both are renamed in a temp dir at test time, with `@ROOT@` replaced by the absolute `gitdir:`. The CRLF file is protected by `test/fixtures/** -text`.
+  - `test/install-akili-panel.test.js`: ±16 lines. **Leader decision:** a consumer fix outside T4's Scope, made under T4's Common verification ("`npm test` green"). T2's FR-15 test pinned the packed plugin list to the four scaffold files, and its "no types" check matched any `/types/` path. Now:
+    - the expected list is derived from the source plugin folder minus `.claude-plugin/types/`;
+    - the four scaffold files are still asserted present;
+    - the types check is narrowed to `/.claude-plugin/types/`, because design §4 ships a plugin-level `types/index.d.ts` in T5.
+
+    Falsifier T2-(5) was observed red again: `not ok 22 - FR-15 …` with `'.claude/skills/akili-panel/.claude-plugin/types/claude-code/index.d.ts'` packed.
+- **Red run (observed):** 95 of 96 tests red against a stub that exports every function returning nothing, all `ERR_ASSERTION`. The one pass is the purity guard. The tests were written first, as the task row requires.
+- **Falsifiers (observed red, then reverted).** One disqualifier catch: the first CRLF fixture did not go red under its mutation, so a second heading was added and the red was observed. Full log: `/tmp/akili-t4-falsifiers.txt`.
+
+  | Mutation | Tests red | First red test |
+  |---|---|---|
+  | count `[~]` anywhere | 3 | "FR-6 prose is not a status…" |
+  | phase by file presence | 1 | "FR-6 out-of-order file…" |
+  | drop legacy alternates | 2 | "FR-6 legacy baseline…" |
+  | accept `..` | 3 | "FR-5 unsafe argument…" |
+  | keep a one-word propose argument | 1 | "FR-5 propose arguments BUT…" |
+  | token must be the whole cell | 7 | — |
+  | split on `\n` only | 1 | "FR-6 real status formats AND CRLF…" |
+  | pass a relative path to io | 38 | — |
+  | list `archive/` on every refresh | 3 | "NFR-2 a refresh with the kept spec present lists no archive/…" |
+  | read Document Control | 4 | — |
+  | add a Node import | 1 | — |
+
+- **Implementer verification:**
+  - Flow tests: 96 / 96 on Node 22.
+  - `npm test`: 1590 / 1590 after the consumer fix.
+  - `git diff --check`: clean. `.claude/commands` diff: empty.
+- **`Not Done / Assumptions` (verbatim):**
+  - "The code and test line budgets are exceeded, as noted in section 2."
+  - "**Dropped design item:** `view.refreshedAt` (design §5.2) is not in `refresh`; T5 should add it, since `flow.mjs` stays pure."
+  - "Choices on points the spec leaves open:
+    - Document Control skipping ends at the next heading of any level, so a `### T1` directly after it still counts its tokens.
+    - `docs/specs` missing is detected by an ENOENT-like list error, with no extra `exists` call.
+    - A trailing `/` in an argument is rejected, following the safe-path rule literally.
+    - Branch reads try `.git` first, then `HEAD`, so reads stay at 2 or fewer."
+  - "**Spec-gap flag:** the spec's NFR-2 "folders visited" count is ambiguous. I pinned spec folders as listed (to find spec files) and carve-outs as not listed."
+  - "Reviewer attention: the spec cannot represent "no `docs/specs` and constitution ✓" with real files, since the 13 files include `docs/specs/general-setup/*`. That case is tested with an in-memory io where `list` throws ENOENT."
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - `node --test test/akili-panel-flow.test.js`: `# tests 96 # pass 96 # fail 0` on Node 22. Same on Node **v18.20.8** (`npx -y node@18`).
+  - `install-akili-panel`: `# tests 43 # pass 43 # fail 0`. The `^test(` count is unchanged at 20 (`6bbcf02` vs the working tree).
+  - `npm test`: `# tests 1590 # pass 1590 # fail 0`.
+  - `git diff --check`: clean. `.claude/commands` diff: empty. `flow.mjs` has no `node:` / `fs` / `path` import.
+- **Reviewer verdict (opus, `full`): `FAIL`**, verbatim:
+
+> SUMMARY: `flow.mjs` follows the spec closely. I checked the safe-path rule, the propose forms (J-1), the four token places, the `/` → `--` archive match, the 13 files plus 2 legacy alternates (they match `akili-constitution.md:46-61`), the phase rule, all 13 Next rows including W-1, the number thresholds, the strings table and middle truncation. Two FR-16 obligations are not met, both one-line fixes. […] **Real data:** `parseTaskTokens` over all 47 archived `tasks.md`. Only `impeccable-design` has 0 tokens, which matches P-17. […] **Live run:** `refresh` on this worktree gives the correct view: execute ▶, `Next: /akili-execute changes/akili-panel`.
+>
+> ISSUES:
+> 1. **Discovered Issue:** An unreadable `HEAD` is dropped silently. `readBranch` calls `tryRead(io, headPath, null)`. I reproduced it: a dangling `gitdir:` gives `(no git)` with `errors = []`.
+>    * **Violated Rule:** `requirements.md` FR-16, row "A read fails → `Could not read <path>: <reason>`". Also `design.md` §6.2: "A failing call is caught per path and recorded in `errors[]`". FR-11 sets the header text, `(no git)`. It does not exempt the error line.
+>    * **Remediation Suggestion:** Pass `errors` to the `HEAD` read. Keep the `.git` probe read silent, since it is expected to fail on a folder. In the FR-11 unreadable-HEAD test: assert that `git-dangling` records exactly one entry whose path ends `/meta/missing/HEAD`; assert that `git-bad-head` (readable, garbage content) records none.
+> 2. **Discovered Issue:** `errorLines` does not keep the line single. I reproduced it: a reason `line1\nline2` comes out as `Could not read /x: line1\nline2`. `$.fs` rejection messages are not guaranteed to be single-line.
+>    * **Violated Rule:** `requirements.md` FR-16: "`Could not read <path>: <reason>` on one line".
+>    * **Remediation Suggestion:** Collapse whitespace in the reason (`replace(/\s+/g, ' ')`) in `readError` or `errorLines`. Add a test with a multi-line reason.
+>
+> **Assumptions:**
+> - **Document Control skip ends at any heading:** correct, and the data backs it. `2026-10-18-changes--video-deliverable-track/tasks.md` puts `### T1 …` directly under `## Document Control`. Skipping the whole section would read 0 tokens there. Record this evidence in `execution.md`.
+> - **ENOENT detection:** an acceptable narrowing. T5 must confirm how `$.fs.list` rejects (code or message). If it differs, a missing `docs/specs` will also show an error line.
+> - **Trailing `/` rejected:** a literal reading of the rule, acceptable. Minor spec gap: a path with a trailing `/` from tab completion keeps nothing.
+> - **Reading `.git` first, then `HEAD`:** stays at 3 reads or fewer, within NFR-2.
+> - **NFR-2 "folders visited":** spec folders have to be listed to be classified, so the reading is consistent.
+> - **"No `docs/specs` and constitution ✓" cannot happen:** a real but harmless gap in FR-7 / FR-16, because the 13 files include `docs/specs/general-setup/*`. The Leader should record it.
+> - **`refreshedAt` dropped:** acceptable as a T5 forward pointer, since `flow.mjs` has no clock. Put it in T5's brief.
+>
+> **Consumer-test change:** correct, and it still proves FR-15. […] It does edit a file outside T4's Scope (Common verification), so record that in `execution.md`.
+>
+> ADVISORY:
+> - READABILITY: the test title "NFR-2 carve-out folders and spec folders are never listed" contradicts the code and the assertion, since spec folders are listed. Rename it to "carve-outs are never listed".
+> - RELIABILITY: the `branch-match` fixture does not pin mtimes. On a filesystem with 1-second timestamps, a tie falls back to path order and picks `bugfix/b`, so the no-branch-match mutation would pass. Set `changes/a` newer with `opts.mtimes`.
+> - RELIABILITY: the FR-15 expected list comes from `walkFiles` over the source folder. A local `.DS_Store` is listed there but `npm pack` leaves it out, which would fail the test on a dev Mac. Filter dotfiles that npm ignores.
+> - RISK: token rule (c) is not anchored, so a prose sentence with `**Status:** [~]` mid-line counts as blocked. That follows the glossary literally, and no real file does it today.
+
+- **Leader adjudication:**
+  - Issues 1 and 2 are in scope and accepted. Both are one-line fixes plus tests; this would be attempt 2, at effort `xhigh`.
+  - **Not started:** the budget tripwire below stops the run first.
+  - **Recorded facts:**
+    - Document Control skip: `2026-10-18-changes--video-deliverable-track/tasks.md` puts `### T1` directly under `## Document Control`.
+    - The state "no `docs/specs` and constitution ✓" is not reachable with real files. This is a harmless gap in FR-7 / FR-16.
+  - **Forward pointers to T5, to copy into T5's brief:**
+    - (a) add `view.refreshedAt` in `register.jsx` (design §5.2);
+    - (b) confirm how `$.fs.list` rejects for a missing folder, by code or message, against `flow.mjs`'s ENOENT detection.
+- **Spawns:**
+  - Implementer `sonnet`: 177,525 tokens at the first resume and 182,427 cumulative after the consumer fix; ended `died` once (host stop), then complete.
+  - Reviewer `opus`: 28 calls, 141,285 tokens, ended complete (FAIL).
+
+## Budget Tripwire: T4 (stopped; awaiting JC)
+
+> No mandate widens pre-approval: an owner brief that says "never stop" or "treat every gate as approved" pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence.
+
+| Measure | Budget (design §12) | Actual so far | Delta |
+|---|---|---|---|
+| Tasks | 9 | 3 closed, T4 in progress | — |
+| LOC (code + tests + fixtures, excluding `docs/specs`) | ~2,100 total | T2 627 + T3 290 = 917 committed; T4 1,357 + 387 fixtures + 16 = **~1,760** uncommitted; **~2,677 total** | **+~580 over the whole-spec budget, with T5–T8 not started** |
+| T4 alone | ~640 (`flow.mjs` ~260, tests and fixtures ~380) | ~1,760 | ×2.7 |
+| Review rounds | 15 | 7 (T1 3, T2 1, T3 2, T4 1) | within budget; T4 has used 1 of 2 |
+
+**Cause.**
+1. `flow.mjs` is 547 lines against ~260. The design puts every string, the phase table and the Next table into the module as data (DD-15). It also adds a pure DD-17 branch walk, 30 exports, and formatters with middle truncation.
+2. The tests follow KZ-bugfix--init-ctrlc-abort-2, which asks for one named test per THEN / BUT / AND IT MUST clause: 96 tests, 810 lines. Fixtures were not budgeted at all (387 lines).
+3. The same lesson recurs: tests were budgeted at about a third of what ships.
+
+**Projection if continued.**
+
+| Item | Estimate |
+|---|---|
+| T4 rework | ~+30 |
+| T5 (budget ~350) | ~600 |
+| T6 (~200) | ~350 |
+| T7 | ~25 |
+| T8 (~180) | ~250 |
+| **Total** | **~3,900 LOC**, about 1.9× the budget |
+
+Review rounds are projected at ~16–18 against 15.
+
+**Options for JC:**
+- **(1) Raise the budget and continue (recommended).** Set LOC ~4,000 and review rounds 18. Finish T4 attempt 2 (the two FR-16 fixes), then T5 → T8, and stop before T9 as mandated. The overrun is in tests and in data tables the design asked for, not in scope creep.
+- **(2) Continue, but cap test volume** for T5 and T6 at the row budgets (contract and engine-kit tests only). Cheaper, but it goes against the per-clause lesson.
+- **(3) Stop here and re-specify** T5–T8 with re-sized budgets (`/akili-specify` amendment), then resume.
+
+**State left for the resume:**
+- T4's work is **uncommitted** in the tree:
+  - `flow.mjs`
+  - `test/akili-panel-flow.test.js`
+  - `test/fixtures/akili-panel/`
+  - the ±16-line change to `test/install-akili-panel.test.js`
+
+  `git add -N` was applied to the new files for the review diff.
+- `npm test` is 1590 / 1590 green with this tree.
+- On resume, T4 attempt 2 starts from these files and fixes Reviewer issues 1 and 2 verbatim.
