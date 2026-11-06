@@ -127,3 +127,88 @@
 **What does not change:** T2–T4 (installer, `list` / `doctor`, `flow.mjs`) depend on none of A, B or D. They depend on DD-1 (C) only through the dependency T2 → T1. No spec document has been amended yet: the Pivot Protocol's spec edits and Correction Closure sweep wait for JC's choice.
 
 **Question to JC:** approve A1 / B1 / C1 / D1, or name others. Once the choices are approved, the Leader amends `design.md` (DD-8, §3, §5.2, §6.1, P-18/19/20/24/25/26/34) and `requirements.md` as needed, runs the Correction Closure sweep, and finishes T1 (the C1 probe, if chosen, then the Reviewer's second round). After that, T2 can start.
+
+### Pivot Record: T1 — JC's decision
+
+- **Decided by:** JC (Juan Carlos Cadavid), 2026-11-05 ~20:50 America/Bogota: «Apruebo A1, B1, C1 y D1, incluida la prueba en ~/.claude/skills/akili-probe/»
+- **A1:** `pending` clears on settle (resolve or reject), with a fallback clear on the first main-loop `turn.start` after `since` whose text names `/<command>`. It is still reset at `session.start`, with no fixed 60 s bound. A pass-through `turn.start` hook is added
+- **B1:** the press handler records the kept spec itself (FR-5 step 1, safe-path rule). The §3 diagram and P-34 are corrected
+- **C1:** one interactive probe with the probe at `~/.claude/skills/akili-probe/`, and that folder removed afterwards. Nothing else under `~/.claude` is touched
+- **D1:** P-25 is settled for a foreground (blocking) subagent in the same C1 session
+- **Leader safety narrowing for C1:** a user-level plugin loads in **every** Claude Code session JC starts while it is present. So the C1 probe:
+  - acts only when `$.session.root()` is the probe project, and is a no-op anywhere else
+  - has no `$.command.run` timer (P-34 is already settled), so it can never inject a command into another session
+  - stays installed for the shortest window possible
+
+#### Attempt 2 (after JC's decision; continuation for D1)
+
+- **Files changed (repo):** none by the Implementer.
+- **Probes run (outside the repo):**
+  - C1 at placement (b), `~/.claude/skills/akili-probe/`. It was removed by a `trap` after the falsifier session.
+  - Continuation for D1 at placement (a), `/private/tmp/akili-t1.0PjE/proj/.claude/skills/akili-probe/`.
+- **Module guard:** the module acts only when `$.session.root()` is the probe project. It has no `$.command.run`, `$.clock`, `$.process`, `$.prompt` or `$.ui`, and every hook returns `next(e)` unchanged.
+- **Raw evidence:** `/tmp/akili-t1c1-evidence.txt` (198 lines, a `=== CONTINUATION ===` section included).
+- **C1, P-24(b): verified.**
+  - Debug lines:
+    - `Read hooks.json for plugin akili-probe (enabled=true): /Users/jcadavid/.claude/skills/akili-probe/hooks/hooks.json`
+    - `hooks module akili-probe@skills-dir loaded (worker, environment 2, tier user); events: session.start,turn.start,tool.call,turn.complete`
+    - `plugin.register: akili-probe (user, akili-probe@skills-dir), judged by cc-plugin-sec-default: admitted`
+  - The log was written with no trust step: `1793930040183 session.start root=/private/tmp/akili-t1.0PjE/proj … "isInteractive":true`.
+  - Falsifier (plugin.json removed): `grep -c 'hooks module akili-probe'` = 0, and no log file. The session reached ready (`"status":"ready"`) and answered PONG.
+- **D1, P-25 for a foreground subagent: verified (no double count).**
+  - **How foreground was reached.** In the C1 session the Agent tool launched in the background on both tries ("Backgrounded agent", `tool_dispatch_end tool=Agent outcome=ok durationMs=18`). A continuation, which consumes no attempt, re-ran it at placement (a) with `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`. That gave `tool_dispatch_end … durationMs=6329`.
+  - **Order:** the subagent's `turn.complete` came at `1793930551709`, before the parent's at `1793930554562`.
+  - **Usage, parent vs subagent:** output 358 vs 525; cache-creation 56155 vs 46299. The parent's cache-creation is about the cold-prompt baseline of 55481. Folding the subagent in would give about 100k.
+  - **Limit (inference):** per-request usage inside a turn is not visible.
+- **continuations:** 1 (P-25 foreground, owed after the C1 session's two background launches).
+- **Cleanup:**
+  - Leader-inline: `ls -d ~/.claude/skills/akili-probe` reports `No such file or directory`.
+  - `/tmp/akili-t1c1` and `/tmp/akili-t1c2` are gone; `/tmp/akili-t1.0PjE` is empty.
+  - No probe process is running.
+  - No new `~/.claude.json` entry: the existing trust entry for `/private/tmp/akili-t1.0PjE/proj` was reused.
+- **Evidence re-run (non-author, Leader-inline):** `VERIFIED` by comparison. The adoption path line, `loaded`, `admitted`, `isInteractive`, the env var, `durationMs=6329`, both `turn.complete` timestamps, the four usage figures and the ready line were each found by grep in `/tmp/akili-t1c1-evidence.txt`.
+- **Execute-time spec edits (Pivot Protocol step 3, on JC's decision; Correction Closure run):**
+
+  | File | What changed |
+  |---|---|
+  | `design.md` | Document Control; §3 diagram (adds `turn.start`; the press runs the command and records the kept spec, B1); §5.2 `pending` (A1); §6.1 new `turn.start` row and `onPress` row (A1, B1); *Every hook passes the event on first* (adds `turn.start`); DD-1; DD-8; DD-9 reason; §11 count line and rows P-18, P-19, P-20, P-24, P-25, P-26, P-34 |
+  | `requirements.md` | Document Control; §4.1 assumption (P-24 verified); FR-1 trust note (observed); FR-7 (a press records the kept spec, B1; double press has no fixed bound, A1); D-9 (settled) |
+  | `tasks.md` | Document Control; T5 Requirements and Scope (A1, B1); T6 Requirements and Falsifier (A1, B1); Coverage (two FR-7 rows) |
+
+  Sweeps:
+  - **Forward:** `60 s` across the spec folder leaves only the new A1 test wording in T6 and `judgment.md`'s W-5 history (left as history).
+  - **Backward:** `P-34`, `DD-8`, `observer included`, `UNVERIFIED` leave only P-27 unverified.
+  - **Removals:** `git diff -U0`; every removed line is a replaced row or sentence.
+- **Reviewer verdict, round 2 (opus, `checklist`): `FAIL`.** It closed round-1 issues 1–4. Two new issues were in the Leader's amendment text, verbatim:
+
+> 1. **Discovered Issue:** Four places say a `~/.claude/skills` plugin "loads with no trust step": requirements §4.1, P-24(b) ("active at `session.start` with no trust step"), DD-1's "(the latter only after workspace trust)", and the Attempt 2 record. The C1 session ran in `/private/tmp/akili-t1.0PjE/proj` (evidence line 4). That workspace was already trusted: Attempt 1 left the `~/.claude.json` entry and Attempt 2 says it "was reused". So no trust dialog could have appeared. Nothing shows how a user-level plugin behaves in an untrusted workspace. Attempt 1's line `hooks modules not loaded until workspace trust is accepted` suggests the gate may apply to every hooks module, not only project-folder ones. — **Violated Rule:** brief check 3 (no inference stated as fact). Also requirements.md §4.1, the row amended to "Verified in T1", and design.md §11 P-24, whose Citation reads "as run". — **Remediation Suggestion:** Reword all four places to: "(b) observed in an already-trusted workspace; untrusted-workspace behaviour unobserved (T9)". DD-1 stands; P-24(b) adoption is still verified. Optionally add a T9 check in an untrusted project.
+> 2. **Discovered Issue:** The `pending` shape differs between two sections. §5.2 (design.md:149) still says `{ since }`. The amended §6.1 `onPress` row (design.md:181) stores `pending = { since, command }`, and the `turn.start` fallback reads `<pending command>`. T5 builds `types/index.d.ts` (PluginState) from §5.2, so the declared type would lack `command`. — **Violated Rule:** design.md §5.2 `pending` row against §6.1 `onPress` / `turn.start` rows; brief check 2 (no amendment may conflict with an untouched clause). — **Remediation Suggestion:** Change §5.2 Holds to `{ since, command }`, the command the press queued. Optionally give `pending` a shape tag.
+>
+> ADVISORY: close the "awaiting JC" status and add one consolidated verdict table; design §13's first risk row and the requirements glossary "Observed command" predate B1; under B1 a rejected press still records the kept spec — decide whether it should.
+
+#### Attempt 3 (Leader fixes its own amendment text; no Implementer spawn needed: the evidence stands)
+
+- **Fixes:** issue 1 is fixed in requirements §4.1, design P-24 and DD-1. The user-folder plugin was observed in an already-trusted workspace; untrusted-workspace behaviour is unobserved. **Correction to the Attempt 2 bullet above** ("The log was written with no trust step"): that workspace was already trusted, so the line shows only that no trust dialog appeared. Issue 2 is fixed in §5.2 `pending`, which now holds `{ since, command }`. The optional T9 check in an untrusted project is **not** added: it is not in the approved task, so it would be new scope.
+- **ADVISORY (recorded; not acted on):** the glossary "Observed command", the §13 risk row, and B1 on a rejected press.
+- **Reviewer verdict, round 3 (opus, `checklist`): `PASS`.** "Both round-2 issues are now closed … No live clause uses the old shape … T1 can close." ADVISORY: none new.
+
+#### T1 closeout — `PASS` (attempt 3), 2026-11-05
+
+| Premise | Final verdict |
+|---|---|
+| P-24 (a), project `.claude/skills/<name>` | **Verified**, after workspace trust |
+| P-24 (b), `~/.claude/skills/<name>` | **Verified** (adopted, `tier user`, `admitted`), observed in an already-trusted workspace; untrusted-workspace behaviour unobserved |
+| P-25 | **Verified: no double count**, for background (default) and foreground (`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`) subagents. DD-9 unamended |
+| P-26 | **Refuted** (no `types/` written); DD-16 kept as a guard |
+| P-34 | **Verified as amended:** runs as typed; settles at dequeue; own observer skipped on re-entry. DD-8 amended (A1, B1) |
+| P-18 / P-19 / P-20 | Observed interactively |
+
+- **Probe cleanup:** `ls -d ~/.claude/skills/akili-probe` → `No such file or directory`. No `/tmp/akili-t1*` probe trees are left (`/tmp/akili-t1.0PjE` is empty). The evidence files `/tmp/akili-t1-evidence.txt` and `/tmp/akili-t1c1-evidence.txt` are kept for audit.
+- **Spawns:**
+  - Implementer `sonnet`, attempt 1: 27 calls, 109,710 tokens, ended complete.
+  - Implementer `sonnet`, attempt 2: 35 calls, 120,652 tokens, ended partial (`Not Done`: foreground P-25).
+  - Implementer `sonnet`, continuation: 38 calls, 127,278 tokens, ended complete.
+  - Reviewer `opus`, round 1: 10 calls, 86,762 tokens, ended complete (FAIL).
+  - Reviewer `opus`, round 2: 10 calls, 115,629 tokens, ended complete (FAIL).
+  - Reviewer `opus`, round 3 (resumed): 2 calls, 121,414 tokens cumulative, ended complete (PASS).
+- **Running totals vs budget (design §12):** tasks 1 / 9 · LOC 0 (spec edits only) / ~2,100 · review rounds 3 / 15. T1 was budgeted 1 round and used 3: two FAILs, both closed. The total stays under budget, so the tripwire has not been passed. The overrun is noted for kaizen.

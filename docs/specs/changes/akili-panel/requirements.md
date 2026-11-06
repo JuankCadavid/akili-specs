@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated`. Every phase gate stops for JC. Not pre-approved |
-| Status | Draft for JC's review. **Judgment-day closed `fixed, not re-judged`** (`judgment.md`): round 1 fixed J-1 … J-5; JC answered the review gate «Fix only» (2026-11-05 ~20:07 America/Bogota), so the same pass fixed A-1, A-2 and the warnings both judges raised (W-1 … W-14). No re-judgment. Proposal approved by JC 2026-11-05 ~19:08 America/Bogota (quote and decisions D1–D8 in `proposal.md` → *Decisions After Approval*). JC delegated the open decisions and authorized writing the full specify set; the Phase 1 gate is passed under that mandate and recorded here. The design / tasks gate: **Design / tasks approved by JC (Juan Carlos Cadavid), 2026-11-05 ~20:27 America/Bogota:** «Apruebo diseño y tasks, sigue con /akili-execute changes/akili-panel». Approval Mode stays `gated` |
+| Status | Draft for JC's review. **Judgment-day closed `fixed, not re-judged`** (`judgment.md`): round 1 fixed J-1 … J-5; JC answered the review gate «Fix only» (2026-11-05 ~20:07 America/Bogota), so the same pass fixed A-1, A-2 and the warnings both judges raised (W-1 … W-14). No re-judgment. Proposal approved by JC 2026-11-05 ~19:08 America/Bogota (quote and decisions D1–D8 in `proposal.md` → *Decisions After Approval*). JC delegated the open decisions and authorized writing the full specify set; the Phase 1 gate is passed under that mandate and recorded here. The design / tasks gate: **Design / tasks approved by JC (Juan Carlos Cadavid), 2026-11-05 ~20:27 America/Bogota:** «Apruebo diseño y tasks, sigue con /akili-execute changes/akili-panel». Approval Mode stays `gated`. **Amended after the T1 Pivot** (A1, B1, C1, D1) on JC's decision, 2026-11-05 ~20:50 America/Bogota: «Apruebo A1, B1, C1 y D1, incluida la prueba en ~/.claude/skills/akili-probe/» (`execution.md` → *Pivot Record: T1*) |
 | Date | 2026-11-05 |
 | Proposal | `proposal.md`, Option A (plugin entry inside `.claude/skills/`) |
 | Format source | `docs/specs/archive/2026-11-02-changes--go-backend-routing--backend-skill-routing/requirements.md`. There is no `docs/specs/general-setup/` in this repo (`ls docs/specs/general-setup` → `No such file or directory`, 2026-11-05) |
@@ -64,7 +64,7 @@ It ships inside the npm package as a Claude Code plugin at `.claude/skills/akili
 | `/akili-propose` resolves a bare kebab-case first token to `changes/<name>` and derives a slug from a sentence; the other spec-taking commands take a spec path | `.claude/commands/akili-propose.md:32-38` |
 | `akili update` reinstalls with the installer code already loaded, i.e. the **old** version's | `bin/akili.js:1467-1478`; comment `:1481` "The running process still has the old code loaded" |
 | `doctor --fix` writes only absent entries; a present entry whose bytes differ is reported and never written | `bin/akili.js:1666`, `:1677-1679` (comments above `reportPresent`) |
-| Claude Code loads a plugin auto-placed in a skills folder (`~/.claude/skills/<name>`, project `.claude/skills/<name>`) | `UNVERIFIED — confirm at source before relying on it`. The plugin-authoring reference says so; a headless `-p` run in an untrusted temp project did **not** adopt one. Settled by T1 (design P-24) |
+| Claude Code loads a plugin auto-placed in a skills folder (`~/.claude/skills/<name>`, project `.claude/skills/<name>`) | **Verified in T1** (2026-11-05, interactive, Claude Code 2.1.318), for both folders: `hooks module akili-probe@skills-dir loaded (worker, environment 2, tier user)` and `admitted`. A project-folder plugin loads only after the project is trusted. The `~/.claude/skills` plugin was observed in an already-trusted workspace; its behaviour in an untrusted workspace is unobserved. The earlier headless `-p` miss was an untrusted project (design P-24) |
 
 ### 4.2 Scope
 
@@ -103,7 +103,7 @@ It ships inside the npm package as a Claude Code plugin at `.claude/skills/akili
 - THEN `<home>/.claude/skills/akili-panel/.claude-plugin/plugin.json` exists
 - AND the installed plugin's files equal the packaged ones byte for byte
 - AND IT MUST behave the same with `--local` (under `./.claude/skills/`) and with `--skills-only`
-- AND the README states that a plugin under a project's `.claude/skills/` may load only once the person trusts that project (W-13)
+- AND the README states that a plugin under a project's `.claude/skills/` loads only once the person trusts that project (W-13; observed in T1: `hooks modules not loaded until workspace trust is accepted`)
 
 #### Scenario: Every other target
 
@@ -328,7 +328,7 @@ The pane SHALL show one button, `Next: /<command> <args>`, built from the curren
 | Displayed spec archived, other active specs exist | `Next: /akili-resume` |
 | Displayed spec archived, none other active | `Next: /akili-propose` |
 
-Pressing it SHALL run that command as if the person typed it.
+Pressing it SHALL run that command as if the person typed it. A press SHALL record the kept spec (FR-5 step 1) exactly as a typed run of the same command would, because Claude Code does not pass a plugin's own run through that plugin's own observer (T1; B1).
 
 #### Scenario: Press
 
@@ -348,6 +348,7 @@ Pressing it SHALL run that command as if the person typed it.
 
 - GIVEN the person presses the button twice before the first run starts
 - THEN only one run is queued
+- AND this holds however long the turn ahead of the queued run lasts: the guard has no fixed time bound (A1)
 
 ### FR-8: `/akili-panel` opens the pane
 
@@ -508,7 +509,7 @@ All pane text SHALL be English (D7). The pane SHALL show:
 | D-6 | Layout: lines too wide, unreadable glyphs, wrong look on a real surface | **No automated check** can see the painted pane. Substitute: a human check at the T9 HITL pause in a real terminal session, at two widths |
 | D-7 | Generated types or the root marketplace folder end up in npm | `npm run pack:dry-run` output grep |
 | D-8 | Docs claim wrong counts or stale paths | `docs-overview` tests and a grep sweep in the docs task |
-| D-9 | Token figures double-count subagent turns | Settled by the T1 probe; if unsettled, an **accepted risk**: the line is labelled as the sum of turns, not as the bill (the `$` part is Claude Code's own figure) |
+| D-9 | Token figures double-count subagent turns | Settled by the T1 probe: **no double count** for background and foreground subagents (design P-25). The fallback below is therefore not used. Had it been unsettled, an **accepted risk**: the line is labelled as the sum of turns, not as the bill (the `$` part is Claude Code's own figure) |
 | D-10 | API drift in a later Claude Code build | **Accepted risk**: the README pins 2.1.318; `claude plugin validate` is re-run on upgrade |
 
 ## 9. Requirement ID Index
