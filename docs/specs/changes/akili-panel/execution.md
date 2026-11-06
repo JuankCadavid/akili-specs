@@ -839,3 +839,68 @@ Review rounds are projected at ~16–18 against 15.
   | Review rounds (T1 3, T2 1, T3 2, T4 3, T5 2, T6 2, T7 2, T8 2) | 17 | 18 |
 
   Within budget. T9 is budgeted at 1 round, and JC is its gate.
+
+## Stop before T9: live HITL (awaiting JC)
+
+**Final checks on the committed tree (`4ff30eb`, 2026-11-06):**
+
+| Check | Result |
+|---|---|
+| `npm test` | `# tests 1602 # pass 1602 # fail 0` |
+| `claude plugin validate .claude/skills/akili-panel` | `✔ Validation passed` |
+| `claude plugin validate .` (the marketplace) | `✔ Validation passed` |
+| `claude plugin test .claude/skills/akili-panel` | `17 pass 0 fail` |
+| `git diff --stat 7a697ba -- .claude/commands` | empty |
+| Claude Code | 2.1.319 |
+
+### T9 manual steps for JC
+
+Run these on your machine, **outside this repository** (T9 Disqualifier: never in this worktree, never with `--plugin-dir`). Copy the pane text or take screenshots for each step.
+
+1. **Scratch project.**
+
+   ```bash
+   mkdir -p /tmp/akili-t9 && cd /tmp/akili-t9 && git init -q && git checkout -q -b feat/demo-spec
+   mkdir -p docs/specs/changes/demo-spec
+   printf '# Proposal\n'     > docs/specs/changes/demo-spec/proposal.md
+   printf '# Requirements\n' > docs/specs/changes/demo-spec/requirements.md
+   printf '# Design\n'       > docs/specs/changes/demo-spec/design.md
+   printf '# Tasks\n\n### T1\n\n| Field | Value |\n|---|---|\n| Status | `[x]` |\n\n### T2\n\n| Field | Value |\n|---|---|\n| Status | `[ ]` |\n' > docs/specs/changes/demo-spec/tasks.md
+   node /Users/jcadavid/orca/workspaces/sdd-jc-methodology/akili-panel/bin/akili.js install --tool claude --local
+   ls .claude/skills/akili-panel/.claude-plugin/plugin.json
+   ```
+
+2. **Open and trust the project.** Run `claude` in `/tmp/akili-t9` (interactive) and accept the trust dialog. A project-folder plugin loads only after trust (T1).
+3. **Open the pane.** Type `/akili-panel`. Expect:
+   - the reply `Akili pane opened.`;
+   - a pane titled `Akili`;
+   - a header `Akili · changes/demo-spec · ⎇ feat/demo-spec`;
+   - `01 Constitution` with `○` or `▶ (k/13)`;
+   - `02 propose ✓`, `specify ✓`, `execute ▶` in bold, `test`, `validate` and `archive` with `○`;
+   - a line `Tokens: ctx — · session 0 in / 0 out` (or a filled ctx after a response);
+   - the button `Next: /akili-execute changes/demo-spec`.
+4. **Narrow pane.** Resize the terminal to at least two widths, one under 60 columns. No line may wrap. The header shortens with `…`. The token line drops `$` first, then `session`.
+5. **Press Next.** It must run `/akili-execute changes/demo-spec` as if typed. The button must look dim while the run is queued and clear when the run starts (P-34, A1). Pressing twice before the run starts must queue only one run. You may stop the run (Esc) once it starts.
+6. **Typed-command transparency (FR-9, P-18, W-11).**
+   - Type `/akili-resume` by hand and note its output.
+   - Exit, move `.claude/skills/akili-panel` out of the project (`mv .claude/skills/akili-panel /tmp/akili-panel-off`), start `claude` again, and type `/akili-resume` again.
+   - The two outputs must be the same command running unchanged.
+   - Move the folder back.
+7. **Typed command updates the pane.** With the plugin back, run `/akili-specify changes/demo-spec` (you can stop it right away). The pane must keep `changes/demo-spec` as the displayed spec after the next refresh.
+8. **Refresh falsifier (NFR-3).**
+   - With the pane open, delete `docs/specs/changes/demo-spec/tasks.md` from another terminal.
+   - Within 30 s the pane must move the current phase back to `specify` and show `Next: /akili-specify changes/demo-spec`.
+   - If it does not, refresh is not wired.
+9. **Missing `docs/specs/` (forward pointer b; host rejection shape unverified until now).** Run `claude` in a trusted folder with no `docs/specs/`, then `/akili-panel`. Expect `No docs/specs/ folder yet.` and **no** `Could not read …` line.
+10. **Spec tension check (T5).** In `/tmp/akili-t9`, run `claude "/akili-panel"`, with the prompt given on the command line. Note whether the pane opens or Claude Code answers "unknown command". The answer feeds the decision below.
+11. **Cursor (P-27, W-13), if installed.** Open `/tmp/akili-t9` in Cursor and note whether `akili-panel` shows anywhere for the `--local` copy. The global `~/.claude/skills` copy needs `akili install --tool claude`, which writes into your own config. Run it only if you want that checked, and remove it afterwards if you do not keep it.
+12. **Cleanup.** `rm -rf /tmp/akili-t9 /tmp/akili-panel-off`.
+
+### Decisions owed to JC (with the T9 answer)
+
+| # | Decision | Options | Leader recommendation |
+|---|---|---|---|
+| D-A | **Spec tension (T5 Reviewer).** `reference.md:209-211` lists a command for turn one only when `session.start` awaits its registration, but design §6.1 puts all of `session.start`'s work on the clock. Risk: `claude "/akili-panel"` on the command line may hit "unknown command" | **(a)** Amend §6.1: `session.start` may await `$.command.register` (only that) after `next(e)`. **(b)** Keep it on the clock and accept the gap | Decide after T9 step 10: if step 10 shows "unknown command", take **(a)** (a small change and a re-review); else **(b)** |
+| D-B | `tests/panel.test.tsx` ships in the npm package into users' plugin folder (`.claude/skills` is in `files`; design §4 lists `tests/` in the plugin entry) | Accept, or exclude `.claude/skills/*/tests` in `package.json` `files` (a follow-up) | Accept for v1; consider the exclusion in a follow-up |
+
+The advisories recorded per task are kept in each task entry. None became a task (*Advisory Never Becomes A Task*).
