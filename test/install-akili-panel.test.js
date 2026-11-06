@@ -376,13 +376,15 @@ test("FR-15 generated types/ in a temporary package copy: install does not copy 
   assert.equal(pack.status, 0, pack.stderr);
   const files = JSON.parse(pack.stdout)[0].files.map((f) => f.path);
   const plugin = files.filter((f) => f.startsWith(`.claude/skills/${PLUGIN}/`)).sort();
-  assert.deepEqual(plugin, [
-    `.claude/skills/${PLUGIN}/.claude-plugin/plugin.json`,
-    `.claude/skills/${PLUGIN}/README.md`,
-    `.claude/skills/${PLUGIN}/hooks/hooks.json`,
-    `.claude/skills/${PLUGIN}/hooks/register.jsx`,
-  ]);
-  assert.equal(files.some((f) => f.includes("/types/")), false, "no types/ file is packed");
+  const expected = walkFiles(path.join(copy, ".claude", "skills", PLUGIN))
+    .filter((f) => !f.startsWith(".claude-plugin/types/"))
+    .map((f) => `.claude/skills/${PLUGIN}/${f}`)
+    .sort();
+  assert.deepEqual(plugin, expected, "packed plugin files are the source folder minus .claude-plugin/types/");
+  for (const scaffold of [".claude-plugin/plugin.json", "README.md", "hooks/hooks.json", "hooks/register.jsx"]) {
+    assert.ok(plugin.includes(`.claude/skills/${PLUGIN}/${scaffold}`), `${scaffold} is packed`);
+  }
+  assert.equal(files.some((f) => f.includes("/.claude-plugin/types/")), false, "no .claude-plugin/types/ file is packed");
 });
 
 test("FR-15 .gitignore: a generated types/ folder is not shown as untracked", () => {

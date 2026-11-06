@@ -363,6 +363,8 @@ Every line is cut to `bodyColumns`; no line wraps. Layout defects have no automa
 
 ## 12. Budget (Step 2.4)
 
+**Raised at execute:** ~4,000 LOC and 18 review rounds, raised on JC's decision, 2026-11-06 ~03:44 America/Bogota: «Apruebo opción 1: subir presupuesto a ~4,000 LOC y 18 rounds y continuar» (`execution.md` → *Budget Tripwire: T4*). The original estimate below is kept as the record of what was planned.
+
 | Measure | Estimate | Basis |
 |---|---|---|
 | Tasks | **9** (T1–T9, `tasks.md`) | §4 files grouped by gate; installer split into install (T2) and list/doctor (T3); rules text split per file (T7 governance, T8 docs with `AGENTS.md`) |

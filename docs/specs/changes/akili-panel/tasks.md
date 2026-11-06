@@ -10,7 +10,7 @@
 | Baseline | `7a697ba`. `npm test` → **1450 pass, 0 fail** (run 2026-11-05, 46 s) |
 | Observed reds | Run 2026-11-05 at `7a697ba` on today's code with a temporary `.claude/skills/zz-red-probe/` holding only `.claude-plugin/plugin.json` (removed after; `git status --short` showed only `.run/` and this spec folder). **R1** `node --test test/docs-overview.test.js` → `not ok 3 - (a) … lists every skill once …` with `missing row for skill zz-red-probe (.claude/skills/zz-red-probe/SKILL.md)`; `not ok 5 - (c) … Skill Inventory has one row per skill`; `not ok 6 - (d) every '<N> commands\|skills' claim equals the derived total`. **R2** `node --test test/install-cursor.test.js` → `not ok 14 - … Codex installs fresh, Cursor skips every shared-root file while its own resources install`. **R3** `HOME=<tmp> node bin/akili.js install --tool cursor` → `<tmp>/.agents/skills/zz-red-probe` exists; `doctor --tool cursor` → `MISSING zz-red-probe`. **R4** after `install --tool claude`, `doctor --tool claude` → `MISSING zz-red-probe`; `node bin/akili.js list` → `zz-red-probe` under `Skills:` and `Summary: 14 commands \| 33 skills \| 8 resources (akili-specs v2.42.0)` |
 | Commit prefix | `[SPEC:changes/akili-panel]`. Local commits only: no push, PR, merge, tag or publish |
-| Budget (design §12) | 9 tasks · ~2,100 LOC · 15 review rounds. `/akili-execute` stops and escalates when actuals pass it |
+| Budget (design §12) | 9 tasks · **~4,000 LOC · 18 review rounds** (raised on JC's decision, 2026-11-06 ~03:44 America/Bogota: «Apruebo opción 1: subir presupuesto a ~4,000 LOC y 18 rounds y continuar» (`execution.md` → *Budget Tripwire: T4*)). Was ~2,100 LOC · 15 rounds; the tripwire fired at T4. `/akili-execute` stops and escalates when actuals pass it |
 | PR strategy | Two PRs into `dev`: **PR 1** installer + plugin scaffold (T2, T3; ~760 LOC); **PR 2** the plugin and its docs (T4–T8; ~1,340 LOC), stacked on PR 1. T1 and T9 produce evidence only. Not opened in this cycle |
 | `skip-eligible` tasks | **None.** Every task has consumers, a human check, or edits rules text |
 | Backend route | No task is a backend task (`backend-routing.md:87`: no server-side code, API contract or error model); no `Backend route:` line |
@@ -91,7 +91,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[~]` — attempt 1 Reviewer FAIL (2 FR-16 fixes owed); run stopped at the budget tripwire, awaiting JC (`execution.md` → *Budget Tripwire: T4*) |
+| Status | `[x]` — PASS attempt 3 (`execution.md` → T4) |
 | Size | L (~260 LOC code, ~380 LOC tests and fixtures) |
 | Depends on | T2 (the plugin folder exists and is excluded from skill counts) |
 | Requirements | FR-5 (all six scenarios incl. AND IT MUST safe-path rule; propose arguments incl. BUT sentence / one-word slug keep nothing), FR-6 (constitution 13-file table incl. legacy; phase table; current/before/after; blocked; archived; `(no task status)`; scenarios: specify in progress, prose is not a status incl. MUST NOT, blocked, out-of-order incl. BUT, real status formats incl. AND CRLF, no status at all incl. BUT, legacy baseline), FR-7 (the whole state → button table, incl. the `propose` row only for a kept spec folder with no spec file, W-1), FR-11 (the `.git` walk and `HEAD` parse: branch, detached, `(no git)`, worktree `gitdir:` absolute and relative, subfolder root), FR-12 (number shortening; missing parts; `ctx —`), FR-16 (strings table; middle truncation), NFR-2 (each numeric ceiling, 0 processes) |

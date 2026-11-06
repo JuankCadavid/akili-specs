@@ -500,3 +500,73 @@ Review rounds are projected at ~16–18 against 15.
   `git add -N` was applied to the new files for the review diff.
 - `npm test` is 1590 / 1590 green with this tree.
 - On resume, T4 attempt 2 starts from these files and fixes Reviewer issues 1 and 2 verbatim.
+
+### Budget Tripwire: T4 — closed by JC
+
+- **Decided by:** JC (Juan Carlos Cadavid), 2026-11-06 ~03:44 America/Bogota: «Apruebo opción 1: subir presupuesto a ~4,000 LOC y 18 rounds y continuar»
+- **Effect:** option (1). The whole-spec budget is raised to **~4,000 LOC** and **18 review rounds**, from ~2,100 and 15.
+  - Recorded in `tasks.md` Document Control (the *Budget* row) and in `design.md` §12 (a note above the original estimate, which stays as the record of what was planned).
+  - The run continues with T4 attempt 2, then T5 → T8, and stops before T9.
+- **Correction Closure:** `grep -n "2,100\|15 review"` across the spec folder. The surviving hits are the original §12 estimate, which is kept as the planned record under the new note, and the history in `execution.md`. No other document cites the budget.
+
+#### T4 attempt 2 — Reviewer `FAIL` (fixture regression)
+
+- Effort was raised from high to **xhigh**, in a fresh Implementer `sonnet` spawn in the foreground.
+- Fixes, in `flow.mjs`:
+  - `:324`: `readBranch` reads `HEAD` with `tryRead(io, headPath, errors)`; the `.git` probe stays silent.
+  - `:528`: `errorLines` collapses whitespace in the reason. `:98` `errReason` does the same, which is redundant and flagged as such.
+- Tests added:
+  - `FR-11/FR-16 an unreadable HEAD is recorded in errors[]; a readable but garbage HEAD is not`
+  - `FR-16 a multi-line reason is collapsed: the error stays on one line`
+- Reds observed against attempt 1:
+  - `0 !== 1`
+  - actual `'Could not read /x: line1\nline2\r\n  line3'`
+- The issue-1 falsifier was observed red again: reverting the `errors` argument turns test 77 red.
+- **Leader order:** trim the fixtures that end in a blank line, so the Common verification `git diff --check` passes. The worker trimmed eight. Two of them, `tasks-samples/fmt-document-control.md` and `fmt-none.md`, were emptied to 1 byte.
+- **Evidence re-run (Leader-inline): `VERIFIED`.**
+  - Flow tests: 98/98 on Node 22, and on Node 18.
+  - `npm test`: 1592/1592.
+  - `git diff --check`: flags only `fmt-all-crlf.md`.
+- **Reviewer round 2 (opus): `FAIL`**, verbatim issue:
+
+> Trimming wiped two fixtures. `tasks-samples/fmt-document-control.md` and `tasks-samples/fmt-none.md` are each now 1 byte (`\n`). Their index entries are intent-to-add empty blobs, so git holds no copy of the old content. The test "FR-6 real status formats: `## Document Control` is never read (Draft — Phase 3 and a [x] row count nothing)" now parses an empty string. It stays green under the Document Control-read mutation. The `fmt-none` parse assertion no longer reads the real no-token excerpt from P-17. […] **Violated Rule:** `tasks.md` T4 Disqualifier: "A fixture on which the named mutation does not change the reading". Also T4 Scope […] and FR-6 *Real status formats*. **Remediation Suggestion:** restore both files, ending each in a single `\n` […]; add a non-empty guard to `sample()` […]; re-observe test 38 red under the Document Control-read mutation.
+
+- The Reviewer confirmed both FR-16 fixes and found no regression: every FR-11 case keeps `errors = []`, except `git-dangling`.
+- The root cause is the Leader's own order to trim the fixtures (Leader-caused). It was recorded for kaizen.
+
+#### T4 attempt 3 — Reviewer `PASS`
+
+- **Effort ceiling: held xhigh.** The registry names no Reviewer model I can verify as at least as strong as `opus`, so attempt 3 is a fresh `sonnet` spawn at xhigh with the full attempt history.
+- **Restored fixtures:** `fmt-document-control.md` (172 B) and `fmt-none.md` (887 B), taken from the Reviewer's restore file. Every non-blank line of `fmt-none` matches a whole line in `docs/specs/archive/2026-10-30-changes--impeccable-design/tasks.md`.
+- **New guard:** `sample()` (`test/akili-panel-flow.test.js:130`) asserts the fixture is non-empty. Observed red: `'tasks-samples/fmt-none.md is empty: an emptied fixture proves nothing'`.
+- **Falsifiers observed red, then reverted:**
+  - Document Control read: `not ok 38 - FR-6 real status formats: ## Document Control is never read …` (`done: 1` vs `0`).
+  - Counting `| T<n> |` rows as tasks: `not ok 40 - FR-6 no status at all …` (`open: 7` vs `0`).
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.**
+  - Sizes: 172 and 887.
+  - `find test/fixtures/akili-panel -type f -size -2c` returns nothing.
+  - Flow tests: `# pass 98 # fail 0` on Node 22, and on Node 18.
+  - `npm test`: `# tests 1592 # pass 1592 # fail 0`.
+  - `git diff --check`: flags only `fmt-all-crlf.md`, the CRLF copy the task requires. The repo precedent is `test/fixtures/routing/agents-crlf.md`, committed with 22 such warnings.
+- **Reviewer round 3 (opus): `PASS`.** "The round-2 issue is fixed and nothing regressed. T4 now meets the FR-5, FR-6, FR-7, FR-11, FR-12, FR-16 and NFR-2 clauses it covers." The Reviewer re-ran the mutation itself in a temp copy.
+- **ADVISORY (recorded; not acted on):**
+  - The NFR-2 test title says spec folders are never listed; it should say carve-outs.
+  - The `branch-match` fixture does not pin mtimes.
+  - `.DS_Store` in the FR-15 expected list.
+  - A `.git` file with no `gitdir:` gives a confusing `.git/HEAD: ENOTDIR` path.
+  - Token rule (c) is not anchored.
+- **Decisions recorded:**
+  - **Consumer test outside T4's scope.** `test/install-akili-panel.test.js` was edited under the Common verification "npm test green".
+  - **Document Control skip.** The skip ends at the next heading of any level. Evidence: `2026-10-18-changes--video-deliverable-track/tasks.md` puts `### T1` directly under `## Document Control`.
+  - **Unreachable state.** The FR-7 / FR-16 state "no `docs/specs/` and constitution ✓" cannot be reached with real files, because the 13 constitution files include `docs/specs/general-setup/*`.
+  - **Forward pointers to T5:** (a) `view.refreshedAt` in `register.jsx`; (b) confirm how `$.fs.list` rejects for a missing folder, by code or message, against `flow.mjs`'s ENOENT detection.
+- **Spawns:**
+  - Implementer `sonnet`, attempt 2: 9 calls, 60,771 tokens, then a resume (62,755 cumulative); ended complete.
+  - Implementer `sonnet`, attempt 3: 10 calls, 63,384 tokens; ended complete.
+  - Reviewer `opus`, round 2 (resume): 6 calls, 157,843 cumulative; ended complete (FAIL).
+  - Reviewer `opus`, round 3 (resume): 2 calls, 160,801 cumulative; ended complete (PASS).
+- **Running totals vs the raised budget:**
+  - Tasks: 4 of 9.
+  - LOC:  148 files changed, 2662 insertions(+), 17 deletions(-) (excluding `docs/specs`, including fixtures), against ~4,000.
+  - Review rounds: 9 of 18 (T1 3, T2 1, T3 2, T4 3).
+  - Within budget.
