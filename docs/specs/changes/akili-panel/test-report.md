@@ -5,15 +5,17 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/akili-panel` |
-| Status | **FAIL: 1 `PRODUCT_BUG` open (FR-12).** Awaiting JC's decision; `/akili-validate` not started |
+| Status | **FAIL: 1 `PRODUCT_BUG` open (pane body lost after `/clear`, found live).** The first bug, `$` after `/clear`, is fixed. Awaiting JC's decision; `/akili-validate` not started |
 | Date | 2026-11-06 |
-| Tested at | Base commit `5ac821f`, plus the tests this report commits |
+| Tested at | First run: `5ac821f` plus this report's tests. Re-check after the fix: `55321a4` |
 | Runtime | Claude Code **2.1.319** (the spec pins 2.1.318, NFR-6, D-10), macOS, Node 22.23.4 and Node 18.20.8 |
 | Leader / Testers | Leader `claude-opus-5-5`. Testers `opus`: no `akili-tester` wrapper exists, and the only Implementer model recorded in `execution.md` is `sonnet`, so author ≠ tester holds |
 
 ## 2. Summary
 
-One requirement clause fails; every other scenario passes or has a recorded gap.
+**Latest state (after the FR-12 fix at `55321a4`):** `npm test` 1740 pass, 0 fail; `claude plugin test` **58 pass, 0 fail**. Automated checks are green, but the live `/clear` check failed: see section 8. The full `/akili-test` re-run is not complete, because this bug is open.
+
+The table below is the first run.
 
 | Check | Result |
 |---|---|
@@ -94,7 +96,8 @@ AP = `test/install-akili-panel.test.js`, CC = `test/akili-panel-cli-coverage.tes
 | FR-11 | Worktree, no git, subfolder and detached | unit | Flow; Cover | PASS | |
 | FR-12 | Line format, shortening, fresh session | unit + kit | Cover; Kit | PASS | `9999` reads `10k` |
 | FR-12 | After `/clear` or a resume: sums reset | kit | Kit | PASS | |
-| **FR-12** | **After `/clear`: `$` stays Claude Code's total** | kit | Kit `FR-12 after /clear AND: the $ part stays Claude Code's own total (W-12)` | **FAIL** | `PRODUCT_BUG`, section 8 |
+| FR-12 | After `/clear`: `$` stays Claude Code's total; `ctx —` | kit + live | Kit W-12, old-fill, hang; live check | PASS (fixed at `55321a4`) | Live: host restarts its cost, `$0.01` became `$0.00` |
+| **NFR-3, FR-6, FR-7** | **Pane keeps its body after `/clear`** | live | Live `/clear` check, section 8 | **FAIL** | `PRODUCT_BUG`; no automated test yet |
 | FR-13 | Skill inventory unchanged; carve-out | static | `test/docs-overview.test.js`; AP; CC | PASS | |
 | FR-14 | Validate; root folder not packed | command + integration | `claude plugin validate .`; CC | PASS | Live `/plugin install` not run (gap 7) |
 | FR-15 | Generated types | integration | AP; CC | PASS | |
@@ -109,7 +112,28 @@ AP = `test/install-akili-panel.test.js`, CC = `test/akili-panel-cli-coverage.tes
 
 ## 8. Remediation
 
-### `PRODUCT_BUG`: `$` disappears after `/clear`
+### Open `PRODUCT_BUG`: pane body lost after `/clear`
+
+Run 2026-11-06 ~14:50–14:53 America/Bogota, Orca tab `Akili /clear live check`, Claude Code 2.1.319, `--model haiku`, scratch `/tmp/akili-clear`, code at `55321a4`, no bypass.
+
+| Moment | Token line (verbatim) | Pane body |
+|---|---|---|
+| Pane open | `Tokens: ctx — · session 0 in / 0 out · $0.00` | Full |
+| After one response | `Tokens: ctx 6% (56k/1.0M) · session 56k in / 77 out · $0.01` | Full |
+| After `/clear`, 1.5 s to 37 s, no new prompt | `Tokens: ctx — · session 0 in / 0 out · $0.00` | **Only the title `Akili` and the token line** |
+| After the next response, and 37 s later | `Tokens: ctx 6% (56k/1.0M) · session 56k in / 5 out · $0.01` | **Still only the title and token line** |
+| After typing `/akili-panel` | Same | Full again |
+
+| Field | Value |
+|---|---|
+| Violated | NFR-3 (never stale by more than 30 s); FR-6, FR-7 (both blocks and the Next button) |
+| Recovery | Only `/akili-panel`. Neither the 30 s timer nor a new response restores it |
+| Likely cause, not confirmed | `/clear` wipes the session atoms `view` and `opened` while the host keeps the pane; `opened` false stops every refresh (`register.jsx:34`) |
+| Why it was missed | T9 never ran `/clear`; the kit keeps atoms across its simulated `session.end` |
+
+### Fixed: `$` disappears after `/clear`
+
+JC's option A, fixed at `55321a4`, Reviewer PASS at round 19. Original finding:
 
 | Field | Value |
 |---|---|
@@ -122,22 +146,20 @@ AP = `test/install-akili-panel.test.js`, CC = `test/akili-panel-cli-coverage.tes
 | Spec conflict | Design §5.2 chose this behaviour: "cleared with `tokens` and re-read by the next measure". Requirement and design disagree, so the fix is either code or spec |
 | Live evidence | None: T9 did not exercise `/clear` |
 
-**Open decision for JC.** Fix the code (re-read `$.session.usage()` in `resetSums`), or amend FR-12 to accept the bounded gap and change this test.
-
 ## 9. Accepted Gaps
 
 Recorded here, none accepted by JC yet beyond closing T9.
 
 | # | Gap | Why not automated | Covered by |
 |---|---|---|---|
-| 1 | Trust dialog (T9 step 2) | Orca launched with bypass permissions | Not observed live; README note tested |
+| 1 | Trust dialog (T9 step 2) | Closed: seen in the live `/clear` check, and the plugin loaded after accepting it | Live check |
 | 2 | FR-10 `git status` clause | Needs a real session | T9 |
 | 3 | Painted layout, double-width characters (D-6) | The kit has no pixels | T9 steps 3, 4 |
 | 4 | `later`'s synchronous catch (NFR-4) | The kit turns a hook throw into a rejection; removing the `try` survived mutation | Not covered |
 | 5 | Real host refusal wording (FR-7) | The kit rejects with its own message | Not observed live |
 | 6 | 5 CC tests skip on Windows (3 `FR-2 Update`, 2 symlink) | POSIX symlinks or a shell stub | Author source grep and the shared `install --force` path |
 | 7 | Live `/plugin install` from the marketplace (FR-14) | Needs a published repo | `claude plugin validate .` only |
-| 8 | Live `/clear` and resume; whether a resume raises `session.start` | Needs a real session; not in the types | Not observed live |
+| 8 | Live resume; whether a resume raises `session.start` | Needs a real session; not in the types | `/clear` now observed live; resume is not |
 | 9 | P-27 (Cursor, T9 step 11) | Skipped as optional | Not observed |
 
 ### Advisories (recorded, not acted on)

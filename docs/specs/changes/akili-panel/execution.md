@@ -997,3 +997,23 @@ Effect: any such cleanup is written `rm -rf "${S:?}"/"${m:?}"` or with a literal
 - **ADVISORY (recorded; not acted on):** a re-read that resolves after a real measure overwrites the newer figures until the next measure.
 - **Running totals:** review rounds 19 of 20; execution LOC within ~4,000.
 
+### Live `/clear` check (JC's 2A) and second `PRODUCT_BUG` (stopped; awaiting JC)
+
+Run 2026-11-06 ~14:50–14:53 America/Bogota, Orca tab `Akili /clear live check`, Claude Code 2.1.319, `--model haiku`, scratch `/tmp/akili-clear`, code at `55321a4`, no bypass.
+
+| Moment | Token line (verbatim) | Pane body |
+|---|---|---|
+| Pane open | `Tokens: ctx — · session 0 in / 0 out · $0.00` | Full |
+| After one response | `Tokens: ctx 6% (56k/1.0M) · session 56k in / 77 out · $0.01` | Full |
+| After `/clear`, 1.5 s to 37 s, no new prompt | `Tokens: ctx — · session 0 in / 0 out · $0.00` | **Only the title `Akili` and the token line** |
+| After the next response, and 37 s later | `Tokens: ctx 6% (56k/1.0M) · session 56k in / 5 out · $0.01` | **Still only the title and token line** |
+| After typing `/akili-panel` | Same | Full again |
+
+- **`ctx`:** `ctx —` after `/clear` confirmed live. Reviewer Issue 1 is closed on the real host.
+- **`$`:** the host restarts its cost at `/clear`: `$0.01` became `$0.00`. The part stays on the line and is Claude Code's own figure, so FR-12's text holds, but the amount does not carry over.
+- **Trust dialog:** seen live this time, which T9 step 2 could not do. The plugin loaded after accepting it.
+- **New `PRODUCT_BUG`: the pane body is lost after `/clear`.** The spec, phases, branch and Next button disappear and do not come back by timer or by a new response; only `/akili-panel` restores them. Violates NFR-3 (never stale by more than 30 s) and FR-6, FR-7 (the pane shows both blocks and the button).
+- **Likely cause, not confirmed:** `/clear` wipes the session atoms `view` and `opened`, while the host keeps the pane. With `opened` false, the refresh gate (`register.jsx:34`) stops every read, so `view` stays empty. `resetSums` touches neither atom, so the `$` fix is not the expected cause; the old code was not run live to prove it.
+- **Why earlier gates missed it:** T9 never ran `/clear`, and the kit keeps atoms across its simulated `session.end`.
+- **State:** `/akili-validate` and `/akili-archive` not run. Review rounds 19 of 20.
+
