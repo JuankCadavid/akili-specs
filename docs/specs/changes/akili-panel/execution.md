@@ -904,3 +904,50 @@ Run these on your machine, **outside this repository** (T9 Disqualifier: never i
 | D-B | `tests/panel.test.tsx` ships in the npm package into users' plugin folder (`.claude/skills` is in `files`; design §4 lists `tests/` in the plugin entry) | Accept, or exclude `.claude/skills/*/tests` in `package.json` `files` (a follow-up) | Accept for v1; consider the exclusion in a follow-up |
 
 The advisories recorded per task are kept in each task entry. None became a task (*Advisory Never Becomes A Task*).
+
+### T9 live run notes (Orca + JC eyes) — closed for steps 1–12 except open D-A/D-B
+
+See `.run/akili-execute-panel/T9-observations.md` for the full per-step log from the 2026-11-06 Orca drive.
+Scratch projects `/tmp/akili-t9` and `/tmp/akili-t9-nodocs` removed (step 12 PASS, JC OK 2026-11-06 ~10:09 AM America/Bogota).
+
+| Step | Result | Source |
+|---|---|---|
+| 1 Scratch + install | **PASS** | Orca drive |
+| 2 Trust | **N/A (bypass)** | Orca launched Claude with bypass permissions; no trust dialog |
+| 3 Open pane | **PASS** | Orca drive |
+| 4 Narrow pane | **PASS** | JC (2026-11-06 America/Bogota ~morning): «1. Funciona» / «Funciona» |
+| 5 Press Next | **PASS** | JC: «2. click -funciona» / «click -funciona» — single run on click |
+| 6 Typed transparency | **PASS (equiv.)** | Orca drive |
+| 7 Typed updates pane | **PASS** | Orca drive |
+| 8 Refresh falsifier | **PASS** | Orca drive |
+| 9 Missing docs/specs | **PASS** | Orca drive |
+| 10 CLI `/akili-panel` | **PASS for D-A signal** | Not "unknown command"; no-surface in non-TUI |
+| 11 Cursor | **SKIPPED** | Optional; not run |
+| 12 Cleanup | **PASS** | JC OK 2026-11-06 ~10:09 AM America/Bogota: «Sí, cierra las pestañas de T9 y borra /tmp/akili-t9 y /tmp/akili-t9-nodocs». Tabs closed (term_17603c5b, term_80772b30, term_5cc99024, term_974699bb/nodocs). Dirs `rm -rf /tmp/akili-t9 /tmp/akili-t9-nodocs` done. |
+
+Gate decisions D-A / D-B were undecided when these notes were written; JC answered them below (*T9 close and D-A / D-B decisions*).
+
+Follow-up ask from JC after T9 eyes (same turn): «se puede hacer algo para que se vea mas bonita ? ver imagen» — visual polish of the Akili pane (screenshot under `.run/akili-propose-polish/jc-panel-screenshot.png`). Routed to Claude Code for AKILI path choice (propose follow-up vs Pivot/amend); no methodology gate answered by the bot.
+
+### T9 close and D-A / D-B decisions
+
+JC answered the open T9 decisions himself, 2026-11-06 11:41 AM America/Bogota:
+
+> «D-A: déjalo como está. D-B: acepto el test en el paquete. Sigue con test, validate y archive de la v1»
+
+| # | Decision | Mapping | Evidence and effect |
+|---|---|---|---|
+| D-A | «déjalo como está» | Option **(b)**: keep `session.start`'s work on the clock and accept the gap | T9 step 10 was not `unknown command`. Design §6.1 stays as written; no code change |
+| D-B | «acepto el test en el paquete» | Accept `tests/panel.test.tsx` shipping in the npm package for v1 | No `package.json` change. The exclusion stays a possible follow-up, not a task |
+
+**T9 closed `[x]` on that quote**, which is JC's confirmation at the pause (T9 Review: `checklist`, JC is the gate).
+
+| T9 done criterion | State |
+|---|---|
+| JC confirms at the pause | Quote above; steps 4 and 5 by JC's own eyes (table above) |
+| Observations in `execution.md`, including the P-27 note | Table above. **P-27 note: step 11 (Cursor) was skipped as optional, so P-27 stays unobserved for both the `--local` and the global copy** |
+| `.claude/commands/` byte-identical | `git diff --stat 7a697ba -- .claude/commands` printed nothing (2026-11-06) |
+
+Not observed live, and carried to `test-report.md` as gaps: step 2 (the trust dialog: Orca launched with bypass permissions), P-27 (Cursor).
+
+JC's scope for this run: `/akili-test`, `/akili-validate` and `/akili-archive` for `changes/akili-panel` only. Local commits only. `akili-panel-polish` is not started.

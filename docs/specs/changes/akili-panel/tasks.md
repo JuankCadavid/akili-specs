@@ -186,7 +186,7 @@ No cycles. T1 is a gate: a refuted P-24 stops the run (Pivot) before any build. 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` — closed by JC 2026-11-06 11:41 AM America/Bogota; steps 2 and 11 not observed (`execution.md` → *T9 close and D-A / D-B decisions*) |
 | Size | S (no code) |
 | Depends on | T3, T6, T8 |
 | Requirements | FR-1 (real install), FR-4 (real doctor), FR-7 (press runs the command), FR-8, FR-9 (a hand-typed `/akili-*` runs unchanged), FR-11 (worktree branch), FR-12 (figures move after a turn), FR-16 (narrow pane), NFR-5 (one more surface when available), D-6 (layout: human check), P-27 (Cursor and a `--local` Claude install) |
