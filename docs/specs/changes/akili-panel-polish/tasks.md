@@ -89,7 +89,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | S (~30 LOC) |
 | Depends on | T3 |
 | Requirements | FR-10 (scenario) |

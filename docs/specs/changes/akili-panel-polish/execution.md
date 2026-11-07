@@ -279,4 +279,40 @@ Reviewer on those: 1 conforms, §8's sentence has no surface qualifier; 2 accept
 | spawns | Implementer ×3 and Reviewer ×3: calls and tokens not reported by host; ended partial, partial, complete; fail, fail, complete |
 | Requirements covered | FR-1, FR-4 (T3's part), FR-6, FR-8, FR-9, NFR-1, NFR-4, NFR-5, D-3, D-4 |
 | Consumers beyond `tasks.md`'s field, run | `test/akili-panel-flow-coverage.test.js`, and `tests/panel.test.tsx` `key: 'next'` and `Tokens:` sites added by the parent |
-| Running totals | 3 of 5 tasks; 1,061 added LOC (T2 845, T3 216; T3 also removed 184), budget ~1,100; 6 of 7 review rounds |
+| Running totals | 3 of 5 tasks; 1,061 added LOC (T2 845, T3 216; T3 also removed 188), budget ~1,100; 6 of 7 review rounds |
+
+### T4: Docs — IN PROGRESS, attempt 1 FAIL, stopped at the review-round tripwire
+
+| Field | Value |
+|---|---|
+| Status | `[~]`. Uncommitted in the tree. Stopped for JC before rework |
+| Date | 2026-11-06 |
+| Attempt 1 files | `.claude/skills/akili-panel/README.md` +9/−5; `docs/plugins/akili-panel.md` +9/−5; `CHANGELOG.md` +1 |
+| Implementer | Sonnet, effort `medium`, skill `cognitive-doc-design` |
+| continuations | 1 (quote-check of `detached`, `(no git)`, `ctx —`, ` · archived`, empty texts, thresholds) |
+| Red run | Grep before the edit: `README.md:30,35`, `docs/plugins/akili-panel.md:33,38`. After: no hit, exit 1 |
+| Evidence re-run | Leader inline: **VERIFIED**. Grep exit 1; `npm test` 1824 pass, 0 fail; `verify:cli` 0; `pack:dry-run` 0; `git diff --check` 0 |
+| Reviewer | Opus, effort `medium`: **FAIL**, three one-line wording defects |
+| spawns | Implementer and Reviewer: calls and tokens not reported by host; ended complete; fail |
+| Running totals | 3 of 5 tasks closed; 1,080 added LOC, budget ~1,100; 7 of 7 review rounds |
+
+**Reviewer FAIL, attempt 1 (verbatim)**
+
+> SUMMARY: T4 fails on three one-line wording defects; there are no structural problems. Every other row sentence in both tables matched a real render (`paneRows` at 70 to 10 columns, scratchpad `t4rev.mjs`) and the code at HEAD.
+>
+> 1. **Discovered Issue:** `CHANGELOG.md:14` headlines "The `akili-panel` pane is redrawn", but the plugin has never shipped. It is absent from the `v2.42.0` tree and that tag's CHANGELOG, and from `origin/master`; npm `latest` is 2.42.0. Line 11, in the same `Unreleased` section, announces it as new, so the bullet contradicts line 11 on the timeline and describes a before-state no release had. **Violated Rule:** `requirements.md` FR-10 ("describe the plugin as it ships"); T4 Done criteria ("no claim beyond what shipped"). **Remediation Suggestion:** Drop "redrawn". Headline it as what the pane draws, or fold the sentence into line 11. Keep the row list.
+> 2. **Discovered Issue:** `.claude/skills/akili-panel/README.md:35` and `docs/plugins/akili-panel.md:38` say the empty-state text "Replaces the phase rows". The docs now list `02 Cycle` as its own row, and the render shows it gone too: `constitution`, `empty`, `rule-tokens`, with no `cycle` row (`flow.mjs:676-677`). **Violated Rule:** T4 Disqualifier and Done criteria; D-7. **Remediation Suggestion:** "Replaces the cycle and phase rows", in both docs.
+> 3. **Discovered Issue:** `README.md:40`, `docs/plugins/akili-panel.md:43` and `CHANGELOG.md:14` state flatly that the pane is transparent. The code only asks (`register.jsx:171`). FR-1 says "ask" and has a scenario where a surface keeps its own look, and `design.md:25` settles this "for the terminal" only. **Violated Rule:** FR-1 (*A surface keeps its own look*) through FR-10; D-7; T4 Done criteria. **Remediation Suggestion:** "The pane asks for a transparent background; a surface may keep its own." Shorten the same way in the CHANGELOG.
+
+**Leader adjudication.** All three stand and go to attempt 2. A pass needs one more Reviewer verdict, which would be round 8 of 7.
+
+## Budget tripwire: T4
+
+**Stopped for JC.** Review rounds are at 7 of 7, and T4's rework cannot close without an eighth Reviewer verdict. `design.md` §12: "A tripwire, not a target: `/akili-execute` stops and escalates past these numbers."
+
+| Measure | Budget | Actual | Projected |
+|---|---|---|---|
+| Review rounds | 7 (T2 2, T3 2, T4 2, T5 1) | 7: T2 3, T3 3, T4 1 | 8. T5 is JC's check, so no Reviewer verdict |
+| Total LOC | ~1,100 | 1,080 added | ~1,085 |
+
+**Cause.** T2 and T3 each took the full three attempts, two rounds over their share, on test gaps with no code defect in T3. LOC is inside the budget.
