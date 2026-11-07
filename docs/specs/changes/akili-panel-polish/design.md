@@ -131,7 +131,7 @@ None: no task is a backend task, so no `Backend route:` line applies.
 
 **Ladder (FR-7).** One function walks the seven steps and returns the first at which the constitution, cycle, flow and token rows fit `bodyColumns`, or the last step when none fits. Steps are evaluated on the real text, not on fixed breakpoints, so a long figure moves the step correctly. Rows it does not govern (header, errors, Next) use the existing shorten and cut rules. With `bodyColumns` missing or not positive it returns step 1.
 
-**Fit.** Every row passes one fit rule that cuts parts from the end and ends with `…`, so the joined length never passes `bodyColumns`, down to 1 column. With `bodyColumns` missing or not positive it cuts nothing, as `fitLine` does today. Width counts one cell per UTF-16 unit, as `fitLine` does today (`flow.mjs:479`). Every glyph this spec adds is one unit (P-7).
+**Fit.** Every row passes one fit rule that cuts parts from the end and ends with `…`, so the joined length never passes `bodyColumns`, down to 1 column. At exactly 14 columns a noted row keeps its mark and omits the `…` (FR-7). With `bodyColumns` missing or not positive it cuts nothing, as `fitLine` does today. Width counts one cell per UTF-16 unit, as `fitLine` does today (`flow.mjs:479`). Every glyph this spec adds is one unit (P-7).
 
 **Next.**
 
@@ -221,10 +221,10 @@ Standing rules this design obeys, cited from `AGENTS.md`: *Scope only grows thro
 | Measure | Estimate |
 |---|---|
 | Tasks | 5 |
-| LOC | ~650: code ~200, tests ~420 (one assertion per clause), docs ~30 |
+| LOC | ~1,100: code ~260, tests ~800 (one assertion per clause), docs ~30. Raised from ~650 by JC, 2026-11-06 8:08 PM America/Bogota: «1A: sube el presupuesto a ~1.100 LOC con 7 rounds y sigue» |
 | Review rounds | 7: T2 2, T3 2, T4 2, T5 1. T1 is JC's check |
 
-**Depth check (Step 2.4).** The proposal expected Lite. Five tasks and ~650 LOC is past Lite's one task, so the depth is **Standard**. No split is needed: one surface, two code files.
+**Depth check (Step 2.4).** The proposal expected Lite. Five tasks and ~1,100 LOC is past Lite's one task, so the depth is **Standard**. No split is needed: one surface, two code files.
 
 A tripwire, not a target: `/akili-execute` stops and escalates past these numbers.
 

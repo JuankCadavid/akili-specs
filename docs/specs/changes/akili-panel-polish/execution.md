@@ -147,3 +147,13 @@ The parent changed after this spec was verified at `c14e344`. `flow.mjs` and `te
 ## Spec tension: T2, FR-7 at 14 columns
 
 FR-7's table keeps every mark whole at 14 columns; FR-7's text and §8 *Fit* end a cut row with `…`. On a noted row both need cell 14. Proposed line for FR-7: *At exactly 14 columns a noted row keeps its mark and drops the `…`.* Awaits JC.
+
+## JC's answers: T2 tripwire and tension
+
+JC, 2026-11-06 8:08 PM America/Bogota:
+
+> «1A: sube el presupuesto a ~1.100 LOC con 7 rounds y sigue»
+
+> «2A: a 14 columnas gana la marca y se omite el …»
+
+Execute-time spec edits, on those answers: `design.md` §12 and §8 *Fit*; `requirements.md` FR-7; `tasks.md` Document Control, T2 and T3 `Size`. New tripwire: 5 tasks, ~1,100 LOC (code ~260, tests ~800, docs ~30), 7 review rounds. Sweep: `650` and `~420` now survive only in `judgment.md`, which records the round-1 state and stays as written. T2 stays `[~]` for attempt 2.

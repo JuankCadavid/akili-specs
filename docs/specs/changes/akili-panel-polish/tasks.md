@@ -11,8 +11,8 @@
 | Baseline | `c14e344`. `node --test test/akili-panel-flow.test.js test/akili-panel-contract.test.js` → **108 pass, 0 fail**. `claude plugin test .claude/skills/akili-panel` → **17 pass, 0 fail** (2026-11-06) |
 | Start condition | **Met.** The parent closed T9, test, validate and archive (decision D2): `docs/specs/archive/2026-11-06-changes--akili-panel/`, archived at `b7d1738`. Start authorized by JC, 2026-11-06 7:30 PM America/Bogota: «adelante» |
 | Commit prefix | `[SPEC:changes/akili-panel-polish]`. Local commits only |
-| Budget (design §12) | 5 tasks · ~650 LOC · 7 review rounds |
-| PR strategy | One PR after the parent's PRs, stacked on them. At ~650 LOC it is past the ~400 mark, but ~420 of it is tests and it is one surface. Not opened in this cycle |
+| Budget (design §12) | 5 tasks · ~1,100 LOC · 7 review rounds. Raised from ~650 by JC at the T2 tripwire (`execution.md`) |
+| PR strategy | One PR after the parent's PRs, stacked on them. At ~1,100 LOC it is past the ~400 mark, but ~800 of it is tests and it is one surface. Not opened in this cycle |
 | `skip-eligible` tasks | **None.** T1 and T5 are JC's checks, and T2, T3 and T4 all have consumers or shipped claims |
 | Backend route | No task is a backend task; no `Backend route:` line |
 
@@ -52,7 +52,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 | Field | Value |
 |---|---|
 | Status | `[~]` |
-| Size | L (~140 LOC code, ~300 LOC tests) |
+| Size | L (~195 LOC code, ~625 LOC tests) |
 | Depends on | T1 |
 | Requirements | FR-2 (all scenarios), FR-3 (all scenarios), FR-4 (block order, table, first-refresh and no-repository scenarios), FR-5 (all scenarios), FR-6 (label fit), FR-7 (all scenarios), FR-8 (tone), NFR-2 |
 | Design | §5, §8 (tone table, layout, mark column, assembly, bars, ladder, fit, first-draw states); DD-P3, DD-P5 to DD-P8, DD-P10, DD-P11 |
@@ -71,7 +71,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 | Field | Value |
 |---|---|
 | Status | `[ ]` |
-| Size | M (~60 LOC code, ~120 LOC tests) |
+| Size | M (~65 LOC code, ~175 LOC tests) |
 | Depends on | T2 |
 | Requirements | FR-1 (open; surface keeps its look incl. BUT no error), FR-4 (order; inline pane asks for rows), FR-6 (all scenarios), FR-8 (scenario), FR-9 (incl. BUT no new command, hook event, atom, file read or process; AND `.claude/commands/` identical), NFR-1, NFR-4, NFR-5, D-3, D-4 |
 | Design | §6, §8 (Next table, layout); DD-P1, DD-P2, DD-P4, DD-P9, DD-P12; P-1, P-2, P-6, P-8, P-9, P-10 |

@@ -267,6 +267,8 @@ A row still too wide after the last step is cut at its end with `…`. These sta
 | 17 columns | `<done>/6`, `<p>%` |
 | 14 columns | Every mark |
 
+At exactly 14 columns a noted row keeps its mark and omits the `…` (JC, 2026-11-06 8:08 PM America/Bogota: «2A: a 14 columnas gana la marca y se omite el …»).
+
 A long spec path or branch is shortened in the middle, as today.
 
 #### Scenario: Under 60 columns
