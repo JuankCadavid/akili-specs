@@ -1,0 +1,13 @@
+terminal " Next: chip "
+terminal row "02 Cycle  ━━━━━━────── 2/6"
+desktop " Next: chip "
+desktop row "02 Cycle  ━━━━━━────── 2/6"
+vscode " Next: chip "
+vscode row "02 Cycle  ━━━━━━────── 2/6"
+mobile " Next: chip "
+mobile row "02 Cycle  ━━━━━━────── 2/6"
+tests/p.test.tsx:
+(pass) tree mounts on every surface; button text and press [41.17ms]
+ 1 pass
+ 0 fail
+Ran 1 test across 1 file. [0.20s]

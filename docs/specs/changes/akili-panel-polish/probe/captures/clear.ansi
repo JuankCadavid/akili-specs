@@ -1,0 +1,40 @@
+                                                                                                              [2m│[0m Gray  [1;7m Clear [0m                                           [2m[37m✕[0m
+[91m ▐[40m▛███▛█[39m[49m   [1mClaude Code[0m [2m[37mv2.1.319[0m                                                                               [2m│[0mcols=59 surface=terminal
+[91m▝▜[40m█████[49m█▀[39m  [2m[37mHaiku 5.5 · Claude Max[0m                                                                             [2m│[37m──────────[0m
+[91m ▝▝   ▝▝ [39m  [2m[37m/…/7f15c449-dc64-490b-aee4-512bb50fa437/scratchpad/probe/cwd[0m                                       [2m│[0m[37m02 Cycle  [92m━━━━[94m━━[37m────── 2/6[39m
+                                                                                                              [2m│[0m[92mdone ✓[39m
+[91m▎[39m Your Max plan includes $100 a month in API credits to power your apps and agents. Claim them at             [2m│[0;1m[94mcurrent ▶[0m
+[91m▎[39m [94m]8;id=11prv8b;https://clau.de/api-credits\https://clau.de/api-credits[39m]8;;\                                                                                 [2m│[0;1m[93mblocked ▶[0m
+[2m[37m  ⎿  SessionStart:startup says: [1m[36m[cwd] recent context, 2026-11-06 10:19am GMT-5[0m                                [2m│[0m[91merror[39m
+     [2m[90m────────────────────────────────────────────────────────────[0m                                             [2m│[0m[37mpending ○[39m
+                                                                                                              [2m│[0;1m[30m[104m Next: chip [0m
+     [2m[37mNo previous sessions found for this project yet.[0m                                                         [2m│[0;1m[94m[ Next: primary ][0m
+                                                                                                              [2m│[0m
+     [2m[37mView Observations Live @ http://localhost:37777[0m                                                          [2m│[0m
+                                                                                                              [2m│[0m
+[37m[100m❯[39m [97m/probe-gray[39m [49m                                                                                                [2m│[0m
+[2m[37m  ⎿  [0mprobe-pane: gray placed=true                                                                             [2m│[0m
+                                                                                                              [2m│[0m
+[37m[100m❯[39m [97m/probe-clear[39m [49m                                                                                               [2m│[0m
+[2m[37m  ⎿  [0mprobe-pane: clear placed=true                                                                            [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+                                                                                                              [2m│[0m
+[37m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[39m❯ 
+[37m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[39m  [1m[34mcwd[0;2m[37m  [0m[36mHaiku 5.5[39m
+  [93m⏵⏵ auto mode on[2m[37m (shift+tab to cycle)[0m
