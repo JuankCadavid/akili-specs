@@ -12,7 +12,7 @@
 
 ## 2. Summary
 
-**Verdict: PASS with 4 WARN, 0 FAIL.** Every requirement has evidence, and both `PRODUCT_BUG`s are fixed and confirmed live. The WARNs are not yet accepted by JC, so archive readiness waits on that (section 12).
+**Verdict: PASS with 4 WARN, 0 FAIL.** Every requirement has evidence, and both `PRODUCT_BUG`s are fixed and confirmed live. JC accepted the 4 WARNs (section 12).
 
 | Result | Count |
 |---|---|
@@ -138,7 +138,7 @@ The per-task advisories stay recorded in `execution.md`; none became a task.
 
 ## 12. Archive Readiness Recommendation
 
-**Ready once JC accepts the 4 WARNs.** All tasks are `[x]`, no FAIL remains, and drift is reflected in the documents. The readiness rule also requires each WARN to be accepted or have a follow-up, and the user to have reviewed this summary; neither has happened yet.
+**Ready.** All tasks are `[x]`, no FAIL remains, and drift is reflected in the documents. JC reviewed this summary and accepted the 4 WARNs, 2026-11-06 7:22 PM America/Bogota: «A: acepto los 4 WARN, archiva changes/akili-panel»
 
 ```text
 /akili-archive changes/akili-panel

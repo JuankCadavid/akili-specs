@@ -1048,3 +1048,11 @@ JC answered both gates himself, 2026-11-06 3:00 PM America/Bogota:
 - **Factual correction:** design §5.2 `usage` row aligned to FR-12's clarified `$` wording, as the Reviewer noted.
 - **Running totals:** review rounds **20 of 20**. Execution LOC within ~4,000.
 
+### WARN acceptance: JC's gate decision
+
+JC answered the gate himself, 2026-11-06 7:22 PM America/Bogota:
+
+> «A: acepto los 4 WARN, archiva changes/akili-panel»
+
+Effect: the 4 WARNs in `validation-report.md` are accepted, and `/akili-archive` runs. Local commits only. `akili-panel-polish` is not started.
+
