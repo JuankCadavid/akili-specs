@@ -17,7 +17,12 @@ const { pathToFileURL } = require('node:url');
 
 const FLOW = path.join(__dirname, '..', '.claude', 'skills', 'akili-panel', 'hooks', 'flow.mjs');
 const FIXTURES = path.join(__dirname, 'fixtures', 'akili-panel');
-const loaded = import(pathToFileURL(FLOW).href); // W-14: a file URL loads on Windows drive letters
+const loaded = import(pathToFileURL(FLOW).href);
+// The two header rows of a view, as text (T3: the rows replaced the string formatters).
+const header = (F, view, cols = 200) => {
+  const rows = F.paneRows({ view: { constitution: { present: 13, total: 13 }, phases: [], errors: [], ...view }, usage: {}, sums: null, cols });
+  return ['title', 'branch'].map((id) => rows.find((r) => r.id === id).parts.map((q) => q.text).join(''));
+}; // W-14: a file URL loads on Windows drive letters
 
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'akili-panel-flow-'));
 test.after(() => fs.rmSync(TMP, { recursive: true, force: true }));
@@ -144,7 +149,7 @@ test('DD-2/NFR-2: flow.mjs is pure: no import, no require, no process, no `$`', 
 test('DD-2: flow.mjs exports the scan, the rules, the formatters and the strings table', async () => {
   const F = await loaded;
   for (const fn of ['refresh', 'scanSpecs', 'readBranch', 'readConstitution', 'parseTaskTokens', 'derivePhases', 'nextButton',
-    'keptSpecFor', 'safeSpecPath', 'formatHeader', 'formatTokens', 'formatNext', 'formatPhaseLines', 'shortenCount', 'shortenMiddle']) {
+    'keptSpecFor', 'safeSpecPath', 'paneRows', 'formatNext', 'shortenCount', 'shortenMiddle']) {
     assert.equal(typeof F[fn], 'function', fn);
   }
   assert.equal(typeof F.STRINGS, 'object');
@@ -158,14 +163,14 @@ test('FR-5 last observed command wins: /akili-execute changes/a shows changes/a 
   const { view } = await run('last-observed', 'changes/a');
   assert.equal(view.spec, 'changes/a');
   assert.equal(view.moreActive, 1);
-  assert.equal(F.formatHeader(view, 200), 'Akili · changes/a · ⎇ feat/b (1 more active)');
+  assert.deepEqual(header(F, view), ['Akili  changes/a', '⎇ feat/b (1 more active)']);
 });
 
 test('FR-5 header omits (n more active) when no other spec is active', async () => {
   const F = await loaded;
   const { view } = await run('specify-progress', null);
   assert.equal(view.moreActive, 0);
-  assert.equal(F.formatHeader(view, 200), 'Akili · changes/x · (no git)');
+  assert.deepEqual(header(F, view), ['Akili  changes/x', '(no git)']);
 });
 
 test('FR-5 a kept spec that is gone and not archived is ignored (falls to branch match)', async () => {
@@ -296,7 +301,7 @@ test('FR-6 archive row: folder gone + archive holds YYYY-MM-DD-<spec path with /
   assert.equal(view.archived, true);
   assert.equal(view.spec, 'changes/a');
   assert.equal(marks(view), 'propose✓ specify✓ execute✓ test✓ validate✓ archive✓');
-  assert.equal(F.formatHeader(view, 200), 'Akili · changes/a · (no git) · archived');
+  assert.deepEqual(header(F, view), ['Akili  changes/a', '(no git) · archived']);
 });
 
 test('FR-6 archive match is the exact name: decoys (ab suffix, prefix text, other taxonomy) do not match', async () => {
@@ -318,21 +323,18 @@ test('FR-6 constitution: all 13 files -> done (✓)', async () => {
   const F = await loaded;
   const { view } = await run('constitution-full', null);
   assert.deepEqual(view.constitution, { present: 13, total: 13 });
-  assert.equal(F.formatConstitution(view.constitution), '01 Constitution  ✓');
 });
 
 test('FR-6 constitution: none of the files -> not reached (○)', async () => {
   const F = await loaded;
   const { view } = await run('empty-project', null);
   assert.deepEqual(view.constitution, { present: 0, total: 13 });
-  assert.equal(F.formatConstitution(view.constitution), '01 Constitution  ○');
 });
 
 test('FR-6 constitution: some of the files -> ▶ (k/13)', async () => {
   const F = await loaded;
   const { view } = await run('constitution-partial', null);
   assert.deepEqual(view.constitution, { present: 5, total: 13 });
-  assert.equal(F.formatConstitution(view.constitution), '01 Constitution  ▶ (5/13)');
 });
 
 test('FR-6 legacy baseline: docs/system-design/design.md alone counts as present', async () => {
@@ -366,7 +368,7 @@ test('FR-6 prose is not a status: every Status cell [x] and prose saying `[~]` -
   const { view } = await run('prose-status', 'changes/x');
   assert.equal(view.blocked, false);
   assert.equal(marks(view), 'propose✓ specify✓ execute✓ test▶ validate○ archive○');
-  assert.doesNotMatch(F.formatPhaseLines(view.phases).map((l) => l.text).join('\n'), /blocked/);
+  assert.doesNotMatch(pane(F, { view }).map(textOf).join('\n'), /blocked/);
 });
 
 test('FR-6 prose is not a status: bracket pairs in prose and in table rows of other columns count nothing', async () => {
@@ -379,7 +381,6 @@ test('FR-6 blocked: one Status cell [~] -> execute reads ▶ (blocked)', async (
   const { view } = await run('blocked', 'changes/x');
   assert.equal(view.blocked, true);
   assert.equal(marks(view), 'propose✓ specify✓ execute▶(blocked) test○ validate○ archive○');
-  assert.equal(F.formatPhaseLines(view.phases)[2].text, '   execute   ▶ (blocked)');
 });
 
 test('FR-6 out-of-order file: test-report.md with a task [ ] -> execute ▶ and test ○, never ✓ past it', async () => {
@@ -426,7 +427,6 @@ test('FR-6 no status at all: requirements + design + a tasks.md with no token ->
   assert.deepEqual(F.parseTaskTokens(sample('fmt-none.md')), { done: 0, open: 0, blocked: 0, total: 0 });
   const { view } = await run('no-status', 'changes/x');
   assert.equal(marks(view), 'propose✓ specify✓ execute▶(no-task-status) test○ validate○ archive○');
-  assert.equal(F.formatPhaseLines(view.phases)[2].text, '   execute   ▶ (no task status)');
 });
 
 test('FR-6 no status at all BUT: execute is never marked ✓ without a token', async () => {
@@ -464,19 +464,6 @@ test('FR-6 propose is done when proposal, requirements, design or tasks exists (
 test('FR-6 the phase list is propose, specify, execute, test, validate, archive, in that order', async () => {
   const F = await loaded;
   assert.deepEqual(F.PHASES && [...F.PHASES], ['propose', 'specify', 'execute', 'test', 'validate', 'archive']);
-});
-
-test('FR-6/§8 flow lines: labels padded to one column, marks after, current phase flagged for bold', async () => {
-  const F = await loaded;
-  const { view } = await run('phase-ladder', 'changes/s-specify');
-  assert.deepEqual(F.formatPhaseLines(view.phases), [
-    { text: '02 propose   ✓', current: false },
-    { text: '   specify   ▶', current: true },
-    { text: '   execute   ○', current: false },
-    { text: '   test      ○', current: false },
-    { text: '   validate  ○', current: false },
-    { text: '   archive   ○', current: false },
-  ]);
 });
 
 // ================================================================ FR-7 next table
@@ -541,7 +528,6 @@ test('FR-16 new project: no docs/specs -> text, constitution ○ and Next: /akil
   const { view } = await run('empty-project', null);
   assert.equal(view.status, 'no-specs');
   assert.equal(F.emptyStateText(view), 'No docs/specs/ folder yet.');
-  assert.equal(F.formatConstitution(view.constitution), '01 Constitution  ○');
   assert.equal(F.formatNext(view.next), 'Next: /akili-constitution');
   assert.deepEqual(view.phases, []);
 });
@@ -585,7 +571,7 @@ test('FR-11 .git folder: ref: refs/heads/<name> shows ⎇ <name>', async () => {
   const F = await loaded;
   const { branch } = await readBranch('git-folder');
   assert.deepEqual(branch, { kind: 'branch', name: 'JuankCadavid/akili-panel', sha: '' });
-  assert.equal(F.formatHeader({ spec: 'changes/x', branch, moreActive: 0, archived: false }, 200), 'Akili · changes/x · ⎇ JuankCadavid/akili-panel');
+  assert.deepEqual(header(F, { spec: 'changes/x', branch, moreActive: 0, archived: false }), ['Akili  changes/x', '⎇ JuankCadavid/akili-panel']);
 });
 
 test('FR-11 worktree: .git file with an absolute gitdir: reads that directory\'s HEAD', async () => {
@@ -603,7 +589,7 @@ test('FR-11 no git: not a repository -> (no git)', async () => {
   const branch = await F.readBranch(memIo({ '/p/docs/prd.md': 'x' }), '/p/docs', []);
   assert.deepEqual(branch, { kind: 'none', name: '', sha: '' });
   assert.equal(F.branchLabel(branch), '(no git)');
-  assert.equal(F.formatHeader({ spec: 'changes/x', branch, moreActive: 0, archived: false }, 200), 'Akili · changes/x · (no git)');
+  assert.deepEqual(header(F, { spec: 'changes/x', branch, moreActive: 0, archived: false }), ['Akili  changes/x', '(no git)']);
 });
 
 test('FR-11 unreadable or unrecognized HEAD, or a gitdir that does not exist -> (no git)', async () => {
@@ -672,39 +658,6 @@ test('FR-12 session in = input + cache-read + cache-write, out = output; missing
   assert.deepEqual(F.turnTokens(undefined), { in: 0, out: 0 });
 });
 
-test('FR-12 token line: ctx <p>% (<used>/<window>) · session <in> in / <out> out · $<usd>', async () => {
-  const F = await loaded;
-  assert.equal(
-    F.formatTokens({ ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.351 }, { in: 1234, out: 300 }),
-    'Tokens: ctx 42% (84k/200k) · session 1.2k in / 300 out · $0.35',
-  );
-});
-
-test('FR-12 fresh session: Tokens: ctx — · session 0 in / 0 out, then · $0.00 when the cost is reported', async () => {
-  const F = await loaded;
-  assert.equal(F.formatTokens({}, { in: 0, out: 0 }), 'Tokens: ctx — · session 0 in / 0 out');
-  assert.equal(F.formatTokens({ usd: 0 }, { in: 0, out: 0 }), 'Tokens: ctx — · session 0 in / 0 out · $0.00');
-  assert.equal(F.formatTokens(undefined, undefined), 'Tokens: ctx — · session 0 in / 0 out');
-});
-
-test('FR-12 after /clear or a resume: session figures restart at 0 while $ stays the host total', async () => {
-  const F = await loaded;
-  assert.equal(F.formatTokens({ ctxPercent: 3, ctxTokens: 6000, ctxWindow: 200000, usd: 7.5 }, { in: 0, out: 0 }),
-    'Tokens: ctx 3% (6.0k/200k) · session 0 in / 0 out · $7.50');
-});
-
-test('FR-12/§8 narrow pane drops parts right to left: $ first, then session', async () => {
-  const F = await loaded;
-  const u = { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 };
-  const s = { in: 1234, out: 300 };
-  const full = F.formatTokens(u, s);
-  assert.equal(full, 'Tokens: ctx 42% (84k/200k) · session 1.2k in / 300 out · $0.35');
-  assert.equal(F.formatTokens(u, s, full.length), full);
-  assert.equal(F.formatTokens(u, s, full.length - 1), 'Tokens: ctx 42% (84k/200k) · session 1.2k in / 300 out');
-  assert.equal(F.formatTokens(u, s, 40), 'Tokens: ctx 42% (84k/200k)');
-  assert.ok(String(F.formatTokens(u, s, 10)).length <= 10 && F.formatTokens(u, s, 10), 'fits 10 columns');
-});
-
 // ================================================================ FR-16 strings and truncation
 
 test('FR-16 strings table: the English texts are data, pinned in one place', async () => {
@@ -754,18 +707,21 @@ test('FR-16 pane narrower than the header: the spec path is shortened in the mid
   assert.equal(F.shortenMiddle('changes/akili-panel', 10), 'chang…anel');
   assert.equal(F.shortenMiddle('changes/akili-panel', 19), 'changes/akili-panel');
   const view = { spec: 'changes/akili-panel-long-name-here', branch: { kind: 'branch', name: 'JuankCadavid/akili-panel' }, moreActive: 2, archived: false };
-  const h = F.formatHeader(view, 40);
-  assert.ok(h.length <= 40, h);
-  assert.match(h, /…/);
-  assert.ok(h.startsWith('Akili · ') && h.endsWith('(2 more active)'), h);
+  const [title, branch] = header(F, view, 40);
+  assert.ok(title.length <= 40 && branch.length <= 40, `${title} | ${branch}`);
+  assert.match(title, /…/);
+  assert.ok(title.startsWith('Akili  ') && branch.endsWith('(2 more active)'), `${title} | ${branch}`);
 });
 
 test('FR-16 no line wraps past the pane width: header and every error line fit at every width', async () => {
   const F = await loaded;
   const view = { spec: 'changes/akili-panel-long-name-here', branch: { kind: 'branch', name: 'JuankCadavid/akili-panel' }, moreActive: 2, archived: true };
+  const completed = { constitution: { present: 13, total: 13 }, phases: [], errors: [] };
   for (let cols = 1; cols <= 120; cols++) {
-    const h = F.formatHeader(view, cols);
-    assert.ok(typeof h === 'string' && h.length > 0 && h.length <= cols, `header at ${cols}`);
+    for (const row of F.paneRows({ view: { ...completed, ...view }, usage: {}, sums: null, cols })) {
+      const text = row.parts.map((q) => q.text).join('');
+      assert.ok(text.length <= cols && (row.id === 'gap' || text.length > 0), `${row.id} at ${cols}`);
+    }
     const e = F.errorLines([{ path: '/some/long/path/to/tasks.md', reason: 'EACCES: permission denied' }], cols);
     assert.ok(Array.isArray(e) && e[0].length <= cols, `error at ${cols}`);
   }
@@ -1457,4 +1413,14 @@ test('FR-8 the empty states draw header, rule, constitution, empty text, rule, t
   assert.deepEqual(ids(pane(F, { view: await viewOf('empty-project', null) })), [
     'title', 'branch', 'rule-top', 'constitution', 'empty', 'rule-tokens', 'ctx', 'session', 'gap', 'next',
   ]);
+});
+
+test('FR-12 a reported cost of 0 reads $0.00, and a missing usage reads ctx — with no $ (paneRows)', async () => {
+  const F = await loaded;
+  const last = (usage) => textOf(rowOf(pane(F, { usage }), 'session'));
+  assert.match(last({ usd: 0 }), /0 in \/ 0 out · \$0\.00$/);
+  for (const usage of [null, undefined]) {
+    assert.match(textOf(rowOf(pane(F, { usage }), 'ctx')), /ctx\s+—$/);
+    assert.doesNotMatch(last(usage), /\$/);
+  }
 });

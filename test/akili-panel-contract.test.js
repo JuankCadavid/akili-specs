@@ -106,3 +106,43 @@ test('the /akili-panel hook answers for itself without next (FR-8, DD-7)', () =>
   assert.ok(!/\$\.ui\.open/.test(blocks.filter((b) => b.event === 'session.start')[0].text), 'opened unasked');
   assert.ok(!bodyOf(/async function startSession\(/).includes('$.ui.open'), 'opened unasked');
 });
+
+// ---- changes/akili-panel-polish T3 (presence checks: whether a surface honours the request is T1 and T5)
+
+const HOOKS = path.dirname(FILE);
+const hookFiles = fs.readdirSync(HOOKS).filter((f) => /\.(mjs|jsx?|tsx?|json)$/.test(f));
+const THEME = new Set(['inactive', 'success', 'suggestion', 'warning', 'error', 'subtle', 'inverseText', 'transparent']);
+
+test('NFR-1: every tone, color and backgroundColor literal under hooks/ is a theme key or transparent; no hex, no rgb()/hsl()', () => {
+  assert.ok(hookFiles.includes('flow.mjs') && hookFiles.includes('register.jsx'));
+  let seen = 0;
+  for (const f of hookFiles) {
+    const text = fs.readFileSync(path.join(HOOKS, f), 'utf8');
+    assert.doesNotMatch(text, /#[0-9a-fA-F]{3,8}\b/, `${f}: a hex colour`);
+    assert.doesNotMatch(text, /\b(?:rgba?|hsla?)\(/, `${f}: a colour function`);
+    assert.doesNotMatch(text, /(['"`])(?:red|green|blue|yellow|orange|purple|pink|cyan|magenta|lime|teal|navy|gr[ae]y|white|black|brown|gold|silver|maroon|olive|aqua)\1/i, `${f}: a colour name`);
+    for (const m of text.matchAll(/\b(?:tone|\w*[cC]olor)\s*[:=]\s*\{?\s*(['"`])([^'"`]*)\1/g)) {
+      seen++;
+      assert.ok(THEME.has(m[2]), `${f}: ${m[0]} is not a theme key`);
+    }
+  }
+  assert.ok(seen > 10, 'the literals were found');
+});
+
+test('FR-5: no new call: no $.ui.status, no $.audio, one $.ui.toast( (the refused run) in the whole module', () => {
+  assert.doesNotMatch(src, /\$\.ui\.status\b/);
+  assert.doesNotMatch(src, /\$\.audio\b/);
+  assert.equal((src.match(/\$\.ui\.toast\(/g) || []).length, 1);
+  assert.ok(bodyOf(/async function press\(/).includes('$.ui.toast('));
+});
+
+test('FR-1: the one $.ui.open asks for backgroundColor transparent and the rows of the full layout (DD-P1, DD-P12)', () => {
+  const calls = [...src.matchAll(/\$\.ui\.open\(([^)]*)\)/g)].map((m) => m[1]);
+  assert.equal(calls.length, 1);
+  assert.match(calls[0], /backgroundColor: 'transparent'/);
+  assert.match(calls[0], /\brows: \w+/);
+});
+
+test('FR-9: no new atom beyond the five the pane reads (view, tokens, usage, opened, pending)', () => {
+  assert.deepEqual([...src.matchAll(/atom\(\{ plugin: 'akili-panel', key: '(\w+)' \}/g)].map((m) => m[1]), ['view', 'tokens', 'usage', 'opened', 'pending']);
+});

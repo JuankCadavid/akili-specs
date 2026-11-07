@@ -20,6 +20,12 @@ test.after(() => fs.rmSync(TMP, { recursive: true, force: true }));
 
 let counter = 0;
 
+// paneRows by row id, as text; a view is completed with the fields a pane needs.
+const textRows = (F, over) => Object.fromEntries(F.paneRows({ usage: {}, sums: { in: 0, out: 0 }, cols: 200, ...over })
+  .map((r) => [r.id, r.parts.map((q) => q.text).join('')]));
+const whole = (view) => ({ constitution: { present: 13, total: 13 }, phases: [], errors: [], ...view });
+const flat = (text) => text.replace(/[━─]/g, '').replace(/\s+/g, ' ').trim();
+
 // `spec` maps a relative path to its text; a path ending in `/` is an empty folder.
 // `mtimes` maps a relative path to epoch seconds.
 function project(spec, mtimes = {}) {
@@ -187,7 +193,7 @@ test('FR-5 (n more active): the count is active specs minus the displayed one; c
     'docs/specs/archive/2026-11-01-changes--old/proposal.md': 'x',
   }, 'changes/a');
   assert.equal(view.moreActive, 2);
-  assert.match(F.formatHeader(view, 200), /\(2 more active\)$/);
+  assert.match(textRows(F, { view }).branch, /\(2 more active\)$/);
 });
 
 test('FR-5 a bare kept folder is displayed and every active spec counts as other', async () => {
@@ -298,7 +304,6 @@ test('FR-6 the current phase carries (blocked), including when specify is still 
   const d = F.derivePhases({ files: ['proposal.md', 'tasks.md'], tokens: count(0, 0, 1), archived: false });
   assert.equal(d.current, 'specify');
   assert.equal(d.phases[1].note, 'blocked');
-  assert.equal(F.formatPhaseLines(d.phases)[1].text, '   specify   ▶ (blocked)');
 });
 
 test('FR-6 (no task status) shows only on execute: a tasks.md with no token and specify still current reads plain ▶', async () => {
@@ -345,7 +350,6 @@ test('FR-6 constitution: each row is its own file; the legacy path never counts 
     const { [rel]: _, ...rest } = CONSTITUTION;
     const view = await refreshOf(rest);
     assert.deepEqual(view.constitution, { present: 12, total: 13 }, rel);
-    assert.equal(F.formatConstitution(view.constitution), '01 Constitution  ▶ (12/13)', rel);
   }
   const both = await refreshOf({ 'docs/ux-ui/design.md': 'x', 'docs/system-design/design.md': 'x' });
   assert.equal(both.constitution.present, 1);
@@ -425,7 +429,7 @@ test('FR-11 the detached header carries the first 7 characters and no more', asy
   const F = await loaded;
   const sha = '89abcdef0123456789abcdef0123456789abcdef';
   const { b } = await branchOf({ '.git/HEAD': `${sha}\n` });
-  const h = F.formatHeader({ spec: 'changes/x', branch: b, moreActive: 0, archived: false }, 200);
+  const h = textRows(F, { view: whole({ spec: 'changes/x', branch: b, moreActive: 0, archived: false }) }).branch;
   assert.match(h, /detached @89abcde$/);
 });
 
@@ -456,18 +460,18 @@ test('FR-12 BUT: no boundary reads 1000k, and a figure that is not a number read
 
 test('FR-12 the $ part has two decimals and is left out only when no cost is reported', async () => {
   const F = await loaded;
-  const line = (usd) => F.formatTokens({ usd }, { in: 0, out: 0 });
-  assert.equal(line(1), 'Tokens: ctx — · session 0 in / 0 out · $1.00');
-  assert.equal(line(12.345678), 'Tokens: ctx — · session 0 in / 0 out · $12.35');
-  assert.equal(line(undefined), 'Tokens: ctx — · session 0 in / 0 out');
-  assert.equal(line(null), 'Tokens: ctx — · session 0 in / 0 out');
+  const line = (usd) => flat(textRows(F, { usage: { usd } }).session);
+  assert.equal(line(1), 'session 0 in / 0 out · $1.00');
+  assert.equal(line(12.345678), 'session 0 in / 0 out · $12.35');
+  assert.equal(line(undefined), 'session 0 in / 0 out');
+  assert.equal(line(null), 'session 0 in / 0 out');
 });
 
 test('FR-12 ctx: the fill rounds to a whole percent and the window shortens the same way', async () => {
   const F = await loaded;
-  assert.equal(F.formatTokens({ ctxPercent: 12.4, ctxTokens: 124000, ctxWindow: 1000000 }, { in: 2500000, out: 999 }),
-    'Tokens: ctx 12% (124k/1.0M) · session 2.5M in / 999 out');
-  assert.equal(F.formatTokens({ ctxWindow: 200000 }, null), 'Tokens: ctx — · session 0 in / 0 out', 'a window without a fill is not a fill');
+  const r = textRows(F, { usage: { ctxPercent: 12.4, ctxTokens: 124000, ctxWindow: 1000000 }, sums: { in: 2500000, out: 999 } });
+  assert.equal(`${flat(r.ctx)} · ${flat(r.session)}`, 'ctx 12% 124k/1.0M · session 2.5M in / 999 out');
+  assert.equal(flat(textRows(F, { usage: { ctxWindow: 200000 }, sums: null }).ctx), 'ctx —', 'a window without a fill is not a fill');
 });
 
 test('FR-12 turnTokens ignores what is not a finite number', async () => {
@@ -482,14 +486,8 @@ test('FR-16 no line passes the pane width, for every line the pane draws, at eve
   const view = await refreshOf({ 'docs/specs/changes/a-very-long-spec-name-for-the-narrow-pane/proposal.md': 'x', 'docs/specs/changes/b/proposal.md': 'x', '.git/HEAD': 'ref: refs/heads/feature/a-very-long-branch-name-as-well\n' }, 'changes/a-very-long-spec-name-for-the-narrow-pane');
   const usage = { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 12.34 };
   for (let cols = 1; cols <= 140; cols++) {
-    const lines = [
-      F.formatHeader(view, cols),
-      F.fitLine(F.formatConstitution(view.constitution), cols),
-      ...F.formatPhaseLines(view.phases).map((l) => F.fitLine(l.text, cols)),
-      F.formatTokens(usage, { in: 1234567, out: 98765 }, cols),
-      F.fitLine(F.formatNext(view.next), cols),
-      ...F.errorLines([{ path: '/a/very/long/path/tasks.md', reason: 'EACCES:\npermission denied' }], cols),
-    ];
+    const errors = [{ path: '/a/very/long/path/tasks.md', reason: 'EACCES:\npermission denied' }];
+    const lines = F.paneRows({ view: { ...view, errors }, usage, sums: { in: 1234567, out: 98765 }, cols }).map((r) => r.parts.map((q) => q.text).join(''));
     for (const line of lines) {
       assert.ok(line.length <= cols, `${cols}: ${line}`);
       assert.ok(!/[\r\n]/.test(line), `${cols}: a line break`);
@@ -501,9 +499,9 @@ test('FR-16 the spec path keeps both ends when shortened, and only the middle go
   const F = await loaded;
   const spec = 'changes/a-very-long-spec-name-for-the-narrow-pane';
   for (let cols = 30; cols <= 60; cols++) {
-    const h = F.formatHeader({ spec, branch: { kind: 'none' }, moreActive: 0, archived: false }, cols);
-    assert.ok(h.startsWith('Akili · chan') || h.startsWith('Akili · ch'), h);
-    assert.match(h, /…/, h);
+    const h = textRows(F, { view: whole({ spec, branch: { kind: 'none' }, moreActive: 0, archived: false }), cols }).title;
+    assert.ok(h.startsWith('Akili  chan') || h.startsWith('Akili  ch'), h);
+    if (cols < 'Akili  '.length + spec.length) assert.match(h, /…/, h);
   }
   assert.equal(F.shortenMiddle('abcdefghij', 5), 'ab…ij');
   assert.equal(F.shortenMiddle('abcdefghij', 2), 'a…');
@@ -514,9 +512,11 @@ test('FR-16 the spec path keeps both ends when shortened, and only the middle go
 
 test('FR-16 a wide pane changes nothing, and no width given means no cut', async () => {
   const F = await loaded;
-  const view = { spec: 'changes/x', branch: { kind: 'branch', name: 'a/b' }, moreActive: 1, archived: false };
-  assert.equal(F.formatHeader(view, 400), 'Akili · changes/x · ⎇ a/b (1 more active)');
-  assert.equal(F.formatHeader(view, undefined), 'Akili · changes/x · ⎇ a/b (1 more active)');
+  const view = whole({ spec: 'changes/x', branch: { kind: 'branch', name: 'a/b' }, moreActive: 1, archived: false });
+  for (const cols of [400, undefined]) {
+    const r = textRows(F, { view, cols });
+    assert.deepEqual([r.title, r.branch], ['Akili  changes/x', '⎇ a/b (1 more active)']);
+  }
   assert.equal(F.fitLine('x'.repeat(500), undefined).length, 500);
 });
 

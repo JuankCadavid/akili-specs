@@ -5,12 +5,12 @@
 // Only the /akili-panel hook answers for itself, without next.
 import { atom, read, update } from 'claude-code'
 import {
-  STRINGS, MAX_KEPT, refresh, keptSpecFor, keepSpec, storeKey, formatNext, formatHeader,
-  formatConstitution, formatPhaseLines, emptyStateText, errorLines, formatTokens, fitLine, turnTokens,
+  STRINGS, MAX_KEPT, refresh, keptSpecFor, keepSpec, storeKey, paneRows, turnTokens,
 } from './flow.mjs'
 
 const PANE = 'akili'
 const TICK_MS = 30000
+const PANE_ROWS = 16 // the full layout's height (DD-P12)
 const OTHER_AKILI = /^akili-(?!panel$)/
 
 const view = atom({ plugin: 'akili-panel', key: 'view' }, null, { shape: 'view-1' })
@@ -168,7 +168,7 @@ async function press($, next) {
 
 async function openPane($) {
   try {
-    const opening = await $.ui.open({ id: PANE, title: 'Akili' })
+    const opening = await $.ui.open({ id: PANE, title: 'Akili', backgroundColor: 'transparent', rows: PANE_ROWS })
     if (!opening.isPlaced) return { text: STRINGS.paneNotShown(opening.reason) }
     await update($, opened, () => true)
     later($, () => runRefresh($))
@@ -234,26 +234,17 @@ export const register = (on) => {
     const used = await read($, usage)
     const busy = await read($, pending)
     const cols = e.props && e.props.bodyColumns
-    const flow = v ? formatPhaseLines(v.phases) : []
-    const empty = v ? emptyStateText(v) : null
-    return (
-      <Box flexDirection="column">
-        <Text>{v ? formatHeader(v, cols) : 'Akili'}</Text>
-        {v && <Text>{fitLine(formatConstitution(v.constitution), cols)}</Text>}
-        {empty && <Text dimColor>{fitLine(empty, cols)}</Text>}
-        {flow.map((line) => <Text bold={line.current}>{fitLine(line.text, cols)}</Text>)}
-        {v && errorLines(v.errors, cols).map((line) => <Text dimColor>{line}</Text>)}
-        <Box marginTop={1}>
-          <Text dimColor>{formatTokens(used, sums, cols)}</Text>
-        </Box>
-        {v && v.next && (
-          <Box marginTop={1}>
-            <Button key="next" variant="primary" dimColor={!!busy} onPress={() => press($, v.next)}>
-              {fitLine(formatNext(v.next), cols)}
-            </Button>
-          </Box>
-        )}
-      </Box>
-    )
+    const rows = paneRows({ view: v, usage: used, sums, pending: busy, cols })
+    const part = (p) => <Text color={p.tone} bold={p.bold} dimColor={p.dim}>{p.text}</Text>
+    const draw = (row) => {
+      if (!row.next) return <Text>{row.parts.length ? row.parts.map(part) : ' '}</Text>
+      if (!row.next.label) return null // 1 to 2 columns: no room for a chip (FR-7)
+      if (e.surface !== 'terminal') {
+        return <Button key="next" variant="primary" dimColor={row.next.pending} onPress={() => press($, v.next)}>{row.next.label}</Button>
+      }
+      const fill = row.next.pending ? {} : { backgroundColor: 'suggestion', color: 'inverseText', bold: true }
+      return <Button key="next" plain dimColor={row.next.pending} onPress={() => press($, v.next)}><Text {...fill}>{` ${row.next.label} `}</Text></Button>
+    }
+    return <Box flexDirection="column">{rows.map(draw)}</Box>
   })
 }

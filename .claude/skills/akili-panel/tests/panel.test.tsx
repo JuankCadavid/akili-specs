@@ -323,17 +323,20 @@ function bottom(on: any, r: Rig, answer: (e: any) => unknown = () => ({ text: 'r
   on('command.run', (_: any, e: any) => { r.runs.push({ command: e.command, args: e.args }); return answer(e) })
 }
 
+// A row is the Text that holds a row's parts; a part is the Text inside it (`paneRows`). `lines` are the rows' words.
 async function drawn($: any, surface: (typeof ALL_SURFACES)[number] = 'terminal', bodyColumns = 80) {
   const ui = await $.ui.mount({ ...PANE, surface, props: { ...PANE.props, bodyColumns } })
-  const lines: string[] = (await ui.findAll({ type: 'Text' })).map((t: any) => t.text)
-  const next: string | undefined = (await ui.find({ key: 'next' }))?.text
-  return { ui, lines, next }
+  const lines: string[] = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.children.some((c: any) => typeof c !== 'string')).map((t: any) => t.text)
+  const nextRaw: string | undefined = (await ui.find({ key: 'next' }))?.text
+  return { ui, lines, next: nextRaw?.trim(), nextRaw }
 }
 
+// The ctx and session rows, bar glyphs and runs of spaces dropped: `ctx 42% 84k/200k · session 0 in / 0 out · $7.50`.
+const tokenRows = (lines: string[]) => lines.filter((l) => /^(ctx|session)\s/.test(l)).map((l) => l.replace(/[━─]/g, '').replace(/\s+/g, ' ').trim()).join(' · ')
 const tokenLine = async ($: any) => {
   const { ui, lines } = await drawn($)
   await ui.unmount()
-  return lines.find((l) => l.startsWith('Tokens:'))
+  return tokenRows(lines)
 }
 
 const measure = (usd: number) => ({ context: { window: 200000, tokens: 84000, percent: 42 }, rateLimits: [], cost: { usd }, changed: ['context', 'cost'] })
@@ -453,7 +456,7 @@ test('FR-9 typed command: the pane refreshes after it and FR-5 shows the kept sp
   const after = await drawn($)
   expect(after.next).toBe('Next: /akili-specify changes/b')
   expect(after.lines[0]).toMatch(/changes\/b/)
-  expect(after.lines[0]).toMatch(/\(1 more active\)/)
+  expect(after.lines[1]).toMatch(/\(1 more active\)/)
   await after.ui.unmount()
 })
 
@@ -700,7 +703,7 @@ test('NFR-8: a closed pane reads no disk; the kept spec and the sums are still r
   expect(r.fs.length > fsBefore).toBe(true)
   const { ui, next, lines } = await drawn($)
   expect(next).toBe('Next: /akili-specify changes/b')
-  expect(lines.find((l) => l.startsWith('Tokens:'))).toBe('Tokens: ctx — · session 1.5k in / 20 out')
+  expect(tokenRows(lines)).toBe('ctx — · session 1.5k in / 20 out')
   await ui.unmount()
 })
 
@@ -721,17 +724,17 @@ test('FR-12 fresh session: no response yet, with and without a cost', async ($, 
   const r = rig($, on, oneSpec())
   r.usage = { context: { window: 200000 } }
   await opened($, r)
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out')
   await $.session.measure({ context: { window: 200000 }, rateLimits: [], cost: { usd: 0 }, changed: ['cost'] } as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $0.00')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out · $0.00')
 })
 
 test('FR-12 session.start seeds ctx and $ from the host', async ($, on) => {
   const r = rig($, on, oneSpec())
   r.usage = { context: { window: 200000, tokens: 6000, percent: 3 }, cost: { usd: 7.5 } }
   await opened($, r)
-  expect(await tokenLine($)).toBe('Tokens: ctx 3% (6.0k/200k) · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx 3% 6.0k/200k · session 0 in / 0 out · $7.50')
 })
 
 test('FR-12 D-9: every finished turn counts once, subagent turns included; in = input + cache-read + cache-write', async ($, on) => {
@@ -741,7 +744,7 @@ test('FR-12 D-9: every finished turn counts once, subagent turns included; in = 
   await $.turn.complete(turn('t2', { input_tokens: 100, cache_read_input_tokens: 0, cache_creation_input_tokens: 48, output_tokens: 33 }, 'sub-1'))
   await $.turn.complete(turn('t3', undefined))
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 1.5k in / 200 out')
+  expect(await tokenLine($)).toBe('ctx — · session 1.5k in / 200 out')
 })
 
 test('FR-12 session.measure carries the live fill and the cost into the line', async ($, on) => {
@@ -749,7 +752,7 @@ test('FR-12 session.measure carries the live fill and the cost into the line', a
   await opened($, r)
   await $.session.measure(measure(0.351) as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx 42% (84k/200k) · session 0 in / 0 out · $0.35')
+  expect(await tokenLine($)).toBe('ctx 42% 84k/200k · session 0 in / 0 out · $0.35')
 })
 
 for (const reason of ['clear', 'resume']) test(`FR-12 after ${reason}: the session figures start again from 0`, async ($, on) => {
@@ -782,7 +785,7 @@ test('FR-12 after /clear AND: the $ part stays Claude Code\'s own total (W-12)',
   await r.clk.settle()
   await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out · $7.50')
 })
 
 test('FR-12 after /clear: a host still reporting the old fill still shows ctx —', async ($, on) => {
@@ -791,10 +794,10 @@ test('FR-12 after /clear: a host still reporting the old fill still shows ctx �
   await opened($, r)
   await $.session.measure(measure(7.5) as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toMatch(/ctx 42% \(84k\/200k\)/)
+  expect(await tokenLine($)).toMatch(/ctx 42% 84k\/200k/)
   await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out · $7.50')
 })
 
 test('NFR-4: a $.session.usage() that never settles delays nothing and leaves no stale fill', async ($, on) => {
@@ -814,7 +817,7 @@ test('NFR-4: a $.session.usage() that never settles delays nothing and leaves no
   try { await $.tool.call({ tool: 'Skill', skill: 'akili-test', args: SPEC }) } catch { /* the outcome is not the plugin's */ }
   await r.clk.settle()
   expect(ran).toBe(1)
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out · $7.50')
 })
 
 test('NFR-4: $.session.usage() rejecting during the reset leaves commands and tool calls alone, the sums at 0', async ($, on) => {
@@ -844,7 +847,7 @@ test('FR-12 after a resume followed by session.start: the $ part is the host\'s 
   await $.session.end({ reason: 'resume', sessionId: 's1' } as any)
   await $.session.start({ cwd: ROOT, surface: 'terminal', isInteractive: true })
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx — · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx — · session 0 in / 0 out · $7.50')
 })
 
 test('FR-12 after /clear: the next measure fills the line again', async ($, on) => {
@@ -854,7 +857,65 @@ test('FR-12 after /clear: the next measure fills the line again', async ($, on) 
   await r.clk.settle()
   await $.session.measure(measure(7.5) as any)
   await r.clk.settle()
-  expect(await tokenLine($)).toBe('Tokens: ctx 42% (84k/200k) · session 0 in / 0 out · $7.50')
+  expect(await tokenLine($)).toBe('ctx 42% 84k/200k · session 0 in / 0 out · $7.50')
+})
+
+// ---- changes/akili-panel-polish T3: the transparent pane and the rows
+
+test('FR-1: the one open asks for a transparent body and the full layout\'s rows; a surface that ignores it still draws (FR-4)', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  expect(r.opens.length).toBe(1)
+  expect(r.opens[0].backgroundColor).toBe('transparent')
+  expect(r.opens[0].rows).toBe(16)
+  const { ui, lines } = await drawn($, 'mobile')
+  expect(lines.length > 10 && r.toasts.length === 0).toBe(true) // BUT no error or toast about the background
+  await ui.unmount()
+})
+
+for (const surface of ALL_SURFACES) test(`FR-6 the Next button: a chip on the terminal, the surface's primary elsewhere; a blank row above it (${surface})`, async ($, on) => {
+  const r = rig($, on, oneSpec())
+  bottom(on, r, () => new Promise(() => {}))
+  await opened($, r)
+  const first = await drawn($, surface)
+  const btn: any = await first.ui.find({ key: 'next' })
+  const chip = surface === 'terminal'
+  expect(first.nextRaw).toBe(chip ? ' Next: /akili-specify changes/demo ' : 'Next: /akili-specify changes/demo')
+  expect(btn.props.plain === true).toBe(chip)
+  expect(btn.props.variant === 'primary').toBe(!chip)
+  if (chip) expect(btn.children[0].props).toMatchObject({ backgroundColor: 'suggestion', color: 'inverseText', bold: true })
+  expect((await first.ui.findAll({ type: 'Text', text: /^ $/ })).length).toBe(1) // the blank row
+  expect((await first.ui.find({ type: 'Box' })).children.at(-1).type).toBe('Button') // Next is the root's last child
+  void first.ui.press({ key: 'next' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'akili-specify', args: SPEC }]) // the press runs once
+  await first.ui.unmount()
+  const busy = await drawn($, surface)
+  const dim: any = await busy.ui.find({ key: 'next' })
+  expect(dim.props.dimColor).toBe(true)
+  expect(busy.next).toBe('Next: /akili-specify changes/demo') // the words do not change
+  if (chip) expect(JSON.stringify(dim.children)).not.toMatch(/suggestion/) // no fill while pending
+  await busy.ui.unmount()
+})
+
+test('FR-6 BUT: no padded chip at 1 to 2 columns, where the row is cut to the width (FR-7)', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  for (const width of [1, 2]) {
+    const { ui, lines, nextRaw } = await drawn($, 'terminal', width)
+    expect(nextRaw).toBeUndefined()
+    for (const line of lines) expect(line.length <= width).toBe(true)
+    await ui.unmount()
+  }
+})
+
+for (const surface of SURFACES) test(`FR-8: a read failure is a row in the error tone (${surface})`, async ($, on) => {
+  const r = rig($, on, { ...oneSpec(), [`${ROOT}/docs/specs/changes/demo`]: ['proposal.md', 'requirements.md', 'design.md', 'tasks.md'] })
+  await opened($, r)
+  const { ui } = await drawn($, surface, 200)
+  const row: any = await ui.find({ type: 'Text', text: /^Could not read / })
+  expect(row.children[0].props.color).toBe('error')
+  await ui.unmount()
 })
 
 // ---- FR-16 in the drawn pane
@@ -883,9 +944,9 @@ for (const surface of SURFACES) test(`FR-16 narrow pane: every drawn string and 
   })
   r.usage = { context: { window: 200000, tokens: 84000, percent: 42 }, cost: { usd: 12.34 } }
   await opened($, r)
-  for (const width of [24, 40, 59]) {
-    const { ui, lines, next } = await drawn($, surface, width)
-    for (const line of [...lines, next ?? '']) expect(line.length <= width).toBe(true)
+  for (const width of [24, 40, 50]) {
+    const { ui, lines, nextRaw } = await drawn($, surface, width)
+    for (const line of [...lines, nextRaw ?? '']) expect(line.length <= width).toBe(true)
     expect(lines[0]).toMatch(/…/)
     await ui.unmount()
   }
@@ -907,4 +968,26 @@ test('FR-9 BUT: with $.ui.panes() never settling, session.end clear resolves, an
   const got: any = await $.tool.call({ tool: 'Skill', skill: 'akili-test', args: SPEC })
   expect(got.text).toBe('skill ran')
   expect(seen).toEqual([['Skill', 'akili-test', SPEC]])
+})
+
+for (const surface of SURFACES) test(`FR-2/FR-4 drawn as built: bold Akili and current row, the whole chain in order with the error before the second rule (${surface})`, async ($, on) => {
+  const r = rig($, on, { ...oneSpec(), [`${ROOT}/docs/specs/changes/demo`]: ['proposal.md', 'requirements.md', 'design.md', 'tasks.md'] })
+  await opened($, r)
+  const { ui, lines } = await drawn($, surface, 200)
+  const bold = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.props.bold === true).map((t: any) => t.text)
+  expect(bold).toContain('Akili')
+  expect(bold.some((t: string) => /execute/.test(t))).toBe(true)
+  const chain = [/^Akili/, /^\(no git\)|^\S+$/, /^─+$/, /^01 Constitution/, /^02 Cycle/, ...['propose', 'specify', 'execute', 'test', 'validate', 'archive'].map((p) => new RegExp(`^   ${p}\\s`)), /^Could not read /, /^─+$/, /^ctx\s/, /^session\s/]
+  expect(lines.length).toBe(chain.length)
+  chain.forEach((re, i) => expect(lines[i]).toMatch(re))
+  await ui.unmount()
+})
+
+test('FR-4 drawn as built: the empty-state text is dim', async ($, on) => {
+  const r = rig($, on, {})
+  await opened($, r)
+  const { ui } = await drawn($)
+  const row: any = await ui.find({ type: 'Text', text: /No docs\/specs\/ folder yet\./ })
+  expect(row.children[0].props.dimColor).toBe(true)
+  await ui.unmount()
 })

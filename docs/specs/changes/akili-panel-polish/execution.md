@@ -184,11 +184,11 @@ Execute-time spec edits, on those answers: `design.md` §12 and §8 *Fit*; `requ
 | Leader decisions | Added skills: none. A share takes key and weight (glossary) |
 | Running totals | 2 of 5 tasks; 845 LOC (code 192, tests 653 with fixtures), budget ~1,100; 3 of 7 review rounds. T2 used 3 against its 2: if T3 and T4 each take two and T5 one, the total reaches 8 and the tripwire fires |
 
-### T3: Draw the rows — IN PROGRESS, attempt 1 FAIL
+### T3: Draw the rows — PASS (attempt 3)
 
 | Field | Value |
 |---|---|
-| Status | `[~]`. Uncommitted in the tree |
+| Status | `[x]`. Closed on attempt 3, see *T3 closeout* |
 | Date | 2026-11-06 |
 | Attempt 1 files | `hooks/register.jsx` +15/−24; `hooks/flow.mjs` −52; `tests/panel.test.tsx` +80/−20; `test/akili-panel-contract.test.js` +27; `test/akili-panel-flow-coverage.test.js` +26/−26; `test/akili-panel-flow.test.js` +22/−66 |
 | Implementer | Sonnet, effort `high`. Skills `impeccable-bridge`, plus `plugin-authoring`, added by the Leader for the element and `$.ui.open` API |
@@ -236,3 +236,47 @@ Reviewer on those: 1 conforms, §8's sentence has no surface qualifier; 2 accept
 - RISK: `PANE_ROWS` is not tied to `paneRows`' length (16 today, checked).
 
 **Leader adjudication.** Issues 1 to 4 go to attempt 2, test-only. Issue 4 matches `judgment.md` I-4, an advisory JC did not name; it is taken here because the Reviewer found it as a NFR-1 and D-3 FAIL inside T3's scope ("no raw colour in `hooks/`"), and it is reported to JC. Issue 5 is closed by this entry. Effort for attempt 2: `xhigh`.
+
+### T3 closeout — `PASS` (attempt 3), 2026-11-06
+
+**Attempt 2.** FAIL. Implementer Sonnet, effort `xhigh`, test-only, +46 lines. Evidence re-run: **VERIFIED**: flow and contract 192 pass, `npm test` 1824 pass, kit 75 pass, validate passed, `verify:cli`, `pack:dry-run`, `git diff --check` clean. Reviewer closed issues 2, 3 and 5. FAIL, verbatim:
+
+> 1. **Discovered Issue:** Attempt 2 replaced the colour-name check, so `'red'` no longer goes red. `const X = 'red'` in `register.jsx`, the same line in `flow.mjs`, and `const c = 'red'` with `color={c}` each gave contract 0 red. Attempt 1 went red on the two plants. Only `'red'` in a `tone:` or `color=` position is caught now, and `'#ff0000'` still goes red in both files. My attempt-1 remediation said to keep the hex and `rgb()` checks and left out the name check, so that gap came from my wording. **Violated Rule:** `tasks.md` T3 Falsifier; Done criteria; NFR-1 measure. **Remediation Suggestion:** Restore the quoted-name check and keep the allowlist beside it. In the same edit, widen the allowlist to any `*Color` key, because `borderColor="lime"` also gave 0 red.
+> 2. **Discovered Issue:** Drawn order is still only partly pinned. These register-only mutants all gave kit 75 pass, 0 fail: error rows moved to just after the constitution row; the cycle row moved after `archive`; the six phase rows reversed; `gap` and Next moved to the top of the pane. **Violated Rule:** FR-4; Coverage "FR-4 Order of blocks… T3 (drawn as built)". **Remediation Suggestion:** Assert the whole chain in one test… Also pin Next as the root Box's last child, on both surfaces.
+
+| Attempt 2 falsifier | Red |
+|---|---|
+| Remove `dimColor={p.dim}` | Kit: `FR-4 drawn as built: the empty-state text is dim` |
+| Remove `bold={p.bold}` | Kit: `Expected: containing "Akili"` |
+| Swap `rule-tokens` with the error row | Kit: `Expected: true, Received: false` |
+| `$.ui.status('x')`, `$.audio.play`, second `$.ui.toast(` | Contract: `FR-5: no new call…` |
+| `if (s.usd && u.usd)`; drop `usage \|\| {}` in `ctxRow`, `sessionRow` | Node: `FR-12 a reported cost of 0 reads $0.00…` |
+
+**Attempt 3.** PASS. Implementer Sonnet. `effort ceiling: held xhigh`. Test-only: `test/akili-panel-contract.test.js`, `tests/panel.test.tsx`. Evidence re-run: **VERIFIED**: same counts, `git diff --stat c14e344 -- .claude/commands` empty.
+
+**Final falsifier reds for the task's list, as the Reviewer observed them** (these replace attempt 1's `'red'` rows):
+
+| Plant | Red |
+|---|---|
+| `const X = 'red'` in `register.jsx` | `register.jsx: a colour name` |
+| `const X = 'red'` in `flow.mjs` | `flow.mjs: a colour name` |
+| `'#ff0000'` in `register.jsx` | `register.jsx: a hex colour` |
+| `'#ff0000'` in `flow.mjs` | `flow.mjs: a hex colour` |
+| `const c = 'red'` with `color={c}` | `register.jsx: a colour name` |
+| `borderColor="lime"` | `register.jsx: a colour name` |
+| Errors after constitution, cycle after `archive`, phases reversed | Chain test, 2 red each; `Expected /^02 Cycle/ Received "   propose ✓"` |
+| `gap` and Next at the top | FR-6 test, 4 red, one per surface |
+
+**Reviewer PASS (Opus):** "Both open issues are closed and the delta causes no regression. `flow.mjs` and `register.jsx` are byte-identical to attempt 1, and the delta touches only tests." Node 257 pass across flow, coverage and contract; kit 75 pass on 2.1.319 and on the 2.1.318 binary.
+
+**ADVISORY (recorded, not work)**
+
+- RELIABILITY: the blank row's drawn position has no kit pin; `paneRows`' order is pinned in the node tests. T5 sees it live.
+- RISK: the colour-name check lists 21 names. A name outside the list, held in a variable, should stay green (not run). Limit of a presence check, as T3's Disqualifier states.
+
+| Field | Value |
+|---|---|
+| spawns | Implementer ×3 and Reviewer ×3: calls and tokens not reported by host; ended partial, partial, complete; fail, fail, complete |
+| Requirements covered | FR-1, FR-4 (T3's part), FR-6, FR-8, FR-9, NFR-1, NFR-4, NFR-5, D-3, D-4 |
+| Consumers beyond `tasks.md`'s field, run | `test/akili-panel-flow-coverage.test.js`, and `tests/panel.test.tsx` `key: 'next'` and `Tokens:` sites added by the parent |
+| Running totals | 3 of 5 tasks; 1,061 added LOC (T2 845, T3 216; T3 also removed 184), budget ~1,100; 6 of 7 review rounds |

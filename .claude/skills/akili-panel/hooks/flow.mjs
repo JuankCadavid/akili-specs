@@ -488,39 +488,6 @@ export function branchLabel(branch) {
   return branch.name
 }
 
-export function formatHeader(view, cols) {
-  const label = branchLabel(view.branch)
-  const branchText = view.branch && view.branch.kind !== 'none' ? `⎇ ${label}` : label
-  const tail = `${view.archived ? ` · ${STRINGS.archived}` : ''}${view.moreActive > 0 && view.spec ? ` ${STRINGS.moreActive(view.moreActive)}` : ''}`
-  if (!view.spec) return fitLine(`Akili · ${branchText}${tail}`, cols)
-  const fixed = 'Akili · '.length + ' · '.length + tail.length
-  const avail = (cols > 0 ? cols : Infinity) - fixed
-  let spec = view.spec
-  let branchPart = branchText
-  if (spec.length + branchPart.length > avail) {
-    spec = shortenMiddle(spec, Math.max(5, avail - branchPart.length))
-    branchPart = shortenMiddle(branchPart, Math.max(1, avail - spec.length))
-  }
-  return fitLine(`Akili · ${spec} · ${branchPart}${tail}`, cols)
-}
-
-export function formatConstitution(c) {
-  const mark = constitutionMark(c)
-  const tail = mark === 'done' ? MARKS.done : mark === 'todo' ? MARKS.todo : `${MARKS.current} (${c.present}/${c.total})`
-  return `01 ${STRINGS.constitution}  ${tail}`
-}
-
-// Lines of the flow block; `current` marks the line to draw bold.
-export function formatPhaseLines(phases) {
-  const width = Math.max(...PHASES.map((p) => p.length))
-  return phases.map((p, i) => {
-    let mark = MARKS[p.mark]
-    if (p.note === 'blocked') mark += ` ${STRINGS.blocked}`
-    if (p.note === 'no-task-status') mark += ` ${STRINGS.noTaskStatus}`
-    return { text: `${i === 0 ? '02' : '  '} ${p.id.padEnd(width)}  ${mark}`, current: p.mark === 'current' }
-  })
-}
-
 export function emptyStateText(view) {
   if (view.status === 'no-specs') return STRINGS.noSpecsFolder
   if (view.status === 'no-active') return STRINGS.noActive
@@ -529,24 +496,6 @@ export function emptyStateText(view) {
 
 export function errorLines(errors, cols, max = 3) {
   return (errors || []).slice(0, max).map((e) => fitLine(STRINGS.readError(e.path, String(e.reason).replace(/\s+/g, ' ').trim()), cols))
-}
-
-// `usage`: { ctxPercent?, ctxTokens?, ctxWindow?, usd? }; `sums`: { in, out }.
-// Narrow panes drop parts right to left: `$`, then `session`.
-export function formatTokens(usage, sums, cols) {
-  const u = usage || {}
-  const s = sums || { in: 0, out: 0 }
-  const ctx = typeof u.ctxPercent === 'number'
-    ? `ctx ${Math.round(u.ctxPercent)}% (${shortenCount(u.ctxTokens)}/${shortenCount(u.ctxWindow)})`
-    : STRINGS.ctxMissing
-  const session = `session ${shortenCount(s.in)} in / ${shortenCount(s.out)} out`
-  const usd = typeof u.usd === 'number' ? `$${u.usd.toFixed(2)}` : null
-  const tryParts = [[ctx, session, usd], [ctx, session], [ctx]]
-  for (const parts of tryParts) {
-    const line = `Tokens: ${parts.filter(Boolean).join(' · ')}`
-    if (!(cols > 0) || line.length <= cols) return line
-  }
-  return fitLine(`Tokens: ${ctx}`, cols)
 }
 
 // ---------------------------------------------------------------- rows of parts (changes/akili-panel-polish, T2)
@@ -568,7 +517,6 @@ export const TONES = Object.freeze({
 
 export const BAR = Object.freeze({ filled: '━', empty: '─', rule: '─', cells: 12, halfCells: 6, ruleDefault: 40 })
 export const LADDER_LAST = 7
-
 const tonesFor = (p) => {
   if (p.mark === 'done') return TONES.done
   if (p.mark === 'todo') return TONES.todo
