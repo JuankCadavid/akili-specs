@@ -16,11 +16,11 @@
 
 ## Task Execution History
 
-### T1: Paint check on JC's terminal (HITL) — IN PROGRESS, waiting for JC
+### T1: Paint check on JC's terminal (HITL) — PASS
 
 | Field | Value |
 |---|---|
-| Status | `[~]`. Prepared, not judged. Only JC's words close it |
+| Status | `[x]`. **PASS** by JC, the gate this task names: JC, 2026-11-06 7:39 PM America/Bogota: «1: se lee bien en ambos temas, sigue con T2». Outcome: *reads well* in both themes, so T2 follows |
 | Date | 2026-11-06 |
 | Attempts | 0 Implementer: T1 has no repo change |
 | spawns | none |
@@ -35,6 +35,14 @@
 
 Both tabs were read as text only (`orca terminal read --screen`). That shows the rows drew, not how they look, and is no evidence for T1 (Disqualifier).
 
+**Close**
+
+- P-3 and P-4 settled by JC's quote; `design.md` Premise Ledger rows and count updated, meaning unchanged.
+- `Review: checklist — JC is the gate`: no diff and no Reviewer. JC, not the author, ran the check.
+- No screenshot per theme, which T1's `Tests` field asks for: JC told the Leader not to capture the desktop. JC's words are the record, and T1's Done criteria ask for those.
+- `T1 paint: dark-ansi` and `T1 paint: light` closed. `probe/mod/tsconfig.json` removed.
+- Running totals: 1 of 5 tasks, 0 LOC of code, 0 review rounds.
+
 **Decisions made**
 
 - Execute-time spec edits, meaning unchanged, reference update only: `requirements.md` Document Control and §4 out-of-scope line; `design.md` Document Control and §13; `tasks.md` Document Control, graph and T1 `Depends on`; `proposal.md` new *Parent location* row and the *T9 live run notes* path. The rest of the proposal keeps the name in force at approval.
@@ -43,7 +51,8 @@ Both tabs were read as text only (`orca terminal read --screen`). That shows the
 **Issues encountered**
 
 - The Leader ran `screencapture -x` three times to confirm the tabs. T1 did not ask for this. It captured JC's whole desktop, not Orca, and macOS raised a dialog: "Orca" is requesting to bypass the system private window picker and directly access your screen and audio. The dialog was left unanswered. Both saved images were deleted unused. Not repeated.
-- The running sessions regenerate `probe/mod/tsconfig.json`. It is not committed; remove it when T1 ends.
+- The running sessions regenerated `probe/mod/tsconfig.json`. It was never committed.
+- JC, after that capture: no `screencapture` or desktop screenshot again; `orca terminal read --screen` and in-terminal probes only. This binds T5 too.
 
 **Forward pointers (not fixed here: T2 and T3 carry them)**
 

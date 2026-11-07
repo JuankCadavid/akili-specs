@@ -32,7 +32,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | XS (no repo change) |
 | Depends on | The parent, archived at `b7d1738` (met) |
 | Requirements | FR-1 (open; a surface keeps its own look), NFR-3, D-5 |
