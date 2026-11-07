@@ -183,3 +183,56 @@ Execute-time spec edits, on those answers: `design.md` §12 and §8 *Fit*; `requ
 | Requirements covered | FR-2, FR-3, FR-4 (T2's part), FR-5, FR-6 (label fit), FR-7, FR-8 (tone), NFR-2 |
 | Leader decisions | Added skills: none. A share takes key and weight (glossary) |
 | Running totals | 2 of 5 tasks; 845 LOC (code 192, tests 653 with fixtures), budget ~1,100; 3 of 7 review rounds. T2 used 3 against its 2: if T3 and T4 each take two and T5 one, the total reaches 8 and the tripwire fires |
+
+### T3: Draw the rows — IN PROGRESS, attempt 1 FAIL
+
+| Field | Value |
+|---|---|
+| Status | `[~]`. Uncommitted in the tree |
+| Date | 2026-11-06 |
+| Attempt 1 files | `hooks/register.jsx` +15/−24; `hooks/flow.mjs` −52; `tests/panel.test.tsx` +80/−20; `test/akili-panel-contract.test.js` +27; `test/akili-panel-flow-coverage.test.js` +26/−26; `test/akili-panel-flow.test.js` +22/−66 |
+| Implementer | Sonnet, effort `high`. Skills `impeccable-bridge`, plus `plugin-authoring`, added by the Leader for the element and `$.ui.open` API |
+| Evidence re-run | Leader inline: **VERIFIED**. Flow and contract 190 pass, 0 fail; `npm test` 1822 pass, 0 fail; `verify:cli` 0; `pack:dry-run` 0; `git diff --check` 0; `claude plugin validate` passed; `claude plugin test` 72 pass, 0 fail; `git diff --stat c14e344 -- .claude/commands` empty |
+| Reviewer | Opus, effort `high`: **FAIL**, no code defect. Also ran validate and the kit on the 2.1.318 binary: passed, 72 pass, which settles NFR-5 |
+| Design route | Playbooks colorize, layout, adapt; ENV-2; mode Operate; motion none. `polish light`: a read of the code only, no rendered surface; no finding. `finish review: not run (AKILI execute)` |
+
+**Red before the change.** New FR-1 contract test on HEAD: `did not match /backgroundColor: 'transparent'/`. New kit tests failed on a copy of the HEAD plugin: FR-1, FR-6 ×4, FR-6 narrow, FR-8 ×2.
+
+| Falsifier | Red |
+|---|---|
+| `'#ff0000'`, `'red'` in `flow.mjs` | `flow.mjs: a hex colour`, `flow.mjs: a colour name` |
+| `'#ff0000'`, `'red'` in `register.jsx` | `register.jsx: a hex colour`, `register.jsx: a colour name` |
+| Remove `backgroundColor` | `did not match /backgroundColor: 'transparent'/` |
+| Remove `rows` | `did not match /\brows: \w+/` |
+| Add an atom | `FR-9: no new atom beyond the five` |
+| Chip with its own handler | Kit 9 fail: `a double press queues one run (terminal)`, expected 1, got 2 |
+| Drop `key="next"` | Kit 36 fail: `HooksError: $.ui.mount: no implementation for ui.render`. A setup red on the terminal: the host refuses a keyless Button with a `Text` child. Reviewer's behavioural run: `key="go"` on both branches, 31 red, press test `Expected [{ command: "akili-specify"… }] Received []` |
+
+**Not Done / Assumptions (Implementer, verbatim)**
+
+> 1. paneRows cuts the Next label to cols-2 on every surface. The non-terminal primary button therefore gets the shorter label too, where v1 cut it to cols. I took this from the T2 contract and did not choose it.
+> 2. The narrow-pane kit test now checks the "…" at widths 24, 40 and 50. The old 59 no longer cuts, because the header's first row no longer shares a line with the branch. Header cutting is still asserted wherever the spec path does not fit.
+> 3. I did not see any surface render. `claude plugin test` cannot run in CI, so D-4 rests on a local run.
+
+Reviewer on those: 1 conforms, §8's sentence has no surface qualifier; 2 accepted; 3 true.
+
+**Reviewer FAIL, attempt 1 (verbatim)**
+
+> SUMMARY: I found no code defect: the open call, chip, surfaces, press and formatter removal all match the spec. Issues 1–4 are missing tests on clauses T3 owns, so the Implementer's fixes are test-only. Issue 5 is Leader-owned.
+>
+> 1. **Discovered Issue:** The drawn mapping has no pin. Each of these gave 0 red in kit and contract: removing `dimColor={p.dim}`, removing `bold={p.bold}`, and swapping `rule-tokens` with the row before it. **Violated Rule:** `tasks.md` Coverage: "empty text stays dim | T2 (tone), T3 (draw)"; "FR-4 Order of blocks; errors before the second rule | T2 (assembly), T3 (drawn as built)". **Remediation Suggestion:** Add kit tests that the empty text draws `dimColor`, that `Akili` and the current row draw bold, and that drawn rows follow `paneRows` order, with an error row and both rules.
+> 2. **Discovered Issue:** No contract covers FR-5's "no new call". `$.ui.status`, `$.audio.play` and `$.ui.toast` in `ui.render` each gave contract 0 red; `$.ui.status` was also 0 red in the kit (`$.audio.play` was not run there). **Violated Rule:** Coverage: "FR-5 High fill… BUT no toast, status line, sound or block | T2 (tone), T3 (no new call, contract)". **Remediation Suggestion:** Add a contract test: no `$.ui.status`, no `$.audio`, and one `$.ui.toast(`, inside `press`.
+> 3. **Discovered Issue:** Two deleted assertions lost their coverage. `formatTokens({ usd: 0 }…)` → `$0.00`: mutant `if (s.usd && u.usd)` gave node 0 red and kit 1 red, so CI no longer pins it. `formatTokens(undefined, undefined)`: removing `usage || {}` gave 0 red in node and kit, so its only pin is gone. **Violated Rule:** T3 Scope: "each with a new row test already covering its clause"; D-1 gate (`node --test`). **Remediation Suggestion:** Add node assertions on `paneRows` with `usage: { usd: 0 }` and with `usage` null.
+> 4. **Discovered Issue:** The NFR-1 test is an 18-name denylist. `color="lime"` gave contract 0 red, and `types:1714` makes any non-key string a raw colour. **Violated Rule:** NFR-1: "names only theme keys and `transparent`"; D-3. **Remediation Suggestion:** Check every `tone:`, `color=` and `backgroundColor` literal in `hooks/` against the theme keys plus `transparent`. Keep the hex and `rgb()` checks.
+> 5. **Discovered Issue (Leader-owned):** `execution.md` has no T3 entry and the brief names none. **Remediation Suggestion:** Log the entry and name it in the next brief.
+>
+> Clauses that cannot both be met: FR-6's padded chip and FR-7's width at 1–2 columns; the T2 hand-off settled that as no chip. Done's "existing tests… unchanged" and Scope's "every test that names one", read literally. The edits I walked touch only formatter lines, so Scope wins.
+
+**ADVISORY (Reviewer; recorded, not work)**
+
+- RELIABILITY: at 1–2 columns the button also disappears on non-terminal surfaces, where v1 drew `…`. Not reachable in a dock (minimum 24); the kit tests terminal only.
+- RISK: pending dim on a `plain` Button with a `Text` child is pinned as a prop only. T5 must look at it.
+- READABILITY: the W-14 comment sits on `header`'s closing line; `const F` is unused in several tests; a blank line was dropped before `tonesFor`.
+- RISK: `PANE_ROWS` is not tied to `paneRows`' length (16 today, checked).
+
+**Leader adjudication.** Issues 1 to 4 go to attempt 2, test-only. Issue 4 matches `judgment.md` I-4, an advisory JC did not name; it is taken here because the Reviewer found it as a NFR-1 and D-3 FAIL inside T3's scope ("no raw colour in `hooks/`"), and it is reported to JC. Issue 5 is closed by this entry. Effort for attempt 2: `xhigh`.

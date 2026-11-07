@@ -70,7 +70,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | M (~65 LOC code, ~175 LOC tests) |
 | Depends on | T2 |
 | Requirements | FR-1 (open; surface keeps its look incl. BUT no error), FR-4 (order; inline pane asks for rows), FR-6 (all scenarios), FR-8 (scenario), FR-9 (incl. BUT no new command, hook event, atom, file read or process; AND `.claude/commands/` identical), NFR-1, NFR-4, NFR-5, D-3, D-4 |
