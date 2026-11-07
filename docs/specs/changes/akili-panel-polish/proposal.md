@@ -14,6 +14,7 @@ The background comes first because of one finding: **colour on today's gray woul
 | Deliverable | software |
 | Approval Mode | `gated` (default). The brief gives no pre-approval: *"Never answer a methodology gate on JC's behalf."* |
 | Status | **Approved** by JC (Juan Carlos Cadavid), 2026-11-06 9:25 AM America/Bogota: «Apruebo la propuesta akili-panel-polish, opción A con B de respaldo, y acepto los defaults de Q1, Q2 y Q3. No hay Jira ni Figma.» Decisions recorded in *Decisions After Approval* below. Next phase: `/akili-specify` |
+| Parent location | Archived 2026-11-06 at `b7d1738`: `changes/akili-panel` now lives at `docs/specs/archive/2026-11-06-changes--akili-panel/`. The name below is the one in force at approval |
 | Route | `/akili-propose` follow-up, not a Pivot of `changes/akili-panel`. Reasons: *Approach Options → Why a follow-up* |
 | Requirement source | JC (Juan Carlos Cadavid), 2026-11-06 morning America/Bogota: «se puede hacer algo para que se vea mas bonita ? ver imagen». Direction list from the owner brief, `.run/akili-propose-polish/PROMPT.md`, which says to refine it and not treat it as locked |
 | Visual source | JC's screenshot of the current pane, `.run/akili-propose-polish/jc-panel-screenshot.png`. It shows today's look, not a target |
@@ -43,7 +44,7 @@ JC finished the live check and the pane works, but it looks flat. This change ma
 | P6 | Next does not stand out. The terminal draws a primary button as `[ label ]` in the accent colour, and here that accent is almost the same as the text. | `types:1152`; measured peak `#EEF8F8` for Next against `#F5F7FA` for text |
 | P7 | The marks do not share a column: the Constitution mark comes after 17 characters, the phase marks after 13. | `flow.mjs:507-510` and `:514-521`; visible in the screenshot |
 | P8 | The cycle has no progress figure, and context fill is text only. | `flow.mjs:514` `formatPhaseLines`, `:536` `formatTokens` |
-| P9 | This is not a defect in the shipped spec. Steps 3, 4 and 5 of T9 passed, narrow pane and Next click included. | `docs/specs/changes/akili-panel/execution.md` → *T9 live run notes* (uncommitted edit); JC: «1. Funciona», «2. click -funciona» |
+| P9 | This is not a defect in the shipped spec. Steps 3, 4 and 5 of T9 passed, narrow pane and Next click included. | `docs/specs/archive/2026-11-06-changes--akili-panel/execution.md` → *T9 live run notes*; JC: «1. Funciona», «2. click -funciona» |
 
 ## Proposed Outcome
 

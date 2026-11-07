@@ -9,7 +9,7 @@
 | Specify closed | 2026-11-06. Verification Checklist: 20 pass, 2 n/a (bug, video), 1 gap: FR-4's *a size the person set stays theirs* names T5 as its owner, but T5's scope has no step for it (I-13, not fixed). Premise citations and observed reds re-run at `c14e344` |
 | Requirements / Design | `requirements.md`, `design.md` |
 | Baseline | `c14e344`. `node --test test/akili-panel-flow.test.js test/akili-panel-contract.test.js` → **108 pass, 0 fail**. `claude plugin test .claude/skills/akili-panel` → **17 pass, 0 fail** (2026-11-06) |
-| Start condition | **Do not start `/akili-execute` here** until `changes/akili-panel` has closed T9 and passed test, validate and archive (decision D2) |
+| Start condition | **Met.** The parent closed T9, test, validate and archive (decision D2): `docs/specs/archive/2026-11-06-changes--akili-panel/`, archived at `b7d1738`. Start authorized by JC, 2026-11-06 7:30 PM America/Bogota: «adelante» |
 | Commit prefix | `[SPEC:changes/akili-panel-polish]`. Local commits only |
 | Budget (design §12) | 5 tasks · ~650 LOC · 7 review rounds |
 | PR strategy | One PR after the parent's PRs, stacked on them. At ~650 LOC it is past the ~400 mark, but ~420 of it is tests and it is one surface. Not opened in this cycle |
@@ -19,7 +19,7 @@
 ## Dependency graph
 
 ```text
-parent closed ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw the rows ─► T4 docs ─► T5 live check (JC)
+parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw the rows ─► T4 docs ─► T5 live check (JC)
 ```
 
 ## Common verification (every code task)
@@ -32,9 +32,9 @@ parent closed ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw t
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | XS (no repo change) |
-| Depends on | `changes/akili-panel` closed |
+| Depends on | The parent, archived at `b7d1738` (met) |
 | Requirements | FR-1 (open; a surface keeps its own look), NFR-3, D-5 |
 | Design | §2, §8; P-3, P-4 |
 | Scope | Settles P-3 and P-4 as its first and only step. Load `docs/specs/changes/akili-panel-polish/probe/mod` with `claude --plugin-dir` in Orca and run `/probe-clear`; it draws the state tones, both bars and the chip on a transparent pane. JC looks at it in `dark-ansi`, then in a light theme, and says whether done, current, blocked and not reached read as different states. Nothing is committed |

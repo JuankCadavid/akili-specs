@@ -12,12 +12,12 @@
 | Status | **Requirements approved by JC (Juan Carlos Cadavid), 2026-11-06:** «Continue: apruebo requirements, design y tasks de akili-panel-polish». The time was not relayed. Approval Mode stays `gated`. Approved after «Fix only: corrige J-1 y W-2…W-8 sin re-juzgar» (2026-11-06 10:17 AM America/Bogota). `judgment.md` closes `fixed, not re-judged`; W-1 and I-1 … I-13 stay `info` |
 | Date | 2026-11-06 |
 | Proposal | `proposal.md`, approved by JC 2026-11-06 9:25 AM America/Bogota: Option A with Option B as the fallback, defaults of Q1, Q2 and Q3 accepted (its *Decisions After Approval*) |
-| Parent spec | `changes/akili-panel`. This spec changes its look only. Parent IDs below read `parent FR-n` |
-| Format source | `docs/specs/changes/akili-panel/requirements.md`. There is no `docs/specs/general-setup/` in this repo |
+| Parent spec | `docs/specs/archive/2026-11-06-changes--akili-panel/` (`changes/akili-panel` until it was archived at `b7d1738`). This spec changes its look only. Parent IDs below read `parent FR-n` |
+| Format source | `docs/specs/archive/2026-11-06-changes--akili-panel/requirements.md`. There is no `docs/specs/general-setup/` in this repo |
 | Baseline docs | None in this repo (`docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md` are absent). Root `AGENTS.md` is the reference |
 | Verified at | `c14e344` |
 | Branch | `JuankCadavid/akili-panel` (worktree). No push, PR, merge, tag or publish in this phase |
-| Execution rule | **`/akili-execute` waits** until `changes/akili-panel` has closed T9 and passed test, validate and archive (decision D2) |
+| Execution rule | **Met.** `/akili-execute` waited until the parent had closed T9 and passed test, validate and archive (decision D2). Parent archived at `b7d1738`; start authorized by JC, 2026-11-06 7:30 PM America/Bogota: «adelante» |
 | Release | With v1; `plugin.json` stays `1.0.0` (decision D4). Recorded only |
 
 ## 2. Executive Summary
@@ -55,7 +55,7 @@ Today (all at `c14e344`):
 
 - Phase rules, spec choice, refresh, observers, the Next press, `/akili-panel`, installer, `list`, `doctor`, governance, marketplace.
 - New marks, raw colours, `$.theme.set`, motion, Spanish strings.
-- D-A, D-B, T9 and the closing phases of `changes/akili-panel`.
+- D-A, D-B, T9 and the closing phases of the parent.
 
 ## 5. Stakeholders / Personas
 

@@ -11,7 +11,7 @@
 | API authority | `types/claude-code.d.ts` of the bundled `plugin-authoring` skill, build 2.1.319, cited as `types:<line>`. Also read in 2.1.318 |
 | Verified at | `c14e344` |
 | Design skill | `impeccable-bridge`: skill source `vendored (4.8.0)`, engine `ready (location 4, engine 0.1.18)` |
-| Format source | `docs/specs/changes/akili-panel/design.md` |
+| Format source | `docs/specs/archive/2026-11-06-changes--akili-panel/design.md`, the parent, archived at `b7d1738` |
 | Probe | `probe/`: the mod, `run.sh` and captures behind P-1, P-2, P-6, P-7, P-9, P-10. Evidence only, not shipped |
 
 ## 2. Executive Summary
@@ -233,6 +233,6 @@ A tripwire, not a target: `/akili-execute` stops and escalates past these number
 | Risk | Handling | Rollback |
 |---|---|---|
 | Colours look alike on JC's terminal (P-3) | T1 before code; JC decides | Marks, weight and bars still carry the state |
-| The parent spec is not closed when this starts | `/akili-execute` waits (D2) | — |
+| The parent spec is not closed when this starts | Closed: the parent was archived at `b7d1738` before execute began (D2) | — |
 | The chip disturbs focus or press | T5 repeats the press check | Fall back to `variant="primary"` on the terminal, a one-branch change |
 | A look nobody likes | Commits are per task and stay local until JC's check | Revert this spec's commits; the v1 look returns |
