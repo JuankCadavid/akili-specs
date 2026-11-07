@@ -548,3 +548,195 @@ export function formatTokens(usage, sums, cols) {
   }
   return fitLine(`Tokens: ${ctx}`, cols)
 }
+
+// ---------------------------------------------------------------- rows of parts (changes/akili-panel-polish, T2)
+//
+// A row is `{ id, parts }`; a part is `{ text, tone?, bold?, dim? }` with `tone` a theme key (NFR-1). The plain
+// text of a row is its parts joined. `register.jsx` only maps rows to elements; every choice is made here.
+
+// FR-2 / design §8: the tone of each state, as data. `mark` and `label` are the part styles.
+export const TONES = Object.freeze({
+  done: { mark: { tone: 'success' }, label: { tone: 'inactive' } },
+  current: { mark: { tone: 'suggestion', bold: true }, label: { tone: 'suggestion', bold: true } },
+  blocked: { mark: { tone: 'warning', bold: true }, label: { tone: 'warning', bold: true } },
+  noTaskStatus: { mark: { tone: 'warning', bold: true }, label: { tone: 'warning', bold: true } },
+  todo: { mark: { tone: 'inactive' }, label: { tone: 'inactive' } },
+  constitutionDone: { mark: { tone: 'success' }, label: { tone: 'inactive' } },
+  constitutionSome: { mark: { tone: 'suggestion' }, label: { tone: 'inactive' } },
+  constitutionNone: { mark: { tone: 'inactive' }, label: { tone: 'inactive' } },
+})
+
+export const BAR = Object.freeze({ filled: '━', empty: '─', rule: '─', cells: 12, halfCells: 6, ruleDefault: 40 })
+export const LADDER_LAST = 7
+
+const tonesFor = (p) => {
+  if (p.mark === 'done') return TONES.done
+  if (p.mark === 'todo') return TONES.todo
+  if (p.note === 'blocked') return TONES.blocked
+  if (p.note === 'no-task-status') return TONES.noTaskStatus
+  return TONES.current
+}
+
+export const rowText = (row) => row.parts.map((p) => p.text).join('')
+
+// FR-5: the fill tone from the whole-number percent (DD-P8).
+export function ctxTone(p) {
+  if (p >= 95) return 'error'
+  return p >= 80 ? 'warning' : 'suggestion'
+}
+
+// Cuts parts from the end so the joined text is at most `cols` wide, ending with `…` in the style of the last part kept.
+// `protect` is a text offset whose character stays whole while the width reaches it (the mark glyph, FR-7's 14 columns).
+export function fitParts(parts, cols, protect = 0) {
+  const total = parts.reduce((n, p) => n + p.text.length, 0)
+  if (!(cols > 0) || total <= cols) return parts
+  let keep = cols - 1
+  let ellipsis = true
+  if (protect > 0 && cols >= protect && keep < protect) { keep = protect; ellipsis = false }
+  const out = []
+  let last = parts[0]
+  let left = keep
+  for (const p of parts) {
+    if (left <= 0) break
+    const text = p.text.slice(0, left)
+    if (text === '') continue
+    out.push({ ...p, text })
+    left -= text.length
+    last = p
+  }
+  if (ellipsis) {
+    const { text, ...style } = last || {}
+    out.push({ ...style, text: '…' })
+  }
+  return out
+}
+
+// FR-7: what each ladder step has taken away. Steps are cumulative.
+function stepShape(step) {
+  return {
+    usd: step < 2,
+    session: step < 3,
+    window: step < 4,
+    cells: step >= 7 ? 0 : step >= 5 ? BAR.halfCells : BAR.cells,
+    col: step >= 6 ? 13 : 17,
+    constitution: step >= 6 ? '01 Constit…' : '01 Constitution',
+  }
+}
+
+const pad = (text, col) => text.padEnd(col)
+
+function bar(cells, fill, tone) {
+  const out = []
+  if (fill > 0) out.push({ text: BAR.filled.repeat(fill), tone })
+  if (cells - fill > 0) out.push({ text: BAR.empty.repeat(cells - fill), tone: 'subtle' })
+  return out
+}
+
+function constitutionRow(c, s) {
+  const mark = constitutionMark(c)
+  const t = mark === 'done' ? TONES.constitutionDone : mark === 'todo' ? TONES.constitutionNone : TONES.constitutionSome
+  const text = mark === 'done' ? MARKS.done : mark === 'todo' ? MARKS.todo : `${MARKS.current} (${c.present}/${c.total})`
+  return { id: 'constitution', parts: [{ text: pad(s.constitution, s.col), ...t.label }, { text, ...t.mark }], protect: s.col + 1 }
+}
+
+function cycleRow(phases, s) {
+  const done = phases.filter((p) => p.mark === 'done').length
+  const share = s.cells / PHASES.length
+  const shares = s.cells > 0
+    ? phases.map((p) => (p.mark === 'todo' ? { text: BAR.empty.repeat(share), tone: 'subtle' } : { text: BAR.filled.repeat(share), ...tonesFor(p).mark }))
+    : []
+  return { id: 'cycle', parts: [{ text: pad('02 Cycle', s.col) }, ...shares, { text: `${s.cells > 0 ? ' ' : ''}${done}/${PHASES.length}` }] }
+}
+
+function phaseRows(phases, s) {
+  return phases.map((p) => {
+    const t = tonesFor(p)
+    let mark = MARKS[p.mark]
+    if (p.note === 'blocked') mark += ` ${STRINGS.blocked}`
+    if (p.note === 'no-task-status') mark += ` ${STRINGS.noTaskStatus}`
+    return { id: `phase-${p.id}`, parts: [{ text: pad(`   ${p.id}`, s.col), ...t.label }, { text: mark, ...t.mark }], protect: s.col + 1 }
+  })
+}
+
+function ctxRow(usage, s) {
+  const u = usage || {}
+  const head = { text: pad('ctx', s.col) }
+  if (typeof u.ctxPercent !== 'number' || !Number.isFinite(u.ctxPercent)) return { id: 'ctx', parts: [head, { text: '—' }] }
+  const p = Math.round(u.ctxPercent)
+  const fill = p >= 100 ? s.cells : p > 0 ? Math.min(s.cells, Math.max(1, Math.round((p * s.cells) / 100))) : 0
+  const parts = [head, ...(s.cells > 0 ? bar(s.cells, fill, ctxTone(p)) : []), { text: `${s.cells > 0 ? ' ' : ''}${p}%` }]
+  if (s.window) parts.push({ text: `  ${shortenCount(u.ctxTokens)}/${shortenCount(u.ctxWindow)}` })
+  return { id: 'ctx', parts }
+}
+
+function sessionRow(usage, sums, s) {
+  const u = usage || {}
+  const t = sums || { in: 0, out: 0 }
+  const parts = [{ text: pad('session', s.col) }, { text: `${shortenCount(t.in)} in / ${shortenCount(t.out)} out` }]
+  if (s.usd && typeof u.usd === 'number') parts.push({ text: ` · $${u.usd.toFixed(2)}` })
+  return { id: 'session', parts }
+}
+
+// The rows FR-7's ladder measures: constitution, cycle, flow and token rows at one step.
+function governedRows({ view, usage, sums }, s) {
+  const rows = []
+  if (view) {
+    rows.push(constitutionRow(view.constitution, s))
+    if (view.spec) rows.push(cycleRow(view.phases, s), ...phaseRows(view.phases, s))
+  }
+  rows.push(ctxRow(usage, s))
+  if (s.session) rows.push(sessionRow(usage, sums, s))
+  return rows
+}
+
+// FR-7: the first step at which the governed rows fit, or the last. No usable width stays at step 1.
+export function ladderStep(input) {
+  const cols = input && input.cols
+  if (!(cols > 0)) return 1
+  for (let step = 1; step < LADDER_LAST; step++) {
+    if (governedRows(input, stepShape(step)).every((r) => rowText(r).length <= cols)) return step
+  }
+  return LADDER_LAST
+}
+
+function headerRows(view, cols) {
+  const wide = cols > 0
+  const avail = wide ? cols - 'Akili  '.length : Infinity
+  const title = [{ text: 'Akili', bold: true }]
+  if (view.spec && avail >= 1) title.push({ text: `  ${shortenMiddle(view.spec, avail)}` })
+  const label = branchLabel(view.branch)
+  const branch = view.branch && view.branch.kind === 'branch' ? `⎇ ${label}` : label
+  const tail = `${view.archived ? ` · ${STRINGS.archived}` : ''}${view.moreActive > 0 && view.spec ? ` ${STRINGS.moreActive(view.moreActive)}` : ''}`
+  const room = wide ? Math.max(1, cols - tail.length) : Infinity
+  const parts = [{ text: shortenMiddle(branch, room), tone: 'inactive' }]
+  if (tail) parts.push({ text: tail, tone: 'inactive' })
+  return [{ id: 'title', parts: title }, { id: 'branch', parts }]
+}
+
+// Everything the pane draws, in order. `cols` is `bodyColumns`; a missing or non-positive one cuts nothing.
+// The Next row carries `next: { command, args, label, pending }`; `label` is already cut to `cols - 2`.
+export function paneRows({ view = null, usage = null, sums = null, pending = null, cols } = {}) {
+  const width = cols > 0 ? cols : 0
+  const s = stepShape(ladderStep({ view, usage, sums, cols }))
+  const rule = (id) => ({ id, parts: [{ text: BAR.rule.repeat(width || BAR.ruleDefault), tone: 'subtle' }] })
+  const rows = []
+  if (!view) {
+    rows.push({ id: 'title', parts: [{ text: 'Akili', bold: true }] })
+  } else {
+    rows.push(...headerRows(view, width), rule('rule-top'), constitutionRow(view.constitution, s))
+    const empty = emptyStateText(view)
+    if (view.spec && !empty) rows.push(cycleRow(view.phases, s), ...phaseRows(view.phases, s))
+    else if (empty) rows.push({ id: 'empty', parts: [{ text: empty, dim: true }] })
+    errorLines(view.errors, width).forEach((text, i) => rows.push({ id: `error-${i}`, parts: [{ text, tone: 'error' }] }))
+    rows.push(rule('rule-tokens'))
+  }
+  rows.push(ctxRow(usage, s))
+  if (s.session) rows.push(sessionRow(usage, sums, s))
+  if (view && view.next) {
+    const label = formatNext(view.next)
+    const text = width ? (width > 2 ? fitLine(label, width - 2) : '') : label
+    rows.push({ id: 'gap', parts: [] })
+    rows.push({ id: 'next', parts: [{ text }], next: { command: view.next.command, args: view.next.args, label: text, pending: !!pending } })
+  }
+  return rows.map(({ protect, ...row }) => ({ ...row, parts: fitParts(row.parts, width, protect) }))
+}

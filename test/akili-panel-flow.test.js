@@ -832,3 +832,629 @@ test('NFR-2 0 processes: the io has list, exists and read and nothing else to ca
   await F.refresh(c.io, materialize('phase-ladder'), null);
   assert.ok(c.calls.list.length + c.calls.exists.length + c.calls.read.length > 0);
 });
+
+// ================================================================ changes/akili-panel-polish T2: the row builders
+// Expected values come from changes/akili-panel-polish requirements.md (FR-2 to FR-8, NFR-2). `paneRows` is the one
+// function the pane maps to elements: rows of `{ id, parts: [{ text, tone?, bold?, dim? }] }`, in the order drawn.
+
+const U42 = { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 };
+const U100 = { ctxPercent: 100, ctxTokens: 200000, ctxWindow: 200000, usd: 0.35 };
+const SUMS = { in: 1234, out: 300 };
+const pct = (p) => ({ ctxPercent: p, ctxTokens: 84000, ctxWindow: 200000 });
+const pane = (F, over) => F.paneRows({ view: null, usage: {}, sums: { in: 0, out: 0 }, pending: null, cols: 200, ...over });
+const rowOf = (rows, id) => rows.find((r) => r.id === id);
+const textOf = (row) => row.parts.map((p) => p.text).join('');
+const ids = (rows) => rows.map((r) => r.id);
+const barParts = (row) => row.parts.filter((p) => /^[━─]+$/.test(p.text));
+const filled = (row) => row.parts.filter((p) => /^━+$/.test(p.text)).reduce((n, p) => n + p.text.length, 0);
+const cells = (row) => barParts(row).reduce((n, p) => n + p.text.length, 0);
+const phaseRow = (rows, id) => rowOf(rows, `phase-${id}`);
+const viewOf = async (fx, kept) => (await run(fx, kept)).view;
+const ctxRowAt = async (p, cols = 200) => rowOf(pane(await loaded, { usage: pct(p), cols }), 'ctx');
+
+test('T2 module shape: paneRows, ladderStep and fitParts are exported functions', async () => {
+  const F = await loaded;
+  for (const fn of ['paneRows', 'ladderStep', 'fitParts']) assert.equal(typeof F[fn], 'function', fn);
+});
+
+// ---------------------------------------------------------------- FR-2 colour by state
+
+test('FR-2 a spec in execute: a done phase reads ✓ in success with its label inactive', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x') });
+  const [label, mark] = phaseRow(rows, 'propose').parts;
+  assert.deepEqual(mark, { text: '✓', tone: 'success' });
+  assert.equal(label.text.trim(), 'propose');
+  assert.equal(label.tone, 'inactive');
+});
+
+test('FR-2 a spec in execute: a not-reached phase reads ○ in inactive with its label inactive', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x') });
+  const [label, mark] = phaseRow(rows, 'test').parts;
+  assert.deepEqual(mark, { text: '○', tone: 'inactive' });
+  assert.equal(label.tone, 'inactive');
+});
+
+test('FR-2 a spec in execute: the current phase reads ▶ in suggestion, bold, with its label suggestion and bold', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('phase-ladder', 'changes/s-execute') });
+  const [label, mark] = phaseRow(rows, 'execute').parts;
+  assert.deepEqual(mark, { text: '▶', tone: 'suggestion', bold: true });
+  assert.equal(label.text.trim(), 'execute');
+  assert.deepEqual([label.tone, label.bold], ['suggestion', true]);
+});
+
+test('FR-2 blocked: the current row reads ▶ (blocked) in warning, bold, label warning and bold', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x') });
+  const [label, mark] = phaseRow(rows, 'execute').parts;
+  assert.deepEqual(mark, { text: '▶ (blocked)', tone: 'warning', bold: true });
+  assert.deepEqual([label.tone, label.bold], ['warning', true]);
+});
+
+test('FR-2 blocked AND IT MUST read the same words with colour removed: the row text states the state', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x'), cols: 28 });
+  assert.match(textOf(phaseRow(rows, 'execute')), /execute\s+▶ \(blocked\)$/);
+});
+
+test('FR-2 no task status: the current row reads ▶ (no task status) in warning, bold, label warning and bold', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('no-status', 'changes/x') });
+  const [label, mark] = phaseRow(rows, 'execute').parts;
+  assert.deepEqual(mark, { text: '▶ (no task status)', tone: 'warning', bold: true });
+  assert.deepEqual([label.tone, label.bold], ['warning', true]);
+});
+
+test('FR-2 BUT the marks are still ✓, ▶ and ○ with no fourth glyph', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x') });
+  const glyphs = ['propose', 'specify', 'execute', 'test', 'validate', 'archive'].map((id) => phaseRow(rows, id).parts[1].text[0]);
+  assert.deepEqual(glyphs, ['✓', '✓', '▶', '○', '○', '○']);
+});
+
+test('FR-2 a blocked note on specify takes the warning tone too (blocked reaches specify or execute only)', async () => {
+  const F = await loaded;
+  const view = await viewOf('blocked-specify', 'changes/x');
+  assert.equal(view.phases[1].note, 'blocked');
+  const [, mark] = phaseRow(pane(F, { view }), 'specify').parts;
+  assert.deepEqual(mark, { text: '▶ (blocked)', tone: 'warning', bold: true });
+});
+
+test('FR-2 constitution all present: ✓ in success, label inactive', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('constitution-full', null) });
+  const [label, mark] = rowOf(rows, 'constitution').parts;
+  assert.deepEqual(mark, { text: '✓', tone: 'success' });
+  assert.equal(label.tone, 'inactive');
+});
+
+test('FR-2 constitution some present: ▶ (k/13) in suggestion, not bold, label inactive', async () => {
+  const F = await loaded;
+  const view = await viewOf('constitution-partial', null);
+  const [label, mark] = rowOf(pane(F, { view }), 'constitution').parts;
+  assert.deepEqual(mark, { text: `▶ (${view.constitution.present}/13)`, tone: 'suggestion' });
+  assert.ok(view.constitution.present > 0 && view.constitution.present < 13);
+  assert.equal(label.tone, 'inactive');
+});
+
+test('FR-2 constitution none present: ○ in inactive, label inactive', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('empty-project', null) });
+  const [label, mark] = rowOf(rows, 'constitution').parts;
+  assert.deepEqual(mark, { text: '○', tone: 'inactive' });
+  assert.equal(label.tone, 'inactive');
+});
+
+// ---------------------------------------------------------------- FR-3 cycle progress
+
+test('FR-3 mid-cycle: the row ends 2/6', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('phase-ladder', 'changes/s-execute') });
+  assert.match(textOf(rowOf(rows, 'cycle')), / 2\/6$/);
+});
+
+test('FR-3 mid-cycle AND the shares read done, done, current, then three empty', async () => {
+  const F = await loaded;
+  const shares = barParts(rowOf(pane(F, { view: await viewOf('phase-ladder', 'changes/s-execute') }), 'cycle'));
+  assert.deepEqual(shares, [
+    { text: '━━', tone: 'success' }, { text: '━━', tone: 'success' }, { text: '━━', tone: 'suggestion', bold: true },
+    { text: '──', tone: 'subtle' }, { text: '──', tone: 'subtle' }, { text: '──', tone: 'subtle' },
+  ]);
+});
+
+test('FR-3 the label is 02 Cycle, at the start of the row', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('phase-ladder', 'changes/s-execute') });
+  assert.equal(rowOf(rows, 'cycle').parts[0].text.trimEnd(), '02 Cycle');
+  assert.ok(!textOf(phaseRow(rows, 'propose')).includes('02'), 'the 02 label left the propose row');
+});
+
+test('FR-3 blocked: the current share uses the warning tone (on execute and on specify)', async () => {
+  const F = await loaded;
+  const onExecute = barParts(rowOf(pane(F, { view: await viewOf('blocked', 'changes/x') }), 'cycle'));
+  assert.deepEqual(onExecute[2], { text: '━━', tone: 'warning', bold: true });
+  const onSpecify = barParts(rowOf(pane(F, { view: await viewOf('blocked-specify', 'changes/x') }), 'cycle'));
+  assert.deepEqual(onSpecify[1], { text: '━━', tone: 'warning', bold: true });
+});
+
+test('FR-3 no task status: the current share uses the warning tone', async () => {
+  const F = await loaded;
+  const shares = barParts(rowOf(pane(F, { view: await viewOf('no-status', 'changes/x') }), 'cycle'));
+  assert.deepEqual(shares[2], { text: '━━', tone: 'warning', bold: true });
+});
+
+test('FR-3 archived: the row ends 6/6 and every share is done', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: await viewOf('archived-alone', 'changes/a') }), 'cycle');
+  assert.match(textOf(row), / 6\/6$/);
+  assert.deepEqual(barParts(row), Array.from({ length: 6 }, () => ({ text: '━━', tone: 'success' })));
+});
+
+test('FR-3 no spec to show: no cycle row, and the empty text stays as parent FR-16 states it', async () => {
+  const F = await loaded;
+  const none = pane(F, { view: await viewOf('empty-project', null) });
+  assert.equal(rowOf(none, 'cycle'), undefined);
+  assert.equal(textOf(rowOf(none, 'empty')), 'No docs/specs/ folder yet.');
+  const idle = pane(F, { view: await viewOf('no-active', null) });
+  assert.equal(rowOf(idle, 'cycle'), undefined);
+  assert.equal(textOf(rowOf(idle, 'empty')), 'No active spec.');
+});
+
+// ---------------------------------------------------------------- FR-4 hierarchy
+
+test('FR-4 block order: header, rule, constitution and cycle, flow, error rows, rule, tokens, a blank row, Next', async () => {
+  const F = await loaded;
+  const view = { ...(await viewOf('blocked', 'changes/x')), errors: [{ path: '/p/a.md', reason: 'EACCES' }] };
+  assert.deepEqual(ids(pane(F, { view, usage: U42, sums: SUMS })), [
+    'title', 'branch', 'rule-top', 'constitution', 'cycle',
+    'phase-propose', 'phase-specify', 'phase-execute', 'phase-test', 'phase-validate', 'phase-archive',
+    'error-0', 'rule-tokens', 'ctx', 'session', 'gap', 'next',
+  ]);
+});
+
+test('FR-4 header row 1: Akili in bold, two spaces, the spec path', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: V({ spec: 'changes/x', branch: { kind: 'none' } }) }), 'title');
+  assert.deepEqual(row.parts, [{ text: 'Akili', bold: true }, { text: '  changes/x' }]);
+});
+
+test('FR-4 header row 2: the branch label in inactive, then · archived, then (n more active)', async () => {
+  const F = await loaded;
+  const view = V({ spec: 'changes/x', archived: true, moreActive: 2, branch: { kind: 'branch', name: 'feat/b', sha: '' } });
+  const row = rowOf(pane(F, { view }), 'branch');
+  assert.equal(textOf(row), '⎇ feat/b · archived (2 more active)');
+  assert.ok(row.parts.every((p) => p.tone === 'inactive'));
+});
+
+test('FR-4 header row 2 leaves out · archived and the tail when neither applies', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: V({ branch: { kind: 'branch', name: 'feat/b', sha: '' } }) }), 'branch');
+  assert.equal(textOf(row), '⎇ feat/b');
+});
+
+test('FR-4 rule: ─ repeated to the row width, in subtle', async () => {
+  const F = await loaded;
+  const rule = rowOf(pane(F, { view: V(), cols: 30 }), 'rule-top');
+  assert.deepEqual(rule.parts, [{ text: '─'.repeat(30), tone: 'subtle' }]);
+});
+
+test('FR-4 the second rule sits after the error rows and before the token block', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: V({ phases: at('execute'), errors: [{ path: '/p', reason: 'r' }] }) });
+  assert.ok(ids(rows).indexOf('error-0') < ids(rows).indexOf('rule-tokens'));
+  assert.ok(ids(rows).indexOf('rule-tokens') < ids(rows).indexOf('ctx'));
+});
+
+test('FR-4 flow: every mark and both bars start in one column, 17 characters in', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('phase-ladder', 'changes/s-execute'), usage: U42, sums: SUMS });
+  for (const id of ['constitution', 'cycle', 'phase-propose', 'phase-execute', 'phase-archive', 'ctx', 'session']) {
+    assert.equal(rowOf(rows, id).parts[0].text.length, 17, id);
+  }
+});
+
+test('FR-4 header before the first refresh: Akili and the token block', async () => {
+  const F = await loaded;
+  assert.deepEqual(ids(pane(F, {})), ['title', 'ctx', 'session']);
+  assert.equal(textOf(rowOf(pane(F, {}), 'title')), 'Akili');
+});
+
+test('FR-4 header before the first refresh BUT no rule above an empty flow block', async () => {
+  const F = await loaded;
+  assert.ok(!ids(pane(F, {})).some((id) => id.startsWith('rule')));
+});
+
+test('FR-4 no repository: header row 2 reads (no git)', async () => {
+  const F = await loaded;
+  assert.equal(textOf(rowOf(pane(F, { view: await viewOf('specify-progress', null) }), 'branch')), '(no git)');
+});
+
+test('FR-4 a detached HEAD reads detached @<sha> with no ⎇', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: V({ branch: { kind: 'detached', name: '', sha: '0123456' } }) }), 'branch');
+  assert.equal(textOf(row), 'detached @0123456');
+});
+
+test('FR-4 the 02 label is on the Cycle row and the propose row starts at the indent', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('phase-ladder', 'changes/s-specify') });
+  assert.equal(textOf(phaseRow(rows, 'propose')).slice(0, 10), '   propose');
+});
+
+// ---------------------------------------------------------------- FR-5 token block
+
+test('FR-5 the ctx row: a bar, <p>%, then <used>/<window>', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { usage: U42 }), 'ctx');
+  assert.deepEqual(row.parts.slice(1), [
+    { text: '━━━━━', tone: 'suggestion' }, { text: '───────', tone: 'subtle' }, { text: ' 42%' }, { text: '  84k/200k' },
+  ]);
+  assert.equal(row.parts[0].text, 'ctx'.padEnd(17));
+});
+
+test('FR-5 the session row: <in> in / <out> out, then · $<usd>', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { usage: U42, sums: SUMS }), 'session');
+  assert.equal(row.parts[0].text, 'session'.padEnd(17));
+  assert.equal(textOf(row).slice(17), '1.2k in / 300 out · $0.35');
+});
+
+test('FR-5 sums and shortening stay: session in = the sums as shortened by shortenCount', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { sums: { in: 1500000, out: 999 }, usage: pct(10) }), 'session');
+  assert.equal(textOf(row).slice(17), '1.5M in / 999 out');
+});
+
+test('FR-5 fresh session: the ctx row value is — with no bar', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { usage: {} }), 'ctx');
+  assert.equal(textOf(row).slice(17), '—');
+  assert.deepEqual(barParts(row), []);
+});
+
+test('FR-5 fresh session: the session row value is 0 in / 0 out and the $ part is left out', async () => {
+  const F = await loaded;
+  assert.equal(textOf(rowOf(pane(F, { usage: {} }), 'session')).slice(17), '0 in / 0 out');
+});
+
+test('FR-5 the Tokens: prefix is removed', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x'), usage: U42, sums: SUMS });
+  assert.ok(!rows.some((r) => textOf(r).includes('Tokens:')));
+});
+
+for (const [p, tone] of [[79, 'suggestion'], [80, 'warning'], [94, 'warning'], [95, 'error'], [96, 'error']]) {
+  test(`FR-5 thresholds: <p> of ${p} fills in ${tone}`, async () => {
+    const row = await ctxRowAt(p);
+    assert.equal(row.parts.find((x) => /^━+$/.test(x.text)).tone, tone);
+  });
+}
+
+test('FR-5 thresholds: a raw fill of 79.6 reads 80% in warning', async () => {
+  const row = await ctxRowAt(79.6);
+  assert.match(textOf(row), / 80%/);
+  assert.equal(row.parts.find((x) => /^━+$/.test(x.text)).tone, 'warning');
+});
+
+test('FR-5 the empty part of the bar is subtle', async () => {
+  const row = await ctxRowAt(42);
+  assert.equal(row.parts.find((x) => /^─+$/.test(x.text)).tone, 'subtle');
+});
+
+test('FR-5 fill: <p> as a share of 12 cells, rounded', async () => {
+  assert.equal(filled(await ctxRowAt(50)), 6);
+  assert.equal(filled(await ctxRowAt(42)), 5);
+  assert.equal(cells(await ctxRowAt(42)), 12);
+});
+
+test('FR-5 fill: any <p> above 0 fills at least one cell', async () => {
+  assert.equal(filled(await ctxRowAt(1)), 1);
+  assert.equal(filled(await ctxRowAt(0)), 0);
+});
+
+test('FR-5 fill and minimum use <p> rounded: 20.6 fills 3 cells, 0.3 reads 0% with none', async () => {
+  assert.equal(filled(await ctxRowAt(20.6)), 3);
+  const low = await ctxRowAt(0.3);
+  assert.equal(filled(low), 0);
+  assert.match(textOf(low), / 0%/);
+});
+
+test('FR-5 fill: <p> of 100 or more fills the whole bar', async () => {
+  assert.equal(filled(await ctxRowAt(100)), 12);
+  assert.equal(filled(await ctxRowAt(130)), 12);
+  assert.equal(cells(await ctxRowAt(130)), 12);
+});
+
+test('FR-5 high context fill: the error tone and nothing more (a row, no extra rows)', async () => {
+  const F = await loaded;
+  assert.deepEqual(ids(pane(F, { usage: pct(96) })), ['title', 'ctx', 'session']);
+});
+
+// ---------------------------------------------------------------- FR-6 Next
+
+test('FR-6 the Next row carries the command, args and the label Next: /<command> <args>', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: await viewOf('blocked', 'changes/x') }), 'next');
+  assert.deepEqual(row.next, { command: 'akili-execute', args: 'changes/x', label: 'Next: /akili-execute changes/x', pending: false });
+});
+
+test('FR-6 run in progress: the same words, flagged pending', async () => {
+  const F = await loaded;
+  const view = await viewOf('blocked', 'changes/x');
+  const ready = rowOf(pane(F, { view }), 'next').next;
+  const busy = rowOf(pane(F, { view, pending: { since: 1, command: 'akili-execute' } }), 'next').next;
+  assert.equal(busy.pending, true);
+  assert.equal(busy.label, ready.label);
+});
+
+test('FR-6 the label is cut to the width less 2 (the chip adds one space at each end)', async () => {
+  const F = await loaded;
+  const next = rowOf(pane(F, { view: await viewOf('blocked', 'changes/x'), cols: 20 }), 'next').next;
+  assert.equal(next.label.length, 18);
+  assert.ok(next.label.endsWith('…'));
+});
+
+test('FR-6 a blank row sits above Next', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x') });
+  assert.deepEqual(rowOf(rows, 'gap'), { id: 'gap', parts: [] });
+  assert.equal(ids(rows).indexOf('gap') + 1, ids(rows).indexOf('next'));
+});
+
+test('FR-6 no next step: no button row and no blank row', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: V({ phases: at('execute'), next: null }) });
+  assert.equal(rowOf(rows, 'next'), undefined);
+  assert.equal(rowOf(rows, 'gap'), undefined);
+});
+
+// ---------------------------------------------------------------- FR-7 narrow panes: the ladder
+
+const LADDER_VIEW = async () => ({ ...(await viewOf('blocked', 'changes/x')), constitution: { present: 13, total: 13 } });
+const NARROW = { usage: U100, sums: SUMS };
+
+test('FR-7 step 1 holds nothing back while every row fits: 45 columns', async () => {
+  const F = await loaded;
+  const view = await LADDER_VIEW();
+  assert.equal(F.ladderStep({ view, ...NARROW, cols: 45 }), 1);
+  const rows = pane(F, { view, ...NARROW, cols: 45 });
+  assert.match(textOf(rowOf(rows, 'session')), /\$0\.35$/);
+  assert.match(textOf(rowOf(rows, 'ctx')), /200k\/200k$/);
+});
+
+test('FR-7 the order: at a width between steps 3 and 4 the session row and <used>/<window> are both gone', async () => {
+  const F = await loaded;
+  const view = await LADDER_VIEW();
+  assert.equal(F.ladderStep({ view, ...NARROW, cols: 44 }), 4);
+  const rows = pane(F, { view, ...NARROW, cols: 44 });
+  assert.equal(rowOf(rows, 'session'), undefined);
+  assert.match(textOf(rowOf(rows, 'ctx')), / 100%$/);
+});
+
+test('FR-7 step 2 drops · $<usd> first: the session row survives without it', async () => {
+  const F = await loaded;
+  const input = { view: V({ status: 'no-active', spec: null, branch: { kind: 'none' } }), usage: { usd: 0.35 }, sums: { in: 1, out: 2 }, pending: null, cols: 36 };
+  assert.equal(F.ladderStep(input), 2);
+  assert.equal(textOf(rowOf(F.paneRows(input), 'session')).slice(17), '1 in / 2 out');
+});
+
+test('FR-7 step 5 halves both bars to 6 cells', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 30 });
+  assert.equal(cells(rowOf(rows, 'ctx')), 6);
+  assert.equal(cells(rowOf(rows, 'cycle')), 6);
+  assert.equal(rowOf(rows, 'ctx').parts[0].text.length, 17);
+});
+
+test('FR-7 step 5 halved cycle bar gives each phase one cell', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 30 });
+  assert.deepEqual(barParts(rowOf(rows, 'cycle')).map((p) => p.text), ['━', '━', '━', '─', '─', '─']);
+});
+
+test('FR-7 step 6 moves the mark column from 17 to 13 and the constitution label becomes 01 Constit…', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 26 });
+  assert.equal(F.ladderStep({ view: await LADDER_VIEW(), ...NARROW, cols: 26 }), 6);
+  assert.equal(rowOf(rows, 'constitution').parts[0].text, '01 Constit…  ');
+  assert.equal(rowOf(rows, 'phase-execute').parts[0].text.length, 13);
+});
+
+test('FR-7 step 7 takes both bars away; <done>/6 and <p>% stay', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 20 });
+  assert.equal(F.ladderStep({ view: await LADDER_VIEW(), ...NARROW, cols: 20 }), 7);
+  assert.deepEqual(barParts(rowOf(rows, 'cycle')).concat(barParts(rowOf(rows, 'ctx'))), []);
+  assert.equal(textOf(rowOf(rows, 'cycle')).slice(13), '2/6');
+  assert.equal(textOf(rowOf(rows, 'ctx')).slice(13), '100%');
+});
+
+test('FR-7 the guarantee at 31 columns: ▶ (no task status) reads whole', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('no-status', 'changes/x'), ...NARROW, cols: 31 });
+  assert.match(textOf(phaseRow(rows, 'execute')), /▶ \(no task status\)$/);
+});
+
+test('FR-7 the guarantee at 24 columns: ▶ (blocked), 2/6 and 100% are whole', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 24 });
+  assert.match(textOf(phaseRow(rows, 'execute')), /▶ \(blocked\)$/);
+  assert.match(textOf(rowOf(rows, 'cycle')), / 2\/6$/);
+  assert.match(textOf(rowOf(rows, 'ctx')), / 100%$/);
+});
+
+test('FR-7 the guarantee at 24 columns: ▶ (k/13) is whole', async () => {
+  const F = await loaded;
+  const view = V({ phases: at('execute'), constitution: { present: 5, total: 13 }, branch: { kind: 'none' } });
+  assert.match(textOf(rowOf(pane(F, { view, cols: 24 }), 'constitution')), /▶ \(5\/13\)$/);
+});
+
+test('FR-7 the guarantee at 17 columns: <done>/6 and <p>% are whole', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 17 });
+  assert.match(textOf(rowOf(rows, 'cycle')), /2\/6$/);
+  assert.match(textOf(rowOf(rows, 'ctx')), /100%$/);
+});
+
+test('FR-7 the guarantee at 14 columns: every mark is whole, blocked and constitution rows included', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 14 });
+  const marks = ['constitution', 'phase-propose', 'phase-specify', 'phase-execute', 'phase-test', 'phase-validate', 'phase-archive']
+    .map((id) => textOf(rowOf(rows, id))[13]);
+  assert.deepEqual(marks, ['✓', '✓', '✓', '▶', '○', '○', '○']);
+});
+
+test('FR-7 at exactly 14 columns a partial constitution row keeps its ▶ as the last cell', async () => {
+  const F = await loaded;
+  const view = V({ phases: at('execute'), constitution: { present: 5, total: 13 }, branch: { kind: 'none' } });
+  const text = textOf(rowOf(pane(F, { view, cols: 14 }), 'constitution'));
+  assert.equal(text.length, 14);
+  assert.equal(text[13], '▶');
+});
+
+test('FR-7 at exactly 14 columns a noted row keeps its mark and omits the …; at 15 it reads ▶…', async () => {
+  const F = await loaded;
+  const at14 = textOf(phaseRow(pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 14 }), 'execute'));
+  assert.equal(at14.slice(13), '▶');
+  assert.ok(!at14.includes('…'));
+  assert.equal(textOf(phaseRow(pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 15 }), 'execute')).slice(13), '▶…');
+});
+
+test('FR-7 step 3 takes the session row but keeps <used>/<window>: 37 columns', async () => {
+  const F = await loaded;
+  const input = { view: V({ status: 'no-active', spec: null, branch: { kind: 'none' } }), usage: { ctxPercent: 5, ctxTokens: 1, ctxWindow: 2 }, sums: { in: 123456789, out: 98800000 }, pending: null, cols: 37 };
+  assert.equal(F.ladderStep(input), 3);
+  const rows = F.paneRows(input);
+  assert.equal(rowOf(rows, 'session'), undefined);
+  assert.match(textOf(rowOf(rows, 'ctx')), / 1\/2$/);
+});
+
+test('FR-7 a row still too wide after the last step is cut at its end with …', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 20 });
+  assert.equal(textOf(phaseRow(rows, 'execute')), '   execute   ▶ (blo…');
+});
+
+test('FR-7 under 60 columns: at 30 columns every row fits and ▶ (blocked), 2/6 and <p>% are readable', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 30 });
+  assert.ok(rows.every((r) => textOf(r).length <= 30));
+  assert.match(textOf(phaseRow(rows, 'execute')), /▶ \(blocked\)/);
+  assert.match(textOf(rowOf(rows, 'cycle')), /2\/6/);
+  assert.match(textOf(rowOf(rows, 'ctx')), /100%/);
+});
+
+test('FR-7 at 24 columns: the marks sit at column 13 and the bars have 6 cells', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 24 });
+  assert.equal(phaseRow(rows, 'execute').parts[0].text.length, 13);
+  assert.equal(cells(rowOf(rows, 'cycle')), 6);
+  assert.equal(cells(rowOf(rows, 'ctx')), 6);
+});
+
+test('FR-7 below 24 columns: at 20 the blocked row is cut with … BUT its mark, 2/6 and <p>% are whole', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await LADDER_VIEW(), ...NARROW, cols: 20 });
+  const blocked = textOf(phaseRow(rows, 'execute'));
+  assert.ok(blocked.endsWith('…'));
+  assert.equal(blocked[13], '▶');
+  assert.match(textOf(rowOf(rows, 'cycle')), /2\/6$/);
+  assert.match(textOf(rowOf(rows, 'ctx')), /100%$/);
+});
+
+test('FR-7 any width: no row is wider than the width, from 1 to 120, for every state and the longest names', async () => {
+  const F = await loaded;
+  const longErrors = [1, 2, 3, 4].map((i) => ({ path: `/some/long/path/to/docs/specs/changes/tasks-${i}.md`, reason: 'EACCES: permission denied' }));
+  const long = 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep';
+  const states = [
+    ['long-names', await viewOf('long-names', long)],
+    ['blocked', await viewOf('blocked', 'changes/x')],
+    ['blocked-specify', await viewOf('blocked-specify', 'changes/x')],
+    ['no-status', await viewOf('no-status', 'changes/x')],
+    ['current', await viewOf('phase-ladder', 'changes/s-execute')],
+    ['archived', { ...(await viewOf('archived-alone', 'changes/a')), moreActive: 12 }],
+    ['partial constitution', V({ phases: at('specify'), constitution: { present: 5, total: 13 }, branch: { kind: 'detached', name: '', sha: '0123456' } })],
+    ['no-specs', await viewOf('empty-project', null)],
+    ['no-active', await viewOf('no-active', null)],
+    ['first draw', null],
+  ];
+  let cuts = 0;
+  for (const [name, base] of states) {
+    const view = base && { ...base, errors: longErrors };
+    for (let cols = 1; cols <= 120; cols++) {
+      const rows = F.paneRows({ view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: null, cols });
+      for (const r of rows) {
+        const t = textOf(r);
+        assert.ok(t.length <= cols, `${name} at ${cols}: ${r.id} is ${t.length} wide`);
+        if (t.endsWith('…')) cuts++;
+        for (const p of r.parts) assert.ok([undefined, 'success', 'inactive', 'suggestion', 'warning', 'error', 'subtle'].includes(p.tone), `${p.tone} is a theme key`);
+        if (r.id === 'next' && cols >= 3) assert.ok(r.next.label.length + 2 <= cols, `${name} at ${cols}: the chip fits`);
+      }
+      if (view && cols >= 6) assert.equal(textOf(rowOf(rows, 'title')).slice(0, 5), 'Akili', `${name} at ${cols}`);
+    }
+  }
+  assert.ok(cuts > 500, `the sweep forces cuts (${cuts})`);
+});
+
+test('FR-7 any width: the longest spec path and branch are shortened in the middle, not at the end', async () => {
+  const F = await loaded;
+  const long = 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep';
+  const rows = pane(F, { view: await viewOf('long-names', long), cols: 40 });
+  assert.match(textOf(rowOf(rows, 'title')), /^Akili {2}changes\/.*….*sweep$/);
+  assert.match(textOf(rowOf(rows, 'branch')), /…/);
+  assert.ok(textOf(rowOf(rows, 'branch')).endsWith('(2 more active)'));
+});
+
+for (const cols of [undefined, 0, -3, NaN]) {
+  test(`FR-7 no width given (${String(cols)}): the ladder stays at step 1 and no row is cut`, async () => {
+    const F = await loaded;
+    const long = 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep';
+    const view = await viewOf('long-names', long);
+    const input = { view, usage: U100, sums: SUMS, pending: null, cols };
+    assert.equal(F.ladderStep(input), 1);
+    const rows = F.paneRows(input);
+    assert.ok(rows.every((r) => !textOf(r).includes('…')));
+    assert.equal(textOf(rowOf(rows, 'title')), `Akili  ${long}`);
+    assert.equal(textOf(rowOf(rows, 'rule-top')), '─'.repeat(40));
+    assert.equal(rowOf(rows, 'next').next.label, 'Next: /akili-execute ' + long);
+  });
+}
+
+test('FR-7 fitParts cuts from the end, keeps the first parts whole and ends with …', async () => {
+  const F = await loaded;
+  assert.deepEqual(F.fitParts([{ text: 'abc', tone: 'success' }, { text: 'defgh', tone: 'error' }], 6), [{ text: 'abc', tone: 'success' }, { text: 'de', tone: 'error' }, { text: '…', tone: 'error' }]);
+  assert.deepEqual(F.fitParts([{ text: 'abc' }], 1), [{ text: '…' }]);
+  assert.deepEqual(F.fitParts([{ text: 'abc' }], 3), [{ text: 'abc' }]);
+});
+
+// ---------------------------------------------------------------- FR-8 read failures and empty text
+
+test('FR-8 a read fails: its row uses the error tone with the parent wording', async () => {
+  const F = await loaded;
+  const view = { ...(await viewOf('blocked', 'changes/x')), errors: [{ path: '/p/tasks.md', reason: 'EACCES: permission denied' }] };
+  const row = rowOf(pane(F, { view }), 'error-0');
+  assert.deepEqual(row.parts, [{ text: 'Could not read /p/tasks.md: EACCES: permission denied', tone: 'error' }]);
+});
+
+test('FR-8 a read fails AND the rest of the pane still draws; at most three error rows', async () => {
+  const F = await loaded;
+  const errors = [1, 2, 3, 4, 5].map((i) => ({ path: `/p${i}`, reason: 'r' }));
+  const rows = pane(F, { view: { ...(await viewOf('blocked', 'changes/x')), errors }, usage: U42, sums: SUMS });
+  assert.deepEqual(ids(rows).filter((id) => id.startsWith('error')), ['error-0', 'error-1', 'error-2']);
+  assert.ok(rowOf(rows, 'next') && rowOf(rows, 'ctx'));
+});
+
+test('FR-8 empty-state text stays dim, wording unchanged', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { view: await viewOf('empty-project', null) }), 'empty');
+  assert.deepEqual(row.parts, [{ text: 'No docs/specs/ folder yet.', dim: true }]);
+});
+
+test('FR-8 the empty states draw header, rule, constitution, empty text, rule, tokens and Next', async () => {
+  const F = await loaded;
+  assert.deepEqual(ids(pane(F, { view: await viewOf('empty-project', null) })), [
+    'title', 'branch', 'rule-top', 'constitution', 'empty', 'rule-tokens', 'ctx', 'session', 'gap', 'next',
+  ]);
+});

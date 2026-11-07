@@ -65,13 +65,13 @@ The parent changed after this spec was verified at `c14e344`. `flow.mjs` and `te
 | T3 design refs | `register.jsx` shifted: `press` `:151`, `openPane` `:169`, `$.ui.open` `:171`, the command `:190`, `onPress` `:251`. P-8 and P-9 still hold in substance; their lines are as of `c14e344` |
 | T2, T3 | New v1 behaviour to keep: `resetSums` and `afterClear` after `/clear`. FR-5's "sources, sums … stay as parent FR-12" now means the archived FR-12, clarified for `$` |
 
-### T2: Row builders in `flow.mjs` — IN PROGRESS, attempt 1 FAIL, stopped at the budget tripwire
+### T2: Row builders in `flow.mjs` — PASS (attempt 3)
 
 | Field | Value |
 |---|---|
-| Status | `[~]`. Work is uncommitted in the tree. Stopped for JC before rework |
+| Status | `[x]`. Stopped for JC after attempt 1 (tripwire, below); closed on attempt 3, see *T2 closeout* |
 | Date | 2026-11-06 |
-| Attempts | 1 |
+| Attempts | 3 |
 | Files changed | `.claude/skills/akili-panel/hooks/flow.mjs` (+192), `test/akili-panel-flow.test.js` (+594), `test/fixtures/akili-panel/blocked-specify/`, `test/fixtures/akili-panel/long-names/` (27 lines) |
 | Implementer | Sonnet, effort `high`, skills `tdd`, `impeccable-bridge`. No wrapper: general-purpose agent told to read `.agents/implementer.md` |
 | Evidence re-run | Leader inline: **VERIFIED**. `node --test test/akili-panel-flow.test.js` 178 pass, 0 fail; `npm test` 1820 pass, 0 fail; `npm run verify:cli` 0; `npm run pack:dry-run` 0; `git diff --check` 0; `claude plugin validate` `✔ Validation passed`; `claude plugin test` 64 pass, 0 fail |
@@ -157,3 +157,29 @@ JC, 2026-11-06 8:08 PM America/Bogota:
 > «2A: a 14 columnas gana la marca y se omite el …»
 
 Execute-time spec edits, on those answers: `design.md` §12 and §8 *Fit*; `requirements.md` FR-7; `tasks.md` Document Control, T2 and T3 `Size`. New tripwire: 5 tasks, ~1,100 LOC (code ~260, tests ~800, docs ~30), 7 review rounds. Sweep: `650` and `~420` now survive only in `judgment.md`, which records the round-1 state and stays as written. T2 stays `[~]` for attempt 2.
+
+### T2 closeout — `PASS` (attempt 3), 2026-11-06
+
+**Attempt 2.** FAIL. Implementer Sonnet, effort `xhigh`. Files: `flow.mjs` (1 line in `cycleRow`), tests +32. Evidence re-run: **VERIFIED**: flow tests 182 pass, `npm test` 1824 pass, `verify:cli`, `pack:dry-run`, `git diff --check` clean, `claude plugin validate` passed. Reviewer closed attempt 1's issues and the three spec edits. FAIL, verbatim:
+
+> 1. **Discovered Issue:** Mutating the share to lose `bold` only when `p.note` is set, while `current` keeps it, gives 0 red. "FR-3 blocked" and "FR-3 no task status" still assert `.tone` only (`test/akili-panel-flow.test.js:977`, `:979`, `:985`). So a `warning` share drawn at the wrong weight passes. The code draws it correctly today through `...tonesFor(p).mark`. **Violated Rule:** `tasks.md` T2 Scope, "one assertion per clause"; Coverage rows "FR-3 Blocked share" and "FR-3 No task status share"; `requirements.md` FR-3; §3 Tone, with your ruling that a share takes key and weight. **Remediation Suggestion:** In those two tests, replace the three `.tone` checks with `deepEqual` against `{ text: '━━', tone: 'warning', bold: true }`. No code change. Then confirm the mutation above goes red.
+
+| Attempt 2 falsifier | Red |
+|---|---|
+| Current share without bold | #112 `FR-3 mid-cycle AND the shares…`: `bold: true` expected, missing from actual |
+| Drop `protect` from `constitutionRow` | #165 `partial constitution row keeps its ▶`: expected `'▶'`, actual `'…'` |
+| `session: step < 4` | #167 `step 3 takes the session row…`: `ladderStep` expected 3, actual 4 |
+| Fill from raw percent | #145 `fill and minimum use <p> rounded`: expected 3, actual 2 |
+| Minimum from raw percent | #145: expected 0, actual 1 |
+| Noted row keeps `…` (drop `protect` from `phaseRows`) | #166 `noted row keeps its mark and omits the …`: expected `'▶'`, actual `'…'` |
+
+**Attempt 3.** PASS. Implementer Sonnet. `effort ceiling: held xhigh`: no Reviewer stronger than this one sits apart from the T3 pick, so T2 stayed at `xhigh` with a fresh spawn and the full history. Files: `test/akili-panel-flow.test.js`, lines 977, 979, 985. Evidence re-run: **VERIFIED**: flow tests 182 pass, `npm test` 1824 pass, `git diff --check` clean. Falsifier: in `cycleRow`, `...(p.note ? { bold: false } : {})` → `not ok 114 - FR-3 blocked: the current share uses the warning tone (on execute and on specify)` and `not ok 115 - FR-3 no task status: the current share uses the warning tone`, expected `bold: true`, actual `bold: false`.
+
+**Reviewer PASS (Opus):** "The last issue is closed. The test file differs from attempt 2 at lines 977, 979 and 985 only… `flow.mjs` is byte-identical to attempt 2. My own attempt-2 mutation… now goes red on #114 and #115… 182/182 pass on Node 18.20.8 and on Node 22.23.4, on a scratch copy."
+
+| Field | Value |
+|---|---|
+| spawns | Implementer ×3 and Reviewer ×3: calls and tokens not reported by host; ended partial, complete, complete; fail, fail, complete |
+| Requirements covered | FR-2, FR-3, FR-4 (T2's part), FR-5, FR-6 (label fit), FR-7, FR-8 (tone), NFR-2 |
+| Leader decisions | Added skills: none. A share takes key and weight (glossary) |
+| Running totals | 2 of 5 tasks; 845 LOC (code 192, tests 653 with fixtures), budget ~1,100; 3 of 7 review rounds. T2 used 3 against its 2: if T3 and T4 each take two and T5 one, the total reaches 8 and the tripwire fires |
