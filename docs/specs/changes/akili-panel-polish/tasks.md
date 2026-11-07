@@ -51,7 +51,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` |
 | Size | L (~140 LOC code, ~300 LOC tests) |
 | Depends on | T1 |
 | Requirements | FR-2 (all scenarios), FR-3 (all scenarios), FR-4 (block order, table, first-refresh and no-repository scenarios), FR-5 (all scenarios), FR-6 (label fit), FR-7 (all scenarios), FR-8 (tone), NFR-2 |
