@@ -2564,6 +2564,9 @@ async function getLatestVersion() {
 }
 
 function isNewerVersion(latestVersion) {
+  // 🛡️ Sentinel: Validate JSON payload type to prevent unhandled TypeError crash (DoS)
+  if (typeof latestVersion !== "string") return false;
+
   return (
     latestVersion &&
     latestVersion !== currentVersion &&
