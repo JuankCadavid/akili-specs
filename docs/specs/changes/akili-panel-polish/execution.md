@@ -340,7 +340,7 @@ Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `t
 | Requirements covered | FR-10, D-7 |
 | Running totals | 4 of 5 tasks; 1,082 added LOC, budget ~1,100; 8 of 8 review rounds. T5 is JC's check: no Reviewer round |
 
-### T5: Live check of the real plugin (HITL) — IN PROGRESS, stopped at a trust prompt
+### T5: Live check of the real plugin (HITL) — IN PROGRESS, prepared, waiting for JC
 
 | Field | Value |
 |---|---|
@@ -351,4 +351,15 @@ Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `t
 | Orca tab | `T5 live: dark-ansi`, `term_7b51d889-624a-4d33-8650-40e6f0e6bb33`, `claude --model haiku` in the scratch project |
 | Stop | Claude Code shows its trust prompt for the new folder ("Quick safety check: Is this a project you created or one you trust?"). Not answered: a permission prompt is JC's |
 
-The light-theme tab and `/akili-panel` wait until JC answers the prompt.
+JC answered, 2026-11-09 (the time was not relayed): «Sí: ya confié en la carpeta de prueba (Yes, I trust this folder). Sigue con /akili-panel en la pestaña T5 y abre la pestaña de tema claro. Recuerda: sin screencapture ni capturas del escritorio.»
+
+**Prepared** (read as text with `orca terminal read --screen`; that shows the rows, not how they look):
+
+| Tab | Handle | Theme | State |
+|---|---|---|---|
+| `T5 live: dark-ansi` | `term_7b51d889-624a-4d33-8650-40e6f0e6bb33` | `dark-ansi` | `/akili-panel` → `akili-panel: Akili pane opened.` Inline above the prompt, all 16 rows drawn, Next visible. Split with a shell, `term_a5cbc32c-d1ab-49df-844b-683668d5b2fe`, in the scratch folder: the pane body is now 45 columns, under 60, no row wrapped |
+| `T5 live: light` | `term_e9f82f37-4fbd-4205-bc09-6a18f0eea9d3` | `light`, this session only (`--settings`); `settings.json` still `dark-ansi` | `/akili-panel` → pane opened, body 98 columns, the wide case |
+
+Rows as read, both tabs: `Akili  changes/demo-spec`, `⎇ feat/demo-spec`, rule, `01 Constitution  ○`, `02 Cycle         ━━━━━━────── 2/6`, `propose ✓`, `specify ✓`, `execute ▶`, `test`, `validate`, `archive ○`, rule, `ctx              —`, `session          0 in / 0 out · $0.00`, blank, ` Next: /akili-execute changes/demo-spec `.
+
+**Observation for JC, possible spec tension.** FR-5 *Fresh session* says the `session` row reads `0 in / 0 out` before any response; the live pane reads `0 in / 0 out · $0.00`. The host reports a cost of 0 at session start, and the archived parent seeds `$` from the host then (v1 kit test `FR-12 session.start seeds ctx and $ from the host`); T3's node test pins `usage: { usd: 0 }` → `$0.00`. Proposed line for FR-5's scenario: *the `session` row reads `0 in / 0 out`, plus ` · $<usd>` when the host already reports a cost.* Awaits JC.
