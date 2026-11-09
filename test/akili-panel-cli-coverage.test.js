@@ -488,10 +488,18 @@ test("FR-2/FR-4 a symlink named akili-panel to a leaked-looking folder is no lea
 
 // -------------------------------------------------------- FR-2 CHANGELOG note
 
-test("FR-2 CHANGELOG: Unreleased tells upgraders to run install --tool all and --tool grokbot once after updating", () => {
+// Stays true after the release script moves [Unreleased] into the dated 2.43.0 section.
+function panelNotes() {
   const log = fs.readFileSync(path.join(REPO_ROOT, "CHANGELOG.md"), "utf8");
-  const start = log.indexOf("## [Unreleased]");
-  const unreleased = log.slice(start, log.indexOf("\n## [", start + 1));
+  const section = (head) => {
+    const start = log.indexOf(head);
+    return start < 0 ? "" : log.slice(start, log.indexOf("\n## [", start + 1));
+  };
+  return section("## [Unreleased]") + section("## [2.43.0] - ");
+}
+
+test("FR-2 CHANGELOG: Unreleased (or the 2.43.0 section it was released into) tells upgraders to run install --tool all and --tool grokbot once after updating", () => {
+  const unreleased = panelNotes();
   assert.match(unreleased, /run `akili install --tool all` \(and `--tool grokbot` where used\) once after updating/);
 });
 
@@ -722,13 +730,11 @@ test("NFR-7 CI runs `npm test` on ubuntu, macOS and Windows at Node 18 and 22, a
 
 // ------------------------------------------------- changes/akili-panel-polish FR-10, D-7
 
-test("FR-10 No stale format: the plugin README, docs/plugins/akili-panel.md and CHANGELOG Unreleased quote no `Tokens:` line, no one-row header and no `[ Next` button", () => {
-  const log = fs.readFileSync(path.join(REPO_ROOT, "CHANGELOG.md"), "utf8");
-  const start = log.indexOf("## [Unreleased]");
+test("FR-10 No stale format: the plugin README, docs/plugins/akili-panel.md and CHANGELOG Unreleased (or 2.43.0) quote no `Tokens:` line, no one-row header and no `[ Next` button", () => {
   const docs = {
     "README.md": fs.readFileSync(path.join(SOURCE_SKILLS, "akili-panel", "README.md"), "utf8"),
     "docs/plugins/akili-panel.md": fs.readFileSync(path.join(REPO_ROOT, "docs", "plugins", "akili-panel.md"), "utf8"),
-    "CHANGELOG Unreleased": log.slice(start, log.indexOf("\n## [", start + 1)),
+    "CHANGELOG Unreleased or 2.43.0": panelNotes(),
   };
   for (const [name, text] of Object.entries(docs)) {
     assert.ok(text.includes("session"), `${name} was read and names the session row`);
