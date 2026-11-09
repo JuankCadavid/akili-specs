@@ -23,7 +23,7 @@
 | Inline | None |
 | Leader skill choice | `tdd` conventions via the persona; `impeccable-bridge` not loaded for the Tester: the look (D-5) is JC's check, not a test |
 | Author tests | Cited, not rewritten: `test/akili-panel-flow.test.js`, `-flow-coverage`, `-contract`, `panel.test.tsx` |
-| Tests added | 8 tests, +202 LOC, each falsified red then restored byte-exact |
+| Tests added | 9 tests (6 node, 3 kit; 12 test runs, as the kit's *FR-4 Inline pane* runs on four surfaces), +202 LOC, each falsified red then restored byte-exact |
 | Counts | `npm test` 1824 → 1830; kit 75 → 81 |
 | Product bugs | None |
 | Design-detector suite | Not run: the pane is drawn in a terminal, with no HTML/CSS surface for the detector to scan. The look is D-5, JC's eyes at T1 and T5 |
@@ -69,7 +69,7 @@ No automated E2E: the real pane in a real terminal is T5, JC's live check (PASS 
 | FR-2 | Tone table, 8 rows | node | flow `FR-2 …` (11 tests) | PASS | |
 | FR-2 | Spec in execute BUT no fourth glyph | node | `FR-2 BUT the marks are still ✓, ▶ and ○…` | PASS | |
 | FR-2 | Blocked AND IT MUST read the same with colour removed | node | `FR-2 blocked AND IT MUST…`; new NFR-2 sweep | PASS | |
-| FR-3 | Mid-cycle, blocked, no task status, archived, no spec | node | `FR-3 …` (6 tests) | PASS | |
+| FR-3 | Mid-cycle, blocked, no task status, archived, no spec | node | `FR-3 …` (7 tests) | PASS | |
 | FR-4 | Block order; errors before the second rule | node + kit | `FR-4 block order…`, `FR-4 the second rule…`; kit `FR-2/FR-4 drawn as built…` | PASS | |
 | FR-4 | Header rows, rule, one column, `02` moves, `…` kept | node | `FR-4 header row 1/2…`, `02 label…`, `FR-7 any width…` | PASS | |
 | FR-4 | Inline: asks for the rows; Next visible | static + kit | new contract and kit `FR-4 Inline pane…` | PASS | |
@@ -93,7 +93,7 @@ No automated E2E: the real pane in a real terminal is T5, JC's live check (PASS 
 | NFR-2 | Colour never alone | node | new NFR-2 sweep (6 states × 6 fills × widths 14–120) | PASS | |
 | NFR-3 | Light and dark | human | T1, T5 (JC) | PASS (manual) | |
 | NFR-4 | Render reads atoms only | static + kit | new contract `NFR-4…`; kit `NFR-1: drawing reads neither the disk nor the store` | PASS | |
-| NFR-5 | Minimum 2.1.318 | validate | validate on 2.1.319 | PARTIAL | No 2.1.318 binary here; 2.1.318 types read at specify (P-11). The T3 Reviewer ran the kit on 2.1.318 (`execution.md`) |
+| NFR-5 | Minimum 2.1.318 | validate + kit | `claude plugin validate` and `claude plugin test` with the 2.1.318 binary at `4cc3db3` (`validation-report.md` §5) | PASS | Validation passed; 81 pass, 0 fail |
 | D-1 … D-4, D-6, D-7 | | node, static, kit | rows above | PASS | D-4 local only: CI has no `claude` |
 | D-5 | Painted look | human | T1, T5 | PASS (manual) | |
 
@@ -113,7 +113,6 @@ No product fix is owed. The two items the Tester left open were checks, not defe
 | Gap | Reason | Substitute |
 |---|---|---|
 | D-5 / NFR-3 painted look | No automated check can see it | JC at T1 and T5, both PASS |
-| NFR-5 on 2.1.318 | Only 2.1.319 installed here | 2.1.318 types read at specify; T3 Reviewer's kit run on 2.1.318 |
 | FR-9 `.claude/commands/` byte-identical | A shipped hash would break later legitimate edits | `git diff` evidence above |
 | `ui.log` content | The kit rig does not capture it | Static: only two log strings exist |
 | Look on terminals other than JC's | Spec's accepted risk (requirements §8) | Theme keys and marks |

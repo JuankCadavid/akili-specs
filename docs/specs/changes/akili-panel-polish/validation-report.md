@@ -265,3 +265,20 @@ Then:
 ```text
 /akili-archive changes/akili-panel-polish
 ```
+
+## JC's decision, 2026-11-09 12:02 PM America/Bogota
+
+«1: A, aplica las correcciones C-1 a C-7 tal cual en design.md y test-report.md. 2: Sí, acepto W-1 y W-2 como huecos. Sin screencapture.»
+
+| Item | Result |
+|---|---|
+| W-1 T5 per-step checks | **Accepted as a gap** by JC; covered by the kit tests listed in §6 |
+| W-2 design gate on a terminal pane | **Accepted as a gap** by JC; the look's gate stays JC's live checks at T1, T5 and test |
+| C-1 … C-7 | **Applied verbatim** by the Leader: C-1, C-2, C-3 in `design.md`; C-4 … C-7 in `test-report.md`. Closure sweep as in §11: no other live sentence in the spec folder carried the superseded values; `judgment.md`, `execution.md` and commit `3a36514` stay as historical records |
+| W-3, W-4, W-5 | Closed by C-1 … C-7 |
+
+**Archive-ready: yes.**
+
+```text
+/akili-archive changes/akili-panel-polish
+```

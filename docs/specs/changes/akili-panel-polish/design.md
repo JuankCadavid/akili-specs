@@ -105,14 +105,14 @@ None: no task is a backend task, so no `Backend route:` line applies.
 | Constitution, some present | `▶ (k/13)` | `suggestion`, not bold | `inactive` |
 | Constitution, none present | `○` | `inactive` | `inactive` |
 
-`derivePhases` gives a phase one of `done`, `current` or `todo`, and a note of `null`, `blocked` or `no-task-status` on the current phase only (`flow.mjs:363-387`). The table covers every pair that can occur. `blocked` can sit on any current phase, not only execute.
+`derivePhases` gives a phase one of `done`, `current` or `todo`, and a note of `null`, `blocked` or `no-task-status` on the current phase only (`flow.mjs:363-387`). The table covers every pair that can occur. `blocked` sits on specify or execute only: it needs a `tasks.md` with a blocked task, which keeps execute from being done (`flow.mjs:363-389`).
 
 **Layout**, top to bottom:
 
 | Row | Content | Rules |
 |---|---|---|
 | Header 1 | `Akili` bold, two spaces, spec | Spec shortened in the middle to fit |
-| Header 2 | Branch label `inactive`, then ` · archived`, then ` (n more active)` | Branch shortened in the middle; the tail is kept |
+| Header 2 | Branch label `inactive`, then ` · archived`, then ` (n more active)` | Branch shortened in the middle to leave room for the tail; a pane narrower than the tail cuts the row at its end with `…` (FR-7) |
 | Rule | `─` in `subtle`, length = the row width, or 40 with no width | Not drawn before the first refresh |
 | Constitution | `01 Constitution`, then the mark at the mark column | Label `01 Constit…` at ladder step 6 |
 | Cycle | `02 Cycle`, bar at the mark column, ` <done>/6` | Absent with no spec |
@@ -222,7 +222,7 @@ Standing rules this design obeys, cited from `AGENTS.md`: *Scope only grows thro
 |---|---|
 | Tasks | 5 |
 | LOC | ~1,100: code ~260, tests ~800 (one assertion per clause), docs ~30. Raised from ~650 by JC, 2026-11-06 8:08 PM America/Bogota: «1A: sube el presupuesto a ~1.100 LOC con 7 rounds y sigue» |
-| Review rounds | 8: raised from 7 by JC, 2026-11-09, at the T4 tripwire: «A: sube a 8 rounds, corrige T4 (las 3 correcciones de redacción) y prepara T5 para que yo mire. No uses screencapture ni capturas del escritorio; usa solo probes dentro de la terminal.» Planned: T2 2, T3 2, T4 2, T5 1; T1 and T5 are JC's checks |
+| Review rounds | 8: raised from 7 by JC, 2026-11-09, at the T4 tripwire: «A: sube a 8 rounds, corrige T4 (las 3 correcciones de redacción) y prepara T5 para que yo mire. No uses screencapture ni capturas del escritorio; usa solo probes dentro de la terminal.» Planned at 7: T2 2, T3 2, T4 2, T5 1. Used: T2 3, T3 3, T4 2; T1 and T5 are JC's checks and took no Reviewer round (`execution.md` *Budget tripwire: T4*) |
 
 **Depth check (Step 2.4).** The proposal expected Lite. Five tasks and ~1,100 LOC is past Lite's one task, so the depth is **Standard**. No split is needed: one surface, two code files.
 
