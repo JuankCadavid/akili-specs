@@ -1,6 +1,6 @@
 # Test Report: changes/akili-panel-polish
 
-**Status: OPEN, 2 manual checks owed to JC.** Every automated check is green (`npm test` 1830/0, kit 81/0, validate passed) and no product bug was found. The Tester closed `STATUS: FAIL` because two clauses have neither an automated test nor a check JC confirmed: FR-4 *a size the person set stays theirs* on the host side, and FR-6 keyboard focus on the Next chip. Both need JC's eyes or his acceptance as a gap.
+**Status: PASS.** Every automated check is green (`npm test` 1830/0, kit 81/0, validate passed) and no product bug was found. The Tester closed `STATUS: FAIL` only because two clauses had no automated test and no confirmed manual check: FR-4 *a size the person set stays theirs* on the host side, and FR-6 keyboard focus on the Next chip. JC then checked both live in a fresh scratch project and confirmed them in his own words (JC, 2026-11-09 11:34 AM America/Bogota: «si esta funcionan do bien»).
 
 ## 1. Document Control
 
@@ -73,7 +73,7 @@ No automated E2E: the real pane in a real terminal is T5, JC's live check (PASS 
 | FR-4 | Block order; errors before the second rule | node + kit | `FR-4 block order…`, `FR-4 the second rule…`; kit `FR-2/FR-4 drawn as built…` | PASS | |
 | FR-4 | Header rows, rule, one column, `02` moves, `…` kept | node | `FR-4 header row 1/2…`, `02 label…`, `FR-7 any width…` | PASS | |
 | FR-4 | Inline: asks for the rows; Next visible | static + kit | new contract and kit `FR-4 Inline pane…` | PASS | |
-| FR-4 | **BUT a size the person set stays theirs** | kit | new `FR-4 Inline pane BUT a size…` | **PARTIAL** | Plugin half PASS. **Host half not checked** (finding 1) |
+| FR-4 | **BUT a size the person set stays theirs** | kit | new `FR-4 Inline pane BUT a size…` | PASS | Plugin half automated. Host half manual: JC, 2026-11-09 11:34 AM America/Bogota: «si esta funcionan do bien» |
 | FR-4 | First refresh BUT no rule; no repository; detached | node + kit | `FR-4 header before the first refresh…`, `FR-4 no repository…`, `FR-4 a detached HEAD…` | PASS | |
 | FR-5 | Rows, missing values, `Tokens:` gone, fill, thresholds | node | `FR-5 …` (14 tests) | PASS | |
 | FR-5 | High fill `error` BUT no toast, status, sound or block | node + static | `FR-5 high context fill…`; contract `FR-5: no new call…` | PASS | |
@@ -81,7 +81,7 @@ No automated E2E: the real pane in a real terminal is T5, JC's live check (PASS 
 | FR-6 | Surface table; label kept and cut | kit + node | `FR-6 the Next button: a chip on the terminal…` ×4; `FR-6 label is cut…` | PASS | |
 | FR-6 | Press once AND a second press adds nothing | kit | `FR-7: a double press queues one run…`, `FR-7 double press…` | PASS | |
 | FR-6 | Run in progress: dim, no fill BUT same words; no next step | node + kit | `FR-6 run in progress…`, `FR-6 no next step…`; kit chip test | PASS | |
-| FR-6 | **Keyboard focus on Next visible** | — | — | **GAP** | Finding 2 |
+| FR-6 | Keyboard focus on Next visible | human | Live check, `dark-ansi`, `Tab` to the chip | PASS (manual) | JC, 2026-11-09 11:34 AM America/Bogota: «si esta funcionan do bien» |
 | FR-7 | Ladder, last step, `…`, guarantee table, 14-column rule | node | `FR-7 step 1…7`, `the guarantee at 31/24/17/14`, `exactly 14…`; new sweep | PASS | |
 | FR-7 | At 24; below 24; no width; under 60 | node | `FR-7 at 24…`, `below 24…`, `no width given…` ×4, `under 60…` | PASS | |
 | FR-7 | Any width AND IT MUST hold for the longest fixtures | node + kit | `FR-7 any width…`; new full sweep (>100k rows); kit `FR-16 narrow pane…` | PASS | |
@@ -99,12 +99,14 @@ No automated E2E: the real pane in a real terminal is T5, JC's live check (PASS 
 
 ## 8. Remediation
 
-No product fix is owed. The two open items are checks, not defects:
+No product fix is owed. The two items the Tester left open were checks, not defects; both are closed:
 
-| # | Clause | Manual check | Owner |
+| # | Clause | Manual check | Result |
 |---|---|---|---|
-| 1 | FR-4 *a size the person set stays theirs*, host side (spec I-13: no task step owned it) | In an inline pane, drag-resize it, run `/akili-panel` again, wait 30 s and one turn: the size is kept | JC confirms, or accepts it as a gap |
-| 2 | FR-6 keyboard focus on the Next chip visible | Tab to the chip in `dark-ansi` and a light theme: the focus shows (probe P-10 on 2.1.319 showed inverse video) | JC confirms, or accepts it as a gap |
+| 1 | FR-4 *a size the person set stays theirs*, host side (spec I-13: no task step owned it) | In an inline pane, drag-resize it, run `/akili-panel` again, wait 30 s and one turn: the size is kept | **Closed:** JC, 2026-11-09 11:34 AM America/Bogota: «si esta funcionan do bien» |
+| 2 | FR-6 keyboard focus on the Next chip visible | Tab to the chip: the focus shows (probe P-10 on 2.1.319 showed inverse video). Checked in `dark-ansi` only; the light theme was seen at T5 as a whole, not this item | **Closed:** JC, 2026-11-09 11:34 AM America/Bogota: «si esta funcionan do bien» |
+
+**Manual check setup.** JC answered, 2026-11-09: «A: arma una pestaña con el panel en dark-ansi y un proyecto de prueba nuevo, y reviso los dos puntos. Sin screencapture.» Fresh scratch project at the session scratchpad (`akili-t5`, branch `feat/demo-spec`, `changes/demo-spec` in execute), plugin installed with `install --tool claude --local` (identical to the repo copy), Orca tab `Test: dark-ansi` (`term_19713d02-0b4f-4cf8-8fb9-a8533aabd50d`), Claude Code 2.1.319, `/akili-panel` drew all 16 rows inline at 98 columns. No screenshot was taken; JC's words are the record. JC's full answer: «1 y 2: sí, está funcionando bien (el foco se ve y el tamaño se mantiene). Cierra test-report.md con mis palabras: "si esta funcionan do bien". Sin screencapture.»
 
 ## 9. Accepted Gaps
 
