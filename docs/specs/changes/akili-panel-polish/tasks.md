@@ -11,7 +11,7 @@
 | Baseline | `c14e344`. `node --test test/akili-panel-flow.test.js test/akili-panel-contract.test.js` → **108 pass, 0 fail**. `claude plugin test .claude/skills/akili-panel` → **17 pass, 0 fail** (2026-11-06) |
 | Start condition | **Met.** The parent closed T9, test, validate and archive (decision D2): `docs/specs/archive/2026-11-06-changes--akili-panel/`, archived at `b7d1738`. Start authorized by JC, 2026-11-06 7:30 PM America/Bogota: «adelante» |
 | Commit prefix | `[SPEC:changes/akili-panel-polish]`. Local commits only |
-| Budget (design §12) | 5 tasks · ~1,100 LOC · 7 review rounds. Raised from ~650 by JC at the T2 tripwire (`execution.md`) |
+| Budget (design §12) | 5 tasks · ~1,100 LOC · 8 review rounds. LOC raised from ~650 by JC at the T2 tripwire, rounds from 7 at the T4 tripwire (`execution.md`) |
 | PR strategy | One PR after the parent's PRs, stacked on them. At ~1,100 LOC it is past the ~400 mark, but ~800 of it is tests and it is one surface. Not opened in this cycle |
 | `skip-eligible` tasks | **None.** T1 and T5 are JC's checks, and T2, T3 and T4 all have consumers or shipped claims |
 | Backend route | No task is a backend task; no `Backend route:` line |

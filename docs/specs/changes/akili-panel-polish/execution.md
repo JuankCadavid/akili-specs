@@ -316,3 +316,11 @@ Reviewer on those: 1 conforms, §8's sentence has no surface qualifier; 2 accept
 | Total LOC | ~1,100 | 1,080 added | ~1,085 |
 
 **Cause.** T2 and T3 each took the full three attempts, two rounds over their share, on test gaps with no code defect in T3. LOC is inside the budget.
+
+## JC's answer: T4 tripwire
+
+JC, 2026-11-09 (the time was not relayed), in this session:
+
+> «A: sube a 8 rounds, corrige T4 (las 3 correcciones de redacción) y prepara T5 para que yo mire. No uses screencapture ni capturas del escritorio; usa solo probes dentro de la terminal.»
+
+Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `tasks.md` Document Control now read 8. T4 goes to attempt 2 on the three wording defects only; then T5 is prepared for JC. The capture rule binds T5: `orca terminal read --screen` and in-terminal probes only.

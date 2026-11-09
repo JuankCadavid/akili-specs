@@ -222,7 +222,7 @@ Standing rules this design obeys, cited from `AGENTS.md`: *Scope only grows thro
 |---|---|
 | Tasks | 5 |
 | LOC | ~1,100: code ~260, tests ~800 (one assertion per clause), docs ~30. Raised from ~650 by JC, 2026-11-06 8:08 PM America/Bogota: «1A: sube el presupuesto a ~1.100 LOC con 7 rounds y sigue» |
-| Review rounds | 7: T2 2, T3 2, T4 2, T5 1. T1 is JC's check |
+| Review rounds | 8: raised from 7 by JC, 2026-11-09, at the T4 tripwire: «A: sube a 8 rounds, corrige T4 (las 3 correcciones de redacción) y prepara T5 para que yo mire. No uses screencapture ni capturas del escritorio; usa solo probes dentro de la terminal.» Planned: T2 2, T3 2, T4 2, T5 1; T1 and T5 are JC's checks |
 
 **Depth check (Step 2.4).** The proposal expected Lite. Five tasks and ~1,100 LOC is past Lite's one task, so the depth is **Standard**. No split is needed: one surface, two code files.
 
