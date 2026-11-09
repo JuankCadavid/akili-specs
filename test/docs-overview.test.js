@@ -445,7 +445,7 @@ test("(i) every relative link in README, overview and docs hub resolves, anchors
 
 test("(j) README countable clauses", () => {
   const shields = (README.match(/shields\.io/g) || []).length;
-  assert.ok(shields === 3, `README has ${shields} shields.io badges, expected 3`);
+  assert.ok(shields === 4, `README has ${shields} shields.io badges, expected 4`);
   const hero = README.split("\n").find((l) => /^Works with /.test(l)) || "";
   for (const n of ["Claude Code", "OpenCode", "Google Antigravity", "OpenAI Codex CLI", "Cursor", "Grok Bot", "macOS", "Linux", "Windows"])
     assert.ok(hero.includes(n), `hero text line does not name ${n}: "${hero}"`);
