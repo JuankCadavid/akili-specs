@@ -114,9 +114,14 @@ function trySymlink(t, target, link) {
   }
 }
 
+// @akili-spec changes/akili-panel T2: a plugin entry (.claude-plugin/plugin.json, no
+// SKILL.md) is not a skill and is never installed for Grok Bot; same two file
+// checks as the installer, never a call into bin/akili.js.
+const isPluginEntry = (dir) =>
+  fs.existsSync(path.join(dir, ".claude-plugin", "plugin.json")) && !fs.existsSync(path.join(dir, "SKILL.md"));
 const SKILL_NAMES = fs
   .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
-  .filter((e) => e.isDirectory())
+  .filter((e) => e.isDirectory() && !isPluginEntry(path.join(SOURCE_SKILLS, e.name)))
   .map((e) => e.name);
 const COMMAND_NAMES = fs
   .readdirSync(SOURCE_COMMANDS)

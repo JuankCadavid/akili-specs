@@ -1,0 +1,4 @@
+- [x] (a)/(b) red at baseline on 22.23.3 and 22.12.0 on the RC assertion, quoted. (c) green at baseline.
+- [x] 3/3 green after the fix on both versions, with `process.version` in the TAP diagnostics.
+- [x] Falsifiers (1), (2), (4), (5), (6) observed red and restored green, quoted in `execution.md`. (3) recorded as known-inert.
+- [ ] one open item

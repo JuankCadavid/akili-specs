@@ -1,0 +1,3 @@
+- **Status:** [x] · **Size:** M · **Depends on:** none
+- **Status:** [x] · **Size:** S · **Depends on:** T1
+- **Status:** [ ] Deferred (scope cut 2026-10-23, see execution.md) · **Size:** M (~60 code + ~150 test LOC) · **Depends on:** none

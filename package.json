@@ -16,6 +16,7 @@
   "files": [
     ".claude/commands",
     ".claude/skills",
+    "!.claude/skills/*/.claude-plugin/types",
     ".claude/templates",
     ".mcp.json.example",
     "assets",

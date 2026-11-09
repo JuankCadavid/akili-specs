@@ -1,0 +1,40 @@
+                                                                                                              │                                                         ✕
+ ▐▛███▛█   Claude Code v2.1.319                                                                               │cols=59 surface=terminal
+▝▜██████▀  Haiku 5.5 · Claude Max                                                                             │──────────
+ ▝▝   ▝▝   /…/7f15c449-dc64-490b-aee4-512bb50fa437/scratchpad/probe/cwd                                       │02 Cycle  ━━━━━━────── 2/6
+                                                                                                              │done ✓
+▎ Your Max plan includes $100 a month in API credits to power your apps and agents. Claim them at             │current ▶
+▎ https://clau.de/api-credits                                                                                 │blocked ▶
+  ⎿  SessionStart:startup says: [cwd] recent context, 2026-11-06 10:19am GMT-5                                │error
+     ────────────────────────────────────────────────────────────                                             │pending ○
+                                                                                                              │ Next: chip
+     No previous sessions found for this project yet.                                                         │[ Next: primary ]
+                                                                                                              │
+     View Observations Live @ http://localhost:37777                                                          │
+                                                                                                              │
+❯ /probe-gray                                                                                                 │
+  ⎿  probe-pane: gray placed=true                                                                             │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+                                                                                                              │
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  cwd  Haiku 5.5
+  ⏵⏵ auto mode on (shift+tab to cycle)

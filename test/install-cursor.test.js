@@ -221,10 +221,16 @@ function autoDetectedList(output) {
 // stays a literal count rather than a readdir of scripts/templates (which
 // hold more files than the installer actually copies).
 const COMMAND_COUNT = fs.readdirSync(SOURCE_COMMANDS).filter((f) => f.endsWith(".md")).length;
-const SKILL_FILE_COUNT = countFiles(SOURCE_SKILLS);
-const SKILL_DIR_COUNT = fs
+// @akili-spec changes/akili-panel T2: a plugin entry (.claude-plugin/plugin.json,
+// no SKILL.md) is not a skill; the installer copies it for Claude only. Same two
+// file checks as the installer, never a call into bin/akili.js.
+const isPluginEntry = (dir) =>
+  fs.existsSync(path.join(dir, ".claude-plugin", "plugin.json")) && !fs.existsSync(path.join(dir, "SKILL.md"));
+const SKILL_DIRS = fs
   .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
-  .filter((e) => e.isDirectory()).length;
+  .filter((e) => e.isDirectory() && !isPluginEntry(path.join(SOURCE_SKILLS, e.name)));
+const SKILL_FILE_COUNT = SKILL_DIRS.reduce((n, e) => n + countFiles(path.join(SOURCE_SKILLS, e.name)), 0);
+const SKILL_DIR_COUNT = SKILL_DIRS.length;
 const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 318 = 332
 const RESOURCE_FILE_COUNT = 8; // gsc_verify.py, parse_tests.js, leader/implementer/reviewer/tester.md, digests.json, .mcp.json.example
 // The installer's OWN install/skip/overwrite counters (and the printed
@@ -914,10 +920,7 @@ test(
       );
     }
 
-    const skillNames = fs
-      .readdirSync(SOURCE_SKILLS, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
+    const skillNames = SKILL_DIRS.map((e) => e.name);
     for (const skill of skillNames) {
       const sourceDir = path.join(SOURCE_SKILLS, skill);
       const installedDir = path.join(cursorSkills, skill);
