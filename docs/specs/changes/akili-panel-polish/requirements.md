@@ -215,7 +215,7 @@ Fill is `<p>` as a share of the bar, rounded. Any `<p>` above 0 fills at least o
 
 - GIVEN no response yet
 - THEN the `ctx` row's value is `—`, with no bar
-- AND the `session` row's value is `0 in / 0 out`
+- AND the `session` row's value is `0 in / 0 out`, plus ` · $<usd>` when the host already reports a cost (JC, 2026-11-09 10:10 AM America/Bogota: «FR-5: A, acepta el $ cuando Claude Code ya lo reporta»; seen live at T5 as `0 in / 0 out · $0.00`, matching parent FR-12)
 
 ### FR-6: Next button
 

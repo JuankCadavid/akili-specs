@@ -108,7 +108,7 @@ parent archived ─► T1 paint check (JC) ─► T2 row builders ─► T3 draw
 
 | Field | Value |
 |---|---|
-| Status | `[~]` |
+| Status | `[x]` |
 | Size | S (no code) |
 | Depends on | T3, T4 |
 | Requirements | FR-1 (open), FR-2 (spec in execute, blocked), FR-3 (mid-cycle), FR-4, FR-5 (fresh session), FR-6 (press, run in progress), FR-7 (under 60 columns), NFR-3, D-5, D-6 |

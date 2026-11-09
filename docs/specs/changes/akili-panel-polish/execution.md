@@ -340,11 +340,11 @@ Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `t
 | Requirements covered | FR-10, D-7 |
 | Running totals | 4 of 5 tasks; 1,082 added LOC, budget ~1,100; 8 of 8 review rounds. T5 is JC's check: no Reviewer round |
 
-### T5: Live check of the real plugin (HITL) — IN PROGRESS, prepared, waiting for JC
+### T5: Live check of the real plugin (HITL) — PASS
 
 | Field | Value |
 |---|---|
-| Status | `[~]`. Prepared, not judged. Only JC's words close it |
+| Status | `[x]`. Closed on JC's words, 2026-11-09 10:10 AM America/Bogota (below) |
 | Date | 2026-11-09 |
 | Scratch project | `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-akili-panel/7f15c449-dc64-490b-aee4-512bb50fa437/scratchpad/akili-t5`, outside the repo: `git init`, branch `feat/demo-spec`, `docs/specs/changes/demo-spec/` with T1 `[x]` and T2 `[ ]`, so execute is current |
 | Install | `node <repo>/bin/akili.js install --tool claude --local`: `installed 55 | overwritten 0 | skipped 0`. `diff -rq` against the repo's `.claude/skills/akili-panel`: no difference. No `akili-panel` under `$CLAUDE_CONFIG_DIR/skills` |
@@ -363,3 +363,25 @@ JC answered, 2026-11-09 (the time was not relayed): «Sí: ya confié en la carp
 Rows as read, both tabs: `Akili  changes/demo-spec`, `⎇ feat/demo-spec`, rule, `01 Constitution  ○`, `02 Cycle         ━━━━━━────── 2/6`, `propose ✓`, `specify ✓`, `execute ▶`, `test`, `validate`, `archive ○`, rule, `ctx              —`, `session          0 in / 0 out · $0.00`, blank, ` Next: /akili-execute changes/demo-spec `.
 
 **Observation for JC, possible spec tension.** FR-5 *Fresh session* says the `session` row reads `0 in / 0 out` before any response; the live pane reads `0 in / 0 out · $0.00`. The host reports a cost of 0 at session start, and the archived parent seeds `$` from the host then (v1 kit test `FR-12 session.start seeds ctx and $ from the host`); T3's node test pins `usage: { usd: 0 }` → `$0.00`. Proposed line for FR-5's scenario: *the `session` row reads `0 in / 0 out`, plus ` · $<usd>` when the host already reports a cost.* Awaits JC.
+
+JC answered, 2026-11-09 10:10 AM America/Bogota: «T5: se ve bien en ambos temas, cierra T5 con mis palabras. FR-5: A, acepta el $ cuando Claude Code ya lo reporta. Sin screencapture.»
+
+### T5 closeout — `PASS`, 2026-11-09
+
+| Field | Value |
+|---|---|
+| Verdict | JC's own words: «T5: se ve bien en ambos temas, cierra T5 con mis palabras». D-5's gate is his eyes; the Leader judged nothing |
+| Screenshots | None. The task asks for one per theme; JC forbade desktop screenshots on 2026-11-06 («do NOT use screencapture or any desktop screenshot again») and repeated it in this answer («Sin screencapture»). His words stand as the record, as at T1 |
+| FR-5 tension | Settled, option A: FR-5 *Fresh session* now reads `0 in / 0 out`, plus ` · $<usd>` when the host already reports a cost, with JC's quote in `requirements.md`. No code change: T3's node test already pins `usage: { usd: 0 }` → `$0.00` |
+| Scope steps | JC answered for the whole T5 check in both themes; the per-step items (focus, one click, blocked tone, 30 s falsifier) were offered to him and were not reported back one by one. The Leader did not run them on his behalf |
+| Open, needs JC | The two T5 Orca tabs, the split shell and the scratch project stay open until JC says to close them |
+
+## Execution summary
+
+| Field | Value |
+|---|---|
+| Tasks | T1–T5 `[x]` |
+| Budget | 1,082 of ~1,100 LOC; 8 of 8 review rounds (both raised by JC) |
+| Last verification | `npm test` 1824 pass, 0 fail; `claude plugin test .claude/skills/akili-panel` 75 pass; `claude plugin validate` passed |
+| Not done | No push, merge, tag, release, publish or PR |
+| Next | `/akili-test changes/akili-panel-polish`, then validate and archive, only on JC's word |
