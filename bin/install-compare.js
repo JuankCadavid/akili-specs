@@ -20,14 +20,18 @@ function sameFile(sourceFile, targetFile) {
   }
 }
 
-function walkSource(sourceDir, targetDir, rel, out) {
+// @akili-spec changes/akili-panel T3 (FR-15, W-2): `ignore` is an optional list
+// of source-relative paths (posix separators); a listed directory or file is
+// not compared. Absent, nothing is ignored.
+function walkSource(sourceDir, targetDir, rel, out, ignore) {
   const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
   for (const entry of entries) {
     const relPath = rel ? `${rel}/${entry.name}` : entry.name;
     const src = path.join(sourceDir, entry.name);
     const dst = path.join(targetDir, entry.name);
+    if (ignore && ignore.includes(relPath)) continue;
     if (entry.isDirectory()) {
-      walkSource(src, dst, relPath, out);
+      walkSource(src, dst, relPath, out, ignore);
     } else if (entry.isFile()) {
       if (!sameFile(src, dst)) out.push(relPath);
     }
@@ -35,7 +39,8 @@ function walkSource(sourceDir, targetDir, rel, out) {
   }
 }
 
-function compareEntry(sourcePath, targetPath) {
+function compareEntry(sourcePath, targetPath, options) {
+  const ignore = options && Array.isArray(options.ignore) ? options.ignore : null;
   const base = path.basename(targetPath);
   const sourceStat = fs.statSync(sourcePath); // source error propagates
   let targetStat;
@@ -48,7 +53,7 @@ function compareEntry(sourcePath, targetPath) {
   if (sourceStat.isDirectory()) {
     if (!targetStat.isDirectory()) return { state: "differs", differing: [base] };
     const differing = [];
-    walkSource(sourcePath, targetPath, "", differing);
+    walkSource(sourcePath, targetPath, "", differing, ignore);
     differing.sort();
     return { state: differing.length ? "differs" : "identical", differing };
   }

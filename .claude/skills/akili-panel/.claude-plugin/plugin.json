@@ -1,0 +1,10 @@
+{
+  "name": "akili-panel",
+  "version": "1.0.0",
+  "description": "A Claude Code side pane that shows where the active AKILI spec stands and offers a Next button.",
+  "author": {
+    "name": "Juan Carlos Cadavid",
+    "url": "https://jcadavid.com"
+  },
+  "license": "MIT"
+}

@@ -162,3 +162,19 @@ test("a source-side missing path throws", (t) => {
   const g = put(d, "dst/a.md", "x");
   assert.throws(() => compareEntry(path.join(d, "src/missing.md"), g));
 });
+
+// @akili-spec changes/akili-panel T3 (FR-15, W-2): optional ignore list, default unchanged.
+test("ignore option: a source-side path under an ignored relative directory is not compared", (t) => {
+  const d = scratch(t);
+  put(d, "src/keep.md", "k\n");
+  put(d, "src/.claude-plugin/plugin.json", "{}\n");
+  put(d, "src/.claude-plugin/types/a.d.ts", "types\n");
+  put(d, "dst/keep.md", "k\n");
+  put(d, "dst/.claude-plugin/plugin.json", "{}\n");
+  const src = path.join(d, "src");
+  const dst = path.join(d, "dst");
+  assert.deepEqual(compareEntry(src, dst), { state: "differs", differing: [".claude-plugin/types/a.d.ts"] }, "default: nothing ignored");
+  assert.deepEqual(compareEntry(src, dst, { ignore: [".claude-plugin/types"] }), { state: "identical", differing: [] });
+  put(d, "dst/keep.md", "changed\n");
+  assert.deepEqual(compareEntry(src, dst, { ignore: [".claude-plugin/types"] }), { state: "differs", differing: ["keep.md"] }, "other files still compared");
+});

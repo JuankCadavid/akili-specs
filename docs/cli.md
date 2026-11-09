@@ -214,9 +214,9 @@ cp -R .claude/skills/* ~/.config/opencode/skills/
 Every command closes with a clear end-of-run summary:
 
 - **`install`** — an **Install Summary** with per-tool `installed | overwritten | skipped` counts (a skip count reads `skipped N (identical I, differs D)`; each skip line reads `skip existing <path> (identical)` or `(differs: <names>)`; plus legacy cleanup), target paths, totals for multi-tool installs, a dry-run banner when `--dry-run` is used, and contextual next steps (when D > 0 a hint naming `akili update` or `akili install --force` with the same `--tool`, `--local` and `--target` flags; when D = 0 "already match"; OpenCode restart; `akili doctor` verification). A non-`--local` run whose printed roots lie under the home directory also prints a `Home: <dir>` line. Legacy cleanup removes artifacts from older versions on every run: `sdd-*` command files, the `sdd-jc` resources directory, and skill directories that were removed from the package (e.g. the 8 `gsap-*` skills replaced by `gsap-animation`); `akili doctor` reports still-present legacy skills as `STALE` and `--fix` deletes them.
-- **`doctor`** — a **Doctor Summary** with a per-tool `HEALTHY | REPAIRED | INCOMPLETE` status, `ok | missing | fixed` counts, and repair suggestions (`--fix` or `akili update`). `DIFFERS` marks a present entry whose content differs from the package: a warning, shown as `differs N` in the row only when N > 0, with a hint naming `akili update`. It never changes the exit code or status, and `--fix` never overwrites it. On a tool without an ownership record (every tool except Grok Bot), an `impeccable/` without `UPSTREAM.md` is not compared.
+- **`doctor`** — a **Doctor Summary** with a per-tool `HEALTHY | REPAIRED | INCOMPLETE` status, `ok | missing | fixed` counts, and repair suggestions (`--fix` or `akili update`). `DIFFERS` marks a present entry whose content differs from the package: a warning, shown as `differs N` in the row only when N > 0, with a hint naming `akili update`. It never changes the exit code or status, and `--fix` never overwrites it. On a tool without an ownership record (every tool except Grok Bot), an `impeccable/` without `UPSTREAM.md` is not compared. The `akili-panel` plugin row appears for Claude only, as `OK`, `DIFFERS`, `MISSING` (`--fix` restores it) or `BLOCKED` (the folder holds a `SKILL.md`); on every other tool a copy of it reads `LEAKED`, and `install` or `--fix` removes it (an invalid Grok Bot ownership record blocks the removal).
 - **`update`** — an **Update Summary** with the version change (`before → after`), install type, and the verification command, after the changelog of what changed.
-- **`list`** — a totals line: commands, skills, resources, and the package version.
+- **`list`** — the commands, skills, a `Plugins:` block (Claude Code plugin entries such as `akili-panel`, which are not skills), and resources, then a totals line: commands, skills, plugins, resources, and the package version.
 
 ## Options
 
@@ -267,7 +267,7 @@ Every command closes with a clear end-of-run summary:
 
 | Target | Use When |
 |---|---|
-| Claude | You use Claude Code slash commands and Claude skills |
+| Claude | You use Claude Code slash commands and Claude skills. Only this target also receives the `akili-panel` plugin ([page](plugins/akili-panel.md)) |
 | OpenCode | You use OpenCode commands and skills |
 | Antigravity | You use Google Antigravity global workflows and skills |
 | Codex | You use OpenAI Codex CLI and its Agent Skills |

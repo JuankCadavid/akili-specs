@@ -17,9 +17,12 @@ Spec-driven development for AI coding assistants: plan the change, build it, tes
   <a href="https://www.npmjs.com/package/akili-specs"><img alt="npm version" src="https://img.shields.io/npm/v/akili-specs?style=for-the-badge&label=npm"></a>
   <img alt="License MIT" src="https://img.shields.io/npm/l/akili-specs?style=for-the-badge&label=license&color=cfb600">
   <img alt="Node.js 18+" src="https://img.shields.io/badge/Node.js-18%2B-91c714?style=for-the-badge">
+  <a href="https://github.com/JuankCadavid/akili-specs"><img alt="GitHub stars" src="https://img.shields.io/github/stars/JuankCadavid/akili-specs?style=for-the-badge"></a>
 </p>
 
 Works with Claude Code · OpenCode · Google Antigravity · OpenAI Codex CLI · Cursor · Grok Bot — on macOS, Linux and Windows
+
+Open source and free (MIT). If AKILI helps you, please **[star the repo](https://github.com/JuankCadavid/akili-specs)** — it helps others find it.
 
 </div>
 
@@ -86,7 +89,7 @@ npx akili-specs doctor
 
 Restart your AI tool, then type `/akili-` and the AKILI commands appear (in Codex, type `$akili-`).
 
-Other tools, flags, manual install, updating and troubleshooting: see [docs/cli.md](docs/cli.md).
+Other tools, flags, manual install, updating and troubleshooting: see [docs/cli.md](docs/cli.md). Claude Code only: the `akili-panel` side-pane plugin, installed by `akili install --tool claude` or the plugin marketplace, not both, and loaded in a project folder only after you trust the project: see [docs/plugins/akili-panel.md](docs/plugins/akili-panel.md).
 
 ## Your first spec
 
@@ -155,6 +158,8 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | know how skills are chosen and kept | [docs/skills/governance.md](docs/skills/governance.md) |
 | compare AKILI with OpenSpec | [docs/openspec-comparison.md](docs/openspec-comparison.md) |
 | use AKILI from an MCP client with nothing installed (hosted AKILI MCP service, not live yet) | [akili.com.co](https://akili.com.co) |
+
+If AKILI helps you, please **[star the repo](https://github.com/JuankCadavid/akili-specs)** ⭐ — it helps others find it.
 
 ## Contributing and license
 

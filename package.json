@@ -1,6 +1,6 @@
 {
   "name": "akili-specs",
-  "version": "2.42.0",
+  "version": "2.43.0",
   "description": "Portable AKILI-SPECS methodology commands and skills for AI-assisted development.",
   "homepage": "https://github.com/JuankCadavid/akili-specs#readme",
   "repository": {
@@ -16,6 +16,7 @@
   "files": [
     ".claude/commands",
     ".claude/skills",
+    "!.claude/skills/*/.claude-plugin/types",
     ".claude/templates",
     ".mcp.json.example",
     "assets",

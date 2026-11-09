@@ -77,6 +77,22 @@ Rules of thumb:
 - `conditional` skills are stack-agnostic capabilities that many but not all specs need (UI, animation).
 - `stack` skills must never be **load-directed** in command text (a command step telling the agent to load a named stack skill) — commands stay tool- and framework-agnostic. They reach the agent through the project Skill Map and per-task skill lists. **Three documented carve-outs:** (1) the Skill Map *builder* in `/akili-constitution` (Step 8D, and the Step 5 TRD bootstrap that feeds it — constitution runs *before* the map exists) may enumerate the packaged stack skills as the candidate pool it selects from; (2) an explicit **no-map fallback list** that defers to the Skill Map first ("prefer the `## Skill Map` when it exists; otherwise pick from: …") is acceptable; (3) purely *illustrative* examples ("e.g. `nestjs-expert`") that explicitly defer to the task list / Skill Map are acceptable. A step that says "use these skills:" followed by stack-skill names, with **no** Skill Map deferral, is a violation.
 
+## Plugin entries are not skills
+
+**A folder under `.claude/skills/` that holds a plugin is not a skill, and the rules in this file do not apply to it.**
+
+The installer tells the two apart by one test: the manifest `.claude-plugin/plugin.json` is present and `SKILL.md` is absent. A folder that passes it is a plugin entry. Every other folder is a skill and follows this file.
+
+| Question | Plugin entry |
+|---|---|
+| What does it declare? | Author and license in `plugin.json`. No `SKILL.md`, and no `metadata.binding`. |
+| Which taxonomy and checklist apply? | None. It has no binding level, and the acceptance checklist below is for skills only. |
+| Where is it documented? | In the `docs/plugins/` folder, outside the skill inventory. It gets no page in `docs/skills/`, no row in the `docs/skills/README.md` table, and no row in `docs/overview.md`. |
+| Which tools receive it? | Claude Code only. `akili list` shows it under `Plugins:`, and `akili doctor` checks it for Claude Code only. If a copy turns up in another tool's skills folder, `akili doctor` reports it as `LEAKED`, and `akili install` or `akili doctor --fix` removes it. An invalid Grok Bot ownership record blocks the removal. |
+| Does it count as a skill? | No. Skill counts in docs and tests exclude plugin entries. |
+
+Adding a plugin entry changes no skill count.
+
 ## Frontmatter Schema
 
 Every packaged skill carries this frontmatter (original fields are preserved, never overwritten):

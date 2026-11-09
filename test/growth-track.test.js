@@ -123,12 +123,17 @@ test("FR-7 command and skill pages document angles, selection and the method cre
   assert.match(skillDoc, /Nico Azero/);
 });
 
-test("FR-7 BUT README grows by at most 2 lines net versus 8991113", (t) => {
+// FR-7's BUT bounds what this spec added to the README, so only its own commits since 8991113
+// are summed; later specs' README edits (e.g. quick/readme-stars) are outside the clause.
+test("FR-7 BUT changes/growth-angles grows the README by at most 2 lines net versus 8991113", (t) => {
   const { spawnSync } = require("child_process");
-  const r = spawnSync("git", ["diff", "--numstat", "8991113", "--", "README.md"], { cwd: path.join(__dirname, ".."), encoding: "utf8" });
+  const r = spawnSync("git", ["log", "--no-merges", "--numstat", "--format=", "--fixed-strings",
+    "--grep=[SPEC:changes/growth-angles]", "8991113..HEAD", "--", "README.md"], { cwd: path.join(__dirname, ".."), encoding: "utf8" });
   if (r.status !== 0) return t.skip("base commit 8991113 not in this clone (shallow checkout)");
-  const [added = 0, deleted = 0] = r.stdout.trim().split(/\s+/).filter(Boolean).map(Number);
-  assert.ok(added - deleted <= 2, `README net growth ${added - deleted} > 2`);
+  const rows = r.stdout.trim().split("\n").filter(Boolean).map((l) => l.split(/\s+/).map(Number));
+  assert.ok(rows.length > 0, "no changes/growth-angles commit touches README.md since 8991113");
+  const net = rows.reduce((sum, [added, deleted]) => sum + added - deleted, 0);
+  assert.ok(net <= 2, `changes/growth-angles README net growth ${net} > 2`);
 });
 
 // NFR-6: needle built by concatenation so this file does not contain it.

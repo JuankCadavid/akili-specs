@@ -27,9 +27,19 @@ function inventory() {
     .filter((f) => f.endsWith(".md"))
     .map((f) => f.slice(0, -3))
     .sort();
+  // @akili-spec changes/akili-panel T2: a plugin entry (.claude-plugin/plugin.json,
+  // no SKILL.md) is not a skill (FR-13); same two file checks as the installer.
+  const skillsRoot = path.join(REPO_ROOT, ".claude", "skills");
   const skills = fs
-    .readdirSync(path.join(REPO_ROOT, ".claude", "skills"), { withFileTypes: true })
+    .readdirSync(skillsRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
+    .filter(
+      (d) =>
+        !(
+          fs.existsSync(path.join(skillsRoot, d.name, ".claude-plugin", "plugin.json")) &&
+          !fs.existsSync(path.join(skillsRoot, d.name, "SKILL.md"))
+        )
+    )
     .map((d) => d.name)
     .sort();
   return { commands, skills };
@@ -435,7 +445,7 @@ test("(i) every relative link in README, overview and docs hub resolves, anchors
 
 test("(j) README countable clauses", () => {
   const shields = (README.match(/shields\.io/g) || []).length;
-  assert.ok(shields === 3, `README has ${shields} shields.io badges, expected 3`);
+  assert.ok(shields === 4, `README has ${shields} shields.io badges, expected 4`);
   const hero = README.split("\n").find((l) => /^Works with /.test(l)) || "";
   for (const n of ["Claude Code", "OpenCode", "Google Antigravity", "OpenAI Codex CLI", "Cursor", "Grok Bot", "macOS", "Linux", "Windows"])
     assert.ok(hero.includes(n), `hero text line does not name ${n}: "${hero}"`);
