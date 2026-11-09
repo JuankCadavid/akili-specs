@@ -719,3 +719,24 @@ test("NFR-7 CI runs `npm test` on ubuntu, macOS and Windows at Node 18 and 22, a
   assert.match(ci, /^\s+run: npm test\s*$/m);
   assert.equal(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "package.json"), "utf8")).scripts.test, "node --test");
 });
+
+// ------------------------------------------------- changes/akili-panel-polish FR-10, D-7
+
+test("FR-10 No stale format: the plugin README, docs/plugins/akili-panel.md and CHANGELOG Unreleased quote no `Tokens:` line, no one-row header and no `[ Next` button", () => {
+  const log = fs.readFileSync(path.join(REPO_ROOT, "CHANGELOG.md"), "utf8");
+  const start = log.indexOf("## [Unreleased]");
+  const docs = {
+    "README.md": fs.readFileSync(path.join(SOURCE_SKILLS, "akili-panel", "README.md"), "utf8"),
+    "docs/plugins/akili-panel.md": fs.readFileSync(path.join(REPO_ROOT, "docs", "plugins", "akili-panel.md"), "utf8"),
+    "CHANGELOG Unreleased": log.slice(start, log.indexOf("\n## [", start + 1)),
+  };
+  for (const [name, text] of Object.entries(docs)) {
+    assert.ok(text.includes("session"), `${name} was read and names the session row`);
+    assert.doesNotMatch(text, /Tokens:/, `${name}: the Tokens: line`);
+    assert.doesNotMatch(text, /Akili · /, `${name}: the one-row header`);
+    assert.doesNotMatch(text, /\[ ?Next/, `${name}: a [ Next ] button`);
+  }
+  for (const name of ["README.md", "docs/plugins/akili-panel.md"]) {
+    for (const row of ["`Akili  <spec>`", "`01 Constitution`", "`02 Cycle`", "`ctx`", "`session`"]) assert.ok(docs[name].includes(row), `${name} describes ${row}`);
+  }
+});

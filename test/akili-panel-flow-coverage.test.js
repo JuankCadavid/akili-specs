@@ -607,3 +607,112 @@ test('NFR-2 a bare kept folder is not missing: archive/ stays unlisted', async (
   await F.refresh(c.io, project({ 'docs/specs/changes/new/': '', 'docs/specs/archive/x/proposal.md': 'x' }), 'changes/new');
   assert.deepEqual(c.calls.list.filter((p) => p.includes('/archive')), []);
 });
+
+// ================================================================ changes/akili-panel-polish /akili-test
+// What the T2 author tests (test/akili-panel-flow.test.js) do not sweep: every FR-2 state crossed with every token
+// state, pending, and every width; the FR-7 guarantee table at every width above its floor (NFR-2); the FR-5 fresh
+// session as the host leaves it after /clear. Literals copied from changes/akili-panel-polish requirements.md at
+// fbcc995 (FR-5 Fresh session amended 2026-11-09; FR-7 14-column note); this file never reads docs/specs/.
+
+const PHASE_IDS = ['propose', 'specify', 'execute', 'test', 'validate', 'archive'];
+// The longest names the fixtures hold (test/fixtures/akili-panel/long-names).
+const LONG_SPEC = 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep';
+const LONG_BRANCH = { kind: 'branch', name: 'feature/an-extraordinarily-long-branch-name-for-the-polish-width-sweep', sha: '' };
+const phasesAt = (id, note = null) => PHASE_IDS.map((p, i) => {
+  const k = PHASE_IDS.indexOf(id);
+  return { id: p, mark: i < k ? 'done' : i === k ? 'current' : 'todo', note: i === k ? note : null };
+});
+// A view-1 snapshot as refresh builds it, the Next command included.
+const viewWith = (F, over) => {
+  const v = { status: 'ok', spec: LONG_SPEC, archived: false, moreActive: 2, constitution: { present: 13, total: 13 }, phases: phasesAt('execute'), errors: [], branch: LONG_BRANCH, ...over };
+  return { ...v, next: F.nextButton(v) };
+};
+// Every FR-2 state: done, current, blocked (execute and specify), no task status, not reached, constitution all, some, none.
+const polishStates = (F) => [
+  ['current, constitution all', viewWith(F, {})],
+  ['blocked on execute, constitution some', viewWith(F, { phases: phasesAt('execute', 'blocked'), constitution: { present: 5, total: 13 } })],
+  ['blocked on specify, constitution 12/13', viewWith(F, { phases: phasesAt('specify', 'blocked'), constitution: { present: 12, total: 13 } })],
+  ['no task status, constitution none', viewWith(F, { phases: phasesAt('execute', 'no-task-status'), constitution: { present: 0, total: 13 } })],
+  ['propose current, detached', viewWith(F, { phases: phasesAt('propose'), branch: { kind: 'detached', name: '', sha: '0123456' } })],
+  ['archived, a long tail', viewWith(F, { phases: PHASE_IDS.map((id) => ({ id, mark: 'done', note: null })), archived: true, moreActive: 123 })],
+  ['no-specs, constitution none', viewWith(F, { status: 'no-specs', spec: null, phases: [], moreActive: 0, constitution: { present: 0, total: 13 }, branch: { kind: 'none', name: '', sha: '' } })],
+  ['no-active, constitution all', viewWith(F, { status: 'no-active', spec: null, phases: [], moreActive: 0 })],
+  ['first draw', null],
+];
+const USAGES = [
+  ['fresh', {}],
+  ['fresh with a cost', { usd: 0 }],
+  ['after /clear', { ctxWindow: 1000000, usd: 1234.5 }],
+  ['7%', { ctxPercent: 7, ctxTokens: 70000, ctxWindow: 1000000, usd: 12.34 }],
+  ['130%', { ctxPercent: 130, ctxTokens: 260000, ctxWindow: 200000, usd: 0.35 }],
+];
+const SUMS_ALL = [{ in: 0, out: 0 }, { in: 123456789, out: 98765432 }];
+const rowTextOf = (r) => r.parts.map((p) => p.text).join('');
+
+test('FR-7 Any width AND IT MUST: every FR-2 state × every token state × pending, widths 1 to 120, longest fixture names: no row wider, none wraps', async () => {
+  const F = await loaded;
+  let checked = 0;
+  for (const [name, view] of polishStates(F)) {
+    for (const [uname, usage] of USAGES) {
+      for (const sums of SUMS_ALL) {
+        for (const pending of [null, { since: 1, command: 'akili-execute' }]) {
+          for (let cols = 1; cols <= 120; cols++) {
+            const rows = F.paneRows({ view, usage, sums, pending, cols });
+            for (const r of rows) {
+              const t = rowTextOf(r);
+              assert.ok(t.length <= cols, `${name} / ${uname} at ${cols}: ${r.id} is ${t.length} wide: ${t}`);
+              assert.ok(!/[\r\n]/.test(t), `${name} / ${uname} at ${cols}: ${r.id} wraps`);
+              if (r.next) assert.ok(cols < 3 ? r.next.label === '' : r.next.label.length + 2 <= cols, `${name} at ${cols}: the chip fits`);
+              checked++;
+            }
+          }
+        }
+      }
+    }
+  }
+  assert.ok(checked > 100000, `the sweep ran (${checked} rows)`);
+});
+
+test('NFR-2 / FR-7 guarantee table, swept: with colour removed every state, <done>/6 and <p>% read whole at every width from the floor to 120', async () => {
+  const F = await loaded;
+  const [current, blocked, blockedSpecify, noStatus, proposeOnly, archived] = polishStates(F);
+  const views = [current, blocked, blockedSpecify, noStatus, proposeOnly, archived];
+  const done = { 'current, constitution all': 2, 'blocked on execute, constitution some': 2, 'blocked on specify, constitution 12/13': 1, 'no task status, constitution none': 2, 'propose current, detached': 0, 'archived, a long tail': 6 };
+  for (const [name, view] of views) {
+    for (const p of [0, 7, 42, 79.6, 100, 130]) {
+      const usage = { ctxPercent: p, ctxTokens: 260000, ctxWindow: 1000000, usd: 1234.5 };
+      for (let cols = 14; cols <= 120; cols++) {
+        const rows = F.paneRows({ view, usage, sums: { in: 123456789, out: 98765432 }, pending: null, cols });
+        const text = (id) => rowTextOf(rows.find((r) => r.id === id));
+        const at = `${name}, p ${p}, ${cols} columns`;
+        // 14 columns: every mark (the glyph is one cell; a noted row keeps it and omits the …)
+        const glyphs = { done: '✓', current: '▶', todo: '○' };
+        view.phases.forEach((ph) => assert.ok(text(`phase-${ph.id}`).includes(glyphs[ph.mark]), `${at}: ${ph.id} mark`));
+        const c = view.constitution.present;
+        assert.ok(text('constitution').includes(c === 13 ? '✓' : c === 0 ? '○' : '▶'), `${at}: constitution mark`);
+        if (cols >= 17) {
+          assert.match(text('cycle'), new RegExp(`(^|\\s|━|─)${done[name]}/6$`), `${at}: <done>/6`);
+          assert.match(text('ctx'), new RegExp(`(^|\\s|━|─)${Math.round(p)}%`), `${at}: <p>%`);
+        }
+        if (cols >= 24) {
+          for (const ph of view.phases.filter((x) => x.note === 'blocked')) assert.ok(text(`phase-${ph.id}`).endsWith('▶ (blocked)'), `${at}: ▶ (blocked)`);
+          if (c > 0 && c < 13) assert.ok(text('constitution').endsWith(`▶ (${c}/13)`), `${at}: ▶ (k/13)`);
+        }
+        if (cols >= 31) {
+          for (const ph of view.phases.filter((x) => x.note === 'no-task-status')) assert.ok(text(`phase-${ph.id}`).endsWith('▶ (no task status)'), `${at}: ▶ (no task status)`);
+        }
+      }
+    }
+  }
+});
+
+test('FR-5 Fresh session (amended 2026-11-09): the host reports the window and a cost but no fill: ctx reads — with no bar, session 0 in / 0 out · $<usd>', async () => {
+  const F = await loaded;
+  for (const [usd, money] of [[0, '$0.00'], [1234.5, '$1234.50']]) {
+    const rows = F.paneRows({ view: null, usage: { ctxWindow: 200000, usd }, sums: { in: 0, out: 0 }, pending: null, cols: 80 });
+    const ctx = rows.find((r) => r.id === 'ctx');
+    assert.equal(rowTextOf(ctx), `${'ctx'.padEnd(17)}—`);
+    assert.ok(!ctx.parts.some((p) => /[━─]/.test(p.text)), 'no bar');
+    assert.equal(rowTextOf(rows.find((r) => r.id === 'session')), `${'session'.padEnd(17)}0 in / 0 out · ${money}`);
+  }
+});

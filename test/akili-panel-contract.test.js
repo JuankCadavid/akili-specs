@@ -146,3 +146,28 @@ test('FR-1: the one $.ui.open asks for backgroundColor transparent and the rows 
 test('FR-9: no new atom beyond the five the pane reads (view, tokens, usage, opened, pending)', () => {
   assert.deepEqual([...src.matchAll(/atom\(\{ plugin: 'akili-panel', key: '(\w+)' \}/g)].map((m) => m[1]), ['view', 'tokens', 'usage', 'opened', 'pending']);
 });
+
+// ---- changes/akili-panel-polish /akili-test (literals from requirements.md at fbcc995; never reads docs/specs/)
+
+test('NFR-4: ui.render reaches the host only through $.ui.resolve and read($, <atom>); every other call is the pure paneRows or the press handler', () => {
+  const render = blocks.find((b) => b.event === 'ui.render').text;
+  assert.deepEqual([...new Set([...render.matchAll(/\$\.([\w.]+)/g)].map((m) => m[1]))], ['ui.resolve'], 'a host call besides $.ui.resolve');
+  assert.deepEqual([...render.matchAll(/\bread\(\$, (\w+)\)/g)].map((m) => m[1]).sort(), ['pending', 'tokens', 'usage', 'view']);
+  const takers = [...render.matchAll(/\b(\w+)\(\$\s*[,)]/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(takers)].sort(), ['press', 'read'], 'a function handed $ in the render');
+  for (const line of render.split('\n').filter((l) => /\bpress\(\$/.test(l))) assert.match(line, /onPress=\{\(\) => press\(\$, v\.next\)\}/, 'press outside onPress');
+  assert.ok(/import \{[^}]*\bpaneRows\b[^}]*\} from '\.\/flow\.mjs'/.test(src), 'paneRows comes from flow.mjs');
+});
+
+test('FR-4 Inline pane: the rows asked for equal the rows the full layout draws, so Next is the last asked-for row', async () => {
+  const { pathToFileURL } = require('node:url');
+  const F = await import(pathToFileURL(path.join(HOOKS, 'flow.mjs')).href);
+  const asked = Number(/const PANE_ROWS = (\d+)/.exec(src)[1]);
+  assert.match([...src.matchAll(/\$\.ui\.open\(([^)]*)\)/g)][0][1], /\brows: PANE_ROWS\b/);
+  const phases = F.PHASES.map((id, i) => ({ id, mark: i < 2 ? 'done' : i === 2 ? 'current' : 'todo', note: i === 2 ? 'blocked' : null }));
+  const view = { status: 'ok', spec: 'changes/x', archived: false, moreActive: 1, constitution: { present: 5, total: 13 }, phases, errors: [], branch: { kind: 'branch', name: 'feat/x', sha: '' } };
+  view.next = F.nextButton(view);
+  const rows = F.paneRows({ view, usage: { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 }, sums: { in: 1, out: 1 }, pending: null, cols: 80 });
+  assert.equal(rows.length, asked);
+  assert.equal(rows.at(-1).id, 'next');
+});

@@ -991,3 +991,50 @@ test('FR-4 drawn as built: the empty-state text is dim', async ($, on) => {
   expect(row.children[0].props.dimColor).toBe(true)
   await ui.unmount()
 })
+
+// ---- changes/akili-panel-polish /akili-test: clauses the T3 tests above do not assert (literals from requirements.md at fbcc995)
+
+for (const surface of ALL_SURFACES) test(`FR-4 Inline pane: the rows asked for are the rows the full layout draws, Next the last of them (${surface})`, async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.usage = { context: { window: 200000, tokens: 84000, percent: 42 }, cost: { usd: 0.35 } }
+  await opened($, r)
+  const ui = await $.ui.mount({ ...PANE, surface })
+  const root: any = await ui.find({ type: 'Box' })
+  expect(root.children.length).toBe(r.opens[0].rows)
+  expect(root.children.at(-1).type).toBe('Button')
+  await ui.unmount()
+})
+
+test('FR-4 Inline pane BUT a size the person set stays theirs: after the open, nothing the plugin does on its own asks for a size again', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  bottom(on, r)
+  await opened($, r)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'next' })
+  await r.clk.settle()
+  await ui.unmount()
+  await $.command.run({ command: 'akili-execute', args: SPEC })
+  await $.turn.start({ text: `/akili-execute ${SPEC}`, turnId: 't0' })
+  await $.turn.complete(turn('t1', { input_tokens: 1, output_tokens: 1 }))
+  await $.session.measure(measure(1) as any)
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.advance(65000)
+  for (const surface of ALL_SURFACES) for (const width of [20, 80]) { const d = await drawn($, surface, width); await d.ui.unmount() }
+  expect(r.opens.length).toBe(1)
+  expect(r.closes).toEqual([])
+})
+
+test('FR-1 A surface keeps its own look: every row draws on every surface BUT no reply, toast or row mentions the background', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  const reply: any = await opened($, r)
+  expect(reply.text).toBe('Akili pane opened.')
+  for (const surface of ALL_SURFACES) {
+    const { ui, lines, next } = await drawn($, surface)
+    expect(lines.length).toBe(14) // header 2, rule, constitution, cycle, 6 phases, rule, ctx, session
+    expect(next).toBe('Next: /akili-specify changes/demo')
+    expect(lines.filter((l) => /background|transparent/i.test(l))).toEqual([])
+    await ui.unmount()
+  }
+  expect(r.toasts).toEqual([])
+  expect(/background|transparent/i.test(reply.text)).toBe(false)
+})
