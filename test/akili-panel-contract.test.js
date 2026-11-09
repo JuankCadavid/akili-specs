@@ -13,7 +13,9 @@ const path = require('node:path');
 
 const FILE = process.env.AKILI_PANEL_REGISTER
   || path.join(__dirname, '..', '.claude', 'skills', 'akili-panel', 'hooks', 'register.jsx');
-const src = fs.readFileSync(FILE, 'utf8');
+// LF-normalized: a Windows checkout (core.autocrlf) gives the module CRLF, and the line-based
+// matches below would otherwise keep a trailing \r (CI windows-latest, PR #130).
+const src = fs.readFileSync(FILE, 'utf8').replace(/\r\n/g, '\n');
 
 // Hook registrations: each block starts at `  on(` inside `register`.
 const blocks = src.slice(src.indexOf('export const register')).split(/\n {2}on\(/).slice(1)
