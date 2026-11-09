@@ -27,13 +27,17 @@ If Claude Code cannot place the pane, `/akili-panel` answers `Akili pane not sho
 
 | Row | Reads as |
 |---|---|
-| Header | `Akili · <spec> · ⎇ <branch>`, plus `(n more active)` when other specs are open and `archived` when the shown spec is archived. A detached HEAD reads `detached @<sha>`, and no repository reads `(no git)`. A long spec path is cut in the middle with `…` |
+| Rows 1–2 | `Akili  <spec>`, then the branch (`⎇ <branch>`), ` · archived` when the shown spec is archived and `(n more active)` when other specs are open. A detached HEAD reads `detached @<sha>`, and no repository reads `(no git)`. A long spec path is cut in the middle with `…`. A `─` rule follows |
 | `01 Constitution` | `✓` all 13 baseline documents present, `▶ (k/13)` some, `○` none |
-| `02 propose` … `archive` | The six phases, each `✓` done, `▶` current (bold) or `○` not reached. `(blocked)` follows `▶` when a task is blocked; `(no task status)` when `tasks.md` carries no status |
-| `Could not read <path>: <reason>` | A file could not be read. The rest of the pane still draws; at most three such lines show |
-| `No docs/specs/ folder yet.` / `No active spec.` | Replaces the phase rows when there is nothing to show |
-| `Tokens: ctx 12% (120k/1.0M) · session 3.4k in / 410 out · $0.52` | Context fill, tokens summed from every finished turn (subagents included), and the session cost. `ctx —` before the first response. A narrow pane drops `$`, then `session` |
-| `Next: /<command> <spec>` | The button. It reads the same next step as `/akili-resume`, keyed on the first phase not done |
+| `02 Cycle` | A bar of six segments, one per phase, and `<done>/6` |
+| `propose` … `archive` | The six phases under the cycle row, marks in one column: `✓` done, `▶` current (highlighted) or `○` not reached. `(blocked)` follows `▶` when a task is blocked; `(no task status)` when `tasks.md` carries no status |
+| `Could not read <path>: <reason>` | A file could not be read, shown in the error colour. The rest of the pane still draws; at most three such lines show |
+| `No docs/specs/ folder yet.` / `No active spec.` | Replaces the cycle and phase rows when there is nothing to show |
+| `ctx` | A bar, `<p>%` and `<used>/<window>`, under a second `─` rule. The bar turns to the warning colour from 80% and the error colour from 95%. `—` before the first response |
+| `session` | Tokens summed from every finished turn (subagents included), `<in> in / <out> out`, then ` · $<cost>`, the session cost |
+| `Next: /<command> <spec>` | The next step, the same one `/akili-resume` reads, keyed on the first phase not done. On the terminal it is a filled chip; on other surfaces it is the surface's primary button |
+
+A narrow pane drops parts in a fixed order: `$`, the `session` row, `<used>/<window>`, half of the bar, then `01 Constitution` is cut to `01 Constit…` and the label column narrows, then the bars go. Colours are the Claude Code theme's, and the pane asks for a transparent background; a surface may keep its own.
 
 Which spec is shown: the one named by the last `/akili-*` command or Skill-tool run in this project (kept across sessions), else the spec matching the branch name, else the most recently edited.
 

@@ -281,11 +281,11 @@ Reviewer on those: 1 conforms, §8's sentence has no surface qualifier; 2 accept
 | Consumers beyond `tasks.md`'s field, run | `test/akili-panel-flow-coverage.test.js`, and `tests/panel.test.tsx` `key: 'next'` and `Tokens:` sites added by the parent |
 | Running totals | 3 of 5 tasks; 1,061 added LOC (T2 845, T3 216; T3 also removed 188), budget ~1,100; 6 of 7 review rounds |
 
-### T4: Docs — IN PROGRESS, attempt 1 FAIL, stopped at the review-round tripwire
+### T4: Docs — PASS (attempt 2)
 
 | Field | Value |
 |---|---|
-| Status | `[~]`. Uncommitted in the tree. Stopped for JC before rework |
+| Status | `[x]`. Stopped for JC after attempt 1 (round tripwire); closed on attempt 2, see *T4 closeout* |
 | Date | 2026-11-06 |
 | Attempt 1 files | `.claude/skills/akili-panel/README.md` +9/−5; `docs/plugins/akili-panel.md` +9/−5; `CHANGELOG.md` +1 |
 | Implementer | Sonnet, effort `medium`, skill `cognitive-doc-design` |
@@ -324,3 +324,18 @@ JC, 2026-11-09 (the time was not relayed), in this session:
 > «A: sube a 8 rounds, corrige T4 (las 3 correcciones de redacción) y prepara T5 para que yo mire. No uses screencapture ni capturas del escritorio; usa solo probes dentro de la terminal.»
 
 Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `tasks.md` Document Control now read 8. T4 goes to attempt 2 on the three wording defects only; then T5 is prepared for JC. The capture rule binds T5: `orca terminal read --screen` and in-terminal probes only.
+
+### T4 closeout — `PASS` (attempt 2), 2026-11-09
+
+**Attempt 2.** Implementer Sonnet, effort `high`, the three wording defects only. Falsifier before the edit: `git grep -n -E 'redrawn|is transparent|Replaces the phase rows'` hit `README.md:35,40`, `docs/plugins/akili-panel.md:38,43`, `CHANGELOG.md:14`. After: no hit. New text: "Replaces the cycle and phase rows when there is nothing to show"; "the pane asks for a transparent background; a surface may keep its own"; CHANGELOG headline "What the `akili-panel` pane draws." Evidence re-run: **VERIFIED**: both greps exit 1; `npm test` 1824 pass, 0 fail; `verify:cli` 0; `pack:dry-run` 0; `git diff --check` 0.
+
+**Reviewer PASS (Opus, round 8 of 8):** "All three attempt-1 findings are closed, and the fix adds no new wrong claim."
+
+**ADVISORY (recorded, not work):** the CHANGELOG carries only the first half of the transparency sentence; accurate and hedged.
+
+| Field | Value |
+|---|---|
+| Files | `.claude/skills/akili-panel/README.md` +10/−6; `docs/plugins/akili-panel.md` +10/−6; `CHANGELOG.md` +1 |
+| spawns | Implementer ×2 and Reviewer ×2: calls and tokens not reported by host; ended complete (one continuation), complete; fail, complete |
+| Requirements covered | FR-10, D-7 |
+| Running totals | 4 of 5 tasks; 1,082 added LOC, budget ~1,100; 8 of 8 review rounds. T5 is JC's check: no Reviewer round |
