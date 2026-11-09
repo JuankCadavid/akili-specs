@@ -339,3 +339,16 @@ Execute-time spec edits, on that answer: `design.md` §12 *Review rounds* and `t
 | spawns | Implementer ×2 and Reviewer ×2: calls and tokens not reported by host; ended complete (one continuation), complete; fail, complete |
 | Requirements covered | FR-10, D-7 |
 | Running totals | 4 of 5 tasks; 1,082 added LOC, budget ~1,100; 8 of 8 review rounds. T5 is JC's check: no Reviewer round |
+
+### T5: Live check of the real plugin (HITL) — IN PROGRESS, stopped at a trust prompt
+
+| Field | Value |
+|---|---|
+| Status | `[~]`. Prepared, not judged. Only JC's words close it |
+| Date | 2026-11-09 |
+| Scratch project | `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-akili-panel/7f15c449-dc64-490b-aee4-512bb50fa437/scratchpad/akili-t5`, outside the repo: `git init`, branch `feat/demo-spec`, `docs/specs/changes/demo-spec/` with T1 `[x]` and T2 `[ ]`, so execute is current |
+| Install | `node <repo>/bin/akili.js install --tool claude --local`: `installed 55 | overwritten 0 | skipped 0`. `diff -rq` against the repo's `.claude/skills/akili-panel`: no difference. No `akili-panel` under `$CLAUDE_CONFIG_DIR/skills` |
+| Orca tab | `T5 live: dark-ansi`, `term_7b51d889-624a-4d33-8650-40e6f0e6bb33`, `claude --model haiku` in the scratch project |
+| Stop | Claude Code shows its trust prompt for the new folder ("Quick safety check: Is this a project you created or one you trust?"). Not answered: a permission prompt is JC's |
+
+The light-theme tab and `/akili-panel` wait until JC answers the prompt.
