@@ -162,3 +162,84 @@
   - `listedSkills` returns `{ core, conditional, stack }` of `{ name, binding }`. `host.skills` holds the flattened names.
   - From T1: `$.command.run` resolves `{}`, and a plugin's own `command.run` hooks skip its own run. The `/model` observer fires before the switch dialog, and `next()` settles after it.
 - Status `[x]`.
+
+### T3: Wiring in `register.jsx` and the state contract — `PASS`
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer `opus`, Review `full`, lens checklist with the risk lens required) |
+| Date | 2026-11-10 America/Bogota |
+| Attempts | 1 |
+| Requirements covered | FR-1 (*Model changes*, *Model unknown*), FR-2, FR-3 (presses), FR-4 (*Run*, *Double press*, *Refused*), FR-5 *Read only*, FR-7 (`PANE_ROWS` 19), FR-8, NFR-2 … NFR-5 |
+| Skills | `impeccable-bridge` (as listed). Effort `medium` |
+| Models | Implementer `sonnet`, Reviewer `opus` |
+| spawns | Implementer 27 calls, 147,714 tokens, ended partial (assumptions only, no owed item); Reviewer 12 calls, 107,393 tokens, ended complete |
+| Running totals | 3 of 5 tasks; T2 ~523 + T3 261 added / 22 deleted ≈ 784 LOC against a ~750 budget (+4.5%: **budget tripwire, escalated to JC at the T3 gate**; cause: tests ~3× code, as KZ-bugfix--init-ctrlc-abort-2 predicts — T2 tests 434 vs code 93, T3 tests ~241 vs code 42; T4 docs ~60 LOC still to come); 3 of 8 review rounds |
+
+#### Attempt 1
+
+- **Files changed:**
+
+  | File | Change |
+  |---|---|
+  | `.claude/skills/akili-panel/hooks/register.jsx` | +38 |
+  | `.claude/skills/akili-panel/tests/panel.test.tsx` | +218: rig mocks, pins, 11 new cases |
+  | `.claude/skills/akili-panel/types/index.d.ts` | +4 |
+  | `test/akili-panel-contract.test.js` | 23 lines touched |
+
+  `flow.mjs` is unchanged.
+- **Implementer verification:**
+
+  | Check | Result |
+  |---|---|
+  | contract | `# pass 16 / # fail 0` |
+  | `npm test` | `# tests 1871 / # pass 1871 / # fail 0` |
+  | `claude plugin test .claude/skills/akili-panel` (2.1.322) | `92 pass / 0 fail` |
+  | `~/.local/share/claude/versions/2.1.318 plugin test .claude/skills/akili-panel` | `92 pass / 0 fail` |
+  | `claude plugin validate` | `✔ Validation passed` |
+  | `git diff --check` | clean |
+  | `.claude/commands` diff | empty |
+
+  Both suites are green, which meets JC's amendment of 2026-11-10 (option A).
+- **P-11:** 2.1.318 runs the kit with `session.model` and `command.list` mocked: 92/92. The binary's strings contain both op names. That proves existence only; the live answer is checked at T5. Ledger row updated.
+- **Falsifiers (each run, then reverted):**
+  1. No `skillsUi` reset in `openPane` → `(fail) FR-2 Closed at every pane open: an open section is closed again by a reopen and by a new session`.
+  2. The skill Button gets its own `$.command.run` → `(fail) FR-4 Double press across Next and a skill queues one run; AND the skill row is dim while it runs` (2 runs; expected `[{ command: "kaizen", args: "" }]`). `FR-4 Refused` was red too.
+  3. `$.command.list()` in `ui.render` → the contract fails with `a host call besides $.ui.resolve`.
+  4. No `.catch(passOn)` on the `/model` observer → `not ok 4 - every command.run and tool.call hook has a .catch that answers next(e) (W-4)`, `command.run: no .catch`.
+  5. `session.model` rejects with the fallback removed → "Model unknown" goes red (`Expected: containing "skills"`, received `["next"]`). With the fallback in place it shows `model —`, logs once, and the pane draws.
+- **Greenfield reds:** the baseline greps (`session.model`, `command.list`, `key: 'host'`, `key: 'skillsUi'`, `command: 'model'`) were all `0`. The first kit run failed 15/92: the old layout pins plus the new cases.
+- **Not Done / Assumptions (Implementer, verbatim gist, no owed item):**
+  - Two extra existing assertions changed. The chain test "FR-2/FR-4 drawn as built" gained `/^model\s/`. The title "…Next the last of them" became "…Next inside them".
+  - Kit nodes have no `.key`, so Next is matched by its "Next: " text.
+  - The default rig lists no commands. The 19-row test lists `kaizen` and `tdd`.
+  - The FR-5 kit test asserts no skill folder or `.claude` read and no write. A literal "no path outside the project" fails on the existing `exists /.git` ancestor probe.
+  - `refreshHost` runs after the `view` write.
+- **Design route:** playbook `layout`, adapt; ENV-2; mode Operate; motion none. `polish light`: reuses `part()` and the existing tones; no new visual vocabulary. `finish review: not run (AKILI execute)`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.** Identical numbers on both hosts. `claude --version` was still `2.1.322` before and after: the global install is untouched.
+  - Global copies exist at `~/.claude/skills/akili-panel` and the Orca profile's `skills/akili-panel`. Both are the released v1.0.0, with no model or Skills rows.
+  - The 11 new kit cases passing shows the kit loaded the repo path, which meets the Disqualifier. The Reviewer confirmed it from the printed case names.
+- **Reviewer verdict: `PASS`.**
+  - §8.4 handlers, `refreshHost`, the `skillsUi` reset sites, the `/model` observer order, atoms-only render, and `PANE_ROWS` 19 all match.
+  - The two extra assertion edits are acceptable: P-8's consumer list missed the chain test, and the title sits on a listed pin.
+  - FR-5 is covered, not weakened: FR-5 says "to build the list", `refreshHost` has no `$.fs` call, and the contract still bans `$.process`.
+  - FR-1 re-read after `/clear` is covered by a kit case (`session.end` `reason: 'clear'`).
+  - The Reviewer's own mutation, removing the `/model` observer, turns "FR-1 Model changes … after /model, with no turn in between" red (91/1).
+- **ADVISORY (Reviewer, recorded only; none becomes a task):**
+  1. RISK: contract `:159` lets `update` take `$` anywhere in render. Pinning to the two `return () => update($, skillsUi, …)` forms would be stricter.
+  2. RISK: P-11 is existence plus a mocked kit, not live. The ledger wording now says so.
+  3. RELIABILITY: on a host where `$.session.model` or `$.command.list` is not a function, the synchronous throw skips the `.catch`. `Promise.all` throws, `runRefresh` logs `refresh failed`, and both fields stay `null`. That is looser than NFR-4's per-field degrade. Suggested fix: `Promise.resolve().then(() => …)`. P-11 shows both exist on 2.1.317+, so it is not reachable on the floor host.
+  4. RELIABILITY: `$.ui.log` inside the two `.catch` handlers is not awaited or guarded.
+  5. READABILITY: the FR-5 kit title says "starts no process", but that guarantee is the static contract test's.
+  6. RESILIENCE: FR-1 "and resume" has no kit case; it is covered by the timer after `startSession`. Forward to T5.
+
+#### Decisions made
+
+- Execute-time spec edit, meaning unchanged: `design.md` §11 P-11 row and the count line. P-11 is recorded as existence-checked (binary strings plus mocked kit), live at T5, per Reviewer advisory 2.
+
+#### Forward pointers to T5 (copy into its brief)
+
+- Live answer of `$.session.model` / `$.command.list` (P-11).
+- FR-1 "and resume" re-read.
+- A confirmed `/model` switch reaching the row.
+- Inline at `rows: 19`.

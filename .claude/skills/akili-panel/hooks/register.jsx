@@ -5,12 +5,12 @@
 // Only the /akili-panel hook answers for itself, without next.
 import { atom, read, update } from 'claude-code'
 import {
-  STRINGS, MAX_KEPT, refresh, keptSpecFor, keepSpec, storeKey, paneRows, turnTokens,
+  STRINGS, MAX_KEPT, refresh, keptSpecFor, keepSpec, storeKey, paneRows, turnTokens, listedSkills,
 } from './flow.mjs'
 
 const PANE = 'akili'
 const TICK_MS = 30000
-const PANE_ROWS = 16 // the full layout's height (DD-P12)
+const PANE_ROWS = 19 // the closed full layout's height: Next stays inside it (DD-P12, DD-3)
 const OTHER_AKILI = /^akili-(?!panel$)/
 
 const view = atom({ plugin: 'akili-panel', key: 'view' }, null, { shape: 'view-1' })
@@ -18,6 +18,8 @@ const tokens = atom({ plugin: 'akili-panel', key: 'tokens' }, { in: 0, out: 0 },
 const usage = atom({ plugin: 'akili-panel', key: 'usage' }, {}, { shape: 'usage-1' })
 const opened = atom({ plugin: 'akili-panel', key: 'opened' }, false)
 const pending = atom({ plugin: 'akili-panel', key: 'pending' }, null)
+const host = atom({ plugin: 'akili-panel', key: 'host' }, { model: null, skills: null }, { shape: 'host-1' })
+const skillsUi = atom({ plugin: 'akili-panel', key: 'skillsUi' }, { open: false, group: null })
 
 const reasonOf = (err) => String((err && err.message) || err)
 const passOn = ($, e, next) => next(e)
@@ -45,6 +47,19 @@ async function refreshOnce($) {
   const snapshot = await refresh(ioOver($), root, kept && typeof kept.path === 'string' ? kept.path : null)
   snapshot.refreshedAt = await $.clock.now()
   await update($, view, () => snapshot)
+  await refreshHost($)
+}
+
+// The host's two answers, each on its own: a rejection writes null for that field and logs once (DD-2, NFR-4).
+// Only this function calls them; the render reads the atom.
+async function refreshHost($) {
+  const [model, names] = await Promise.all([
+    $.session.model().catch((err) => { $.ui.log(`akili-panel: model read failed: ${reasonOf(err)}`); return null }),
+    $.command.list().catch((err) => { $.ui.log(`akili-panel: command list failed: ${reasonOf(err)}`); return null }),
+  ])
+  const listed = Array.isArray(names) ? listedSkills(names.map((c) => c && c.name)) : null
+  const skills = listed ? [...listed.core, ...listed.conditional, ...listed.stack].map((e) => e.name) : null
+  await update($, host, () => ({ model: typeof model === 'string' && model ? model : null, skills }))
 }
 
 // Coalesced: one refresh in flight, one queued behind it (DD-5).
@@ -142,6 +157,7 @@ async function afterClear($) {
 async function startSession($) {
   await $.command.register({ name: 'akili-panel', description: 'Open the Akili side pane' })
   await update($, pending, () => null)
+  await update($, skillsUi, () => ({ open: false, group: null }))
   await copyUsage($, await $.session.usage())
   startTimer($)
 }
@@ -171,6 +187,7 @@ async function openPane($) {
     const opening = await $.ui.open({ id: PANE, title: 'Akili', backgroundColor: 'transparent', rows: PANE_ROWS })
     if (!opening.isPlaced) return { text: STRINGS.paneNotShown(opening.reason) }
     await update($, opened, () => true)
+    await update($, skillsUi, () => ({ open: false, group: null }))
     later($, () => runRefresh($))
     return { text: STRINGS.paneOpened }
   } catch (err) {
@@ -192,6 +209,12 @@ export const register = (on) => {
   on('command.run', { command: OTHER_AKILI }, async ($, e, next) => {
     const ran = await next(e)
     later($, () => afterRun($, e.command, e.args))
+    return ran
+  }).catch(passOn)
+
+  on('command.run', { command: 'model' }, async ($, e, next) => {
+    const ran = await next(e)
+    later($, () => runRefresh($))
     return ran
   }).catch(passOn)
 
@@ -233,10 +256,19 @@ export const register = (on) => {
     const sums = await read($, tokens)
     const used = await read($, usage)
     const busy = await read($, pending)
+    const hostNow = await read($, host)
+    const ui = await read($, skillsUi)
     const cols = e.props && e.props.bodyColumns
-    const rows = paneRows({ view: v, usage: used, sums, pending: busy, cols })
+    const rows = paneRows({ view: v, usage: used, sums, pending: busy, cols, host: hostNow, skillsUi: ui })
     const part = (p) => <Text color={p.tone} bold={p.bold} dimColor={p.dim}>{p.text}</Text>
+    const pressed = (row) => {
+      const p = row.press
+      if (p.kind === 'skills') return () => update($, skillsUi, (s) => ({ open: !s.open, group: null }))
+      if (p.kind === 'group') return () => update($, skillsUi, (s) => ({ ...s, group: s.group === p.binding ? null : p.binding }))
+      return () => press($, { command: p.name, args: '' })
+    }
     const draw = (row) => {
+      if (row.press) return <Button key={row.id} plain onPress={pressed(row)}><Text>{row.parts.map(part)}</Text></Button>
       if (!row.next) return <Text>{row.parts.length ? row.parts.map(part) : ' '}</Text>
       if (!row.next.label) return null // 1 to 2 columns: no room for a chip (FR-7)
       if (e.surface !== 'terminal') {

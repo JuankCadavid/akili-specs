@@ -70,7 +70,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` PASS 2026-11-10 (`execution.md` → T3) |
 | Size | M (~100 LOC code, ~240 LOC tests) |
 | Depends on | T2 |
 | Requirements | FR-1 (*Model changes* incl. AND re-read after `/clear`; *Model unknown* — rejection path), FR-2 (*Closed* at every session start and every pane open; *Open and close*; *Nothing listed* — `command.list` rejection), FR-3 (presses), FR-4 (*Run* incl. AND section stays; *Double press* incl. AND dim; *Refused*), FR-5 *Read only* (no file outside the project, no process), FR-7 (`PANE_ROWS` 19), FR-8 (Next unchanged; no `/akili-*` change), NFR-2, NFR-3, NFR-4, NFR-5 |
