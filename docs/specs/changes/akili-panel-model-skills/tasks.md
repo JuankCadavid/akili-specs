@@ -30,7 +30,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` PASS 2026-11-10 (`execution.md` → T1) |
 | Size | S (probe plugin ~60 LOC in the session scratchpad; **no repo code**) |
 | Depends on | — |
 | Requirements | FR-4 *Run* (premise), FR-1 *Model changes* (premise), FR-7 *Tallest open state* (premise) |
