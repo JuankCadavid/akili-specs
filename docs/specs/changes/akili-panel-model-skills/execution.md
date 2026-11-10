@@ -13,7 +13,7 @@
 | Session | Leader on `claude-opus-5-5` (T1 tier). Started 2026-11-10 America/Bogota. Claude Code 2.1.322 |
 | Workers | No Step 8E wrappers in this repo (`.claude/agents/` absent), so workers run as fallback sub-prompts: Implementer `sonnet` (T2), Reviewer `opus` (author ≠ auditor). Each reads its `.agents/` persona first |
 | Personas | `.agents/` was absent in this worktree (gitignored, per machine). Scaffolded 2026-11-10 by copying `.claude/templates/{leader,implementer,reviewer,tester}.md`. `node bin/akili.js doctor --agents`: every section `CURRENT`, "No persona drift blocking CI" |
-| Budget (design §12) | 5 tasks · ~750 LOC · 8 review rounds |
+| Budget (design §12) | 5 tasks · ~750 LOC · 8 review rounds. **Raised 2026-11-10 by JC at the T3 gate to ~850 LOC** («Sí, acepta el exceso, sube el presupuesto a ~850 y sigue con T4»): overrun ≈784 vs ~750 accepted, cause tests ~3× code |
 
 ## Task Execution History
 
@@ -243,3 +243,50 @@
 - FR-1 "and resume" re-read.
 - A confirmed `/model` switch reaching the row.
 - Inline at `rows: 19`.
+
+### T4: Docs, version, governance, CHANGELOG — `PASS`
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer `opus`, Review `full`, KZ-002 overstatement lens required) |
+| Date | 2026-11-10 America/Bogota |
+| Go | JC at the T3 gate: «Sí, acepta el exceso, sube el presupuesto a ~850 y sigue con T4» (option A; budget raised to ~850 LOC, see Document Control) |
+| Attempts | 2 (attempt 1 Reviewer `FAIL`, attempt 2 Reviewer `PASS`) |
+| Requirements covered | FR-9 (incl. *No stale text*), FR-5 (DD-8 governance line), FR-8 (no command change) |
+| Skills | `cognitive-doc-design`. Effort `medium` → `high` on attempt 2 |
+| Models | Implementer `sonnet`, Reviewer `opus` |
+| spawns | Implementer 1: 8 calls, 83,632 tokens, complete. Reviewer 1: 7 calls, 100,248 tokens, complete. Implementer 2: 2 calls, 63,470 tokens, complete. Reviewer 2: 5 calls, 75,406 tokens, complete |
+| Running totals | 4 of 5 tasks; ≈784 + T4 36 added / 11 deleted ≈ 831 LOC against the ~850 budget JC raised at the T3 gate; 5 of 8 review rounds |
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:**
+
+  | File | Change |
+  |---|---|
+  | `.claude/skills/akili-panel/README.md` | intro, *Use* step 2 refresh list + step 4 Skills, rows table `model` + `Skills (<n>) ▸`, *Limits* guard + list lines; version `1.1.0` |
+  | `docs/plugins/akili-panel.md` | same rows/Use/Limits changes; new short *The Skills section* table (List, Run, Guard, Refresh) with a link to the governance checklist |
+  | `.claude/skills/akili-panel/.claude-plugin/plugin.json` | `"version": "1.1.0"` |
+  | `docs/skills/governance.md` | checklist item 6 *Panel catalog*: adding, removing or rebinding a skill updates `SKILL_CATALOG`; `test/akili-panel-catalog.test.js` fails until it matches |
+  | `CHANGELOG.md` | `Unreleased` placeholder replaced by `### Added` / `### Changed` |
+
+- **Red run (baselines before editing):** `grep -n "one button"` → 2 hits (`README.md:3`, `docs/plugins/akili-panel.md:3`); `grep -c '"version": "1.1.0"' plugin.json` → `0`; `grep -c SKILL_CATALOG docs/skills/governance.md` → `0`. Matches the reading recorded at specify.
+- **Implementer verification:** `npm test` `# tests 1871 / # pass 1871 / # fail 0`; `verify:cli` `Summary: 14 commands | 32 skills | 1 plugin | 8 resources (akili-specs v2.43.0)`; `pack:dry-run` `total files: 427`; `git diff --check` clean. Falsifiers 0 / 1 / 1.
+- **Implementer quote-check (abridged; each re-verified by the Reviewer):** `model —` fallback `flow.mjs:701`; middle cut `flow.mjs:703`; Skills below Next behind `rule-skills` `flow.mjs:725,780`; nothing drawn at 0 `flow.mjs:723`; groups `flow.mjs:633,727-730`; closed at pane open `register.jsx:190` (and session start `:160`); one group open `register.jsx:267`; press runs by name `register.jsx:268`; shared guard `register.jsx:168-172`; refusal toast `register.jsx:179` + `flow.mjs:60`; catalog ∩ `command.list` `register.jsx:56-60` + `flow.mjs:672`; `/model` refresh `register.jsx:215-218`; `PANE_ROWS` 19 `register.jsx:13`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`** — same numbers; `claude plugin validate` `✔ Validation passed`; `.claude/commands` diff vs `8e8c5ba` empty.
+- **Reviewer verdict: `FAIL`.** Blocking: `CHANGELOG.md` `### Changed` said "The pane refreshes after `/model` and `/clear`" as a 1.1.0 change. The `/clear` refresh already shipped in 1.0.0: at `a90ed92` `register.jsx:226` `if (e.reason === 'clear') later($, () => afterClear($))`. Violates FR-9 (CHANGELOG describes as shipped), FR-8, KZ-002. README and docs listing `/clear` in the refresh list is fine (those lists were incomplete).
+- **Reviewer advisories:** (a) the skill-press guard is new behaviour, belongs under `### Added`; "opens at 19 rows" more exact as "asks for 19 rows when it opens"; (b) `plugin.json:4` description still reads "…and offers a Next button." (true, incomplete); (c) "with no spec argument" → "with no arguments" (`register.jsx:268` `args: ''`); (d) "the pane is unchanged" after a refusal: `press()` still schedules a refresh, FR-4 says "otherwise unchanged" — recorded only.
+
+#### Attempt 2 — Reviewer `PASS`
+
+- **Feedback:** the FAIL verbatim, plus advisories (a) and (c), which correct the accuracy of T4's own in-scope text (KZ-002) and widen nothing. Advisory (b) was left out: `plugin.json`'s description is outside T4's scope (version only).
+- **Changes:** `CHANGELOG.md` — guard sentence moved into the `### Added` Skills bullet; `### Changed` now reads "The pane asks for 19 rows when it opens, up from 16. A size the user set stays theirs. The pane also refreshes after `/model`." and "README and `docs/plugins/akili-panel.md` no longer describe `Next` as the only action. They now list the existing refresh after `/clear`, and the plugin version is `1.1.0`." "with no spec argument" → "with no arguments" at `README.md:23`, `docs/plugins/akili-panel.md:78`, `CHANGELOG.md:11`.
+- **Implementer verification:** `npm test` 1871/1871, `# fail 0`; `verify:cli` green; `git diff --check` clean; falsifiers 0 / 1 / 1.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`** — `npm test` `# tests 1871 / # pass 1871 / # fail 0`; `verify:cli` green; `pack:dry-run` `total files: 427`; `claude plugin validate` passed; `git diff --check` clean; `.claude/commands` diff empty; `git show a90ed92:…/register.jsx` → `:13 const PANE_ROWS = 16`, `:226 if (e.reason === 'clear') later($, () => afterClear($))`.
+- **Quote-check log (KZ-002, Reviewer round 2, at HEAD):** "asks for 19 rows when it opens, up from 16" — `register.jsx:13` `PANE_ROWS = 19`, used only at `:187` `$.ui.open({… rows: PANE_ROWS })`, 16 at `a90ed92`. "A size the user set stays theirs" — `rows` sent once at open; host contract quoted in `design.md:175` ("the person's own size wins"), polish `requirements.md:168`, this spec FR-7. "also refreshes after `/model`" — `register.jsx:215-219` `on('command.run', { command: 'model' }, …)` → `runRefresh` → `$.session.model()` / `$.command.list()` (`:56-62`). Refresh row triggers: finished turn `:239`, `/clear` `:249` + `:152-155`, `/akili-*` `afterRun` `:103-106`, 30 s `startTimer`. "with no arguments" — `register.jsx:268`. Governance anchor `#acceptance-checklist-for-new-skills` resolves to `governance.md:128`. Catalog test fails on missing, rebound and stale entries. No skill counts in docs (`<n>` placeholders only).
+- **Reviewer verdict: `PASS`.** FAIL fixed; no regression; FR-9 *No stale text* holds ("one button"/"only action" appear only in CHANGELOG:17's past-tense note); FR-8/DD-8: no diff under `.claude/commands` or `bin`.
+- **ADVISORY (recorded only; none becomes a task):** `plugin.json:4` description "…and offers a Next button." is true but incomplete for 1.1.0 — a follow-up outside this spec's approved scope.
+
+#### Forward pointers to T5
+
+- Unchanged from T3's list: live P-11, FR-1 "and resume" re-read, a confirmed `/model` switch, inline at `rows: 19`, the dock ignores `rows`.

@@ -1,8 +1,8 @@
 # akili-panel
 
-A Claude Code side pane that shows where the active AKILI-SPECS spec stands, with one button for the next step. It only reads: it never writes, moves or deletes a project file, and it starts no process.
+A Claude Code side pane that shows where the active AKILI-SPECS spec stands, with a button for the next step, the session's model and the skills AKILI ships. It only reads: it never writes, moves or deletes a project file, and it starts no process.
 
-Version `1.0.0`. Requires Claude Code 2.1.318 or later.
+Version `1.1.0`. Requires Claude Code 2.1.318 or later.
 
 ## Install
 
@@ -18,8 +18,9 @@ A plugin under a project's `.claude/skills/` loads only once you trust that proj
 ## Use
 
 1. Type `/akili-panel`. The pane opens, or comes back if it is already open. It never opens unasked.
-2. Work as usual. The pane refreshes after each `/akili-*` command (typed or run by the model), after each finished turn, and every 30 seconds while the pane is up.
-3. Press the button to run the next command as if you had typed it.
+2. Work as usual. The pane refreshes after each `/akili-*` command (typed or run by the model), after each `/model`, after each finished turn, after `/clear`, and every 30 seconds while the pane is up.
+3. Press the `Next` button to run the next command as if you had typed it.
+4. Press `Skills` to list the skills AKILI ships that this session can run, open a group, then press a skill to run it by name, with no arguments. The section is closed each time the pane opens.
 
 If Claude Code cannot place the pane, `/akili-panel` answers `Akili pane not shown: <reason>`; the reason says why, for example that no surface that shows panes is attached.
 
@@ -35,7 +36,9 @@ If Claude Code cannot place the pane, `/akili-panel` answers `Akili pane not sho
 | `No docs/specs/ folder yet.` / `No active spec.` | Replaces the cycle and phase rows when there is nothing to show |
 | `ctx` | A bar, `<p>%` and `<used>/<window>`, under a second `─` rule. The bar turns to the warning colour from 80% and the error colour from 95%. `—` before the first response |
 | `session` | Tokens summed from every finished turn (subagents included), `<in> in / <out> out`, then ` · $<cost>`, the session cost |
+| `model` | The session's model id, or `model —` when Claude Code gives none. Cut in the middle with `…` when long |
 | `Next: /<command> <spec>` | The next step, the same one `/akili-resume` reads, keyed on the first phase not done. On the terminal it is a filled chip; on other surfaces it is the surface's primary button |
+| `Skills (<n>) ▸` | Below the `Next` button, behind its own rule. Closed at open: the row shows the count of the skills AKILI ships that this session can run. Press it to open `▾` the groups `core`, `conditional` and `stack`, each with its own count. Press a group to open its skill names; one group is open at a time. Press a skill name to run that skill. Nothing is drawn when none is listed |
 
 A narrow pane drops parts in a fixed order: `$`, the `session` row, `<used>/<window>`, half of the bar, then `01 Constitution` is cut to `01 Constit…` and the label column narrows, then the bars go. Colours are the Claude Code theme's, and the pane asks for a transparent background; a surface may keep its own.
 
@@ -43,7 +46,8 @@ Which spec is shown: the one named by the last `/akili-*` command or Skill-tool 
 
 ## Limits
 
-- Pressing the button twice queues one run. If Claude Code refuses the run, a message reads `Could not run /<command>: <reason>` and the pane is unchanged.
+- Pressing `Next` twice queues one run. A skill press shares that single-run guard: while one run is pending, another press of `Next` or of a skill does nothing. If Claude Code refuses the run, a message reads `Could not run /<command>: <reason>` and the pane is unchanged.
+- The skill list is the catalog of skills AKILI ships, kept in the plugin, intersected with the commands this session can run. A skill the session cannot run is not listed.
 - Session token figures restart after `/clear` or a resume. The `$` figure is Claude Code's own: it restarts after `/clear` and, after a resume, counts from the first launch.
 - It changes no command: an `/akili-*` command runs with the same name, arguments and result with or without the plugin.
 
