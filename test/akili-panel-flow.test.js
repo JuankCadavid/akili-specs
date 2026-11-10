@@ -966,7 +966,7 @@ test('FR-4 block order: header, rule, constitution and cycle, flow, error rows, 
   assert.deepEqual(ids(pane(F, { view, usage: U42, sums: SUMS })), [
     'title', 'branch', 'rule-top', 'constitution', 'cycle',
     'phase-propose', 'phase-specify', 'phase-execute', 'phase-test', 'phase-validate', 'phase-archive',
-    'error-0', 'rule-tokens', 'ctx', 'session', 'gap', 'next',
+    'error-0', 'rule-tokens', 'ctx', 'session', 'model', 'gap', 'next',
   ]);
 });
 
@@ -1013,7 +1013,7 @@ test('FR-4 flow: every mark and both bars start in one column, 17 characters in'
 
 test('FR-4 header before the first refresh: Akili and the token block', async () => {
   const F = await loaded;
-  assert.deepEqual(ids(pane(F, {})), ['title', 'ctx', 'session']);
+  assert.deepEqual(ids(pane(F, {})), ['title', 'ctx', 'session', 'model']);
   assert.equal(textOf(rowOf(pane(F, {}), 'title')), 'Akili');
 });
 
@@ -1125,7 +1125,7 @@ test('FR-5 fill: <p> of 100 or more fills the whole bar', async () => {
 
 test('FR-5 high context fill: the error tone and nothing more (a row, no extra rows)', async () => {
   const F = await loaded;
-  assert.deepEqual(ids(pane(F, { usage: pct(96) })), ['title', 'ctx', 'session']);
+  assert.deepEqual(ids(pane(F, { usage: pct(96) })), ['title', 'ctx', 'session', 'model']);
 });
 
 // ---------------------------------------------------------------- FR-6 Next
@@ -1411,7 +1411,7 @@ test('FR-8 empty-state text stays dim, wording unchanged', async () => {
 test('FR-8 the empty states draw header, rule, constitution, empty text, rule, tokens and Next', async () => {
   const F = await loaded;
   assert.deepEqual(ids(pane(F, { view: await viewOf('empty-project', null) })), [
-    'title', 'branch', 'rule-top', 'constitution', 'empty', 'rule-tokens', 'ctx', 'session', 'gap', 'next',
+    'title', 'branch', 'rule-top', 'constitution', 'empty', 'rule-tokens', 'ctx', 'session', 'model', 'gap', 'next',
   ]);
 });
 
@@ -1423,4 +1423,332 @@ test('FR-12 a reported cost of 0 reads $0.00, and a missing usage reads ctx — 
     assert.match(textOf(rowOf(pane(F, { usage }), 'ctx')), /ctx\s+—$/);
     assert.doesNotMatch(last(usage), /\$/);
   }
+});
+
+// ---------------------------------------------------------------- changes/akili-panel-model-skills T2: model row and Skills section
+// Expected values come from requirements.md FR-1..FR-8 and design.md §8; the names are literals, not the catalog.
+
+const OPUS = 'claude-opus-5-5';
+const LONG_MODEL = 'claude-an-extraordinarily-long-model-identifier-for-the-narrow-pane-case-1';
+const SKILL_NAMES = {
+  core: ['brainstorming', 'caveman', 'cognitive-doc-design', 'judgment-day', 'kaizen', 'pr-review', 'product-manager-toolkit', 'security-audit', 'seo-audit', 'social-marketing', 'software-architect', 'systematic-debugging'],
+  conditional: ['diagram-design', 'frontend-design', 'gsap-animation', 'impeccable', 'impeccable-bridge', 'stitch-design', 'tdd', 'ui-ux-pro-max', 'video-production'],
+  stack: ['ai-agent-development', 'angular-developer', 'api-design-principles', 'aws-serverless', 'error-handling-patterns', 'golang-pro', 'nestjs-expert', 'react-doctor', 'shadcn-ui', 'tailwind-design-system', 'vercel-react-best-practices'],
+};
+const ALL_NAMES = [...SKILL_NAMES.core, ...SKILL_NAMES.conditional, ...SKILL_NAMES.stack];
+const HOST_ALL = { model: OPUS, skills: ALL_NAMES };
+const CLOSED = { open: false, group: null };
+const OPEN = (group = null) => ({ open: true, group });
+const skillPane = async (over) => pane(await loaded, { view: await viewOf('blocked', 'changes/x'), usage: U42, sums: SUMS, host: HOST_ALL, skillsUi: CLOSED, ...over });
+const ADDED = ['model', 'rule-skills', 'skills'];
+
+// FR-1 model row
+
+test('FR-1 Shown: a row reads model, then the id as returned, after the session row', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: null } });
+  const row = rowOf(rows, 'model');
+  assert.equal(textOf(row), `model            ${OPUS}`);
+  assert.equal(ids(rows).indexOf('model'), ids(rows).indexOf('session') + 1);
+});
+
+test('FR-1 Shown BUT no alias: a full id at full width is never renamed or shortened', async () => {
+  for (const id of ['claude-haiku-5-5', 'claude-opus-4-1-20250805', LONG_MODEL]) {
+    const row = rowOf(await skillPane({ host: { model: id, skills: null }, cols: 200 }), 'model');
+    assert.equal(row.parts[1].text, id);
+  }
+});
+
+test('FR-1 Shown AND same label column and tone: the label is as wide as ctx and session, no tone on any part', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: null } });
+  const model = rowOf(rows, 'model');
+  assert.equal(model.parts[0].text.length, rowOf(rows, 'ctx').parts[0].text.length);
+  assert.equal(model.parts[0].text.length, rowOf(rows, 'session').parts[0].text.length);
+  assert.equal(model.parts[0].text.trimEnd(), 'model');
+  for (const p of model.parts) assert.equal(p.tone, undefined);
+  assert.deepEqual(model.parts[0], { text: 'model            ' });
+});
+
+test('FR-1 Model unknown: a null, empty or missing model reads model —', async () => {
+  const F = await loaded;
+  for (const host of [{ model: null, skills: null }, { model: '', skills: null }, { skills: null }, null, undefined]) {
+    assert.equal(textOf(rowOf(pane(F, { host }), 'model')), 'model            —', JSON.stringify(host));
+  }
+});
+
+test('FR-1 Model unknown BUT no hide and no toast: the rest of the pane and Next still draw, no error row', async () => {
+  const rows = await skillPane({ host: { model: null, skills: ALL_NAMES } });
+  for (const id of ['title', 'constitution', 'cycle', 'ctx', 'session', 'next', 'skills']) assert.ok(rowOf(rows, id), id);
+  assert.ok(!ids(rows).some((id) => id.startsWith('error')));
+});
+
+// FR-2 Skills row
+
+test('FR-2 Closed: Skills (<n>) ▸ after Next, behind its own rule, <n> counting the listed skills', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: ['tdd', 'kaizen', 'caveman'] } });
+  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (3) ▸');
+  assert.deepEqual(ids(rows).slice(ids(rows).indexOf('next')), ['next', 'rule-skills', 'skills']);
+  assert.deepEqual(rowOf(rows, 'rule-skills').parts, [{ text: '─'.repeat(200), tone: 'subtle' }]);
+  assert.equal(textOf(rowOf(await skillPane(), 'skills')), 'Skills (32) ▸');
+});
+
+test('FR-2 Closed BUT no skill before the press: no group row, no skill row, no skill name', async () => {
+  const rows = await skillPane();
+  assert.ok(!ids(rows).some((id) => id.startsWith('skills-group') || id.startsWith('skill-')));
+  for (const n of ALL_NAMES) assert.ok(!rows.some((r) => textOf(r).includes(n)), n);
+});
+
+test('FR-2 Closed even when a group was left set: the section closed shows nothing below Skills', async () => {
+  const rows = await skillPane({ skillsUi: { open: false, group: 'core' } });
+  assert.ok(!ids(rows).some((id) => id.startsWith('skills-group') || id.startsWith('skill-')));
+});
+
+test('FR-2 Open and close: open reads ▾ with the group rows, each closed; closed reads ▸ again', async () => {
+  const open = await skillPane({ skillsUi: OPEN() });
+  assert.equal(textOf(rowOf(open, 'skills')), 'Skills (32) ▾');
+  assert.deepEqual(ids(open).filter((id) => id.startsWith('skills-group')), ['skills-group-core', 'skills-group-conditional', 'skills-group-stack']);
+  assert.deepEqual(['core', 'conditional', 'stack'].map((b) => textOf(rowOf(open, `skills-group-${b}`))), ['  core (12) ▸', '  conditional (9) ▸', '  stack (11) ▸']);
+  assert.equal(textOf(rowOf(await skillPane({ skillsUi: CLOSED }), 'skills')), 'Skills (32) ▸');
+});
+
+test('FR-2 Nothing listed: no Skills row and no rule when none is runnable or the list is unknown', async () => {
+  for (const skills of [[], null, undefined, ['model', 'akili-propose', 'not-a-skill']]) {
+    const rows = await skillPane({ host: { model: OPUS, skills }, skillsUi: OPEN('core') });
+    assert.ok(!ids(rows).some((id) => id === 'rule-skills' || id === 'skills' || id.startsWith('skills-') || id.startsWith('skill-')), JSON.stringify(skills));
+  }
+});
+
+test('FR-2 Nothing listed AND no error line: the rest of the pane is unchanged', async () => {
+  const none = await skillPane({ host: { model: OPUS, skills: [] } });
+  assert.ok(!ids(none).some((id) => id.startsWith('error')));
+  assert.deepEqual(ids(none), ids(await skillPane({ host: { model: OPUS, skills: null }, skillsUi: OPEN() })));
+});
+
+// FR-3 groups
+
+test('FR-3 Open a group: its skills follow its row, one per row, alphabetical, four spaces in', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('conditional') });
+  const at = ids(rows).indexOf('skills-group-conditional');
+  assert.equal(textOf(rows[at]), '  conditional (9) ▾');
+  assert.deepEqual(rows.slice(at + 1, at + 10).map(textOf), SKILL_NAMES.conditional.map((n) => `    ${n}`));
+  assert.equal(ids(rows)[at + 10], 'skills-group-stack');
+});
+
+test('FR-3 groups are in the order core, conditional, stack and skills are alphabetical inside each', async () => {
+  for (const b of ['core', 'conditional', 'stack']) {
+    const rows = await skillPane({ skillsUi: OPEN(b) });
+    const names = ids(rows).filter((id) => id.startsWith('skill-')).map((id) => id.slice(6));
+    assert.deepEqual(names, SKILL_NAMES[b], b);
+    assert.deepEqual(names, [...names].sort(), `${b} is sorted`);
+  }
+});
+
+test('FR-3 the catalog is stored in alphabetical order, so each listed group is too', async () => {
+  const F = await loaded;
+  const all = F.SKILL_CATALOG.map((e) => e.name);
+  assert.deepEqual(all, [...all].sort());
+  const g = F.listedSkills(ALL_NAMES);
+  for (const b of ['core', 'conditional', 'stack']) assert.deepEqual(g[b].map((e) => e.name), SKILL_NAMES[b], b);
+});
+
+test('FR-3 Open another group BUT never two open: only the asked group shows ▾ and skill rows', async () => {
+  for (const [group, others] of [['core', ['conditional', 'stack']], ['conditional', ['core', 'stack']], ['stack', ['core', 'conditional']]]) {
+    const rows = await skillPane({ skillsUi: OPEN(group) });
+    assert.ok(textOf(rowOf(rows, `skills-group-${group}`)).endsWith('▾'), group);
+    for (const o of others) assert.ok(textOf(rowOf(rows, `skills-group-${o}`)).endsWith('▸'), `${o} closed while ${group} is open`);
+    assert.equal(ids(rows).filter((id) => id.startsWith('skills-group')).filter((id) => textOf(rowOf(rows, id)).endsWith('▾')).length, 1);
+    assert.deepEqual(ids(rows).filter((id) => id.startsWith('skill-')).map((id) => id.slice(6)), SKILL_NAMES[group]);
+  }
+});
+
+test('FR-3 Close the open group: with no group set, every group reads ▸ and no skill shows', async () => {
+  const rows = await skillPane({ skillsUi: OPEN(null) });
+  assert.ok(ids(rows).filter((id) => id.startsWith('skills-group')).every((id) => textOf(rowOf(rows, id)).endsWith('▸')));
+  assert.ok(!ids(rows).some((id) => id.startsWith('skill-')));
+});
+
+test('FR-3 an empty group is not drawn, and an open group that is empty shows nothing', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: ['tdd', 'kaizen'] }, skillsUi: OPEN('stack') });
+  assert.deepEqual(ids(rows).filter((id) => id.startsWith('skills-group')), ['skills-group-core', 'skills-group-conditional']);
+  assert.ok(!ids(rows).some((id) => id.startsWith('skill-')));
+  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (2) ▾');
+});
+
+// FR-4 (row part), FR-5
+
+test('FR-4 Double press: the pending skill row is dim and the others are not; Next still flags pending', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('conditional'), pending: { since: 1, command: 'tdd' } });
+  assert.equal(rowOf(rows, 'skill-tdd').parts[0].dim, true);
+  assert.equal(rowOf(rows, 'skill-impeccable').parts[0].dim, undefined);
+  assert.equal(rowOf(rows, 'next').next.pending, true);
+  assert.equal(rowOf((await skillPane({ skillsUi: OPEN('conditional') })), 'skill-tdd').parts[0].dim, undefined);
+});
+
+test('FR-4 a pending Next dims no skill row', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('conditional'), pending: { since: 1, command: 'akili-execute' } });
+  assert.ok(rows.filter((r) => r.id.startsWith('skill-')).every((r) => r.parts[0].dim === undefined));
+});
+
+test('FR-4 press fields: Skills, a group and a skill carry what register maps to a handler', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('core') });
+  assert.deepEqual(rowOf(rows, 'skills').press, { kind: 'skills' });
+  assert.deepEqual(rowOf(rows, 'skills-group-stack').press, { kind: 'group', binding: 'stack' });
+  assert.deepEqual(rowOf(rows, 'skill-kaizen').press, { kind: 'skill', name: 'kaizen' });
+  assert.equal(rowOf(rows, 'next').press, undefined);
+  assert.equal(rowOf(rows, 'model').press, undefined);
+});
+
+test('FR-5 Not installed here: kaizen missing from the list is not listed and not counted', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: ALL_NAMES.filter((n) => n !== 'kaizen') }, skillsUi: OPEN('core') });
+  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (31) ▾');
+  assert.equal(textOf(rowOf(rows, 'skills-group-core')), '  core (11) ▾');
+  assert.equal(rowOf(rows, 'skill-kaizen'), undefined);
+});
+
+test('FR-5 only catalog skills are listed: other commands in the list never show', async () => {
+  const rows = await skillPane({ host: { model: OPUS, skills: ['tdd', 'model', 'akili-propose', 'clear'] }, skillsUi: OPEN('conditional') });
+  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (1) ▾');
+  assert.deepEqual(ids(rows).filter((id) => id.startsWith('skill-')), ['skill-tdd']);
+});
+
+// FR-6 narrow panes
+
+test('FR-6 Model id too long: after the label column, the id is cut in the middle with …', async () => {
+  const F = await loaded;
+  const view = await viewOf('blocked', 'changes/x');
+  const row = rowOf(pane(F, { view, usage: U42, sums: SUMS, host: { model: LONG_MODEL }, cols: 40 }), 'model');
+  assert.equal(row.parts[0].text.length, 17);
+  assert.equal(textOf(row).length, 40);
+  assert.ok(row.parts[1].text.includes('…') && !row.parts[1].text.endsWith('…'));
+  assert.ok(row.parts[1].text.startsWith('claude-'));
+  assert.ok(row.parts[1].text.endsWith('-1'));
+});
+
+test('FR-6 Model id too long BUT not dropped at 14 columns or more: the label goes first, the id stays', async () => {
+  const F = await loaded;
+  for (let cols = 14; cols <= 120; cols++) {
+    const text = textOf(rowOf(pane(F, { view: null, usage: U100, sums: SUMS, host: { model: LONG_MODEL }, cols }), 'model'));
+    assert.ok(text.length > 0 && text.length <= cols, `${cols}: ${text}`);
+    if (cols < 17 + LONG_MODEL.length) assert.ok(text.includes('…'), `${cols}: ${text}`);
+    else assert.ok(text.endsWith(LONG_MODEL), `${cols}: ${text}`);
+  }
+  assert.equal(textOf(rowOf(pane(F, { view: null, usage: U100, sums: SUMS, host: { model: 'claude-haiku-5-5' }, cols: 14 }), 'model')), 'claude-…ku-5-5');
+});
+
+test('FR-6 the model label is dropped only when the id would get fewer than 6 columns', async () => {
+  const F = await loaded;
+  const at = (cols) => pane(F, { view: null, usage: { ctxPercent: 5 }, sums: SUMS, host: { model: LONG_MODEL }, cols });
+  assert.ok(textOf(rowOf(at(40), 'model')).startsWith('model'));
+  assert.ok(!textOf(rowOf(at(14), 'model')).startsWith('model'));
+  assert.equal(textOf(rowOf(at(14), 'model')).length, 14);
+});
+
+test('FR-6 ladder steps unchanged: a 60-character model id moves no pre-existing row at any width', async () => {
+  const F = await loaded;
+  const sixty = 'claude-' + 'x'.repeat(53);
+  assert.equal(sixty.length, 60);
+  const view = await LADDER_VIEW();
+  for (let cols = 1; cols <= 120; cols++) {
+    const base = { view, usage: U100, sums: SUMS, cols };
+    assert.equal(F.ladderStep(base), F.ladderStep({ ...base, host: { model: sixty } }), `step at ${cols}`);
+    const strip = (rows) => rows.filter((r) => !ADDED.includes(r.id) && !r.id.startsWith('skill'));
+    assert.deepEqual(strip(F.paneRows({ ...base, host: { model: sixty, skills: ALL_NAMES }, skillsUi: OPEN('core') })), strip(F.paneRows(base)), `rows at ${cols}`);
+  }
+});
+
+test('FR-6 Skills rows too long: a marked row keeps its mark at every width, 14 columns included', async () => {
+  const F = await loaded;
+  const at = (cols) => pane(F, { host: HOST_ALL, skillsUi: OPEN('conditional'), cols });
+  const row14 = rowOf(at(14), 'skills-group-conditional');
+  assert.equal(textOf(row14).length, 14);
+  assert.ok(textOf(row14).endsWith('…' + ' ▾'), textOf(row14));
+  assert.equal(textOf(rowOf(pane(F, { host: HOST_ALL, skillsUi: OPEN(), cols: 14 }), 'skills-group-conditional')), '  condition… ▸');
+  for (let cols = 3; cols <= 25; cols++) {
+    for (const id of ['skills', 'skills-group-core', 'skills-group-conditional', 'skills-group-stack']) {
+      const t = textOf(rowOf(at(cols), id));
+      assert.ok(t.length <= cols && /[▸▾]$/.test(t), `${id} at ${cols}: ${t}`);
+    }
+  }
+  for (const cols of [1, 2]) assert.equal(textOf(rowOf(at(cols), 'skills')), '▾');
+});
+
+test('FR-6 Skills rows too long: a skill row is cut at the end with …, and the mark is cut by nothing', async () => {
+  const F = await loaded;
+  const row = rowOf(pane(F, { host: HOST_ALL, skillsUi: OPEN('core'), cols: 12 }), 'skill-product-manager-toolkit');
+  assert.equal(textOf(row), '    product…');
+  assert.equal(textOf(rowOf(pane(F, { host: HOST_ALL, skillsUi: OPEN('core'), cols: 200 }), 'skill-product-manager-toolkit')), '    product-manager-toolkit');
+});
+
+test('FR-6 Skills rows AND ladder steps unchanged: the Skills section moves no pre-existing row', async () => {
+  const F = await loaded;
+  const view = await LADDER_VIEW();
+  const strip = (rows) => rows.filter((r) => !r.id.startsWith('skill') && r.id !== 'rule-skills');
+  for (const cols of [14, 17, 24, 30, 45, 60, 80]) {
+    const base = { view, usage: U100, sums: SUMS, cols };
+    assert.equal(F.ladderStep({ ...base, host: HOST_ALL, skillsUi: OPEN('stack') }), F.ladderStep(base), cols);
+    assert.deepEqual(strip(F.paneRows({ ...base, host: HOST_ALL, skillsUi: OPEN('stack') })), strip(F.paneRows({ ...base, host: { model: OPUS } })), cols);
+  }
+});
+
+test('FR-6 any width, 1 to 120, over the open states: no row is wider than the width, tones are theme keys', async () => {
+  const F = await loaded;
+  const view = { ...(await viewOf('long-names', 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep')), errors: [] };
+  const states = [CLOSED, OPEN(), OPEN('core'), OPEN('conditional'), OPEN('stack'), { open: false, group: 'core' }];
+  let cuts = 0;
+  for (const skillsUi of states) {
+    for (let cols = 1; cols <= 120; cols++) {
+      const rows = F.paneRows({ view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: { since: 1, command: 'tdd' }, cols, host: { model: LONG_MODEL, skills: ALL_NAMES }, skillsUi });
+      for (const r of rows) {
+        const t = textOf(r);
+        assert.ok(t.length <= cols, `${JSON.stringify(skillsUi)} at ${cols}: ${r.id} is ${t.length} wide`);
+        if (t.endsWith('…')) cuts++;
+        for (const p of r.parts) assert.ok([undefined, 'success', 'inactive', 'suggestion', 'warning', 'error', 'subtle'].includes(p.tone), `${p.tone} is a theme key`);
+        if (r.id === 'skills' || r.id.startsWith('skills-group')) assert.ok(/[▸▾]$/.test(t), `${r.id} at ${cols} keeps its mark: ${t}`);
+      }
+      assert.ok(rowOf(rows, 'model'), `model at ${cols}`);
+    }
+  }
+  assert.ok(cuts > 500, `the sweep forces cuts (${cuts})`);
+});
+
+// FR-7, FR-8, NFR-1
+
+test('FR-7 closed, the pane grows by exactly three rows: model, a rule and Skills', async () => {
+  const closed = await skillPane();
+  assert.deepEqual(ids(closed), [
+    'title', 'branch', 'rule-top', 'constitution', 'cycle',
+    'phase-propose', 'phase-specify', 'phase-execute', 'phase-test', 'phase-validate', 'phase-archive',
+    'rule-tokens', 'ctx', 'session', 'model', 'gap', 'next', 'rule-skills', 'skills',
+  ]);
+  assert.equal(closed.length, 19);
+});
+
+test('FR-8 Same facts: with the Skills row closed every pre-existing row is identical to the pane without host', async () => {
+  const F = await loaded;
+  for (const [fx, kept] of [['blocked', 'changes/x'], ['phase-ladder', 'changes/s-execute'], ['empty-project', null]]) {
+    const view = await viewOf(fx, kept);
+    const base = pane(F, { view, usage: U42, sums: SUMS });
+    const withHost = pane(F, { view, usage: U42, sums: SUMS, host: HOST_ALL, skillsUi: CLOSED });
+    assert.deepEqual(withHost.filter((r) => !ADDED.includes(r.id)), base.filter((r) => !ADDED.includes(r.id)), fx);
+    assert.deepEqual(ids(withHost).filter((id) => ADDED.includes(id)), ADDED);
+  }
+});
+
+test('FR-8 Same facts: the Next row text and press data are untouched by the Skills section', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('core') });
+  assert.deepEqual(rowOf(rows, 'next').next, { command: 'akili-execute', args: 'changes/x', label: 'Next: /akili-execute changes/x', pending: false });
+});
+
+test('FR-8 omitting host and skillsUi (the 1.0.0 call) draws no Skills section and model —', async () => {
+  const F = await loaded;
+  const rows = pane(F, { view: await viewOf('blocked', 'changes/x'), usage: U42, sums: SUMS });
+  assert.deepEqual(ids(rows).filter((id) => ADDED.includes(id)), ['model']);
+  assert.equal(textOf(rowOf(rows, 'model')), 'model            —');
+});
+
+test('NFR-1 marks carry the state without colour: the glyph is in the text and the tones are theme keys only', async () => {
+  const rows = await skillPane({ skillsUi: OPEN('core') });
+  assert.deepEqual(rowOf(rows, 'skills').parts, [{ text: 'Skills (32) ' }, { text: '▾', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skills-group-core').parts, [{ text: '  core (12) ' }, { text: '▾', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (11) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skill-caveman').parts, [{ text: '    caveman' }]);
 });

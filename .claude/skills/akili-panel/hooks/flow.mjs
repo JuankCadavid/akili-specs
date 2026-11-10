@@ -625,6 +625,54 @@ function sessionRow(usage, sums, s) {
   return { id: 'session', parts }
 }
 
+// ---------------------------------------------------------------- skills catalog (changes/akili-panel-model-skills, T2)
+
+// The skills AKILI ships: one entry per `.claude/skills/<name>/SKILL.md`, with its `metadata.binding`, sorted by name.
+// `test/akili-panel-catalog.test.js` pins this list to the folders on disk both ways (FR-5, DD-1).
+export const SKILL_BINDINGS = Object.freeze(['core', 'conditional', 'stack'])
+export const SKILL_CATALOG = Object.freeze([
+  { name: 'ai-agent-development', binding: 'stack' },
+  { name: 'angular-developer', binding: 'stack' },
+  { name: 'api-design-principles', binding: 'stack' },
+  { name: 'aws-serverless', binding: 'stack' },
+  { name: 'brainstorming', binding: 'core' },
+  { name: 'caveman', binding: 'core' },
+  { name: 'cognitive-doc-design', binding: 'core' },
+  { name: 'diagram-design', binding: 'conditional' },
+  { name: 'error-handling-patterns', binding: 'stack' },
+  { name: 'frontend-design', binding: 'conditional' },
+  { name: 'golang-pro', binding: 'stack' },
+  { name: 'gsap-animation', binding: 'conditional' },
+  { name: 'impeccable', binding: 'conditional' },
+  { name: 'impeccable-bridge', binding: 'conditional' },
+  { name: 'judgment-day', binding: 'core' },
+  { name: 'kaizen', binding: 'core' },
+  { name: 'nestjs-expert', binding: 'stack' },
+  { name: 'pr-review', binding: 'core' },
+  { name: 'product-manager-toolkit', binding: 'core' },
+  { name: 'react-doctor', binding: 'stack' },
+  { name: 'security-audit', binding: 'core' },
+  { name: 'seo-audit', binding: 'core' },
+  { name: 'shadcn-ui', binding: 'stack' },
+  { name: 'social-marketing', binding: 'core' },
+  { name: 'software-architect', binding: 'core' },
+  { name: 'stitch-design', binding: 'conditional' },
+  { name: 'systematic-debugging', binding: 'core' },
+  { name: 'tailwind-design-system', binding: 'stack' },
+  { name: 'tdd', binding: 'conditional' },
+  { name: 'ui-ux-pro-max', binding: 'conditional' },
+  { name: 'vercel-react-best-practices', binding: 'stack' },
+  { name: 'video-production', binding: 'conditional' },
+].map((e) => Object.freeze(e)))
+
+// Pure: catalog entries whose name is in `names`, grouped by binding, in catalog (alphabetical) order. A missing list lists nothing.
+export function listedSkills(names) {
+  const have = names instanceof Set ? names : new Set(Array.isArray(names) ? names : [])
+  const groups = { core: [], conditional: [], stack: [] }
+  for (const e of SKILL_CATALOG) if (have.has(e.name)) groups[e.binding].push(e)
+  return groups
+}
+
 // The rows FR-7's ladder measures: constitution, cycle, flow and token rows at one step.
 function governedRows({ view, usage, sums }, s) {
   const rows = []
@@ -647,6 +695,48 @@ export function ladderStep(input) {
   return LADDER_LAST
 }
 
+// FR-1 / DD-5: the model row sits outside `governedRows`, so a long id never moves a ladder step (§8.5).
+function modelRow(model, s, width) {
+  const head = { text: pad('model', s.col) }
+  if (typeof model !== 'string' || model === '') return { id: 'model', parts: [head, { text: '—' }] }
+  if (!width) return { id: 'model', parts: [head, { text: model }] }
+  if (width - s.col >= 6) return { id: 'model', parts: [head, { text: shortenMiddle(model, width - s.col) }] }
+  return { id: 'model', parts: [{ text: shortenMiddle(model, width) }] }
+}
+
+// A row that ends in a ▸/▾ mark, built already fitted (§8.5): `fitParts` keeps a prefix, so it could not keep a trailing mark.
+// `label` ends with the space before the mark; the label is cut to `width - 2` with `…`, then ' ' and the mark are appended.
+function markedRow(id, label, labelTone, mark, width, press) {
+  const style = labelTone ? { tone: labelTone } : {}
+  const markPart = { text: mark, tone: 'inactive' }
+  let parts = [{ text: label, ...style }, markPart]
+  if (width > 0 && label.length + 1 > width) {
+    parts = width >= 3 ? [{ text: `${fitLine(label.trimEnd(), width - 2)} `, ...style }, markPart] : [markPart]
+  }
+  return { id, parts, press }
+}
+
+// FR-2 / FR-3 / §8.1: the Skills section, below Next and behind its own rule. Nothing listed draws nothing.
+function skillsRows(host, skillsUi, pending, width, rule) {
+  const groups = listedSkills(host && host.skills)
+  const total = SKILL_BINDINGS.reduce((n, b) => n + groups[b].length, 0)
+  if (total === 0) return []
+  const ui = skillsUi || {}
+  const rows = [rule('rule-skills'), markedRow('skills', `Skills (${total}) `, null, ui.open ? '▾' : '▸', width, { kind: 'skills' })]
+  if (!ui.open) return rows
+  for (const b of SKILL_BINDINGS) {
+    if (groups[b].length === 0) continue
+    const open = ui.group === b
+    rows.push(markedRow(`skills-group-${b}`, `  ${b} (${groups[b].length}) `, open ? null : 'inactive', open ? '▾' : '▸', width, { kind: 'group', binding: b }))
+    if (!open) continue
+    for (const e of groups[b]) {
+      const busy = !!pending && pending.command === e.name
+      rows.push({ id: `skill-${e.name}`, parts: [{ text: `    ${e.name}`, ...(busy ? { dim: true } : {}) }], press: { kind: 'skill', name: e.name } })
+    }
+  }
+  return rows
+}
+
 function headerRows(view, cols) {
   const wide = cols > 0
   const avail = wide ? cols - 'Akili  '.length : Infinity
@@ -663,7 +753,7 @@ function headerRows(view, cols) {
 
 // Everything the pane draws, in order. `cols` is `bodyColumns`; a missing or non-positive one cuts nothing.
 // The Next row carries `next: { command, args, label, pending }`; `label` is already cut to `cols - 2`.
-export function paneRows({ view = null, usage = null, sums = null, pending = null, cols } = {}) {
+export function paneRows({ view = null, usage = null, sums = null, pending = null, cols, host = null, skillsUi = null } = {}) {
   const width = cols > 0 ? cols : 0
   const s = stepShape(ladderStep({ view, usage, sums, cols }))
   const rule = (id) => ({ id, parts: [{ text: BAR.rule.repeat(width || BAR.ruleDefault), tone: 'subtle' }] })
@@ -680,11 +770,13 @@ export function paneRows({ view = null, usage = null, sums = null, pending = nul
   }
   rows.push(ctxRow(usage, s))
   if (s.session) rows.push(sessionRow(usage, sums, s))
+  rows.push(modelRow(host && host.model, s, width))
   if (view && view.next) {
     const label = formatNext(view.next)
     const text = width ? (width > 2 ? fitLine(label, width - 2) : '') : label
     rows.push({ id: 'gap', parts: [] })
     rows.push({ id: 'next', parts: [{ text }], next: { command: view.next.command, args: view.next.args, label: text, pending: !!pending } })
   }
+  rows.push(...skillsRows(host, skillsUi, pending, width, rule))
   return rows.map(({ protect, ...row }) => ({ ...row, parts: fitParts(row.parts, width, protect) }))
 }

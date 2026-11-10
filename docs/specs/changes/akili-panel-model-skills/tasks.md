@@ -24,6 +24,8 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 `npm test` · `claude plugin validate .claude/skills/akili-panel` · `claude plugin test .claude/skills/akili-panel` (pass the repo path, never a global copy) · `git diff --check` · `git diff --stat 8e8c5ba -- .claude/commands` empty.
 
+**Amended 2026-11-10 by JC** («Opción A: cierra T2 con commit y que T3 deje todo en verde»): `npm test` and `claude plugin test` are green once T3, the last task touching the P-8 pins, closes; T2 may leave red only the pins T3 owns (contract `:164-176`; kit `:870`, `:888`, `:1003-1004`, `:1033`). Every other check above holds at every code task.
+
 ---
 
 ### T1: Live probe of the host (settles P-3, P-4, P-5)
@@ -49,7 +51,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` PASS 2026-11-10 (`execution.md` → T2; common verification amended by JC, option A) |
 | Size | M (~120 LOC code, ~230 LOC tests) |
 | Depends on | T1 (P-3 verified) |
 | Requirements | FR-1 (*Shown* incl. BUT no alias, AND same col/tone; *Model unknown* incl. BUT no hide/toast — row text part), FR-2 (*Closed* incl. BUT no skill before press; *Open and close* — row text; *Nothing listed* incl. AND no error line), FR-3 (all scenarios incl. BUT never two open; alphabetical; empty group not drawn), FR-4 *Double press* AND dim (row part), FR-5 (*Catalog matches* incl. BUT not derived from the same source; *Not installed here*), FR-6 (both scenarios incl. BUT not dropped ≥ 14 cols, AND ladder steps unchanged), FR-7 (closed = 3 added rows), FR-8 *Same facts* (row text/tone), NFR-1 |

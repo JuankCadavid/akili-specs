@@ -86,3 +86,79 @@
   - Confirm with a confirmed `/model` switch.
   - Confirm the inline pane at `rows: 19`.
   - Confirm the dock keeps `rows` irrelevant (scroll window).
+
+### T2: Rows and catalog in `flow.mjs` — Reviewer `PASS`; `[~]` awaiting JC on a spec tension
+
+| Field | Value |
+|---|---|
+| Final status | Reviewer `PASS` on attempt 1. **Not closed**: the tension below needs JC's ruling before `[x]` |
+| Date | 2026-11-10 America/Bogota |
+| Attempts | 1 |
+| Requirements covered | FR-1 … FR-8 and NFR-1, at the row level (list in tasks.md T2) |
+| Skills | `tdd`, `impeccable-bridge` (as listed). Effort `medium` |
+| Models | Implementer `sonnet`, Reviewer `opus` |
+| spawns | Implementer 30 calls, 167,351 tokens, ended partial (assumptions only, no owed item); Reviewer 9 calls, 104,362 tokens, ended complete |
+| Running totals | 2 of 5 tasks; 425 added / 5 deleted in tracked files + 98 new = ~523 LOC (budget ~750); 2 of 8 review rounds |
+
+#### Attempt 1
+
+- **Files changed:**
+  - `.claude/skills/akili-panel/hooks/flow.mjs` (+93/−1);
+  - `test/akili-panel-flow.test.js` (+336; the only edits to old tests add `'model'` to the id lists at `:969`, `:1016`, `:1128`, `:1414`);
+  - `test/akili-panel-catalog.test.js` (new, 98 lines).
+- **Implementer verification:**
+  - T2's three files: `# tests 287 / # pass 287 / # fail 0`.
+  - `npm test`: `# tests 1871 / # pass 1870 / # fail 1`. The failure is `not ok 268 - FR-4 Inline pane: the rows asked for equal the rows the full layout draws, so Next is the last asked-for row`, the contract pin at `:164-176`.
+  - `claude plugin test`: `74 pass / 7 fail`, all P-8 pins in `tests/panel.test.tsx`, e.g. `Expected: 14 Received: 15`.
+  - `claude plugin validate`: `✔ Validation passed`.
+  - `git diff --check`: clean. `git diff --stat 8e8c5ba -- .claude/commands`: empty.
+- **Greenfield reds (flow.mjs at HEAD):**
+  - the four id-list tests: `- 'model'`;
+  - FR-3 groups: `+ [] - ['brainstorming','caveman',...]`;
+  - FR-7 closed layout: `- 'model'`, `- 'rule-skills'`, `- 'skills'`;
+  - FR-8 omitted inputs: `+ [] - ['model']`;
+  - the other new tests and all 6 catalog tests failed with `Cannot read properties of undefined`. That is not an assertion red; the falsifiers below give one.
+- **Falsifiers (each run, then reverted):**
+  1. Remove `tdd` → `skills missing from SKILL_CATALOG: tdd`.
+  2. Rebind `tdd` to `core` → `+ ['tdd: catalog core, SKILL.md conditional']`.
+  3. Two groups open → `core closed while conditional is open`. The builder was mutated to also open `core`, because the `skillsUi` shape holds one `group`; the Reviewer accepts the substitution.
+  4. Swap `brainstorming`/`caveman` → the alphabetical tests go red.
+  5. `protect` back on the marked rows → the 14-column mark test goes red on `  conditional…`.
+  6. `modelRow` governed at its natural width → `step at 24`.
+- **Not Done / Assumptions (verbatim from the Implementer, no owed item):**
+  - "`listedSkills(names)` returns `{ core, conditional, stack }` of `{ name, binding }` entries. T3 can flatten them into `host.skills` names."
+  - "The catalog is stored sorted by name, and `listedSkills` keeps that order rather than re-sorting, so the swap falsifier can go red. A flow test asserts the catalog is sorted."
+  - "A `model` row is always drawn, even before the first refresh. Without a model it reads `model —`, which is why four of the old id lists changed."
+  - "I did not use the Impeccable launcher or engine. This is a terminal text pane, so there was no detector run."
+- **Design route:** playbook `layout`, adapt; ENV-2; mode Operate; motion none. `polish light`: the 80-column render was read against §8.2 state 3 and matched; no tokens were added. `finish review: not run (AKILI execute)`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`.** The same commands gave the same results: 287/287, 1870/1871 with `not ok 268` the same test, kit `74 pass / 7 fail` with the same 7 names, validate passed, `--check` clean, commands diff empty.
+- **Reviewer verdict: `PASS`.**
+  - The rows match §8.1–§8.5, §5 and §9: order, ids, model fit rule, fitted marks, tones and press fields.
+  - The catalog test's expected side comes from disk.
+  - Old tests only gain ids. `:1009` is a list of rows measured at column 17, not a pane-id list, so leaving it unchanged is correct.
+  - Sort-by-stored-order is conformant: two tests pin it.
+  - The 8 red pins belong to T3 by the spec: T3's Scope and Consumers, and P-8.
+- **ADVISORY (Reviewer, recorded only):**
+  1. Spec tension, see below.
+  2. Falsifier 3 should read "mutate the builder to open a second group".
+  3. Readability: re-sorting inside `listedSkills` would make alphabetical order true by construction.
+  4. Reliability: the parser matches `metadata:` exactly, so it fails loudly on variants. That is acceptable.
+  5. Risk: low. Pure row builders, no host call, no file read.
+
+#### Spec tension (lightest Pivot evidence; at JC's gate as a one-line amendment)
+
+- tasks.md *Common verification (every code task)* asks for `npm test` and `claude plugin test` to be green.
+- T2 draws `model —` when no host is given (design §9). That breaks the `PANE_ROWS`/rows pins (contract `:164-176`; kit `:870`, `:888`, `:1003-1004`, `:1033`), and the spec assigns those pins to T3 (T3 Scope, Consumers, P-8).
+- So T2 cannot satisfy the common verification on its own.
+- **Proposed amendment (A):** "Common verification: `npm test` and `claude plugin test` are green once the last task touching a P-8 pin (T3) closes. T2 may leave red only the P-8 pins T3 owns." **Alternative (B):** widen T2 to update those pins now, which moves T3 scope into T2.
+- Awaits JC.
+
+#### T2 closeout — `PASS`, 2026-11-10
+
+- **JC's ruling:** «Opción A: cierra T2 con commit y que T3 deje todo en verde» («Option A: close T2 with a commit and have T3 leave everything green»).
+- **Spec edit:** tasks.md *Common verification* gains the amendment. `npm test` and `claude plugin test` are green once T3 closes, and T2 may leave red only the P-8 pins T3 owns. JC's words are quoted in tasks.md.
+- **Forward pointer to T3 (copy into its brief):** T3's Done criteria now also carry the full `npm test` and `claude plugin test` going green. At T2's close they stood at 1870/1871 and 74/7, red only on the P-8 pins.
+- **Other forward pointers to T3 (copy into its brief):**
+  - `listedSkills` returns `{ core, conditional, stack }` of `{ name, binding }`. `host.skills` holds the flattened names.
+  - From T1: `$.command.run` resolves `{}`, and a plugin's own `command.run` hooks skip its own run. The `/model` observer fires before the switch dialog, and `next()` settles after it.
+- Status `[x]`.
