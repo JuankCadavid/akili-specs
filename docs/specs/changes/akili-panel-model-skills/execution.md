@@ -290,3 +290,66 @@
 #### Forward pointers to T5
 
 - Unchanged from T3's list: live P-11, FR-1 "and resume" re-read, a confirmed `/model` switch, inline at `rows: 19`, the dock ignores `rows`.
+
+### T5: Live check of the real plugin (HITL) — `[~]` scripted checks done; awaiting JC's light/dark sign-off
+
+| Field | Value |
+|---|---|
+| Status | `[~]`: every scripted step ran; JC's light/dark visual check (the only gate for look, requirements §8) is pending |
+| Date | 2026-11-11 America/Bogota |
+| Go | JC at the T4 gate: «Sí, empieza T5 / Que Claude confirme el diálogo de /model». JC authorized the Leader to confirm the `/model` "Switch model?" dialog, only that dialog and only for this test |
+| Who ran it | Leader-inline (no Implementer: no repo change; screen reads taken with no delegated agent running and no test run, per the Disqualifier) |
+| Host | Claude Code 2.1.322, Orca terminal `term_33397fff…` ("T5 live") in this worktree. Read only with `orca terminal read --screen`; no screenshots, no `screencapture` |
+| Evidence files | `<S>` = `/private/tmp/claude-501/-Users-jcadavid-orca-workspaces-sdd-jc-methodology-panel-modelo-skills/081d0838-20a5-4dd0-92ab-e4b4dd23db26/scratchpad`: debug logs `t5-debug.log` (shadowed run), `t5-debug2.log`, `t5-debug3.log` (dock), `t5-debug4-inline.log`, `t5-debug5-dock.log` (resume + dock); screen reads `t5-s*.txt`, `i*.txt` (inline), `m*.txt` (`/model`), `d*.txt` (dock) |
+
+#### Setup
+
+- **The global v1.0.0 copy shadows the branch.** A plain `claude` in this worktree loaded `~/…/claude-profiles/…/home/skills/akili-panel` (v1.0.0): `t5-debug.log:69` "Not loaded — your …/home/skills/akili-panel (same plugin name "akili-panel") shadowed the project's ./.claude/skills/akili-panel". Not touched. Instead every session ran with the session-only flag `--plugin-dir <worktree>/.claude/skills/akili-panel`: `t5-debug2.log:44` "Loaded inline plugin from path: akili-panel", `:129` "hooks module akili-panel@inline loaded", and `:67` the global copy "Not loaded — the name "akili-panel" is already taken by a session-only plugin". The global install is unchanged.
+- **Session-only helper `focus-spy`** (`<S>/focus-spy`, never in the repo): logs `ui.focus`, `ui.press` and `command.run`, and answers any plugin-originated `command.run` outside an allow-list (`caveman`, `cognitive-doc-design`, `golang-pro`, `gsap-animation`, `tdd`, `diagram-design`) without running it. Reason: a press landing on `Next` would start `/akili-execute` in a second session on this checkout (AGENTS.md: one AKILI session per checkout). It fired twice on `Next` (below), so it was needed.
+- **Keys into the pane:** `ctrl+x tab` (`abovePrompt:focus`, the binary's default Chat binding) sent as one write, then `Tab` puts the ring on the first button; `Tab`/`shift+Tab` walk, `Enter` presses, `Esc` returns to the prompt. The first dock attempts failed only for want of that `Tab`; a raw SGR mouse click never reached the pane (recorded, not used).
+- Launch lines: dock `claude --model sonnet --plugin-dir <wt>/.claude/skills/akili-panel --plugin-dir <S>/focus-spy --debug-file <S>/t5-debug3.log`; inline the same with `CLAUDE_CODE_NO_FLICKER=0` and `t5-debug4-inline.log`; resume `claude --resume 46c58bc5-df20-4927-9fc5-e5296ef7b10e … --debug-file <S>/t5-debug5-dock.log`.
+
+#### Steps (screen text quoted)
+
+| # | Step | Screen / log evidence | Result |
+|---|---|---|---|
+| 1 | State 1, dock, closed (§8.2) | `t5-s1.txt`: `│model            claude-sonnet-5-5`, `│ Next: /akili-execute changes/akili-panel-model-skills`, rule, `│Skills (32) ▸`. Rows above (`Akili`, `⎇`, `01 Constitution`, `02 Cycle`, phases, `ctx`, `session`) as in 1.0.0 | PASS (FR-1, FR-2, FR-8) |
+| 2 | P-11 live: `session.model` and `command.list` answer on 2.1.322 | The row reads `claude-sonnet-5-5` and `Skills (32)`: both calls answered. (2.1.318 stays existence-checked, per T3) | PASS on 2.1.322 |
+| 3 | Inline at `rows: 19` | `i1.txt`: the frame ends at `│  Next: /akili-execute …` then `╰───`; the `Skills` rule and row are below it and come into view with Down ×2 (`t5-debug4-inline.log` "ui.scroll Pane akili (person) by 1 to 1: moved", "… to 2: moved"; `i3.txt` `│ Skills (32) ▸`). The frame body is the layout's allowance (P-5: 17 here), not 19 | PASS with note: Next stays inside the frame (DD-3); Skills reachable by keys (FR-7) |
+| 4 | Guard on `Next` (accidental) | `t5-debug4-inline.log`: "spy press {"element":"next"…}", "$.command.run (akili-panel): 47 chars queued", "spy GUARD answered /akili-execute without running"; transcript `⎿ focus-spy: T5 guard: /akili-execute pressed from the pane, not run in the test session` | The pane's Next press works; not run, by design |
+| 5 | State 2: press `Skills` | "ui.focus Pane akili (person) onto akili-panel's skills: moved", "spy press {"element":"skills"…}"; `i5.txt` `│ Skills (32) ▾`; `i6.txt` `│   core (12) ▸`, `│   conditional (9) ▸`, `│   stack (11) ▸` (12+9+11 = 32) | PASS (FR-3) |
+| 6 | State 3: press `core` | "spy press {"element":"skills-group-core"…}"; `i7.txt` `│   core (12) ▾` then 12 names `brainstorming` … `systematic-debugging`, then `conditional (9) ▸`, `stack (11) ▸` | PASS (FR-3) |
+| 7 | Core skill press + double press | One write `\r\r` on `skill-caveman`: two "spy press {"element":"skill-caveman"…}", one "$.command.run (akili-panel): 8 chars queued", one "spy run command=caveman args="" origin={"kind":"plugin","name":"akili-panel"}"; transcript `❯ /caveman` once; the model answered | PASS (FR-4 *Run*, *Double press*: one run, no arguments) |
+| 8 | Section stays after a run | `i10.txt` after the turn: `│ Skills (32) ▾`, `│   core (12) ▾`, the 12 names | PASS (FR-4) |
+| 9 | One group open at a time; conditional press | "spy press {"element":"skills-group-conditional"…}"; `i11.txt` `│   core (12) ▸`, `│   conditional (9) ▾` + 9 names (`diagram-design` … `video-production`). Press `skill-diagram-design`: "15 chars queued", "spy run command=diagram-design args=""…"; transcript `❯ /diagram-design`; `i14.txt` still `conditional (9) ▾` | PASS (FR-3, FR-4) |
+| 10 | Stack press | `i16.txt` `│   conditional (9) ▸`, `│   stack (11) ▾` + 11 names to `vercel-react-best-practices`. Press `skill-golang-pro`: "11 chars queued", "spy run command=golang-pro args=""…"; transcript `❯ /golang-pro`; `i19.txt` `stack (11) ▾` | PASS (FR-3, FR-4) |
+| 11 | Confirmed `/model` switch (JC-authorized) | Typed `/model haiku`; dialog `Switch model?` … `❯ 1. Yes, switch to Haiku 5.5` / `2. No, go back`; Leader sent `1`. `m2.txt`: `⎿  Set model to Haiku 5.5 and saved as your default for new sessions`, then the pane `│ model            claude-haiku-5-5` within 4 s, no turn in between; status line `Haiku 5.5`. `m3.txt`: Skills still open (`stack (11) ▾` list) | PASS (FR-1 *Model changes*, P-4 with a confirmed switch) |
+| 12 | Resume re-read | `/exit`, then `claude --resume 46c58bc5-…` docked: `d1.txt` `│model            claude-haiku-5-5`, `│Skills (32) ▸` (closed in the new session) | PASS (FR-1 "and resume", FR-2) |
+| 13 | Dock: largest group, last skill reachable | `t5-debug5-dock.log` "ui.focus … onto akili-panel's skill-systematic-debugging: moved"; `d3.txt` whole tree in the dock, `│    systematic-debugging` then `│  conditional (9) ▸`. Press: "21 chars queued", "spy run command=systematic-debugging …", "spy GUARD answered /systematic-debugging without running" (not allow-listed) | PASS (FR-7 dock; the press dispatches) |
+| 14 | Narrow pane | `ctrl+x right` (`pane:shrink`) ×22: the dock stops at **23** inner columns (host minimum). `d5.txt` at 23: `[model        claud…-5-5]`, `[Akili  changes/…-skills]`, `[01 Constit…  ▶ (5/13)]`, `[    cognitive-doc-desi…]`, `[    systematic-debuggi…]`, `session` row dropped, every mark kept | PASS at 23; **14 columns not reachable live** in the dock (host floor); 14 stays covered by the kit (T2/T3) |
+
+#### Side effects and cleanup
+
+- **Model default:** the confirmed `/model haiku` wrote `"model": "haiku"` into the Orca profile's `settings.json` ("saved as your default for new sessions"). Restored by the Leader to `"model": "opus"`: `shasum` back to the original `d7387625c449fd4a0ef849f0e79b3ac070a200de`. `~/.claude/settings.json` was never changed (same hash throughout).
+- **Dock width:** the shrink/grow left `"pluginPanes": {"dockColumns": 101}` in the profile's `.claude.json` (the first dock read showed 60 inner columns, so about 61 before; the prior stored value was not read). Not edited by hand: the file is written live by running sessions. JC can drag or `ctrl+x left/right` it back.
+- **Stray file:** loading the branch plugin with `--plugin-dir` made the host write `.claude/skills/akili-panel/tsconfig.json` (untracked, `extends ./.claude-plugin/types/tsconfig.json`); removed. `git status` clean.
+- The T5 test sessions ran `/caveman`, `/diagram-design` and `/golang-pro` for real (allow-listed, read-only skills); no file was written in the repo.
+
+#### Observations (recorded only)
+
+1. Host: `End` (`pane:bottom`) moves the focus ring with the scroll; after it, `Tab` landed on `next` once and on `skill-tailwind-design-system` once. Host behaviour, not plugin code; the guard made the stray `Next` press harmless.
+2. Inline, the closed layout's `Skills` row sits below the 17-row allowance at this terminal size: it is reached by Down, not seen at open. Design §8.6 anticipated it (P-5); DD-3 keeps `Next` inside.
+3. A real refusal toast (FR-4 *Refused*) was not produced live: every listed skill exists. Covered by the kit (T3 falsifier 2).
+
+## Spec Amendment A1: AKILI title (approved by JC 2026-11-11: «Apruebo la enmienda A1, haz commit y empieza T6»)
+
+| Field | Value |
+|---|---|
+| Trigger | New request from JC while T5 waited on the light/dark gate (not a look verdict; that gate stays open): «Se puede en el mod tener un titulo de AKILI arriba ? algo asi como en la imagen pero mas pequeño ?» (the image: the `akili` CLI banner, `bin/akili.js:92-97`, six rows, cyan). Asked separate change or this one: «Mételo en el cambio actual» |
+| Route | Scope grows only through approval (AGENTS.md), so no task absorbs it: a written amendment to the approved spec, then JC's approval, then execution. Not a Pivot (nothing approved is invalidated) |
+| Options offered | A one row `A K I L I` (width 9); **B two rows of half-block letters (width 15)**; C three rows of double-line letters (width 15). Defaults: tone `planMode` (theme key, NFR-1), one bold `AKILI` row below 15 columns, title above the header with the header row losing `Akili`, `PANE_ROWS` 19 + title rows |
+| JC's choice | «Opción B, con los valores por defecto» (2026-11-11) |
+| Edits | `requirements.md`: FR-10 added; FR-7, FR-8 (statement and *Same facts*), FR-9 amended; index row; Document Control. `design.md`: §8.1, new §8.7, DD-9, §12, Document Control. `tasks.md`: T6 added (depends on T4; T5 closes after it), Document Control budget, dependency note, coverage rows, estimates |
+| Small screens | JC, before approving: «que no se vea mal en pantallas pequeñas». The Leader's rule (FR-10, design §8.7): title size = the smaller of a width rule (≥ 15 columns two rows, 5–14 one bold `AKILI` row, under 5 none) and a height rule from `scroll.bodyRows` that keeps `Next` in the opening view (room for 2 → two rows, for 1 → one row, none → no title). With no title, the header reads `Akili  <spec>` as in `1.0.0`. New premise P-13 (`bodyRows` on the Pane, seen at T1: 17 inline, 52 docked) |
+| Budget | 6 tasks, ~980 LOC (now ≈831; T6 ~130 with the size rule), review rounds still 8 (used 5; planned T6 2, T5 1) |
+| T5 | Stays `[~]`: after T6, it re-reads the title states live and takes JC's single light/dark check for the whole pane |

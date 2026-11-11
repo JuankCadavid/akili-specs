@@ -9,7 +9,7 @@
 | Type | Change |
 | Deliverable | `software` |
 | Approval Mode | `gated`. Every phase gate stops for JC |
-| Status | **Approved** by JC (Juan Carlos Cadavid), 2026-11-10: «Continúa al diseño (design.md)» (option 1, Continue) |
+| Status | **Approved** by JC (Juan Carlos Cadavid), 2026-11-10: «Continúa al diseño (design.md)» (option 1, Continue). **Amendment A1 (AKILI title), approved by JC 2026-11-11: «Apruebo la enmienda A1, haz commit y empieza T6».** JC asked «Se puede en el mod tener un titulo de AKILI arriba ? algo asi como en la imagen pero mas pequeño ?», then «Mételo en el cambio actual» and «Opción B, con los valores por defecto»: FR-10 added; FR-7, FR-8 and FR-9 amended (marked *A1*) |
 | Date | 2026-11-10 |
 | Proposal | `proposal.md`, approved by JC 2026-11-10: «adelante apruebo», Option A + A1, defaults Q1–Q4 (its *Decisions After Approval*) |
 | Parent specs | `docs/specs/archive/2026-11-06-changes--akili-panel/` (`parent FR-n`), `docs/specs/archive/2026-11-09-changes--akili-panel-polish/` (`polish FR-n`) |
@@ -197,7 +197,7 @@ The new rows SHALL follow the polish FR-7 ladder and never exceed the pane's bod
 
 ### FR-7: Height
 
-Closed, the pane's natural height SHALL grow by exactly two rows (`model`, `Skills`) plus one rule if the design adds one. Open, every listed skill of the open group SHALL be reachable by the person, whether by the pane growing or by scrolling within it.
+Closed, the pane's natural height SHALL grow by exactly two rows (`model`, `Skills`) plus one rule if the design adds one, *A1:* plus the title's rows (FR-10: two, one or none by the room available). Open, every listed skill of the open group SHALL be reachable by the person, whether by the pane growing or by scrolling within it.
 
 #### Scenario: Tallest open state
 
@@ -207,23 +207,68 @@ Closed, the pane's natural height SHALL grow by exactly two rows (`model`, `Skil
 
 ### FR-8: Everything else unchanged
 
-Every row, tone, mark, string, background, refresh trigger and the Next behaviour of plugin `1.0.0` SHALL stay as shipped.
+Every row, tone, mark, string, background, refresh trigger and the Next behaviour of plugin `1.0.0` SHALL stay as shipped, *A1:* except the header's first row, which loses the word `Akili` while a title shows (FR-10).
 
 #### Scenario: Same facts
 
 - GIVEN the parent and polish fixture states
 - WHEN the pane draws with the Skills row closed
-- THEN every pre-existing row's text and tone is identical to `1.0.0`, and the only added rows are `model` and `Skills` (and a rule if the design adds one)
+- THEN every pre-existing row's text and tone is identical to `1.0.0`, and the only added rows are `model` and `Skills` (and a rule if the design adds one), *A1:* plus the title rows (none, one or two, FR-10); while a title shows, the header's first row reads the spec alone, without `Akili  `
 - BUT it must NOT change any `/akili-*` command's name, arguments or result
 
 ### FR-9: Docs and version
 
-The plugin README, `docs/plugins/akili-panel.md` and `CHANGELOG.md` (Unreleased) SHALL describe the model row and the Skills section as shipped; `plugin.json` SHALL read `1.1.0`.
+The plugin README, `docs/plugins/akili-panel.md` and `CHANGELOG.md` (Unreleased) SHALL describe the model row and the Skills section, *A1:* and the AKILI title, as shipped; `plugin.json` SHALL read `1.1.0`.
 
 #### Scenario: No stale text
 
 - GIVEN the docs after this change
 - THEN the row table names `model` and `Skills`, and no sentence still says Next is the pane's only action or the footer is `ctx` and `session` only
+
+### FR-10: AKILI title (A1)
+
+The pane SHALL draw an AKILI title above the header, in the theme's `planMode` tone, at one of three sizes: **two rows** of half-block letters, **one row** `AKILI` in bold, or **none**. The size is the largest that both fits the body's width and leaves the `Next` row visible in the body's height without scrolling. When a title is drawn, the header's first row SHALL carry the spec alone; when none is drawn, that row SHALL read as in `1.0.0` (`Akili  <spec>`), so the pane never loses its name. The pane SHALL not look broken on small screens: no glyph is cut mid-letter, and the title never pushes `Next` out of the opening view.
+
+#### Scenario: Wide and tall
+
+- GIVEN a body at least 15 columns wide, with room for the title's two rows plus every row down to `Next`
+- THEN the first two rows are `▄▀█ █▄▀ █ █   █` and `█▀█ █ █ █ █▄▄ █`, tone `planMode`
+- AND the next row is the spec name alone (`changes/…`), then the branch row as in `1.0.0`
+
+#### Scenario: Narrow pane (dock minimum 23, kit case 14)
+
+- GIVEN a body 23 columns wide (the dock's minimum seen at T5)
+- THEN the two-row title is drawn whole
+- GIVEN a body from 5 to 14 columns wide (the kit's 14-column case included)
+- THEN one bold `AKILI` row is drawn instead
+- GIVEN a body under 5 columns
+- THEN no title is drawn and the header row is drawn as `1.0.0` draws it at that width
+- BUT no title row is ever cut, and no pre-existing ladder step changes order or number (FR-6)
+
+#### Scenario: Short terminal
+
+- GIVEN a body whose visible rows leave room for only one extra row above `Next`
+- THEN the one-row `AKILI` title is drawn
+- GIVEN a body whose visible rows leave no room above `Next` (for example the 17-row inline frame seen at T5)
+- THEN no title is drawn, the header reads `Akili  <spec>` as in `1.0.0`, and `Next` is the last visible row as before
+- AND opening or closing the Skills section, or a group, does not change the title's size (it is sized on the rows down to `Next`, which the section never moves)
+
+#### Scenario: Size unknown
+
+- GIVEN a surface that reports no body width or no visible rows
+- THEN that measure sets no limit (as every row draws whole when `cols` is missing), and the other measure still applies
+
+#### Scenario: No spec or no docs
+
+- GIVEN no active spec, or no `docs/specs/` folder
+- THEN the title follows the same size rule, and no empty header row is drawn where the spec name would be
+- BUT the empty-state text (`No active spec.`, `No docs/specs/ folder yet.`) is unchanged
+
+#### Scenario: Height asked
+
+- GIVEN the pane opens
+- THEN it asks for the closed layout's rows including the two-row title (21)
+- BUT a size the person set stays theirs (polish FR-4)
 
 ## 7. Non-Functional Requirements
 
@@ -260,4 +305,5 @@ The plugin README, `docs/plugins/akili-panel.md` and `CHANGELOG.md` (Unreleased)
 | FR-7 | Height |
 | FR-8 | Everything else unchanged |
 | FR-9 | Docs and version |
+| FR-10 | AKILI title (A1) |
 | NFR-1 … NFR-5 | §7 |

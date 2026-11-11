@@ -10,13 +10,15 @@
 | Format source | `docs/specs/archive/2026-11-09-changes--akili-panel-polish/tasks.md` |
 | Baseline | `8e8c5ba` (code identical to `af41538`) |
 | Approval Mode | `gated` |
-| Budget (design §12) | 5 tasks, ~750 LOC, 8 review rounds |
+| Budget (design §12) | 5 tasks, ~750 LOC, 8 review rounds. Raised by JC to ~850 LOC at the T3 gate (2026-11-10). *A1 (approved by JC 2026-11-11):* 6 tasks, ~980 LOC, 8 review rounds |
 
 ## Dependency graph
 
 ```text
 T1 (live probe, settles P-3 P-4 P-5) ──► T2 (flow.mjs rows + catalog) ──► T3 (register.jsx wiring) ──► T4 (docs, version) ──► T5 (live check, HITL)
 ```
+
+*A1:* T4 ──► **T6 (AKILI title)** ──► T5 closes. T5's scripted steps ran before A1 (2026-11-11); after T6 it re-reads the title live (dock at 23 columns and wide; inline in the short 17-row frame, where no title is expected) and takes JC's one light/dark check for everything.
 
 Strictly sequential: T2 is only worth building once T1 shows a skill runs from a press (P-3, **High**).
 
@@ -104,11 +106,30 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 | Done criteria | Falsifier readings as stated; verify and pack green; every new doc clause quote-checked and the check logged in `execution.md` |
 | Skills | `cognitive-doc-design` |
 
+### T6: AKILI title (A1)
+
+| Field | Value |
+|---|---|
+| Status | `[ ]` (amendment A1, approved by JC 2026-11-11) |
+| Size | S (~130 LOC: code ~35, tests ~80, docs ~15) |
+| Depends on | T4 |
+| Requirements | FR-10 (all scenarios), FR-7 and FR-8 as amended by A1, FR-9 (title in docs) |
+| Design | §8.7 (size rule), §8.1, DD-9, P-13 |
+| Scope | `flow.mjs`: pure `brandRows(size)` and `titleSize({ cols, rows, n })`; `paneRows` gains `rows`, draws the title first in every state, and the header's first row drops `Akili  ` only while a title shows. `register.jsx`: pass `rows` from `e.props.scroll.bodyRows`; `PANE_ROWS` 21. Docs: README and `docs/plugins/akili-panel.md` rows table gains the title, its sizes and the header row's text; `CHANGELOG.md` Unreleased Added bullet gains the title and the 21 rows |
+| Tests | Flow (one assertion per scenario clause): **width** 80 → 2 rows with exact glyph strings and tone `planMode`; 23 → 2 rows; 15 → 2; 14 → one bold `AKILI`; 5 → `AKILI`; 4 → none and header `Akili…` as `1.0.0`; **height** `rows = n + 2` → 2, `n + 1` → 1, `n` → none, `n − 4` → none; Next stays the last visible row when `rows = n`; **stability** the size is equal with Skills closed, open and a group open; **unknown** `cols` missing → height rule alone, `rows` missing → width rule alone, both missing → 2; **header** without `Akili  ` when a title shows, exactly `1.0.0` when none; **states** no view, empty states, error lines (larger `n`); **ladder** pre-existing ladder steps unchanged at every width tested. Kit: `bodyRows` varied (52 → 2 rows; 17 with the full layout → none, header `Akili  …`); `PANE_ROWS` 21 asked; a render with new `bodyRows` re-sizes the title (P-13). Contract: render still reads props and atoms only. Then common verification (`npm test`, `claude plugin validate`, `claude plugin test` on 2.1.322 and 2.1.318, `git diff --check`, `.claude/commands` diff empty), `npm run verify:cli`, `npm run pack:dry-run` |
+| Falsifier | Remove the `planMode` tone → the 80-column test fails; drop the height rule → `rows = n` fails; make the 14-column branch return two rows → the 14-column test fails; keep `Akili  ` with a title → the header test fails; size on the full row count (Skills included) → the stability test fails; `PANE_ROWS` back to 19 → the kit's rows-asked case fails |
+| Red run | New tests first, red against T4's code: `titleSize`/`brandRows` absent, header still `Akili  changes/…`, `PANE_ROWS` 19 |
+| Disqualifier | Glyph strings asserted without their tone, or the size rule tested only at full width and height, do not cover FR-10. Doc and CHANGELOG lines are quote-checked against the shipped code (KZ-002) |
+| Consumers | `test/akili-panel-flow.test.js` header and no-view pins; `tests/panel.test.tsx` layout and rows-asked pins; `test/akili-panel-contract.test.js` (`PANE_ROWS` / asked-rows rule); README, `docs/plugins/akili-panel.md`, `CHANGELOG.md` |
+| Review | `full` |
+| Done criteria | All checks green; falsifiers observed red, then reverted; docs quote-checked and logged in `execution.md` |
+| Skills | `tdd`, `impeccable-bridge`, `cognitive-doc-design` |
+
 ### T5: Live check of the real plugin (HITL)
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[~]` scripted checks done 2026-11-11; awaiting JC light/dark sign-off |
 | Size | S (no code) |
 | Depends on | T4 |
 | Requirements | FR-1 (model shown, follows `/model`), FR-2, FR-3, FR-4 (a real skill runs from a press; double press; section stays), FR-6 (narrow pane, 14 columns), FR-7 (*Tallest open state*: every skill reachable inline and docked), FR-8 (look unchanged), NFR-1 (light and dark) |
@@ -149,7 +170,10 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 | FR-7 closed = two rows + one rule | T2 (rows), T3 (`PANE_ROWS` 19) |
 | FR-7 *Tallest open state*; BUT person's size stays | T1 (P-5), T5 |
 | FR-8 *Same facts*; BUT no `/akili-*` change | T2 (rows), T3 (Next, contract), common verification (`.claude/commands` diff empty), T5 |
-| FR-9 *No stale text*; version `1.1.0` | T4 |
+| FR-9 *No stale text*; version `1.1.0` | T4; *A1:* title in docs, T6 |
+| FR-10 *Wide and tall*, *Narrow pane*, *Short terminal*, *Size unknown*, *No spec or no docs* (A1) | T6 (size rule, rows, tests), T5 (live: dock 23 columns, inline short frame) |
+| FR-10 *Height asked*; FR-7 and FR-8 as amended (A1) | T6 (`PANE_ROWS` 21, header pins), T5 |
+| NFR-1 for the title (`planMode`) | T6 (tone test), T5 (JC light/dark) |
 | NFR-1 | T2 (tones), T5 (JC light/dark) |
 | NFR-2, NFR-3 | T3 (contract: render reads atoms only) |
 | NFR-4 | T3 (2.1.318 kit, rejection fallbacks) |
@@ -159,7 +183,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Measure | Value |
 |---|---|
-| LOC | ~750 (code ~220, tests ~470, docs ~60) |
+| LOC | ~750 (code ~220, tests ~470, docs ~60); ~850 by JC at the T3 gate; *A1:* ~980 (T6 ~130) |
 | Review rounds | 8 (T1 1, T2 2, T3 2, T4 2, T5 1) |
 | PR | One PR into `dev`: one plugin, tests dominate the line count, and the parts cannot ship apart (rows without wiring draw nothing pressable). Review order in the PR: `flow.mjs` → `register.jsx` → tests → docs |
 | `skip-eligible` tasks | **None.** Every task has a conformance Reviewer |

@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Spec Path | `changes/akili-panel-model-skills` |
-| Status | **Approved** by JC (Juan Carlos Cadavid), 2026-11-10: «Pasa a las tareas (tasks.md)» (option 2, Continue). Judgment-day round 1 closed **`fixed, not re-judged` (J-1, J-2)** on JC's «Corrige J-1 y J-2 sin volver a revisar» (2026-11-10); other findings stay recorded in `judgment.md` |
+| Status | **Amendment A1 (AKILI title), approved by JC 2026-11-11: «Apruebo la enmienda A1, haz commit y empieza T6».** JC asked «Se puede en el mod tener un titulo de AKILI arriba ? algo asi como en la imagen pero mas pequeño ?», then «Mételo en el cambio actual» and «Opción B, con los valores por defecto»: DD-9, §8.7, §8.1 and §12 amended (marked *A1*). **Approved** by JC (Juan Carlos Cadavid), 2026-11-10: «Pasa a las tareas (tasks.md)» (option 2, Continue). Judgment-day round 1 closed **`fixed, not re-judged` (J-1, J-2)** on JC's «Corrige J-1 y J-2 sin volver a revisar» (2026-11-10); other findings stay recorded in `judgment.md` |
 | Requirements | `requirements.md`, approved by JC 2026-11-10: «Continúa al diseño (design.md)» |
 | Format source | `docs/specs/archive/2026-11-09-changes--akili-panel-polish/design.md` (no `docs/specs/general-setup/` here) |
 | Verified at | `8e8c5ba` (code unchanged since `af41538`) |
@@ -80,7 +80,7 @@ n/a — a local plugin, no server (as parent design §7). No `Backend route:` li
 
 ### 8.1 Row order (closed, full width)
 
-`title`, `branch`, `rule-top`, `constitution`, `cycle`, 6 × `phase-*`, `rule-tokens`, `ctx`, `session`, **`model`**, `gap`, `next`, **`rule-skills`**, **`skills`** → 19 rows. Open adds `skills-group-<b>` rows and, under the open group, `skill-<name>` rows.
+`title`, `branch`, `rule-top`, `constitution`, `cycle`, 6 × `phase-*`, `rule-tokens`, `ctx`, `session`, **`model`**, `gap`, `next`, **`rule-skills`**, **`skills`** → 19 rows. *A1:* **`brand-1`**, **`brand-2`** come first and `title` carries the spec alone → 21 rows (§8.7). Open adds `skills-group-<b>` rows and, under the open group, `skill-<name>` rows.
 
 ### 8.2 Text mockup — the three states (80 columns, dark or light: tones are theme keys)
 
@@ -177,6 +177,30 @@ Marks carry state without colour (NFR-1). Next keeps its chip and dims while any
 
 **Decision:** no re-open and no own scrolling. Skills sit **after** Next, so whatever the room, Next and every pre-existing row keep their place and the open group grows downward into the frame or the scroll window. Live confirmation is P-5 (owner T1).
 
+### 8.7 AKILI title (A1, FR-10)
+
+```text
+▄▀█ █▄▀ █ █   █        ← brand-1, tone planMode
+█▀█ █ █ █ █▄▄ █        ← brand-2, tone planMode
+changes/akili-panel-model-skills
+⎇ JuankCadavid/akili-panel-model-skills
+────────────────────────────────────────
+```
+
+**Size rule** (pure, in `flow.mjs`): `size = min(byWidth, byHeight)`, where
+
+| Measure | Input | 2 rows | 1 row (`AKILI`, bold) | none |
+|---|---|---|---|---|
+| `byWidth` | `cols` = `bodyColumns` | `cols` ≥ 15 | 5 ≤ `cols` ≤ 14 | 0 < `cols` < 5 |
+| `byHeight` | `rows` = `scroll.bodyRows`; `n` = rows from the header down to and including `Next` (no title) | `n + 2 ≤ rows` | `n + 1 = rows` | `n ≥ rows` |
+
+- A missing or non-positive measure is unbounded (2), as `cols` already is.
+- `n` counts only rows above the Skills section, so opening Skills or a group never changes the size; error lines or an empty state change `n`, and the rule follows. With no `Next` row (no view), `n` is every row.
+- **Size none** draws the `1.0.0` header (`Akili  <spec>`, or the no-view `Akili` row): FR-8 holds exactly in that case.
+- Examples: dock at 23 × 52 → 2 rows; kit 14 columns, tall → 1 row; inline 17 visible rows with `n` = 17 (the T5 session) → none, Next stays on the last visible row; a 13-row inline allowance → none, Next as in `1.0.0`.
+- `register.jsx` passes `rows: e.props.scroll && e.props.scroll.bodyRows` beside `cols` into `paneRows` (render reads props only, NFR-2). `PANE_ROWS` 19 → 21.
+- Not in `governedRows`: the title never moves a ladder step (FR-6). Glyphs are block elements (U+2580, U+2584, U+2588), single-width.
+
 ## 9. Shared Contracts or Package Extensions
 
 `types/index.d.ts`: `AkiliPanelHost`, `AkiliPanelSkillsUi`, and `host: Shaped<AkiliPanelHost>`, `skillsUi: AkiliPanelSkillsUi` in `PluginState['akili-panel']`. `paneRows` input gains `host` and `skillsUi` (both optional: absent → `model —`, no Skills section).
@@ -192,6 +216,7 @@ Marks carry state without colour (NFR-1). Next keeps its chip and dims while any
 | DD-5 | `model` row outside `governedRows`; its own fit rule (§8.5) | Governed (a long id would push the ladder and change pre-existing rows, against FR-6/FR-8) | FR-6, FR-8 |
 | DD-6 | `on('command.run', { command: 'model' })` observer: `next(e)` first, then `later(runRefresh)`, `.catch(passOn)` like the others (NFR-5). If P-4 refutes it, turn.complete and the 30 s tick still meet FR-1's bound, and the observer is removed via the Pivot Protocol | Polling faster than 30 s | FR-1 |
 | DD-7 | `skillsUi` reset in `startSession` and `openPane`; not reset by refresh, `/clear` or a run (FR-4 *section stays*) | Persist in `$.store` across sessions (FR-2 says closed at every start) | FR-2, FR-4 |
+| DD-9 | *A1:* a half-block AKILI title in `planMode` sized two rows, one row or none by the smaller of a width rule and a height rule that keeps `Next` in the opening view (§8.7); the header row drops `Akili  ` only while a title shows; `PANE_ROWS` 21. JC chose option B and the defaults, 2026-11-11, then asked «que no se vea mal en pantallas pequeñas» | Fixed two rows everywhere (pushes Next out of a 17-row inline frame); a title cut with `…` (looks broken); hiding by placement (`dock`/`inline`) instead of measured room (a short dock would still break); A: one row `A K I L I` (least height, least likeness to the CLI banner); C: three-row double-line letters (closest to the banner, one more row); keeping `Akili  <spec>` under the title (the name twice); raw cyan as in the CLI banner (NFR-1: theme keys only) | FR-10, FR-7, FR-8 |
 | DD-8 | `docs/skills/governance.md` gains one line in the acceptance checklist: a new, removed or rebound skill updates `SKILL_CATALOG`; the catalog test enforces it | Rely on the test alone (the failure would surprise the next skill author) | FR-5 |
 
 ## 11. Premise Ledger
@@ -212,6 +237,7 @@ Marks carry state without colour (NFR-1). Next keeps its chip and dims while any
 | P-9 | Plugin file count and pack contents are pinned by `test/install-akili-panel.test.js` and `npm run pack:dry-run`; adding no file leaves them green | consumer | `ls test \| grep -i panel` → `install-akili-panel.test.js` among 5; DD-1 adds no shipped file | `8e8c5ba` | A generated catalog file would need those updates (Low) | — |
 | P-10 | A Next press reaches `$.command.run` and runs the command interactively (shipped) | live-path | `draw` → `<Button … onPress={() => press($, v.next)}>` → `press()` → `$.command.run`; parent design P-34 (observed in parent T1, Claude Code 2.1.318) | `8e8c5ba` | — | — |
 | P-11 | `$.session.model` and `$.command.list` exist on 2.1.318 (NFR-4 floor) | existence | T3, 2026-11-10: `~/.local/share/claude/versions/2.1.318 plugin test .claude/skills/akili-panel` → `92 pass / 0 fail` with both calls mocked in the kit; the 2.1.318 binary's strings contain `"session.model"` and `"command.list"` (2.1.317 too). Existence by binary strings and mocked kit only, not a live answer | `2c0a5bf` + T3 diff | NFR-4 fallback paths become the norm on 2.1.318 (Low) | T3 (existence) ✓; live at T5 |
+| P-13 | *A1:* a Pane render carries `scroll.bodyRows`, the visible body rows, and re-renders when it changes | data-env | T1 probe (2.1.322): `"body":17` inline and `"body":52` docked in its RENDER lines (`t1-events.run3-inline.log:5-6`, `t1-debug.run1.log:620`); `types` Pane `scroll` ("The body's window over the tree") | — | Absent on a host → unbounded (FR-10 *Size unknown*); a missed re-render on resize leaves the old size until the next render (Low) | T6 (kit varies `bodyRows`), T5 (live) |
 | P-12 | No test reads the active spec folder | other | KZ-changes--archify-diagrams-1; the catalog test reads `.claude/skills/`, not `docs/specs/` | `8e8c5ba` | — | — |
 
 ## 12. Budget (Step 2.4)
@@ -219,7 +245,8 @@ Marks carry state without colour (NFR-1). Next keeps its chip and dims while any
 | Measure | Estimate |
 |---|---|
 | Tasks | 5 (T1 live probe; T2 catalog + rows in `flow.mjs` with their tests; T3 `register.jsx` wiring + types with contract and kit tests; T4 docs + version + governance + CHANGELOG; T5 live check, HITL). Split aligned with `tasks.md`: tests travel with the code they pin |
-| LOC | ~750: code ~220, tests ~470 (one assertion per scenario clause, KZ-bugfix--init-ctrlc-abort-2), docs ~60 |
-| Review rounds | 8 (T1 1, T2 2, T3 2, T4 2, T5 1) |
+| LOC | ~750: code ~220, tests ~470 (one assertion per scenario clause, KZ-bugfix--init-ctrlc-abort-2), docs ~60. Raised by JC to ~850 at the T3 gate (2026-11-10). *A1:* ~980: T6 adds about 130 (code ~35, tests ~80, docs ~15), the size rule included |
+| Review rounds | 8 (T1 1, T2 2, T3 2, T4 2, T5 1). *A1:* still 8: used T1 1, T2 1, T3 1, T4 2; planned T6 2, T5 1 |
+| Tasks (*A1*) | 6: T6 (AKILI title) after T4; T5 closes after T6 |
 
 Matches Standard depth; no change of depth recommended.
