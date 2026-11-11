@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.44.0] - 2026-11-11
+
 ### Added
 
 - **`akili-panel` 1.1.0: a `model` row and a collapsible `Skills` section.** The `model` row shows the session's model id, or `model —` when Claude Code gives none. Below `Next`, `Skills (<n>)` opens the groups `core`, `conditional` and `stack`; pressing a skill runs it by name, with no arguments. A skill press shares the `Next` press guard: one run is pending at a time, and a refused run shows `Could not run /<command>: <reason>`. The list is the catalog of skills AKILI ships, kept in `flow.mjs`, intersected with the commands the session can run; it is closed each time the pane opens. An `AKILI` title in the theme's `planMode` colour sits above the header: two rows of half-block letters from 15 columns when they fit above `Next`, one bold row from 5 to 14 columns or when only one row is spare, none under 5 columns or when even one row would push `Next` out of the visible rows. While a title shows, the header's first row reads the spec alone; with none, it reads `Akili  <spec>` as in 1.0.0.
@@ -15,7 +21,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **The pane asks for 21 rows when it opens, up from 16.** A size the user set stays theirs. The pane also refreshes after `/model`.
 - **README and `docs/plugins/akili-panel.md` no longer describe `Next` as the only action.** They now list the existing refresh after `/clear`, and the plugin version is `1.1.0`.
-
 ## [2.43.0] - 2026-11-09
 
 ### Added
