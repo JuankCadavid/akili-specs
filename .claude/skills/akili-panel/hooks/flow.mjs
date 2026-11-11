@@ -737,46 +737,67 @@ function skillsRows(host, skillsUi, pending, width, rule) {
   return rows
 }
 
-function headerRows(view, cols) {
+// FR-10 / §8.7: the AKILI title, two half-block rows, one bold row or none; a missing or non-positive measure is unbounded.
+const BRAND = Object.freeze(['▄▀█ █▄▀ █ █   █', '█▀█ █ █ █ █▄▄ █'])
+export function brandRows(size) {
+  if (size === 2) return BRAND.map((text, i) => ({ id: `brand-${i + 1}`, parts: [{ text, tone: 'planMode' }] }))
+  if (size === 1) return [{ id: 'brand-1', parts: [{ text: 'AKILI', tone: 'planMode', bold: true }] }]
+  return []
+}
+
+export function titleSize({ cols, rows, n } = {}) {
+  const byWidth = !(cols > 0) || cols >= 15 ? 2 : cols >= 5 ? 1 : 0
+  const byHeight = !(rows > 0) || n + 2 <= rows ? 2 : n + 1 === rows ? 1 : 0
+  return Math.min(byWidth, byHeight)
+}
+
+function headerRows(view, cols, titled) {
   const wide = cols > 0
-  const avail = wide ? cols - 'Akili  '.length : Infinity
-  const title = [{ text: 'Akili', bold: true }]
-  if (view.spec && avail >= 1) title.push({ text: `  ${shortenMiddle(view.spec, avail)}` })
+  const avail = wide ? cols - (titled ? 0 : 'Akili  '.length) : Infinity
+  const title = titled ? [] : [{ text: 'Akili', bold: true }]
+  if (view.spec && avail >= 1) title.push({ text: titled ? shortenMiddle(view.spec, avail) : `  ${shortenMiddle(view.spec, avail)}` })
   const label = branchLabel(view.branch)
   const branch = view.branch && view.branch.kind === 'branch' ? `⎇ ${label}` : label
   const tail = `${view.archived ? ` · ${STRINGS.archived}` : ''}${view.moreActive > 0 && view.spec ? ` ${STRINGS.moreActive(view.moreActive)}` : ''}`
   const room = wide ? Math.max(1, cols - tail.length) : Infinity
   const parts = [{ text: shortenMiddle(branch, room), tone: 'inactive' }]
   if (tail) parts.push({ text: tail, tone: 'inactive' })
-  return [{ id: 'title', parts: title }, { id: 'branch', parts }]
+  return [...(title.length ? [{ id: 'title', parts: title }] : []), { id: 'branch', parts }]
 }
 
 // Everything the pane draws, in order. `cols` is `bodyColumns`; a missing or non-positive one cuts nothing.
 // The Next row carries `next: { command, args, label, pending }`; `label` is already cut to `cols - 2`.
-export function paneRows({ view = null, usage = null, sums = null, pending = null, cols, host = null, skillsUi = null } = {}) {
+export function paneRows({ view = null, usage = null, sums = null, pending = null, cols, rows: visible, host = null, skillsUi = null } = {}) {
   const width = cols > 0 ? cols : 0
   const s = stepShape(ladderStep({ view, usage, sums, cols }))
   const rule = (id) => ({ id, parts: [{ text: BAR.rule.repeat(width || BAR.ruleDefault), tone: 'subtle' }] })
-  const rows = []
-  if (!view) {
-    rows.push({ id: 'title', parts: [{ text: 'Akili', bold: true }] })
-  } else {
-    rows.push(...headerRows(view, width), rule('rule-top'), constitutionRow(view.constitution, s))
-    const empty = emptyStateText(view)
-    if (view.spec && !empty) rows.push(cycleRow(view.phases, s), ...phaseRows(view.phases, s))
-    else if (empty) rows.push({ id: 'empty', parts: [{ text: empty, dim: true }] })
-    errorLines(view.errors, width).forEach((text, i) => rows.push({ id: `error-${i}`, parts: [{ text, tone: 'error' }] }))
-    rows.push(rule('rule-tokens'))
+  // `size` 0 draws the 1.0.0 head; the body down to Next is the same either way, so its count `n` sizes the title.
+  const build = (size) => {
+    const rows = [...brandRows(size)]
+    if (!view) {
+      if (size === 0) rows.push({ id: 'title', parts: [{ text: 'Akili', bold: true }] })
+    } else {
+      rows.push(...headerRows(view, width, size > 0), rule('rule-top'), constitutionRow(view.constitution, s))
+      const empty = emptyStateText(view)
+      if (view.spec && !empty) rows.push(cycleRow(view.phases, s), ...phaseRows(view.phases, s))
+      else if (empty) rows.push({ id: 'empty', parts: [{ text: empty, dim: true }] })
+      errorLines(view.errors, width).forEach((text, i) => rows.push({ id: `error-${i}`, parts: [{ text, tone: 'error' }] }))
+      rows.push(rule('rule-tokens'))
+    }
+    rows.push(ctxRow(usage, s))
+    if (s.session) rows.push(sessionRow(usage, sums, s))
+    rows.push(modelRow(host && host.model, s, width))
+    if (view && view.next) {
+      const label = formatNext(view.next)
+      const text = width ? (width > 2 ? fitLine(label, width - 2) : '') : label
+      rows.push({ id: 'gap', parts: [] })
+      rows.push({ id: 'next', parts: [{ text }], next: { command: view.next.command, args: view.next.args, label: text, pending: !!pending } })
+    }
+    return rows
   }
-  rows.push(ctxRow(usage, s))
-  if (s.session) rows.push(sessionRow(usage, sums, s))
-  rows.push(modelRow(host && host.model, s, width))
-  if (view && view.next) {
-    const label = formatNext(view.next)
-    const text = width ? (width > 2 ? fitLine(label, width - 2) : '') : label
-    rows.push({ id: 'gap', parts: [] })
-    rows.push({ id: 'next', parts: [{ text }], next: { command: view.next.command, args: view.next.args, label: text, pending: !!pending } })
-  }
+  let rows = build(0)
+  const size = titleSize({ cols, rows: visible, n: rows.length })
+  if (size > 0) rows = build(size)
   rows.push(...skillsRows(host, skillsUi, pending, width, rule))
   return rows.map(({ protect, ...row }) => ({ ...row, parts: fitParts(row.parts, width, protect) }))
 }

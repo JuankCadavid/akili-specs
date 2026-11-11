@@ -110,7 +110,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` (amendment A1, approved by JC 2026-11-11) |
+| Status | `[x]` PASS (2 attempts; Reviewer `opus` PASS on round 2, 2026-11-11) |
 | Size | S (~130 LOC: code ~35, tests ~80, docs ~15) |
 | Depends on | T4 |
 | Requirements | FR-10 (all scenarios), FR-7 and FR-8 as amended by A1, FR-9 (title in docs) |

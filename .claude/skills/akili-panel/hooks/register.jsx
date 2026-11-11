@@ -10,7 +10,7 @@ import {
 
 const PANE = 'akili'
 const TICK_MS = 30000
-const PANE_ROWS = 19 // the closed full layout's height: Next stays inside it (DD-P12, DD-3)
+const PANE_ROWS = 21 // the closed full layout's height: Next stays inside it (DD-P12, DD-3)
 const OTHER_AKILI = /^akili-(?!panel$)/
 
 const view = atom({ plugin: 'akili-panel', key: 'view' }, null, { shape: 'view-1' })
@@ -259,7 +259,8 @@ export const register = (on) => {
     const hostNow = await read($, host)
     const ui = await read($, skillsUi)
     const cols = e.props && e.props.bodyColumns
-    const rows = paneRows({ view: v, usage: used, sums, pending: busy, cols, host: hostNow, skillsUi: ui })
+    const visible = e.props && e.props.scroll && e.props.scroll.bodyRows
+    const rows = paneRows({ view: v, usage: used, sums, pending: busy, cols, rows: visible, host: hostNow, skillsUi: ui })
     const part = (p) => <Text color={p.tone} bold={p.bold} dimColor={p.dim}>{p.text}</Text>
     const pressed = (row) => {
       const p = row.press

@@ -20,7 +20,7 @@ const FIXTURES = path.join(__dirname, 'fixtures', 'akili-panel');
 const loaded = import(pathToFileURL(FLOW).href);
 // The two header rows of a view, as text (T3: the rows replaced the string formatters).
 const header = (F, view, cols = 200) => {
-  const rows = F.paneRows({ view: { constitution: { present: 13, total: 13 }, phases: [], errors: [], ...view }, usage: {}, sums: null, cols });
+  const rows = F.paneRows({ rows: 1, view: { constitution: { present: 13, total: 13 }, phases: [], errors: [], ...view }, usage: {}, sums: null, cols });
   return ['title', 'branch'].map((id) => rows.find((r) => r.id === id).parts.map((q) => q.text).join(''));
 }; // W-14: a file URL loads on Windows drive letters
 
@@ -718,7 +718,7 @@ test('FR-16 no line wraps past the pane width: header and every error line fit a
   const view = { spec: 'changes/akili-panel-long-name-here', branch: { kind: 'branch', name: 'JuankCadavid/akili-panel' }, moreActive: 2, archived: true };
   const completed = { constitution: { present: 13, total: 13 }, phases: [], errors: [] };
   for (let cols = 1; cols <= 120; cols++) {
-    for (const row of F.paneRows({ view: { ...completed, ...view }, usage: {}, sums: null, cols })) {
+    for (const row of F.paneRows({ rows: 1, view: { ...completed, ...view }, usage: {}, sums: null, cols })) {
       const text = row.parts.map((q) => q.text).join('');
       assert.ok(text.length <= cols && (row.id === 'gap' || text.length > 0), `${row.id} at ${cols}`);
     }
@@ -797,7 +797,7 @@ const U42 = { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 };
 const U100 = { ctxPercent: 100, ctxTokens: 200000, ctxWindow: 200000, usd: 0.35 };
 const SUMS = { in: 1234, out: 300 };
 const pct = (p) => ({ ctxPercent: p, ctxTokens: 84000, ctxWindow: 200000 });
-const pane = (F, over) => F.paneRows({ view: null, usage: {}, sums: { in: 0, out: 0 }, pending: null, cols: 200, ...over });
+const pane = (F, over) => F.paneRows({ rows: 1, view: null, usage: {}, sums: { in: 0, out: 0 }, pending: null, cols: 200, ...over });
 const rowOf = (rows, id) => rows.find((r) => r.id === id);
 const textOf = (row) => row.parts.map((p) => p.text).join('');
 const ids = (rows) => rows.map((r) => r.id);
@@ -1340,7 +1340,7 @@ test('FR-7 any width: no row is wider than the width, from 1 to 120, for every s
   for (const [name, base] of states) {
     const view = base && { ...base, errors: longErrors };
     for (let cols = 1; cols <= 120; cols++) {
-      const rows = F.paneRows({ view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: null, cols });
+      const rows = F.paneRows({ rows: 1, view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: null, cols });
       for (const r of rows) {
         const t = textOf(r);
         assert.ok(t.length <= cols, `${name} at ${cols}: ${r.id} is ${t.length} wide`);
@@ -1368,7 +1368,7 @@ for (const cols of [undefined, 0, -3, NaN]) {
     const F = await loaded;
     const long = 'changes/an-extraordinarily-long-spec-name-for-the-polish-width-sweep';
     const view = await viewOf('long-names', long);
-    const input = { view, usage: U100, sums: SUMS, pending: null, cols };
+    const input = { view, usage: U100, sums: SUMS, pending: null, cols, rows: 1 };
     assert.equal(F.ladderStep(input), 1);
     const rows = F.paneRows(input);
     assert.ok(rows.every((r) => !textOf(r).includes('…')));
@@ -1648,10 +1648,10 @@ test('FR-6 ladder steps unchanged: a 60-character model id moves no pre-existing
   assert.equal(sixty.length, 60);
   const view = await LADDER_VIEW();
   for (let cols = 1; cols <= 120; cols++) {
-    const base = { view, usage: U100, sums: SUMS, cols };
+    const base = { view, usage: U100, sums: SUMS, cols, rows: 1 };
     assert.equal(F.ladderStep(base), F.ladderStep({ ...base, host: { model: sixty } }), `step at ${cols}`);
     const strip = (rows) => rows.filter((r) => !ADDED.includes(r.id) && !r.id.startsWith('skill'));
-    assert.deepEqual(strip(F.paneRows({ ...base, host: { model: sixty, skills: ALL_NAMES }, skillsUi: OPEN('core') })), strip(F.paneRows(base)), `rows at ${cols}`);
+    assert.deepEqual(strip(F.paneRows({ rows: 1, ...base, host: { model: sixty, skills: ALL_NAMES }, skillsUi: OPEN('core') })), strip(F.paneRows(base)), `rows at ${cols}`);
   }
 });
 
@@ -1683,9 +1683,9 @@ test('FR-6 Skills rows AND ladder steps unchanged: the Skills section moves no p
   const view = await LADDER_VIEW();
   const strip = (rows) => rows.filter((r) => !r.id.startsWith('skill') && r.id !== 'rule-skills');
   for (const cols of [14, 17, 24, 30, 45, 60, 80]) {
-    const base = { view, usage: U100, sums: SUMS, cols };
+    const base = { view, usage: U100, sums: SUMS, cols, rows: 1 };
     assert.equal(F.ladderStep({ ...base, host: HOST_ALL, skillsUi: OPEN('stack') }), F.ladderStep(base), cols);
-    assert.deepEqual(strip(F.paneRows({ ...base, host: HOST_ALL, skillsUi: OPEN('stack') })), strip(F.paneRows({ ...base, host: { model: OPUS } })), cols);
+    assert.deepEqual(strip(F.paneRows({ rows: 1, ...base, host: HOST_ALL, skillsUi: OPEN('stack') })), strip(F.paneRows({ rows: 1, ...base, host: { model: OPUS } })), cols);
   }
 });
 
@@ -1696,7 +1696,7 @@ test('FR-6 any width, 1 to 120, over the open states: no row is wider than the w
   let cuts = 0;
   for (const skillsUi of states) {
     for (let cols = 1; cols <= 120; cols++) {
-      const rows = F.paneRows({ view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: { since: 1, command: 'tdd' }, cols, host: { model: LONG_MODEL, skills: ALL_NAMES }, skillsUi });
+      const rows = F.paneRows({ rows: 1, view, usage: U100, sums: { in: 12345678, out: 987654 }, pending: { since: 1, command: 'tdd' }, cols, host: { model: LONG_MODEL, skills: ALL_NAMES }, skillsUi });
       for (const r of rows) {
         const t = textOf(r);
         assert.ok(t.length <= cols, `${JSON.stringify(skillsUi)} at ${cols}: ${r.id} is ${t.length} wide`);
@@ -1712,14 +1712,14 @@ test('FR-6 any width, 1 to 120, over the open states: no row is wider than the w
 
 // FR-7, FR-8, NFR-1
 
-test('FR-7 closed, the pane grows by exactly three rows: model, a rule and Skills', async () => {
-  const closed = await skillPane();
+test('FR-7 closed, the pane grows by exactly three rows (model, a rule, Skills) plus the two title rows (A1)', async () => {
+  const closed = await skillPane({ rows: 52 });
   assert.deepEqual(ids(closed), [
-    'title', 'branch', 'rule-top', 'constitution', 'cycle',
+    'brand-1', 'brand-2', 'title', 'branch', 'rule-top', 'constitution', 'cycle',
     'phase-propose', 'phase-specify', 'phase-execute', 'phase-test', 'phase-validate', 'phase-archive',
     'rule-tokens', 'ctx', 'session', 'model', 'gap', 'next', 'rule-skills', 'skills',
   ]);
-  assert.equal(closed.length, 19);
+  assert.equal(closed.length, 21);
 });
 
 test('FR-8 Same facts: with the Skills row closed every pre-existing row is identical to the pane without host', async () => {
@@ -1751,4 +1751,211 @@ test('NFR-1 marks carry the state without colour: the glyph is in the text and t
   assert.deepEqual(rowOf(rows, 'skills-group-core').parts, [{ text: '  core (12) ' }, { text: '▾', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (11) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skill-caveman').parts, [{ text: '    caveman' }]);
+});
+
+// ---------------------------------------------------------------- changes/akili-panel-model-skills T6 (A1): the AKILI title
+// Expected values come from requirements.md FR-10 (all scenarios) and design.md §8.7.
+
+const BRAND_1 = '▄▀█ █▄▀ █ █   █';
+const BRAND_2 = '█▀█ █ █ █ █▄▄ █';
+const brandIds = (rows) => rows.filter((r) => r.id.startsWith('brand-'));
+const titleView = () => viewOf('blocked', 'changes/x');
+const titleBase = async (over) => ({ view: await titleView(), usage: U42, sums: SUMS, host: HOST_ALL, skillsUi: CLOSED, ...over });
+// n: the rows from the header down to Next with no title, measured with a height that can never hold a title.
+const rowsToNext = async (over) => {
+  const F = await loaded;
+  const rows = F.paneRows({ ...(await titleBase(over)), cols: 80, rows: 1 });
+  return rows.indexOf(rowOf(rows, 'next')) + 1;
+};
+
+test('FR-10 Wide and tall: 80 columns draw the two half-block rows, in tone planMode', async () => {
+  const F = await loaded;
+  const rows = F.paneRows({ ...(await titleBase()), cols: 80, rows: 52 });
+  assert.deepEqual(rows.slice(0, 2).map(textOf), [BRAND_1, BRAND_2]);
+  assert.deepEqual(rows.slice(0, 2).map((r) => r.parts.map((p) => p.tone)), [['planMode'], ['planMode']]);
+});
+
+test('FR-10 Wide and tall: the row after the title is the spec alone, then the branch row', async () => {
+  const F = await loaded;
+  const rows = F.paneRows({ ...(await titleBase()), cols: 80, rows: 52 });
+  assert.equal(rows[2].id, 'title');
+  assert.equal(textOf(rows[2]), 'changes/x');
+  assert.equal(rows[3].id, 'branch');
+});
+
+test('FR-10 Narrow pane: 23 columns draw the two-row title whole', async () => {
+  const F = await loaded;
+  const b = brandIds(F.paneRows({ ...(await titleBase()), cols: 23, rows: 52 }));
+  assert.deepEqual(b.map(textOf), [BRAND_1, BRAND_2]);
+});
+
+test('FR-10 Narrow pane: 15 columns is the least width for two rows', async () => {
+  const F = await loaded;
+  assert.equal(brandIds(F.paneRows({ ...(await titleBase()), cols: 15, rows: 52 })).length, 2);
+});
+
+test('FR-10 Narrow pane: 14 columns draw one bold AKILI row in planMode', async () => {
+  const F = await loaded;
+  const b = brandIds(F.paneRows({ ...(await titleBase()), cols: 14, rows: 52 }));
+  assert.equal(b.length, 1);
+  assert.deepEqual(b[0].parts, [{ text: 'AKILI', tone: 'planMode', bold: true }]);
+});
+
+test('FR-10 Narrow pane: 5 columns still draw AKILI', async () => {
+  const F = await loaded;
+  assert.deepEqual(brandIds(F.paneRows({ ...(await titleBase()), cols: 5, rows: 52 })).map(textOf), ['AKILI']);
+});
+
+test('FR-10 Narrow pane: 4 columns draw no title and the header row reads as in 1.0.0', async () => {
+  const F = await loaded;
+  const rows = F.paneRows({ ...(await titleBase()), cols: 4, rows: 52 });
+  assert.equal(brandIds(rows).length, 0);
+  assert.equal(textOf(rowOf(rows, 'title')), 'Aki…');
+  assert.equal(rows[0].id, 'title');
+});
+
+test('FR-10 Short terminal: rows = n + 2 draws two rows', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  assert.equal(brandIds(F.paneRows({ ...(await titleBase()), cols: 80, rows: n + 2 })).length, 2);
+});
+
+test('FR-10 Short terminal: rows = n + 1 draws the one-row AKILI', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  assert.deepEqual(brandIds(F.paneRows({ ...(await titleBase()), cols: 80, rows: n + 1 })).map(textOf), ['AKILI']);
+});
+
+test('FR-10 Short terminal: rows = n draws none and the header reads Akili  <spec>', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  const rows = F.paneRows({ ...(await titleBase()), cols: 80, rows: n });
+  assert.equal(brandIds(rows).length, 0);
+  assert.equal(textOf(rowOf(rows, 'title')), 'Akili  changes/x');
+});
+
+test('FR-10 Short terminal: rows = n - 4 draws none', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  assert.equal(brandIds(F.paneRows({ ...(await titleBase()), cols: 80, rows: n - 4 })).length, 0);
+});
+
+test('FR-10 Short terminal: with rows = n, Next is the last row of the first n rows', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  const rows = F.paneRows({ ...(await titleBase()), cols: 80, rows: n });
+  assert.equal(rows[n - 1].id, 'next');
+});
+
+test('FR-10 Short terminal: with a title Next is still inside the visible rows', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  for (const visible of [n + 1, n + 2]) {
+    const rows = F.paneRows({ ...(await titleBase()), cols: 80, rows: visible });
+    assert.ok(rows.indexOf(rowOf(rows, 'next')) < visible, `rows ${visible}`);
+  }
+});
+
+test('FR-10 Short terminal: the title size does not change with Skills closed, open or a group open', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  const base = await titleBase();
+  for (const visible of [n, n + 1, n + 2, 52]) {
+    const sizes = [CLOSED, OPEN(), OPEN('core')].map((skillsUi) => brandIds(F.paneRows({ ...base, skillsUi, cols: 80, rows: visible })).length);
+    assert.deepEqual(sizes, [sizes[0], sizes[0], sizes[0]], `rows ${visible}`);
+    assert.equal(sizes[0], Math.min(2, Math.max(0, visible - n)), `size at rows ${visible}`);
+  }
+});
+
+test('FR-10 Size unknown: cols missing sets no width limit, so rows alone decide', async () => {
+  const F = await loaded;
+  const n = await rowsToNext();
+  const at = async (visible) => brandIds(F.paneRows({ ...(await titleBase()), cols: undefined, rows: visible })).length;
+  assert.equal(await at(n + 2), 2);
+  assert.equal(await at(n + 1), 1);
+  assert.equal(await at(n), 0);
+});
+
+test('FR-10 Size unknown: rows missing sets no height limit, so cols alone decide', async () => {
+  const F = await loaded;
+  const at = async (cols) => brandIds(F.paneRows({ ...(await titleBase()), cols, rows: undefined })).length;
+  assert.equal(await at(80), 2);
+  assert.equal(await at(10), 1);
+  assert.equal(await at(4), 0);
+});
+
+test('FR-10 Size unknown: both missing draw two rows', async () => {
+  const F = await loaded;
+  assert.equal(brandIds(F.paneRows({ ...(await titleBase()), cols: undefined, rows: undefined })).length, 2);
+  assert.equal(brandIds(F.paneRows({ ...(await titleBase()), cols: 0, rows: 0 })).length, 2);
+});
+
+test('FR-10 titleSize is the smaller of the width and height rules', async () => {
+  const F = await loaded;
+  assert.equal(F.titleSize({ cols: 80, rows: 52, n: 15 }), 2);
+  assert.equal(F.titleSize({ cols: 14, rows: 52, n: 15 }), 1);
+  assert.equal(F.titleSize({ cols: 80, rows: 16, n: 15 }), 1);
+  assert.equal(F.titleSize({ cols: 4, rows: 52, n: 15 }), 0);
+  assert.equal(F.titleSize({ cols: 80, rows: 15, n: 15 }), 0);
+  assert.equal(F.titleSize({ cols: 14, rows: 16, n: 15 }), 1);
+  assert.equal(F.titleSize({ cols: 14, rows: 15, n: 15 }), 0);
+});
+
+test('FR-10 brandRows: two rows, one row, none', async () => {
+  const F = await loaded;
+  assert.deepEqual(F.brandRows(2).map(textOf), [BRAND_1, BRAND_2]);
+  assert.deepEqual(F.brandRows(1).map(textOf), ['AKILI']);
+  assert.deepEqual(F.brandRows(0), []);
+});
+
+test('FR-10 / FR-8 header: no Akili  prefix while a title shows, exactly 1.0.0 when none', async () => {
+  const F = await loaded;
+  const withTitle = F.paneRows({ ...(await titleBase()), cols: 80, rows: 52 });
+  assert.equal(textOf(rowOf(withTitle, 'title')), 'changes/x');
+  const none = F.paneRows({ ...(await titleBase()), cols: 80, rows: 1 });
+  assert.equal(textOf(rowOf(none, 'title')), 'Akili  changes/x');
+  assert.deepEqual(rowOf(none, 'title').parts, [{ text: 'Akili', bold: true }, { text: '  changes/x' }]);
+});
+
+test('FR-10 states: no view draws the title instead of the Akili row, and the Akili row when none', async () => {
+  const F = await loaded;
+  const two = F.paneRows({ view: null, usage: {}, sums: null, cols: 80, rows: 52 });
+  assert.deepEqual(two.slice(0, 2).map(textOf), [BRAND_1, BRAND_2]);
+  assert.ok(!rowOf(two, 'title'));
+  const none = F.paneRows({ view: null, usage: {}, sums: null, cols: 80, rows: 1 });
+  assert.equal(textOf(rowOf(none, 'title')), 'Akili');
+});
+
+test('FR-10 No spec or no docs: the title follows the size rule and no empty header row is drawn', async () => {
+  const F = await loaded;
+  for (const [fx, empty] of [['empty-project', 'No docs/specs/ folder yet.'], ['no-active', 'No active spec.']]) {
+    const view = await viewOf(fx, null);
+    const rows = F.paneRows({ view, usage: U42, sums: SUMS, cols: 80, rows: 52 });
+    assert.deepEqual(rows.slice(0, 2).map(textOf), [BRAND_1, BRAND_2], fx);
+    assert.equal(rows[2].id, 'branch', fx);
+    assert.ok(!rowOf(rows, 'title'), fx);
+    const untitled = F.paneRows({ view, usage: U42, sums: SUMS, cols: 80, rows: 1 });
+    assert.equal(textOf(rowOf(rows, 'empty')), empty, fx);
+    assert.equal(textOf(rowOf(rows, 'empty')), textOf(rowOf(untitled, 'empty')), fx);
+  }
+});
+
+test('FR-10 error lines raise n, so the same height that fits two rows without errors draws fewer with them', async () => {
+  const F = await loaded;
+  const view = await titleView();
+  const n = await rowsToNext();
+  const withErrors = { ...(await titleBase()), view: { ...view, errors: ['boom one', 'boom two'] } };
+  assert.equal(brandIds(F.paneRows({ ...withErrors, cols: 80, rows: n + 2 })).length, 0);
+  assert.equal(brandIds(F.paneRows({ ...withErrors, cols: 80, rows: n + 4 })).length, 2);
+});
+
+test('FR-10 the title is not in the ladder: no ladder step moves with it, at any width', async () => {
+  const F = await loaded;
+  const view = await LADDER_VIEW();
+  for (let cols = 1; cols <= 120; cols++) {
+    const base = { view, usage: U100, sums: SUMS, cols };
+    const plain = F.paneRows({ ...base, rows: 1 }).filter((r) => r.id !== 'title');
+    const titled = F.paneRows({ ...base, rows: 80 }).filter((r) => r.id !== 'title' && !r.id.startsWith('brand-'));
+    assert.deepEqual(titled, plain, `rows at ${cols}`);
+  }
 });

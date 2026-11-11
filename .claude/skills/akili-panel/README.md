@@ -28,7 +28,8 @@ If Claude Code cannot place the pane, `/akili-panel` answers `Akili pane not sho
 
 | Row | Reads as |
 |---|---|
-| Rows 1–2 | `Akili  <spec>`, then the branch (`⎇ <branch>`), ` · archived` when the shown spec is archived and `(n more active)` when other specs are open. A detached HEAD reads `detached @<sha>`, and no repository reads `(no git)`. A long spec path is cut in the middle with `…`. A `─` rule follows |
+| Title | `AKILI` in the theme's `planMode` colour above the header, in three sizes. Two rows of half-block letters (`▄▀█ █▄▀ █ █   █` over `█▀█ █ █ █ █▄▄ █`) when the pane is at least 15 columns wide and has room for them above `Next`; one bold `AKILI` row from 5 to 14 columns, or when only one row is spare; none under 5 columns or when `Next` would leave the visible rows. Opening the Skills section never changes the size |
+| Header | The spec alone while a title shows (`Akili  <spec>` when none does), then the branch (`⎇ <branch>`), ` · archived` when the shown spec is archived and `(n more active)` when other specs are open. A detached HEAD reads `detached @<sha>`, and no repository reads `(no git)`. A long spec path is cut in the middle with `…`. A `─` rule follows |
 | `01 Constitution` | `✓` all 13 baseline documents present, `▶ (k/13)` some, `○` none |
 | `02 Cycle` | A bar of six segments, one per phase, and `<done>/6` |
 | `propose` … `archive` | The six phases under the cycle row, marks in one column: `✓` done, `▶` current (highlighted) or `○` not reached. `(blocked)` follows `▶` when a task is blocked; `(no task status)` when `tasks.md` carries no status |

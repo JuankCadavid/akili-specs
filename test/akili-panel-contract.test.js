@@ -113,7 +113,7 @@ test('the /akili-panel hook answers for itself without next (FR-8, DD-7)', () =>
 
 const HOOKS = path.dirname(FILE);
 const hookFiles = fs.readdirSync(HOOKS).filter((f) => /\.(mjs|jsx?|tsx?|json)$/.test(f));
-const THEME = new Set(['inactive', 'success', 'suggestion', 'warning', 'error', 'subtle', 'inverseText', 'transparent']);
+const THEME = new Set(['inactive', 'success', 'suggestion', 'warning', 'error', 'subtle', 'inverseText', 'planMode', 'transparent']);
 
 test('NFR-1: every tone, color and backgroundColor literal under hooks/ is a theme key or transparent; no hex, no rgb()/hsl()', () => {
   assert.ok(hookFiles.includes('flow.mjs') && hookFiles.includes('register.jsx'));
@@ -169,7 +169,7 @@ test('FR-4 Inline pane: the rows asked for equal the rows the full layout draws,
   const phases = F.PHASES.map((id, i) => ({ id, mark: i < 2 ? 'done' : i === 2 ? 'current' : 'todo', note: i === 2 ? 'blocked' : null }));
   const view = { status: 'ok', spec: 'changes/x', archived: false, moreActive: 1, constitution: { present: 5, total: 13 }, phases, errors: [], branch: { kind: 'branch', name: 'feat/x', sha: '' } };
   view.next = F.nextButton(view);
-  const rows = F.paneRows({ view, usage: { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 }, sums: { in: 1, out: 1 }, pending: null, cols: 80, host: { model: 'claude-haiku-5-5', skills: ['kaizen', 'tdd'] }, skillsUi: { open: false, group: null } });
+  const rows = F.paneRows({ view, usage: { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 }, sums: { in: 1, out: 1 }, pending: null, cols: 80, rows: 52, host: { model: 'claude-haiku-5-5', skills: ['kaizen', 'tdd'] }, skillsUi: { open: false, group: null } });
   assert.equal(rows.length, asked, 'the rows asked equal the closed full layout');
   assert.ok(rows.findIndex((r) => r.id === 'next') >= 0 && rows.findIndex((r) => r.id === 'next') < asked, 'Next is inside the asked rows');
   assert.equal(rows.at(-1).id, 'skills', 'the Skills row closes the layout, after Next');

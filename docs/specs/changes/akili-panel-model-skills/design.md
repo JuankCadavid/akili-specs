@@ -40,7 +40,7 @@ Refresh triggers are unchanged (turn.complete main loop, 30 s tick, `/akili-*` o
 .claude/skills/akili-panel/
   .claude-plugin/plugin.json     EDIT  version 1.1.0
   hooks/flow.mjs                 EDIT  SKILL_CATALOG, listedSkills(), modelRow, skillsRows, paneRows input { host, skillsUi }
-  hooks/register.jsx             EDIT  host + skillsUi atoms, refresh reads, toggles, skill press, /model observer, PANE_ROWS 19
+  hooks/register.jsx             EDIT  host + skillsUi atoms, refresh reads, toggles, skill press, /model observer, PANE_ROWS 19 (A1: 21, rows from scroll.bodyRows)
   types/index.d.ts               EDIT  AkiliPanelHost, AkiliPanelSkillsUi
   tests/panel.test.tsx           EDIT  kit cases (model row, toggles, one group, skill press, double press, refusal);
                                        rig mocks for $.session.model and $.command.list; pinned :870 rows 16 → 19,

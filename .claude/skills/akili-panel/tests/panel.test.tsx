@@ -333,8 +333,9 @@ function bottom(on: any, r: Rig, answer: (e: any) => unknown = () => ({ text: 'r
 }
 
 // A row is the Text that holds a row's parts; a part is the Text inside it (`paneRows`). `lines` are the rows' words.
-async function drawn($: any, surface: (typeof ALL_SURFACES)[number] = 'terminal', bodyColumns = 80) {
-  const ui = await $.ui.mount({ ...PANE, surface, props: { ...PANE.props, bodyColumns } })
+// `bodyRows` defaults to 1, a height no AKILI title fits in, so the rows are the 1.0.0 rows; the title tests pass their own (FR-10).
+async function drawn($: any, surface: (typeof ALL_SURFACES)[number] = 'terminal', bodyColumns = 80, bodyRows = 1) {
+  const ui = await $.ui.mount({ ...PANE, surface, props: { ...PANE.props, bodyColumns, scroll: { offset: 0, bodyRows } } })
   const lines: string[] = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.children.some((c: any) => typeof c !== 'string')).map((t: any) => t.text)
   const nextRaw: string | undefined = (await ui.find({ key: 'next' }))?.text
   return { ui, lines, next: nextRaw?.trim(), nextRaw }
@@ -876,7 +877,7 @@ test('FR-1: the one open asks for a transparent body and the full layout\'s rows
   await opened($, r)
   expect(r.opens.length).toBe(1)
   expect(r.opens[0].backgroundColor).toBe('transparent')
-  expect(r.opens[0].rows).toBe(19)
+  expect(r.opens[0].rows).toBe(21)
   const { ui, lines } = await drawn($, 'mobile')
   expect(lines.length > 10 && r.toasts.length === 0).toBe(true) // BUT no error or toast about the background
   await ui.unmount()
@@ -1239,4 +1240,65 @@ test('FR-5 Read only: refreshing the host reads no file outside the project and 
   expect(r.fs.filter((l) => /skills|\.claude|SKILL/.test(l))).toEqual([]) // the catalog is a constant: no skill folder is read
   expect(r.writes).toEqual([])
   expect(r.modelCalls > 0 && r.listCalls > 0).toBe(true)
+})
+
+// ---- changes/akili-panel-model-skills T6 (A1): the AKILI title, sized by scroll.bodyRows (FR-10, P-13)
+
+const BRAND_ROWS = ['▄▀█ █▄▀ █ █   █', '█▀█ █ █ █ █▄▄ █']
+
+test('FR-10 Wide and tall: bodyRows 52 draws the two half-block rows, then the spec alone', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 80, 52)
+  expect(lines.slice(0, 2)).toEqual(BRAND_ROWS)
+  expect(lines[2]).toBe('changes/demo')
+  await ui.unmount()
+})
+
+test('FR-10 Short terminal: bodyRows 17 with the full layout draws no title and the header reads Akili  <spec>', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines, next } = await drawn($, 'terminal', 80, 17)
+  expect(lines.some((l) => BRAND_ROWS.includes(l) || l === 'AKILI')).toBe(false)
+  expect(lines[0]).toBe('Akili  changes/demo')
+  expect(next).toBe('Next: /akili-specify changes/demo')
+  await ui.unmount()
+})
+
+test('FR-10 Short terminal: bodyRows 18 draws the one-row AKILI above the header', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 80, 18)
+  expect(lines.slice(0, 2)).toEqual(['AKILI', 'changes/demo'])
+  await ui.unmount()
+})
+
+test('FR-10 Narrow pane: 14 columns draw one bold AKILI row (kit case)', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 14, 52)
+  expect(lines[0]).toBe('AKILI')
+  const bold = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.props.bold === true).map((t: any) => t.text)
+  expect(bold).toContain('AKILI')
+  await ui.unmount()
+})
+
+test('FR-10 the title rows are drawn in the planMode tone', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui } = await drawn($, 'terminal', 80, 52)
+  const tones = (await ui.findAll({ type: 'Text' })).filter((t: any) => BRAND_ROWS.includes(t.text) && t.props.color === 'planMode')
+  expect(tones.length).toBeGreaterThan(0)
+  await ui.unmount()
+})
+
+test('P-13 a render with new bodyRows re-sizes the title: tall, then short, then tall again', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const sizeAt = async (bodyRows: number) => {
+    const { ui, lines } = await drawn($, 'terminal', 80, bodyRows)
+    await ui.unmount()
+    return lines.filter((l) => BRAND_ROWS.includes(l) || l === 'AKILI').length
+  }
+  expect([await sizeAt(52), await sizeAt(17), await sizeAt(52)]).toEqual([2, 0, 2])
 })

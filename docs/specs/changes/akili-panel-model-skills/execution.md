@@ -353,3 +353,40 @@
 | Small screens | JC, before approving: «que no se vea mal en pantallas pequeñas». The Leader's rule (FR-10, design §8.7): title size = the smaller of a width rule (≥ 15 columns two rows, 5–14 one bold `AKILI` row, under 5 none) and a height rule from `scroll.bodyRows` that keeps `Next` in the opening view (room for 2 → two rows, for 1 → one row, none → no title). With no title, the header reads `Akili  <spec>` as in `1.0.0`. New premise P-13 (`bodyRows` on the Pane, seen at T1: 17 inline, 52 docked) |
 | Budget | 6 tasks, ~980 LOC (now ≈831; T6 ~130 with the size rule), review rounds still 8 (used 5; planned T6 2, T5 1) |
 | T5 | Stays `[~]`: after T6, it re-reads the title states live and takes JC's single light/dark check for the whole pane |
+
+### T6: AKILI title (A1) — `PASS`
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer `opus`, Review `full`, KZ-002 lens) |
+| Date | 2026-11-11 America/Bogota |
+| Go | JC: «Apruebo la enmienda A1, haz commit y empieza T6» (amendment committed as `b76f05f`) |
+| Attempts | 2 (attempt 1 Reviewer `FAIL`, attempt 2 Reviewer `PASS`) |
+| Requirements covered | FR-10 (all six scenarios), FR-7/FR-8/FR-9 as amended by A1, NFR-1 (`planMode` theme key), NFR-2 |
+| Skills | `tdd`, `impeccable-bridge`, `cognitive-doc-design`. Effort `medium` → `high` on attempt 2. Design route: playbook, ENV-2, mode Operate, motion none, `polish light`, `finish review: not run (AKILI execute)` |
+| Models | Implementer `sonnet`, Reviewer `opus` |
+| spawns | Implementer 1: 39 calls, 139,928 tokens, complete. Reviewer 1: 25 calls, 125,929 tokens, complete. Implementer 2: 7 calls, 70,332 tokens, complete. Reviewer 2: 6 calls, 75,515 tokens, complete |
+| Running totals | 5 of 6 tasks; ≈831 + T6 345 added / 52 deleted ≈ 1,228 LOC against the ~980 budget of A1 (+25%: **budget tripwire, escalated to JC at the T6 gate**; cause: tests again — T6 test lines ≈ 307 of 397 changed vs ~80 planned; code 76 changed lines vs ~35, docs ~14); 7 of 8 review rounds (T5 owes 1) |
+
+#### Attempt 1 — Reviewer `FAIL`
+
+- **Files changed:** `flow.mjs` +46/−25 (`BRAND`, `brandRows(size)`, `titleSize({cols, rows, n})`, `headerRows(view, cols, titled)`, `paneRows` gains `rows` and builds once at size 0 to count `n`, then again titled); `register.jsx` +3/−2 (`PANE_ROWS = 21`; `rows: e.props.scroll && e.props.scroll.bodyRows`); `tests/panel.test.tsx` +65/−3; `test/akili-panel-flow.test.js` +217/−14 (21 FR-10 tests); `test/akili-panel-flow-coverage.test.js` and `test/akili-panel-contract.test.js` 2 lines each (`rows: 1` on legacy calls; `planMode` added to the theme-key set; asked-rows pin at `rows: 52`); README, `docs/plugins/akili-panel.md` (Title row, Header row), `CHANGELOG.md`.
+- **Red run:** 17 behavioural reds against T4 code (e.g. header `expected: 'changes/x', actual: 'Akili  changes/x'`; rows = n+2 `expected: 2, actual: 0`) + 2 missing-export errors (`F.titleSize is not a function`, `F.brandRows is not a function`). Three tests (rows = n, n−4, Next last) passed before the rule existed; their evidence is the height falsifier. The Implementer wrote code before tests, then reverted to T4 code, wrote the tests and re-applied — recorded as an order slip. Kit cases not run red (they need brand rows that T4 cannot draw).
+- **Falsifiers (each run, then reverted):** drop `planMode` → `not ok 214 - FR-10 Wide and tall: 80 columns draw the two half-block rows, in tone planMode`; `byHeight = 2` → `not ok 222 - FR-10 Short terminal: rows = n + 1 draws the one-row AKILI` (+223, 224); 14 columns → two rows: `not ok 218 - FR-10 Narrow pane: 14 columns draw one bold AKILI row in planMode`; keep `Akili  ` with a title → `not ok 215 - … the row after the title is the spec alone, then the branch row`; size on the full count with Skills → `not ok 221` (+222, 227 stability); `PANE_ROWS` 19 → kit `Expected: 21 / Received: 19` and contract `not ok 16 - FR-4 Inline pane: the rows asked…`.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`** — `npm test` `# tests 1895 / # pass 1895 / # fail 0`; kit 98 pass / 0 fail on 2.1.322 and on `~/.local/share/claude/versions/2.1.318`; validate passed; `verify:cli` green; pack 427 files; `git diff --check` clean; `.claude/commands` diff empty.
+- **Reviewer verdict: `FAIL`.** Size 0 output byte-identical to T4's `paneRows` (0 differences in 17,280 cases); four falsifiers re-run red. Blocking: (1) `CHANGELOG.md:11` stated the size by width alone ("two rows … from 15 columns"), false at 80 columns with rows = n+1 (one row) — FR-9, KZ-002; (2) FR-10 *No spec or no docs* tested only with `empty-project`, its BUT clause by presence (`assert.ok(rowOf(rows,'empty'))`).
+- **Advisories:** FR-8 *Same facts* fixtures compared row-by-row titled only for `blocked`; exported `titleSize` without `n` returns 0.
+
+#### Attempt 2 — Reviewer `PASS`
+
+- **Changes:** `CHANGELOG.md:11` → "two rows of half-block letters from 15 columns when they fit above `Next`, one bold row from 5 to 14 columns or when only one row is spare, none under 5 columns or when even one row would push `Next` out of the visible rows"; the *No spec or no docs* test loops `empty-project` / `no-active` and asserts the exact empty text (`No docs/specs/ folder yet.`, `No active spec.`) equal to the `rows: 1` text, brand rows first, `branch` next, no `title` row.
+- **Falsifier:** empty row dropped when titled → `not ok 235 - FR-10 No spec or no docs: the title follows the size rule and no empty header row is drawn`; reverted.
+- **Evidence re-run (non-author, Leader-inline): `VERIFIED`** — same numbers (1895/1895; kit 98/98 on both hosts; validate; verify:cli; pack 427; diff --check; commands diff empty). `claude --version` 2.1.322 and the profile `settings.json` hash `d7387625…` unchanged.
+- **Quote-check (KZ-002, Reviewer round 2):** the CHANGELOG sentence checked against `titleSize` (`flow.mjs:748-752`) at n = 10 for (20,12)→2, (20,11)→1, (10,12)→1, (10,11)→1, (20,10)/(10,10)→0, (4,12)→0, unknown→2: all clauses hold. README / docs rows: glyphs byte-identical to `BRAND`; "one bold `AKILI` row" = `brandRows(1)` `bold: true`, `planMode`; "Opening the Skills section never changes the size" (stability test); header "spec alone while a title shows (`Akili  <spec>` when none does)"; "21 rows … up from 16" (`PANE_ROWS`, 1.0.0 was 16).
+- **Reviewer verdict: `PASS`.**
+- **ADVISORY (recorded only):** `design.md:43` file map still read `PANE_ROWS 19` — factual, corrected by the Leader (appended "(A1: 21, rows from scroll.bodyRows)"); DD-3's historical 16 → 19 kept as recorded. Attempt-1 advisories stand as recorded.
+
+#### Forward pointers to T5
+
+- Live re-read of the title: dock at 23 columns and wide (expect two rows); inline in the short frame (17 visible, `n` = 17: expect no title and `Akili  <spec>`); a resize re-sizes it (P-13). Then JC's single light/dark check.
+- Kit runs can leave an ignored `.claude/skills/akili-panel/.claude-plugin/types/` that makes 19 install/doctor tests fail in `npm test`; delete it after kit runs.
