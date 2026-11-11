@@ -1302,3 +1302,142 @@ test('P-13 a render with new bodyRows re-sizes the title: tall, then short, then
   }
   expect([await sizeAt(52), await sizeAt(17), await sizeAt(52)]).toEqual([2, 0, 2])
 })
+
+// ---- /akili-test changes/akili-panel-model-skills (Tester suite B): host-wiring clauses the cases above do not prove.
+// Expected values are literals from requirements.md FR-1, FR-4, FR-10 and NFR-3 (commit ababb96).
+
+const titleOf = (lines: string[]) => lines.filter((l) => BRAND_ROWS.includes(l) || l === 'AKILI')
+const dimOf = async (ui: any, key: string) => JSON.stringify((await ui.find({ key }))?.children ?? null).includes('"dimColor":true')
+
+test('TP FR-4 Double press: a second, different skill pressed while one runs queues nothing; only the running row is dim; after it settles a press runs again', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen', 'caveman']
+  bottom(on, r, () => r.clk.sleep(5000).then(() => ({ text: 'done' })))
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  const first = d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  void d.ui.press({ key: 'skill-caveman' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }])
+  await d.ui.unmount()
+  const busy = await drawn($)
+  expect(await dimOf(busy.ui, 'skill-kaizen')).toBe(true)
+  expect(await dimOf(busy.ui, 'skill-caveman')).toBe(false)
+  await busy.ui.unmount()
+  await r.clk.advance(5000)
+  await first
+  await r.clk.settle()
+  const free = await drawn($)
+  expect(await dimOf(free.ui, 'skill-kaizen')).toBe(false)
+  const second = free.ui.press({ key: 'skill-caveman' })
+  await r.clk.settle()
+  await r.clk.advance(5000)
+  await second
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }, { command: 'caveman', args: '' }])
+  await free.ui.unmount()
+})
+
+test('TP FR-4 Double press: a skill pressed while Next runs queues nothing, Next is the dim row and no skill row is', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => new Promise(() => {}))
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  void d.ui.press({ key: 'next' })
+  await r.clk.settle()
+  void d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'akili-specify', args: SPEC }])
+  await d.ui.unmount()
+  const busy = await drawn($)
+  const next: any = await busy.ui.find({ key: 'next' })
+  expect(next.props.dimColor).toBe(true)
+  expect(await dimOf(busy.ui, 'skill-kaizen')).toBe(false)
+  await busy.ui.unmount()
+})
+
+test('TP FR-4 Refused: the toast reads Could not run /<skill>: <reason> and the pane is otherwise unchanged; the guard is released', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => { throw new Error('no command named /kaizen in this session') })
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  const before = d.lines
+  await d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.toasts).toEqual([expect.stringMatching(/^Could not run \/kaizen: \S.*$/)])
+  await d.ui.unmount()
+  const after = await drawn($)
+  expect(after.lines).toEqual(before)
+  expect(await dimOf(after.ui, 'skill-kaizen')).toBe(false)
+  await after.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.runs.length).toBe(2)
+  await after.ui.unmount()
+})
+
+test('TP FR-2/FR-3 BUT pressing the Skills row or a group row runs nothing and toasts nothing', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  bottom(on, r)
+  await opened($, r)
+  await openGroup($, r, 'core')
+  for (const key of ['skills-group-stack', 'skills-group-stack', 'skills', 'skills']) {
+    const d = await drawn($)
+    await d.ui.press({ key })
+    await r.clk.settle()
+    await d.ui.unmount()
+  }
+  expect(r.runs).toEqual([])
+  expect(r.toasts).toEqual([])
+})
+
+test('TP NFR-3 one tick asks the host once for the model and once for the command list', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const [m, l] = [r.modelCalls, r.listCalls]
+  expect(m).toBe(1)
+  expect(l).toBe(1)
+  await r.clk.advance(30000)
+  await r.clk.settle()
+  expect([r.modelCalls - m, r.listCalls - l]).toEqual([1, 1])
+})
+
+test('TP FR-1 Model unknown: an empty model id draws model — with no toast, and the rest of the pane draws', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.model = ''
+  r.commands = ['kaizen']
+  await opened($, r)
+  const d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+—$/.test(l))).toBe(true)
+  expect(d.next).toBe('Next: /akili-specify changes/demo')
+  expect(await keys(d.ui)).toEqual(['next', 'skills'])
+  expect(r.toasts).toEqual([])
+  await d.ui.unmount()
+})
+
+test('TP FR-10 Narrow pane boundaries on the host: 15 columns two rows, 5 columns AKILI, 4 columns no title and the 1.0.0 header', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const at = async (cols: number) => { const { ui, lines } = await drawn($, 'terminal', cols, 52); await ui.unmount(); return lines }
+  expect(titleOf(await at(15))).toEqual(BRAND_ROWS)
+  expect((await at(5))[0]).toBe('AKILI')
+  const four = await at(4)
+  expect(titleOf(four)).toEqual([])
+  expect(four[0]).toBe('Aki…')
+})
+
+test('TP FR-10 Short terminal: at bodyRows 18 opening Skills and a group keeps the one-row title', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const titleAt18 = async () => { const { ui, lines } = await drawn($, 'terminal', 80, 18); await ui.unmount(); return titleOf(lines) }
+  expect(await titleAt18()).toEqual(['AKILI'])
+  await openGroup($, r, 'core')
+  expect(await titleAt18()).toEqual(['AKILI'])
+})
