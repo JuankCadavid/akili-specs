@@ -252,12 +252,19 @@ type Rig = {
   registered: string[]
   writes: string[]
   clk: any
+  model: string | null
+  commands: string[] | null
+  logs: string[]
+  modelCalls: number
+  listCalls: number
+  modelThrows?: boolean
+  listThrows?: boolean
 }
 
 const AKILI_PANE = { id: 'akili', title: 'Akili', isFocused: true, isPlaced: true }
 
 function rig($: any, on: any, tree: Record<string, string[]>, opts: { placed?: boolean; openThrows?: string; texts?: Record<string, string>; hangKeys?: boolean; storeThrows?: boolean; noClock?: boolean } = {}): Rig {
-  const r: Rig = { tree, texts: opts.texts ?? {}, panes: [opts.placed === false ? { ...AKILI_PANE, isPlaced: false } : AKILI_PANE], usage: {}, kv: new Map(), fs: [], store: [], sets: [], runs: [], toasts: [], opens: [], closes: [], registered: [], writes: [], clk: undefined }
+  const r: Rig = { tree, texts: opts.texts ?? {}, panes: [opts.placed === false ? { ...AKILI_PANE, isPlaced: false } : AKILI_PANE], usage: {}, kv: new Map(), fs: [], store: [], sets: [], runs: [], toasts: [], opens: [], closes: [], registered: [], writes: [], clk: undefined, model: 'claude-haiku-5-5', commands: [], logs: [], modelCalls: 0, listCalls: 0 }
   if (opts.noClock) on('clock.after', () => { throw new Error('clock down') })
   else r.clk = mock.clock(on)
   on('store.get', (_: any, e: any) => { r.store.push(`get ${e.key}`); return { value: r.kv.get(e.key) } })
@@ -273,7 +280,9 @@ function rig($: any, on: any, tree: Record<string, string[]>, opts: { placed?: b
   on('turn.complete', (_: any, e: any) => ({ text: e.answer }))
   on('turn.start', (_: any, e: any) => ({ turnId: e.turnId }))
   on('ui.toast', (_: any, e: any) => { r.toasts.push(String(e.text ?? e.message ?? JSON.stringify(e))); return { value: undefined } })
-  on('ui.log', () => ({ value: undefined }))
+  on('ui.log', (_: any, e: any) => { r.logs.push(String(e.text ?? e.message ?? JSON.stringify(e))); return { value: undefined } })
+  on('session.model', () => { r.modelCalls++; if (r.modelThrows) throw new Error('model down'); return { value: r.model } })
+  on('command.list', () => { r.listCalls++; if (r.listThrows) throw new Error('list down'); return { value: (r.commands ?? []).map((name) => ({ name, source: name === 'model' ? 'builtin' : 'user' })) } })
   on('ui.close', (_: any, e: any) => { r.closes.push(e); return { value: undefined } })
   on('ui.open', (_: any, e: any) => {
     r.opens.push(e)
@@ -324,8 +333,9 @@ function bottom(on: any, r: Rig, answer: (e: any) => unknown = () => ({ text: 'r
 }
 
 // A row is the Text that holds a row's parts; a part is the Text inside it (`paneRows`). `lines` are the rows' words.
-async function drawn($: any, surface: (typeof ALL_SURFACES)[number] = 'terminal', bodyColumns = 80) {
-  const ui = await $.ui.mount({ ...PANE, surface, props: { ...PANE.props, bodyColumns } })
+// `bodyRows` defaults to 1, a height no AKILI title fits in, so the rows are the 1.0.0 rows; the title tests pass their own (FR-10).
+async function drawn($: any, surface: (typeof ALL_SURFACES)[number] = 'terminal', bodyColumns = 80, bodyRows = 1) {
+  const ui = await $.ui.mount({ ...PANE, surface, props: { ...PANE.props, bodyColumns, scroll: { offset: 0, bodyRows } } })
   const lines: string[] = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.children.some((c: any) => typeof c !== 'string')).map((t: any) => t.text)
   const nextRaw: string | undefined = (await ui.find({ key: 'next' }))?.text
   return { ui, lines, next: nextRaw?.trim(), nextRaw }
@@ -867,7 +877,7 @@ test('FR-1: the one open asks for a transparent body and the full layout\'s rows
   await opened($, r)
   expect(r.opens.length).toBe(1)
   expect(r.opens[0].backgroundColor).toBe('transparent')
-  expect(r.opens[0].rows).toBe(16)
+  expect(r.opens[0].rows).toBe(21)
   const { ui, lines } = await drawn($, 'mobile')
   expect(lines.length > 10 && r.toasts.length === 0).toBe(true) // BUT no error or toast about the background
   await ui.unmount()
@@ -885,7 +895,9 @@ for (const surface of ALL_SURFACES) test(`FR-6 the Next button: a chip on the te
   expect(btn.props.variant === 'primary').toBe(!chip)
   if (chip) expect(btn.children[0].props).toMatchObject({ backgroundColor: 'suggestion', color: 'inverseText', bold: true })
   expect((await first.ui.findAll({ type: 'Text', text: /^ $/ })).length).toBe(1) // the blank row
-  expect((await first.ui.find({ type: 'Box' })).children.at(-1).type).toBe('Button') // Next is the root's last child
+  const kids = (await first.ui.find({ type: 'Box' })).children
+  expect(kids.at(-1).type).toBe('Button') // no Skills listed: Next closes the pane
+  expect(JSON.stringify(kids.at(-1))).toMatch(/Next: /)
   void first.ui.press({ key: 'next' })
   await r.clk.settle()
   expect(r.runs).toEqual([{ command: 'akili-specify', args: SPEC }]) // the press runs once
@@ -977,7 +989,7 @@ for (const surface of SURFACES) test(`FR-2/FR-4 drawn as built: bold Akili and c
   const bold = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.props.bold === true).map((t: any) => t.text)
   expect(bold).toContain('Akili')
   expect(bold.some((t: string) => /execute/.test(t))).toBe(true)
-  const chain = [/^Akili/, /^\(no git\)|^\S+$/, /^─+$/, /^01 Constitution/, /^02 Cycle/, ...['propose', 'specify', 'execute', 'test', 'validate', 'archive'].map((p) => new RegExp(`^   ${p}\\s`)), /^Could not read /, /^─+$/, /^ctx\s/, /^session\s/]
+  const chain = [/^Akili/, /^\(no git\)|^\S+$/, /^─+$/, /^01 Constitution/, /^02 Cycle/, ...['propose', 'specify', 'execute', 'test', 'validate', 'archive'].map((p) => new RegExp(`^   ${p}\\s`)), /^Could not read /, /^─+$/, /^ctx\s/, /^session\s/, /^model\s/]
   expect(lines.length).toBe(chain.length)
   chain.forEach((re, i) => expect(lines[i]).toMatch(re))
   await ui.unmount()
@@ -994,14 +1006,16 @@ test('FR-4 drawn as built: the empty-state text is dim', async ($, on) => {
 
 // ---- changes/akili-panel-polish /akili-test: clauses the T3 tests above do not assert (literals from requirements.md at fbcc995)
 
-for (const surface of ALL_SURFACES) test(`FR-4 Inline pane: the rows asked for are the rows the full layout draws, Next the last of them (${surface})`, async ($, on) => {
+for (const surface of ALL_SURFACES) test(`FR-4 Inline pane: the rows asked for are the rows the closed full layout draws, Next inside them (${surface})`, async ($, on) => {
   const r = rig($, on, oneSpec())
   r.usage = { context: { window: 200000, tokens: 84000, percent: 42 }, cost: { usd: 0.35 } }
+  r.commands = ['kaizen', 'tdd']
   await opened($, r)
   const ui = await $.ui.mount({ ...PANE, surface })
   const root: any = await ui.find({ type: 'Box' })
   expect(root.children.length).toBe(r.opens[0].rows)
-  expect(root.children.at(-1).type).toBe('Button')
+  const at = root.children.findIndex((c: any) => c.type === 'Button' && /Next: /.test(JSON.stringify(c)))
+  expect(at > 0 && at < root.children.length - 1).toBe(true) // Next is inside the asked rows, and no longer the last
   await ui.unmount()
 })
 
@@ -1030,11 +1044,400 @@ test('FR-1 A surface keeps its own look: every row draws on every surface BUT no
   expect(reply.text).toBe('Akili pane opened.')
   for (const surface of ALL_SURFACES) {
     const { ui, lines, next } = await drawn($, surface)
-    expect(lines.length).toBe(14) // header 2, rule, constitution, cycle, 6 phases, rule, ctx, session
+    expect(lines.length).toBe(15) // header 2, rule, constitution, cycle, 6 phases, rule, ctx, session, model
     expect(next).toBe('Next: /akili-specify changes/demo')
     expect(lines.filter((l) => /background|transparent/i.test(l))).toEqual([])
     await ui.unmount()
   }
   expect(r.toasts).toEqual([])
   expect(/background|transparent/i.test(reply.text)).toBe(false)
+})
+
+// ---- changes/akili-panel-model-skills T3: the model row, the Skills section, their presses (FR-1..FR-5, DD-2..DD-7)
+
+const LISTED = ['kaizen', 'tdd', 'caveman', 'nestjs-expert', 'model', 'not-in-catalog']
+const keys = async (ui: any) => (await ui.findAll({ type: 'Button' })).map((b: any) => b.key)
+
+test('FR-1 Model changes: the row shows the id once refreshed, and again after /model, with no turn in between', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  bottom(on, r)
+  await opened($, r)
+  let d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+claude-haiku-5-5$/.test(l))).toBe(true)
+  await d.ui.unmount()
+  r.model = 'claude-opus-5-1'
+  await $.command.run({ command: 'model', args: 'opus' })
+  await r.clk.settle()
+  d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+claude-opus-5-1$/.test(l))).toBe(true)
+  await d.ui.unmount()
+})
+
+test('FR-1 AND the model is read again after /clear', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  r.model = 'claude-sonnet-5-5'
+  await $.session.end({ reason: 'clear', sessionId: 's1' } as any)
+  await r.clk.settle()
+  const d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+claude-sonnet-5-5$/.test(l))).toBe(true)
+  await d.ui.unmount()
+})
+
+test('FR-1 Model unknown: a rejected $.session.model draws model — and logs once; the rest of the pane still draws', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.modelThrows = true
+  r.commands = LISTED
+  await opened($, r)
+  const d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+—$/.test(l))).toBe(true)
+  expect(d.lines.some((l) => /^ctx\s/.test(l))).toBe(true)
+  expect(await keys(d.ui)).toContain('skills') // the command list still answered
+  expect(r.logs.filter((l) => /model read failed/.test(l)).length).toBe(1)
+  await d.ui.unmount()
+})
+
+test('FR-2 Nothing listed: a rejected $.command.list draws no Skills section and logs once; the model row stays', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.listThrows = true
+  await opened($, r)
+  const d = await drawn($)
+  expect(await keys(d.ui)).toEqual(['next'])
+  expect(d.lines.some((l) => /Skills/.test(l))).toBe(false)
+  expect(d.lines.some((l) => /^model\s+claude-haiku-5-5$/.test(l))).toBe(true)
+  expect(r.logs.filter((l) => /command list failed/.test(l)).length).toBe(1)
+  await d.ui.unmount()
+})
+
+test('FR-2 Closed: Skills (4) shows closed with its mark; only listed, catalogued names count (model and not-in-catalog do not)', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const d = await drawn($)
+  expect(d.lines.at(-1)).toBe('Skills (4) ▸')
+  expect(await keys(d.ui)).toEqual(['next', 'skills'])
+  await d.ui.unmount()
+})
+
+test('FR-2/FR-3 Open and close, one group at a time: the toggle opens the groups, a group opens its skills, a second group closes the first', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const press = async (key: string) => {
+    const d = await drawn($)
+    await d.ui.press({ key })
+    await r.clk.settle()
+    await d.ui.unmount()
+    const after = await drawn($)
+    const k = await keys(after.ui)
+    await after.ui.unmount()
+    return k
+  }
+  expect(await press('skills')).toEqual(['next', 'skills', 'skills-group-core', 'skills-group-conditional', 'skills-group-stack'])
+  const core = (await press('skills-group-core')).filter((k: string) => k.startsWith('skill-'))
+  expect(core).toEqual(['skill-caveman', 'skill-kaizen'])
+  const stack = (await press('skills-group-stack')).filter((k: string) => k.startsWith('skill-'))
+  expect(stack).toEqual(['skill-nestjs-expert']) // the first group closed, the second opened
+  expect(await press('skills')).toEqual(['next', 'skills'])
+})
+
+test('FR-2 Closed at every pane open: an open section is closed again by a reopen and by a new session', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  let d = await drawn($)
+  await d.ui.press({ key: 'skills' })
+  await r.clk.settle()
+  await d.ui.unmount()
+  d = await drawn($)
+  expect((await keys(d.ui)).length > 2).toBe(true) // control: it was open
+  await d.ui.unmount()
+  await $.command.run({ command: 'akili-panel', args: '' }) // reopen
+  await r.clk.settle()
+  d = await drawn($)
+  expect(await keys(d.ui)).toEqual(['next', 'skills'])
+  await d.ui.press({ key: 'skills' })
+  await r.clk.settle()
+  await d.ui.unmount()
+  await $.session.start({ cwd: ROOT, surface: 'terminal', isInteractive: true })
+  await r.clk.settle()
+  d = await drawn($)
+  expect(await keys(d.ui)).toEqual(['next', 'skills'])
+  await d.ui.unmount()
+})
+
+async function openGroup($: any, r: Rig, group: string) {
+  const a = await drawn($)
+  await a.ui.press({ key: 'skills' })
+  await r.clk.settle()
+  await a.ui.unmount()
+  const b = await drawn($)
+  await b.ui.press({ key: `skills-group-${group}` })
+  await r.clk.settle()
+  await b.ui.unmount()
+}
+
+test('FR-4 Run: a skill press runs the bare name with no args once; AND the section stays open', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r)
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  await d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  await d.ui.unmount()
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }])
+  const after = await drawn($)
+  expect(await keys(after.ui)).toContain('skill-kaizen')
+  await after.ui.unmount()
+})
+
+test('FR-4 Double press across Next and a skill queues one run; AND the skill row is dim while it runs', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => r.clk.sleep(5000).then(() => ({ text: 'done' })))
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  const first = d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  void d.ui.press({ key: 'next' })
+  void d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }])
+  await d.ui.unmount()
+  const busy = await drawn($)
+  const row: any = await busy.ui.find({ key: 'skill-kaizen' })
+  expect(JSON.stringify(row.children)).toMatch(/"dimColor":true/)
+  await busy.ui.unmount()
+  await r.clk.advance(5000)
+  await first
+})
+
+test('FR-4 Refused: a rejected skill run toasts the reason, and the section stays open', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => { throw new Error('no command named /kaizen in this session') })
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  await d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.toasts.length).toBe(1)
+  expect(r.toasts[0]).toMatch(/Could not run \/kaizen: /)
+  await d.ui.unmount()
+  const after = await drawn($)
+  expect(await keys(after.ui)).toContain('skill-kaizen')
+  await after.ui.unmount()
+})
+
+test('FR-5 Read only: refreshing the host reads no file outside the project and starts no process', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  await r.clk.advance(35000)
+  expect(r.fs.filter((l) => /skills|\.claude|SKILL/.test(l))).toEqual([]) // the catalog is a constant: no skill folder is read
+  expect(r.writes).toEqual([])
+  expect(r.modelCalls > 0 && r.listCalls > 0).toBe(true)
+})
+
+// ---- changes/akili-panel-model-skills T6 (A1): the AKILI title, sized by scroll.bodyRows (FR-10, P-13)
+
+const BRAND_ROWS = ['▄▀█ █▄▀ █ █   █', '█▀█ █ █ █ █▄▄ █']
+
+test('FR-10 Wide and tall: bodyRows 52 draws the two half-block rows, then the spec alone', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 80, 52)
+  expect(lines.slice(0, 2)).toEqual(BRAND_ROWS)
+  expect(lines[2]).toBe('changes/demo')
+  await ui.unmount()
+})
+
+test('FR-10 Short terminal: bodyRows 17 with the full layout draws no title and the header reads Akili  <spec>', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines, next } = await drawn($, 'terminal', 80, 17)
+  expect(lines.some((l) => BRAND_ROWS.includes(l) || l === 'AKILI')).toBe(false)
+  expect(lines[0]).toBe('Akili  changes/demo')
+  expect(next).toBe('Next: /akili-specify changes/demo')
+  await ui.unmount()
+})
+
+test('FR-10 Short terminal: bodyRows 18 draws the one-row AKILI above the header', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 80, 18)
+  expect(lines.slice(0, 2)).toEqual(['AKILI', 'changes/demo'])
+  await ui.unmount()
+})
+
+test('FR-10 Narrow pane: 14 columns draw one bold AKILI row (kit case)', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui, lines } = await drawn($, 'terminal', 14, 52)
+  expect(lines[0]).toBe('AKILI')
+  const bold = (await ui.findAll({ type: 'Text' })).filter((t: any) => t.props.bold === true).map((t: any) => t.text)
+  expect(bold).toContain('AKILI')
+  await ui.unmount()
+})
+
+test('FR-10 the title rows are drawn in the planMode tone', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const { ui } = await drawn($, 'terminal', 80, 52)
+  const tones = (await ui.findAll({ type: 'Text' })).filter((t: any) => BRAND_ROWS.includes(t.text) && t.props.color === 'planMode')
+  expect(tones.length).toBeGreaterThan(0)
+  await ui.unmount()
+})
+
+test('P-13 a render with new bodyRows re-sizes the title: tall, then short, then tall again', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const sizeAt = async (bodyRows: number) => {
+    const { ui, lines } = await drawn($, 'terminal', 80, bodyRows)
+    await ui.unmount()
+    return lines.filter((l) => BRAND_ROWS.includes(l) || l === 'AKILI').length
+  }
+  expect([await sizeAt(52), await sizeAt(17), await sizeAt(52)]).toEqual([2, 0, 2])
+})
+
+// ---- /akili-test changes/akili-panel-model-skills (Tester suite B): host-wiring clauses the cases above do not prove.
+// Expected values are literals from requirements.md FR-1, FR-4, FR-10 and NFR-3 (commit ababb96).
+
+const titleOf = (lines: string[]) => lines.filter((l) => BRAND_ROWS.includes(l) || l === 'AKILI')
+const dimOf = async (ui: any, key: string) => JSON.stringify((await ui.find({ key }))?.children ?? null).includes('"dimColor":true')
+
+test('TP FR-4 Double press: a second, different skill pressed while one runs queues nothing; only the running row is dim; after it settles a press runs again', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen', 'caveman']
+  bottom(on, r, () => r.clk.sleep(5000).then(() => ({ text: 'done' })))
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  const first = d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  void d.ui.press({ key: 'skill-caveman' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }])
+  await d.ui.unmount()
+  const busy = await drawn($)
+  expect(await dimOf(busy.ui, 'skill-kaizen')).toBe(true)
+  expect(await dimOf(busy.ui, 'skill-caveman')).toBe(false)
+  await busy.ui.unmount()
+  await r.clk.advance(5000)
+  await first
+  await r.clk.settle()
+  const free = await drawn($)
+  expect(await dimOf(free.ui, 'skill-kaizen')).toBe(false)
+  const second = free.ui.press({ key: 'skill-caveman' })
+  await r.clk.settle()
+  await r.clk.advance(5000)
+  await second
+  expect(r.runs).toEqual([{ command: 'kaizen', args: '' }, { command: 'caveman', args: '' }])
+  await free.ui.unmount()
+})
+
+test('TP FR-4 Double press: a skill pressed while Next runs queues nothing, Next is the dim row and no skill row is', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => new Promise(() => {}))
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  void d.ui.press({ key: 'next' })
+  await r.clk.settle()
+  void d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.runs).toEqual([{ command: 'akili-specify', args: SPEC }])
+  await d.ui.unmount()
+  const busy = await drawn($)
+  const next: any = await busy.ui.find({ key: 'next' })
+  expect(next.props.dimColor).toBe(true)
+  expect(await dimOf(busy.ui, 'skill-kaizen')).toBe(false)
+  await busy.ui.unmount()
+})
+
+test('TP FR-4 Refused: the toast reads Could not run /<skill>: <reason> and the pane is otherwise unchanged; the guard is released', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = ['kaizen']
+  bottom(on, r, () => { throw new Error('no command named /kaizen in this session') })
+  await opened($, r)
+  await openGroup($, r, 'core')
+  const d = await drawn($)
+  const before = d.lines
+  await d.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.toasts).toEqual([expect.stringMatching(/^Could not run \/kaizen: \S.*$/)])
+  await d.ui.unmount()
+  const after = await drawn($)
+  expect(after.lines).toEqual(before)
+  expect(await dimOf(after.ui, 'skill-kaizen')).toBe(false)
+  await after.ui.press({ key: 'skill-kaizen' })
+  await r.clk.settle()
+  expect(r.runs.length).toBe(2)
+  await after.ui.unmount()
+})
+
+test('TP FR-2/FR-3 BUT pressing the Skills row or a group row runs nothing and toasts nothing', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  bottom(on, r)
+  await opened($, r)
+  await openGroup($, r, 'core')
+  for (const key of ['skills-group-stack', 'skills-group-stack', 'skills', 'skills']) {
+    const d = await drawn($)
+    await d.ui.press({ key })
+    await r.clk.settle()
+    await d.ui.unmount()
+  }
+  expect(r.runs).toEqual([])
+  expect(r.toasts).toEqual([])
+})
+
+test('TP NFR-3 one tick asks the host once for the model and once for the command list', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const [m, l] = [r.modelCalls, r.listCalls]
+  expect(m).toBe(1)
+  expect(l).toBe(1)
+  await r.clk.advance(30000)
+  await r.clk.settle()
+  expect([r.modelCalls - m, r.listCalls - l]).toEqual([1, 1])
+})
+
+test('TP FR-1 Model unknown: an empty model id draws model — with no toast, and the rest of the pane draws', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.model = ''
+  r.commands = ['kaizen']
+  await opened($, r)
+  const d = await drawn($)
+  expect(d.lines.some((l) => /^model\s+—$/.test(l))).toBe(true)
+  expect(d.next).toBe('Next: /akili-specify changes/demo')
+  expect(await keys(d.ui)).toEqual(['next', 'skills'])
+  expect(r.toasts).toEqual([])
+  await d.ui.unmount()
+})
+
+test('TP FR-10 Narrow pane boundaries on the host: 15 columns two rows, 5 columns AKILI, 4 columns no title and the 1.0.0 header', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  await opened($, r)
+  const at = async (cols: number) => { const { ui, lines } = await drawn($, 'terminal', cols, 52); await ui.unmount(); return lines }
+  expect(titleOf(await at(15))).toEqual(BRAND_ROWS)
+  expect((await at(5))[0]).toBe('AKILI')
+  const four = await at(4)
+  expect(titleOf(four)).toEqual([])
+  expect(four[0]).toBe('Aki…')
+})
+
+test('TP FR-10 Short terminal: at bodyRows 18 opening Skills and a group keeps the one-row title', async ($, on) => {
+  const r = rig($, on, oneSpec())
+  r.commands = LISTED
+  await opened($, r)
+  const titleAt18 = async () => { const { ui, lines } = await drawn($, 'terminal', 80, 18); await ui.unmount(); return titleOf(lines) }
+  expect(await titleAt18()).toEqual(['AKILI'])
+  await openGroup($, r, 'core')
+  expect(await titleAt18()).toEqual(['AKILI'])
 })

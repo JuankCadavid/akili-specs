@@ -46,7 +46,7 @@ test('no project write, no prompt or transcript write, no process (FR-10, DD-17)
 test('every hook but /akili-panel passes the event on first and returns its result (W-4, NFR-4)', () => {
   assert.ok(!/\bnext\(\s*\{/.test(src), 'next({ ... }) rewrites an event');
   assert.deepEqual(blocks.map((b) => b.event).sort(), [
-    'command.run', 'command.run', 'session.end', 'session.measure', 'session.start',
+    'command.run', 'command.run', 'command.run', 'session.end', 'session.measure', 'session.start',
     'tool.call', 'turn.complete', 'turn.start', 'ui.render']);
   for (const b of passing) {
     const first = b.text.indexOf('await next(e)');
@@ -63,7 +63,7 @@ test('every hook but /akili-panel passes the event on first and returns its resu
 
 test('every command.run and tool.call hook has a .catch that answers next(e) (W-4)', () => {
   const gated = passing.filter((b) => b.event === 'command.run' || b.event === 'tool.call');
-  assert.equal(gated.length, 2);
+  assert.equal(gated.length, 3);
   for (const b of gated) assert.ok(/\}\)\.catch\(passOn\)/.test(b.text), `${b.event}: no .catch`);
   assert.ok(/const passOn = \(\$, e, next\) => next\(e\)/.test(src));
 });
@@ -113,7 +113,7 @@ test('the /akili-panel hook answers for itself without next (FR-8, DD-7)', () =>
 
 const HOOKS = path.dirname(FILE);
 const hookFiles = fs.readdirSync(HOOKS).filter((f) => /\.(mjs|jsx?|tsx?|json)$/.test(f));
-const THEME = new Set(['inactive', 'success', 'suggestion', 'warning', 'error', 'subtle', 'inverseText', 'transparent']);
+const THEME = new Set(['inactive', 'success', 'suggestion', 'warning', 'error', 'subtle', 'inverseText', 'planMode', 'transparent']);
 
 test('NFR-1: every tone, color and backgroundColor literal under hooks/ is a theme key or transparent; no hex, no rgb()/hsl()', () => {
   assert.ok(hookFiles.includes('flow.mjs') && hookFiles.includes('register.jsx'));
@@ -145,8 +145,8 @@ test('FR-1: the one $.ui.open asks for backgroundColor transparent and the rows 
   assert.match(calls[0], /\brows: \w+/);
 });
 
-test('FR-9: no new atom beyond the five the pane reads (view, tokens, usage, opened, pending)', () => {
-  assert.deepEqual([...src.matchAll(/atom\(\{ plugin: 'akili-panel', key: '(\w+)' \}/g)].map((m) => m[1]), ['view', 'tokens', 'usage', 'opened', 'pending']);
+test('FR-9: no new atom beyond the seven the pane reads (view, tokens, usage, opened, pending, host, skillsUi)', () => {
+  assert.deepEqual([...src.matchAll(/atom\(\{ plugin: 'akili-panel', key: '(\w+)' \}/g)].map((m) => m[1]), ['view', 'tokens', 'usage', 'opened', 'pending', 'host', 'skillsUi']);
 });
 
 // ---- changes/akili-panel-polish /akili-test (literals from requirements.md at fbcc995; never reads docs/specs/)
@@ -154,14 +154,14 @@ test('FR-9: no new atom beyond the five the pane reads (view, tokens, usage, ope
 test('NFR-4: ui.render reaches the host only through $.ui.resolve and read($, <atom>); every other call is the pure paneRows or the press handler', () => {
   const render = blocks.find((b) => b.event === 'ui.render').text;
   assert.deepEqual([...new Set([...render.matchAll(/\$\.([\w.]+)/g)].map((m) => m[1]))], ['ui.resolve'], 'a host call besides $.ui.resolve');
-  assert.deepEqual([...render.matchAll(/\bread\(\$, (\w+)\)/g)].map((m) => m[1]).sort(), ['pending', 'tokens', 'usage', 'view']);
+  assert.deepEqual([...render.matchAll(/\bread\(\$, (\w+)\)/g)].map((m) => m[1]).sort(), ['host', 'pending', 'skillsUi', 'tokens', 'usage', 'view']);
   const takers = [...render.matchAll(/\b(\w+)\(\$\s*[,)]/g)].map((m) => m[1]);
-  assert.deepEqual([...new Set(takers)].sort(), ['press', 'read'], 'a function handed $ in the render');
-  for (const line of render.split('\n').filter((l) => /\bpress\(\$/.test(l))) assert.match(line, /onPress=\{\(\) => press\(\$, v\.next\)\}/, 'press outside onPress');
+  assert.deepEqual([...new Set(takers)].sort(), ['press', 'read', 'update'], 'a function handed $ in the render');
+  for (const line of render.split('\n').filter((l) => /\bpress\(\$/.test(l))) assert.match(line, /onPress=\{\(\) => press\(\$, v\.next\)\}|^\s*return \(\) => press\(\$, \{ command: p\.name, args: '' \}\)$/, 'press outside onPress or the skill press');
   assert.ok(/import \{[^}]*\bpaneRows\b[^}]*\} from '\.\/flow\.mjs'/.test(src), 'paneRows comes from flow.mjs');
 });
 
-test('FR-4 Inline pane: the rows asked for equal the rows the full layout draws, so Next is the last asked-for row', async () => {
+test('FR-4 Inline pane: the rows asked for equal the rows the full layout draws, so Next sits inside the asked-for rows (DD-3)', async () => {
   const { pathToFileURL } = require('node:url');
   const F = await import(pathToFileURL(path.join(HOOKS, 'flow.mjs')).href);
   const asked = Number(/const PANE_ROWS = (\d+)/.exec(src)[1]);
@@ -169,7 +169,8 @@ test('FR-4 Inline pane: the rows asked for equal the rows the full layout draws,
   const phases = F.PHASES.map((id, i) => ({ id, mark: i < 2 ? 'done' : i === 2 ? 'current' : 'todo', note: i === 2 ? 'blocked' : null }));
   const view = { status: 'ok', spec: 'changes/x', archived: false, moreActive: 1, constitution: { present: 5, total: 13 }, phases, errors: [], branch: { kind: 'branch', name: 'feat/x', sha: '' } };
   view.next = F.nextButton(view);
-  const rows = F.paneRows({ view, usage: { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 }, sums: { in: 1, out: 1 }, pending: null, cols: 80 });
-  assert.equal(rows.length, asked);
-  assert.equal(rows.at(-1).id, 'next');
+  const rows = F.paneRows({ view, usage: { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 0.35 }, sums: { in: 1, out: 1 }, pending: null, cols: 80, rows: 52, host: { model: 'claude-haiku-5-5', skills: ['kaizen', 'tdd'] }, skillsUi: { open: false, group: null } });
+  assert.equal(rows.length, asked, 'the rows asked equal the closed full layout');
+  assert.ok(rows.findIndex((r) => r.id === 'next') >= 0 && rows.findIndex((r) => r.id === 'next') < asked, 'Next is inside the asked rows');
+  assert.equal(rows.at(-1).id, 'skills', 'the Skills row closes the layout, after Next');
 });

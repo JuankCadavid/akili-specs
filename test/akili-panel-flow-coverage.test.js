@@ -21,7 +21,7 @@ test.after(() => fs.rmSync(TMP, { recursive: true, force: true }));
 let counter = 0;
 
 // paneRows by row id, as text; a view is completed with the fields a pane needs.
-const textRows = (F, over) => Object.fromEntries(F.paneRows({ usage: {}, sums: { in: 0, out: 0 }, cols: 200, ...over })
+const textRows = (F, over) => Object.fromEntries(F.paneRows({ rows: 1, usage: {}, sums: { in: 0, out: 0 }, cols: 200, ...over })
   .map((r) => [r.id, r.parts.map((q) => q.text).join('')]));
 const whole = (view) => ({ constitution: { present: 13, total: 13 }, phases: [], errors: [], ...view });
 const flat = (text) => text.replace(/[━─]/g, '').replace(/\s+/g, ' ').trim();
@@ -487,7 +487,7 @@ test('FR-16 no line passes the pane width, for every line the pane draws, at eve
   const usage = { ctxPercent: 42, ctxTokens: 84000, ctxWindow: 200000, usd: 12.34 };
   for (let cols = 1; cols <= 140; cols++) {
     const errors = [{ path: '/a/very/long/path/tasks.md', reason: 'EACCES:\npermission denied' }];
-    const lines = F.paneRows({ view: { ...view, errors }, usage, sums: { in: 1234567, out: 98765 }, cols }).map((r) => r.parts.map((q) => q.text).join(''));
+    const lines = F.paneRows({ rows: 1, view: { ...view, errors }, usage, sums: { in: 1234567, out: 98765 }, cols }).map((r) => r.parts.map((q) => q.text).join(''));
     for (const line of lines) {
       assert.ok(line.length <= cols, `${cols}: ${line}`);
       assert.ok(!/[\r\n]/.test(line), `${cols}: a line break`);
