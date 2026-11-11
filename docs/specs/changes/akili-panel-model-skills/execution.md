@@ -318,20 +318,20 @@
 | 3 | Inline at `rows: 19` | `i1.txt`: the frame ends at `│  Next: /akili-execute …` then `╰───`; the `Skills` rule and row are below it and come into view with Down ×2 (`t5-debug4-inline.log` "ui.scroll Pane akili (person) by 1 to 1: moved", "… to 2: moved"; `i3.txt` `│ Skills (32) ▸`). The frame body is the layout's allowance (P-5: 17 here), not 19 | PASS with note: Next stays inside the frame (DD-3); Skills reachable by keys (FR-7) |
 | 4 | Guard on `Next` (accidental) | `t5-debug4-inline.log`: "spy press {"element":"next"…}", "$.command.run (akili-panel): 47 chars queued", "spy GUARD answered /akili-execute without running"; transcript `⎿ focus-spy: T5 guard: /akili-execute pressed from the pane, not run in the test session` | The pane's Next press works; not run, by design |
 | 5 | State 2: press `Skills` | "ui.focus Pane akili (person) onto akili-panel's skills: moved", "spy press {"element":"skills"…}"; `i5.txt` `│ Skills (32) ▾`; `i6.txt` `│   core (12) ▸`, `│   conditional (9) ▸`, `│   stack (11) ▸` (12+9+11 = 32) | PASS (FR-3) |
-| 6 | State 3: press `core` | "spy press {"element":"skills-group-core"…}"; `i7.txt` `│   core (12) ▾` then 12 names `brainstorming` … `systematic-debugging`, then `conditional (9) ▸`, `stack (11) ▸` | PASS (FR-3) |
+| 6 | State 3: press `core` | "spy press {"element":"skills-group-core"…}"; `i7.txt` `│   core (12) ▾` then 12 names `brainstorming` … `systematic-debugging`, then `conditional (9) ▸`, `stack (11) ▸` | PASS (FR-3; FR-7 inline: the largest group's last skill reached by keys) |
 | 7 | Core skill press + double press | One write `\r\r` on `skill-caveman`: two "spy press {"element":"skill-caveman"…}", one "$.command.run (akili-panel): 8 chars queued", one "spy run command=caveman args="" origin={"kind":"plugin","name":"akili-panel"}"; transcript `❯ /caveman` once; the model answered | PASS (FR-4 *Run*, *Double press*: one run, no arguments) |
 | 8 | Section stays after a run | `i10.txt` after the turn: `│ Skills (32) ▾`, `│   core (12) ▾`, the 12 names | PASS (FR-4) |
 | 9 | One group open at a time; conditional press | "spy press {"element":"skills-group-conditional"…}"; `i11.txt` `│   core (12) ▸`, `│   conditional (9) ▾` + 9 names (`diagram-design` … `video-production`). Press `skill-diagram-design`: "15 chars queued", "spy run command=diagram-design args=""…"; transcript `❯ /diagram-design`; `i14.txt` still `conditional (9) ▾` | PASS (FR-3, FR-4) |
 | 10 | Stack press | `i16.txt` `│   conditional (9) ▸`, `│   stack (11) ▾` + 11 names to `vercel-react-best-practices`. Press `skill-golang-pro`: "11 chars queued", "spy run command=golang-pro args=""…"; transcript `❯ /golang-pro`; `i19.txt` `stack (11) ▾` | PASS (FR-3, FR-4) |
 | 11 | Confirmed `/model` switch (JC-authorized) | Typed `/model haiku`; dialog `Switch model?` … `❯ 1. Yes, switch to Haiku 5.5` / `2. No, go back`; Leader sent `1`. `m2.txt`: `⎿  Set model to Haiku 5.5 and saved as your default for new sessions`, then the pane `│ model            claude-haiku-5-5` within 4 s, no turn in between; status line `Haiku 5.5`. `m3.txt`: Skills still open (`stack (11) ▾` list) | PASS (FR-1 *Model changes*, P-4 with a confirmed switch) |
-| 12 | Resume re-read | `/exit`, then `claude --resume 46c58bc5-…` docked: `d1.txt` `│model            claude-haiku-5-5`, `│Skills (32) ▸` (closed in the new session) | PASS (FR-1 "and resume", FR-2) |
+| 12 | Resume re-read | `/exit`, then `claude --resume 46c58bc5-…` docked: `d1.txt` `│model            claude-haiku-5-5`, `│Skills (32) ▸` (closed in the new session) | PASS (FR-1 "and resume", FR-2). Note: `/model` had saved `haiku` as the default, so this read alone does not tell a re-read from the startup default (judgment W-1 gap stays as recorded) |
 | 13 | Dock: largest group, last skill reachable | `t5-debug5-dock.log` "ui.focus … onto akili-panel's skill-systematic-debugging: moved"; `d3.txt` whole tree in the dock, `│    systematic-debugging` then `│  conditional (9) ▸`. Press: "21 chars queued", "spy run command=systematic-debugging …", "spy GUARD answered /systematic-debugging without running" (not allow-listed) | PASS (FR-7 dock; the press dispatches) |
 | 14 | Narrow pane | `ctrl+x right` (`pane:shrink`) ×22: the dock stops at **23** inner columns (host minimum). `d5.txt` at 23: `[model        claud…-5-5]`, `[Akili  changes/…-skills]`, `[01 Constit…  ▶ (5/13)]`, `[    cognitive-doc-desi…]`, `[    systematic-debuggi…]`, `session` row dropped, every mark kept | PASS at 23; **14 columns not reachable live** in the dock (host floor); 14 stays covered by the kit (T2/T3) |
 
 #### Side effects and cleanup
 
 - **Model default:** the confirmed `/model haiku` wrote `"model": "haiku"` into the Orca profile's `settings.json` ("saved as your default for new sessions"). Restored by the Leader to `"model": "opus"`: `shasum` back to the original `d7387625c449fd4a0ef849f0e79b3ac070a200de`. `~/.claude/settings.json` was never changed (same hash throughout).
-- **Dock width:** the shrink/grow left `"pluginPanes": {"dockColumns": 101}` in the profile's `.claude.json` (the first dock read showed 60 inner columns, so about 61 before; the prior stored value was not read). Not edited by hand: the file is written live by running sessions. JC can drag or `ctrl+x left/right` it back.
+- **Dock width:** the shrink/grow left `"pluginPanes": {"dockColumns": 101}` in the profile's `.claude.json` (the first dock read showed 60 inner columns; the stored value before T5 was never read, so any restore is approximate, in the host's 4-column steps). Not edited by hand: the file is written live by running sessions. JC can drag or `ctrl+x left/right` it back.
 - **Stray file:** loading the branch plugin with `--plugin-dir` made the host write `.claude/skills/akili-panel/tsconfig.json` (untracked, `extends ./.claude-plugin/types/tsconfig.json`); removed. `git status` clean.
 - The T5 test sessions ran `/caveman`, `/diagram-design` and `/golang-pro` for real (allow-listed, read-only skills); no file was written in the repo.
 
@@ -366,7 +366,7 @@
 | Skills | `tdd`, `impeccable-bridge`, `cognitive-doc-design`. Effort `medium` → `high` on attempt 2. Design route: playbook, ENV-2, mode Operate, motion none, `polish light`, `finish review: not run (AKILI execute)` |
 | Models | Implementer `sonnet`, Reviewer `opus` |
 | spawns | Implementer 1: 39 calls, 139,928 tokens, complete. Reviewer 1: 25 calls, 125,929 tokens, complete. Implementer 2: 7 calls, 70,332 tokens, complete. Reviewer 2: 6 calls, 75,515 tokens, complete |
-| Running totals | 5 of 6 tasks; ≈831 + T6 345 added / 52 deleted ≈ 1,228 LOC against the ~980 budget of A1 (+25%: **budget tripwire, escalated to JC at the T6 gate**; cause: tests again — T6 test lines ≈ 307 of 397 changed vs ~80 planned; code 76 changed lines vs ~35, docs ~14); 7 of 8 review rounds (T5 owes 1) |
+| Running totals | 5 of 6 tasks; ≈831 + T6 345 added / 52 deleted ≈ 1,228 LOC against the ~980 budget of A1 (+25%: **budget tripwire, escalated to JC at the T6 gate; accepted 2026-11-11: «Sí, acepta el exceso (~1.230 líneas) y sigue con la prueba en vivo de T5»**; cause: tests again — T6 test lines ≈ 307 of 397 changed vs ~80 planned; code 76 changed lines vs ~35, docs ~14); 7 of 8 review rounds (T5 owes 1) |
 
 #### Attempt 1 — Reviewer `FAIL`
 
@@ -390,3 +390,46 @@
 
 - Live re-read of the title: dock at 23 columns and wide (expect two rows); inline in the short frame (17 visible, `n` = 17: expect no title and `Akili  <spec>`); a resize re-sizes it (P-13). Then JC's single light/dark check.
 - Kit runs can leave an ignored `.claude/skills/akili-panel/.claude-plugin/types/` that makes 19 install/doctor tests fail in `npm test`; delete it after kit runs.
+
+### T5 (resumed after T6): live re-check of the AKILI title — scripted checks done; awaiting JC's light/dark sign-off
+
+| Field | Value |
+|---|---|
+| Go | JC at the T6 gate: «Sí, acepta el exceso (~1.230 líneas) y sigue con la prueba en vivo de T5» |
+| Date | 2026-11-11 America/Bogota |
+| Code under test | `49c75c3` (T6), loaded session-only with `--plugin-dir <wt>/.claude/skills/akili-panel` plus the `focus-spy` guard (as in the first T5 run); Claude Code 2.1.322; reads with `orca terminal read --screen` only, no delegated agent or test running |
+| Evidence | `<S>/t5b-dock.log`, `<S>/t5b-inline.log`; screens `<S>/e1.txt`–`e5.txt` (dock), `<S>/f1.txt`–`f4.txt` (inline) |
+
+| # | Step | Screen text | Result |
+|---|---|---|---|
+| 15 | Dock, wide (100 inner columns, the width left by the first T5 run) | `e1.txt`: `[▄▀█ █▄▀ █ █   █]`, `[█▀█ █ █ █ █▄▄ █]`, `[changes/akili-panel-model-skills]`, `[⎇ JuankCadavid/akili-panel-model-skills (2 more active)]`, rule, … `[model            claude-sonnet-5-5]`, `[ Next: /akili-execute changes/akili-panel-model-skills]`, rule, `[Skills (32) ▸]` | PASS (FR-10 *Wide and tall*; header without `Akili`) |
+| 16 | Dock at its 23-column minimum (`ctrl+x right`) | `e3.txt` at 23: `[▄▀█ █▄▀ █ █   █]`, `[█▀█ █ █ █ █▄▄ █]`, `[changes/aki…odel-skills]`, `[⎇ J…lls (2 more active)]`, … `[model        claud…-5-5]`, `[ Next: /akili-execute…]` | PASS (FR-10 *Narrow pane*: two rows whole at 23) |
+| 17 | Inline, short frame (`CLAUDE_CODE_NO_FLICKER=0`, 17 visible rows) | `f1.txt`: `│ Akili  changes/akili-panel-model-skills` first, … `│  Next: /akili-execute changes/akili-panel-model-skills` last before `╰───` | PASS (FR-10 *Short terminal*: no title, header as `1.0.0`, Next the last visible row) |
+| 18 | Resize re-sizes the title (P-13): `ctrl+x up` ×3 on the focused inline pane | 18 frame rows → `│ AKILI` then `│ changes/akili-panel-model-skills`, Next visible (`f3-1.txt`); 19 → `│ ▄▀█ █▄▀ █ █   █`, `│ █▀█ █ █ █ █▄▄ █`, `│ changes/…`, Next visible (`f3-2.txt`); 20 → the same two rows, Next visible (`f3-3.txt`) | PASS (FR-10 *Short terminal* one-row case; P-13 live: a new `bodyRows` re-renders the title) |
+| 19 | Shrink back (`ctrl+x down` ×3) to 17 | `f4.txt`: no title row; the frame shows `│ ⎇ JuankCadavid/…` … `│  Next: /akili-execute …`, `│ ───` (the window kept a 1-row scroll offset from the larger frame, so the `Akili  changes/…` row sits just above the window) | PASS (title gone again; Next visible) |
+
+**Restored state.** The dock was widened back from 23 to 59 inner columns (`.claude.json` `pluginPanes.dockColumns: 60`; before the first T5 run the dock read 60 inner columns, the host steps by 4). `inlineRows: 19` after the net-zero grow/shrink. The profile `settings.json` hash is still `d7387625…`, and `claude --version` is still 2.1.322. Host leftovers removed: the untracked `.claude/skills/akili-panel/tsconfig.json` and the ignored `.claude-plugin/types/`; afterwards `npm test` `# pass 1895 / # fail 0`, and `git status` shows only this log.
+
+**Observation (recorded only).** Step 19: after a shrink the host keeps the inline window's scroll offset, so the header row can sit one row above the window until the person scrolls up. That is host behaviour; the title rule held, and Next stayed visible.
+
+**Remaining:** JC's light/dark visual check (requirements §8: the only gate for look), then the T5 `checklist` Reviewer round (round 8 of 8).
+
+#### JC's light/dark visual check (HITL gate)
+
+- **Verdict, verbatim:** «lo veo bien presione execute sin querer pero lo detuve» (2026-11-11). JC looked at the pane in his own session (`claude --plugin-dir <wt>/.claude/skills/akili-panel`, `/akili-panel`) and passed the look. The gate message asked: "Please look at these in both light and dark: the AKILI title; the `model` row; the Skills section closed, open, and with a group open." The relay called his answer "JC's light/dark visual verdict (looks good)", but his own words name neither theme. **Two-theme confirmation (asked after Reviewer round 8 FAIL), verbatim:** to «¿Lo miraste en claro y en oscuro?» JC answered «Sí, lo vi en claro y oscuro» (2026-11-11). Both themes checked; no theme gap.
+- **Issue encountered (JC's session, not a test step):** JC pressed `Next` by accident, which ran `/akili-execute changes/akili-panel-model-skills` in his visual session (that session had no guard, as the gate message warned). He stopped it. Per the relay, the interrupted run had only started a read-only grep of `tasks.md` and a `git diff`, rejected before finishing; no edits, no commits. Leader check: `HEAD` still `49c75c3`; `git status` showed only this log modified, plus the known `--plugin-dir` leftovers from that session (untracked `.claude/skills/akili-panel/tsconfig.json`, ignored `.claude-plugin/types/`), both removed. The profile `settings.json` hash is still `d7387625…`.
+- That accidental press is itself live evidence that a `Next` press runs the command interactively (P-10), with no harm done.
+
+#### Reviewer round 8 (`checklist`) — `FAIL`, one issue
+
+- 30+ quotes checked word for word against the scratchpad files; FR-8 order and text hold in `t5-s1.txt`; Disqualifier holds (first run 12:36–13:02Z before A1 and T6; resumed run 13:45–13:47Z after `49c75c3`); all ten deviations recorded; coverage complete, with FR-6 at 14 columns and the refusal toast marked not reproduced live, each with its reason.
+- **Issue:** the log said JC passed the look "light and dark", but his verbatim words name neither theme (requirements §8, NFR-1, T5 Done criteria). Leader correction applied above: the claim now quotes the gate question and leaves the two-theme confirmation open for JC.
+- **Advisories applied (factual, wording only):** dock-width wording made consistent; step 6 marked as the inline FR-7 evidence; step 12 notes the resume read cannot tell a re-read from the saved default.
+- Review rounds: 8 of 8 used. Re-checking the corrected record needs a 9th round (escalated to JC at this gate).
+
+#### T5 closed — JC decision on the 9th review round
+
+- **JC, verbatim:** «Opción B: cierra T5 sin la ronda 9 y haz commit» (2026-11-11).
+- No 9th Reviewer round ran. The corrections made after round 8 (the verdict line now quoting JC's words, plus his two-theme answer above, and the three wording advisories) were **not** re-checked by a Reviewer; JC accepted that by choosing option B. Review rounds: 8 of 8 used, none over budget.
+- Closing record: Reviewer round 8 found one issue only (the unsupported "light and dark" claim); it is now settled by JC's verbatim answer. Non-author evidence re-run: the round 8 Reviewer re-read every quoted screen file. T5 marked `[x]`.
+- **Next gate:** `/akili-test changes/akili-panel-model-skills` (not started; needs JC's approval).

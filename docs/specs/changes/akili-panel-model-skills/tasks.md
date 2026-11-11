@@ -129,7 +129,7 @@ Strictly sequential: T2 is only worth building once T1 shows a skill runs from a
 
 | Field | Value |
 |---|---|
-| Status | `[~]` scripted checks done 2026-11-11; awaiting JC light/dark sign-off |
+| Status | `[x]` scripted checks and JC light/dark sign-off done 2026-11-11 (closed without a 9th review round, JC option B) |
 | Size | S (no code) |
 | Depends on | T4 |
 | Requirements | FR-1 (model shown, follows `/model`), FR-2, FR-3, FR-4 (a real skill runs from a press; double press; section stays), FR-6 (narrow pane, 14 columns), FR-7 (*Tallest open state*: every skill reachable inline and docked), FR-8 (look unchanged), NFR-1 (light and dark) |
