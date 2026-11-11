@@ -172,7 +172,7 @@ Marks carry state without colour (NFR-1). Next keeps its chip and dims while any
 
 | Placement | What happens | Source |
 |---|---|---|
-| Inline | `$.ui.open({ rows: 19 })` asks for the closed layout; "inline the frame fits the tree", so opening a group grows the frame up to what the layout spares | `reference.md:169` (`rows` … "as tall as its content needs (up to what the layout spares, and the person's own size wins)"); `types` `Pane.scroll` doc ("Inline the frame fits the tree") |
+| Inline | `$.ui.open({ rows: 21 })` asks for the closed layout (19 before A1; the two title rows added, §8.7); "inline the frame fits the tree", so opening a group grows the frame up to what the layout spares | `reference.md:169` (`rows` … "as tall as its content needs (up to what the layout spares, and the person's own size wins)"); `types` `Pane.scroll` doc ("Inline the frame fits the tree") |
 | Dock | The body is a window over the tree, scrolled by the person's keys while focused | `types` `Pane.scroll`, `Pane.isFocused` ("the arrows scroll") |
 
 **Decision:** no re-open and no own scrolling. Skills sit **after** Next, so whatever the room, Next and every pre-existing row keep their place and the open group grows downward into the frame or the scroll window. Live confirmation is P-5 (owner T1).
@@ -221,7 +221,7 @@ changes/akili-panel-model-skills
 
 ## 11. Premise Ledger
 
-**Count:** 12 settled: 11 verified, P-11 existence-checked (live at T5). P-3, P-4, P-5 verified by T1, 2026-11-10; P-11 by T3, 2026-11-10 (`execution.md` → T1, T3).
+**Count:** 13 settled: 12 verified, P-11 existence-checked (live at T5). *A1:* P-13 verified by T6 (kit, varying `bodyRows`) and T5 step 18 (live resize), 2026-11-11. P-3, P-4, P-5 verified by T1, 2026-11-10; P-11 by T3, 2026-11-10 (`execution.md` → T1, T3).
 **Blast-radius triggers:** `live-path` (a press runs a command) → P-3, P-10; `shared-state` (`pending` gains readers) → P-7; `consumer` (`paneRows` output and `PANE_ROWS` change) → P-8.
 
 | # | Claim | Class | Citation (as run) | Verified at | If false | Settled by |
@@ -237,7 +237,7 @@ changes/akili-panel-model-skills
 | P-9 | Plugin file count and pack contents are pinned by `test/install-akili-panel.test.js` and `npm run pack:dry-run`; adding no file leaves them green | consumer | `ls test \| grep -i panel` → `install-akili-panel.test.js` among 5; DD-1 adds no shipped file | `8e8c5ba` | A generated catalog file would need those updates (Low) | — |
 | P-10 | A Next press reaches `$.command.run` and runs the command interactively (shipped) | live-path | `draw` → `<Button … onPress={() => press($, v.next)}>` → `press()` → `$.command.run`; parent design P-34 (observed in parent T1, Claude Code 2.1.318) | `8e8c5ba` | — | — |
 | P-11 | `$.session.model` and `$.command.list` exist on 2.1.318 (NFR-4 floor) | existence | T3, 2026-11-10: `~/.local/share/claude/versions/2.1.318 plugin test .claude/skills/akili-panel` → `92 pass / 0 fail` with both calls mocked in the kit; the 2.1.318 binary's strings contain `"session.model"` and `"command.list"` (2.1.317 too). Existence by binary strings and mocked kit only, not a live answer | `2c0a5bf` + T3 diff | NFR-4 fallback paths become the norm on 2.1.318 (Low) | T3 (existence) ✓; live at T5 |
-| P-13 | *A1:* a Pane render carries `scroll.bodyRows`, the visible body rows, and re-renders when it changes | data-env | T1 probe (2.1.322): `"body":17` inline and `"body":52` docked in its RENDER lines (`t1-events.run3-inline.log:5-6`, `t1-debug.run1.log:620`); `types` Pane `scroll` ("The body's window over the tree") | — | Absent on a host → unbounded (FR-10 *Size unknown*); a missed re-render on resize leaves the old size until the next render (Low) | T6 (kit varies `bodyRows`), T5 (live) |
+| P-13 | *A1:* a Pane render carries `scroll.bodyRows`, the visible body rows, and re-renders when it changes | data-env | T1 probe (2.1.322): `"body":17` inline and `"body":52` docked in its RENDER lines (`t1-events.run3-inline.log:5-6`, `t1-debug.run1.log:620`); `types` Pane `scroll` ("The body's window over the tree") | `49c75c3` (kit); T5 step 18 (live, `ababb96`) | Absent on a host → unbounded (FR-10 *Size unknown*); a missed re-render on resize leaves the old size until the next render (Low) | T6 (kit varies `bodyRows`) ✓; T5 step 18 (live) ✓ |
 | P-12 | No test reads the active spec folder | other | KZ-changes--archify-diagrams-1; the catalog test reads `.claude/skills/`, not `docs/specs/` | `8e8c5ba` | — | — |
 
 ## 12. Budget (Step 2.4)

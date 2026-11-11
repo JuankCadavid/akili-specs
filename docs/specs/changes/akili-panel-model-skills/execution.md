@@ -13,7 +13,7 @@
 | Session | Leader on `claude-opus-5-5` (T1 tier). Started 2026-11-10 America/Bogota. Claude Code 2.1.322 |
 | Workers | No Step 8E wrappers in this repo (`.claude/agents/` absent), so workers run as fallback sub-prompts: Implementer `sonnet` (T2), Reviewer `opus` (author ≠ auditor). Each reads its `.agents/` persona first |
 | Personas | `.agents/` was absent in this worktree (gitignored, per machine). Scaffolded 2026-11-10 by copying `.claude/templates/{leader,implementer,reviewer,tester}.md`. `node bin/akili.js doctor --agents`: every section `CURRENT`, "No persona drift blocking CI" |
-| Budget (design §12) | 5 tasks · ~750 LOC · 8 review rounds. **Raised 2026-11-10 by JC at the T3 gate to ~850 LOC** («Sí, acepta el exceso, sube el presupuesto a ~850 y sigue con T4»): overrun ≈784 vs ~750 accepted, cause tests ~3× code |
+| Budget (design §12) | 5 tasks · ~750 LOC · 8 review rounds. **Raised 2026-11-10 by JC at the T3 gate to ~850 LOC** («Sí, acepta el exceso, sube el presupuesto a ~850 y sigue con T4»): overrun ≈784 vs ~750 accepted, cause tests ~3× code. *A1 (2026-11-11):* 6 tasks · ~980 LOC; overrun ≈1,228 accepted by JC at the T6 gate (T6 entry, *Running totals*) |
 
 ## Task Execution History
 
