@@ -15,6 +15,8 @@ export type AkiliPanelView = {
 export type AkiliPanelTokens = { in: number; out: number }
 export type AkiliPanelUsage = { ctxPercent?: number; ctxTokens?: number; ctxWindow?: number; usd?: number }
 export type AkiliPanelPending = { since: number; command: string }
+export type AkiliPanelHost = { model: string | null; skills: string[] | null }
+export type AkiliPanelSkillsUi = { open: boolean; group: 'core' | 'conditional' | 'stack' | null }
 
 declare module 'claude-code' {
   interface PluginState {
@@ -24,6 +26,8 @@ declare module 'claude-code' {
       usage: Shaped<AkiliPanelUsage>
       opened: boolean
       pending: AkiliPanelPending | null
+      host: Shaped<AkiliPanelHost>
+      skillsUi: AkiliPanelSkillsUi
     }
   }
 }
