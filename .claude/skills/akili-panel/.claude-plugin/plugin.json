@@ -1,7 +1,7 @@
 {
   "name": "akili-panel",
   "version": "1.1.0",
-  "description": "A Claude Code side pane that shows where the active AKILI spec stands and offers a Next button.",
+  "description": "A Claude Code side pane for the active AKILI spec: its methodology flow with a Next button, the active branch, token use, the session model, a collapsible Skills list and a small AKILI title.",
   "author": {
     "name": "Juan Carlos Cadavid",
     "url": "https://jcadavid.com"

@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Changed
 
-- No unreleased changes yet.
+- **`akili-panel` `plugin.json` describes 1.1.0.** Its `description` named only the `Next` button; it now lists the methodology flow, active branch, token use, session model, collapsible `Skills` list and small `AKILI` title. Copy only; the plugin version stays `1.1.0`.
 
 ## [2.44.0] - 2026-11-11
 
