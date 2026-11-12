@@ -1,7 +1,7 @@
 {
   "name": "akili-specs",
   "version": "2.44.0",
-  "description": "Portable AKILI-SPECS methodology commands and skills for AI-assisted development.",
+  "description": "Akili · AI agents and software — portable AKILI-SPECS methodology commands and skills for AI-assisted development.",
   "homepage": "https://github.com/JuankCadavid/akili-specs#readme",
   "repository": {
     "type": "git",
