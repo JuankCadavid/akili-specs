@@ -9,6 +9,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Changed
 
 - **`akili-panel` `plugin.json` describes 1.1.0.** Its `description` named only the `Next` button; it now lists the methodology flow, active branch, token use, session model, collapsible `Skills` list and small `AKILI` title. Copy only; the plugin version stays `1.1.0`.
+- **`docs/plugins/akili-panel.md` names the versions 1.1.0 was tested on.** It said the tests ran on 2.1.319 (1.0.0); 1.1.0's plugin tests ran on 2.1.318 and 2.1.322. The 2.1.318 minimum is unchanged.
 
 ## [2.44.0] - 2026-11-11
 

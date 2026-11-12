@@ -2,7 +2,7 @@
 
 `akili-panel` is a Claude Code plugin that keeps a side pane beside the chat. It shows where the active AKILI-SPECS spec stands and gives you a button for the next step, the session's model and a list of the skills AKILI ships. It only reads: it writes, moves or deletes no project file, and it starts no process. It is a plugin, not a skill, so it is outside the [skill inventory](../skills/README.md) (see [governance](../skills/governance.md#plugin-entries-are-not-skills)).
 
-**Claude Code only**, version 2.1.318 or later. 2.1.318 is the plugin API it was built against; its tests ran on 2.1.319. No other AKILI target receives it.
+**Claude Code only**, version 2.1.318 or later. 2.1.318 is the plugin API it was built against; its tests ran on 2.1.318 and 2.1.322. No other AKILI target receives it.
 
 ## Quick path
 
