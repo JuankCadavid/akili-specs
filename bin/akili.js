@@ -2782,8 +2782,10 @@ async function getLatestVersion() {
 }
 
 function isNewerVersion(latestVersion) {
+  // 🛡️ Sentinel: Validate latestVersion is a string before using .localeCompare
+  // This prevents unhandled TypeError crashes (DoS) if the registry payload returns a non-string type.
   return (
-    latestVersion &&
+    typeof latestVersion === "string" &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
   );
