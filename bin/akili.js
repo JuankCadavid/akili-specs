@@ -1550,6 +1550,8 @@ function changelogSectionsBetween(changelogPath, fromVersion, toVersion) {
   let current = null;
 
   const isNewer = (a, b) =>
+    // 🛡️ Sentinel: Validate external JSON payload type before calling localeCompare to prevent unhandled TypeError exceptions (DoS prevention)
+    typeof a === "string" && typeof b === "string" &&
     a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) > 0;
 
   for (const line of lines) {
@@ -2783,7 +2785,8 @@ async function getLatestVersion() {
 
 function isNewerVersion(latestVersion) {
   return (
-    latestVersion &&
+    // 🛡️ Sentinel: Validate external JSON payload type before calling localeCompare to prevent unhandled TypeError exceptions (DoS prevention)
+    typeof latestVersion === "string" &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
   );
