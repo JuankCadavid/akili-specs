@@ -2782,8 +2782,9 @@ async function getLatestVersion() {
 }
 
 function isNewerVersion(latestVersion) {
+  // 🛡️ Sentinel: Validate type to prevent DoS from invalid JSON payloads
   return (
-    latestVersion &&
+    typeof latestVersion === "string" &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0
   );
