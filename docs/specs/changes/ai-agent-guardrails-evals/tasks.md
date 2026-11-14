@@ -24,7 +24,7 @@
 
 ### T1 — Author `references/guardrails.md`
 
-- **Status:** [ ] · **Size:** M · **Depends on:** none
+- **Status:** [x] · **Size:** M · **Depends on:** none
 - **Requirements:** FR-1, all three scenarios and every clause: four layers in order; what each layer blocks, where it sits, and what it becomes in the spec; a phone example per layer; `AND IT MUST` no single layer suffices and instructions are not a guardrail; voice: identity verification, recording consent, escalation (triggers, context, fallback); `BUT` no statute, rule of law or jurisdiction, owned by counsel; `AND IT MUST` mark `> Unvalidated:`; sources pinned and dated; `Last verified:`; `BUT` vendor-neutral; `AND IT MUST` route vendor configuration through *Runtime Deferral*. Also NFR-2, NFR-3, NFR-4, NFR-5
 - **Design:** §9.1, DD-3, DD-4, DD-5, DD-11; P-2, P-12, P-14
 - **Scope:** new `.claude/skills/ai-agent-development/references/guardrails.md`. **First step:** settle P-14. Fetch each candidate source (Anthropic prompt-injection and jailbreak guidance, Amazon Bedrock Guardrails, OWASP Top 10 for LLM Applications, plus any other link used), record URL and fetch date, and drop or re-source any claim a page does not support
