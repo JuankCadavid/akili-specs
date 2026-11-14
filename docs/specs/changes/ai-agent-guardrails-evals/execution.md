@@ -55,3 +55,38 @@
   - spawns: Implementer (sonnet): not reported by host, ended complete. Reviewer (opus): not reported by host, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 1/13 tasks · ≈ 133 LOC / ≈ 900 · 1/≈ 22 review rounds. Within budget.
+
+### T2 — Author `references/evals.md` — PASS
+
+- **Date:** 2026-11-14 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** FR-2 (S1–S4, all clauses), NFR-2, NFR-3, NFR-4, NFR-5
+- **Attempt 1**
+  - Files changed: `.claude/skills/ai-agent-development/references/evals.md` (new, 145 lines, 12,761 B)
+  - Skills: `ai-agent-development`, `cognitive-doc-design`, the same as tasks.md, so no deviation. Effort: high. Ran in parallel with T1
+  - P-14 (eval sources, fetched 2026-11-14):
+    - Anthropic *develop-tests*: `docs.anthropic.com` answered with a 301 to `platform.claude.com/docs/en/test-and-evaluate/develop-tests`. The new URL is cited. The first ~100k characters were read; the remainder is code examples.
+    - LangSmith *Evaluation concepts*: fetched OK.
+    - Judge calibration is not sourced. It is stated as an AKILI requirement and flagged in Sources.
+  - Implementer verification:
+    1. The §9.2 walk finds every section in order. It adds a "Decision index" and a "Putting it in the spec" table.
+    2. The number grep has one hit, `:104` ("2% of calls per week"), inside a `> Unvalidated:` block. There are 5 markers. "p50 and p95" was read by hand and is covered.
+    3. `wc -lc` → 145 lines, 12,761 B.
+    4. The no-pass section points to mapping §3 and adds the judge/rubric/prompt-change and audio-pipeline conditions.
+    5. All sources were fetched this task.
+  - Falsifiers executed (observed red, which closes the greenfield prediction):
+    - Deleting the labeling sentence took the exact phrase "running the agent and accepting what it produced" from 1 match to 0. The FR-2 walk fails at the BUT clause.
+    - Appending "p95 latency under 800 ms" got it flagged at line 146.
+    - Both were reverted, and `cmp` shows the file identical.
+  - Not Done / Assumptions (verbatim, condensed):
+    - "The voice metric definitions… are AKILI's own, not taken from a fetched source."
+    - "I did not edit `SKILL.md`; T3 adds the router row."
+    - These are assumptions only, so no continuation.
+  - Evidence re-run (Leader-inline): **VERIFIED**. `wc -lc` gave `145 12761`, the marker count was 5, the same single number hit at `:104`, the same headings, and the phrase count was 1.
+  - Reviewer (`opus`): **PASS**. "`evals.md` meets every FR-2 clause, the §9.2 section order, NFR-2 to NFR-5 and T2's checks. I re-fetched both sources and found all 11 cited claims verbatim." The two additions follow the exemplar and do not widen scope.
+  - ADVISORY (4R, recorded, never gating):
+    - Readability, `:135`: "adds two conditions", but the judge-change condition already exists in mapping §3. Consider "restates one and adds one".
+    - Reliability: the re-score trigger at `:62` names "judge, rubric or scoring code", while the no-pass bullet at `:137` names "judge, rubric or prompt". The lists disagree.
+    - Risk (truncated): concerns where design §9.2's "2% of calls" example sits. The rest was not retrieved because it doesn't gate.
+  - spawns: Implementer (sonnet): not reported by host, ended complete. Reviewer (opus): not reported by host, ended complete.
+- **Decisions made:** T2 was finalized after the T1 gate question was posed, because T2 was already in flight when that question was asked. No new task was started.
+- **Running totals vs budget:** 2/13 tasks · ≈ 278 LOC / ≈ 900 · 2/≈ 22 review rounds. Within budget.

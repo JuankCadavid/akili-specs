@@ -44,7 +44,7 @@
 
 ### T2 — Author `references/evals.md`
 
-- **Status:** [ ] · **Size:** M · **Depends on:** none (shares the P-14 source fetch with T1. Whichever runs first records the fetch, and the other reuses it)
+- **Status:** [x] · **Size:** M · **Depends on:** none (shares the P-14 source fetch with T1. Whichever runs first records the fetch, and the other reuses it)
 - **Requirements:** FR-2, all four scenarios and every clause:
   - offline, online (sampling, metrics, alert threshold, owner), regression on every change against a baseline, LLM-as-judge;
   - voice metrics: latency with the interval defined, as percentiles; escalation rate; task completion;
