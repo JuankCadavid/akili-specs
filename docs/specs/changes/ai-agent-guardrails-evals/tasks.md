@@ -92,7 +92,7 @@
 
 ### T4 — `/akili-specify` AI Agent Mode
 
-- **Status:** [ ] · **Size:** M · **Depends on:** T3
+- **Status:** [x] · **Size:** M · **Depends on:** T3
 - **Requirements:** FR-4, all three scenarios and every clause:
   - detection definition; row written `yes`/`no`; one question when unclear;
   - `AND IT MUST` absent means `no`;

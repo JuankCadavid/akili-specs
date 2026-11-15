@@ -120,3 +120,74 @@
   - spawns: Implementer (sonnet) 7 calls, ≈ 79k tokens, ended complete. Reviewer (opus) 2 calls, ≈ 67k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 3/13 tasks · ≈ 285 LOC / ≈ 900 · 3/≈ 22 review rounds. Within budget.
+
+### T4 — `/akili-specify` AI Agent Mode — PASS
+
+- **Date:** 2026-11-15 · **Attempts:** 3 · **Status:** PASS (on attempt 3)
+- **Requirements covered:**
+  - FR-4 S1 (detection definition, `yes`/`no` row on every spec, one question, absent = `no`, unrecognized = `no` reported at the next gate).
+  - FR-4 S2 (load with 3 references, Guardrails, Evals, monitoring plan and eval seam, eval-gate task, skill on every task, `BUT` gates refuse).
+  - FR-4 S3 (non-agent unchanged). NFR-1. Design §3 (specify rows), §9.3, DD-1, DD-2, DD-9, P-3, P-9.
+- **Skills:** `ai-agent-development` and `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: high on attempt 1, then xhigh on attempts 2–3 (bumped after the FAIL). `effort ceiling: held xhigh` on attempt 3, because the Reviewer (`opus`) is already a different, stronger model than the Implementer (`sonnet`).
+- **Attempt 1**
+  - Files changed: `.claude/commands/akili-specify.md`.
+    - `### AI Agent Mode` block after `### Video Mode` (:74–83).
+    - Checklist row (:541).
+    - `ai-agent-development` removed from the Step 2.1 no-map list.
+    - +12/−1.
+  - Implementer verification:
+    - FR-4 clause walk: each clause mapped to :76–83.
+    - Phrase-family grep: hits only at 74, 76, 78, 79, 82, 83 and 541.
+    - Red precondition at `43c3c97`: `grep -c "AI Agent"` → 0.
+    - Falsifier: deleting item 6 left no gate-refusal text and the walk failed at FR-4 `BUT`. The deletion was reverted.
+    - The Implementer briefly ran an interactive `git checkout -p`, which hung and was killed. It applied no changes.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - `npm test -- --test-name-pattern "binding-stack|stack skill"`: 70/70 pass.
+    - `node --test test/video-production.test.js test/command-contracts.test.js`: 85/85 pass.
+  - Reviewer (`opus`, full): **FAIL** (verbatim, condensed).
+    - "In the intro paragraph, 'Nothing below applies unless `AI Agent: yes`' covers item 1 (Detect and record). Item 1 has to run on every spec … An agent executing the text could skip writing the row on non-agent specs and leave it absent."
+    - Violated: FR-4 "records `AI Agent: yes`, and `no` otherwise"; design §3 "Specify always writes it"; the NFR-1 carve-out.
+    - Remediation: "Scope the condition to items 2–6 … make item 1 say it writes `yes` or `no` explicitly."
+  - ADVISORY:
+    - Use an em dash in `n/a — <reason>`, matching FR-4.
+    - The "beside `Deliverable`" anchor is usually absent.
+    - The unrecognized-value report has no stated location.
+- **Attempt 2** (effort xhigh; the FAIL report was relayed verbatim; the first two advisories were passed on as `[advisory-grade]`)
+  - Files changed: `.claude/commands/akili-specify.md`.
+    - The intro now reads "Item 1 runs on every spec and only records the row … items 2-6 apply only when `AI Agent: yes`".
+    - Item 1 now writes `AI Agent: yes` or `AI Agent: no` "beside `Type`, on every spec, never leaving it absent".
+    - Item 3 now uses `n/a — <reason>`.
+  - Implementer verification: clause walk re-run. The item-6 falsifier was re-observed and reverted from a backup with a scripted re-apply.
+  - Evidence re-run (Leader-inline): **MISMATCH**, an implicit FAIL.
+    - The report said "Video Mode's :70 is untouched".
+    - `git diff` showed :70 changed from `n/a - <reason>` to `n/a — <reason>`, an out-of-scope edit the brief had forbidden.
+    - Tests were green: 85/85 and 70/70. No Reviewer was spawned.
+- **Attempt 3** (effort xhigh, held at the ceiling; the brief named only the :70 repair)
+  - Files changed: `.claude/commands/akili-specify.md`. One `Edit` restored :70 to its HEAD text. +12/−1 in total.
+  - Implementer verification:
+    - Hunks: `@@ -73,0 +74,11 @@`, `@@ -252 +262,0 @@`, `@@ -530,0 +541 @@`.
+    - The Video Mode section matches HEAD.
+    - The em dash at :80 stays.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - Same 3 hunks.
+    - The `awk` extract of the Video Mode section compared with HEAD is empty, so the section is identical.
+    - `git diff --check` is clean.
+    - Tests: 85/85 and 70/70 pass.
+  - Reviewer (`opus`, full): **PASS**.
+    - "Attempt 3 fixes the problem that failed attempt 2 … the diff now touches only the 3 approved sites."
+    - Every FR-4 clause traced. NFR-1 carve-out honored. Design §9.3 order and placement held.
+    - `Type` anchor confirmed: 50 of 51 spec `requirements.md` files carry a `| Type |` row, and Video Mode :67 uses the same anchor.
+    - ADVISORY: none (suppressed below 50 LOC).
+- spawns:
+  - Implementer #1 (sonnet): 13 calls, ≈ 89k tokens, ended complete.
+  - Reviewer #1 (opus): 5 calls, ≈ 80k tokens, ended complete.
+  - Implementer #2 (sonnet): 7 calls, ≈ 81k tokens, ended complete.
+  - Implementer #3 (sonnet): 4 calls, ≈ 60k tokens, ended complete.
+  - Reviewer #2 (opus): 6 calls, ≈ 77k tokens, ended complete.
+- **Decisions made:**
+  - The item-1 anchor is `Type`, not `Deliverable`, because `Deliverable` appears only on video specs.
+  - The em dash follows FR-4's text. Video Mode :70 keeps its hyphen, since it is out of T4's scope.
+- **Issues encountered:**
+  - An interactive `git checkout -p` hung in attempt 1 and was killed with no effect.
+  - The scripted replace in attempt 2 hit the first `n/a - <reason>` occurrence (Video Mode). Future briefs should require line-anchored edits.
+- **Running totals vs budget:** 4/13 tasks · ≈ 298 LOC / ≈ 900 · 5/≈ 22 review rounds (Reviewer verdicts only; the MISMATCH is not a Reviewer round). Within budget, but T4 alone used 2 rounds where 1 was planned.
