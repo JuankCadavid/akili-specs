@@ -90,3 +90,33 @@
   - spawns: Implementer (sonnet): not reported by host, ended complete. Reviewer (opus): not reported by host, ended complete.
 - **Decisions made:** T2 was finalized after the T1 gate question was posed, because T2 was already in flight when that question was asked. No new task was started.
 - **Running totals vs budget:** 2/13 tasks · ≈ 278 LOC / ≈ 900 · 2/≈ 22 review rounds. Within budget.
+
+### T3 — Router rows, version, mapping pointers — PASS
+
+- **Date:** 2026-11-15 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** FR-3 S1 (two router rows, bumped `version`). The `binding: conditional` clause belongs to T7, as tasks.md assigns it, and `binding:` stays `stack`. FR-3 S2 (pointers, `BUT` no restatement, triage example unchanged). DD-3, DD-4
+- **Attempt 1**
+  - Files changed: `.claude/skills/ai-agent-development/SKILL.md` (2 router rows, `version` "1.0" → "1.1") and `.claude/skills/ai-agent-development/references/akili-spec-mapping.md` (a pointer at the end of §1, `:40`, and one in §3 before `### Writing the no-pass clause`, `:69`). 7 insertions, 1 deletion
+  - Skills: `ai-agent-development` and `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: medium
+  - Implementer verification:
+    1. `git diff --stat` lists only the 2 files.
+    2. The mapping hunks are `@@ -39,0 +40,2 @@` and `@@ -66,0 +69,2 @@`, and `## 4.` is at `:82`, so no hunk falls inside `## 4.`.
+    3. `grep -c '^| \`references/' SKILL.md` gives 6.
+    4. The phrase-family grep gets 4 hits, all of them the new rows and pointers.
+  - Red run: at `43c3c97` the router had 4 rows, and the precondition `grep -c "guardrails.md\|evals.md" SKILL.md` gave 0, which the Leader re-ran.
+  - Falsifier executed (observed red): 3 distinctive sentences each from `guardrails.md` and `evals.md` were `grep -F`-ed in the mapping file.
+    - Baseline: g0 e0.
+    - With `guardrails.md:26-30` (the Layer 1 input paragraph) injected: **g2 e0** (red).
+    - After the revert: g0 e0, and `git diff --stat` is the same as before.
+  - Not Done / Assumptions (verbatim, condensed; assumptions only, no owed item, so no continuation):
+    - "More than one can apply" sentence left unchanged — still true.
+    - The `evals.md` detector sentences include 2 quotation lines, which are weaker detectors. There was no injected-`evals.md` falsifier run.
+  - Evidence re-run (Leader-inline): **VERIFIED**. The re-run reproduced the same diff stat, the same hunk headers, `## 4.` at `:82`, 6 rows and a baseline count of 0. A `diff` of `## 4.` through `## Sources` against HEAD found the section byte-identical.
+  - Reviewer (`opus`, checklist): **PASS**. "T3 meets both FR-3 scenarios (the `binding: conditional` clause is T7's under tasks.md) and design.md §4/DD-3/DD-4." Both rows check out against the targets: guardrails.md has Layers 1–4 and the "Becomes in the spec" column, and evals.md has §1–§5 and the lifecycle intro.
+  - ADVISORY (4R, recorded, never gating):
+    - Readability: the row says "voice evals", but the file's heading is "Voice metrics".
+    - Readability: the mapping file's `## The mapping at a glance` (`:7`) does not mention the new guides. FR-3 does not require it.
+    - Consumer: `docs/skills/ai-agent-development.md` needs the version bump and the 2 references. That is T8's job.
+  - spawns: Implementer (sonnet) 7 calls, ≈ 79k tokens, ended complete. Reviewer (opus) 2 calls, ≈ 67k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 3/13 tasks · ≈ 285 LOC / ≈ 900 · 3/≈ 22 review rounds. Within budget.

@@ -6,7 +6,7 @@ metadata:
   author: Juan Carlos Cadavid — jcadavid.com
   inspired-by: "LangChain / LangGraph documentation; AWS Bedrock AgentCore documentation; Anthropic Claude Agent SDK documentation"
   binding: stack
-  version: "1.0"
+  version: "1.1"
 ---
 
 # AI Agent Development — Decision Layer
@@ -58,6 +58,8 @@ Runtime detail is out of scope by design. Availability is **per-developer, not p
 | `references/langgraph-patterns.md` | LangGraph already chosen or in use — state design, nodes and edges versus prebuilt agents, durable execution, HITL interrupts, streaming, memory, subgraphs |
 | `references/akili-spec-mapping.md` | Writing spec documents for an agent feature — behaviors and evals as scenarios, architecture as design decisions, eval work as tasks with verification commands |
 | `references/aws-deployment.md` | Deciding where an agent workload runs on AWS — AgentCore Harness versus Lambda versus ECS trade-offs for agent workloads |
+| `references/guardrails.md` | Building guardrails for an agent feature — input, output, tool-permission and human-handoff layers, and what each becomes in the spec |
+| `references/evals.md` | Designing evals for an agent feature — offline, regression, judge, online and voice evals, and the lifecycle between them |
 
 More than one can apply: choosing a framework and then specifying the feature is `framework-selection.md` + `akili-spec-mapping.md`.
 

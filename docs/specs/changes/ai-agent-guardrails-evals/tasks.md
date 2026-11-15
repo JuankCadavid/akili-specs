@@ -74,7 +74,7 @@
 
 ### T3 — Router rows, version, mapping pointers
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1, T2
+- **Status:** [x] · **Size:** S · **Depends on:** T1, T2
 - **Requirements:** FR-3, both scenarios: two router rows; bumped `version`; mapping points to the guides; `BUT` no restatement, and the triage example unchanged. The `binding:` line is **not** changed here (T7 flips it with its consumers so the suite stays green)
 - **Design:** §4, DD-3, DD-4
 - **Scope:** `SKILL.md` *References — load per task* (+2 rows) and `metadata.version` 1.0 → 1.1. `references/akili-spec-mapping.md`: one pointer sentence where §1 discusses guardrails and one where §3 discusses eval work (3 sites across 2 files of one skill)
