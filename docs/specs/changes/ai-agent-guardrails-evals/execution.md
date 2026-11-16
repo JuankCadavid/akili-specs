@@ -234,3 +234,47 @@
     - Reviewer (opus): 6 calls, ≈ 73k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 5/13 tasks · ≈ 303 LOC / ≈ 900 · 6/≈ 22 review rounds. Within budget.
+
+### T6 — `/akili-validate` agent eval gate — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:**
+  - FR-6 S1: the ladder verbatim and in order; the verdict and its deciding row recorded; `BUT` no spec PASS while the gate is FAIL or BLOCKED; `AND IT MUST` a violation is FAIL whatever the aggregate.
+  - FR-6 S2: a non-agent spec gets no gate and no entry.
+  - NFR-1. Design §3 (validate row: absent → `no`; unrecognized → `no` + WARN), §5, §9.5, DD-6, DD-7, P-3.
+- **Attempt 1**
+  - Files changed: `.claude/commands/akili-validate.md`, +15/−1, three sites:
+    - Phase 0 load bullet (:70), directly under the `Deliverable: video` bullet.
+    - Phase 4 **Agent eval gate** paragraph and ladder (:115–126).
+    - Report item 6 parenthetical (:189).
+  - Skills: `ai-agent-development` and `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: high. Edits were line-anchored with the Edit tool. The falsifier was restored with `cp`.
+  - Implementer verification:
+    - Ladder extract `diff` against FR-6: IDENTICAL (6 rows).
+    - Clause walk: :70, :115–126 and :189.
+    - Report list count: 12 items.
+    - `AI Agent` hits at :70, :115, :126 and :189, all conditioned.
+  - Red run: precondition at `43c3c97`, `grep -c "AI Agent"` → 0.
+  - Falsifier executed (observed red): swapping the BLOCKED row's verdict to FAIL made the cell comparison flag it.
+    - Comparison output: `5c5 < | A no-pass condition triggered | **BLOCKED** | > | A no-pass condition triggered | **FAIL** |`
+    - Restored, and `cmp` confirmed the file byte-identical.
+  - Not Done / Assumptions (assumptions only, so no continuation):
+    - Phase 4 has no video paragraph; the video text is in Phases 0, 3 and 6. The gate was therefore placed at the end of Phase 4, as design §9.5 requires.
+    - Report item 6 carries the gate as a parenthetical.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - Same 3 hunks. The only removed line is `6. Requirement Coverage`, which is re-added with the parenthetical.
+    - The ladder rows match FR-6 once leading indentation is stripped.
+    - `git diff --check` is clean.
+    - `node --test test/command-contracts.test.js test/video-production.test.js`: 85/85.
+    - `npm test -- --test-name-pattern "binding-stack|stack skill"`: 70/70.
+  - Reviewer (`opus`, full): **PASS**.
+    - "The 6 rows match FR-6 exactly in cells and order (`diff` → IDENTICAL), and the monitoring-plan row is there in 4th position. The report list still has 12 items."
+    - Phase 0 placement confirmed (the hunk-header context is only git's label).
+    - BLOCKED is an existing result level (:46), consistent with DD-7.
+    - Phase 4 placement accepted.
+    - Consumer `docs/commands/akili-validate.md:59` does not contradict (T11).
+    - ISSUES: none.
+  - spawns:
+    - Implementer (sonnet): 14 calls, ≈ 85k tokens, ended complete.
+    - Reviewer (opus): 7 calls, ≈ 75k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 6/13 tasks · ≈ 319 LOC / ≈ 900 · 7/≈ 22 review rounds. Within budget.

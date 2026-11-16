@@ -146,7 +146,7 @@
 
 ### T6 — `/akili-validate` agent eval gate
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T3
+- **Status:** [x] · **Size:** S · **Depends on:** T3
 - **Requirements:** FR-6, both scenarios and every clause:
   - ladder rows verbatim and in order (no gate or no results → FAIL; violation → FAIL; threshold → FAIL; no monitoring plan → FAIL; no-pass → BLOCKED; else passes);
   - the report records the verdict and the deciding row;

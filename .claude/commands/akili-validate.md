@@ -67,6 +67,7 @@ Use these result levels consistently:
    - `docs/specs/$SPEC_PATH/proposal.md` if present. If it has a **Visual Reference** section, note the design source (Figma, an agent-generated mockup under `docs/specs/$SPEC_PATH/mockup/`, or a `.stitch/DESIGN.md` reference) so UI conformance can be audited against it, not only `docs/ux-ui/design.md`.
    - `docs/specs/$SPEC_PATH/requirements.md`
    - When `requirements.md` records `Deliverable: video` (an absent row means software), load the `video-production` skill now so its availability gate fires here too; if the gate stops, validation is BLOCKED.
+   - When `requirements.md` Document Control records `AI Agent: yes`, load the `ai-agent-development` skill now. An absent row reads as `no`; an unrecognized value reads as `no` and the report notes it as WARN (spec defect).
    - `docs/specs/$SPEC_PATH/design.md`
    - `docs/specs/$SPEC_PATH/tasks.md`
    - `docs/specs/$SPEC_PATH/execution.md` if present (including any `## Constitution Impact` notes)
@@ -110,6 +111,19 @@ For every requirement in `requirements.md`, verify:
 - A recorded `PRODUCT_BUG` (a correct test kept red on a real defect) is an unresolved failure → mark the affected requirement **FAIL**.
 - A `FAIL`, `GAP`, flaky, or `AUTOMATION_DEFERRED` entry without an accepted remediation → mark **WARN** (or FAIL if it covers a negative constraint or strict validation).
 - If `test-report.md` is missing or stale relative to the current code, note it and fall back to verifying coverage directly.
+
+**Agent eval gate (when `requirements.md` records `AI Agent: yes`):** validate refuses PASS without an eval gate whose recorded results clear it. Apply, in order:
+
+| Condition | Verdict |
+|---|---|
+| No eval-gate task in `tasks.md`, or no Agent Evals results in `test-report.md` | **FAIL** |
+| Any guardrail violation recorded | **FAIL** |
+| Any threshold missed | **FAIL** |
+| No online monitoring plan in `design.md` | **FAIL** |
+| A no-pass condition triggered | **BLOCKED** |
+| None of the above | the eval gate passes |
+
+The report records the eval gate's verdict and the row that decided it. Validate MUST NOT report the spec PASS while the eval gate is FAIL or BLOCKED, and MUST report a guardrail violation as FAIL whatever the aggregate scores are. A spec without `AI Agent: yes` (including an absent or unrecognized row) gets no eval gate and no eval-gate entry.
 
 ### Phase 5: Quality Audit
 
@@ -172,7 +186,7 @@ The report must include:
 3. Task Completion
 4. File Existence
 5. Build Integrity
-6. Requirement Coverage
+6. Requirement Coverage (when `AI Agent: yes`, the eval gate's verdict and the row that decided it are recorded here, not in a new section)
 7. Linting & Code Quality (including 4R advisory findings, labeled as advisory)
 8. Design Conformance
 9. Test Evidence Summary
