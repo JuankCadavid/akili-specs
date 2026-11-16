@@ -8,7 +8,7 @@
 | Depth | Standard |
 | AI Agent | no (this spec ships methodology text, so no Agent Evals suite applies) |
 | Date | 2026-11-16 |
-| Branch / HEAD | `feat/ai-agent-guardrails-evals` at `696e98e` (plus the new, uncommitted `test/ai-agent-references.test.js`) |
+| Branch / HEAD | `feat/ai-agent-guardrails-evals` at `696e98e` (plus the new `test/ai-agent-references.test.js`, committed afterwards in `fd14565`) |
 | Leader | Opus 5.5 (`claude-opus-5-5`) |
 | Tester | `opus`, which differs from the Implementer model `sonnet` (author ≠ tester). No `akili-tester` wrapper exists, so this is a per-spawn model choice (rule step 2) |
 
