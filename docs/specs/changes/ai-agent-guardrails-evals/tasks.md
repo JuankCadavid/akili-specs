@@ -122,7 +122,7 @@
 
 ### T5 — `/akili-test` agent eval suite
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T3
+- **Status:** [x] · **Size:** S · **Depends on:** T3
 - **Requirements:** FR-5, all three scenarios and every clause:
   - eval suite planned when `yes`, over the offline, regression and guardrail sets;
   - Agent Evals section with five fields per set;

@@ -191,3 +191,46 @@
   - An interactive `git checkout -p` hung in attempt 1 and was killed with no effect.
   - The scripted replace in attempt 2 hit the first `n/a - <reason>` occurrence (Video Mode). Future briefs should require line-anchored edits.
 - **Running totals vs budget:** 4/13 tasks · ≈ 298 LOC / ≈ 900 · 5/≈ 22 review rounds (Reviewer verdicts only; the MISMATCH is not a Reviewer round). Within budget, but T4 alone used 2 rounds where 1 was planned.
+
+### T5 — `/akili-test` agent eval suite — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:**
+  - FR-5 S1: suite over the offline, regression and guardrail sets; an Agent Evals section with five fields per set; `BUT` exit 0 is not the gate; `AND` Testers must not change expected values, thresholds or the rubric (a mismatch is `FAIL`/`PRODUCT_BUG`); `AND IT MUST` record online evals as out of reach.
+  - FR-5 S2: no runner leads to the existing STOP.
+  - FR-5 S3: a non-agent spec gets no suite and no section.
+  - NFR-1. Design §3 (test row and its terminal branches), §5, §9.4, P-3, P-13.
+- **Attempt 1**
+  - Files changed: `.claude/commands/akili-test.md`, +5/−1. The four sites:
+    - Phase 1 item 1 bullet (:117).
+    - Phase 1 item 2 STOP bullet (:121).
+    - Phase 4 Agent Evals paragraph (:173).
+    - Suite-types sentence (:211 → :215).
+  - Skills: `ai-agent-development` and `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: high.
+  - The brief required line-anchored Edit-tool edits, per the lesson from T4 attempt 2.
+    - All four real edits used Edit. The falsifier deletion used a one-off `python3` replace, and the restore used `cp`. Both were disclosed.
+  - Implementer verification:
+    - FR-5 clause walk: :117, :121 and :173 cover every clause.
+    - Suite-type phrase grep: one hit, :215, which agrees. `docs/commands/akili-test.md` has no hit for the phrase. Its :28 and :59 name only the video suite: incomplete, not contradictory, and owned by T11.
+    - `AI Agent` hits: :117, :121, :173 and :215, all conditioned.
+  - Red run: precondition at `43c3c97`, `grep -c "AI Agent"` → 0. The Leader re-ran it.
+  - Falsifier executed (observed red):
+    - Deleting the "must not change expected values" clause dropped its count from 1 to 0, and the walk failed at FR-5 `AND`.
+    - After restoring with `cp`, `diff` of the pre- and post-falsifier diffs printed `IDENTICAL`.
+  - Not Done / Assumptions (assumptions only, so no continuation):
+    - The Agent Evals paragraph is placed after the video paragraph.
+    - The set names are listed inside the section sentence.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - Same 4 hunks. The only removed line is the old :211 sentence.
+    - `git diff --check` is clean.
+    - `node --test test/video-production.test.js test/command-contracts.test.js`: 85/85.
+    - `npm test -- --test-name-pattern "binding-stack|stack skill"`: 70/70.
+  - Reviewer (`opus`, full): **PASS**.
+    - "Every clause of FR-5's three scenarios is in the shipped text, and every new sentence is conditioned on `AI Agent: yes`, so NFR-1 holds."
+    - The five fields match design §5 exactly and in order. `FAIL`/`PRODUCT_BUG` match the Tester contract (`.claude/templates/tester.md`). The set names match `evals.md` and `akili-spec-mapping.md`.
+    - ADVISORY: none (suppressed below 50 LOC).
+  - spawns:
+    - Implementer (sonnet): 12 calls, ≈ 82k tokens, ended complete.
+    - Reviewer (opus): 6 calls, ≈ 73k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 5/13 tasks · ≈ 303 LOC / ≈ 900 · 6/≈ 22 review rounds. Within budget.
