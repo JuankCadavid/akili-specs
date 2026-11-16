@@ -278,3 +278,43 @@
     - Reviewer (opus): 7 calls, ≈ 75k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 6/13 tasks · ≈ 319 LOC / ≈ 900 · 7/≈ 22 review rounds. Within budget.
+
+### T7 — Binding flip with its code and test consumers — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:**
+  - FR-7: T7's four restatements, which are `SKILL.md`, the panel `SKILL_CATALOG`, the panel test binding list and `docs/overview.md`.
+  - FR-8: the fixtures. The Codex baseline is untouched.
+  - DD-8, P-5, P-7, P-8, P-15.
+- **Attempt 1**
+  - Files changed (+14/−13):
+    - `SKILL.md`: `binding: conditional` (:8).
+    - `flow.mjs`: the binding changed in place (:634).
+    - `docs/overview.md`: the binding cell (:78).
+    - `test/akili-panel-flow.test.js`: `SKILL_NAMES` lists (:1435–1436) and the derived group counts (:1509, :1531–1533, :1752).
+    - `test/install-cursor.test.js`: `+ 2` with a comment, plus the assertion message naming `guardrails.md`/`evals.md` (:255–257, :260).
+  - Skills: `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: medium. Edits were made with the Edit tool, line-anchored.
+  - Implementer verification: `node --test test/akili-panel-catalog.test.js test/akili-panel-flow.test.js test/docs-overview.test.js test/install-cursor.test.js` → 268/268 pass.
+  - Falsifier (the reds re-observed, each with its own edit reverted, then restored):
+    - Catalog reverted to `stack`: 8 failures. They include `skills with a different binding: ai-agent-development: catalog stack, SKILL.md conditional` and `not ok 198 - FR-3 the catalog is stored in alphabetical order…`.
+    - Overview cell reverted: `skill ai-agent-development: binding cell "stack", SKILL.md declares "conditional"`.
+    - `+ 2` reverted: `expected 318 (…) packaged skill files under .claude/skills; counted 320 instead`.
+    - After the restores, the diff was byte-identical to the pre-falsifier diff.
+  - Not Done / Assumptions (assumptions only, so no continuation):
+    - `flow.mjs` keeps `ai-agent-development` first and changes only its binding. The catalog is one alphabetical list grouped by `e.binding`, so there is no "conditional block" to move the entry into, and test 198 enforces the sort.
+    - The panel-flow group counts were updated as derived expected values: conditional 9→10, stack 11→10, slice width 9→10, next index +10→+11.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - `git diff --stat`: only the 5 files. `git diff --check` is clean.
+    - Full `npm test` (P-15): 1903 tests, 1903 pass, 0 fail, 0 skipped.
+    - `git status --porcelain test/fixtures` is empty.
+  - Reviewer (`opus`, checklist): **PASS**.
+    - It confirmed the catalog-order reading against `flow.mjs:629-630` and test `:1545-1551`.
+    - It confirmed the derived counts against the catalog on disk: core 12, conditional 10, stack 10, 32 in total.
+    - 320 is pinned with `assert.equal`, and the four test files re-ran 268/268.
+    - ISSUES: none.
+  - ADVISORY (recorded only; the Reviewer suppressed formal advisories below 50 LOC): comments at `install-cursor.test.js:234`, `:250` and `:355` still say 318/332, where the totals are now 320/334. They are stale but harmless.
+  - spawns:
+    - Implementer (sonnet): 32 calls, ≈ 81k tokens, ended complete.
+    - Reviewer (opus): 5 calls, ≈ 73k tokens, ended complete.
+- **Decisions made:** the task text says to "move the entry into the conditional block". It was read as "set its binding to conditional in place", because the catalog has no per-binding block and the sort test forbids moving it. This matches DD-8 ("changes one data value").
+- **Running totals vs budget:** 7/13 tasks · ≈ 346 LOC / ≈ 900 · 8/≈ 22 review rounds. Within budget.

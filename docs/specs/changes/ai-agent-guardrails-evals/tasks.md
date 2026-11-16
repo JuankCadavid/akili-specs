@@ -171,7 +171,7 @@
 
 ### T7 — Binding flip with its code and test consumers
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T1, T2 (file count), T3
+- **Status:** [x] · **Size:** S · **Depends on:** T1, T2 (file count), T3
 - **Requirements:** FR-7 (`SKILL.md`, panel `SKILL_CATALOG`, panel test binding list, `docs/overview.md`), FR-8 (fixtures)
 - **Design:** DD-8; P-5, P-7, P-8, P-15
 - **Scope:**

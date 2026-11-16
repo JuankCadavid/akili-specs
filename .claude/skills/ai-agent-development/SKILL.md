@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: Juan Carlos Cadavid — jcadavid.com
   inspired-by: "LangChain / LangGraph documentation; AWS Bedrock AgentCore documentation; Anthropic Claude Agent SDK documentation"
-  binding: stack
+  binding: conditional
   version: "1.1"
 ---
 
