@@ -259,7 +259,7 @@
 
 ### T12 — Text-contract tests
 
-- **Status:** [ ] · **Size:** M · **Depends on:** T1–T11
+- **Status:** [x] · **Size:** M · **Depends on:** T1–T11
 - **Requirements:** FR-8 third `AND` and `BUT` (pin selector wording in the three commands, both references' presence, `## Sources`, `> Unvalidated:` markers; no read of the active spec path). Plus one assertion per shipped `THEN`/`BUT`/`AND IT MUST` clause of FR-4, FR-5, FR-6, and NFR-1 (every added command line sits under the condition)
 - **Design:** DD-12; P-3
 - **Scope:** new `test/ai-agent-guardrails-evals.test.js`, with a `*_TEST_ROOT` env hook for mutation runs (precedent: `test/video-production.test.js:13-26`)

@@ -477,3 +477,54 @@
     - Reviewer (opus): 8 calls, ≈ 83k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 11/13 tasks · ≈ 377 LOC / ≈ 900 · 13/≈ 22 review rounds. Within budget.
+
+### T12 — Text-contract tests — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:**
+  - FR-8 third `AND` and `BUT`: selector wording pinned, both references present with `## Sources` and `> Unvalidated:` markers, no read of the active spec path.
+  - One assertion per shipped `THEN`/`BUT`/`AND IT MUST` clause of FR-4, FR-5 and FR-6.
+  - NFR-1. DD-12, P-3.
+- **Attempt 1**
+  - Files changed: `test/ai-agent-guardrails-evals.test.js` (new, 450 lines, 47 tests) with the `AI_AGENT_EVALS_TEST_ROOT` env hook. It follows the `video-production.test.js` precedent.
+  - Skills: `tdd` and `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: high.
+  - Clause → test map:
+
+    | Requirement | Tests |
+    |---|---|
+    | FR-4 | 1–14 |
+    | FR-5 | 15–22 |
+    | FR-6 | 23–34: order test 23, one test per ladder row 24–29 with verdicts hard-coded from the FR-6 table |
+    | NFR-1 | 35–39 |
+    | FR-8 | 40–47 |
+
+  - Implementer verification:
+    - `node --test test/ai-agent-guardrails-evals.test.js` → 47/47.
+    - `grep -n "docs/specs/changes"` → none.
+  - Red run (greenfield, observed here). Mutations were applied only to scratch copies, via the env hook. Each one gave exactly 1 red and 46 green, on the target test:
+    - a. Deleting specify item 6 → `not ok 10 - FR-4 BUT: item 6 stops the Phase 1, 2 and 3 gates while any agent item is missing` (`expected numbered item 6`).
+    - b. Changing the validate BLOCKED row to FAIL → `not ok 28 - FR-6 THEN: ladder row "A no-pass condition triggered" yields **BLOCKED**` (`expected: '**BLOCKED**'`).
+    - c. Deleting the Tester clause → `not ok 18 - FR-5 AND: a Tester must not change expected values, thresholds or the rubric; a mismatch is FAIL or PRODUCT_BUG`.
+    - d. Removing every `> Unvalidated:` from evals.md → `not ok 45 - FR-8 / NFR-3: references/evals.md carries at least one \`> Unvalidated:\` marker above its Sources`.
+  - Not Done / Assumptions (assumptions only):
+    - The "four parts" are pinned as the pointer in specify item 5, not by reading mapping §3.
+    - `## Sources` is checked for structure only, not for exact URLs.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - The file passes 47/47.
+    - Full `npm test`: 1950 tests, 1950 pass, 0 fail, 0 skipped (1903 + 47).
+    - `git diff --check` is clean.
+    - Independent re-run of mutation (b) on a fresh scratch copy: only `not ok 28` was red, 46 passed.
+  - Reviewer (`opus`, checklist): **PASS**.
+    - "Every shipped THEN, BUT and AND IT MUST clause of FR-4, FR-5 and FR-6 has an assertion, and each assertion is limited to its named section, numbered item, single bullet or table row."
+    - It checked the NFR-1 detector against every line added since the merge base: none passes vacuously.
+    - Test 47 builds the spec path by joining strings, so it does not match its own text.
+    - ISSUES: none.
+  - ADVISORY (4R, recorded, never gating):
+    - The NFR-1 detector judges a whole line conditional if the line contains `` `AI Agent: yes` ``. It skips table rows, and its agent-line pattern misses some wordings.
+    - The NFR-1 tests have no check that their pattern matched any lines, so a broken pattern would let them pass with nothing checked.
+    - `unconditionalAgentLines` duplicates the boundary loop in `section()`.
+  - spawns:
+    - Implementer (sonnet): 16 calls, ≈ 114k tokens, ended complete.
+    - Reviewer (opus): 4 calls, ≈ 86k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 12/13 tasks · ≈ 827 LOC / ≈ 900 · 14/≈ 22 review rounds. Within budget.
