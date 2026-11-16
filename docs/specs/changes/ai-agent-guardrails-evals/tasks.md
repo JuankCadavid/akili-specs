@@ -195,7 +195,7 @@
 
 ### T8 — Docs and governance restatements
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T7
+- **Status:** [x] · **Size:** S · **Depends on:** T7
 - **Requirements:** FR-7: `docs/skills/governance.md` *Current assignment*, `docs/skills/README.md`, `docs/skills/ai-agent-development.md` (binding, *Best Paired Commands* naming the selector-gated steps, *References* table +2 rows); `BUT` no sentence saying the skill reaches agents only through the Skill Map
 - **Design:** DD-8; P-4, P-11
 - **Scope:** 3 docs files, about 5 sites: move the name from the `stack` row to the `conditional` row with "(AI agent specs)"; README binding cell and *Wired into* cell; skill page header, *Best Paired Commands* and *References*

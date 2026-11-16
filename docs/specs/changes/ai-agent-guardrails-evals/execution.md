@@ -318,3 +318,48 @@
     - Reviewer (opus): 5 calls, ≈ 73k tokens, ended complete.
 - **Decisions made:** the task text says to "move the entry into the conditional block". It was read as "set its binding to conditional in place", because the catalog has no per-binding block and the sort test forbids moving it. This matches DD-8 ("changes one data value").
 - **Running totals vs budget:** 7/13 tasks · ≈ 346 LOC / ≈ 900 · 8/≈ 22 review rounds. Within budget.
+
+### T8 — Docs and governance restatements — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 2 · **Status:** PASS (attempt 2)
+- **Requirements covered:**
+  - FR-7, the restatements T8 owns: governance *Current assignment*; `docs/skills/README.md`; and on `docs/skills/ai-agent-development.md` the binding, *Best Paired Commands* naming the selector-gated steps, and *References* +2 rows.
+  - FR-7 `BUT`: no Skill-Map-only sentence remains.
+  - DD-8, DD-9, P-4, P-11.
+- **Skills:** `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: medium, then high on attempt 2. Edits were line-anchored with the Edit tool.
+- **Attempt 1**
+  - Files changed:
+    - `docs/skills/governance.md` (:69–70): the name moved to the `conditional` row with "(AI agent specs)".
+    - `docs/skills/README.md` (:21): binding `conditional`; *Wired In* names specify AI Agent Mode, the test agent eval suite and the validate agent eval gate, each "when `AI Agent: yes`"; *Use For* now adds "with guardrail and eval references".
+    - `docs/skills/ai-agent-development.md`: header binding; *References* +2 rows copied from SKILL.md:61–62; *Best Paired Commands* has specify, test and validate bullets, and an execute bullet that no longer says "from the project `## Skill Map`".
+    - +10/−6.
+  - Implementer verification:
+    - `node --test test/docs-overview.test.js`: 13/13.
+    - The sweep, outside `docs/specs/` history, leaves:
+      - `docs/commands/akili-constitution.md:123` (T10);
+      - `backend-routing.md:36`, `:48` (routing leads);
+      - `backend-routing.md:70` and `AGENTS.md:95` (T9).
+  - Red run (baseline `43c3c97`): `governance.md:70` under `stack`; `README.md:21` cell `stack`.
+  - Falsifier executed (observed red): re-adding the name to the governance `stack` row made the sweep hit `docs/skills/governance.md:70`. After restoring, the diff was IDENTICAL.
+  - Evidence re-run (Leader-inline): **VERIFIED**. Same sweep result, `git diff --check` clean, docs-overview 13/13.
+  - Reviewer (`opus`, checklist): **FAIL** (verbatim, condensed).
+    - "`docs/skills/ai-agent-development.md`, first bullet under *Best Paired Commands*, was left unchanged: '`/akili-constitution` — Step 5 TRD and the Step 8D Skill Map, when the project builds agents.' This contradicts the approved end state."
+    - Violated: FR-7 ("the skill leaves the Step 8D Skill Map candidates") and DD-9.
+    - Remediation: "Rewrite the bullet to match DD-9 … Remove 'and the Step 8D Skill Map'."
+    - The Reviewer judged the README *Use For* addition in scope.
+- **Attempt 2** (effort high; the FAIL report was relayed verbatim)
+  - Files changed: `docs/skills/ai-agent-development.md`, one bullet (:37), now "`/akili-constitution` — Step 5 TRD, through its conditional line when the product includes an AI agent." The total is now +11/−7 across 3 files.
+  - Implementer verification:
+    - `grep -n "Skill Map"` on the page returns nothing.
+    - The sweep over `docs/skills/` returns nothing.
+    - docs-overview: 13/13.
+  - Evidence re-run (Leader-inline): **VERIFIED**. Same results, and `git diff --check` is clean.
+  - Reviewer (`opus`, checklist): **PASS**. "Attempt 2 fixes the only issue from attempt 1 … matches the approved DD-9 end state." ISSUES: none.
+- **Forward pointer → T10:** the skill page's `/akili-constitution` bullet (:37) describes T10's end state. T10's review must check that the command text matches it: the Step 5 conditional line is present and Step 8D no longer lists the skill.
+- spawns:
+  - Implementer #1 (sonnet): 14 calls, ≈ 81k tokens, ended complete.
+  - Reviewer #1 (opus): 6 calls, ≈ 74k tokens, ended complete.
+  - Implementer #2 (sonnet): 5 calls, ≈ 66k tokens, ended complete.
+  - Reviewer #2 (opus): 2 calls, ≈ 67k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 8/13 tasks · ≈ 357 LOC / ≈ 900 · 10/≈ 22 review rounds. Within budget.
