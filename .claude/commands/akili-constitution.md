@@ -261,7 +261,8 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 - `tailwind-design-system`
 - `vercel-react-best-practices`
 - `angular-developer`
-- `ai-agent-development`
+
+When the product includes an AI agent, load `ai-agent-development`.
 
 **Required structure:**
 
@@ -726,7 +727,7 @@ is how they reach the agents.
 1. A table `Skill | Applies To | When to load` listing only the stack skills that match the
    detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`, `golang-pro`,
    `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`,
-   `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development`.
+   `aws-serverless`, `api-design-principles`, `error-handling-patterns`.
    Projects may add their own.
 2. The instruction: *"During `/akili-specify`, derive each task's required skills from this map.
    During `/akili-execute` and `/akili-test`, the Leader assigns these skills and the

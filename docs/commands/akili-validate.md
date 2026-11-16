@@ -54,6 +54,10 @@ docs/specs/<spec-path>/validation-report.md
 - a lightweight **Agent Guide / Constitution Impact** check: if `execution.md` records module-boundary changes, confirm the child guides and the parent `## Module Guides` index are not stale (flagged WARN and left for `/akili-archive`)
 - UI/UX, API, security, accessibility, error handling, and observability as relevant
 
+## Agent Specs
+
+When `requirements.md` records `AI Agent: yes` (an absent row means `no`), validate loads `ai-agent-development` in its setup and applies an **agent eval gate**: it refuses PASS without an eval-gate task, recorded Agent Evals results, and an online monitoring plan in `design.md`. A guardrail violation or a missed threshold is a **FAIL**; a triggered no-pass condition is **BLOCKED**. Validate does not report the spec PASS while the gate is FAIL or BLOCKED, and the report records the verdict and the row that decided it.
+
 ## Video Specs
 
 When `requirements.md` records `Deliverable: video` (an absent row means software), validate loads `video-production` in its setup so the availability gate fires here too; if the gate stops, validation is BLOCKED. Then:

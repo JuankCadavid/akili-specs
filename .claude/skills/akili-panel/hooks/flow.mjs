@@ -631,7 +631,7 @@ function sessionRow(usage, sums, s) {
 // `test/akili-panel-catalog.test.js` pins this list to the folders on disk both ways (FR-5, DD-1).
 export const SKILL_BINDINGS = Object.freeze(['core', 'conditional', 'stack'])
 export const SKILL_CATALOG = Object.freeze([
-  { name: 'ai-agent-development', binding: 'stack' },
+  { name: 'ai-agent-development', binding: 'conditional' },
   { name: 'angular-developer', binding: 'stack' },
   { name: 'api-design-principles', binding: 'stack' },
   { name: 'aws-serverless', binding: 'stack' },

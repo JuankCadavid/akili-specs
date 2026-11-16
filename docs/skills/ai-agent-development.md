@@ -1,6 +1,6 @@
 # `ai-agent-development`
 
-**Author:** Juan Carlos Cadavid — [jcadavid.com](https://jcadavid.com) · **License:** MIT · **Binding:** `stack`
+**Author:** Juan Carlos Cadavid — [jcadavid.com](https://jcadavid.com) · **License:** MIT · **Binding:** `conditional`
 
 ## Purpose
 
@@ -29,12 +29,16 @@ The decision layer for building AI agents: which framework and runtime to use (i
 | `references/langgraph-patterns.md` | LangGraph already chosen — state design, authored graph vs prebuilt loop, durable execution, interrupts, failure routing, streaming, memory, subgraphs |
 | `references/akili-spec-mapping.md` | Writing spec documents for an agent feature — behaviors and guardrails as scenarios, architecture as design decisions, evals as tasks with verification commands |
 | `references/aws-deployment.md` | Deciding where an agent workload runs — AgentCore Runtime vs Lambda vs ECS trade-offs |
+| `references/guardrails.md` | Building guardrails for an agent feature — input, output, tool-permission and human-handoff layers, and what each becomes in the spec |
+| `references/evals.md` | Designing evals for an agent feature — offline, regression, judge, online and voice evals, and the lifecycle between them |
 
 ## Best Paired Commands
 
-- `/akili-constitution` — Step 5 TRD and the Step 8D Skill Map, when the project builds agents.
-- `/akili-specify` — framework selection and the agent feature's spec documents.
-- `/akili-execute` — assigned per task by the Leader from the project `## Skill Map`.
+- `/akili-constitution` — Step 5 TRD, through its conditional line when the product includes an AI agent.
+- `/akili-specify` — AI Agent Mode (when `requirements.md` records `AI Agent: yes`): framework selection and the agent feature's spec documents, including Guardrails and Evals.
+- `/akili-test` — agent eval suite, planned when `AI Agent: yes`.
+- `/akili-validate` — agent eval gate, applied when `AI Agent: yes`; no PASS while it is FAIL or BLOCKED.
+- `/akili-execute` — assigned per task by the Leader; every task of an `AI Agent: yes` spec lists it.
 
 ## Source
 

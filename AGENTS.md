@@ -92,7 +92,7 @@ The method skill decides what and why; the stack skill decides how in this langu
 - `nestjs-expert` — stack skill: Nest modules, DI, controllers, guards, Jest/Supertest; leads `implement` on NestJS.
 - `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
 - `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
-- `ai-agent-development` — stack skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.
+- `ai-agent-development` — conditional skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.
 
 The routing matrix is `.claude/skills/software-architect/references/backend-routing.md`.
 

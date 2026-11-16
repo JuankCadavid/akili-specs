@@ -37,6 +37,8 @@ Three clause types carry the agent-specific load:
 
 Guardrails are the exception worth stating twice: an accuracy metric averages failures away, and a guardrail failure is not average-able. Give guardrails their own case set and their own clause.
 
+For how to build the guardrail layers themselves, read `references/guardrails.md`.
+
 ## 2. Architecture → `design.md`
 
 Every axis below is a decision the spec must record, with the alternative rejected and why. These are the decisions an implementer would otherwise re-derive — or invent.
@@ -63,6 +65,8 @@ An eval task is only a gate if it carries four things:
 4. **A no-pass clause** — the conditions under which a green run is reported **inconclusive** rather than passing.
 
 **Expected values come from the approved scenarios, never from the system under test.** Labeling a case set by running the agent and blessing what it produced makes the eval tautological: it can only ever agree with the code. Same rule as test-first work — the spec supplies the expected values, the design supplies the seam.
+
+For the eval lifecycle behind these tasks, read `references/evals.md`.
 
 ### Writing the no-pass clause
 
