@@ -184,8 +184,8 @@ Blast-radius triggers: `consumer` fires (the binding value of an enumerated set 
 | P-11 | `governance.md` *Current assignment* lists the skill under `stack` | consumer | `docs/skills/governance.md:70` | `43c3c97` | One fewer edit site (Low) | — |
 | P-12 | Existing reference sizes: 65–163 lines, ≤ 17,662 bytes | data-env | `wc -lc .claude/skills/ai-agent-development/references/*.md` | `43c3c97` | NFR-4 cap mis-set (Low) | — |
 | P-13 | `/akili-test` has a *No test infrastructure* STOP that the eval STOP can reuse | location | `akili-test.md:118` | `43c3c97` | FR-5 needs its own STOP text (Low) | — |
-| P-14 | The candidate official sources (Anthropic jailbreak and prompt-injection guidance; Bedrock Guardrails; OWASP LLM Top 10; LangSmith evaluation concepts) are reachable and support the claims they are cited for | data-env | `UNVERIFIED — confirm at source before relying on it` | — | A claim is dropped or re-sourced (Low) | T1 / T2 first step (fetch and date each link) |
-| P-15 | `doctor-codex-baseline.txt` is unaffected by two added reference files (it lists skills by directory) | consumer | `UNVERIFIED — confirm at source before relying on it` — line 27 reads `OK ai-agent-development`, but whether doctor counts files was not run | — | The fixture needs regenerating (Low) | T7 (run `npm test`) |
+| P-14 | The candidate official sources (Anthropic jailbreak and prompt-injection guidance; Bedrock Guardrails; OWASP LLM Top 10; LangSmith evaluation concepts) are reachable and support the claims they are cited for | data-env | Settled at execute: every source fetched and dated 2026-11-14 (`execution.md` T1, T2) | T1/T2 | A claim is dropped or re-sourced (Low) | T1 / T2 first step (fetch and date each link) |
+| P-15 | `doctor-codex-baseline.txt` is unaffected by two added reference files (it lists skills by directory) | consumer | Settled at execute: full `npm test` 1903/1903 with the fixture unchanged (`execution.md` T7) | T7 | The fixture needs regenerating (Low) | T7 (run `npm test`) |
 
 ## 12. Budget (Step 2.4)
 
