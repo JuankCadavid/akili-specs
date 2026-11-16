@@ -421,3 +421,59 @@
     - Reviewer (opus): 2 calls, ≈ 71k tokens, ended complete.
 - **Decisions made:** the conditional line is its own paragraph after the list, so it does not render as a stack-list item.
 - **Running totals vs budget:** 10/13 tasks · ≈ 363 LOC / ≈ 900 · 12/≈ 22 review rounds. Within budget.
+
+### T11 — Command docs pages and CHANGELOG — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** FR-8, first two `AND`s: the docs pages describe the `AI Agent` branch, and the CHANGELOG clauses match HEAD. Design §4.
+- **Attempt 1**
+  - Files changed (+14/−0, line-anchored Edits):
+    - `docs/commands/akili-specify.md`: an AI Agent Mode bullet (:80).
+    - `docs/commands/akili-test.md`: an "Agent specs" paragraph (:30) and an Agent Evals report line (:62).
+    - `docs/commands/akili-validate.md`: a `## Agent Specs` section (:57).
+    - `CHANGELOG.md` `[Unreleased]`: one `### Added` bullet and one `### Changed` bullet, with no counts.
+  - Skills: `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: high.
+  - Quote-check table: every clause was checked against the shipped text at HEAD.
+
+    | # | Clause | Shipped text |
+    |---|---|---|
+    | 1 | `AI Agent: yes`/`no` row on every spec; an absent row means `no` | `akili-specify.md:78` |
+    | 2 | Load the skill before `requirements.md` | `akili-specify.md:79` |
+    | 3 | Guardrails and Evals sections | `akili-specify.md:80` |
+    | 4 | Eval seam, monitoring plan and eval-gate task | `akili-specify.md:81-82` |
+    | 5 | Phase 1–3 gates refuse while anything is missing | `akili-specify.md:83` |
+    | 6 | Orthogonal to Bug Mode and Video Mode | `akili-specify.md:76` |
+    | 7–10 | Eval suite over the offline/regression/guardrail sets; exit 0 is not the gate; no Tester changes; online evals out of reach | `akili-test.md:117` |
+    | 11 | No runnable command or absent runner → STOP, no substitute | `akili-test.md:121` |
+    | 12 | Agent Evals report fields | `akili-test.md:173` |
+    | 13 | Validate loads the skill in setup (Phase 0) | `akili-validate.md:70` |
+    | 14–16 | FAIL rows (no gate or results, violation, threshold, monitoring plan); BLOCKED row | `akili-validate.md:115-124` |
+    | 17 | No PASS while FAIL or BLOCKED; verdict and deciding row recorded | `akili-validate.md:126` |
+    | 18 | Skill 1.1 with two references | `SKILL.md:9`, `references/` |
+    | 19 | A non-agent spec gets none of this | `akili-validate.md:126`, `akili-test.md:173` |
+    | 20 | Binding `conditional` | `SKILL.md:8` |
+    | 21 | Constitution Step 5 conditional line; out of Step 8D | `akili-constitution.md:265`; commit `3164112` |
+    | 22 | Governance, `AGENTS.md` and backend routing say conditional | `governance.md:69`, `AGENTS.md:95`, `backend-routing.md:70` |
+
+    (The Implementer's table cited the specify line numbers 2 lower than they are. The Reviewer confirmed every quote is verbatim, so the error is only the offset; the line numbers above are corrected.)
+  - Implementer verification: `node --test test/docs-overview.test.js` → 13/13.
+  - Red run: precondition at `43c3c97`, `grep -c "AI Agent"` → 0 on each of the 3 docs pages.
+  - Falsifier executed (observed red):
+    - Adding "`/akili-validate` FAILs inconclusive runs." to the CHANGELOG was flagged against `akili-validate.md:123` "| A no-pass condition triggered | **BLOCKED** |".
+    - Restored with `cp`, and the diff was IDENTICAL.
+  - Evidence re-run (Leader-inline): **VERIFIED**.
+    - 4 files, +14. `git diff --check` is clean. docs-overview 13/13.
+    - `[Unreleased]` has a single `### Added` and a single `### Changed`.
+  - Reviewer (`opus`, full, independent quote-check): **PASS**. "All four files match the shipped text at HEAD … none over-claims or contradicts the source." No figure appears in the CHANGELOG ("1.1" is the skill version).
+  - ADVISORY (4R, recorded, never gating):
+    1. The specify bullet omits "every task lists `ai-agent-development`" (item 5).
+    2. None of the pages mentions the unrecognized-value branch.
+    3. The CHANGELOG test clause omits "or its runner is absent".
+    4. The test page omits "a mismatch is a `FAIL` or a `PRODUCT_BUG`".
+    5. A blank line after the new `### Changed` bullet makes the list loose.
+    6. Out of T11 scope: `docs/commands/akili-constitution.md` no longer names `ai-agent-development` at all. T10 removed it from the stack list and added no conditional mention, so the docs page is silent on the Step 5 conditional load that the CHANGELOG announces. This is raised to JC as a question, not as a task (*Advisory Never Becomes A Task*).
+  - spawns:
+    - Implementer (sonnet): 19 calls, ≈ 83k tokens, ended complete.
+    - Reviewer (opus): 8 calls, ≈ 83k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 11/13 tasks · ≈ 377 LOC / ≈ 900 · 13/≈ 22 review rounds. Within budget.

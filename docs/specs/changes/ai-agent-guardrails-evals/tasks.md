@@ -244,7 +244,7 @@
 
 ### T11 — Command docs pages and CHANGELOG
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T4, T5, T6, T8, T9, T10
+- **Status:** [x] · **Size:** S · **Depends on:** T4, T5, T6, T8, T9, T10
 - **Requirements:** FR-8 first two `AND`s (docs pages describe the branch; CHANGELOG clauses match HEAD)
 - **Design:** §4
 - **Scope:** `docs/commands/akili-specify.md` (an AI Agent Mode bullet beside Video Mode at `:79`), `docs/commands/akili-test.md` (`:28`, `:59`), `docs/commands/akili-validate.md` (`:59`), and a `CHANGELOG.md` → `Unreleased` entry

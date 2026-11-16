@@ -6,7 +6,13 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **`ai-agent-development` 1.1 gains `references/guardrails.md` and `references/evals.md`, and the commands use them for AI agent specs.** `/akili-specify` records `AI Agent: yes` or `AI Agent: no` on every spec; when `yes`, `requirements.md` gains **Guardrails** and **Evals** sections, `design.md` an eval seam and an online monitoring plan, and `tasks.md` an eval-gate task. `/akili-test` runs an agent eval suite over the offline, regression and guardrail sets, stops when the eval-gate task has no runnable command, and adds an **Agent Evals** section to the report. `/akili-validate` applies an agent eval gate: a missing eval-gate task or results, a guardrail violation, a missed threshold or a missing online monitoring plan is a FAIL; a triggered no-pass condition is BLOCKED. A spec without `AI Agent: yes` gets none of this.
+
 ### Changed
+
+- **`ai-agent-development` is now `conditional`, not `stack`.** `/akili-constitution` Step 5 loads it when the product includes an AI agent, instead of listing it through the Step 8D Skill Map; `docs/skills/governance.md`, `AGENTS.md` and the backend routing matrix say so.
 
 - **`akili-panel` `plugin.json` describes 1.1.0.** Its `description` named only the `Next` button; it now lists the methodology flow, active branch, token use, session model, collapsible `Skills` list and small `AKILI` title. Copy only; the plugin version stays `1.1.0`.
 - **`docs/plugins/akili-panel.md` names the versions 1.1.0 was tested on.** It said the tests ran on 2.1.319 (1.0.0); 1.1.0's plugin tests ran on 2.1.318 and 2.1.322. The 2.1.318 minimum is unchanged.
