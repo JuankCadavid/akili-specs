@@ -363,3 +363,30 @@
   - Reviewer #2 (opus): 2 calls, ≈ 67k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 8/13 tasks · ≈ 357 LOC / ≈ 900 · 10/≈ 22 review rounds. Within budget.
+
+### T9 — Guide and routing labels — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** FR-7 (`AGENTS.md` *Backend Skills*, `backend-routing.md`), its THEN clause and its BUT clause. DD-8, P-4.
+- **Attempt 1**
+  - Files changed (2+/2−):
+    - `AGENTS.md:95`: "stack skill:" → "conditional skill:".
+    - `.claude/skills/software-architect/references/backend-routing.md:70`: "(stack)" → "(conditional)".
+    - Each was a line-anchored Edit. No nested guide exists under `software-architect/`.
+  - Skills: `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: low.
+  - Implementer verification: `node --test test/backend-skill-routing.test.js` → 14/14. `npm test -- --test-name-pattern "backend-skill-routing"` → 99/99.
+  - Red run (baseline `43c3c97`): `:70` "| `ai-agent-development` (stack) |"; `AGENTS.md:95` "— stack skill:".
+  - Falsifier executed (observed red):
+    - Reverting `:70` made `grep -n "ai-agent-development\` (stack)"` return 1 hit: `70:| \`ai-agent-development\` (stack) | …`.
+    - After restoring with `cp`, the diff was IDENTICAL.
+  - Evidence re-run (Leader-inline): **VERIFIED**. Hunks `@@ -70 +70 @@` and `@@ -95 +95 @@`, `git diff --check` clean, backend-skill-routing 14/14.
+  - Reviewer (`opus`, checklist): **PASS**.
+    - Both edits change one token each, and no lead cell changed (`:34-54` untouched).
+    - FR-7 `BUT` holds. `backend-routing.md:72` ("Stack skills reach agents only through the project `## Skill Map`") and `AGENTS.md:85` now apply only to stack-marked skills, so they no longer cover this skill.
+    - ISSUES: none.
+  - ADVISORY (recorded only): `backend-routing.md:25`, in the routing-matrix table headed "Stack skill" (`:20`), lists `ai-agent-development (decisions)`. That cell names a routing role, not the binding, so FR-7 does not cover it.
+  - spawns:
+    - Implementer (sonnet): 8 calls, ≈ 68k tokens, ended complete.
+    - Reviewer (opus): 2 calls, ≈ 75k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 9/13 tasks · ≈ 359 LOC / ≈ 900 · 11/≈ 22 review rounds. Within budget.

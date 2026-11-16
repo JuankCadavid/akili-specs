@@ -210,7 +210,7 @@
 
 ### T9 — Guide and routing labels
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T7
+- **Status:** [x] · **Size:** XS · **Depends on:** T7
 - **Requirements:** FR-7 (`AGENTS.md` *Backend Skills*, `backend-routing.md`)
 - **Design:** DD-8; P-4
 - **Scope:** `AGENTS.md:95` "stack skill:" → "conditional skill:". `backend-routing.md:70` "(stack)" → "(conditional)". Two single-token sites in two rules documents. The per-file split rule is waived because each site is one token, so the Reviewer reads both whole
