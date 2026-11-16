@@ -8,23 +8,25 @@
 | Depth | Standard |
 | Deliverable | software |
 | AI Agent | `no`. This spec ships methodology text, not a runtime agent, so `/akili-validate` applies no agent eval gate (FR-6 non-agent scenario) |
-| Date | 2026-11-16 |
-| Branch / HEAD | `feat/ai-agent-guardrails-evals` at `fd14565`, clean tree, nothing new on `origin/dev` |
-| Auditor | Opus 5.5 (`claude-opus-5-5`). The Implementer was `sonnet`, so author ≠ auditor. `AGENTS.md` has no `## Model Routing` registry; the `docs/model-routing.md` default T3 → `opus` matches |
+| Date | 2026-11-16 (re-validation after the W-1 fix) |
+| Branch / HEAD | `feat/ai-agent-guardrails-evals` at `1eb4dc8`, clean tree, nothing new on `origin/dev` |
+| Auditor | Opus 5.5 (`claude-opus-5-5`). The Implementer of T1–T13 was `sonnet`, so author ≠ auditor holds for the spec. The W-1 fix (`dbd8e20`) was authored on `opus`, the same model as this auditor; it was reviewed by a `sonnet` Reviewer (PASS), and this pass re-checked it clause by clause (§6, §8). `AGENTS.md` has no `## Model Routing` registry; the `docs/model-routing.md` default T3 → `opus` matches |
 | Constitutional baseline | This repo has no `docs/prd.md`, `docs/ux-ui/design.md`, `docs/trd/trd.md` or `docs/specs/general-setup/`. Root `CLAUDE.md` → `AGENTS.md` is the baseline |
+| Previous pass | Same date, at `fd14565`: PASS with one WARN (W-1), fixed in `dbd8e20` with JC approval. This report replaces it |
 
 ## 2. Summary
 
-**Verdict: PASS. W-1 (WARN) was fixed in this session with JC approval (see §11); re-validation in a fresh session is pending.**
+**Verdict: PASS. Ready to archive.**
 
 | Area | Result |
 |---|---|
 | Tasks | 13/13 `[x]`, each closed on a Reviewer PASS with evidence in `execution.md` |
 | Files | Every file in design §4 is present and changed. The only extra file is `test/ai-agent-references.test.js`, added by `/akili-test` |
-| Build integrity | `npm test` 2012/2012 · `verify:cli` clean · `pack:dry-run` 429 files, with only the 2 new references added · `git diff --check` clean |
+| Build integrity | Re-run at `1eb4dc8`: `npm test` 2012/2012 · `verify:cli` clean · `pack:dry-run` 429 files · `git diff --check` clean |
 | Requirements | FR-1 to FR-8 and NFR-1 to NFR-6: PASS |
+| W-1 fix | Verified: per-phase gating at all four sites, old wording gone repo-wide, test pins each phase |
 | Design conformance | PASS. DD-1 to DD-12 are implemented as decided |
-| Findings | 0 FAIL · 1 WARN (W-1, fixed — see §11) · 10 advisory |
+| Findings | 0 FAIL · 0 open WARN (W-1 closed) · 11 advisory |
 
 ## 3. Task Completion
 
@@ -62,7 +64,7 @@ Extra file, not in §4 but expected: `test/ai-agent-references.test.js`, the `/a
 
 ## 5. Build Integrity
 
-Run by the auditor on 2026-11-16 at `fd14565`, with no delegated agent active:
+Run by the auditor on 2026-11-16 at `1eb4dc8`, with no delegated agent active:
 
 | Command | Output |
 |---|---|
@@ -82,11 +84,11 @@ The primary evidence is `test-report.md` (PASS, 0 `PRODUCT_BUG`, 3 partial-autom
 | FR-1 Guardrails guide | T1 | `guardrails.md`: Layers 1–4 in order; "No single layer is sufficient on its own, and model instructions alone are not a guardrail"; voice section is counsel-owned (statute grep: 0 legal hits; one hit is the verb "act" in an example clause); 7 `> Unvalidated:`; `Last verified: 2026-11-14`; 3 dated sources; OWASP labeled a standard | `ai-agent-references.test.js` FR-1 ×3 scenarios | PASS |
 | FR-2 Evals guide | T2 | `evals.md` §1–§5 lifecycle plus voice; "never from the agent's own output"; judge pinned, calibrated, and "Never grades its own output"; §7 no-pass lists the changed judge, rubric or prompt; 5 markers | FR-2 ×4 scenarios | PASS |
 | FR-3 Router and mapping | T3, T7 | `SKILL.md` +2 rows, `binding: conditional`, `version: "1.1"`; mapping has 2 pointer sentences; the `## 4.` hash is pinned | author FR-8 router test; references FR-3 | PASS |
-| FR-4 specify | T4 | `akili-specify.md` `### AI Agent Mode` items 1–6; checklist row; removed from the Step 2.1 list | author FR-4; T13 cases a, b, c | PASS (W-1 fixed, §11) |
+| FR-4 specify | T4 (+ W-1 fix) | `akili-specify.md` `### AI Agent Mode` items 1–6; item 6 **Gates, per phase.** matches the corrected FR-4 S2 `BUT` phase by phase (Phase 1 items 1 and 3, Phase 2 item 4, Phase 3 item 5); checklist row `:541`; removed from the Step 2.1 list | author FR-4 incl. test 10 (one pin per phase plus a guard against the old wording); T13 cases a, b, c | PASS |
 | FR-5 test | T5 | `akili-test.md:117` bullet (exit 0 is not the gate; no Tester edits; online out of reach); STOP `:121`; Agent Evals `:173`; suite-types `:215` | author FR-5 | PASS |
 | FR-6 validate | T6 | `akili-validate.md` ladder matches FR-6 cell by cell and in order; MUST NOT PASS while FAIL or BLOCKED; violation always FAIL; non-agent gets no entry | author FR-6; T13 case d plus falsifier | PASS |
 | FR-7 Governance | T7–T10 | All 9 surfaces read `conditional`. Constitution Step 5 conditional line; not in Step 8D or the docs stack list; Best Paired lists the selector-gated steps. Remaining `stack` / Skill Map hits next to the name are routing roles (`backend-routing.md:25`, `:36`, `:48`) or the docs line that says "not a Skill Map candidate" | references FR-7; panel catalog and flow tests | PASS |
-| FR-8 Docs, CHANGELOG, tests | T11, T12 | 3 command docs pages describe the branch; CHANGELOG clauses quote-checked; `grep docs/specs` in both new test files → 0 | references FR-8; manual quote-check | PASS |
+| FR-8 Docs, CHANGELOG, tests | T11, T12 | 3 command docs pages describe the branch; CHANGELOG clauses quote-checked; `grep docs/specs` in both new test files: the only hit is `ai-agent-guardrails-evals.test.js:453`, a self-guard asserting the path is **absent** (string split), so no shipped test reads the spec folder | references FR-8; manual quote-check | PASS |
 | NFR-1 Non-agent path untouched | T4–T6, T12 | Every added command sentence is under `AI Agent: yes`, except the specify detection item (the allowed carve-out) | author NFR-1 | PASS |
 | NFR-2 / NFR-3 | T1, T2 | Sources pinned and dated; marker greppable | references Sources tests | PASS |
 | NFR-4 Size | T1, T2 | 133 lines / 12,277 B and 145 lines / 12,761 B, both within the ≤ 220 / ≤ 22,000 cap | NFR-4 ×2 | PASS |
@@ -103,7 +105,7 @@ No linter is configured for Markdown. `git diff --check` is clean, and the `node
 
 | ID | Level | Finding | Location |
 |---|---|---|---|
-| W-1 | **WARN → fixed** | **Phase-gate wording can be read as impossible to satisfy.** Item 6 says "The Phase 1, 2 and 3 gates do not pass an `AI Agent: yes` spec while any item above is missing." Items 4–5 (the `design.md` monitoring plan and the eval-gate task) do not exist yet at the Phase 1 gate. Read literally, an agent spec can never clear Phase 1. The shipped text copies FR-4's `BUT` clause word for word, so this is a spec-level ambiguity, not drift. A sensible agent reads it phase by phase, but rules text other agents execute should not depend on that. The T13 walkthrough did not exercise per-phase gating | `.claude/commands/akili-specify.md:83`; `requirements.md` FR-4 S2 `BUT`; `docs/commands/akili-specify.md:80` |
+| W-1 | **WARN → fixed, verified** | **Phase-gate wording can be read as impossible to satisfy.** Item 6 says "The Phase 1, 2 and 3 gates do not pass an `AI Agent: yes` spec while any item above is missing." Items 4–5 (the `design.md` monitoring plan and the eval-gate task) do not exist yet at the Phase 1 gate. Read literally, an agent spec can never clear Phase 1. The shipped text copies FR-4's `BUT` clause word for word, so this is a spec-level ambiguity, not drift. A sensible agent reads it phase by phase, but rules text other agents execute should not depend on that. The T13 walkthrough did not exercise per-phase gating | `.claude/commands/akili-specify.md:83`; `requirements.md` FR-4 S2 `BUT`; `docs/commands/akili-specify.md:80` |
 
 ### 4R advisory findings (do not gate)
 
@@ -119,6 +121,7 @@ No linter is configured for Markdown. `git diff --check` is clean, and the `node
 | A-8 | Readability | `backend-routing.md:25` routing-matrix cell (table headed "Stack skill") names `ai-agent-development (decisions)`. That is a routing role, not the binding | T9 |
 | A-9 | Readability | `design.md` §11 still shows P-14 and P-15 as `UNVERIFIED`. Both were settled during execution (sources fetched in T1/T2; fixture unchanged in T7). Archive can sync the ledger | auditor |
 | A-10 | Readability | `guardrails.md:85` "Always honored; never argue the caller out of it" states a product stance as settled practice, with no `> Unvalidated:` marker | T1 Reviewer |
+| A-11 | Readability | `design.md` §9.3 item 6 reads "Phase 1 the row and items 3" (should be "item 3"). The shipped command text is correct. The W-1 fix Reviewer's two notes also stand: the docs-page bullet has no test pin, and the checklist row (`akili-specify.md:541`) could say "that phase's items" | auditor, W-1 Reviewer |
 
 ## 8. Design Conformance
 
@@ -133,7 +136,9 @@ No linter is configured for Markdown. `git diff --check` is clean, and the `node
 | Proposal intent, scope and non-goals: no runner, no online run, no legal advice, no new command or skill, `Deliverable` unchanged | PASS |
 | Cross-document figures: 13 tasks; 318 → 320 skill files; ledger 13 + 2 = 15 rows; 1950 + 62 = 2012 tests; 429 packed files; reference sizes. All agree across requirements, design, tasks, execution and test-report | PASS |
 
-Factual correction applied during validation: `test-report.md` Document Control said `test/ai-agent-references.test.js` was uncommitted, but `fd14565` commits it. The row now says so. The forward sweep found no other "uncommitted" claim in the spec folder; the backward sweep found no document citing that row.
+W-1 re-check: `git diff fd14565..HEAD` touches only the four W-1 sites, the three spec docs and the test-report note. A repo-wide grep for "Phase 1, 2 and 3", "Phase 1, 2 or 3", "Phase 1/2/3", "any item above is missing" and "any of these is missing" returns only the test's negative guard and `execution.md:505`, a historical T12 mutation record that quotes the old test name (left as the record of what ran).
+
+Factual correction applied during the first pass: `test-report.md` Document Control said `test/ai-agent-references.test.js` was uncommitted, but `fd14565` commits it. The row now says so. The forward sweep found no other "uncommitted" claim in the spec folder; the backward sweep found no document citing that row.
 
 There is no UI, so the Design Review (impeccable-bridge) does not apply.
 
@@ -144,7 +149,7 @@ There is no UI, so the Design Review (impeccable-bridge) does not apply.
 | `test-report.md` | PASS; 62 new tests and 7 mutation reds; 0 `PRODUCT_BUG`; 3 accepted partial-automation gaps, each with a manual check (no-statute regex, CHANGELOG quote-check, voice-metrics example) |
 | Author suite (T12) | FR-4, FR-5, FR-6 and NFR-1 clauses pinned; 4 mutation reds quoted |
 | Prompt behavior | No automated check is possible (requirements §8). The T13 held-out walkthrough (cases a–d plus falsifier) substitutes |
-| Auditor re-run | §5: 2012/2012 |
+| Auditor re-run | §5: 2012/2012 at `1eb4dc8`, including the W-1 test 10 |
 
 ## 10. Agent Guide / Constitution Impact
 
@@ -155,7 +160,7 @@ There is no UI, so the Design Review (impeccable-bridge) does not apply.
 | ID | Level | Recommendation | Route |
 |---|---|---|---|
 | W-1 | WARN → **fixed** | Make each gate check only what its phase produces. Phase 1: the row plus the Guardrails and Evals sections. Phase 2: the eval seam and monitoring plan. Phase 3: the eval-gate task and the skill on every task | JC approved the in-spec fix on 2026-11-16. See *W-1 fix record* below |
-| A-1…A-10 | Advisory | Recorded only. They never become tasks in this spec (*Scope only grows through approval*). A-1, A-2 and A-4 are copy-level candidates for `/akili-quick`; A-7 is a proposal question | Kaizen or later quick/proposal |
+| A-1…A-11 | Advisory | Recorded only. They never become tasks in this spec (*Scope only grows through approval*). A-1, A-2, A-4 and A-11 are copy-level candidates for `/akili-quick`; A-7 is a proposal question | Kaizen or later quick/proposal |
 
 ### W-1 fix record (2026-11-16, approved by JC)
 
@@ -171,8 +176,8 @@ There is no UI, so the Design Review (impeccable-bridge) does not apply.
 
 ## 12. Archive Readiness Recommendation
 
-**Ready to archive after re-validation.** W-1 is fixed (§11, *W-1 fix record*). All 13 tasks are done, there are no FAILs, every requirement and NFR has evidence, and the build is green. Because the fix changed rules text after this audit, run a fresh validation before archiving:
+**Ready to archive.** All 13 tasks are done, there are no FAILs and no open WARNs, W-1 is fixed and verified, every requirement and NFR has evidence, and the build is green at `1eb4dc8`. The 11 advisories are recorded only; `/akili-archive` can sync A-9 (Premise Ledger P-14/P-15) and the Kaizen step can pick up A-1, A-2, A-4 and A-11 as `/akili-quick` candidates.
 
 ```text
-/akili-validate changes/ai-agent-guardrails-evals
+/akili-archive changes/ai-agent-guardrails-evals
 ```
