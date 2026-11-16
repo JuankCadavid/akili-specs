@@ -155,10 +155,14 @@ test("FR-4 AND: item 5 puts an eval-gate task in tasks.md (four parts per akili-
   has(item, "every task lists `ai-agent-development` in its skills", "FR-4 every task lists the skill");
 });
 
-test("FR-4 BUT: item 6 stops the Phase 1, 2 and 3 gates while any agent item is missing", () => {
+test("FR-4 BUT: item 6 gates per phase, each gate checking only what its phase produces", () => {
   const item = numberedItem(specifyMode(), 6);
-  has(item, "**Gates.**", "FR-4 BUT gates");
-  has(item, "The Phase 1, 2 and 3 gates do not pass an `AI Agent: yes` spec while any item above is missing", "FR-4 BUT gate text");
+  has(item, "**Gates, per phase.**", "FR-4 BUT gates");
+  has(item, "Each gate checks what its phase produces and does not pass an `AI Agent: yes` spec while any of it is missing", "FR-4 BUT gate rule");
+  has(item, "The Phase 1 gate checks the `AI Agent` row and the Guardrails and Evals sections in `requirements.md`", "FR-4 BUT Phase 1");
+  has(item, "The Phase 2 gate checks the eval seam and the online monitoring plan in `design.md`", "FR-4 BUT Phase 2");
+  has(item, "The Phase 3 gate checks the eval-gate task and `ai-agent-development` on every task in `tasks.md`", "FR-4 BUT Phase 3");
+  assert.ok(!item.includes("while any item above is missing"), "FR-4 BUT: the all-items-at-every-gate wording (W-1) must not return");
 });
 
 test("FR-4 THEN (non-agent): the section states items 2-6 apply only when `AI Agent: yes`, and item 1 alone runs on every spec", () => {

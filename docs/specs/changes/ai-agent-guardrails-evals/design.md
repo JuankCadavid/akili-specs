@@ -122,7 +122,7 @@ Placed after `### Video Mode`, with the same shape. Contents, in this order:
 3. **`requirements.md`** gains a **Guardrails** section (one `BUT it must NOT` clause per guardrail, its own negative case set, zero tolerance, each layer covered or `n/a — <reason>`) and an **Evals** section (offline sets, thresholds, regression trigger, rubric for free-generated output).
 4. **`design.md`** records the eval seam and an online monitoring plan (metrics, sampling, alert threshold, owner).
 5. **`tasks.md`** carries an eval-gate task with the four parts from `akili-spec-mapping.md` §3. Every task lists `ai-agent-development`.
-6. **Gates.** The Phase 1, 2 and 3 gates do not pass an agent spec while any item above is missing.
+6. **Gates, per phase.** Each gate checks only what its phase produces: Phase 1 the row and items 3 (Guardrails, Evals); Phase 2 item 4; Phase 3 item 5. (Corrected at validation W-1, 2026-11-16: the original "any item above" wording could never clear Phase 1.)
 
 The Verification Checklist gains one row covering items 3–6. Step 2.1's no-map fallback list drops `ai-agent-development` (DD-9).
 

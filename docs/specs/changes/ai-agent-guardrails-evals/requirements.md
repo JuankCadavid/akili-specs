@@ -201,7 +201,7 @@ Today (each claim verified at `43c3c97`; the claims the design depends on become
 - AND `design.md` carries an **online monitoring plan** (metrics, sampling, alert threshold, owner) and the eval seam
 - AND `tasks.md` carries an **eval-gate task** with case sets, a verification command, thresholds, and a no-pass clause
 - AND every task of the spec lists `ai-agent-development` in its skills
-- BUT it must NOT pass the Phase 1, 2 or 3 gate while any of these is missing for an agent spec
+- BUT it must NOT pass a phase gate for an agent spec while that phase's items are missing: Phase 1 the `AI Agent` row and the Guardrails and Evals sections; Phase 2 the eval seam and the online monitoring plan in `design.md`; Phase 3 the eval-gate task and `ai-agent-development` on every task (per-phase gating, corrected at validation W-1, approved by JC 2026-11-16)
 
 #### Scenario: Non-agent spec unchanged
 

@@ -102,7 +102,7 @@
   - `design.md` monitoring plan (metrics, sampling, alert threshold, owner) and eval seam;
   - eval-gate task with four parts;
   - `ai-agent-development` on every task;
-  - `BUT` no Phase 1/2/3 gate passes while any is missing;
+  - `BUT` no phase gate passes while that phase's items are missing (per-phase since validation W-1, 2026-11-16);
   - non-agent output unchanged.
 
   Also NFR-1. Design §3 terminal branches for specify: absent → `no`; unrecognized → `no`, reported at the next gate
