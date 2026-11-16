@@ -528,3 +528,65 @@
     - Reviewer (opus): 4 calls, ≈ 86k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 12/13 tasks · ≈ 827 LOC / ≈ 900 · 14/≈ 22 review rounds. Within budget.
+
+### T13 — Held-out walkthrough and full verification — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** §8 defect class "prompt behavior" (a walkthrough stands in for an automated check), NFR-6, and every terminal branch in design §3.
+- **Attempt 1:** no files changed (evidence only). Skills: `ai-agent-development`, matching tasks.md, so no deviation. Effort: high.
+- **Walkthrough:** each case was judged against the general definition at `akili-specify.md:76`, "a model decides, at runtime, what to say to a person or which action or tool call to take", with the examples stripped. Item 1 is at `:78` and items 2–6 are at `:79-83`; the Implementer's citations were one line off, and the line numbers here are corrected.
+
+  | Case | Definition verdict | `/akili-specify` | `/akili-test` | `/akili-validate` | Branch reached |
+  |---|---|---|---|---|---|
+  | (a) Inbound-SMS support bot with a refund tool | `yes`: a model chooses both the reply and the tool call | `:78` writes `yes`. Items 2–6 apply. The gates (`:83`, checklist `:541`) block while anything is missing | `:117` plans the eval suite (exit 0 is not the gate; no Tester changes). `:121` STOPs if there is no runner. `:173` adds Agent Evals | `:70` loads the skill. The ladder (`:115-124`) applies | Full enforcement ✅ |
+  | (b) Report generator with no model | `no`: no model decides at runtime (a fixed script or rules engine) | `:78` writes `no`. Items 2–6 are skipped ("apply only when `AI Agent: yes`", `:76`) | No suite (`:117`). No section (`:173`) | No gate and no entry (`:126`) | No change ✅ |
+  | (c) Proposal: "add AI summaries to the dashboard" | Unclear on one fact only: whether a model generates the summaries at runtime. **Conditional:** runtime model-generated summaries → `yes` (the model decides what to say to a person); build-time text or no model → `no` | `:78` "When the proposal leaves it unclear, ask one question and do not guess" | Not reached before the answer | Not reached before the answer | One question ✅ |
+  | (d) Agent spec missing its online monitoring plan | `yes` | Checklist `:541` requires the monitoring plan | The suite runs (the plan belongs in `design.md`) | Rows apply in order (`:115`). `:122` "No online monitoring plan in `design.md` \| **FAIL**". The report records the deciding row (`:126`) | FAIL at the monitoring row ✅ |
+
+- **Terminal branches (design §3):**
+
+  | Reader | Row absent | Unrecognized value |
+  |---|---|---|
+  | `/akili-specify` | `:78` "An absent row means `no`". Specify always writes the row | `:78` "read as `no` and reported as unrecognized at the next gate" |
+  | `/akili-test` | `:117` "An absent row reads as `no`" | `:117` "reads as `no` and the test report notes it" |
+  | `/akili-validate` | `:70`, `:126` | `:70` "reads as `no` and the report notes it as WARN (spec defect)" |
+
+- **Falsifier (observed):**
+  - A copy of validate had the monitoring row deleted. `diff` against the shipped file gave `122d121 < | No online monitoring plan in \`design.md\` | **FAIL** |`.
+  - Walking case (d) against the copy fell through to "None of the above | the eval gate passes", which shows the walk can fail.
+  - The Reviewer re-diffed the copy independently.
+- **Full verification** (the Implementer's runs, and the Leader's re-run gave identical results):
+  1. `npm test` → `# tests 1950` `# pass 1950` `# fail 0` `# skipped 0`
+  2. `npm run verify:cli` → `Summary: 14 commands | 32 skills | 1 plugin | 8 resources (akili-specs v2.44.0)`
+  3. `npm run pack:dry-run` → `total files: 429`.
+     - Of the files added since `c2339a1`, only `.claude/skills/ai-agent-development/references/evals.md` (12.8kB) and `references/guardrails.md` (12.3kB) are packaged.
+     - The five `docs/specs/…` files are excluded by `!docs/specs`. `test/ai-agent-guardrails-evals.test.js` is not in `files`.
+  4. `git diff --check` → clean. `git status --porcelain` → empty.
+- **Not Done / Assumptions** (assumptions only):
+  - Case (c) stops at the question; the answer was not simulated.
+  - The case (d) falsifier assumes every other gate input is present.
+- **Evidence re-run (Leader-inline):** **VERIFIED**. All four commands were re-run with identical output.
+- **Reviewer** (`opus`, checklist, independent re-walk): **PASS**.
+  - "Each one reaches the expected terminal branch in specify, test and validate."
+  - Case (c) is defensible: "unclear" holds only on whether a model runs at runtime, and the record above now states the conditional.
+  - ISSUES: none.
+- **ADVISORY** (4R, recorded, never gating):
+  - Risk: the definition counts any runtime model output shown to a person as an agent, so a one-shot LLM summary triggers full Guardrails, Evals and the validate ladder. This is probably intended. If that breadth turns out to be unwanted, it is a question for a later proposal, not a patch inside this spec.
+  - Readability: the line offset is corrected above.
+- **spawns:**
+  - Implementer (sonnet): 7 calls, ≈ 90k tokens, ended complete.
+  - Reviewer (opus): 6 calls, ≈ 76k tokens, ended complete.
+- **Decisions made:** none beyond the brief.
+- **Running totals vs budget:** 13/13 tasks · ≈ 827 LOC / ≈ 900 · 15/≈ 22 review rounds. Within budget.
+
+## 3. Summary
+
+| Item | Result |
+|---|---|
+| Tasks | 13/13 `[x]`. Every task closed on a Reviewer PASS. No `REVIEW_WAIVED` or `REVIEW_SKIPPED` record |
+| Attempts | T4 took 3 (Reviewer FAIL, then an evidence MISMATCH, then PASS). T8 took 2 (Reviewer FAIL, then PASS). Every other task passed on attempt 1 |
+| Budget | ≈ 827 LOC of ≈ 900 · 15 of ≈ 22 review rounds. Within budget |
+| Final verification | `npm test` 1950/1950 · `verify:cli` clean · `pack:dry-run` adds only the 2 references · `git diff --check` clean |
+| Commits | Local only, on `feat/ai-agent-guardrails-evals`. No push, PR, merge, tag or publish |
+| Open question for JC | `docs/commands/akili-constitution.md` no longer names `ai-agent-development`: T10 removed it from the stack list and no task adds the Step 5 conditional mention there (T11 Reviewer, advisory 6) |
+| Next | `/akili-test changes/ai-agent-guardrails-evals`. Not started, per JC |

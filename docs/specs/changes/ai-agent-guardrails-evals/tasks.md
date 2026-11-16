@@ -280,7 +280,7 @@
 
 ### T13 — Held-out walkthrough and full verification
 
-- **Status:** [ ] · **Size:** S · **Depends on:** T12
+- **Status:** [x] · **Size:** S · **Depends on:** T12
 - **Requirements:** §8 defect class "prompt behavior" (no automated check, so a walkthrough substitutes); NFR-6
 - **Design:** §3 (every terminal branch)
 - **Scope:** walk the three command edits against four held-out cases the text does not cite, each judged against the general sentence with examples stripped:
