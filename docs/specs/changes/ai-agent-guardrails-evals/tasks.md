@@ -225,7 +225,7 @@
 
 ### T10 — Constitution ripple (DD-9)
 
-- **Status:** [ ] · **Size:** XS · **Depends on:** T7
+- **Status:** [x] · **Size:** XS · **Depends on:** T7
 - **Requirements:** FR-7 second `AND` (Step 5 conditional line; out of Step 8D candidates; out of the docs page stack list)
 - **Design:** DD-9 and its reversion challenge
 - **Scope:**

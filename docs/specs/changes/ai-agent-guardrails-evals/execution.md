@@ -390,3 +390,34 @@
     - Reviewer (opus): 2 calls, ≈ 75k tokens, ended complete.
 - **Decisions made:** none beyond the brief.
 - **Running totals vs budget:** 9/13 tasks · ≈ 359 LOC / ≈ 900 · 11/≈ 22 review rounds. Within budget.
+
+### T10 — Constitution ripple (DD-9) — PASS
+
+- **Date:** 2026-11-16 · **Attempts:** 1 · **Status:** PASS
+- **Requirements covered:** FR-7 second `AND`: the Step 5 conditional line, removal from the Step 8D candidates, and removal from the docs page stack list. FR-7 `BUT`. DD-9.
+- **Attempt 1**
+  - Files changed (+4/−3, line-anchored Edits):
+    - `.claude/commands/akili-constitution.md`:
+      - Step 5: the stack-list item is removed. The new paragraph at `:265` reads "When the product includes an AI agent, load `ai-agent-development`."
+      - Step 8D: `ai-agent-development` is removed from the candidates list (`:730`).
+    - `docs/commands/akili-constitution.md:123`: the name is removed from the stack list.
+  - Skills: `cognitive-doc-design`, matching tasks.md, so no deviation. Effort: medium.
+  - Implementer verification:
+    - `npm test -- --test-name-pattern "Step 8D|stack skill"` → 74/74.
+    - `node --test test/backend-skill-routing.test.js test/design-skill-routing.test.js` → 23/23.
+    - `grep -n "ai-agent-development" .claude/commands/akili-constitution.md` → 1 hit (`265:`). The docs page has 0 hits.
+  - Red run (baseline `43c3c97`): the grep returned `264`, `729`.
+  - Falsifier executed (observed red):
+    - Re-adding the name to the Step 8D list made the grep return 2 hits (`265`, `730`). After restoring with `cp`, the diff was IDENTICAL.
+    - Observation: `backend-skill-routing` still passed 14/14 with the name re-added. No test guards the Step 8D candidates list; the grep is the only guard.
+  - Evidence re-run (Leader-inline): **VERIFIED**. Same diff, `git diff --check` clean, 74/74 and 23/23.
+  - Reviewer (`opus`, checklist): **PASS**.
+    - "The diff carries out all three parts of DD-9." The conditional line is keyed on the product including an AI agent, so the disqualifier does not apply.
+    - The T8 forward pointer is closed: the skill page `:37` matches the command text `:265`, and Step 8D no longer lists the skill.
+    - The Step 5 intro (`:252`) and the Step 8D prose (`:716-719`) remain true.
+    - ISSUES: none.
+  - spawns:
+    - Implementer (sonnet): 10 calls, ≈ 70k tokens, ended complete.
+    - Reviewer (opus): 2 calls, ≈ 71k tokens, ended complete.
+- **Decisions made:** the conditional line is its own paragraph after the list, so it does not render as a stack-list item.
+- **Running totals vs budget:** 10/13 tasks · ≈ 363 LOC / ≈ 900 · 12/≈ 22 review rounds. Within budget.
