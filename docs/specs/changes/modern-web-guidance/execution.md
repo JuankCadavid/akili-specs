@@ -788,3 +788,78 @@ Within budget. Execution stopped after T9 by JC's direction; T10 has not started
 | Review rounds | 14 | ~24 |
 
 Within budget. Continuing to T11 (JC directive: T10–T14 without pausing).
+
+### T11: `/akili-constitution` Step 8D
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-17 |
+| Attempts | 2 |
+| Requirements covered | FR-9 (all clauses); FR-5 override (row token); FR-2 BUT and AND |
+| Design | §8.4; DD-7, DD-15; P-13, P-16, P-19, P-25 |
+| Skills | `cognitive-doc-design` (task list) |
+| Effort | attempt 1 medium; attempt 2 high |
+
+**Attempt 1: FAIL**
+- **Files changed:**
+  - `.claude/commands/akili-constitution.md` (+10/−4):
+    - Item 3: the MWG example, for a browser-rendered UI project only. The row is "an availability and pin note, never a skill to assign", and its *When to load* text matches §8.4 word for word. It carries the optional `pin <x.y.z>`, and the item says never to write the row for a project with no web UI or to assert that the skill is installed.
+    - The item 3 stop sentence gains "(a `platform` selector never stops)".
+    - Item 4: the platform guidance field, placed before the matrix pointer.
+  - `test/design-skill-routing-coverage.test.js`: six → seven fields.
+  - `test/modern-web-guidance.test.js`: a *constitution* section with 6 tests.
+- **Implementer verification:** four suites 99/0; `npm test` 2076/0; `git diff --check` clean.
+  - Red 1 (phrase dropped) → `not ok 60 - constitution (FR-9, FR-2 BUT, DD-15): the row's When to load says never assigned or loaded directly, and the row is not a skill to assign`.
+  - Red 2 (field moved after the pointer) → `not ok 5 - @akili-spec changes/design-skill-routing FR-10 (amended): … seven fields …` and `not ok 72 - constitution (FR-9, P-19): item 4 carries a platform guidance field …`.
+- **Sweep ("stops at … gate"):** `akili-constitution.md` has one hit (item 3, now extended). Restatements outside the file are left for T12/T13: `docs/cli.md:32`, `docs/flow.md:656,669`, `docs/overview.md:149`, `docs/skills/README.md:52` and `AGENTS.md:53`. `docs/skills/governance.md:31,35,41` already conform.
+- **Evidence re-run (Leader-inline): VERIFIED.** 99/99 and 2076/2076. Red 1 reproduced with the full phrase replaced. Red 2 reproduced with the field moved after the pointer (tests 5 and 72).
+- **Reviewer (opus, full): FAIL**, 1 issue:
+  - Item 4 said "pin source the Skill Map row". A pin source is a value, `default` or `skill-map` (`design-routing.md` route grammar; `modern-web.md` *Pin*). This violates FR-5 *Default pin* and *Project override* and §8.4 item 4.
+  - Remediation: name both values, write no literal default version, and add a test with a falsifier.
+- **Runtime events:** none.
+
+**Attempt 2: PASS**
+- **Files changed:** the field now reads "pin source `skill-map` when the Skill Map MWG row carries a valid `pin <x.y.z>`, `default` otherwise; or `none — <reason>`". A new test checks that both values are present, that the old wording is gone and that no version number appears. Net diff vs HEAD: 3 files, +84/−5.
+- **Implementer verification:** four suites 100/0; `npm test` 2077/0; `git diff --check` clean. Three reds observed:
+  - Phrase dropped → the *When to load* test red.
+  - Field moved → coverage test 22, plus tests 98 and 99, red.
+  - Pin source reverted → tests 98 and 99 red.
+- **Evidence re-run (Leader-inline): VERIFIED.**
+  - 100/100 and 2077/2077.
+  - Red 1 reproduced (`not ok 60`).
+  - With ", `default` otherwise" removed, `not ok 63` and `not ok 64` went red.
+  - Restored and checked identical with `cmp`.
+- **Reviewer (opus, full, rework override (e)): PASS.**
+  - Issue 1 is resolved against the grammar, `modern-web.md` *Pin*, FR-5 and DD-7.
+  - FR-9, §8.4 items 3 and 4, FR-2 BUT and DD-15/P-25 were re-walked with no regression.
+  - The order check reads the shipped file.
+  - The consumer suites `design-skill-routing` and `backend-skill-routing-coverage` passed unchanged.
+  - Named conformance checks: not affected.
+- **Runtime events:** none.
+
+**Spawns**
+- Implementer #1 (sonnet): 15 calls, 96,360 tokens, ended complete.
+- Reviewer #1 (opus): 9 calls, 84,764 tokens, ended fail.
+- Implementer #2 (sonnet): 10 calls, 77,310 tokens, ended complete.
+- Reviewer #2 (opus): 5 calls, 76,966 tokens, ended complete.
+
+**ADVISORY (recorded only)**
+- From attempt 1: FR-9's "use when present" is not in the quoted *When to load* text, and the item 2 blanket-assign instruction has no carve-out.
+- From attempt 2: the stop-sentence line is overlong (about 130 columns), and the `constitutionItem(n)` boundary relies on `indexOf("\n" + n + ". ")`.
+
+**Forward pointer, T12:** the restatements of the "stops at … gate" obligation in `docs/cli.md:32`, `docs/flow.md:656,669`, `docs/overview.md:149`, `docs/skills/README.md:52` and `AGENTS.md:53` need to gain the `platform` / typed-mode outcome where they restate rule 4.
+
+**Decisions made:** none beyond the rework. No spec edits.
+
+**Final verification:** `npm test` 2077 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 11 / 14 | 14 |
+| LOC | ~959 (870 + 89) | ~1,120 |
+| Review rounds | 16 | ~24 |
+
+Within budget. Continuing to T12.

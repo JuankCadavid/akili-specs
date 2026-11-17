@@ -230,7 +230,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~8 lines + ~70 test LOC) |
 | Depends on | T4, T5 |
 | Requirements | FR-9 (all clauses); FR-5 override (row token); FR-2 BUT (Skill Map row is not a skill to assign) and AND (item 3 restatement) |

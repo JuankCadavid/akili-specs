@@ -631,3 +631,74 @@ test("propose (FR-8): modern-web reports carry kept findings routed to /akili-pr
   assert.match(clause, /one row per finding citing the report and its guide id/);
   assert.doesNotMatch(clause, /P1|P2|P3/);
 });
+
+// ---- constitution (T11): Step 8D writes the MWG Skill Map row and the platform field (FR-9, FR-5, FR-2, P-19) ----
+
+const CONSTITUTION_CMD = path.join(ROOT, ".claude", "commands", "akili-constitution.md");
+// Step 8D text is hard-wrapped: collapse whitespace before matching clauses.
+const flatText = (s) => s.replace(/\s+/g, " ").trim();
+const step8D = () => {
+  const t = read(CONSTITUTION_CMD);
+  const a = t.indexOf("### Step 8D: Scaffold the Skill Map");
+  const b = t.indexOf("### Step 8E", a);
+  assert.ok(a >= 0 && b > a, "Step 8D present");
+  return t.slice(a, b);
+};
+const constitutionItem = (n) => {
+  const s = step8D();
+  const start = s.indexOf(`\n${n}. `);
+  assert.ok(start >= 0, `item ${n} present`);
+  const next = s.indexOf(`\n${n + 1}. `, start);
+  const policy = s.indexOf("\n**Mode-specific policy", start);
+  const end = [next, policy].filter((i) => i > start).sort((x, y) => x - y)[0];
+  return flatText(s.slice(start, end));
+};
+
+test("constitution (FR-9): the MWG row is for a browser-rendered UI project only and is asked first", () => {
+  const i3 = constitutionItem(3);
+  assert.match(i3, /for a project with a browser-rendered UI only, Modern Web Guidance \(`modern-web-guidance`/);
+  assert.match(i3, /never write the MWG row for a project with no web UI/);
+  assert.match(i3, /Ask the user before adding one; never infer it from the filesystem/);
+});
+
+test("constitution (FR-9, FR-2 BUT, DD-15): the row's When to load says never assigned or loaded directly, and the row is not a skill to assign", () => {
+  const i3 = constitutionItem(3);
+  assert.match(i3, /whose row is an availability and pin note, never a skill to assign/);
+  assert.match(i3, /never assigned or loaded directly; reached through `impeccable-bridge` → `references\/modern-web\.md` when a web UI task's route says `platform mwg`/);
+  assert.match(i3, /assert that the skill is installed/);
+});
+
+test("constitution (FR-9, FR-5, DD-7): the optional pin token is named in the grammar the rules file reads", () => {
+  assert.match(constitutionItem(3), /optional `pin <x\.y\.z>`/);
+  // Same token the rules file's *Pin* section reads from the Skill Map row.
+  assert.ok(section(rules(), "## Pin").includes("`pin <x.y.z>`"), "rules file Pin section names the same token");
+});
+
+test("constitution (FR-2 AND): the gate-stop sentence keeps the Deliverable stop and gains `a platform selector never stops`", () => {
+  const i3 = constitutionItem(3);
+  assert.match(i3, /`Deliverable: video`\) stops at `video-production`'s availability gate \(a `platform` selector never stops\)/);
+});
+
+test("constitution (FR-9, P-19): item 4 carries a platform guidance field after motion library and mockup route, with the matrix pointer last", () => {
+  const i4 = constitutionItem(4);
+  const pos = ["motion library (", "mockup route (", "platform guidance (", "one line pointing at the matrix by name"].map((f) => i4.indexOf(f));
+  assert.ok(pos.every((p) => p >= 0), `all fields present: ${pos}`);
+  assert.deepEqual([...pos].sort((a, b) => a - b), pos, "order read from the shipped file");
+  assert.match(i4, /platform guidance \(`modern-web-guidance`, environment-provided, pin source `skill-map` when the Skill Map MWG row carries a valid `pin <x\.y\.z>`, `default` otherwise; or `none — <reason>`\)/);
+});
+
+test("constitution (FR-5, FR-9): item 4 states the pin source as the grammar's two values, never as the Skill Map row in every case", () => {
+  const i4 = constitutionItem(4);
+  const field = i4.slice(i4.indexOf("platform guidance ("), i4.indexOf("one line pointing at the matrix by name"));
+  assert.match(field, /`default`/);
+  assert.match(field, /`skill-map`/);
+  assert.doesNotMatch(field, /pin source the Skill Map row/);
+  assert.doesNotMatch(field, /\d+\.\d+\.\d+/, "no default version pinned in the scaffold text");
+});
+
+test("constitution (DD-15, FR-9): Step 8D items name no stack skill as MWG's carrier and write no file:line pointer", () => {
+  const s = step8D();
+  assert.doesNotMatch(s, /\.(md|js):\d+/);
+  // MWG appears only inside item 3's row note and item 4's field, never in item 2's assignment instruction.
+  assert.doesNotMatch(constitutionItem(2), /modern-web-guidance|MWG/);
+});
