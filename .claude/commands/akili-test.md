@@ -200,6 +200,8 @@ When a spec includes meaningful UI/UX behavior, verify more than raw functionali
   | Engine `consent needed` | Ask once per session through the bridge's *Engine consent* before planning, or record the suite as `Unevaluated` |
   | Engine `declined` / `unavailable` | Record `Unevaluated (engine not installed)` and the reason; the suite is not run |
 
+  When `execution.md` records MWG guide ids, a frontend or E2E Tester may use them as a source for platform assertions through `modern-web.md` → *Test and validate reads* (in `impeccable-bridge` `references/`); an MWG state other than `ready` is recorded, never failed.
+
 ---
 
 ## Testing Rules

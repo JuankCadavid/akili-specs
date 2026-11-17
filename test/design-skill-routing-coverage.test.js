@@ -143,9 +143,9 @@ test("@akili-spec changes/design-skill-routing FR-11: the Design route line carr
   const line = section(matrix(), "Design route line");
   const form = /`(Design route: [^`]+)`/.exec(line);
   assert.ok(form, "route-line form present");
-  ordered(form[1], ["Design route: load impeccable-bridge → design-routing.md", "playbook <cmd>", "ENV-<n>", "mode <mode>", "polish <full|light>", "motion <value>"], "route-line fields");
+  ordered(form[1], ["Design route: load impeccable-bridge → design-routing.md", "playbook <cmd>", "ENV-<n>", "mode <mode>", "polish <full|light>", "motion <value>", "platform <mwg, pin <default|skill-map> | none — <reason>>"], "route-line fields");
   const fields = tableRows(line, "| Field | Values |").map((r) => r[0]);
-  assert.deepEqual(fields, ["Playbook(s)", "Environment", "Page mode", "Polish", "Motion"]);
+  assert.deepEqual(fields, ["Playbook(s)", "Environment", "Page mode", "Polish", "Motion", "Platform"]);
   assert.ok(line.includes("**Done criteria** carry:"), "Done criteria sentence");
   assert.ok(line.includes("`finish review: not run (AKILI execute)`") && line.includes("`skill source missing — frontend-design`"), "Done sentence carries FR-4 evidence");
   const rule = between(cmd("akili-specify"), "Preferred UI/UX skill rule:", "#### Step 3.3");

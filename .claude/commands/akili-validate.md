@@ -157,6 +157,8 @@ Check for:
 
 First-visit pass without browser automation: the bridge's *First-visit pass* rule holds. The HITL pause asks the user for a manual fold check at every first-visit viewport (the bridge's *First-visit pass*) and records the result; without one the design gate is `WARN (unverified first visit)`, never `PASS`.
 
+When `execution.md` records MWG guide ids, check the built code against those guides through `modern-web.md` → *Test and validate reads* (in `impeccable-bridge` `references/`); a contradiction is a finding, and an MWG state other than `ready` is recorded, never failed on.
+
 Record in the validation report a **Design Review** section: skill source and engine state, the scan matrix, waivers, and the critique/audit findings with what was fixed. This review adds no performance gate.
 
 ### Phase 6: Design Conformance
