@@ -192,7 +192,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~30 lines + ~120 test LOC) |
 | Depends on | T4, T5 |
 | Requirements | FR-8 (both scenarios, all clauses); FR-4 AND IT MUST NOT (audit not blocked) |

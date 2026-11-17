@@ -653,3 +653,64 @@ Within budget.
 T8's shipped sentence ("recorded, never failed on") already conforms. No task reopens.
 
 **PR 1:** opened as #145 into `dev`, covering T1–T8 and the FR-7 amendment up to `eaba9da`. This ruling entry was committed after the PR opened.
+
+### T9: `/akili-audit modern-web` mode
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** |
+| Date | 2026-11-17 |
+| Attempts | 1 |
+| Requirements covered | FR-8 (both scenarios, all clauses); FR-4 AND IT MUST NOT (audit not blocked) |
+| Design | §8.3 steps 1–7, *Why a mode*; DD-9; P-11, P-21, P-22, P-23, P-26 (owner of P-26) |
+| Skills | `impeccable-bridge`, `cognitive-doc-design` (task list, no deviation) |
+| Effort | medium (Implementer); Reviewer high |
+
+**Attempt 1**
+- **Files changed:** `.claude/commands/akili-audit.md` (+17/−1): `modern-web [<path>]` in the *Usage* block; a dispatch sentence ("The mode is chosen by the argument and by nothing else: the user typing `modern-web` is the opt-in"); a new *Modern Web Mode* section that points at `modern-web.md` → *Audit scan* with no copied procedure rows; the report path rule `modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md`; report-only, no *Modernize*; routing to `/akili-quick` / `/akili-propose`; the "never a drift report" line; and a *Verification Checklist* line. `test/modern-web-guidance.test.js` (+84): section *audit*, 8 tests.
+- **Implementer verification:** four suites (`modern-web-guidance`, `impeccable-bridge`, `design-eval-contract`, `akili-security-command`) 225 pass, 0 fail. `npm test` 2066 pass, 0 fail. `git diff --check` clean.
+- **Falsifier reds (observed):**
+  1. Dispatch sentence removed → `not ok 47 - audit (FR-8, P-26): the Usage block lists the mode and the dispatch sentence picks it by its argument`.
+  2. "outside `docs/specs/audits/`" written without "user-directed" → `not ok 71 - FR-16 pattern 7: every line limiting edits to the audits folder names the user-directed exception` (`design-eval-contract.test.js`).
+
+  Both were restored.
+- **Evidence re-run (Leader-inline, non-author): VERIFIED.**
+  - Four suites: 225 pass, 0 fail.
+  - `npm test`: 2066 pass, 0 fail.
+  - `git diff --check`: OK.
+  - Both falsifier reds reproduced. For falsifier 1 the Leader removed the whole Usage line 21 that carries the sentence, and test 47 went red. The file was restored and the diff stat is unchanged (2 files, +101/−1).
+- **Reviewer (opus): PASS.**
+  - FR-8, FR-4's AND IT MUST NOT and §8.3 steps 1–7 were walked term by term and all are present.
+  - The test pins the whole dispatch sentence, so this is not the Disqualifier's bare-word check.
+  - P-21: the five-row table is untouched and test-pinned. P-22: the phrase is avoided. P-23: the drift readers are unchanged and test-confirmed.
+  - Named conformance checks: the F-5 call form is not restated, only deferred to *Audit scan* (no contradiction); FR-7 is not touched; the JC FR-4 WARN ruling is met ("never fails, stops or blocks the audit").
+  - The Reviewer's own re-run: 136 pass, 0 fail on three suites.
+- **Runtime events:** none.
+
+**Spawns:**
+- Implementer (sonnet): 12 calls, 106,284 tokens, ended complete.
+- Reviewer (opus): 9 calls, 81,399 tokens, ended complete.
+
+**ADVISORY (recorded only; creates no tasks):**
+- The frontmatter `description` of `akili-audit.md` names only drift and `design` mode. It is outside T9's scope lines; the Reviewer suggests T12 or a follow-up.
+- Step 2's "the scan is not offered" (FR-8 wording) could read as "write nothing". *Audit scan* step 2 expects a report saying `not applicable — no web UI source`.
+- "the audit otherwise behaves as today" could be read as a fall-back to drift, although the Usage sentence rules that out.
+- The P-23 reader test proves that `drift-*.md` is present and `modern-web-*` is absent, but it does not pin the specific reader lines.
+
+**Decisions made:**
+- The Reviewer got the 132-line diff by scratchpad path instead of inline (it has `Read`). This deviates from the ≤300-line inline rule for brief economy; the content is the same.
+- `akili-propose.md` was left untouched (T10).
+
+**Issues encountered:** none.
+
+**Final verification:** `npm test` 2066 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 9 / 14 | 14 |
+| LOC | ~817 (716 + 101) | ~1,120 |
+| Review rounds | 12 | ~24 |
+
+Within budget. Execution stopped after T9 by JC's direction; T10 has not started.

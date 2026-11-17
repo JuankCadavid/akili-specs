@@ -515,3 +515,87 @@ test("validate (FR-7): not ready is recorded, never failed on; the sentence copi
   const rows = text.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
   assert.equal(rows.length, 5);
 });
+
+// ---- audit (T9): the /akili-audit modern-web mode (FR-8, FR-4, DD-9, P-21..P-23, P-26) ----
+
+const AUDIT_CMD = path.join(ROOT, ".claude", "commands", "akili-audit.md");
+const auditText = () => read(AUDIT_CMD);
+
+// Text of the "## Modern Web Mode" section, up to the next rule or heading.
+function modernWebMode() {
+  const text = auditText();
+  const start = text.indexOf("## Modern Web Mode");
+  assert.ok(start >= 0, "expected a Modern Web Mode section");
+  const end = text.indexOf("\n---\n", start);
+  assert.ok(end > start, "Modern Web Mode section end");
+  return text.slice(start, end);
+}
+
+test("audit (FR-8, P-26): the Usage block lists the mode and the dispatch sentence picks it by its argument", () => {
+  const text = auditText();
+  const usage = text.slice(text.indexOf("## Usage"), text.indexOf("## Behavior"));
+  assert.match(usage, /\/akili-audit modern-web \[<path>\]/);
+  assert.match(usage, /With `modern-web` it runs an opt-in, report-only \*\*modern web scan\*\*[^\n]*\(see \*Modern Web Mode\*\)/);
+  assert.match(usage, /chosen by the argument and by nothing else: the user typing `modern-web` is the opt-in/);
+  // the two existing dispatches are untouched
+  assert.match(usage, /With no argument the command runs the spec-to-code \*\*drift audit\*\*/);
+  assert.match(usage, /With `design` it runs a \*\*design evaluation\*\*/);
+});
+
+test("audit (FR-8, DD-9): the section points at modern-web.md -> Audit scan and copies no procedure row", () => {
+  const s = modernWebMode();
+  assert.match(s, /`\.claude\/skills\/impeccable-bridge\/references\/modern-web\.md` → \*Audit scan\*/);
+  assert.match(s, /single source of the procedure/);
+  assert.doesNotMatch(s, /legacy-scan <path> --json/);
+  assert.doesNotMatch(s, /keepWhen/);
+  assert.doesNotMatch(s, /\|/);
+});
+
+test("audit (FR-8): the report path is modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md under docs/specs/audits/ with the drift suffix rule", () => {
+  assert.match(modernWebMode(), /`docs\/specs\/audits\/modern-web-<YYYY-MM-DD>\[-<safe-branch>\]\[-N\]\.md`, with the drift reports' suffix rule/);
+});
+
+test("audit (FR-8 BUT): report-only, the report is the only write, no Modernize, findings never become tasks", () => {
+  const s = modernWebMode();
+  assert.match(s, /report-only/);
+  assert.match(s, /the report is the mode's only write, and upstream's \*Modernize\* step is never run/);
+  assert.match(s, /Findings never become tasks of a running spec/);
+  assert.doesNotMatch(s, /outside `docs\/specs\/audits\/`(?![^\n]*user-directed)/);
+});
+
+test("audit (FR-8): findings route to /akili-propose (groups) or /akili-quick (trivial)", () => {
+  const s = modernWebMode();
+  assert.match(s, /a trivial fix → `\/akili-quick`; a group of related findings → `\/akili-propose`/);
+});
+
+test("audit (FR-8, FR-4): not applicable and not ready outcomes are recorded and never fail, stop or block the audit", () => {
+  const s = modernWebMode();
+  assert.match(s, /not run: <state>/);
+  assert.match(s, /no web UI source/);
+  assert.match(s, /the audit otherwise behaves as today/);
+  assert.match(s, /never fails, stops or blocks the audit/);
+});
+
+test("audit (P-23): modern-web-*.md is never a drift report; the drift readers still read only drift-*.md", () => {
+  assert.match(modernWebMode(), /A `modern-web-\*\.md` file is never a drift report: the drift \*Reading reports back\* rule reads only `drift-\*\.md`/);
+  const text = auditText();
+  assert.match(text, /inside\* the `drift-\*\.md` files/);
+  const readers = [
+    [path.join(ROOT, ".claude", "commands", "akili-archive.md"), /drift-\*\.md/],
+    [path.join(ROOT, ".claude", "skills", "kaizen", "SKILL.md"), /drift-\*\.md/],
+  ];
+  for (const [file, re] of readers) {
+    const body = read(file);
+    assert.match(body, re, file);
+    assert.doesNotMatch(body, /modern-web-\*/, file);
+  }
+});
+
+test("audit (FR-8, P-21): the checklist carries a modern-web line and the design mode's five-row state table is intact", () => {
+  const text = auditText();
+  const cl = text.slice(text.indexOf("## Verification Checklist"));
+  assert.match(cl, /In \*\*modern-web mode\*\*, confirm instead:[^\n]*`modern-web-\*\.md` path[^\n]*\*Modernize\* was not run/);
+  const design = text.slice(text.indexOf("## Design Evaluation Mode"), text.indexOf("## Modern Web Mode"));
+  const rows = design.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
+  assert.equal(rows.length, 5);
+});
