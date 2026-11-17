@@ -49,7 +49,7 @@
 | Target | `AGENTS.md`, *Development Rules* › **Concurrency: one AKILI session per checkout.** bullet (append one sentence) |
 | Edit | "`.agents/` is gitignored, so a new worktree starts without personas: copy it from the main checkout and run `node bin/akili.js doctor --agents --fix --allow-branch` before the first `/akili-execute` spawn." |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -59,4 +59,4 @@
 | Target | KZ-002 |
 | Edit | Add `changes/flow-diagram-review` as a source. Recurrence note: "recurred (changes/flow-diagram-review: the CHANGELOG note stated 1111 tests at T3, which went stale when `/akili-test` added 9; caught at validation R-1. The validation report then over-stated two of its own checks, 'no Archify file tracked' and 'no other 1111 hits', and was corrected by re-running each as a scoped command)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

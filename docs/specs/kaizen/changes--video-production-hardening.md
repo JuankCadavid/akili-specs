@@ -58,7 +58,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 3.2, for a task whose deliverable is clause-level tests: its Done criteria require a mutation walk built from the requirement text — list every THEN/BUT/AND term, remove the shipped phrase carrying it in a scratch copy, and record the red assertion per term; a walk over the task's own pins does not satisfy it. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -68,7 +68,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` (Design Impact, persona edits): a design that edits `.claude/templates/<persona>.md` names, per edited line, the `akili:section` that contains it; a line outside every fence is not deployable by `doctor --agents --fix` and needs either a fence change or a documented manual re-copy. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -78,7 +78,7 @@
 | Target | methodology |
 | Edit | `/akili-execute` *Unattended Mode*: a script or runner that chains AKILI phases judges each phase by the artifacts it was meant to produce (`tasks.md` state, `execution.md` closing records, `test-report.md` / `validation-report.md` existence and status), never by the host's exit status — a host stopped at a session or usage limit can exit 0. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P4
 
@@ -88,7 +88,7 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add source `changes/video-production-hardening`; recurrence note: "recurred on the test side (T5, T14: 4 Reviewer FAILs — clause terms unpinned while every walked pin was red; closed only by a walk built from the requirement text, KZ-changes--video-production-hardening-1)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P5
 
@@ -98,7 +98,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/video-production-hardening`; recurrence note: "recurred (test-report.md claimed a `video-production.test.js` pin for FR-6's skill side that did not exist — validation W-4; a worker reported 482 LOC for a 338-line file; design P-15 / T14 called 11 lines '11 occurrences' of a 12-occurrence count — W-7)". |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P6
 
@@ -108,4 +108,4 @@
 | Target | KZ-changes--leader-brief-contract-2 |
 | Edit | Add source `changes/video-production-hardening`; recurrence note: "recurred ×4 (T6 and T13 falsifiers predicted a red that did not occur as worded; T15's falsifier missed its predicted OpenCode red; design §7.1's Cursor 'Tester today' cell was never observed and was false — corrected at execute)". |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

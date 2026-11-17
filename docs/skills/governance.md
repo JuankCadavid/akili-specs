@@ -131,7 +131,7 @@ A skill enters `.claude/skills/` only when all of these hold. If any box fails, 
 
 1. **Need** — a real AKILI phase or supported stack needs it; name the command step or Skill Map slot it will occupy.
 2. **Binding declared** — `core`, `conditional`, or `stack`, with the exact integration point. A `core`/`conditional` skill must actually be wired into command text in the same change; a skill referenced by no command and no Skill Map is dead weight and does not ship.
-3. **Attribution complete** — original author, source, and license identified and preserved; `adapted-by` added. If the origin cannot be verified after a genuine search, mark `author: community (origin unverified)`.
+3. **Attribution complete** — original author, source, and license identified and preserved; `adapted-by` added. If the origin cannot be verified after a genuine search, mark `author: community (origin unverified)`. A third-party skill's admission review quotes its scan commands verbatim and treats a scanner exit status of 2 (tool error) as "not run", never as 0 hits; hidden-character checks use a tool that supports the pattern on the host (perl, not BSD `grep -P`).
 4. **Size justified** — prefer one skill with `references/` (progressive disclosure) over families of sibling skills; large data/scripts payloads need a stated reason.
 5. **Docs + CHANGELOG** — a `docs/skills/<name>.md` page, a truthful row in `docs/skills/README.md` (Binding column included), a row in `docs/overview.md` under its purpose group, and a `CHANGELOG.md` entry.
 6. **Panel catalog** — adding, removing or rebinding a skill updates `SKILL_CATALOG` in `.claude/skills/akili-panel/hooks/flow.mjs`; `test/akili-panel-catalog.test.js` fails until it matches the folders on disk.

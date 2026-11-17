@@ -58,7 +58,7 @@
 | Target | `.claude/templates/tester.md` (test-authoring rules; same home as `KZ-changes--archify-diagrams-1`) |
 | Edit | A helper that bounds a text range by start/end anchors fails the test when either anchor is not found — never falls back to the end of the file; prove the guard once by pointing an anchor at a string that does not exist. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -68,7 +68,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 3.2 Falsifiability, item 3 (*Real-artifact lock*), append: "A section-scoped assertion needs a guarded bound: a range helper that falls back to end-of-file on a missing end anchor turns the section check into a file-tail check that its own falsifier cannot distinguish." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -78,7 +78,7 @@
 | Target | `docs/skills/governance.md` → *Acceptance Checklist for New Skills*, item 3 (Attribution) or a new third-party review note |
 | Edit | A third-party skill's admission review quotes its scan commands verbatim and treats a scanner exit status of 2 (tool error) as "not run", never as 0 hits; hidden-character checks use a tool that supports the pattern on the host (perl, not BSD `grep -P`). |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -88,7 +88,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 2.2 Premise Ledger, citation rule (b) *Negative existence*, append: "…and the command's exit status, since an error exit read as zero hits is a false negative (`grep -P` on BSD grep exits 2)." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P5
 
@@ -98,6 +98,6 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/go-backend-routing/golang-skill`. Recurrence note: "**recurred ×3 (changes/go-backend-routing/golang-skill: NOTICE 'Finding \| One:' (T2), a README row cloned from `nestjs-expert` kept 'persona examples' (T3b), CHANGELOG 'on one finding' (T4 pre-review); a row cloned from a sibling inherits its claims cell by cell — re-verify every cell, not only the name)**". Severity stays High |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 Step 3 (constitution sync) recorded no `guide-sync`, `factual-sweep` or `trd-adr` item. There is no Constitution Impact block. The root-guide factual sweep found no falsified claim (`grep` over `AGENTS.md`, `CLAUDE.md`, `README.md` for skill counts and Go mentions → none). No TRD exists in this repository.

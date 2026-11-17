@@ -53,7 +53,7 @@
 | Target | methodology |
 | Edit | `kaizen` skill, *Apply Mode* step 4 (and `/akili-archive` Step 4.4's backlog offer): add one sentence — "When the apply-capable branch is protected (changes land only through pull requests), Apply Mode runs on an up-to-date checkout of it, then moves the uncommitted edits to a short-lived branch (`git switch -c kaizen/apply-<YYYY-MM-DD>`) before committing, and the edits land through a PR into the apply-capable branch; the entry-file status stamps travel in the same PR." **Falsifier:** a project with a protected integration branch whose constitution forbids direct commits, where Apply Mode's instructions end at "write the edits". |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -63,7 +63,7 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add `changes/branching-flow-dev-next` as a source; recurrence note: "**recurred (changes/branching-flow-dev-next T4: a new prohibition — 'agents never commit to `dev`' — was swept against superseded release phrasing only; the *Kaizen Loop* obligation it disabled ('approved edits … are made' on the pinned branch) survived until the Reviewer read the file whole. A rule that forbids an action is swept against every obligation that needs that action)**" |
 | Severity | High (unchanged) |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -73,7 +73,7 @@
 | Target | KZ-002 |
 | Edit | Add `changes/branching-flow-dev-next` as a source; recurrence note: "**recurred (changes/branching-flow-dev-next T5: the CHANGELOG and release checklist described the *Base ahead* guard inverted — 'dev is ahead of the base' for 'the bumped base is ahead of every published stable'; caught by quote-checking against `scripts/release-next.js:141-148`)**" |
 | Severity | High (unchanged) |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -83,4 +83,4 @@
 | Target | `AGENTS.md` — *Repository Purpose*, line 14 |
 | Edit | Replace "- `scripts/` contains helper scripts, including `scripts/release.js`, which prepares controlled npm package releases." with "- `scripts/` contains helper scripts, including `scripts/release.js` (prepares stable npm releases), `scripts/release-next.js` (publishes `next` prereleases from `dev`), and `scripts/release-status.js` (release drift check)." (validation W-3; implicit Constitution Impact of T1) |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-17) |

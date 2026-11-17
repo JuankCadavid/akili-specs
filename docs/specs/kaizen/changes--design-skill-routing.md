@@ -56,7 +56,7 @@
 | Target | `AGENTS.md` (`## Verification`) |
 | Edit | Adding or removing any file under `.claude/skills/` changes `SKILL_FILE_EXPECTED` in `test/install-cursor.test.js`; update it in the same task. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -66,7 +66,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 1.2 guideline: "A requirement that scaffolds a domain-specific artifact into projects (a UI block, a video section, a cloud contract) states its applicability — which projects receive it and what a project outside the domain receives — as a scenario with a `BUT it must NOT` clause." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -76,6 +76,6 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add `changes/design-skill-routing` as a source; recurrence note: "**recurred (changes/design-skill-routing: the FR-13 stale-phrase sweep keyed on literal phrases; paraphrased role claims — `ui-ux-pro-max` \"leads only when … `missing`\", `frontend-design` \"implementation layer\" — survived T7/T8b review and surfaced at validation as FR-13 FAIL / FR-14 WARN)**" |
 | Severity | Medium (unchanged) |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 Constitution sync (Step 3): no `## Constitution Impact` notes; root-guide factual sweep found no falsified claim (the spec itself rewrote `AGENTS.md` `## Design Skills`); no TRD in this repository; not a family child — no `guide-sync`, `factual-sweep` or `trd-adr` items.

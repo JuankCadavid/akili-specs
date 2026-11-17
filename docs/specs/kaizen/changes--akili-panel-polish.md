@@ -58,7 +58,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 3 (HITL tasks) and `/akili-execute` HITL pause: a HITL task whose Scope lists several checks numbers them in Done criteria, the pause asks for a verdict per number, and any number the human's answer does not cover stays open (`[~]`) or is recorded as an accepted gap in the human's words before the task closes. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -68,7 +68,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 2.5 **Fix only**: an `info` finding the architect has verified shows a design sentence to be false is folded into the fix pass as a factual correction (one-line edit, logged), whatever finding IDs the user's answer names. |
 | Severity | Low |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -78,7 +78,7 @@
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add source `changes/akili-panel-polish`; recurrence note: "recurred (changes/akili-panel-polish: tests ~800 vs code ~260 LOC; the ~650 LOC budget tripped at T2 and was raised to ~1,100 by JC)". Severity stays Medium. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -88,4 +88,4 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/akili-panel-polish`; recurrence note: "recurred (changes/akili-panel-polish: test-report said 8 tests added and 6 FR-3 tests, 9 and 7 at HEAD, and 'no 2.1.318 binary' while one was installed; design.md's round split summed to 7 of 8. Found at validation W-3/W-4; count the tables a summary line totals)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

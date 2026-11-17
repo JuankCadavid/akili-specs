@@ -53,7 +53,7 @@
 | Target | methodology |
 | Edit | `.claude/templates/tester.md` test-authoring rules, append: "A requirement that limits *this change's* scope ('X must not change', 'BUT Y unchanged') is one-time evidence in `test-report.md` (a `git diff --stat <spec-base>` run), never a shipped test pinned to a commit — such a test reds on any later legitimate edit and skips under shallow CI checkouts." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -63,7 +63,7 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add source `changes/go-backend-routing/backend-skill-routing`; recurrence note: "recurred ×3 (changes/go-backend-routing/backend-skill-routing: T5's task Scope omitted FR-5's deviation-record clause; T1 dropped design §5.1's Source column; T9's Leader-written evidence dropped a Scope obligation — each caught by a Reviewer walking the FR/Scope term by term, one round each)". Severity stays High |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -73,7 +73,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/go-backend-routing/backend-skill-routing`; recurrence note: "recurred ×3 (changes/go-backend-routing/backend-skill-routing: T6 CHANGELOG 'one lead skill' vs named-source leads; T7 `governance.md` 'names the file and section' vs file-only pointers; amendment A-6's Leader-drafted 'retry with backoff' backed by no cited heading — the Leader's own amendment text needs the same quote-check)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -83,4 +83,4 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add source `changes/go-backend-routing/backend-skill-routing`; recurrence note: "recurred at specify (design P-13: a role-claim grep keyed on phrases — 'agent architecture', 'architecture decisions' — missed `ai-agent-development.md`'s 'how to shape the agent … multi-agent topology'; the T7 Reviewer's reading found it)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

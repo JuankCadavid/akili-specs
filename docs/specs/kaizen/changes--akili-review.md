@@ -53,7 +53,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 3 (PR strategy): "A multi-PR split is valid only if `npm test` (the required checks) can be green at every PR head: each PR carries the consumers whose tests derive counts or lists from what that PR adds — install counts, docs command/skill rows, CLI totals — or the split is redrawn before the tasks gate." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -63,7 +63,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Budget (review rounds): "Budget 2 rounds, not 1, for any task whose output restates shipped text (docs pages, list rows, CHANGELOG) — quote-check FAILs (KZ-002) are the norm there, not the exception." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -73,7 +73,7 @@
 | Target | KZ-002 |
 | Edit | Add `changes/akili-review` as a source. Recurrence note: "recurred (changes/akili-review: T9a, T9b, T9c and T11 each failed once on a docs clause that overstated the shipped command — trivial-tier lens count, local-vs-CI posting, `history: true`, figure alt text; validation W-4 found the CHANGELOG test count stale after `/akili-test` added two suites, and W-8 found the command describing itself falsely, 'restates only the cap')". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -83,7 +83,7 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add `changes/akili-review` as a source. Recurrence note: "recurred (changes/akili-review: FR-11 'the job summary reports the failure' and FR-8 'REVIEW.md … `$RUNNER_TEMP/akili-review` in CI' never shipped — design §7.1 already said `--ci` writes nothing — and passed every Reviewer; found at validation and settled as requirement corrections)". |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P5
 
@@ -93,7 +93,7 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add `changes/akili-review` as a source. Recurrence note: "recurred (changes/akili-review: T8 corrected 'neither agent has Bash' in `docs/ci/README.md`, but the same claim survived in `.claude/skills/pr-review/references/ci.md`'s trust table until validation W-7 — the fix was keyed on the file under review, not on the claim)". |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P6
 
@@ -103,7 +103,7 @@
 | Target | `AGENTS.md` (*Repository Purpose*) |
 | Edit | Add: "- `docs/ci/` ships copy-in GitHub Actions templates for `/akili-review` (`akili-review.claude.yml`, `akili-review.codex.yml`) with `docs/ci/README.md`; they pin an exact `akili-specs` release, so each release that changes `/akili-review` re-checks the pin." |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### Factual-claims sweep (Step 3 item 3)
 

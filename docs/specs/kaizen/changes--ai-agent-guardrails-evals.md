@@ -53,7 +53,7 @@
 | Target | `.claude/commands/akili-specify.md` — Step 3.2 *Write* (append 1 line) |
 | Edit | **Phase-scoped gates:** when a requirement makes more than one phase gate refuse on missing items, name for each gate only the items that phase produces (Phase 1: requirements content; Phase 2: `design.md`; Phase 3: `tasks.md`) — a gate that checks a later phase's artifact can never pass. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -63,4 +63,4 @@
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add source `changes/ai-agent-guardrails-evals` and the recurrence note: T8's binding sweep keyed on the label `stack` and missed the docs bullet "`/akili-constitution` — Step 5 TRD and the Step 8D Skill Map", which restated the same obligation (Skill Map membership) without the label; the Reviewer FAILed it, costing one round. Severity stays **High**. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
