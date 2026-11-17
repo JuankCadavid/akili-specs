@@ -268,7 +268,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~15 lines + ~20 test LOC) |
 | Depends on | T12 |
 | Requirements | FR-11 THEN (CHANGELOG), BUT |

@@ -971,3 +971,71 @@ Within budget. Continuing to T12.
 **Decision (JC, 2026-11-17 5:16 PM America/Bogota):** the LOC budget is raised from ~1,120 to **~1,400**. Continue with T13 and T14 without pausing between tasks. Stop only for findings, decisions, failures or another tripwire. After T14, stop before any push or PR.
 
 The tasks (14) and review-round (~24) budgets are unchanged. The new figure is recorded in the Document Control rows of `design.md` (§ summary and §12), `tasks.md` and this file.
+
+### T13: CHANGELOG
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** |
+| Date | 2026-11-17 |
+| Attempts | 1 |
+| Requirements covered | FR-11 THEN (CHANGELOG), BUT |
+| Design | DD-11; §15 |
+| Skills | `cognitive-doc-design` (task list) |
+| Effort | high (summary surface, KZ-002) |
+
+**Attempt 1**
+
+- **Files changed:**
+  - `CHANGELOG.md` (+10): under `## [Unreleased]`, beside the PR #142–#144 notes. Eight bullets under `### Added` and one at the head of `### Changed`. No test count is stated.
+  - `test/modern-web-guidance.test.js` (+69): a *changelog* section with 5 tests. `changelogMwg()` reads the first `## [` section in document order that names MWG, per the AGENTS.md CHANGELOG-test rule.
+- **Implementer verification:**
+  - `modern-web-guidance` suite: 83/0. `npm test`: 2095/0. `git diff --check`: clean.
+  - Red run: replacing Apache-2.0 with MIT gives `not ok 79 - changelog (FR-11 THEN, AND): the entry states Apache-2.0 and Google Chrome and never MIT`. Restored from a byte backup (`cmp` identical).
+- **Clause → shipped source** (Implementer's table; the Reviewer quote-checked every row at HEAD):
+
+| Clause | Shipped source |
+|---|---|
+| Google Chrome, Apache-2.0; never vendored, copied or installed; `akili install` ships nothing; `akili doctor` checks none; not a lead; not affiliated | `docs/skills/impeccable-bridge.md`, MWG section opener |
+| Three selectors; never in a skills list | `modern-web.md` *How it is reached*; governance rule 4 |
+| A spec with no web UI task is unchanged in behavior | `akili-specify.md:484` (FR-7 as amended) |
+| Pointer lines in specify, test, validate and propose | `akili-specify.md:484`, `akili-test.md:203`, `akili-validate.md:160`, `akili-propose.md:141` |
+| Six states, Node ≥ 22, consent covering fetch, local run and telemetry; no state stops, fails or blocks | bridge doc *Gate* row; `modern-web.md` *Gate* |
+| Pin `1.0.1`, Skill Map `pin <x.y.z>`, never `@latest`, `ENABLE_FILE_LOGGING=false`, `DISABLE_TELEMETRY=1` unless opted in | bridge doc *Pin* / *Call forms*; `modern-web.md` |
+| `/akili-audit modern-web`, `/akili-propose` source | `akili-audit.md` *Modern Web Mode*; `akili-propose.md:141` |
+| `platform` field, MWG card, *Platform guidance* step | `design-routing.md:58,72,117` |
+| Step 8D row | `akili-constitution.md:743-749` |
+| Security record (`v1.0.1`, `64a6d708`, PASS, traced not read, Windows unverified, eval figures and stewardship by reference only) | bridge doc *Security record*, *Upstream's own statements* |
+| Install routes (printed, never run; 3 verified, 2 unverified) | bridge doc *Install routes* |
+| Rule 4 outcome restated in six files | `docs/flow.md:657`, `docs/skills/README.md:56`, `docs/skills/video-production.md:20`, `docs/overview.md:150`, `docs/cli.md:32`, `AGENTS.md:53/82` |
+
+- **Evidence re-run (Leader-inline, non-author): VERIFIED.** 83/83 and 2095/2095. The MIT red was reproduced (`not ok 79`) and the file byte-restored (`cmp` identical).
+- **Reviewer (opus, full): PASS.**
+  - Every clause was quote-checked at HEAD against shipped text, with no overstatement. "Six files" was confirmed file by file.
+  - Placement is under `[Unreleased]`, above `## [2.44.0]`.
+  - The test follows the AGENTS.md rule. Its MIT check is scoped to an MWG name, so the MIT `golang-pro` 2.44.0 entry cannot trigger it.
+  - Named conformance checks 1–3 hold.
+- **Runtime events:** none.
+
+**Spawns:**
+- Implementer (sonnet): 22 calls, 107,488 tokens, ended complete.
+- Reviewer (opus): 12 calls, 92,357 tokens, ended complete.
+
+**ADVISORY (recorded only):**
+- "direction, page mode and craft" is not word-for-word with the bridge's "aesthetic, page mode or direction".
+- The new `### Changed` bullet has no blank-line separator.
+- `changelogBullet()` searches the whole file, which is harmless while the lead phrases stay unique.
+
+**Decisions made:** none. No spec edits.
+
+**Final verification:** `npm test` 2095 pass, 0 fail. No CHANGELOG test count needs re-checking after T14, because the entry states none.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 13 / 14 | 14 |
+| LOC | ~1,270 (1,191 + 79) | ~1,400 (raised by JC 2026-11-17) |
+| Review rounds | 18 | ~24 |
+
+Within budget. Continuing to T14.

@@ -866,3 +866,72 @@ test("docs (user-approved addition): the akili-audit frontmatter description is 
   assert.match(descLines[0], /`modern-web` mode/);
   assert.match(descLines[0], /report-only/);
 });
+
+// ---- changelog (T13): the CHANGELOG entry states only what shipped (FR-11 THEN, BUT; DD-11; KZ-002) ----
+// Reads the newest section, in document order ([Unreleased] first), that names MWG, so the test survives the release cut.
+
+const CHANGELOG = path.join(ROOT, "CHANGELOG.md");
+function changelogMwg() {
+  const sections = read(CHANGELOG).split(/\n(?=## \[)/);
+  const hit = sections.find((s) => s.startsWith("## [") && MWG_NAME.test(s));
+  assert.ok(hit, "a CHANGELOG section names Modern Web Guidance");
+  return flatText(hit);
+}
+const changelogBullet = (lead) => {
+  const hit = read(CHANGELOG).split("\n").filter((l) => l.startsWith("- **")).map(flatText).find((l) => MWG_NAME.test(l) && l.includes(lead));
+  assert.ok(hit, `expected a CHANGELOG bullet starting with "- **${lead}"`);
+  return hit;
+};
+
+test("changelog (FR-11 THEN, AND): the entry states Apache-2.0 and Google Chrome and never MIT", () => {
+  const s = changelogBullet("Modern Web Guidance (MWG) is admitted");
+  assert.match(s, /Google Chrome's platform-implementation skill, licensed Apache-2\.0/);
+  assert.match(s, /never vendors, copies or installs it/);
+  assert.doesNotMatch(changelogMwg(), /\bMIT\b.{0,40}(MWG|Modern Web|modern-web-guidance)|(MWG|Modern Web|modern-web-guidance).{0,40}\bMIT\b/);
+  assert.doesNotMatch(s, /\bMIT\b/);
+});
+
+test("changelog (FR-11 BUT, KZ-002): counts and values match the shipped rules file", () => {
+  const sec = changelogMwg();
+  assert.match(sec, /six-state gate/);
+  assert.equal(STATES.length, 6);
+  for (const [name] of STATES) assert.ok(sec.includes(name), `the entry names state ${name}`);
+  assert.match(sec, /through three selectors/);
+  const selectors = section(rules(), "## How it is reached").split("\n").filter((l) => /^[1-3]\. /.test(l));
+  assert.equal(selectors.length, 3);
+  assert.match(sec, /default pin is `1\.0\.1`/);
+  assert.match(rules(), /`1\.0\.1`/);
+  assert.match(sec, /`pin <x\.y\.z>` in the Skill Map MWG row/);
+  assert.match(sec, /`ENABLE_FILE_LOGGING=false`, and `DISABLE_TELEMETRY=1` unless you opted in/);
+  assert.match(sec, /No state stops, fails or blocks/);
+  assert.match(sec, /opt-in, report-only scan/);
+  assert.match(sec, /Node 22 or newer/);
+});
+
+test("changelog (FR-11 BUT, DD-11): no unpinned package, no spec link, no uncited figure or Grok route", () => {
+  const sec = changelogMwg();
+  assert.doesNotMatch(sec, /modern-web-guidance@latest/);
+  assert.doesNotMatch(sec, /specs\/changes\/modern-web-guidance/);
+  assert.doesNotMatch(sec, /52–60|82–96/, "eval figures live only in the cited bridge-page paragraph");
+  assert.doesNotMatch(sec, /grok/i);
+  assert.match(sec, /cites upstream's eval figures and its stewardship claim to the upstream README at `v1\.0\.1`, as upstream's own statements that AKILI has not verified/);
+  assert.match(sec, /covers MWG `1\.0\.1` only/);
+  assert.match(sec, /The `legacy-scan` bundle was traced from its entry point, not read line by line, and the Windows call form is unverified/);
+});
+
+test("changelog (FR-11 BUT): the install-route clause matches the bridge page's route table", () => {
+  const sec = changelogMwg();
+  assert.match(sec, /verified at the pin for Claude Code, Codex and Antigravity, and unverified for Cursor and OpenCode/);
+  const routes = bridgeMwg();
+  assert.match(routes, /\| Claude Code \|.*\| Verified at the pin \|/);
+  assert.match(routes, /\| Codex \|.*\| Verified at the pin \|/);
+  assert.match(routes, /\| Antigravity \|.*\| Verified at the pin \|/);
+  assert.match(routes, /\| Cursor, OpenCode \|.*\| Unverified for these hosts \|/);
+});
+
+test("changelog (FR-2 AND): the rule 4 entry matches governance rule 4", () => {
+  const s = changelogBullet("`docs/skills/governance.md` rule 4 names three selectors");
+  assert.match(s, /still stops at that skill's availability gate/);
+  assert.match(s, /never stop: they continue without MWG and report `not run`/);
+  assert.match(flatText(govRule(4)), /The three selectors are/);
+});
