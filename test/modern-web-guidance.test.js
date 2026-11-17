@@ -935,3 +935,124 @@ test("changelog (FR-2 AND): the rule 4 entry matches governance rule 4", () => {
   assert.match(s, /never stop: they continue without MWG and report `not run`/);
   assert.match(flatText(govRule(4)), /The three selectors are/);
 });
+
+// ---- cross-cutting (T14): FR-5 BUT, FR-7 BUT/AND, FR-10 THEN, NFR-1..NFR-4 (design §15, P-14) ----
+// File lists come from directory walks or `git ls-files`, never a fixed array.
+
+const { spawnSync } = require("child_process");
+const os = require("os");
+
+const commandFiles = () =>
+  fs.readdirSync(path.join(ROOT, ".claude", "commands")).filter((n) => n.endsWith(".md")).map((n) => path.join(ROOT, ".claude", "commands", n));
+
+// Every file the package ships: walk the package.json "files" entries (honouring "*"-only "!" negations), no extension filter, plus what npm
+// packs on its own: package.json and README / COPYING / LICENSE / LICENCE in the root and each directory above a manifest entry (.claude/README.md).
+// Binary files (a NUL byte in the first 8 KB) are skipped; CHANGELOG.md is cut at its first `## [<version>]` heading, keeping [Unreleased] (history is excluded by design §15).
+const NPM_OWN = /^(package\.json|(readme|copying|licen[cs]e)(\..*[^~$])?)$/i;
+
+function packedFiles() {
+  const manifest = JSON.parse(read(path.join(ROOT, "package.json"))).files;
+  const negs = manifest.filter((p) => p.startsWith("!")).map((p) => new RegExp("^" + p.slice(1).replace(/[.+^$()|[\]{}]/g, "\\$&").replace(/\*/g, "[^/]*") + "(/|$)"));
+  const out = [];
+  const walk = (rel) => {
+    if (negs.some((re) => re.test(rel))) return;
+    const abs = path.join(ROOT, rel);
+    if (fs.statSync(abs).isDirectory()) fs.readdirSync(abs).forEach((n) => walk(rel + "/" + n));
+    else out.push(rel);
+  };
+  const entries = manifest.filter((p) => !p.startsWith("!"));
+  entries.forEach(walk);
+  const above = new Set(["."]);
+  entries.forEach((p) => { for (let d = path.posix.dirname(p); d !== "."; d = path.posix.dirname(d)) above.add(d); });
+  above.forEach((d) => fs.readdirSync(path.join(ROOT, d), { withFileTypes: true }).forEach((e) => e.isFile() && NPM_OWN.test(e.name) && out.push(d === "." ? e.name : d + "/" + e.name)));
+  return [...new Set(out)];
+}
+
+function packedText(rel) {
+  const buf = fs.readFileSync(path.join(ROOT, rel));
+  if (buf.subarray(0, 8192).includes(0)) return "";
+  const t = buf.toString("utf8");
+  return rel === "CHANGELOG.md" ? t.split(/^## \[(?!Unreleased)/m)[0] : t;
+}
+
+test("cross-cutting (FR-5 BUT): no file in the package manifest (docs, skills, commands, templates, code, CI templates) names modern-web-guidance@latest", () => {
+  const files = packedFiles();
+  assert.ok(files.length > 300, "the manifest walk reaches the whole packed tree");
+  assert.ok(files.includes("docs/ci/akili-review.claude.yml") && files.includes(".claude/README.md") && files.includes("package.json"), "non-md and npm-added files are walked");
+  assert.ok(!files.some((f) => f.startsWith("docs/specs/")), "docs/specs/ is excluded");
+  const hits = files.filter((f) => /modern-web-guidance@latest/.test(packedText(f)));
+  assert.deepEqual(hits, []);
+});
+
+// Fragments that exist only in the bridge's MWG reference (gate rows, pin rule, call forms) or the matrix card.
+const HELD_ONCE = [
+  [/^\| `(missing|node < 22|consent needed|declined|ready|call failed)` \|/m, "a gate-table row"],
+  [/MWG — (not run|ready)/, "a gate report line"],
+  [/DISABLE_TELEMETRY|ENABLE_FILE_LOGGING/, "a call-form prefix"],
+  [/modern-web-guidance@|\bnpx\b[^\n]*modern-web/, "a call form"],
+  [/\b1\.0\.1\b/, "the default pin"],
+  [/^\| `modern-web-guidance` \(environment-provided\)/m, "a matrix or Roles row"],
+];
+
+test("cross-cutting (FR-7 BUT, NFR-3): no command copies a gate row, report line, pin rule, call form or matrix row", () => {
+  const hits = [];
+  for (const f of commandFiles()) {
+    const t = read(f);
+    for (const [re, what] of HELD_ONCE) if (re.test(t)) hits.push(`${path.basename(f)}: ${what}`);
+  }
+  assert.deepEqual(hits, []);
+});
+
+// A paragraph that names MWG is conditional when it ties the use to web UI, the route field, the typed mode, or recorded guide ids.
+const CONDITIONAL = /web UI|`platform mwg`|\/akili-audit modern-web|Modern Web Mode|modern-web mode|records MWG guide ids|Skill Map MWG row|`modern-web-\*\.md`/;
+
+test("cross-cutting (FR-7 AND IT MUST): every command mention of MWG is conditional on web UI, platform mwg, the typed mode or recorded guide ids", () => {
+  const unconditional = [];
+  let seen = 0;
+  for (const f of commandFiles()) {
+    for (const b of blocks(f)) {
+      if (!(MWG_NAME.test(b) || /modern-web/.test(b))) continue;
+      seen++;
+      if (!CONDITIONAL.test(b)) unconditional.push(`${path.basename(f)}: ${b.slice(0, 90)}`);
+    }
+  }
+  assert.ok(seen >= 6, "the shipped pointer lines are found");
+  assert.deepEqual(unconditional, []);
+});
+
+test("cross-cutting (NFR-2): no MWG file is in the repository: the only tracked MWG-named paths are the rules file, this suite and the spec folder", () => {
+  const tracked = spawnSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" });
+  assert.equal(tracked.status, 0);
+  const files = tracked.stdout.split("\n").filter(Boolean);
+  assert.ok(files.length > 100);
+  const named = files.filter((f) => /modern-web|mwg/i.test(f) && !f.startsWith("docs/specs/changes/modern-web-guidance/"));
+  assert.deepEqual(named.sort(), [".claude/skills/impeccable-bridge/references/modern-web.md", "test/modern-web-guidance.test.js"]);
+  assert.deepEqual(files.filter((f) => /(^|\/)LICENSE$/.test(f) && /modern-web/i.test(read(path.join(ROOT, f)).slice(0, 400))), []);
+});
+
+test("cross-cutting (NFR-1): engines.node stays >=18.0.0 and no test spawns npx or reaches the network (a loopback node:http fixture is not the network)", () => {
+  assert.equal(JSON.parse(read(path.join(ROOT, "package.json"))).engines.node, ">=18.0.0");
+  const npx = new RegExp("(spawn|exec)\\w*\\(\\s*[\"'`]npx");
+  const net = new RegExp("require\\([\"'](node:)?https[\"']\\)|\\bfetch\\(");
+  const offenders = [];
+  for (const n of fs.readdirSync(__dirname).filter((x) => x.endsWith(".js"))) {
+    const t = read(path.join(__dirname, n));
+    if (npx.test(t) || net.test(t)) offenders.push(n);
+  }
+  assert.deepEqual(offenders, []);
+});
+
+test("cross-cutting (FR-10 THEN): install --tool all --dry-run on a clean HOME plans skills but no MWG skill or directory (SKILL_FILE_EXPECTED in install-cursor.test.js is the file-level control)", () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "akili-t14-"));
+  const env = { ...process.env, HOME: home, USERPROFILE: home, CODEX_HOME: path.join(home, ".codex"), CURSOR_CONFIG_DIR: path.join(home, ".cursor") };
+  try {
+    const r = spawnSync(process.execPath, [path.join(ROOT, "bin", "akili.js"), "install", "--tool", "all", "--dry-run"], { cwd: ROOT, env, encoding: "utf8" });
+    const out = (r.stdout || "").replace(/\x1b\[[0-9;]*m/g, "");
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(out, /impeccable-bridge/, "the plan lists the bridge skill, so the scan is not inert");
+    assert.doesNotMatch(out, /modern-web|mwg/i);
+    assert.deepEqual(fs.readdirSync(home), [], "a dry run writes nothing");
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});

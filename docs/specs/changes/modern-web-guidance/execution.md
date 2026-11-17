@@ -1039,3 +1039,108 @@ The tasks (14) and review-round (~24) budgets are unchanged. The new figure is r
 | Review rounds | 18 | ~24 |
 
 Within budget. Continuing to T14.
+
+### T14: Cross-cutting checks and gates
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 3) |
+| Date | 2026-11-17 |
+| Attempts | 3 |
+| Requirements covered | FR-5 BUT; FR-7 BUT; FR-10 THEN; NFR-1 to NFR-4; FR-7 AND IT MUST (amended 2026-11-17) |
+| Design | §15; P-14 |
+| Skills | `tdd` (Leader-assigned; the task lists it as recommended) |
+| Effort | attempt 1 medium · attempt 2 high · attempt 3 xhigh (T2 ceiling reached on the last attempt; the ceiling rung never fired) |
+
+**Attempt 1: FAIL**
+- **Files changed:** `test/modern-web-guidance.test.js` (+94), a *cross-cutting* section with 6 tests:
+  - FR-5 BUT: no `modern-web-guidance@latest`.
+  - FR-7 BUT / NFR-3: `HELD_ONCE` gate rows, report lines, call forms, the pin and the matrix row are absent from every command.
+  - FR-7 AND IT MUST: every MWG paragraph in a command is conditional, with a floor of at least 6.
+  - NFR-2: `git ls-files` lists no MWG-named path.
+  - NFR-1: `engines.node` is `>=18.0.0`, and no test uses `npx` or the network.
+  - FR-10: a clean-HOME `install --tool all --dry-run` through `process.execPath`.
+- **Implementer verification:** `npm test` 2101/0. Gates green. Reds: test 84 (`@latest` in `docs/cli.md`), test 85 (gate row in `akili-test.md`), test 86 (an unconditional mention in `akili-validate.md`).
+- **Evidence re-run (Leader-inline): VERIFIED.** Same gates and counts. Reds 72, 84, 85 and 86 were reproduced and byte-restored. The real-HOME dry run named `references/modern-web.md` only inside `skip existing … impeccable-bridge (differs …)` lines, which is AKILI's own rules file.
+- **Reviewer (opus, full): FAIL.** The FR-5 scan was built from `.md`/`.json` files plus `bin`/`scripts`/`package.json`, so 68 of the 430 packed files went unscanned (for example `docs/ci/akili-review.claude.yml`). This violates FR-5 *Upstream text says `@latest`* BUT and §15 ("scans every packaged and shipped-docs file").
+- **Runtime events:** none.
+
+**Attempt 2: FAIL**
+- **Files changed:** `packedFiles()` now walks the `package.json` `files` manifest, with `!` negations and no extension filter, skipping binaries. `CHANGELOG.md` is cut to `[Unreleased]`. Advisories applied: the FR-10 temp HOME is removed in a `finally`, and the test is retitled "no MWG skill or directory", naming `SKILL_FILE_EXPECTED` as the file-level control. Net +114.
+- **Implementer verification:** 2101/0, gates green. Reds: 84 (CI yml), 84 + 72 (cli), 85, 86.
+- **Evidence re-run (Leader-inline): VERIFIED.** 2101/2101 and the gates were identical. Plants in the CI yml, a `ready` row in `akili-test.md` and an unconditional mention in `akili-specify.md` turned 84, 85 and 86 red. Byte-restored.
+- **Reviewer (opus, full, override (e)): FAIL.** The manifest walk returned 428 of npm's 430 files. It missed npm's auto-included `package.json` and `.claude/README.md`, so a plant in `.claude/README.md` stayed green. Same violated rules.
+- **Runtime events:** none.
+
+**Attempt 3: PASS**
+- **Files changed:** an `NPM_OWN` regex taken from npm-packlist's strict rules (npm 10.9.9). It adds `package.json` and any README, COPYING or LICENSE in the root and in every directory above a manifest entry, de-duplicated. The test asserts both files are included. Comments were added for the `*`-only negations and the CHANGELOG cut. Net +121 vs HEAD.
+- **Parity:** npm packs 430 files and the walk finds 430, with 0 missing and 0 extra. The 2 PNG binaries are skipped, so 428 of 428 text files are scanned.
+- **Implementer verification:** reds with `+ ['.claude/README.md']`, `+ ['package.json']` and `+ ['docs/ci/akili-review.claude.yml']`. With the README plant, the attempt-2 version of the test stayed green, which demonstrates the gap.
+- **Evidence re-run (Leader-inline): VERIFIED.**
+  - Plants in five places (`.claude/README.md`, the `package.json` description, `docs/ci/akili-review.codex.yml`, a `ready` row in `akili-test.md`, an unconditional mention in `akili-audit.md`) turned 72, 84, 85 and 86 red.
+  - Test 84 went red on its own for `.claude/README.md` and again for `package.json`.
+  - Everything was byte-restored and checked with `cmp`.
+- **Reviewer (opus, full, override (e)): PASS.**
+  - Read-only parity check: `diff` between npm's list and `packedFiles()` is empty at 430/430, so both earlier gaps are resolved.
+  - Every scope bullet maps to a test, and there is no regression.
+  - Disqualifiers are avoided: no file list is a fixed array, and no test depends on a global `akili`. One exists on `PATH`, but the tests use `bin/akili.js`.
+  - Named checks 1–3 hold.
+- **Runtime events:** none.
+
+**Gates at T14 PASS (non-author re-run):**
+
+| Gate | Result |
+|---|---|
+| `npm test` | 2101 tests, 2101 pass, 0 fail, 0 skipped |
+| `npm run verify:cli` | 14 commands, 32 skills, 1 plugin, 8 resources (akili-specs v2.44.0) |
+| `npm run pack:dry-run` | 430 files |
+| `git diff --check` | clean |
+| `node bin/akili.js install --tool all --dry-run` | exit 0 (Implementer: installed 0, skipped 405, of which 313 identical and 92 differ; real HOME) |
+| `node bin/akili.js doctor --tool all` | exit 0 (5 tools HEALTHY, ok 43, missing 0; the `differs` counts come from older copies installed in the real HOME) |
+| CHANGELOG test count | the `[Unreleased]` MWG entry states no count (grep 0), so nothing needs re-checking |
+
+**Spawns:**
+- Implementer #1 (sonnet): 15 calls, 93,939 tokens, ended complete.
+- Reviewer #1 (opus): 9 calls, 85,498 tokens, ended fail.
+- Implementer #2 (sonnet): 8 calls, 78,903 tokens, ended complete.
+- Reviewer #2 (opus): 6 calls, 74,228 tokens, ended fail.
+- Implementer #3 (sonnet, xhigh): 15 calls, 91,599 tokens, ended complete.
+- Reviewer #3 (opus): 5 calls, 73,397 tokens, ended complete.
+
+**ADVISORY (recorded only):**
+- `NPM_OWN` mirrors npm-packlist internals, so a later npm rule change would drift silently. There is no runtime parity check against `npm pack`.
+- The walk does not skip OS junk. This is harmless because it only scans more.
+- The NFR-1 scan does not catch `http.get` to a non-loopback host, or a recursive `test/fixtures` network call.
+- `CONDITIONAL` judges whole blocks, so table rows pass together.
+- The NFR-2 path check cannot see a renamed or untracked copy. `SKILL_FILE_EXPECTED` covers that case.
+
+**Decisions made:** `tdd` was assigned by the Leader. No spec edits.
+
+**Final verification:** `npm test` 2101 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 14 / 14 | 14 |
+| LOC | ~1,391 (1,270 + 121) | ~1,400 (raised by JC 2026-11-17) |
+| Review rounds | 21 | ~24 |
+
+Within budget.
+
+## Summary: T1–T14 complete (2026-11-17)
+
+- **Tasks:** all 14 PASS.
+  - Passed on the first attempt: T3, T4, T5, T6, T7, T8, T9, T12, T13.
+  - Passed on attempt 2: T1, T2, T10, T11.
+  - Passed on attempt 3: T14.
+- **Evidence:** every non-author re-run was VERIFIED. No REVIEW_WAIVED or REVIEW_SKIPPED.
+- **JC rulings:**
+  - F-5 call form (`ENABLE_FILE_LOGGING=false`).
+  - FR-7 "unchanged in behavior".
+  - FR-4 kept as written (a non-ready MWG state may WARN in `/akili-validate`, never fail, stop or block).
+  - Budget raised to ~1,400 LOC at the T12 tripwire.
+  - The `akili-audit.md` frontmatter fix folded into T12.
+- **Branches:** PR 1 (T1–T8) is merged into `dev` as #145 (`6698b17`). PR 2 (T9–T14) is local and unpushed on `feat/modern-web-guidance`, awaiting JC.
+- **Final totals:** about 1,391 LOC of ~1,400, and 21 review rounds of ~24.
+- **Next:** `/akili-test` → `/akili-validate` → `/akili-archive`, plus the PR 2 push and PR, when JC approves.

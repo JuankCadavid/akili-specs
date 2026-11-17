@@ -287,7 +287,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~150 test LOC) |
 | Depends on | T13 |
 | Requirements | FR-5 BUT (no shipped `@latest`); FR-7 BUT (no copied rows); FR-10 THEN (no installer change, counts); NFR-1 to NFR-4; FR-7 AND IT MUST (non-UI specs unchanged in behavior: only conditional wording; amended 2026-11-17) |
