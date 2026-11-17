@@ -40,7 +40,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (no repo LOC; evidence in `execution.md`) |
 | Depends on | — |
 | Requirements | FR-1 (both scenarios, all clauses) |
@@ -65,7 +65,7 @@ flowchart LR
 | Requirements | FR-2 BUT (no skills-list path: *How it is reached*); FR-3 Not-web BUT; FR-4 all clauses; FR-5 all clauses except the shipped-`@latest` BUT; FR-6 both scenarios; FR-7 AND execute (*In a task*), test/validate reads; FR-8 procedure (*Audit scan*); FR-10 install routes THEN/AND |
 | Design | §8.1 (every section, both tables), §8.3 steps 1–7, §8.5; DD-5 to DD-8, DD-14, DD-15 |
 | Scope | Create `.claude/skills/impeccable-bridge/references/modern-web.md` with these sections, in this order: <ol><li>*Role*</li><li>*How it is reached*</li><li>*Gate* (the six-state table)</li><li>*Pin*</li><li>*Call forms*</li><li>*Untrusted output*</li><li>*In a task*</li><li>*Test and validate reads*</li><li>*Disclosure*</li><li>*Audit scan*</li><li>*Install routes*</li><li>*Outside this gate*</li><li>*Attribution* (MIT AKILI file; MWG by Google Chrome, Apache-2.0, not affiliated)</li></ol> **No string `modern-web-guidance@latest`.** Update `SKILL_FILE_EXPECTED` (+1 term with a comment) and the `test/impeccable-bridge.test.js` file list (P-18) |
-| Tests | New `test/modern-web-guidance.test.js`, section *rules file*. One assertion per clause: <ul><li>the six state heads and their report lines, each containing `not run:` except `ready`</li><li>"continue" on the five that are not `ready`</li><li>the `DISABLE_TELEMETRY=1` prefix rule</li><li>no `npx` before consent</li><li>no-answer = declined</li><li>pre-approved ≠ consent</li><li>never fall back to unpinned</li><li>default pin `1.0.1`</li><li>the pin grammar and the invalid-pin line</li><li>the skills-list prohibition</li><li>the disclosure targets and its forbidden targets</li><li>the untrusted-output rule</li><li>the route table rows, with Grok Bot absent and Cursor/OpenCode marked unverified</li></ul> |
+| Tests | New `test/modern-web-guidance.test.js`, section *rules file*. One assertion per clause: <ul><li>the six state heads and their report lines, each containing `not run:` except `ready`</li><li>"continue" on the five that are not `ready`</li><li>the `DISABLE_TELEMETRY=1` prefix rule and the always-on `ENABLE_FILE_LOGGING=false` prefix (execute-time amendment, T1 F-5)</li><li>no `npx` before consent</li><li>no-answer = declined</li><li>pre-approved ≠ consent</li><li>never fall back to unpinned</li><li>default pin `1.0.1`</li><li>the pin grammar and the invalid-pin line</li><li>the skills-list prohibition</li><li>the disclosure targets and its forbidden targets</li><li>the untrusted-output rule</li><li>the route table rows, with Grok Bot absent and Cursor/OpenCode marked unverified</li></ul> |
 | Falsifier | Delete the telemetry rule → the telemetry assertion goes red. Turn the `declined` row's "continue" into "stop" → the continue assertion goes red. Insert `modern-web-guidance@latest` → the no-`@latest` assertion goes red. Remove the file → the `impeccable-bridge.test.js` file list goes red |
 | Red run | predicted — greenfield artifact (observed in T2) |
 | Disqualifier | An assertion that passes on a fragment authored in the test instead of reading the shipped file; a section found by line number |
