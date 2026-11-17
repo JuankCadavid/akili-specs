@@ -12,7 +12,7 @@
 >   - `/akili-propose`: accepts that report as a source
 >   - `/akili-constitution` Step 8D: a row and a field
 >   - `/akili-execute`: no edit
-> - **Budget:** ~1,120 LOC (~280 rules and docs, ~840 tests). Planned at 9 tasks and ~20 review rounds; re-sized at Phase 3 to 14 tasks and ~24 rounds (`tasks.md`).
+> - **Budget:** ~1,120 LOC (~280 rules and docs, ~840 tests) (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire). Planned at 9 tasks and ~20 review rounds; re-sized at Phase 3 to 14 tasks and ~24 rounds (`tasks.md`).
 > - **Revised after judgment-day round 1:** 8 severe and 9 warning findings fixed, Fix only (`judgment.md`).
 
 ## 1. Document Control
@@ -266,7 +266,7 @@ Hand-off:
 | Signal | Estimate |
 |---|---|
 | Tasks | 9 at design time; **re-sized to 14 at Phase 3** (`tasks.md`): the split is per rules document (Step 3.2), and scope is unchanged |
-| LOC | ~280 rules and docs + ~840 tests (3× per clause, KZ-bugfix--init-ctrlc-abort-2; requirements carry 48+ THEN/AND/BUT clauses) = **~1,120** |
+| LOC | ~280 rules and docs + ~840 tests (3× per clause, KZ-bugfix--init-ctrlc-abort-2; requirements carry 48+ THEN/AND/BUT clauses) = **~1,120** (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire) |
 | Review rounds | ~20 at design time; **~24 after the Phase 3 split** (`tasks.md` Document Control) |
 
 Depth check: Standard fits. No task spans more than one rules document plus its pinned tests. ~1,120 LOC is over 400, so §13 recommends two PRs.

@@ -10,7 +10,7 @@
 | Leader | Claude Code session, `opus` (T1) |
 | Implementer / Reviewer models | `sonnet` (T2) / `opus` (T3). No Step 8E wrappers in this repo: fallback sub-prompt path, persona read by path |
 | Personas | `node bin/akili.js doctor --agents` 2026-11-17: leader, implementer, reviewer CURRENT; tester `prove-behavior` OUTDATED → fixed with `--fix --allow-branch` (backup `.agents/.backup/tester.md.20261117-124059`) |
-| Budget (tripwire) | Tasks 14 · LOC ~1,120 · review rounds ~24 (`tasks.md` Document Control) |
+| Budget (tripwire) | Tasks 14 · LOC ~1,120 (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire) · review rounds ~24 (`tasks.md` Document Control) |
 
 ## Task Execution History
 
@@ -965,3 +965,9 @@ Within budget. Continuing to T12.
 | Review rounds | 17 | ~24 |
 
 **BUDGET TRIPWIRE: LOC exceeded** (~1,191 against ~1,120, +71, about 6%). Cause: T12's test section came in at about 145 LOC against an estimate of about 80 (14 whole-tree claim tests instead of 5), and the docs ran about 67 against an estimate of about 50. Earlier tasks T10 and T11 were each slightly over because their rework added tests. Remaining work is T13 (about 35 LOC) and T14 (about 150 test LOC), projecting about 1,375. Per `/akili-execute` Step 2.4: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." Execution stopped here for JC's decision. Not auto-approved.
+
+### JC ruling: budget raise at the T12 tripwire (2026-11-17)
+
+**Decision (JC, 2026-11-17 5:16 PM America/Bogota):** the LOC budget is raised from ~1,120 to **~1,400**. Continue with T13 and T14 without pausing between tasks. Stop only for findings, decisions, failures or another tripwire. After T14, stop before any push or PR.
+
+The tasks (14) and review-round (~24) budgets are unchanged. The new figure is recorded in the Document Control rows of `design.md` (§ summary and §12), `tasks.md` and this file.

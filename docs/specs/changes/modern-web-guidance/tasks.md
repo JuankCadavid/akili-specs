@@ -5,7 +5,7 @@
 > - **14 tasks.** The design's 9 split per rules document (Step 3.2: a rules-text task stays within one rules document).
 > - **T1 is the security gate.** Every other task depends on it, and a `FAIL` stops the spec (FR-1).
 > - **Each wiring task carries its own contract tests**, one assertion per clause, in the new suite `test/modern-web-guidance.test.js`, and updates the consumer tests its edit turns red. T14 adds the cross-cutting checks and runs the full gates.
-> - **~1,120 LOC; ~24 review rounds.** The design said ~20; see Document Control.
+> - **~1,120 LOC (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire); ~24 review rounds.** The design said ~20; see Document Control.
 > - **No task is `skip-eligible`.**
 
 ## Document Control
@@ -16,7 +16,7 @@
 | Depth | Standard |
 | Approval Mode | `gated` |
 | Source | `requirements.md` (amended, approved), `design.md` (approved 2026-11-17 after judgment-day round 1, Fix only) |
-| Budget (tripwire) | Tasks **14** (design §12 said 9; the split is per rules document, scope unchanged). LOC **~1,120** (unchanged). Review rounds **~24** (design said ~20: +4 for the five small split-off tasks, at 1 round each) |
+| Budget (tripwire) | Tasks **14** (design §12 said 9; the split is per rules document, scope unchanged). LOC **~1,120** (unchanged at Phase 3) (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire). Review rounds **~24** (design said ~20: +4 for the five small split-off tasks, at 1 round each) |
 | Phase 3 gate | Continue — approved by JC, 2026-11-17, with the two-PR split (PR 1: T1–T8, PR 2: T9–T14) |
 | Design route / Backend route | n/a. No task changes a UI surface or backend code (rules text, docs and tests only) |
 
@@ -344,7 +344,7 @@ A single PR is also fine if JC prefers to bundle it with the #142–#144 release
 | 3 files exist, non-empty | `requirements.md` 300, `design.md` 313, `tasks.md` 338 lines |
 | `general-setup/` conventions | n/a. This repo has no `docs/specs/general-setup/` (`ls` → absent). Shape follows the archived precedent `2026-11-01-changes--go-backend-routing--golang-skill` |
 | Depth re-checked against the design | Standard kept. Re-sized at Phase 3 to 14 tasks (Document Control) |
-| Budget recorded | `design.md` §12 + Document Control above (14 tasks, ~1,120 LOC, ~24 rounds) |
+| Budget recorded | `design.md` §12 + Document Control above (14 tasks, ~1,120 LOC (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire), ~24 rounds) |
 | Reversion challenge | `design.md` §10: no DD reverts shipped behavior |
 | Premise Ledger | 27 rows; 1 `UNVERIFIED` (P-10, Low, owned by T12); every triggered class has rows (`consumer`, `live-path` P-26, `shared-state` P-27); consumer rows are copied into tasks' `Consumers` |
 | Defect classes mapped | `requirements.md` §8, with the accepted risks stated |
