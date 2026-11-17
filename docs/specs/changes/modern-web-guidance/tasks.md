@@ -78,7 +78,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~3 lines + ~20 test LOC) |
 | Depends on | T2 |
 | Requirements | FR-2 BUT (reached only through the bridge); NFR-3 |

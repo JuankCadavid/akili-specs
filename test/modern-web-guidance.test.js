@@ -268,3 +268,24 @@ test("modern-web.md rules file (design §8.1): role, outside-this-gate and attri
   assert.match(a, /Google Chrome \(Apache-2\.0/);
   assert.match(a, /not affiliated/);
 });
+
+// Table rows of the bridge's `## Roles` section, found by heading.
+const BRIDGE_SKILL = path.join(ROOT, ".claude", "skills", "impeccable-bridge", "SKILL.md");
+const rolesRow = () => row(section(read(BRIDGE_SKILL), "## Roles"), "`modern-web-guidance` (environment-provided)");
+
+test("bridge entry (FR-2, design §3): the Roles row names modern-web-guidance as environment-provided, supporting, platform implementation for web UI", () => {
+  const r = rolesRow();
+  assert.match(r, /environment-provided/);
+  assert.match(r, /Supporting/);
+  assert.match(r, /platform implementation for web UI/);
+});
+
+test("bridge entry (FR-2 BUT): the Roles row names references/modern-web.md and says never loaded directly", () => {
+  const r = rolesRow();
+  assert.match(r, /`references\/modern-web\.md`/);
+  assert.match(r, /never loaded directly/);
+});
+
+test("bridge entry (design §3): bridge version is 2.2", () => {
+  assert.match(read(BRIDGE_SKILL), /^  version: "2\.2"$/m);
+});

@@ -298,3 +298,52 @@ Within budget.
 | Review rounds | 4 | ~24 |
 
 Within budget. Note: T2 alone used about 38% of the LOC budget against its ~320 estimate (test LOC 270 vs ~200). Within the tripwire.
+
+### T3: Bridge entry row and version — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-2 BUT (reached only through the bridge); NFR-3 |
+| Skills / effort | `impeccable-bridge` / `medium` |
+| spawns | Implementer (sonnet): 4 calls, 79,643 tokens, ended complete. Reviewer (opus): 3 calls, 71,382 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 (T2–T8 run without pausing) |
+
+**Attempt 1**
+
+**Files changed**
+- `.claude/skills/impeccable-bridge/SKILL.md`: version 2.1 → 2.2, plus a new *Roles* row.
+- `test/impeccable-bridge.test.js:33`: the version pin.
+- `test/modern-web-guidance.test.js`: 3 new `bridge entry` tests.
+
+**Verification**
+- 37/37 pass.
+- Leader re-run: **VERIFIED** (37/37, `git diff --check` exit 0).
+
+**Falsifiers**
+- Changing "never loaded directly" to "loaded directly" makes `not ok 26 - bridge entry (FR-2 BUT)…` fail.
+- Reverting the version to 2.1 makes `not ok 1 - @akili-spec changes/impeccable-design FR-1/FR-2…` fail.
+
+**Reviewer: PASS.** It checked:
+- every Scope term is in the row;
+- FR-2 BUT and NFR-3 hold;
+- design §3 and §4 hold;
+- the row is consistent with `modern-web.md` *Role* and *How it is reached*;
+- the Disqualifier holds (`section` and `row` are scoped to `## Roles`).
+
+Its own re-run was 37/37. It raised no ADVISORY block (small diff).
+
+**Runtime events:** none.
+
+**Final verification:** 37 pass, 0 fail.
+
+**Running totals vs budget**
+
+| | So far | Budget |
+|---|---|---|
+| Tasks | 3 of 14 | |
+| LOC | ~447 (422 + 25) | ~1,120 |
+| Review rounds | 5 | ~24 |
+
+Within budget.
