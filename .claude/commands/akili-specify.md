@@ -481,7 +481,7 @@ Preferred backend skill rule:
 Preferred UI/UX skill rule:
 
 - every UI task's Scope carries a `Design route:` line (form in `design-routing.md` → *Design route line*), and its Done criteria carry that section's evidence sentence
-- a web UI task's `Design route:` line carries the `platform` field (values and the not-web form in `design-routing.md` → *Design route line*); `modern-web-guidance` is never added to a task's skills list, and a spec with no web UI task is unchanged
+- a web UI task's `Design route:` line carries the `platform` field (values and the not-web form in `design-routing.md` → *Design route line*); `modern-web-guidance` is never added to a task's skills list, and a spec with no web UI task is unchanged in behavior (no MWG gate, load or install route)
 - its skills list `impeccable-bridge` plus the project's `## Skill Map` stack skills (the implementation layer, per `design-routing.md`)
 - add `ui-ux-pro-max` only when the task needs catalog options (palette, font pairing, style by industry)
 - at `ENV-0` (Impeccable skill source `missing`) the lead is `frontend-design`, per `impeccable-bridge` → *Who does what in each state*; `stitch-design` remains the mockup fallback

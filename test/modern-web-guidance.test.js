@@ -452,5 +452,5 @@ test("specify (NFR-3): the bullet copies no field table row and a non-web spec i
   const b = specifyPlatformBullet();
   assert.doesNotMatch(b, /\|/);
   assert.doesNotMatch(b, /mwg, pin (default|skill-map)/);
-  assert.match(b, /no web UI task is unchanged/);
+  assert.match(b, /no web UI task is unchanged in behavior \(no MWG gate/);
 });

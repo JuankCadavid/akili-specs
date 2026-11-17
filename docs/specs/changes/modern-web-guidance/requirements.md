@@ -1,6 +1,6 @@
 # Requirements: Modern Web Guidance for web UI work (`modern-web-guidance`)
 
-> **Answer first.** Eleven behaviors. Before anything is wired, a recorded security verdict on the pinned upstream (FR-1). Governance admits Modern Web Guidance (MWG) as an environment-provided skill, reached only through recorded selectors (a web UI task's route, or a typed audit mode) and never through a skills list (FR-2). The design matrix gives MWG one job, platform implementation for web UI, under Impeccable's lead (FR-3). Every AKILI-directed MWG call passes a gate covering availability, Node ≥ 22, consent and telemetry, and survives a failed call (FR-4), and uses an exact version: an AKILI default, overridable per project (FR-5). MWG's disclosure lands in task evidence, never in spec documents or gate messages (FR-6). Specify, execute, test and validate reach MWG through the bridge (FR-7). `/akili-audit` gains an opt-in, report-only `legacy-scan` (FR-8). `/akili-constitution` can write a Skill Map row (FR-9). `akili install` ships and installs nothing new; the docs give per-tool install routes (FR-10). Docs and CHANGELOG state only verified facts (FR-11). Projects without a web UI see no change.
+> **Answer first.** Eleven behaviors. Before anything is wired, a recorded security verdict on the pinned upstream (FR-1). Governance admits Modern Web Guidance (MWG) as an environment-provided skill, reached only through recorded selectors (a web UI task's route, or a typed audit mode) and never through a skills list (FR-2). The design matrix gives MWG one job, platform implementation for web UI, under Impeccable's lead (FR-3). Every AKILI-directed MWG call passes a gate covering availability, Node ≥ 22, consent and telemetry, and survives a failed call (FR-4), and uses an exact version: an AKILI default, overridable per project (FR-5). MWG's disclosure lands in task evidence, never in spec documents or gate messages (FR-6). Specify, execute, test and validate reach MWG through the bridge (FR-7). `/akili-audit` gains an opt-in, report-only `legacy-scan` (FR-8). `/akili-constitution` can write a Skill Map row (FR-9). `akili install` ships and installs nothing new; the docs give per-tool install routes (FR-10). Docs and CHANGELOG state only verified facts (FR-11). Projects without a web UI see no behavior change.
 
 ## 1. Document Control
 
@@ -18,6 +18,7 @@
 | Phase 1 gate | Continue — approved by JC, 2026-11-17 |
 | Phase 2 corrections | C11 narrowed, C12 added, FR-11 BUT clause aligned: Antigravity's route and the eval figures were found in upstream README `v1.0.1` during design exploration (factual corrections, logged here) |
 | Judgment-day fix round 1 amendments (approved by JC at the Phase 2 gate, 2026-11-17) | JC chose **Fix only** with warnings included (2026-11-17). Amended: Glossary *Selector*; C13 added; FR-1 AND (telemetry); FR-2 (three selectors, no skills-list path); FR-4 (`consent needed` names telemetry, no answer = declined, new `call failed` state, telemetry opt-out on every call); FR-11 BUT (MDN citable). Source: `judgment.md` S-1, S-4, S-7, W-2, X-3, X-12; design P-8, P-24, P-25 |
+| Execute-time amendment (T6, FR-7) | JC, 2026-11-17, gate answer "Amend FR-7 wording": FR-7 AND IT MUST now says "unchanged in behavior … a UI route may carry `platform none — <reason>` (FR-3)". Reason: design §8.2 (shipped in T4) gives every UI route the sixth field, so an ENV-3 native-only route reads `platform none — native`, which FR-3 Not-web already allows. Surfaced by the T6 Reviewer |
 
 ## 2. Executive Summary
 
@@ -199,7 +200,7 @@ Each phase SHALL reach MWG only through the bridge and only for web UI work, wit
 - AND `/akili-test` gives a frontend or E2E Tester the guide ids recorded in `execution.md` as a source for platform-behavior assertions, when there are any
 - AND `/akili-validate`'s UI design review checks the built code against the guides recorded in `execution.md` and reports contradictions as findings
 - BUT no command copies the gate table, the pin rule or a matrix row; each names the bridge file and section
-- AND IT MUST leave specs with no web UI task unchanged in every phase
+- AND IT MUST leave specs with no web UI task unchanged in behavior in every phase: no MWG gate, load or install route; a UI route may carry `platform none — <reason>` (FR-3)
 
 ### FR-8: Opt-in brownfield inventory in `/akili-audit`
 

@@ -138,7 +138,7 @@ flowchart LR
 | Status | [x] |
 | Size | XS (~2 lines + ~25 test LOC) |
 | Depends on | T4 |
-| Requirements | FR-3 THEN (route carries the field) and Not-web THEN; FR-7 THEN specify, BUT (no copy), AND IT MUST (no web UI → unchanged); FR-2 BUT (never in a skills list) |
+| Requirements | FR-3 THEN (route carries the field) and Not-web THEN; FR-7 THEN specify, BUT (no copy), AND IT MUST (no web UI → unchanged in behavior, as amended 2026-11-17); FR-2 BUT (never in a skills list) |
 | Design | §8.2 route field; DD-3, DD-15; P-3, P-25 |
 | Scope | One bullet in *Preferred UI/UX skill rule*: a web UI task's route carries the `platform` field per `design-routing.md` → *Design route line*, and `modern-web-guidance` is never added to a task's skills list. The `:152` rule sentence pinned by `design-skill-routing-coverage.test.js` stays verbatim |
 | Tests | Suite section *specify*: the bullet names `design-routing.md`; it says never-in-skills-list; it copies no field table row |
@@ -290,7 +290,7 @@ flowchart LR
 | Status | [ ] |
 | Size | M (~150 test LOC) |
 | Depends on | T13 |
-| Requirements | FR-5 BUT (no shipped `@latest`); FR-7 BUT (no copied rows); FR-10 THEN (no installer change, counts); NFR-1 to NFR-4; FR-7 AND IT MUST (non-UI specs unchanged: only conditional wording) |
+| Requirements | FR-5 BUT (no shipped `@latest`); FR-7 BUT (no copied rows); FR-10 THEN (no installer change, counts); NFR-1 to NFR-4; FR-7 AND IT MUST (non-UI specs unchanged in behavior: only conditional wording; amended 2026-11-17) |
 | Design | §15; P-14 |
 | Scope | Suite section *cross-cutting*: <ul><li>no `modern-web-guidance@latest` in packaged or shipped-docs files (excluding `docs/specs/`, `test/`, `releases/`, CHANGELOG history)</li><li>no gate-table row, pin rule or matrix row copied into any command</li><li>every command mention of MWG is conditional on web UI / `platform mwg` / the typed mode</li><li>no MWG file in the repo (NFR-2)</li><li>`engines.node` still `>=18.0.0`; no test spawns `npx` or the network</li><li>`install --tool all --dry-run` plans no MWG file</li></ul> Then run every gate |
 | Tests | As scope |
@@ -317,7 +317,7 @@ flowchart LR
 | FR-5 Upstream `@latest` | T2 | — | T14 (no shipped `@latest`) |
 | FR-6 Disclosure placement | T2, T4 (Done criteria) | — | T2 |
 | FR-6 Trigger containment | T2 | — | — |
-| FR-7 Per phase | T6 | T4 (execute), T7 (test), T8 (validate); T6, T7, T8, T14 (non-UI unchanged) | T14 (no copies; each pointer task names the section) |
+| FR-7 Per phase | T6 | T4 (execute), T7 (test), T8 (validate); T6, T7, T8, T14 (non-UI unchanged in behavior, as amended 2026-11-17) | T14 (no copies; each pointer task names the section) |
 | FR-8 Scan runs | T9 (+T2 procedure) | T9 (verify, count); T9 (report content); T9, T10 (routing) | T9 |
 | FR-8 Not applicable / not ready | T9 | — | — |
 | FR-9 Web UI project | T11 | — | T11 |

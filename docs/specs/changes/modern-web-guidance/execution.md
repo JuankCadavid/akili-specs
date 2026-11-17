@@ -503,3 +503,41 @@ FR-7 AND IT MUST says "leave specs with no web UI task unchanged in every phase"
 | Review rounds | 8 | ~24 |
 
 Within budget.
+
+#### T6 amendment follow-up (FR-7) — PASS
+
+| Field | Value |
+|---|---|
+| JC ruling | 2026-11-17, gate answer "Amend FR-7 wording" |
+| Date | 2026-11-17 |
+| spawns | Implementer (sonnet) 3 calls, 60,275 tokens, ended complete; Reviewer (opus, the T6 Reviewer resumed) 2 calls, 80,001 tokens, ended complete |
+
+**Execute-time spec edits, made by the Leader when the ruling came in:**
+- `requirements.md` FR-7 AND IT MUST now reads "unchanged in behavior in every phase: no MWG gate, load or install route; a UI route may carry `platform none — <reason>` (FR-3)".
+- A new Document Control row in `requirements.md` records the amendment.
+- `requirements.md` *Answer first* now reads "see no behavior change". This was the Reviewer's sweep finding.
+- Three `tasks.md` rows are aligned: T6 Requirements, T14 Requirements, and the Coverage row for FR-7.
+- `proposal.md:33` is left as is. It is superseded by the requirements.
+
+**Implementer change (correction closure on shipped text):**
+- In `.claude/commands/akili-specify.md`, the T6 bullet's final clause changed from "is unchanged" to "is unchanged in behavior (no MWG gate, load or install route)".
+- In `test/modern-web-guidance.test.js`, the regex is updated to match.
+- Falsifier: reverting the clause makes `not ok 42` fail.
+- The Implementer said it skipped reading its persona for this one-clause task. This is recorded as an issue, with no effect on the result.
+
+**Verification:**
+- 112/112 tests pass.
+- Leader re-run: **VERIFIED**.
+- Reviewer: **PASS**. Conforms to the amended FR-7. The forward and backward sweep found no stale binding restatement.
+
+**Carried forward:** the amended FR-7 goes to the T7 and T8 Reviewer briefs as a named conformance check.
+
+**Running totals vs budget:**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 6/14 | 14 |
+| LOC | ~651 | ~1,120 |
+| Review rounds | 9 | ~24 |
+
+Within budget.
