@@ -463,3 +463,43 @@ Keyed on the obligation, not on `video`. Rule 2 was updated and rule 4 rewritten
 | Review rounds | 7 | ~24 |
 
 Within budget.
+
+### T6: `/akili-specify` pointer — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-3 THEN and Not-web THEN (both by pointer); FR-7 THEN specify, BUT, AND IT MUST; FR-2 BUT |
+| Skills / effort | `cognitive-doc-design` / `medium` |
+| Spawns | Implementer (sonnet): 5 calls, 73,680 tokens, ended complete. Reviewer (opus): 4 calls, 71,552 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 |
+
+**Attempt 1**
+
+- **Files changed**
+  - `.claude/commands/akili-specify.md`: one bullet in *Preferred UI/UX skill rule*. The `:152` bullet is unchanged.
+  - `test/modern-web-guidance.test.js`: 3 tests under *specify*, scoped to that bullet.
+- **Verification:** 112/112 pass. Leader re-run **VERIFIED** (112/112, `git diff --check` exit 0).
+- **Falsifier:** changing "never added" to "is added" gave `not ok 41`. The literal mutation was not applicable, because the bullet has no skills example; the Reviewer accepted the substitute as faithful.
+- **Not Done / Assumptions** (assumptions only): the bullet points at *Design route line* for the not-web form and does not restate it.
+- **Reviewer:** **PASS**. FR-3 is met by pointer and the pointer resolves. NFR-3 holds: no row is copied. Its own re-run passed 112/112.
+- **Runtime events:** none.
+
+**Spec tension surfaced by the Reviewer, presented to JC at this gate**
+
+FR-7 AND IT MUST says "leave specs with no web UI task unchanged in every phase". But design §8.2's `Platform` row, shipped in T4, gives every UI route a sixth field, so an ENV-3 native-only spec's route reads `platform none — native`. FR-3's Not-web scenario allows that ("absent, or reads `none — <reason>` on a UI route"). FR-7 says "unchanged". These are two approved clauses the shipped text cannot both satisfy literally. Per *Pivot Detection* (lightest evidence), this goes to JC as a one-line amendment proposal; the answer is recorded below.
+
+**Coverage note** (advisory): the tests only check the bullet that names `` `platform` ``. Adding MWG to the neighbouring skills-list bullet would stay green. The Disqualifier rules out a whole-file grep.
+
+**Final verification:** 112 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Actual | Budget |
+|---|---|---|
+| Tasks | 6/14 | 14 |
+| LOC | ~651 (617 + 34) | ~1,120 |
+| Review rounds | 8 | ~24 |
+
+Within budget.

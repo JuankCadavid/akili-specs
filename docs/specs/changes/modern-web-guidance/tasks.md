@@ -135,7 +135,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (~2 lines + ~25 test LOC) |
 | Depends on | T4 |
 | Requirements | FR-3 THEN (route carries the field) and Not-web THEN; FR-7 THEN specify, BUT (no copy), AND IT MUST (no web UI → unchanged); FR-2 BUT (never in a skills list) |

@@ -421,3 +421,36 @@ test("governance (FR-2, DD-1): MWG is not admitted to Vendored third-party (verb
   assert.doesNotMatch(vendored, /modern-web-guidance|Modern Web Guidance|MWG/);
   assert.match(vendored, /\*\*Current member: `impeccable`\*\*/);
 });
+
+// ---- specify (T6): the /akili-specify pointer bullet (FR-3, FR-7, FR-2 BUT, DD-15) ----
+
+const SPECIFY_CMD = path.join(ROOT, ".claude", "commands", "akili-specify.md");
+
+// The bullet of the "Preferred UI/UX skill rule:" block that names the platform field.
+function specifyPlatformBullet() {
+  const text = read(SPECIFY_CMD);
+  const start = text.indexOf("Preferred UI/UX skill rule:");
+  const end = text.indexOf("#### Step 3.3");
+  assert.ok(start >= 0 && end > start, "Preferred UI/UX skill rule block bounds");
+  const bullets = text.slice(start, end).split("\n").filter((l) => l.startsWith("- "));
+  const hit = bullets.filter((l) => l.includes("`platform`"));
+  assert.equal(hit.length, 1, "exactly one bullet names the platform field");
+  return hit[0];
+}
+
+test("specify (FR-3, FR-7): the bullet points a web UI task's route at design-routing.md -> Design route line", () => {
+  const b = specifyPlatformBullet();
+  assert.match(b, /web UI task/);
+  assert.match(b, /`design-routing\.md` → \*Design route line\*/);
+});
+
+test("specify (FR-2 BUT, DD-15): the bullet says modern-web-guidance is never added to a task's skills list", () => {
+  assert.match(specifyPlatformBullet(), /`modern-web-guidance` is never added to a task's skills list/);
+});
+
+test("specify (NFR-3): the bullet copies no field table row and a non-web spec is unchanged (FR-7)", () => {
+  const b = specifyPlatformBullet();
+  assert.doesNotMatch(b, /\|/);
+  assert.doesNotMatch(b, /mwg, pin (default|skill-map)/);
+  assert.match(b, /no web UI task is unchanged/);
+});
