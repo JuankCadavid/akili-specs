@@ -396,3 +396,70 @@ Within budget.
 | Review rounds | 6 | ~24 |
 
 Within budget.
+
+### T5: Governance rule 4 and the environment-provided paragraph — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-2: THEN; AND (three selectors); AND IT MUST (outcome per selector); BUT (all three prohibitions); AND (restatements inside `governance.md`) |
+| Skills / effort | `cognitive-doc-design` / `high` |
+| Spawns | Implementer (sonnet): 10 calls, 90,555 tokens, ended complete. Reviewer (opus): 9 calls, 83,303 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 |
+
+#### Attempt 1
+
+**Files changed**
+
+- `docs/skills/governance.md`:
+  - MWG named in the environment-provided paragraph
+  - rule 2 gains a "never narrows" sentence
+  - rule 4 rewritten: three selectors, the bridge gate, the never-skills-list rule, the outcome per selector, and "Today's instances"
+- `test/modern-web-guidance.test.js`: 5 *governance* tests
+
+**Verification**
+
+98/98 pass. The Leader re-run was **VERIFIED** (98/98, `git diff --check` exit 0).
+
+**Falsifiers**
+
+| Mutation | Result |
+|---|---|
+| Delete `(3)` | `not ok 36` |
+| Route "continues" → "stops" | `not ok 37` |
+| Add MWG to the vendored section | `not ok 39` |
+
+The Reviewer ran two more: deleting `(3)` failed test 36, and changing "referenced" to "vendored" failed test 35.
+
+**Sweep**
+
+Keyed on the obligation, not on `video`. Rule 2 was updated and rule 4 rewritten. The stale sentence "Specs without the selector… never reach the gate" was rewritten. *Supersession* and the Fusion Log are unchanged. The strings P-20 pins are kept verbatim, and their tests were not edited and are green.
+
+**Not Done / Assumptions** (assumptions only)
+
+- `(1)(2)(3)` are written inline because `numberedRule` stops at a blank line.
+- `AGENTS.md`, `docs/cli.md` and `akili-constitution.md` are left to T11/T12 (P-16).
+
+**Reviewer**
+
+**PASS**. FR-2 was walked term by term. The reworded (a) clause has the same meaning as §9, and it follows the wording constraint (keep the P-20 strings). DD-13 was respected. Its own re-run passed 98/98.
+
+**Runtime events:** none.
+
+**ADVISORY** (recorded only)
+
+- RISK/READABILITY: the *Vendored third-party* intro still lists only `orchestration`, `playwright-cli`, `hyperframes` and `archify` as covered by the environment-provided rule. Test 39 bans MWG tokens from that section, so the neutral fix would be "every environment-provided skill above". This is not an FR-2 violation and P-16 does not list it.
+- READABILITY: rule 4 is one dense paragraph, and "or another recorded selector does" is slightly circular.
+
+**Final verification:** 98 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Actual | Budget |
+|---|---|---|
+| Tasks | 5 of 14 | 14 |
+| LOC (added) | ~617 (558 + 59) | ~1,120 |
+| Review rounds | 7 | ~24 |
+
+Within budget.

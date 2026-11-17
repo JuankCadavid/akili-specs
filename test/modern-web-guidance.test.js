@@ -370,3 +370,54 @@ test("matrix (FR-6): the Done-criteria clause names the MWG report line and the 
   const sec = mdSection(matrixText(), "Design route line");
   assert.ok(sec.includes("and, when the route says `platform mwg`, the MWG report line and the disclosure (`modern-web.md` → *Disclosure*)"));
 });
+
+// ---- governance (FR-2, DD-1, DD-13, DD-15) ----
+const GOV = () => read(path.join(ROOT, "docs", "skills", "governance.md"));
+const govRule = (n) => {
+  const lines = GOV().split("\n");
+  const start = lines.findIndex((l) => l.startsWith(`${n}. **`));
+  assert.ok(start >= 0, `expected numbered rule ${n}`);
+  const out = [lines[start]];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^\d+\. \*\*/.test(lines[i]) || lines[i].trim() === "") break;
+    out.push(lines[i]);
+  }
+  return out.join(" ").replace(/\s+/g, " ");
+};
+const govEnvPara = () => GOV().split("\n\n").find((p) => p.includes("**Environment-provided skills are referenced, never vendored.**"));
+
+test("governance (FR-2, DD-1): the environment-provided paragraph names MWG as Google Chrome, Apache-2.0, referenced and never vendored", () => {
+  const p = govEnvPara().replace(/\s+/g, " ");
+  assert.match(p, /`modern-web-guidance` \(Modern Web Guidance, Google Chrome, Apache-2\.0: referenced, never vendored/);
+});
+
+test("governance (FR-2): rule 4 names the three selectors and the bridge gate", () => {
+  const r = govRule(4);
+  assert.match(r, /\(1\) a spec's `Deliverable` row/);
+  assert.match(r, /\(2\) a web UI task's route field `platform mwg`, including the same spec's `\/akili-test` and `\/akili-validate` reads/);
+  assert.match(r, /\(3\) a command mode the user types \(`\/akili-audit modern-web`\)/);
+  assert.match(r, /\(b\) that skill's own availability gate runs first, inside a packaged bridge/);
+});
+
+test("governance (FR-2): a Deliverable selector stops at the gate; the route and typed-mode selectors continue and report `not run`", () => {
+  const r = govRule(4);
+  assert.match(r, /a `Deliverable` selector \*\*stops\*\* at the gate/);
+  assert.match(r, /a route or typed-mode selector \*\*continues\*\* without the skill and reports `not run`/);
+  assert.match(govRule(2), /A route or typed-mode selector never narrows: it continues without the skill/);
+});
+
+test("governance (FR-2, DD-15): rule 4 bars an MWG skills-list, brief-name or Skill Map assignment", () => {
+  const r = govRule(4);
+  assert.match(r, /\*\*never a skills-list name\*\*: it is never named in a task's skills list, in a Leader brief's lead or support names, or as a Skill Map skill to assign or load/);
+  assert.match(r, /A Skill Map row for it is an availability and pin note only/);
+});
+
+test("governance (FR-2, DD-1): MWG is not admitted to Vendored third-party (verbatim)", () => {
+  const gov = GOV();
+  const start = gov.indexOf("### Vendored third-party (verbatim)");
+  const end = gov.indexOf("### Current assignment");
+  assert.ok(start >= 0 && end > start, "vendored section bounds");
+  const vendored = gov.slice(start, end);
+  assert.doesNotMatch(vendored, /modern-web-guidance|Modern Web Guidance|MWG/);
+  assert.match(vendored, /\*\*Current member: `impeccable`\*\*/);
+});

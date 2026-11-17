@@ -18,7 +18,8 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 Map are shipped by a *tool* rather than by AKILI — standing examples: an agent orchestrator's
 coordination skill (`orchestration`), Microsoft's `playwright-cli` browser-automation skill (the
 token-lean alternative to loading the Playwright MCP schemas into every session), and the
-`hyperframes` video-composition family, and `archify` (tt-a1i's interactive diagram renderer, MIT). Four rules govern them:
+`hyperframes` video-composition family, `archify` (tt-a1i's interactive diagram renderer, MIT), and
+`modern-web-guidance` (Modern Web Guidance, Google Chrome, Apache-2.0: referenced, never vendored, and no byte of it ships in this package). Four rules govern them:
 
 1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
    own binary serves the version-matched guide; a vendored copy goes stale the moment the tool
@@ -28,21 +29,16 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    environment-skill row records *what to use when it is present*, never an assumption that it is.
    A teammate without the tool simply never loads it, and every command still runs without it. The one
    narrowing is rule 4: a spec whose `Deliverable` selects an environment-provided skill stops at that
-   skill's availability gate instead of proceeding.
+   skill's availability gate instead of proceeding. A route or typed-mode selector never narrows: it continues without the skill.
 3. **Attribution stays with the author.** These skills are not AKILI's and carry no AKILI
    authorship frontmatter; the acceptance checklist below applies only to skills we ship.
 4. **Command text may load-direct one only behind a selector and a gate.** A command step may
-   **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a) the
-   spec records a `Deliverable` selector that calls for it and (b) that skill's own availability gate
-   runs first. Illustrative and Skill Map-builder mentions (for example the examples in
+   **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a) the spec records a `Deliverable` selector that calls for it, or another recorded selector does (the three below), and
+   (b) that skill's own availability gate runs first, inside a packaged bridge. The three selectors are (1) a spec's `Deliverable` row;
+   (2) a web UI task's route field `platform mwg`, including the same spec's `/akili-test` and `/akili-validate` reads of the guide ids that task recorded; and
+   (3) a command mode the user types (`/akili-audit modern-web`). Illustrative and Skill Map-builder mentions (for example the examples in
    `/akili-constitution` Step 8D that name `hyperframes`, `orchestration` or `playwright-cli`) direct no
-   load and are not restricted. Today's instance: `Deliverable: video` in the spec's Document Control
-   loads the packaged bridge skill `video-production` (AKILI-authored, listed
-   below), and the bridge, not the command, runs the availability gate for the environment-provided
-   `hyperframes` router (standalone, or plugin-namespaced) and routes to it. Specs without the selector,
-   including every software spec, never reach the gate and are unaffected. A spec whose `Deliverable`
-   calls for an environment-provided skill stops at the gate when that skill is missing, prints the
-   install route, and never falls back to a hand-built substitute.
+   load and are not restricted. An environment-provided skill reached this way is **never a skills-list name**: it is never named in a task's skills list, in a Leader brief's lead or support names, or as a Skill Map skill to assign or load, because the Implementer loads those names before coding. A Skill Map row for it is an availability and pin note only. Outcome when the skill is missing, per selector: a `Deliverable` selector **stops** at the gate, prints the install route, and never falls back to a hand-built substitute; a route or typed-mode selector **continues** without the skill and reports `not run`. Today's instances: `Deliverable: video` in the spec's Document Control loads the packaged bridge skill `video-production` (AKILI-authored, listed below), and the bridge, not the command, runs the availability gate for the environment-provided `hyperframes` router (standalone, or plugin-namespaced) and routes to it; the other two selectors reach `modern-web-guidance` only through `impeccable-bridge` → `references/modern-web.md`, which holds the gate. Specs with none of the selectors, including every software spec without a web UI task, never reach a gate and are unaffected.
 
 ### Vendored third-party (verbatim)
 

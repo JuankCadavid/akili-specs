@@ -116,7 +116,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | S (~12 lines + ~60 test LOC) |
 | Depends on | T2 |
 | Requirements | FR-2 THEN, AND (three selectors), AND IT MUST (outcome per selector), BUT (all three prohibitions), AND (restatements inside `governance.md`) |
