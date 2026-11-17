@@ -173,7 +173,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (~2 lines + ~20 test LOC) |
 | Depends on | T4 |
 | Requirements | FR-7 AND validate, BUT, AND IT MUST; FR-4 AND IT MUST NOT |

@@ -484,3 +484,34 @@ test("test (FR-7): not ready is recorded, never failed; the sentence copies no g
   const rows = text.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
   assert.equal(rows.length, 5);
 });
+
+// ---- validate (T8): the /akili-validate pointer sentence (FR-7, NFR-3) ----
+
+const VALIDATE_CMD = path.join(ROOT, ".claude", "commands", "akili-validate.md");
+
+// UI design review paragraph region: from its heading line to the Design Review record paragraph.
+function validatePointerRegion() {
+  const text = read(VALIDATE_CMD);
+  const start = text.indexOf("**UI design review (UI-heavy specs).**");
+  const tbl = text.indexOf("| Engine `declined` / `unavailable` |", start);
+  const end = text.indexOf("Record in the validation report a **Design Review** section", start);
+  assert.ok(start >= 0 && tbl > start && end > tbl, "UI design review bounds");
+  return text.slice(text.indexOf("\n", tbl), end);
+}
+
+test("validate (FR-7): the sentence follows the table, names modern-web.md -> Test and validate reads and the recorded guide ids", () => {
+  const r = validatePointerRegion();
+  assert.match(r, /When `execution\.md` records MWG guide ids/);
+  assert.match(r, /check the built code against those guides/);
+  assert.match(r, /`modern-web\.md` → \*Test and validate reads\*/);
+  assert.match(r, /a contradiction is a finding/);
+});
+
+test("validate (FR-7): not ready is recorded, never failed on; the sentence copies no gate row and the table keeps five rows", () => {
+  const r = validatePointerRegion();
+  assert.match(r, /other than `ready` is recorded, never failed on/);
+  assert.doesNotMatch(r, /\|/);
+  const text = read(VALIDATE_CMD);
+  const rows = text.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
+  assert.equal(rows.length, 5);
+});

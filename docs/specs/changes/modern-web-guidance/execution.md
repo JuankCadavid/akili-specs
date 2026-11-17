@@ -588,3 +588,56 @@ Within budget.
 | Review rounds | 10 | ~24 |
 
 Within budget.
+
+### T8: `/akili-validate` pointer — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-7: AND validate, BUT, and AND IT MUST (as amended 2026-11-17). FR-4: AND IT MUST NOT |
+| Skills / effort | `cognitive-doc-design` / `medium` |
+| Spawns | Implementer (sonnet): 8 calls, 72,731 tokens, ended complete. Reviewer (opus): 3 calls, 71,095 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 |
+
+#### Attempt 1
+
+**Files changed**
+- `.claude/commands/akili-validate.md`: one paragraph in *UI design review*, placed after *First-visit pass* and outside the five-row table.
+- `test/modern-web-guidance.test.js`: two tests under *validate*.
+
+**Verification**
+- 180/180 pass.
+- Leader re-run: **VERIFIED** (180/180, `git diff --check` exit 0).
+
+**Falsifier:** changing "never failed on." to "WARN/FAIL." turns `not ok 46` red.
+
+**Not Done / Assumptions:** assumptions only. The paragraph sits after *First-visit pass*, which the brief permitted.
+
+**Reviewer: PASS**
+- The pointer resolves to `modern-web.md` → *Test and validate reads*, and the two agree.
+- No row is copied (NFR-3), and P-21 holds.
+- Named check: the amended FR-7 passes on its second and last carry.
+- The Leader asked whether "never failed on" still lets a reader WARN the design gate. The Reviewer ruled this is not a FAIL:
+  - FR-4 forbids "fail, stop or block", and WARN does none of those.
+  - `modern-web.md` is equally silent on WARN.
+  - Forbidding WARN would be a new obligation, and that is the user's spec decision.
+
+  The Leader flags this to JC as an optional question. It does not gate T8.
+- The Reviewer's own re-run: 180/180.
+
+**Runtime events:** none.
+
+**Final verification:** 180 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 8 / 14 | 14 |
+| LOC | ~716 (683 + 33) | ~1,120 |
+| Review rounds | 11 | ~24 |
+
+Within budget.
+
+**PR 1 scope (T1–T8) complete.**
