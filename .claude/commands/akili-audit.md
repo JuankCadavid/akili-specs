@@ -1,6 +1,6 @@
 ---
 name: akili-audit
-description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD, or run `design` mode to evaluate the design quality of an existing product (read-only, P1–P3 findings).
+description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD, run `design` mode to evaluate the design quality of an existing product (read-only, P1–P3 findings), or run `modern-web` mode for an opt-in, report-only scan of web UI source for modern-platform replacements.
 license: MIT
 metadata:
   author: Juan Carlos Cadavid (jcadavid.com)

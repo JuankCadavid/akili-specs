@@ -53,6 +53,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 
 ## Usage Rules
 
+- Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`, `archify`, `modern-web-guidance`) have no row or page here. A spec whose `Deliverable` selects one stops at its availability gate; a web UI task's `platform mwg` route or the typed `/akili-audit modern-web` mode never stops and continues without the skill (see [governance](governance.md) rule 4 and [impeccable-bridge](impeccable-bridge.md#modern-web-guidance-environment-provided)).
 - Use the task-specific skills listed in `tasks.md` during `/akili-execute`; when a task lists none, derive them from the project's `## Skill Map`.
 - Use UI/UX skills when specs affect screens, flows, interactions, or accessibility (`impeccable` leads, through `impeccable-bridge`; `ui-ux-pro-max` is the reference catalog; `frontend-design` + `stitch-design` are the fallback when no Impeccable skill is found). `docs/ux-ui/design.md` is the single design source of truth.
 - Use `gsap-animation` for the animation implementation layer the design routing matrix assigns it (`impeccable-bridge` → `references/design-routing.md`), reading only the `references/` file matching the task.

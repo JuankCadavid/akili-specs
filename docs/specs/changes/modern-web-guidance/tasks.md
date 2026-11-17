@@ -249,7 +249,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~50 lines + ~80 test LOC) |
 | Depends on | T2–T11 |
 | Requirements | FR-11 THEN, AND, BUT; FR-10 install routes THEN/AND; FR-2 AND (restatements outside governance) |

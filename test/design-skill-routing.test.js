@@ -100,7 +100,7 @@ test("@akili-spec changes/design-skill-routing A-14: design skill set agrees acr
   assert.equal(cardSkills.length, 10, "eight + environment-provided + generic");
   const agents = read("AGENTS.md");
   const listed = section(agents, "Design Skills").split("\n").map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
-  assert.deepEqual([...listed].sort(), [...EIGHT].sort(), "AGENTS.md ## Design Skills names the eight");
+  assert.deepEqual([...listed].sort(), [...EIGHT, ...ENV_PROVIDED].sort(), "AGENTS.md ## Design Skills names the eight plus the environment-provided one");
 });
 
 test("@akili-spec changes/design-skill-routing W-1: every matrix cell holds exactly one lead", () => {

@@ -702,3 +702,167 @@ test("constitution (DD-15, FR-9): Step 8D items name no stack skill as MWG's car
   // MWG appears only inside item 3's row note and item 4's field, never in item 2's assignment instruction.
   assert.doesNotMatch(constitutionItem(2), /modern-web-guidance|MWG/);
 });
+
+// ---- docs (T12): bridge page, env-tool rows, restatements (FR-11, FR-10 routes, FR-2 AND, DD-10, DD-11, P-10, P-15, P-16, P-23, P-24) ----
+// Prose is hard-wrapped in places: every clause is matched on whitespace-collapsed text (flatText).
+
+const BRIDGE_DOC = path.join(ROOT, "docs", "skills", "impeccable-bridge.md");
+
+// Shipped docs: everything under docs/ except docs/specs, plus root guides and the packaged .claude tree.
+function shippedFiles() {
+  const out = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (p === path.join(ROOT, "docs", "specs") || e.name === "node_modules") continue;
+        walk(p);
+      } else if (/\.(md|json)$/.test(e.name)) out.push(p);
+    }
+  };
+  walk(path.join(ROOT, "docs"));
+  walk(path.join(ROOT, ".claude"));
+  for (const f of ["AGENTS.md", "README.md"]) out.push(path.join(ROOT, f));
+  return out;
+}
+
+// Blank-line-separated blocks of a file, whitespace-collapsed.
+const blocks = (file) => read(file).split(/\n\s*\n/).map(flatText);
+
+// The `## Modern Web Guidance (environment-provided)` section, up to the next `## ` heading.
+const bridgeMwg = () => flatText(section(read(BRIDGE_DOC), "## Modern Web Guidance (environment-provided)"));
+const MWG_NAME = /modern-web-guidance|Modern Web Guidance|\bMWG\b/;
+
+test("docs (FR-11): the bridge page has the MWG section: role, gate, pin and security record", () => {
+  const s = bridgeMwg();
+  assert.match(s, /supporting skill for the platform implementation of web UI tasks/);
+  assert.match(s, /never a lead/);
+  assert.match(s, /six states/i);
+  assert.match(s, /\*\*No state stops, fails or blocks\*\*/);
+  assert.match(s, /default is `1\.0\.1`/);
+  assert.match(s, /pin <x\.y\.z>/);
+  assert.match(s, /### Security record/);
+  assert.match(s, /verdict is `PASS`/);
+});
+
+test("docs (FR-11 AND): license Apache-2.0 and Google Chrome appear on the bridge page, the overview row, the cli row and AGENTS.md", () => {
+  const overviewRow = flatText(read(path.join(ROOT, "docs", "overview.md")).split("\n").find((l) => l.startsWith("| Modern Web Guidance")) || "");
+  const cliRow = flatText(read(path.join(ROOT, "docs", "cli.md")).split("\n").find((l) => l.startsWith("| Environment-provided skills")) || "");
+  const agentsLine = flatText(read(path.join(ROOT, "AGENTS.md")).split("\n").find((l) => l.startsWith("- `modern-web-guidance`")) || "");
+  for (const [name, text] of [["bridge page", bridgeMwg()], ["overview row", overviewRow], ["cli row", cliRow], ["AGENTS.md line", agentsLine]]) {
+    assert.match(text, /Apache-2\.0/, `${name} states Apache-2.0`);
+    assert.match(text, /Google Chrome/, `${name} attributes to Google Chrome`);
+    assert.doesNotMatch(text, /\bMIT\b/, `${name} never calls MWG MIT`);
+  }
+});
+
+test("docs (FR-11 BUT, P-10): no shipped doc pairs MWG with Grok Bot or states a Grok route", () => {
+  const hits = [];
+  for (const f of shippedFiles()) {
+    for (const b of blocks(f)) if (MWG_NAME.test(b) && /grok/i.test(b)) hits.push(`${path.relative(ROOT, f)}: ${b.slice(0, 80)}`);
+  }
+  assert.deepEqual(hits, []);
+  assert.doesNotMatch(bridgeMwg(), /grok/i);
+});
+
+test("docs (FR-10): the bridge page's install routes are upstream's, pinned form for Any, Cursor and OpenCode unverified", () => {
+  const s = bridgeMwg();
+  assert.match(s, /\/plugin marketplace add GoogleChrome\/modern-web-guidance`, then `\/plugin install modern-web-guidance@googlechrome`/);
+  assert.match(s, /codex plugin marketplace add GoogleChrome\/modern-web-guidance`, then `codex plugin add modern-web-guidance@googlechrome`/);
+  assert.match(s, /agy plugin install https:\/\/github\.com\/GoogleChrome\/modern-web-guidance/);
+  assert.match(s, /Cursor, OpenCode \| Upstream's generic `npx skills add GoogleChrome\/modern-web-guidance` \| Unverified for these hosts/);
+  assert.match(s, /`npx modern-web-guidance@<pin> install`/);
+  assert.match(s, /never runs them/);
+  assert.match(s, /Which version a plugin route installs is not settled/);
+});
+
+test("docs (FR-11 BUT, DD-11, P-15, P-24): eval figures and MDN stewardship appear only in a block that cites the upstream README at v1.0.1 as upstream's own statement", () => {
+  const stray = [];
+  let seen = 0;
+  for (const f of shippedFiles()) {
+    for (const b of blocks(f)) {
+      if (!/52–60|82–96|\bMDN\b/.test(b)) continue;
+      // Only blocks about MWG are in scope: the MDN name is used elsewhere in the repository.
+      if (!MWG_NAME.test(b) && !/\b52–60|82–96/.test(b)) continue;
+      seen++;
+      if (!(/README/.test(b) && /v1\.0\.1/.test(b) && /not verified by AKILI/.test(b))) stray.push(`${path.relative(ROOT, f)}: ${b.slice(0, 90)}`);
+    }
+  }
+  assert.ok(seen >= 1, "the bridge page carries the cited statements");
+  assert.deepEqual(stray, []);
+});
+
+test("docs (FR-11 BUT): the eval figures are exactly upstream's 52–60% and 82–96%, labelled and never as an AKILI result", () => {
+  const b = blocks(BRIDGE_DOC).find((x) => x.startsWith("Cited to the upstream README"));
+  assert.ok(b, "the Upstream's own statements paragraph exists");
+  assert.match(b, /unguided agents scored 52–60% and guided agents 82–96%/);
+  assert.match(b, /stewarded by the Google Chrome, Microsoft Edge, Mozilla Firefox and MDN teams/);
+});
+
+test("docs (FR-11, KZ-changes--archify-diagrams-1): no shipped file links the spec path or names an unpinned MWG package", () => {
+  const spec = [];
+  const unpinned = [];
+  for (const f of shippedFiles()) {
+    const t = flatText(read(f));
+    if (/specs\/changes\/modern-web-guidance/.test(t)) spec.push(path.relative(ROOT, f));
+    if (/modern-web-guidance@latest/.test(t)) unpinned.push(path.relative(ROOT, f));
+  }
+  assert.deepEqual(spec, [], "no shipped file names the spec folder (archive moves it)");
+  assert.deepEqual(unpinned, [], "no shipped file names an unpinned MWG package");
+});
+
+test("docs (FR-11 BUT): the security record claims nothing beyond the verdict: one version, traced not read, Windows unverified", () => {
+  const s = bridgeMwg();
+  assert.match(s, /It covers that version only/);
+  assert.match(s, /traced from its entry point, not read line by line/);
+  assert.match(s, /The Windows call form is unverified/);
+  assert.match(s, /no claim here goes beyond this verdict/);
+  assert.doesNotMatch(s, /\b(guarantee[sd]?|fully secure|audited line by line)\b/i);
+});
+
+test("docs (FR-2 AND, P-16): docs/cli.md env row lists MWG and states the per-selector outcome", () => {
+  const rowText = flatText(read(path.join(ROOT, "docs", "cli.md")).split("\n").find((l) => l.startsWith("| Environment-provided skills")) || "");
+  assert.match(rowText, /`modern-web-guidance`/);
+  assert.match(rowText, /a spec whose `Deliverable` selects one .* stops at that skill's availability gate/);
+  assert.match(rowText, /A route or typed-mode selector never stops: .*`platform mwg` route or `\/akili-audit modern-web`.* continues without it and reports `not run`/);
+});
+
+test("docs (FR-2 AND, P-16, T11 forward pointer): every restatement of rule 4 gains the per-selector outcome", () => {
+  const need = [
+    ["docs/flow.md", /a `Deliverable` selector stops at its gate\)\. Modern Web Guidance is environment-provided too, but a web UI task's `platform mwg` route and the typed `\/akili-audit modern-web` mode never stop: they continue without it and report `not run`/],
+    ["docs/skills/README.md", /A spec whose `Deliverable` selects one stops at its availability gate; a web UI task's `platform mwg` route or the typed `\/akili-audit modern-web` mode never stops and continues without the skill/],
+    ["docs/overview.md", /Nothing stops: the step continues without it and reports `not run`/],
+    ["docs/skills/video-production.md", /Modern Web Guidance, also environment-provided, is reached by different selectors \(a web UI route, a typed audit mode\) that never stop/],
+    ["AGENTS.md", /\(a `Deliverable` selector stops at its gate\)/],
+    ["AGENTS.md", /never in a skills list, never stops a step/],
+  ];
+  for (const [f, re] of need) assert.match(flatText(read(path.join(ROOT, f))), re, `${f} carries the outcome`);
+});
+
+test("docs (FR-2 AND, P-16): AGENTS.md Design Skills names MWG as environment-provided and supporting; Skill Usage line unchanged in shape", () => {
+  const ds = flatText(section(read(path.join(ROOT, "AGENTS.md")), "## Design Skills"));
+  assert.match(ds, /- `modern-web-guidance` — environment-provided \(Google Chrome, Apache-2\.0\), supporting only/);
+  assert.match(ds, /never a lead/);
+});
+
+test("docs (P-23): the docs that list audit report kinds name the modern-web kind and keep it out of drift", () => {
+  const flow = flatText(read(path.join(ROOT, "docs", "flow.md")));
+  assert.match(flow, /\| `docs\/specs\/audits\/modern-web-<YYYY-MM-DD>\[-<safe-branch>\]\[-N\]\.md` \| `\/akili-audit modern-web` \|.*Never a drift source/);
+  assert.match(flow, /a `security-\*\.md` index and a `modern-web-\*\.md` report are not drift sources/);
+  const cmdPage = flatText(read(path.join(ROOT, "docs", "commands", "akili-audit.md")));
+  assert.match(cmdPage, /\/akili-audit modern-web \[<path>\]/);
+  assert.match(cmdPage, /a `modern-web-\*\.md` report are not drift reports/);
+  assert.match(cmdPage, /opt-in .* and report-only/);
+  assert.match(flatText(read(path.join(ROOT, "docs", "commands", "README.md"))), /`modern-web` mode writes `modern-web-<YYYY-MM-DD>\[-<safe-branch>\]\[-N\]\.md`/);
+  assert.match(flatText(read(path.join(ROOT, "docs", "overview.md"))), /`\/akili-audit modern-web` is an opt-in, report-only scan/);
+});
+
+test("docs (user-approved addition): the akili-audit frontmatter description is one line and names the modern-web mode", () => {
+  const fm = /^---\n([\s\S]*?)\n---/.exec(auditText());
+  assert.ok(fm, "frontmatter present");
+  const descLines = fm[1].split("\n").filter((l) => l.startsWith("description:"));
+  assert.equal(descLines.length, 1);
+  assert.match(descLines[0], /`design` mode/);
+  assert.match(descLines[0], /`modern-web` mode/);
+  assert.match(descLines[0], /report-only/);
+});

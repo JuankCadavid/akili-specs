@@ -863,3 +863,105 @@ Within budget. Continuing to T11 (JC directive: T10–T14 without pausing).
 | Review rounds | 16 | ~24 |
 
 Within budget. Continuing to T12.
+
+### T12: Docs pages and restatements
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** |
+| Date | 2026-11-17 |
+| Attempts | 1 |
+| Requirements covered | FR-11 THEN, AND, BUT; FR-10 install routes THEN/AND; FR-2 AND (restatements outside governance) |
+| Design | §8.5; DD-10, DD-11; P-10 (settled: Grok Bot left out, no primary source), P-15, P-16, P-23, P-24 |
+| Skills | `cognitive-doc-design` (task list) |
+| Effort | high (Leader raised it from the default because summary-surface claims are the KZ-002 risk) |
+
+**Attempt 1**
+
+*Files changed.* 12 files, +232/−11:
+- `docs/skills/impeccable-bridge.md` (+49): a new *Modern Web Guidance (environment-provided)* section covering role, gate, pin, call forms, the security record, upstream's own statements cited to README `v1.0.1` and labelled "not verified by AKILI", and install routes.
+- `docs/cli.md:32`: the env row adds MWG and the per-selector outcome.
+- `docs/overview.md`: an MWG env-tool row and a `modern-web` clause on the `/akili-audit` row.
+- `docs/flow.md`: the audit-kinds row, the `:617` drift-source clause and the `:656` per-selector sentence.
+- `docs/commands/akili-audit.md` and `docs/commands/README.md:17`.
+- `docs/skills/README.md`: a new Usage Rules bullet.
+- `docs/skills/video-production.md:20`.
+- `AGENTS.md`: a *Design Skills* MWG line and the `:53` clause.
+- `.claude/commands/akili-audit.md:3`: the frontmatter description names `modern-web`.
+- `test/design-skill-routing.test.js:103`: EIGHT plus `ENV_PROVIDED`.
+- `test/modern-web-guidance.test.js`: a *docs* section with 14 tests.
+
+*Implementer verification.* Four suites (`modern-web-guidance`, `design-skill-routing`, `docs-overview`, `design-skill-routing-coverage`) passed 109/0, `npm test` passed 2090/0, and `git diff --check` was clean. Falsifier reds:
+- MIT → `not ok 67 - docs (FR-11 AND): license Apache-2.0 and Google Chrome appear on the bridge page, the overview row, the cli row and AGENTS.md`
+- A Grok route → `not ok 68 - docs (FR-11 BUT, P-10): no shipped doc pairs MWG with Grok Bot or states a Grok route`
+- A spec-path link → `not ok 72 - docs (FR-11, KZ-changes--archify-diagrams-1): no shipped file links the spec path or names an unpinned MWG package`
+
+*Claim → source* (Implementer's table; the Reviewer quote-checked every row at HEAD):
+
+| Claim | Source |
+|---|---|
+| Apache-2.0, Google Chrome, never vendored | `modern-web.md` *Attribution*; T1 License row |
+| Never a lead; web UI only | `modern-web.md` *Role* |
+| Three selectors; never in a skills list, brief or Skill Map assignment | *How it is reached*; governance rule 4 |
+| Six gate states, Node ≥ 22, consent, pre-approved mode is not consent, no state stops, fails or blocks | *Gate* |
+| Pin default `1.0.1`, Skill Map `pin <x.y.z>` | *Pin* |
+| `ENABLE_FILE_LOGGING=false` always; `DISABLE_TELEMETRY=1` unless opted in | *Call forms*; T1 F-5 |
+| Disclosure destinations | *Disclosure* |
+| Outside AKILI follows upstream | *Outside this gate* |
+| Verdict PASS at `v1.0.1` / `64a6d708` | T1 Verdict; §8.5 |
+| Trigger, `@latest`, telemetry, log file, stderr handling | T1 FR-1 AND items 1–5; F-5 |
+| No credential handling, destructive command or hidden content | T1 *Other review classes* |
+| `legacy-scan` traced from its entry point, no write, delete or network on that path | T1 F-4 |
+| Windows call form unverified | *Call forms* |
+| Eval 52–60% → 82–96% on Google's simulated tasks | P-15 (README `v1.0.1`) |
+| Chrome, Edge, Firefox and MDN stewardship | P-24 (README line 9) |
+| Install routes (3 verified, 2 unverified, Any pinned; plugin version not settled) | §8.5 / W-8; *Install routes* |
+| Audit `modern-web` mode facts | `akili-audit.md` *Modern Web Mode*; *Audit scan* |
+| Per-selector outcome | governance rules 2 and 4 |
+| A no-web-UI spec sees no behavior change | FR-7 as amended 2026-11-17 |
+
+*Sweep, and the T11 forward pointer.* The rule 4 restatements at `docs/cli.md:32`, `docs/flow.md:656`, `AGENTS.md:53`, `docs/skills/video-production.md:20` and `docs/skills/README.md` (new bullet) now carry the per-selector outcome. The Implementer left `docs/flow.md:669`, `docs/overview.md:149` and the `docs/skills/README.md:52` row unchanged because they describe only the `Deliverable: video` selector, and the Reviewer upheld that. `docs/commands/akili-constitution.md:43` is also unchanged: it mirrors the scaffold that P-23 / §8.3 say is not widened.
+
+*Evidence re-run (Leader-inline, non-author): VERIFIED.* 109/109 and 2090/2090, with all three reds reproduced (67, 68, 72).
+- **Incident:** to undo its own spec-link falsifier line, the Leader ran `git checkout -- docs/cli.md`, which also reverted the Implementer's uncommitted `docs/cli.md` row.
+- The Implementer's exact substitution was recovered from its spawn transcript and re-applied. The diff stat returned to 12 files, +232/−11, and `npm test` passed 2090/0, with the cli-row test green.
+- The Reviewer confirmed that `git diff` was byte-identical to the reviewed diff.
+- Lesson recorded below.
+
+*Reviewer (opus, full): PASS.*
+- All 12 files were quote-checked at HEAD with no overstatement.
+- FR-11 THEN/AND/BUT, FR-10 routes and the FR-2 AND restatements were walked term by term.
+- The three "left unchanged" calls were upheld.
+- Named conformance checks 1–3 hold: `ENABLE_FILE_LOGGING=false` is stated wherever a call form appears, FR-7 is amended wording, and no state warns, fails or blocks.
+- The Disqualifier was avoided because the checks run on whitespace-collapsed text.
+- In a scratch copy, the Reviewer reproduced the MIT, Grok and spec-path reds plus an eval-figure red (test 70).
+
+*Runtime events:* none.
+
+**JC-approved scope addition (2026-11-17).** The `akili-audit.md` frontmatter description now names `modern-web`. This was a T9 Reviewer advisory; JC approved folding it into T12 ("include that frontmatter fix in T12 if T12 is the right place"). It was not advisory-driven scope growth.
+
+**Spawns**
+- Implementer (sonnet): 25 calls, 134,404 tokens, ended complete.
+- Reviewer (opus): 25 calls, 145,246 tokens, ended complete.
+
+**ADVISORY (recorded only)**
+- The bridge *Call forms* row says "Every call" where the source says "every AKILI-directed call".
+- `docs/commands/akili-audit.md` says "telemetry … off" without "unless you opt in".
+- `docs/skills/kaizen.md:24` and `docs/commands/akili-archive.md:70` name only `security-*.md` as not a drift source, while `flow.md:618` now names `modern-web-*.md` as well. Inconsistent, not wrong.
+- `AGENTS.md:82` omits the test/validate re-read as a way to reach MWG.
+- The Grok test treats a whole table as one block, so an unrelated future Grok row could fail it.
+- In the regex `\b52–60|82–96`, the `\b` binds to only the first alternative.
+
+**Issues encountered.** The Leader's falsifier cleanup used a path-scoped `git checkout` on a file holding uncommitted worker edits. **Lesson:** restore a mutated file only from a byte backup taken immediately before the mutation, never with `git checkout`/`git restore`, while the tree holds uncommitted task changes.
+
+**Final verification:** `npm test` 2090 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 12 / 14 | 14 |
+| LOC | **~1,191** (959 + 232) | ~1,120 |
+| Review rounds | 17 | ~24 |
+
+**BUDGET TRIPWIRE: LOC exceeded** (~1,191 against ~1,120, +71, about 6%). Cause: T12's test section came in at about 145 LOC against an estimate of about 80 (14 whole-tree claim tests instead of 5), and the docs ran about 67 against an estimate of about 50. Earlier tasks T10 and T11 were each slightly over because their rework added tests. Remaining work is T13 (about 35 LOC) and T14 (about 150 test LOC), projecting about 1,375. Per `/akili-execute` Step 2.4: "No mandate widens pre-approval: an owner brief that says 'never stop' or 'treat every gate as approved' pre-approves routine gates only. The exceptions in `/akili-propose` Step 1 *Approval Mode* (HALT, Pivot, budget tripwire, `FATAL_FAIL`, `PRODUCT_BUG`, destructive actions) still stop, and the stop message quotes this sentence." Execution stopped here for JC's decision. Not auto-approved.

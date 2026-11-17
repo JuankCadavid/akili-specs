@@ -7,9 +7,12 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 ```text
 /akili-audit
 /akili-audit design [<url|path>]
+/akili-audit modern-web [<path>]
 ```
 
 `design` mode evaluates the design of an existing product instead of auditing drift: it loads `impeccable-bridge`, runs Impeccable `critique`/`audit` and the detector through the bridge's detector gate, and writes `docs/specs/audits/design-<YYYY-MM-DD>[-<safe-branch>][-N].md`, or the user-directed path, with P1/P2/P3 findings, each routed to `/akili-quick` or `/akili-propose`. When no Impeccable skill is found it falls back to `ui-ux-pro-max` + `frontend-design`; when the engine is not ready the detector rows read `Unevaluated`.
+
+`modern-web` mode is opt-in (it runs only when you type it) and report-only: it inventories web UI source that modern platform guidance could replace, through Modern Web Guidance's `legacy-scan`, behind the bridge's gate (Node 22 or newer, your consent, an exact pinned version, telemetry and file logging off). It writes `docs/specs/audits/modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md` with the pin, the path scanned, the gate state, the kept and dropped counts, the coverage caveat and each kept finding routed to `/akili-quick` or `/akili-propose`; a gate state other than `ready` is recorded as `not run: <state>` and never fails, stops or blocks the audit. Findings never become tasks of a running spec. See [`impeccable-bridge`](../skills/impeccable-bridge.md#modern-web-guidance-environment-provided).
 
 ## Behavior
 
@@ -34,7 +37,7 @@ docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md
 
 Separators are single hyphens. `<YYYY-MM-DD>` is the same date written into the report's `Date of Audit` header. The branch slug is the current branch through the `$SAFE_NAME` rule (`/` → `--`), added when the current branch is **not** the default branch and also when the default branch cannot be resolved — an extra suffix never collides, a missing one can; the default branch is the `Default Branch:` line pinned in the constitution summary of the root `AGENTS.md`/`CLAUDE.md`, and no pin means unresolved. `[-N]` (`-2`, `-3`, …) is added only when the filename already exists, so a same-day re-run never overwrites an earlier report.
 
-**Reading reports back.** The most recent report is the one with the highest `Date of Audit` header *inside* the `drift-*.md` files (a `security-*.md` index from `/akili-security` is not a drift report), ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. Legacy `docs/specs/drift-report.md` is a permanent read fallback, used only when `docs/specs/audits/` holds no `drift-*.md` file (a scaffolded `README.md` or `.gitkeep` is not a report). Only `drift-*` names are candidates, so a report renamed by hand to another name stops being read. The command never modifies, overwrites, or deletes that legacy file.
+**Reading reports back.** The most recent report is the one with the highest `Date of Audit` header *inside* the `drift-*.md` files (a `security-*.md` index from `/akili-security` and a `modern-web-*.md` report are not drift reports), ties broken by the newest filename in lexical order — never filesystem mtime, which a checkout destroys. Legacy `docs/specs/drift-report.md` is a permanent read fallback, used only when `docs/specs/audits/` holds no `drift-*.md` file (a scaffolded `README.md` or `.gitkeep` is not a report). Only `drift-*` names are candidates, so a report renamed by hand to another name stops being read. The command never modifies, overwrites, or deletes that legacy file.
 
 The report includes:
 
@@ -53,10 +56,11 @@ The command's own verification checklist confirms **this run's** report file und
 - When onboarding to an existing project to assess documentation health
 - Periodically to prevent specification rot
 - `design` mode: before redesigning an existing product, or to review an inherited UI
+- `modern-web` mode: to find web UI code that a modern browser platform feature could replace
 
 ## Skills
 
-`systematic-debugging` applies when discrepancies suggest implementation bugs rather than documentation gaps. `impeccable-bridge` (with `ui-ux-pro-max` and `frontend-design` as fallback) applies in `design` mode.
+`systematic-debugging` applies when discrepancies suggest implementation bugs rather than documentation gaps. `impeccable-bridge` (with `ui-ux-pro-max` and `frontend-design` as fallback) applies in `design` mode, and `modern-web` mode reaches Modern Web Guidance through it.
 
 ## Source
 
