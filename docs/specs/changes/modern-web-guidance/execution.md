@@ -541,3 +541,50 @@ Within budget.
 | Review rounds | 9 | ~24 |
 
 Within budget.
+
+### T7: `/akili-test` pointer — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-7 AND test, BUT, and AND IT MUST (as amended 2026-11-17); FR-4 AND IT MUST NOT |
+| Skills / effort | `cognitive-doc-design` / `medium` |
+| Spawns | Implementer (sonnet): 9 calls, 74,684 tokens, ended complete. Reviewer (opus): 3 calls, 70,257 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 |
+
+#### Attempt 1
+
+**Files changed**
+- `.claude/commands/akili-test.md`: one sentence after the design-detector table. It is separated by a blank line, so the table keeps its five rows.
+- `test/modern-web-guidance.test.js`: two tests under *test*.
+
+**Verification**
+- 106/106 pass.
+- Leader re-run: **VERIFIED** (106/106; `git diff --check` exit 0).
+
+**Falsifier**
+- Adding a sixth row, `| Engine \`extra\` |`, makes `stateRows` report "akili-test: five per-value rows, got 6". The file was then reverted.
+- The Implementer's first falsifier, a `| Extra |` row, stayed green, because `stateRows` counts only rows that start with `| Skill source` or `| Engine`. The Implementer redid it, and the redo is the run recorded above.
+
+**Not Done / Assumptions** (assumptions only, nothing owed)
+- Added "(in `impeccable-bridge` `references/`)" so a reader can find the file.
+
+**Reviewer**
+- **PASS.** The pointer resolves. The sentence copies no gate row (NFR-3) and does not fail the suite on a non-ready state (FR-4).
+- Named check, amended FR-7: the sentence applies only when guide ids are recorded, so a spec with no web UI task sees no behavior change.
+- The Reviewer's own re-run: 106/106.
+
+**Runtime events:** none.
+
+**Final verification:** 106 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 7 / 14 | 14 |
+| LOC | ~683 (651 + 32) | ~1,120 |
+| Review rounds | 10 | ~24 |
+
+Within budget.

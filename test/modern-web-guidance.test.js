@@ -454,3 +454,33 @@ test("specify (NFR-3): the bullet copies no field table row and a non-web spec i
   assert.doesNotMatch(b, /mwg, pin (default|skill-map)/);
   assert.match(b, /no web UI task is unchanged in behavior \(no MWG gate/);
 });
+
+// ---- test (T7): the /akili-test pointer sentence (FR-7, NFR-3) ----
+
+const TEST_CMD = path.join(ROOT, ".claude", "commands", "akili-test.md");
+
+// Region after the design-detector state table, up to the rule before "## Testing Rules".
+function testPointerRegion() {
+  const text = read(TEST_CMD);
+  const tbl = text.indexOf("| Engine `declined` / `unavailable` |");
+  const end = text.indexOf("## Testing Rules");
+  assert.ok(tbl >= 0 && end > tbl, "design-detector table and Testing Rules bounds");
+  return text.slice(text.indexOf("\n", tbl), end);
+}
+
+test("test (FR-7): the sentence follows the table, names modern-web.md -> Test and validate reads and the recorded guide ids", () => {
+  const r = testPointerRegion();
+  assert.match(r, /When `execution\.md` records MWG guide ids/);
+  assert.match(r, /frontend or E2E Tester/);
+  assert.match(r, /source for platform assertions/);
+  assert.match(r, /`modern-web\.md` → \*Test and validate reads\*/);
+});
+
+test("test (FR-7): not ready is recorded, never failed; the sentence copies no gate row and the table keeps five rows", () => {
+  const r = testPointerRegion();
+  assert.match(r, /other than `ready` is recorded, never failed/);
+  assert.doesNotMatch(r, /\|/);
+  const text = read(TEST_CMD);
+  const rows = text.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
+  assert.equal(rows.length, 5);
+});
