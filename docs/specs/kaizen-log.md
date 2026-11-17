@@ -1,7 +1,7 @@
 # Kaizen Log
 
 Continuous-improvement record for this project. The `## Active Lessons` digest below is
-refreshed only by the `kaizen` skill's **Apply Mode**, on the default branch — that apply
+refreshed only by the `kaizen` skill's **Apply Mode**, on the apply-capable branch (`dev`, via the Integration Branch pin) — that apply
 phase is its single writer. Per-retrospective entries live in `docs/specs/kaizen/`, one file
 per spec, written by `/akili-archive`'s Kaizen Retrospective on any branch. Other AKILI
 commands read only the `## Active Lessons` table below — keep it at 10 rows or fewer.
