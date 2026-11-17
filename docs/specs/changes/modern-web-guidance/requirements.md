@@ -1,6 +1,6 @@
 # Requirements: Modern Web Guidance for web UI work (`modern-web-guidance`)
 
-> **Answer first.** Eleven behaviors. Before anything is wired, a recorded security verdict on the pinned upstream (FR-1). Governance admits Modern Web Guidance (MWG) as an environment-provided skill and lets a web UI task's route select it (FR-2). The design matrix gives MWG one job, platform implementation for web UI, under Impeccable's lead (FR-3). Every AKILI-directed MWG call passes a gate covering availability, Node ≥ 22 and consent (FR-4), and uses an exact version: an AKILI default, overridable per project (FR-5). MWG's disclosure lands in task evidence, never in spec documents or gate messages (FR-6). Specify, execute, test and validate reach MWG through the bridge (FR-7). `/akili-audit` gains an opt-in, report-only `legacy-scan` (FR-8). `/akili-constitution` can write a Skill Map row (FR-9). `akili install` ships and installs nothing new; the docs give per-tool install routes (FR-10). Docs and CHANGELOG state only verified facts (FR-11). Projects without a web UI see no change.
+> **Answer first.** Eleven behaviors. Before anything is wired, a recorded security verdict on the pinned upstream (FR-1). Governance admits Modern Web Guidance (MWG) as an environment-provided skill, reached only through recorded selectors (a web UI task's route, or a typed audit mode) and never through a skills list (FR-2). The design matrix gives MWG one job, platform implementation for web UI, under Impeccable's lead (FR-3). Every AKILI-directed MWG call passes a gate covering availability, Node ≥ 22, consent and telemetry, and survives a failed call (FR-4), and uses an exact version: an AKILI default, overridable per project (FR-5). MWG's disclosure lands in task evidence, never in spec documents or gate messages (FR-6). Specify, execute, test and validate reach MWG through the bridge (FR-7). `/akili-audit` gains an opt-in, report-only `legacy-scan` (FR-8). `/akili-constitution` can write a Skill Map row (FR-9). `akili install` ships and installs nothing new; the docs give per-tool install routes (FR-10). Docs and CHANGELOG state only verified facts (FR-11). Projects without a web UI see no change.
 
 ## 1. Document Control
 
@@ -17,6 +17,7 @@
 | Upstream pin | `GoogleChrome/modern-web-guidance` tag `v1.0.1` = commit `64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65`; npm `modern-web-guidance@1.0.1` (integrity `sha512-5ztUh5F1…fIiGzg==`, shasum `06a05ddadd0f87f29881b16705faf55c2a5dc83a`) |
 | Phase 1 gate | Continue — approved by JC, 2026-11-17 |
 | Phase 2 corrections | C11 narrowed, C12 added, FR-11 BUT clause aligned: Antigravity's route and the eval figures were found in upstream README `v1.0.1` during design exploration (factual corrections, logged here) |
+| Judgment-day fix round 1 amendments (pending JC at the Phase 2 gate) | JC chose **Fix only** with warnings included (2026-11-17). Amended: Glossary *Selector*; C13 added; FR-1 AND (telemetry); FR-2 (three selectors, no skills-list path); FR-4 (`consent needed` names telemetry, no answer = declined, new `call failed` state, telemetry opt-out on every call); FR-11 BUT (MDN citable). Source: `judgment.md` S-1, S-4, S-7, W-2, X-3, X-12; design P-8, P-24, P-25 |
 
 ## 2. Executive Summary
 
@@ -30,9 +31,9 @@ AKILI routes design (Impeccable) and framework idioms (stack skills), but nothin
 | Pin | The exact MWG version an AKILI-directed call uses: AKILI's default, or the project's override (FR-5) |
 | AKILI-directed call | An MWG CLI invocation that an AKILI command, skill reference or persona tells the agent to run |
 | Web UI task | A UI task whose surface renders in a browser (HTML/CSS/client-side JS, any framework). A native iOS or Android screen (ENV-3) is not one |
-| MWG gate | The availability, Node and consent check of FR-4 |
+| MWG gate | The availability, Node, consent and telemetry check of FR-4, with its failure outcome |
 | Disclosure | The `### Modern Web Guidance` section upstream `SKILL.md` *Step 4* asks for at the end of a response |
-| Selector | The recorded field that makes a step reach MWG: the web UI task's route line (FR-3) |
+| Selector | A recorded choice that lets a step reach MWG: a web UI task's route field (FR-3) and that spec's test/validate reads of the guide ids it recorded, or a command mode the user types (`/akili-audit modern-web`, FR-8) |
 
 ## 4. System Context & Scope
 
@@ -51,7 +52,8 @@ Current behavior (each claim cited as run on 2026-11-17 at `fb682eb`, or marked)
 | C9 | Upstream license Apache-2.0 (`LICENSE` blob `d645695673349e3947e8e5ae42332d0ac3164cd7`, 11,358 B); `engines.node >=22.0.0`; the npm package is 281 files, 16,720,506 B unpacked | `gh api …/LICENSE?ref=64a6d708…`; `npm view modern-web-guidance@1.0.1 engines dist` |
 | C10 | Upstream ships plugin manifests for Claude Code (`.claude-plugin/marketplace.json`, marketplace `googlechrome`), Codex, Cursor, `.agents/plugins` and `.grok-plugin` | `gh api …/git/trees/v1.0.1?recursive=1` and manifest reads |
 | C11 | Upstream README `v1.0.1` *Alternative Installation Methods* gives routes for Claude Code, Codex and Antigravity (`agy plugin install …`), a generic `npx skills add` route, and a "Grok Build CLI" route. It has no Cursor- or OpenCode-specific route. Whether "Grok Build" is AKILI's Grok Bot target is `UNVERIFIED — confirm at source before relying on it` | README.md at `64a6d708…`, read 2026-11-17 (design P-10) |
-| C12 | Upstream README `v1.0.1` *Recent eval results snapshot* reports 52–60% unguided → 82–96% guided on Google's own simulated tasks (Nov 4–8 rows) | README.md at `64a6d708…` (design P-15) |
+| C12 | Upstream README `v1.0.1` *Recent eval results snapshot* reports 52–60% unguided → 82–96% guided on Google's own simulated tasks (Nov 4–8 rows); README line 9 names Chrome, Edge, Firefox and MDN as stewards | README.md at `64a6d708…` (design P-15, P-24) |
+| C13 | The CLI at the pin sends usage telemetry (search queries, guide ids, agent name) to Google unless `DISABLE_TELEMETRY` is `1` or `true` | npm tarball `modern-web.mjs` `isTelemetryEnabled`, `watchdog/main.js` endpoint; README *Telemetry & Privacy* (design P-8) |
 
 **In scope:** governance, the bridge's routing and a new reference file, pointer lines in `/akili-specify`, `/akili-execute` (through task skill lists and the Build route), `/akili-test`, `/akili-validate`, `/akili-audit`, `/akili-constitution` Step 8D, docs, CHANGELOG, tests.
 
@@ -77,7 +79,7 @@ The spec SHALL record a security verdict on the pinned upstream before any AKILI
 - GIVEN `SKILL.md` and `LICENSE` fetched at the pin, each matching its blob SHA (C8, C9), and the npm tarball `modern-web-guidance@1.0.1` matching its recorded integrity
 - WHEN they are reviewed for prompt injection, instructions to fetch or run remote content, auto-install flags, network and telemetry behavior, credential handling, destructive commands, and hidden or encoded content
 - THEN the verdict, every scan command verbatim, its exit status, the hits and their classification are recorded in `execution.md`
-- AND the "MANDATORY: Execute FIRST" trigger (C8), the unpinned `npx -y …@latest` form, and the CLI's network fetch are each classified, with the AKILI requirement that handles them named (FR-3, FR-4, FR-5)
+- AND the "MANDATORY: Execute FIRST" trigger (C8), the unpinned `npx -y …@latest` form, the CLI's network fetch, its usage telemetry (C13) and its stderr update prompts are each classified, with the AKILI requirement that handles them named (FR-3, FR-4, FR-5)
 - BUT it must NOT add any routing, gate or docs text that names MWG before the verdict is recorded
 - AND IT MUST treat a scanner exit status of 2 as "not run", never as 0 hits, and check hidden characters with a tool that supports the pattern on the host (perl, not BSD `grep -P`)
 
@@ -96,9 +98,9 @@ The spec SHALL record a security verdict on the pinned upstream before any AKILI
 - GIVEN the governance file
 - WHEN its environment-provided rules are read
 - THEN MWG is named as environment-provided (Google Chrome, Apache-2.0), referenced and never vendored
-- AND rule 4 names two permitted selectors: a spec's `Deliverable` row (unchanged) and a web UI task's route field selecting MWG (FR-3), each reaching the skill only through a packaged bridge that runs the skill's gate first
-- AND IT MUST state the outcome of a missing skill per selector: a `Deliverable`-selected skill still stops at its gate; MWG continues without it (FR-4)
-- BUT it must NOT let any command load-direct MWG outside the bridge, and must NOT admit MWG to the *Vendored third-party (verbatim)* category
+- AND rule 4 names three permitted selectors: a spec's `Deliverable` row (unchanged); a web UI task's route field selecting MWG (FR-3), with that spec's test and validate reads of the guide ids it recorded; and a command mode the user types (FR-8). Each reaches the skill only through a packaged bridge that runs the skill's gate first
+- AND IT MUST state the outcome of a missing skill per selector: a `Deliverable`-selected skill still stops at its gate; the route and typed-mode selectors continue without it (FR-4)
+- BUT it must NOT let any command load-direct MWG outside the bridge, must NOT admit MWG to the *Vendored third-party (verbatim)* category, and MWG must NOT be named in a task's skills list, a Leader brief's lead or support names, or a Skill Map row as a skill to assign or load (a Skill Map MWG row is an availability and pin note only)
 - AND every restatement of rule 4's old single-instance claim (for example "Today's instance", or `docs/cli.md`'s environment-provided row) is updated to match, keyed on the obligation, not on the word `video`
 
 ### FR-3: One job in the design matrix: platform implementation for web UI
@@ -133,13 +135,15 @@ Before an AKILI-directed MWG call, the agent SHALL run the MWG gate and act on i
   | State | Condition | Action |
   |---|---|---|
   | `ready` | Skill loadable (standalone or plugin-namespaced), Node ≥ 22, consent given this session | Load MWG; make the pinned call (FR-5) |
-  | `consent needed` | Skill and Node present, no answer yet this session | Ask once per session, naming the network fetch and the pinned package; take the row the answer selects |
-  | `declined` | User declined | `not run: declined`; continue |
+  | `consent needed` | Skill and Node present, no answer yet this session | Ask once per session, naming the network fetch, the pinned package and the usage telemetry AKILI turns off; take the row the answer selects |
+  | `declined` | User declined, or did not answer | `not run: declined`; continue |
   | `node < 22` | Node absent or older than 22 | `not run: Node <version> (needs ≥ 22)`; continue |
   | `missing` | Skill not loadable | `not run: skill not installed`; print the install routes (FR-10) once per session; continue |
+  | `call failed` | A call after `ready` fails (offline, no network, read-only npm cache, unpublished pin) | Retry once with the upstream-documented remedy; then `not run: call failed (<reason>)`; continue |
 
 - AND every state except `ready` lets the step finish with Impeccable or its fallback and the stack skills, as today
-- BUT it must NOT make any MWG call before `ready`, install anything without consent, or treat a pre-approved approval mode as consent
+- AND IT MUST turn the CLI's usage telemetry off on every AKILI-directed call (C13), unless the user opted in when asked
+- BUT it must NOT make any MWG call before `ready`, install anything without consent, treat a pre-approved approval mode as consent, or fall back to an unpinned call after a failure
 - AND IT MUST NOT fail, stop or block a task, test suite, validation or audit because MWG is not `ready`
 
 ### FR-5: Exact-version pin, default plus project override
@@ -251,7 +255,7 @@ Each phase SHALL reach MWG only through the bridge and only for web UI work, wit
 - WHEN they are read
 - THEN `docs/skills/impeccable-bridge.md` describes MWG's role, gate, pin and security record; `docs/overview.md` and `docs/cli.md` carry an environment-tool row; the `AGENTS.md` *Design Skills* list names it; `CHANGELOG.md` `Unreleased` has an entry
 - AND each states the license as Apache-2.0 and attributes MWG to Google Chrome
-- BUT it must NOT state the brief's unconfirmed claims (MDN stewardship, a Grok Bot route) unless a primary source is cited; the eval figures may appear only cited to C12 and labelled as Google's own evals; and it must NOT claim a security property beyond the FR-1 verdict
+- BUT it must NOT state a Grok Bot route unless a primary source is cited; the eval figures and MDN stewardship may appear only cited to C12 and labelled as upstream's own statements; and it must NOT claim a security property beyond the FR-1 verdict
 
 ## 7. Non-Functional Requirements
 
@@ -269,7 +273,7 @@ Each phase SHALL reach MWG only through the bridge and only for web UI work, wit
 | Unsafe upstream content admitted | FR-1 review (first task) + Reviewer re-read of the verdict | No. Agent review; the residual risk is stated as "reviewed at the pin" |
 | `@latest` or unpinned call in shipped text | Contract test: no `modern-web-guidance@latest` in any packaged or docs file; every directed invocation names `@<version>` | Yes |
 | MWG reached by non-web or native work | Contract test on the matrix and route-line rules; Reviewer walk of each command pointer | Partly. The test checks the text; whether an agent obeys it is not testable here (accepted risk) |
-| Gate state missing, or a non-`ready` state that blocks | Contract test over the gate table (five states, "continue" on four) | Yes |
+| Gate state missing, or a non-`ready` state that blocks | Contract test over the gate table (six states, "continue" on the five that are not `ready`) | Yes |
 | Rule copied into a command instead of pointed at | Contract test: commands name the reference file and contain no gate-table row | Yes |
 | Old rule 4 claim survives a restatement | Obligation-keyed sweep before review (KZ-changes--kaizen-loop-closure-2) + restatement contract test | Partly |
 | Stale skill or file count | `npm test` (`install-cursor` `SKILL_FILE_EXPECTED`, docs-overview inventory) | Yes |

@@ -76,6 +76,17 @@
 | P-11 | partly contradicted | partly contradicted | **contradicted** (rationale) → S-8 |
 | P-16 | incomplete | not reproducible as complete | → S-5 |
 
+## Round 1 correction
+
+| Field | Value |
+|---|---|
+| JC decision | **Fix only**, with confirmed warnings included (2026-11-17) |
+| Fix actor | The orchestrating session, inline (no fix subagent) |
+| Scope fixed | S-1 to S-8 and W-1 to W-9; suspects X-3, X-4, X-5, X-9, X-10, X-11 and X-12 closed in passing because they shared a fix site. Map: `design.md` §14 |
+| Re-verified at source before fixing | Tarball shasum `06a05dda…` matches npm; tarball `SKILL.md` blob = `7483c781…`; telemetry `modern-web.mjs:712`, `watchdog/main.js:13`; `getSkillUpdateLevel` `:833-839`; README line 9 (MDN); consumer greps as run (design P-16, P-23, P-27) |
+| Requirement amendments | FR-1, FR-2, FR-4, FR-11, Glossary, C12, C13 (logged in `requirements.md` Document Control; pending JC at the Phase 2 gate) |
+| Not addressed | X-1 (closed by P-26/P-27 rows), X-2 (card evidence path fixed in §8.2), X-6, X-7, X-8, X-13, X-14 remain info |
+
 ## Status
 
-Awaiting JC's decision on round-one correction (judgment-day *Decision Gates*: both judges confirm severe → ask before fixing). No terminal state yet.
+fixed, not re-judged: S-1, S-2, S-3, S-4, S-5, S-6, S-7, S-8, W-1, W-2, W-3, W-4, W-5, W-6, W-7, W-8, W-9
