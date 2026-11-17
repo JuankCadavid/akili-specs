@@ -48,7 +48,7 @@
 | Target | `.claude/commands/akili-propose.md` Step 1 *Approval Mode* |
 | Edit | "Record an approval as the owner's only when the message transmits the owner's own words and time; a decision relayed or delegated through someone else is recorded with who relayed or chose it, the owner's verbatim words, and the time." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -58,7 +58,7 @@
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add the source `changes/impeccable-audit-fixes/install-stale-skills` with a recurrence note: "**recurred (install-stale-skills: CLI subprocess tests estimated ~400 LOC, 572 shipped; the tripwire stopped the run after T3)**". Raise the severity |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -68,4 +68,4 @@
 | Target | `AGENTS.md` *Repository Purpose* |
 | Edit | After the `bin/persona.js` bullet, add: "- `bin/install-compare.js` is the pure byte-exact comparison behind `install`'s `(identical)` / `(differs: …)` skip classes and `doctor`'s `DIFFERS` warning; `bin/akili.js` requires it." |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-17) |

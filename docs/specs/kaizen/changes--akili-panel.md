@@ -59,7 +59,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 2 tasks rule for a manual live-check task: "Every host lifecycle event a scenario names (`/clear`, resume, reload) is a step of the live check, because a simulated event proves only what the kit simulates." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -69,7 +69,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Premise Ledger: "A clause stating what a host reports after a lifecycle event carries a `live-path` row with an observed value, or stays `UNVERIFIED` and is owned by a live-check step." |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -79,4 +79,4 @@
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add source spec `changes/akili-panel` and the recurrence note: "recurred (changes/akili-panel: T4 ×2.7 against plan, fixtures unbudgeted, tripwire fired; tests and fixtures ended at 4,200 of 5,447 lines)." |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |

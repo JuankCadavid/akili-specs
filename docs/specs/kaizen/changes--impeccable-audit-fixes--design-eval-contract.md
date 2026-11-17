@@ -55,7 +55,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Phase 2 (design review / judgment-day brief): add a reverse walk. Every FR SHALL bullet maps to the §7 module row that implements it, with any scope qualifier in that row quoted. Every consumer named in the enumerated-value walk (KZ-004) cites the §7 row that implements its behaviour; a consumer with no implementing row is a design gap fixed before the tasks gate. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -65,7 +65,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` requirements authoring: when two or more requirements write the same output field or verdict, `requirements.md` states their precedence in one line. The specify walkthrough includes one combined scenario in which both apply. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -75,7 +75,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/impeccable-audit-fixes/design-eval-contract` with this recurrence note: "**recurred (changes/impeccable-audit-fixes/design-eval-contract: T11 attempt 1 — two CHANGELOG clauses overstated the shipped text: the detector first-visit item was said to run at the short-height pair, and the E4 brief was said to "state" the count; validation W-6 found assertion counts and LOC disagreeing across tasks.md, design.md and execution.md)**". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -85,4 +85,4 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add source `changes/impeccable-audit-fixes/design-eval-contract` with this recurrence note: "**recurred (changes/impeccable-audit-fixes/design-eval-contract T6/T7: a one-paragraph `checklist` task dropped design §5.3's value shapes — selector-or-attribute, `—`, the style shape, the viewport names — and FR-13's existence item. Both were caught by the checklist Reviewer, one round each. The dropped content sat in a design table the task's Scope cell abbreviated)**". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

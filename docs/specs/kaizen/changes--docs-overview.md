@@ -59,7 +59,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` (design step, content-move specs): when a spec moves or removes document content, the design's destination table is built from a per-section disposition ledger (each section's obligations → one in-scope file#anchor), and each destination is checked against requirements §4 *In scope / Out of scope* before the design gate. A destination outside the scope list is a design defect settled at specify time, not an execute-time amendment. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -69,7 +69,7 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add `changes/docs-overview` as a source spec. Append: "**recurred ×4 (changes/docs-overview T1, T2, T4, T6: move-ledger 'quotes' cited a nearby line or a claim instead of the obligation token, and abridged obligations passed the Implementer's own check; each closed only when the rework brief mandated a mechanical per-token sweep — put that sweep in the first brief of any content-move task)**". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -79,7 +79,7 @@
 | Target | KZ-002 |
 | Edit | Add `changes/docs-overview` as a source spec. Append: "**recurred (changes/docs-overview: the CHANGELOG test count went stale when `/akili-test` added a suite (825 vs 844); a README 'every command and template' claim overstated; the Leader's execution summary carried a mis-added running total (15 vs 14 rounds) and two wrong tallies — all caught at validation by a cross-document figure check)**". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -89,4 +89,4 @@
 | Target | `AGENTS.md` (Repository Purpose, line 16) |
 | Edit | Replace "- `README.md` documents installation and methodology usage." with "- `README.md` is the short landing page (install, a first spec, the command table); `docs/overview.md` maps every command, skill and mechanism, and `docs/flow.md` / `docs/cli.md` hold the detail." |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-17) |

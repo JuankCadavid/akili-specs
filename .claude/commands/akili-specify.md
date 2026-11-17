@@ -469,6 +469,7 @@ Task quality rules:
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure frontend tasks are atomic, focusing on specific UI components, layouts, styling, and states extracted from the design or mockup artifacts.
 - tasks should avoid broad instructions like "implement feature" without scoped subtasks
 - tasks may be grouped by phase, but dependencies must remain explicit
+- **Phase-scoped gates:** when a requirement makes more than one phase gate refuse on missing items, name for each gate only the items that phase produces (Phase 1: requirements content; Phase 2: `design.md`; Phase 3: `tasks.md`) — a gate that checks a later phase's artifact can never pass.
 
 Preferred backend skill rule:
 
