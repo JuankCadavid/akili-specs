@@ -289,3 +289,84 @@ test("bridge entry (FR-2 BUT): the Roles row names references/modern-web.md and 
 test("bridge entry (design §3): bridge version is 2.2", () => {
   assert.match(read(BRIDGE_SKILL), /^  version: "2\.2"$/m);
 });
+
+// ---- matrix (design §8.2, T4): design-routing.md edits, read from the shipped file ----
+const MATRIX = path.join(ROOT, ".claude", "skills", "impeccable-bridge", "references", "design-routing.md");
+const matrixText = () => read(MATRIX);
+// Text under a heading of any level, up to the next heading of the same or a shallower level.
+function mdSection(text, heading) {
+  const m = new RegExp(`^(#+) ${heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m").exec(text);
+  assert.ok(m, `expected heading "${heading}" in design-routing.md`);
+  const rest = text.slice(m.index + m[0].length);
+  const next = new RegExp(`^#{1,${m[1].length}} `, "m").exec(rest);
+  return next ? rest.slice(0, next.index) : rest;
+}
+const cardMwg = () => row(mdSection(matrixText(), "Expertise cards"), "`modern-web-guidance` (environment-provided)");
+
+test("matrix (FR-3): the card names the capabilities, supports web UI Platform guidance, and must not decide aesthetic, page mode, direction or framework idiom", () => {
+  const c = cardMwg();
+  for (const t of ["dialog", "popover", "anchor positioning", "container queries", "forms", "accessibility semantics", "Core Web Vitals"]) assert.ok(c.includes(t), `card names ${t}`);
+  assert.match(c, /\*Platform guidance\* on web UI build-new, build-within-system and evaluate/);
+  const cells = c.split("|").slice(1, -1).map((x) => x.trim());
+  assert.equal(cells[3], "The aesthetic, page mode, direction or framework idiom", "must-not list");
+  assert.equal(cells[4], "`impeccable-bridge/references/modern-web.md` → *Role*", "evidence");
+});
+
+test("matrix (FR-3, P-12): the card's evidence path resolves under .claude/skills/ and its heading exists", () => {
+  assert.ok(fs.existsSync(path.join(ROOT, ".claude", "skills", "impeccable-bridge", "references", "modern-web.md")));
+  assert.ok(rules().split("\n").includes("## Role"));
+});
+
+test("matrix (DD-4): MWG is never a lead: no matrix row cell names it; the Supporting line limits it to web UI cells and bars the skills list", () => {
+  const rows = matrixText().split("\n").filter((l) => /^\| \*\*[a-z-]+\*\* \|/.test(l));
+  assert.equal(rows.length, 8, "eight matrix rows, unchanged");
+  for (const r of rows) assert.ok(!/modern-web|mwg/i.test(r), `no matrix cell names MWG: ${r.slice(0, 40)}`);
+  const line = matrixText().split("\n").find((l) => l.startsWith("**Supporting line**"));
+  assert.ok(line, "Supporting line present");
+  assert.match(line, /`modern-web-guidance` on web UI cells only, when the route says `platform mwg`, reached through \*Platform guidance\* and never as a skills-list name/);
+});
+
+test("matrix (FR-3): the route form carries a sixth field naming the pin source, and the field table has Platform per ENV", () => {
+  const sec = mdSection(matrixText(), "Design route line");
+  const form = /`(Design route: [^`]+)`/.exec(sec)[1];
+  assert.equal(form.split("; ").length, 7, "load segment + six fields");
+  assert.ok(form.endsWith("; platform <mwg, pin <default|skill-map> | none — <reason>>"), "sixth field, with the pin source");
+  const p = row(sec, "Platform");
+  assert.match(p, /`mwg, pin default` or `mwg, pin skill-map` for a browser-rendered surface at ENV-0, ENV-1 or ENV-2/);
+  assert.match(p, /`none — native` at ENV-3/);
+  assert.match(p, /`none — <reason>` otherwise/);
+});
+
+test("matrix (DD-16, S-6): Platform guidance is its own section keyed on the route field, not the skill source; ENV-0 still runs it", () => {
+  const m = matrixText();
+  const pg = mdSection(m, "Platform guidance");
+  assert.match(pg, /whatever the skill source/);
+  assert.match(pg, /keyed on the route field, never on the skill source/);
+  assert.match(pg, /`modern-web\.md` → \*Gate\*, then `modern-web\.md` → \*In a task\*/);
+  assert.match(pg, /completion report/);
+  // The section is a sibling after Build route, not text inside the skill-source-gated Build route.
+  assert.ok(m.indexOf("\n## Platform guidance") > m.indexOf("\n## Build route"), "after Build route");
+  const build = mdSection(m, "Build route");
+  assert.ok(!build.includes("## Platform guidance"), "not inside Build route");
+  assert.ok(build.includes("At ENV-0, *Platform guidance* still runs when the route says `platform mwg`; the `frontend-design` path is otherwise unchanged."), "ENV-0 sentence");
+  assert.ok(build.includes("MWG report line"), "completion-report step names the MWG report line");
+});
+
+test("matrix (DD-16): in the shipped Build route, Platform guidance is step 4 and runs before the craft-floor read", () => {
+  const build = mdSection(matrixText(), "Build route");
+  const at = (needle) => {
+    const i = build.indexOf(needle);
+    assert.ok(i >= 0, `Build route has ${needle}`);
+    return i;
+  };
+  assert.ok(at("4. **Platform guidance**") < at("5. **Craft floor.**"), "platform guidance before craft floor");
+  assert.ok(at("5. **Craft floor.**") < at("7. **`polish`"), "craft floor before polish");
+  assert.match(build, /4\. \*\*Platform guidance\*\* when the route says `platform mwg` \(section \*Platform guidance\*\)\./);
+  assert.match(build, /8\. \*\*Completion report\.\*\*/);
+  assert.match(mdSection(matrixText(), "Platform guidance"), /After the playbook load, before the craft-floor read/);
+});
+
+test("matrix (FR-6): the Done-criteria clause names the MWG report line and the disclosure", () => {
+  const sec = mdSection(matrixText(), "Design route line");
+  assert.ok(sec.includes("and, when the route says `platform mwg`, the MWG report line and the disclosure (`modern-web.md` → *Disclosure*)"));
+});

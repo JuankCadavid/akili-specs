@@ -347,3 +347,52 @@ Its own re-run was 37/37. It raised no ADVISORY block (small diff).
 | Review rounds | 5 | ~24 |
 
 Within budget.
+
+### T4: Design matrix edits — PASS (attempt 1)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 1) |
+| Date | 2026-11-17 |
+| Requirements covered | FR-3 (both scenarios, all clauses); FR-4 AND (a non-ready gate finishes the task as today); FR-6 THEN (Done-criteria evidence); FR-7 AND execute (Build route) |
+| Skills / effort | `impeccable-bridge`, `cognitive-doc-design` / `high` |
+| Spawns | Implementer (sonnet): 13 calls, 119,037 tokens, ended complete. Reviewer (opus): 9 calls, 91,087 tokens, ended complete |
+| Approval | Auto-passed under the JC directive of 2026-11-17 |
+
+**Attempt 1**
+
+- **Files changed:**
+  - `.claude/skills/impeccable-bridge/references/design-routing.md`: all seven §8.2 sites, plus the *Supporting line* opener reworded after the sweep.
+  - `test/design-skill-routing.test.js`: 10 cards, with MWG marked environment-provided and no folder check.
+  - `test/design-skill-routing-coverage.test.js`: six fields.
+  - `test/modern-web-guidance.test.js`: 7 tests under *matrix*.
+- **Verification:** 62/62 pass. Leader re-run **VERIFIED** (62/62, `git diff --check` exit 0).
+- **Falsifiers:**
+  - Heading stripped → `not ok 41` and `not ok 42`.
+  - MWG put in a matrix cell → `not ok 39`, plus `not ok 3` (one lead per cell).
+  - `pin` dropped → `not ok 40`.
+  - The Reviewer also ran falsifier (1) exactly as the task specifies: the section moved under the skill-source-gated intro, heading kept as `###`. It went red. Three more mutations it ran also went red.
+- **KZ sweep:** "every cell", "one lead", five fields, step numbers, "field", "craft floor", "skill source" and "ENV-0", across `design-routing.md` and `SKILL.md`.
+  - Fixed the *Supporting line* opener, "(every cell, never a lead)" → "(never a lead; every cell except where an item below limits it)".
+  - Kept the Build route intro, because the Reviewer found no conflict with step 4.
+- **Not Done / Assumptions** (assumptions only, nothing owed):
+  - The `AGENTS.md` expectation at `design-skill-routing.test.js:100` did not go red; it is left for T12 as planned.
+  - The P-27 readers outside the file belong to T6, T11 and T12. The Implementer said "T8" for Step 8D; it is T11.
+- **Reviewer:** **PASS**. It checked every §8.2 site term by term, confirmed the pointers resolve and copy nothing (NFR-3), and confirmed the matrix rows are unchanged. Its own `npm test` run: 2046/2046.
+- **Runtime events:** none.
+
+**ADVISORY** (recorded only):
+- READABILITY: the Build route intro could note the ENV-0 cases for steps 4 and 8.
+- RELIABILITY: the "not inside Build route" check relies on the substring `## Platform guidance`; a regex `/^#+ Platform guidance/m` would make that explicit.
+
+**Final verification:** 62 pass, 0 fail. The Reviewer's full `npm test` gave 2046 pass.
+
+**Running totals vs budget**
+
+| Measure | Actual | Budget |
+|---|---|---|
+| Tasks | 4/14 | 14 |
+| LOC (added) | ~558 (447 + 111) | ~1,120 |
+| Review rounds | 6 | ~24 |
+
+Within budget.

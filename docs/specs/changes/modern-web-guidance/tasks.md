@@ -97,7 +97,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~25 lines + ~140 test LOC) |
 | Depends on | T3 |
 | Requirements | FR-3 (both scenarios, all clauses); FR-4 AND (non-ready finishes as today: *Platform guidance*); FR-6 THEN (Done-criteria evidence clause); FR-7 AND execute (Build route) |
