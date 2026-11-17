@@ -59,7 +59,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | M (~120 lines + ~200 test LOC) |
 | Depends on | T1 (`PASS`) |
 | Requirements | FR-2 BUT (no skills-list path: *How it is reached*); FR-3 Not-web BUT; FR-4 all clauses; FR-5 all clauses except the shipped-`@latest` BUT; FR-6 both scenarios; FR-7 AND execute (*In a task*), test/validate reads; FR-8 procedure (*Audit scan*); FR-10 install routes THEN/AND |

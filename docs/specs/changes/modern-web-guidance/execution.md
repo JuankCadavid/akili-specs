@@ -236,3 +236,65 @@ Implementer advisories F-2 (`@latest` in retrieved guide text), F-3 and F-4 are 
 Within budget.
 
 **Approval:** gated, so the continue gate is pending JC.
+
+### T2: `modern-web.md`, the MWG rules file — PASS (attempt 2)
+
+| Field | Value |
+|---|---|
+| Final status | `PASS` (Reviewer, attempt 2) |
+| Date | 2026-11-17 |
+| Attempts | 2 |
+| Requirements covered | FR-2 BUT; FR-3 Not-web BUT; FR-4 all clauses; FR-5 (all clauses except the shipped-`@latest` BUT, which is T14's); FR-6 both scenarios; FR-7 execute and test/validate reads; FR-8 procedure; FR-10 install routes |
+| Skills | `impeccable-bridge`, `cognitive-doc-design` (task list, unchanged) |
+| Effort | `high`, then `xhigh` on attempt 2 |
+| spawns | Implementer (sonnet): 20 calls, 139,676 tokens, ended complete. Reviewer (opus): 7 calls, 95,518 tokens, ended fail. Implementer (sonnet): 9 calls, 92,755 tokens, ended complete. Reviewer (opus, resumed): 1 call, 99,514 tokens, ended complete |
+| Approval | JC directive 2026-11-17: "Continue with T2 through T8 without pausing between tasks. Only stop for findings, spec gaps or decisions that need my ruling." The continue gate auto-passes on this directive |
+
+**Attempt 1**
+
+- Files changed: `.claude/skills/impeccable-bridge/references/modern-web.md` (new), `test/modern-web-guidance.test.js` (new), `test/impeccable-bridge.test.js` (file list), `test/install-cursor.test.js` (`SKILL_FILE_EXPECTED` +1).
+- Verification: 44/44 pass. Leader re-run: **VERIFIED** (44/44, `git diff --check` exit 0, 0 `@latest`).
+- Falsifier reds:
+  - telemetry row → `not ok 33`
+  - declined Stop → `not ok 25`
+  - `@latest` → `not ok 32`
+  - file removed → `impeccable-bridge` test 1 ENOENT
+  - `[advisory-grade]` `ENABLE_FILE_LOGGING` row → `not ok 34`
+- Not Done / Assumptions (verbatim, assumptions only, no owed item): "Windows call form's PowerShell and `cmd` variable syntax is marked `UNVERIFIED — confirm at source before relying on it`… T1 F-2 is covered in *Untrusted output*… T1 F-3 is covered in *Call forms*… Test-side assumption: the regex for each clause is tied to my wording."
+- Reviewer: **FAIL**.
+  - Issue 1: *Gate* said "Each state is recorded exactly once per phase in the phase's report". That limits how often each state appears; it does not limit the report to one state.
+  - Violated: FR-4 *Gate outcomes*, "THEN it records exactly one state in the phase's report".
+  - Remediation: reword the sentence, with `call failed` winning after `ready`, and add an assertion.
+  - Advisories: `install` contradiction (*Call forms* vs the *Install routes* `Any` row); "nowhere else" vs FR-10's docs.
+- Runtime events: none.
+
+**Attempt 2**
+
+- Files changed: same four.
+  - *Gate* sentence reworded.
+  - `Any` row now reads "printed for the user to run, AKILI never runs it".
+  - *Install routes* now reads "by the `missing` state and by the docs; no other gate state prints them".
+  - 2 new tests.
+- Verification: 46/46 pass. Leader re-run: **VERIFIED** (46/46, check exit 0).
+- Falsifier: attempt-1 sentence restored → `not ok 3 - … the gate records exactly one state per phase…`.
+- Reviewer (same context, resumed): **PASS**. Issue 1 closed; no regression in *Gate* and *Install routes* against FR-4, FR-10 and §8.1/§8.5. Its own re-run: 46/46.
+- Runtime events: none.
+
+**Decisions made**
+
+- Both attempt-1 advisories were passed to attempt 2 as `[advisory-grade]` fixes within the same file: in-file consistency only, no new behavior.
+- The F-5 amendment from T1 was carried to the Reviewer as a named conformance check, and it conformed.
+
+**ADVISORY** (final Reviewer): none. Recorded earlier: test regexes pin the shipped sentences verbatim, so a later copy edit turns them red.
+
+**Final verification**: `node --test test/modern-web-guidance.test.js test/impeccable-bridge.test.js test/install-cursor.test.js` → 46 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 2 / 14 | 14 |
+| LOC | 147 rules + 275 test = 422, plus T1's 0 | ~1,120 |
+| Review rounds | 4 | ~24 |
+
+Within budget. Note: T2 alone used about 38% of the LOC budget against its ~320 estimate (test LOC 270 vs ~200). Within the tripwire.
