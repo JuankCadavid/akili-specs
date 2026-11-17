@@ -641,3 +641,15 @@ Within budget.
 Within budget.
 
 **PR 1 scope (T1–T8) complete.**
+
+### JC ruling: non-ready MWG state in `/akili-validate` (2026-11-17)
+
+**Question (T8 Reviewer, open):** may `/akili-validate` give the design gate a `WARN` when the MWG state is not `ready`? The spec did not say.
+
+**Ruling (JC):** FR-4 stays as written, with **no spec change**:
+- `/akili-validate` **may** `WARN` on a non-ready MWG state.
+- It must **never** fail, stop or block on one.
+
+T8's shipped sentence ("recorded, never failed on") already conforms. No task reopens.
+
+**PR 1:** opened as #145 into `dev`, covering T1–T8 and the FR-7 amendment up to `eaba9da`. This ruling entry was committed after the PR opened.
