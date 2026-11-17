@@ -17,7 +17,7 @@
 | Upstream pin | `GoogleChrome/modern-web-guidance` tag `v1.0.1` = commit `64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65`; npm `modern-web-guidance@1.0.1` (integrity `sha512-5ztUh5F1…fIiGzg==`, shasum `06a05ddadd0f87f29881b16705faf55c2a5dc83a`) |
 | Phase 1 gate | Continue — approved by JC, 2026-11-17 |
 | Phase 2 corrections | C11 narrowed, C12 added, FR-11 BUT clause aligned: Antigravity's route and the eval figures were found in upstream README `v1.0.1` during design exploration (factual corrections, logged here) |
-| Judgment-day fix round 1 amendments (pending JC at the Phase 2 gate) | JC chose **Fix only** with warnings included (2026-11-17). Amended: Glossary *Selector*; C13 added; FR-1 AND (telemetry); FR-2 (three selectors, no skills-list path); FR-4 (`consent needed` names telemetry, no answer = declined, new `call failed` state, telemetry opt-out on every call); FR-11 BUT (MDN citable). Source: `judgment.md` S-1, S-4, S-7, W-2, X-3, X-12; design P-8, P-24, P-25 |
+| Judgment-day fix round 1 amendments (approved by JC at the Phase 2 gate, 2026-11-17) | JC chose **Fix only** with warnings included (2026-11-17). Amended: Glossary *Selector*; C13 added; FR-1 AND (telemetry); FR-2 (three selectors, no skills-list path); FR-4 (`consent needed` names telemetry, no answer = declined, new `call failed` state, telemetry opt-out on every call); FR-11 BUT (MDN citable). Source: `judgment.md` S-1, S-4, S-7, W-2, X-3, X-12; design P-8, P-24, P-25 |
 
 ## 2. Executive Summary
 

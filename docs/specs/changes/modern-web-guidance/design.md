@@ -12,7 +12,7 @@
 >   - `/akili-propose`: accepts that report as a source
 >   - `/akili-constitution` Step 8D: a row and a field
 >   - `/akili-execute`: no edit
-> - **Budget:** 9 tasks, ~1,120 LOC (~280 rules and docs, ~840 tests), ~20 review rounds.
+> - **Budget:** ~1,120 LOC (~280 rules and docs, ~840 tests). Planned at 9 tasks and ~20 review rounds; re-sized at Phase 3 to 14 tasks and ~24 rounds (`tasks.md`).
 > - **Revised after judgment-day round 1:** 8 severe and 9 warning findings fixed, Fix only (`judgment.md`).
 
 ## 1. Document Control
@@ -26,7 +26,7 @@
 | Verified at | `c74ae43` unless a row says otherwise |
 | Upstream pin | `v1.0.1` = `64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65`; npm `modern-web-guidance@1.0.1`, tarball shasum `06a05ddadd0f87f29881b16705faf55c2a5dc83a` (matched on download, 2026-11-17) |
 | Judgment | Round 1: 8 confirmed severe + 9 confirmed warnings → **Fix only** (JC, 2026-11-17), warnings included. Fix IDs in §14 |
-| Phase 2 gate | pending JC |
+| Phase 2 gate | Continue — approved by JC, 2026-11-17, after judgment-day round 1 (Fix only); FR-1/2/4/11 amendments approved with it |
 
 ## 2. Executive Summary
 
@@ -235,40 +235,40 @@ Blast-radius triggers:
 | P-7 | Pinned `SKILL.md` (blob `7483c781…`, 9,801 B, byte-identical in the tarball): `npx -y …@latest` for search, retrieve and legacy-scan; `--skill-version 2026_11_10-47b4c80e` on search only; the Step 4 disclosure; *Using npx / pnpx* names `pnpx` (no `-y`), `npx.cmd` on Windows, `NPM_CONFIG_CACHE` and `npx --offline` | data-env | `gh api …/SKILL.md?ref=64a6d708…` read in full; `git hash-object` of the tarball copy → `7483c781…` | upstream `64a6d708` | High: FR-5/FR-6 target wrong text | — |
 | P-8 | Node `>=22.0.0`; 16,720,506 B unpacked. **The CLI sends usage telemetry** (search queries, guide ids, agent name) to `play.googleapis.com` through a detached watchdog, unless `DISABLE_TELEMETRY` is `1` or `true` | data-env | `npm view …@1.0.1 engines dist`; tarball `modern-web.mjs:712` (`isTelemetryEnabled`), `:642` (`detached: true`); `watchdog/main.js:13` endpoint; README *Telemetry & Privacy* | upstream `64a6d708`, tarball `06a05dda…` | High: DD-14 | — |
 | P-9 | `--skill-version` is a free string (`parseArgs … strict: false`). When the caller's version date is >5 days older than the bundled `skill-version.txt` (`2026_11_10-47b4c80e`), the CLI prints a stderr nudge: `warn`, or `insist` at ≥60 days or on a frozen Claude marketplace build. It never fails | data-env | tarball `modern-web.mjs:833-839` (`getSkillUpdateLevel`), `:851-854`, `:1115-1122`; `skill-version.txt` | tarball `06a05dda…` | Low: DD-8 | — |
-| P-10 | Upstream's "Grok Build CLI" route is AKILI's Grok Bot target | data-env | `UNVERIFIED — confirm at source before relying on it` (both judges found no primary source; AKILI's Grok Bot is a hosted workflows root, `bin/akili.js:256`) | — | Low: the design no longer depends on it (Grok Bot is left out, §8.5) | T8 keeps it out unless a primary source appears |
+| P-10 | Upstream's "Grok Build CLI" route is AKILI's Grok Bot target | data-env | `UNVERIFIED — confirm at source before relying on it` (both judges found no primary source; AKILI's Grok Bot is a hosted workflows root, `bin/akili.js:256`) | — | Low: the design no longer depends on it (Grok Bot is left out, §8.5) | T12 keeps it out unless a primary source appears |
 | P-11 | `/akili-audit` has two modes. `design` takes a URL or path, or with no argument the dev server, else the UI source folders. Drift *Reading reports back* reads only `drift-*.md` | location | `akili-audit.md:13-20`, `:139`, `:153` | `c74ae43` | Low: DD-9 | — |
-| P-12 | `design-skill-routing.test.js` pins: 9 cards; card skill names = EIGHT folders (folder existence checked, `:93`); `AGENTS.md` *Design Skills* = EIGHT (`:100`); card evidence cells resolve under `.claude/skills/` (`:116-134`); card and row signatures are not restated outside the matrix (`:78-89`) | consumer | `test/design-skill-routing.test.js:35,76-100,116-134` | `c74ae43` | High: T3/T8 red | Consumers: T3, T8 |
-| P-13 | `design-skill-routing-coverage.test.js` pins the route-line form order and the five field names (`:142-152`), the specify rule sentence (`:152`), and Step 8D item 4's "six fields in order", matrix pointer last (`:117-138`). `design-skill-routing.test.js:141,213` pin no stack-skill names and no `file:line` in Step 8D items. `backend-skill-routing-coverage.test.js:73-74,203-213` pin the Step 8D item 3/4/5 structure | consumer | the cited lines, read | `c74ae43` | High: T3/T7 red | Consumers: T3, T5, T7 |
+| P-12 | `design-skill-routing.test.js` pins: 9 cards; card skill names = EIGHT folders (folder existence checked, `:93`); `AGENTS.md` *Design Skills* = EIGHT (`:100`); card evidence cells resolve under `.claude/skills/` (`:116-134`); card and row signatures are not restated outside the matrix (`:78-89`) | consumer | `test/design-skill-routing.test.js:35,76-100,116-134` | `c74ae43` | High: T4/T12 red | Consumers: T4, T12 |
+| P-13 | `design-skill-routing-coverage.test.js` pins the route-line form order and the five field names (`:142-152`), the specify rule sentence (`:152`), and Step 8D item 4's "six fields in order", matrix pointer last (`:117-138`). `design-skill-routing.test.js:141,213` pin no stack-skill names and no `file:line` in Step 8D items. `backend-skill-routing-coverage.test.js:73-74,203-213` pin the Step 8D item 3/4/5 structure | consumer | the cited lines, read | `c74ae43` | High: T4/T11 red | Consumers: T4, T6–T8, T11 |
 | P-14 | `SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8 + 1 + 2` (= 320) counts the files under `.claude/skills` except the `akili-panel` plugin entry's 7 | consumer | `test/install-cursor.test.js:257-262`; `find .claude/skills -type f \| wc -l` → 327 | `c74ae43` | Low: +1 term | Consumers: T2 |
 | P-15 | README `v1.0.1` *Recent eval results snapshot*: unguided 52–60% → guided 82–96% (Nov 4–8 rows, Google's simulated tasks) | data-env | README at `64a6d708` | upstream | Low: DD-11 | — |
-| P-16 | Rule 4's single-selector obligation and the env-provided example set are restated at `governance.md:30,39,41,44`, `docs/cli.md:32`, `akili-constitution.md:735-751` (item 3), `AGENTS.md:53`, `docs/flow.md:656` and `docs/skills/video-production.md:20`. They are pinned by `video-production.test.js:278-279,288` and `diagram-design.test.js:396-397`. `governance.md:62,145` (history) stay unchanged | consumer | `git grep -n -i -E "today's instance\|environment-provided\|Deliverable. selector" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` (all hits read) | `c74ae43` | Low: stale restatement | Consumers: T4, T7, T8 |
+| P-16 | Rule 4's single-selector obligation and the env-provided example set are restated at `governance.md:30,39,41,44`, `docs/cli.md:32`, `akili-constitution.md:735-751` (item 3), `AGENTS.md:53`, `docs/flow.md:656` and `docs/skills/video-production.md:20`. They are pinned by `video-production.test.js:278-279,288` and `diagram-design.test.js:396-397`. `governance.md:62,145` (history) stay unchanged | consumer | `git grep -n -i -E "today's instance\|environment-provided\|Deliverable. selector" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` (all hits read) | `c74ae43` | Low: stale restatement | Consumers: T5, T11, T12 |
 | P-17 | Upstream license Apache-2.0 (`LICENSE` blob `d6456956…`, 11,358 B) | data-env | `gh api repos/GoogleChrome/modern-web-guidance --jq .license.spdx_id` | upstream | Low | — |
-| P-18 | `test/impeccable-bridge.test.js` pins the bridge `version: "2.1"` (`:33`) and its `.md` file list as exactly 3 files (`:38`) | consumer | `sed -n 30,40p test/impeccable-bridge.test.js` | `c74ae43` | High: T2 red | Consumers: T2 |
-| P-19 | Step 8D item 4 lists its fields in a fixed order with the matrix pointer last | consumer | `akili-constitution.md:752-760`; `design-skill-routing-coverage.test.js:117-138` | `c74ae43` | Low: field order | Consumers: T7 |
-| P-20 | `video-production.test.js:278-279` regex-pins rule 4's clauses "only when (a) the spec records a `Deliverable` selector" and "(b) that skill's own availability gate runs first" | consumer | `sed -n 274,282p test/video-production.test.js` | `c74ae43` | High: T4 red | Consumers: T4 |
-| P-21 | `test/impeccable-bridge.test.js:88-100` requires the state tables in `akili-validate`, `akili-test` and `akili-audit` to be exactly five rows with fixed heads | consumer | `sed -n 86,100p test/impeccable-bridge.test.js` | `c74ae43` | High: T5/T6 red if a row is added | Consumers: T5, T6 |
-| P-22 | `design-eval-contract.test.js` pattern 7: every shipped line containing "outside `docs/specs/audits/`" must also contain "user-directed" | consumer | `sed -n 465,468p test/design-eval-contract.test.js` | `c74ae43` | Low: wording | Consumers: T6 |
-| P-23 | Report-kind readers of `docs/specs/audits/`: <ul><li>`drift-*.md` only: `akili-audit.md:82,153`, `akili-archive.md:83`, `kaizen/SKILL.md:69,74`, `docs/flow.md:617`</li><li>the source rule that accepts only `design-*.md`: `akili-propose.md:141`</li><li>the scaffold README text: `akili-constitution.md:39`, pinned by `akili-security-command.test.js:601`, listing `drift-*`/`security-*` only</li><li>docs listing kinds: `docs/flow.md:193-194`, `docs/commands/README.md:17`, `docs/overview.md:34`, `docs/commands/akili-audit.md:37`, `docs/commands/akili-constitution.md:43`</li></ul> | consumer | `git grep -n -E "design-\*\.md\|drift-\*\|design-\*\|security-\*" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` (all hits read) | `c74ae43` | Low: a reader misreads the new kind | Consumers: T6, T8 |
+| P-18 | `test/impeccable-bridge.test.js` pins the bridge `version: "2.1"` (`:33`) and its `.md` file list as exactly 3 files (`:38`) | consumer | `sed -n 30,40p test/impeccable-bridge.test.js` | `c74ae43` | High: T2/T3 red | Consumers: T2 (file list), T3 (version) |
+| P-19 | Step 8D item 4 lists its fields in a fixed order with the matrix pointer last | consumer | `akili-constitution.md:752-760`; `design-skill-routing-coverage.test.js:117-138` | `c74ae43` | Low: field order | Consumers: T11 |
+| P-20 | `video-production.test.js:278-279` regex-pins rule 4's clauses "only when (a) the spec records a `Deliverable` selector" and "(b) that skill's own availability gate runs first" | consumer | `sed -n 274,282p test/video-production.test.js` | `c74ae43` | High: T5 red | Consumers: T5 |
+| P-21 | `test/impeccable-bridge.test.js:88-100` requires the state tables in `akili-validate`, `akili-test` and `akili-audit` to be exactly five rows with fixed heads | consumer | `sed -n 86,100p test/impeccable-bridge.test.js` | `c74ae43` | High: T6–T8/T9 red if a row is added | Consumers: T6–T8, T9 |
+| P-22 | `design-eval-contract.test.js` pattern 7: every shipped line containing "outside `docs/specs/audits/`" must also contain "user-directed" | consumer | `sed -n 465,468p test/design-eval-contract.test.js` | `c74ae43` | Low: wording | Consumers: T9 |
+| P-23 | Report-kind readers of `docs/specs/audits/`: <ul><li>`drift-*.md` only: `akili-audit.md:82,153`, `akili-archive.md:83`, `kaizen/SKILL.md:69,74`, `docs/flow.md:617`</li><li>the source rule that accepts only `design-*.md`: `akili-propose.md:141`</li><li>the scaffold README text: `akili-constitution.md:39`, pinned by `akili-security-command.test.js:601`, listing `drift-*`/`security-*` only</li><li>docs listing kinds: `docs/flow.md:193-194`, `docs/commands/README.md:17`, `docs/overview.md:34`, `docs/commands/akili-audit.md:37`, `docs/commands/akili-constitution.md:43`</li></ul> | consumer | `git grep -n -E "design-\*\.md\|drift-\*\|design-\*\|security-\*" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` (all hits read) | `c74ae43` | Low: a reader misreads the new kind | Consumers: T9, T12 |
 | P-24 | README `v1.0.1` line 9: "Stewarded by the Google Chrome, Microsoft Edge, Mozilla Firefox, and MDN teams" | data-env | `sed -n 9p` of README at `64a6d708` | upstream | Low: DD-11 | — |
 | P-25 | Skill Map names become task skills and brief support names, and the Implementer must load them before coding | location | `akili-specify.md:439`; `.claude/templates/leader.md:25`; `akili-execute.md:191`; `akili-constitution.md` Step 8D item 2 | `c74ae43` | High: DD-15 | — |
-| P-26 | Live path of the new action: the user types `/akili-audit modern-web [<path>]` → the Usage parse (`akili-audit.md` *Usage*, mode argument) → the *Modern Web Mode* section → `modern-web.md` *Audit scan* → gate. The route flag: specify writes `platform` → the task's Build route step 4 / *Platform guidance* (via the task skill list `impeccable-bridge`, P-2) → gate | live-path | `akili-audit.md:13-20` (today's mode dispatch: no argument → drift, `design` → design); P-2, P-3 | `c74ae43` | High: a mode that never dispatches | T6 adds the dispatch line |
-| P-27 | Readers of the `platform` signal: the route-line form and field table (`design-routing.md` *Design route line*), *Platform guidance* (new), Build route step 4 and the ENV-0 sentence, the Done-criteria clause, the specify rule (`akili-specify.md:483`), Step 8D item 4, and `modern-web.md` *How it is reached*. Test and validate do not read it (P-3, DD-3) | shared-state | `git grep -n "Design route" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` → 18 hits, all read (incl. `ui-ux-pro-max/SKILL.md:34` and `docs/commands/akili-specify.md:77`, which read the route but not the new field) | `c74ae43` | Low: a reader ignores the field | T3, T5, T7 |
+| P-26 | Live path of the new action: the user types `/akili-audit modern-web [<path>]` → the Usage parse (`akili-audit.md` *Usage*, mode argument) → the *Modern Web Mode* section → `modern-web.md` *Audit scan* → gate. The route flag: specify writes `platform` → the task's Build route step 4 / *Platform guidance* (via the task skill list `impeccable-bridge`, P-2) → gate | live-path | `akili-audit.md:13-20` (today's mode dispatch: no argument → drift, `design` → design); P-2, P-3 | `c74ae43` | High: a mode that never dispatches | T9 adds the dispatch line |
+| P-27 | Readers of the `platform` signal: the route-line form and field table (`design-routing.md` *Design route line*), *Platform guidance* (new), Build route step 4 and the ENV-0 sentence, the Done-criteria clause, the specify rule (`akili-specify.md:483`), Step 8D item 4, and `modern-web.md` *How it is reached*. Test and validate do not read it (P-3, DD-3) | shared-state | `git grep -n "Design route" -- . ':!docs/specs' ':!CHANGELOG.md' ':!releases'` → 18 hits, all read (incl. `ui-ux-pro-max/SKILL.md:34` and `docs/commands/akili-specify.md:77`, which read the route but not the new field) | `c74ae43` | Low: a reader ignores the field | T4, T6–T8, T11 |
 
 Hand-off:
 - P-12 to P-14 and P-16 to P-23 go to the owning tasks' `Consumers` fields.
-- P-10 is owned by T8 and is no longer depended on.
-- P-26 is owned by T6.
+- P-10 is owned by T12 and is no longer depended on.
+- P-26 is owned by T9.
 - Any premise refuted later goes to the Pivot Protocol.
 
 ## 12. Budget (Step 2.4)
 
 | Signal | Estimate |
 |---|---|
-| Tasks | 9: <ol><li>T1 security</li><li>T2 reference + bridge row/version + file count + bridge test</li><li>T3 matrix + routing tests</li><li>T4 governance + restatements + rule 4 test</li><li>T5 specify/test/validate pointers</li><li>T6 audit mode + propose source</li><li>T7 constitution 8D + 8D tests</li><li>T8 docs + CHANGELOG</li><li>T9 contract suite</li></ol> |
+| Tasks | 9 at design time; **re-sized to 14 at Phase 3** (`tasks.md`): the split is per rules document (Step 3.2), and scope is unchanged |
 | LOC | ~280 rules and docs + ~840 tests (3× per clause, KZ-bugfix--init-ctrlc-abort-2; requirements carry 48+ THEN/AND/BUT clauses) = **~1,120** |
-| Review rounds | ~20 (2 per rules-document task, T2–T8 = 14; T1 1–2; T9 2–3; +1 margin) |
+| Review rounds | ~20 at design time; **~24 after the Phase 3 split** (`tasks.md` Document Control) |
 
-Depth check: Standard fits. No task spans more than one file family plus its pinned tests. ~1,120 LOC is over 400, so §13 recommends two PRs.
+Depth check: Standard fits. No task spans more than one rules document plus its pinned tests. ~1,120 LOC is over 400, so §13 recommends two PRs.
 
 ## 13. Risks and Rollback
 
@@ -280,7 +280,7 @@ Depth check: Standard fits. No task spans more than one file family plus its pin
 | Upstream renames commands or flags, or changes telemetry | The pin isolates AKILI calls; a pin move is a spec, and T1's checks re-run then |
 | Rollback | Revert the branch commits; nothing is installed or migrated |
 
-PR strategy: PR 1 = T1–T5 (routing core and its tests); PR 2 = T6–T9 (audit mode, constitution, docs, contract suite). One PR also works if JC prefers to bundle it with the release.
+PR strategy: PR 1 = T1–T8 (routing core and its tests); PR 2 = T9–T14 (audit mode, propose source, constitution, docs, CHANGELOG, cross-cutting suite). Task numbers follow `tasks.md`. One PR also works if JC prefers to bundle it with the release.
 
 ## 14. Judgment-day round 1 fix map
 
@@ -305,7 +305,7 @@ PR strategy: PR 1 = T1–T5 (routing core and its tests); PR 2 = T6–T9 (audit 
 | W-9 pin location, invalid-pin line, completion-report field | §8.1 *Pin*, *Disclosure*; DD-7 |
 | Also closed (suspects, at no extra scope) | X-3 consent no-answer (DD-6); X-4 test/validate gate (§8.1); X-5 outside-gate (§8.1); X-9 Done criteria (§8.2); X-10 report-line form (gate table); X-11 untrusted prompts (§8.1); X-12 MDN (P-24) |
 
-## 15. Test design notes (for T9 and each task's own tests)
+## 15. Test design notes (for T14 and each task's own tests)
 
 - The suite never runs the MWG CLI and never touches the network (NFR-1). It reads shipped text only.
 - **The `@latest` check** scans every packaged and shipped-docs file. It excludes `docs/specs/` (the spec's own folder quotes upstream), `test/`, `CHANGELOG.md` history sections older than `Unreleased`, and `releases/`. It never names the active spec path (KZ-changes--archify-diagrams-1).
