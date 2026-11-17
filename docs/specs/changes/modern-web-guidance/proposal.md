@@ -19,9 +19,9 @@
 | Type | Change |
 | Deliverable | software (methodology rules, docs, tests; no runtime code) |
 | Approval Mode | `gated`. JC's brief: "If any gate, question, or approval comes up, stop and ask clearly with the options; do not decide it yourself." JC pre-approved *starting* this proposal, not its content |
-| Approval | **Pending.** Awaiting JC: approve / revise / stop, plus D1–D4 (§12) |
-| Requirement source | JC's brief, 2026-11-17 (pasted into the session). No Jira ticket is named. **Confirm at approval:** the brief's wording does not let this be logged as `skipped` under `gated` |
-| Visual source | None. No UI surface: this changes methodology text |
+| Approval | **Approved by JC, 2026-11-17 08:08 UTC-5.** D1 = **Option B** (environment-provided, routed through the bridge; governance rule 4 amended). D2 = **both**: AKILI default pin plus a project Skill Map override. D3 = **`/akili-audit` only**. D4 confirmed |
+| Requirement source | JC's brief, 2026-11-17 (pasted into the session). No Jira. Confirmed by JC at approval (D4) |
+| Visual source | None. No UI surface: this changes methodology text. Confirmed by JC at approval (D4) |
 | Release target | The same **minor** release as PRs #142, #143 and #144, which are already on `dev`. This spec does not start the release |
 | Depends on | none |
 | Parallel-safe | no. Shares `design-routing.md`, `governance.md` and the command files with any other open design-routing work |
@@ -145,7 +145,7 @@ When an AKILI project has a web user interface, its agents should write modern p
 
 ## 12. Risks, Dependencies, And Open Questions
 
-**Decisions for JC** (the brief says stop and ask; none is decided here):
+**Decisions for JC.** All four were settled by JC on 2026-11-17 (see Document Control → Approval): D1 B, D2 both, D3 `/akili-audit` only, D4 confirmed. Under D3, the Scope's "and/or `/akili-constitution`" narrows to `/akili-audit` only.
 
 | # | Question | Options |
 |---|---|---|
