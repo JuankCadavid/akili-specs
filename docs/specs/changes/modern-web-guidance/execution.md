@@ -10,7 +10,7 @@
 | Leader | Claude Code session, `opus` (T1) |
 | Implementer / Reviewer models | `sonnet` (T2) / `opus` (T3). No Step 8E wrappers in this repo: fallback sub-prompt path, persona read by path |
 | Personas | `node bin/akili.js doctor --agents` 2026-11-17: leader, implementer, reviewer CURRENT; tester `prove-behavior` OUTDATED → fixed with `--fix --allow-branch` (backup `.agents/.backup/tester.md.20261117-124059`) |
-| Budget (tripwire) | Tasks 14 · LOC ~1,120 (raised to **~1,400** by JC 2026-11-17 at the T12 budget tripwire) · review rounds ~24 (`tasks.md` Document Control) |
+| Budget (tripwire) | Tasks 14 · LOC ~1,120 (raised to ~1,400 by JC 2026-11-17 at the T12 budget tripwire, then to **~1,470** by JC 2026-11-17 at the `/akili-test` end gate) · review rounds ~24 (`tasks.md` Document Control) |
 
 ## Task Execution History
 
@@ -1144,3 +1144,9 @@ Within budget.
 - **Branches:** PR 1 (T1–T8) is merged into `dev` as #145 (`6698b17`). PR 2 (T9–T14) is local and unpushed on `feat/modern-web-guidance`, awaiting JC.
 - **Final totals:** about 1,391 LOC of ~1,400, and 21 review rounds of ~24.
 - **Next:** `/akili-test` → `/akili-validate` → `/akili-archive`, plus the PR 2 push and PR, when JC approves.
+
+### JC ruling: budget raise at the `/akili-test` end gate (2026-11-17)
+
+**Decision (JC, 2026-11-17):** the LOC budget is raised from ~1,400 to **~1,470**. This accepts the 78 LOC of `/akili-test` gap tests in `test/web-platform-guidance-coverage.test.js` (commit `3a5bbdc`, test report §8, D-2). Spec LOC is now about 1,469 of ~1,470.
+
+The tasks (14) and review-round (~24) budgets are unchanged. The new figure is recorded in the Document Control and budget rows of `design.md`, `tasks.md` and this file. Earlier task entries keep the budget that was in force when they were written.
