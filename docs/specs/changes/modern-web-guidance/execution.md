@@ -714,3 +714,77 @@ T8's shipped sentence ("recorded, never failed on") already conforms. No task re
 | Review rounds | 12 | ~24 |
 
 Within budget. Execution stopped after T9 by JC's direction; T10 has not started.
+
+### T10: `/akili-propose` accepts the report
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-17 |
+| Attempts | 2 |
+| Requirements covered | FR-8 AND (routes findings to `/akili-propose`) |
+| Design | §8.3 (propose source widening); P-23 |
+| Skills | `cognitive-doc-design` (task list) |
+| Effort | Attempt 1 medium; attempt 2 high (bumped after the FAIL) |
+
+**Attempt 1: FAIL**
+- **Files changed:** `.claude/commands/akili-propose.md:141`, where the existing sentence was widened to also name `docs/specs/audits/modern-web-*.md`. `test/modern-web-guidance.test.js` gained a *propose* section with 2 tests.
+- **Implementer verification:**
+  - Two suites: 66 pass, 0 fail.
+  - `npm test`: 2068 pass, 0 fail.
+  - `git diff --check`: clean.
+  - Red: `not ok 55 - propose (FR-8, P-23): the source rule names both design-*.md and modern-web-*.md reports`.
+- **Implementer assumption (verbatim):** "P1/P2/P3 wording kept as-is for modern-web reports too … I did not verify whether `modern-web.md` itself uses P1–P3 priority tags."
+- **Evidence re-run (Leader-inline): VERIFIED.** 66/66, 2068/2068 and the red were all reproduced.
+- **Reviewer (opus, checklist): FAIL**, with two issues:
+  1. The shared "P1/P2 findings … leave P3 out" filter carries no modern-web finding, because a modern-web report has no priorities (`modern-web.md` → *Audit scan* step 5; `design.md` §8.3 step 5). This violates the T10 Scope ("findings carried as the Problem table"), FR-8 *Scan runs* AND, and the §8.3 widening paragraph. Remediation: a separate modern-web selection clause, with the design rule unchanged and no P-tags in `modern-web.md`.
+  2. The second test was a presence check that could not catch Issue 1 (reviewer audit item 3). Remediation: assert a modern-web clause that does not depend on P-priorities, and give it a falsifier.
+- **Runtime events:** none.
+
+**Attempt 2: PASS**
+- **Files changed:**
+  - `.claude/commands/akili-propose.md:141` now has a shared sentence: "carry its findings in scope as the Problem table, one row per finding citing the report".
+  - The design-report sentence keeps P1/P2 and leaves P3 out unless the user asks.
+  - A new modern-web sentence reads: "A modern-web report has no priorities: carry each kept finding it routes to `/akili-propose` (grouped), one row per finding citing the report and its guide id; findings it routes to `/akili-quick` are not carried."
+  - `test/modern-web-guidance.test.js`: the *propose* section now has 4 tests (+32 net).
+- **Implementer verification:**
+  - Two suites: 68 pass, 0 fail.
+  - `npm test`: 2070 pass, 0 fail.
+  - `git diff --check`: clean.
+  - Red 1 (`modern-web-*.md` removed): `not ok 55 - propose (FR-8, P-23): the source rule names both design-*.md and modern-web-*.md reports`.
+  - Red 2 (modern-web clause removed): `not ok 58 - propose (FR-8): modern-web reports carry kept findings routed to /akili-propose, independent of P-priorities`.
+- **Implementer assumption (verbatim):** "I read 'kept findings routed to `/akili-propose`' as 'grouped' findings, per *Audit scan* step 5. Findings routed to `/akili-quick` are trivial and are not carried into a proposal."
+- **Evidence re-run (Leader-inline): VERIFIED.** 68/68 and 2070/2070, both reds reproduced, and the file restored. The diff is 53 lines.
+- **Reviewer (opus, full, rework override (e)): PASS.**
+  - Both attempt 1 issues are resolved.
+  - The `/akili-quick` exclusion follows FR-8's routing (`/akili-quick` for trivial findings) and `akili-audit.md:165`, so no obligation is dropped.
+  - The design-rule meaning is unchanged from HEAD, and the `Report location` clause is still pinned by `design-eval-contract.test.js:456-460`.
+  - Test 58 checks behavior, not mere presence.
+  - Consumer suites: 90/90.
+  - Named conformance checks 1–3: not affected.
+- **Runtime events:** none.
+
+**Spawns:**
+- Implementer #1 (sonnet): 8 calls, 72,095 tokens, ended complete.
+- Reviewer #1 (opus): 4 calls, 79,488 tokens, ended fail.
+- Implementer #2 (sonnet): 6 calls, 71,774 tokens, ended complete.
+- Reviewer #2 (opus): 7 calls, 81,266 tokens, ended complete.
+
+**ADVISORY (recorded only):**
+- No test pins the `/akili-quick` exclusion sentence.
+- The modern-web exclusion has no "unless the user asks" escape, unlike the design rule's P3.
+- The tests extract the paragraph with `[^\n]*`, so they depend on it staying on one line (a false fail, never a false pass).
+
+**Decisions made:** none beyond the rework. There were no spec edits.
+
+**Final verification:** `npm test` 2070 pass, 0 fail.
+
+**Running totals vs budget**
+
+| Measure | Running total | Budget |
+|---|---|---|
+| Tasks | 10 / 14 | 14 |
+| LOC | ~870 (817 + 53) | ~1,120 |
+| Review rounds | 14 | ~24 |
+
+Within budget. Continuing to T11 (JC directive: T10–T14 without pausing).

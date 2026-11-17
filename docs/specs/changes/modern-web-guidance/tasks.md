@@ -211,7 +211,7 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Status | [ ] |
+| Status | [x] |
 | Size | XS (~1 line + ~15 test LOC) |
 | Depends on | T9 |
 | Requirements | FR-8 AND (routes findings to `/akili-propose`) |

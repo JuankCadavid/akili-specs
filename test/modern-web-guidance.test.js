@@ -599,3 +599,35 @@ test("audit (FR-8, P-21): the checklist carries a modern-web line and the design
   const rows = design.split("\n").filter((l) => /^\s*\| (Skill source|Engine) /.test(l));
   assert.equal(rows.length, 5);
 });
+
+// ---- propose (T10): /akili-propose accepts the modern-web report as a source (FR-8, P-23) ----
+
+const PROPOSE_CMD = path.join(ROOT, ".claude", "commands", "akili-propose.md");
+const proposeSource = () => {
+  const m = read(PROPOSE_CMD).match(/\*\*Design evaluation as a source\.\*\*[^\n]*/);
+  assert.ok(m, "Design evaluation as a source paragraph present");
+  return m[0];
+};
+
+test("propose (FR-8, P-23): the source rule names both design-*.md and modern-web-*.md reports", () => {
+  const s = proposeSource();
+  assert.match(s, /`docs\/specs\/audits\/design-\*\.md`/);
+  assert.match(s, /`docs\/specs\/audits\/modern-web-\*\.md`/);
+});
+
+test("propose (FR-8): findings are carried as the Problem table, one row per finding citing the report", () => {
+  assert.match(proposeSource(), /carry its findings in scope as the Problem table, one row per finding citing the report/);
+});
+
+test("propose (FR-8): design reports keep the P1/P2 rule", () => {
+  assert.match(proposeSource(), /For a design report, carry its P1\/P2 findings and leave P3 items out of scope/);
+});
+
+test("propose (FR-8): modern-web reports carry kept findings routed to /akili-propose, independent of P-priorities", () => {
+  const s = proposeSource();
+  const clause = s.slice(s.indexOf("A modern-web report"));
+  assert.ok(clause.startsWith("A modern-web report"), "modern-web selection clause present");
+  assert.match(clause, /carry each kept finding it routes to `\/akili-propose`/);
+  assert.match(clause, /one row per finding citing the report and its guide id/);
+  assert.doesNotMatch(clause, /P1|P2|P3/);
+});
