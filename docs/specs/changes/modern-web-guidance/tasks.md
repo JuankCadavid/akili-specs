@@ -17,7 +17,7 @@
 | Approval Mode | `gated` |
 | Source | `requirements.md` (amended, approved), `design.md` (approved 2026-11-17 after judgment-day round 1, Fix only) |
 | Budget (tripwire) | Tasks **14** (design §12 said 9; the split is per rules document, scope unchanged). LOC **~1,120** (unchanged). Review rounds **~24** (design said ~20: +4 for the five small split-off tasks, at 1 round each) |
-| Phase 3 gate | pending JC |
+| Phase 3 gate | Continue — approved by JC, 2026-11-17, with the two-PR split (PR 1: T1–T8, PR 2: T9–T14) |
 | Design route / Backend route | n/a. No task changes a UI surface or backend code (rules text, docs and tests only) |
 
 ## Task graph
@@ -182,7 +182,7 @@ flowchart LR
 | Tests | Suite section *validate*: as T7 |
 | Falsifier | Change "not failed" to "WARN/FAIL" → red |
 | Red run | predicted — greenfield artifact (observed in T8) |
-| Disqualifier | — |
+| Disqualifier | n/a — a presence check of one sentence; the agent behavior it describes is an accepted risk (requirements §8) |
 | Consumers | `test/impeccable-bridge.test.js:88-100` (P-21) |
 | Review | `checklist` |
 | Done criteria | Falsifier red quoted; suites green |
@@ -220,7 +220,7 @@ flowchart LR
 | Tests | Suite section *propose*: both report kinds named |
 | Falsifier | Remove `modern-web-*.md` → red |
 | Red run | predicted — greenfield artifact (observed in T10) |
-| Disqualifier | — |
+| Disqualifier | n/a — a presence check of one sentence; the agent behavior it describes is an accepted risk (requirements §8) |
 | Consumers | `test/impeccable-bridge.test.js` propose pointer check (`:96-100`) |
 | Review | `checklist` |
 | Done criteria | Red quoted; suites green |
@@ -336,3 +336,22 @@ flowchart LR
 | PR 2 (stacked on PR 1) | T9–T14 | Audit mode, then constitution, docs, CHANGELOG | Routing rules (PR 1) |
 
 A single PR is also fine if JC prefers to bundle it with the #142–#144 release.
+
+## Verification Checklist (`/akili-specify`, run 2026-11-17)
+
+| Item | Result |
+|---|---|
+| 3 files exist, non-empty | `requirements.md` 300, `design.md` 313, `tasks.md` 338 lines |
+| `general-setup/` conventions | n/a. This repo has no `docs/specs/general-setup/` (`ls` → absent). Shape follows the archived precedent `2026-11-01-changes--go-backend-routing--golang-skill` |
+| Depth re-checked against the design | Standard kept. Re-sized at Phase 3 to 14 tasks (Document Control) |
+| Budget recorded | `design.md` §12 + Document Control above (14 tasks, ~1,120 LOC, ~24 rounds) |
+| Reversion challenge | `design.md` §10: no DD reverts shipped behavior |
+| Premise Ledger | 27 rows; 1 `UNVERIFIED` (P-10, Low, owned by T12); every triggered class has rows (`consumer`, `live-path` P-26, `shared-state` P-27); consumer rows are copied into tasks' `Consumers` |
+| Defect classes mapped | `requirements.md` §8, with the accepted risks stated |
+| Scenarios with BUT / AND IT MUST | FR-1 to FR-11 |
+| Clause-level coverage | *Coverage* table above |
+| Dependency graph acyclic | Every `Depends on` points to a lower task number |
+| Skills real | `security-audit`, `impeccable-bridge`, `cognitive-doc-design`, `tdd`: each has a `.claude/skills/<name>/SKILL.md` |
+| Verification fields on all 14 tasks | Falsifier, Red run, Disqualifier and Consumers present 14/14, none blank; Red runs are `predicted — greenfield artifact (observed in Tn)` or `n/a` (T1) |
+| `skip-eligible` named at the gate | None. Stated in the Phase 3 presentation |
+| Rendered-measurement gates | n/a. No gate measures rendered output |
