@@ -15,7 +15,8 @@
 | Branch / baseline | `feat/modern-web-guidance` at `fb682eb` (from `dev` `decf0fc`); `npm test` 2012 pass / 0 fail on Node 22.23.4 (run 2026-11-17) |
 | Change from proposal | The proposal's Scope named a `docs/skills/modern-web-guidance.md` page. Phase 1 found that environment-provided skills have no such page and that `test/docs-overview.test.js` holds `docs/skills/` to the packaged folders (§4 C3, C4). The docs home moves to `docs/skills/impeccable-bridge.md` plus the environment-tool rows (FR-11) |
 | Upstream pin | `GoogleChrome/modern-web-guidance` tag `v1.0.1` = commit `64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65`; npm `modern-web-guidance@1.0.1` (integrity `sha512-5ztUh5F1…fIiGzg==`, shasum `06a05ddadd0f87f29881b16705faf55c2a5dc83a`) |
-| Phase 1 gate | pending JC |
+| Phase 1 gate | Continue — approved by JC, 2026-11-17 |
+| Phase 2 corrections | C11 narrowed, C12 added, FR-11 BUT clause aligned: Antigravity's route and the eval figures were found in upstream README `v1.0.1` during design exploration (factual corrections, logged here) |
 
 ## 2. Executive Summary
 
@@ -49,7 +50,8 @@ Current behavior (each claim cited as run on 2026-11-17 at `fb682eb`, or marked)
 | C8 | Upstream `SKILL.md` at the pin: 9,801 B, blob `7483c781ee0045cea7558cff21513ae0ef468669`. It invokes `npx -y modern-web-guidance@latest` for every command and says "MANDATORY: Execute FIRST for all HTML/CSS and clientside JS tasks" | `gh api "repos/GoogleChrome/modern-web-guidance/contents/skills/modern-web-guidance/SKILL.md?ref=64a6d708…"` |
 | C9 | Upstream license Apache-2.0 (`LICENSE` blob `d645695673349e3947e8e5ae42332d0ac3164cd7`, 11,358 B); `engines.node >=22.0.0`; the npm package is 281 files, 16,720,506 B unpacked | `gh api …/LICENSE?ref=64a6d708…`; `npm view modern-web-guidance@1.0.1 engines dist` |
 | C10 | Upstream ships plugin manifests for Claude Code (`.claude-plugin/marketplace.json`, marketplace `googlechrome`), Codex, Cursor, `.agents/plugins` and `.grok-plugin` | `gh api …/git/trees/v1.0.1?recursive=1` and manifest reads |
-| C11 | Whether upstream's `.grok-plugin` installs into AKILI's Grok Bot target, and whether `.agents/plugins` is Antigravity's format | `UNVERIFIED — confirm at source before relying on it` |
+| C11 | Upstream README `v1.0.1` *Alternative Installation Methods* gives routes for Claude Code, Codex and Antigravity (`agy plugin install …`), a generic `npx skills add` route, and a "Grok Build CLI" route. It has no Cursor- or OpenCode-specific route. Whether "Grok Build" is AKILI's Grok Bot target is `UNVERIFIED — confirm at source before relying on it` | README.md at `64a6d708…`, read 2026-11-17 (design P-10) |
+| C12 | Upstream README `v1.0.1` *Recent eval results snapshot* reports 52–60% unguided → 82–96% guided on Google's own simulated tasks (Nov 4–8 rows) | README.md at `64a6d708…` (design P-15) |
 
 **In scope:** governance, the bridge's routing and a new reference file, pointer lines in `/akili-specify`, `/akili-execute` (through task skill lists and the Build route), `/akili-test`, `/akili-validate`, `/akili-audit`, `/akili-constitution` Step 8D, docs, CHANGELOG, tests.
 
@@ -249,7 +251,7 @@ Each phase SHALL reach MWG only through the bridge and only for web UI work, wit
 - WHEN they are read
 - THEN `docs/skills/impeccable-bridge.md` describes MWG's role, gate, pin and security record; `docs/overview.md` and `docs/cli.md` carry an environment-tool row; the `AGENTS.md` *Design Skills* list names it; `CHANGELOG.md` `Unreleased` has an entry
 - AND each states the license as Apache-2.0 and attributes MWG to Google Chrome
-- BUT it must NOT state the brief's unconfirmed claims (MDN stewardship, the 52–60% / 82–96% eval figures, a Grok Bot route) unless a primary source is cited, and must NOT claim a security property beyond the FR-1 verdict
+- BUT it must NOT state the brief's unconfirmed claims (MDN stewardship, a Grok Bot route) unless a primary source is cited; the eval figures may appear only cited to C12 and labelled as Google's own evals; and it must NOT claim a security property beyond the FR-1 verdict
 
 ## 7. Non-Functional Requirements
 
