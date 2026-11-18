@@ -14,7 +14,7 @@ AKILI commands are installed as slash-command prompts for Claude Code and OpenCo
 | [`/akili-test <spec-path>`](akili-test.md) | Proving behavior with test evidence via the Leader → Tester(s) harness | `test-report.md` |
 | [`/akili-validate <spec-path>`](akili-validate.md) | Auditing conformance before completion | `validation-report.md` |
 | [`/akili-archive <spec-path>`](akili-archive.md) | Closing completed work after validation | Archived spec folder with `archive-summary.md` + one Kaizen entry file at `docs/specs/kaizen/<safe-spec-slug>.md` |
-| [`/akili-audit`](akili-audit.md) | Detecting drift between specs and codebase reality | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix |
+| [`/akili-audit`](akili-audit.md) | Detecting drift between specs and codebase reality; `modern-web` mode scans web UI source for modern-platform replacements (opt-in, report-only) | One report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with conformance score and discrepancy matrix; `modern-web` mode writes `modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md` instead |
 | [`/akili-resume`](akili-resume.md) | Resuming work after a session break | Multi-spec dashboard with phase, progress, and next command recommendation |
 | [`/akili-seo <site-domain>`](akili-seo.md) | Setting up GSC ownership and SEO audit evidence | `seo-setup-report.md`, `seo-audit-report.md` |
 | [`/akili-security [<path>…]`](akili-security.md) | Auditing a repository for security vulnerabilities behind a plan gate | Redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`; full artifacts in the run directory (always outside the target) |

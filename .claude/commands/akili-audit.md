@@ -1,6 +1,6 @@
 ---
 name: akili-audit
-description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD, or run `design` mode to evaluate the design quality of an existing product (read-only, P1–P3 findings).
+description: Run spec-to-code drift auditing to detect differences between active codebase reality and the active UX/UI design and TRD, run `design` mode to evaluate the design quality of an existing product (read-only, P1–P3 findings), or run `modern-web` mode for an opt-in, report-only scan of web UI source for modern-platform replacements.
 license: MIT
 metadata:
   author: Juan Carlos Cadavid (jcadavid.com)
@@ -15,9 +15,10 @@ Detect and report drift between the project's specifications (PRD, UX/UI Design,
 ```
 /akili-audit
 /akili-audit design [<url|path>]
+/akili-audit modern-web [<path>]
 ```
 
-With no argument the command runs the spec-to-code **drift audit** below. With `design` it runs a **design evaluation** of an existing product instead (see *Design Evaluation Mode*); the drift steps do not run in that mode.
+With no argument the command runs the spec-to-code **drift audit** below. With `design` it runs a **design evaluation** of an existing product instead (see *Design Evaluation Mode*); the drift steps do not run in that mode. With `modern-web` it runs an opt-in, report-only **modern web scan** of the project's web UI source (see *Modern Web Mode*); the drift steps do not run in that mode either. The mode is chosen by the argument and by nothing else: the user typing `modern-web` is the opt-in.
 
 ## Behavior
 
@@ -154,7 +155,22 @@ A `design-*.md` file is never a drift report: the drift *Reading reports back* r
 
 ---
 
+## Modern Web Mode
+
+`/akili-audit modern-web [<path>]` inventories web UI source that modern platform guidance could replace, through Modern Web Guidance's `legacy-scan`. It is report-only and runs only when the user types the mode.
+
+1. Load `impeccable-bridge` and follow `.claude/skills/impeccable-bridge/references/modern-web.md` → *Audit scan*. That section is the single source of the procedure (applicability, gate, the pinned call and its flags, the finding rubric, the report contents); this command does not restate it.
+2. Not applicable (no web UI source under the path) or a gate state other than `ready`: the scan is not offered or is recorded `not run: <state>`, and the audit otherwise behaves as today. A state other than `ready` never fails, stops or blocks the audit.
+3. Write the report at `docs/specs/audits/modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md`, with the drift reports' suffix rule above.
+4. Report-only: the report is the mode's only write, and upstream's *Modernize* step is never run. Route the findings in the report and in the summary: a trivial fix → `/akili-quick`; a group of related findings → `/akili-propose`. Findings never become tasks of a running spec.
+
+A `modern-web-*.md` file is never a drift report: the drift *Reading reports back* rule reads only `drift-*.md`.
+
+---
+
 ## Verification Checklist
+
+In **modern-web mode**, confirm instead: the report exists at its `modern-web-*.md` path and is non-empty; it states the pin, the path scanned, the gate state, the kept and dropped counts and the coverage caveat, or reads `not applicable` / `not run: <state>`; every kept finding has a file, a guide id and a routed fix (`/akili-quick` or `/akili-propose`); *Modernize* was not run; and nothing but that report was written.
 
 In **design mode**, confirm instead: the report exists at its E6 location (the default `design-*.md` path or the recorded user-directed path) and is non-empty; it states the skill source and engine state, the target, the scan matrix (command, viewport, exit code per pass, or `Unevaluated` with the reason); every finding has a priority, evidence and a routed fix; and nothing outside `docs/specs/audits/` was edited, except a recorded user-directed report location and a recorded consented `npm ci`.
 

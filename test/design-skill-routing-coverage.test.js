@@ -115,7 +115,7 @@ test("@akili-spec changes/design-skill-routing FR-7: animate owns motion; gsap-a
   for (const l of gsapLines) assert.match(l, /only when the project uses GSAP or the design records it/, `Step 2.1 gates gsap: ${l.slice(0, 80)}`);
 });
 
-test("@akili-spec changes/design-skill-routing FR-10 (amended): Step 8D scaffolds the block only for UI projects, six fields, no matrix rows; Safe Update preserves it", () => {
+test("@akili-spec changes/design-skill-routing FR-10 (amended): Step 8D scaffolds the block only for UI projects, seven fields, no matrix rows; Safe Update preserves it", () => {
   const c = cmd("akili-constitution");
   const item = between(c, "4. **A `### Design routing` block", "**Mode-specific policy");
   const heading = item.split("\n")[0];
@@ -127,8 +127,9 @@ test("@akili-spec changes/design-skill-routing FR-10 (amended): Step 8D scaffold
     "implementation layers (",
     "motion library (",
     "mockup route (",
+    "platform guidance (",
     "one line pointing at the matrix by name",
-  ], "six fields in order");
+  ], "seven fields in order, matrix pointer last");
   assert.ok(item.includes("The block holds **no matrix rows**"), "no matrix rows");
   assert.match(section(matrix(), "Environment classification"), /Classify each screen/, "the ladder classifies screens, so no screen means no class");
   // Step 8D's own policy: the first one after item 4 (Step 8C carries an earlier one).

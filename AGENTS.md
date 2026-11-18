@@ -50,7 +50,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 
 - Use `systematic-debugging` for bugs, test failures, and unexpected behavior.
 - Use `tdd` for test-first implementation of logic-heavy tasks (algorithms, business rules, contracts); the `/akili-execute` Leader assigns it per task — expected values come from `requirements.md` scenarios, seams from `design.md`.
-- Use `video-production` for specs whose Document Control records `Deliverable: video`; it runs the availability gate for the environment-provided `hyperframes` skills and maps video activities to AKILI phases (read the matching `references/` file for the task).
+- Use `video-production` for specs whose Document Control records `Deliverable: video`; it runs the availability gate for the environment-provided `hyperframes` skills (a `Deliverable` selector stops at its gate) and maps video activities to AKILI phases (read the matching `references/` file for the task).
 - Use `judgment-day` for blind adversarial design reviews during `/akili-specify`.
 - Use `kaizen` for continuous-improvement retrospectives; `/akili-archive` loads it in its Kaizen Retrospective step.
 - Use `software-architect` for TRD creation, NFR/quality-attribute identification, architecture style and pattern selection, and robust-vs-lite stack sizing; `/akili-constitution` loads it in its TRD step and `/akili-specify` for architecturally significant designs (read only the matching `references/` file per task).
@@ -79,6 +79,7 @@ Impeccable decides what and why; the stack decides how. One lead skill per activ
 - `gsap-animation` — GSAP motion and scroll-driven animation work.
 - `tailwind-design-system` — Tailwind v4 tokens and component patterns.
 - `shadcn-ui` — shadcn/ui component implementation.
+- `modern-web-guidance` — environment-provided (Google Chrome, Apache-2.0), supporting only: platform implementation for web UI tasks, reached through `impeccable-bridge` by a `platform mwg` route or `/akili-audit modern-web`; never a lead, never in a skills list, never stops a step.
 
 The routing matrix is `.claude/skills/impeccable-bridge/references/design-routing.md`.
 
