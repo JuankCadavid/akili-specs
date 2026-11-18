@@ -6,7 +6,7 @@
 > - All six gates pass on the working tree: `npm test` **2111/2111**, `pack:dry-run` 430 files.
 > - Counts: **PASS 9 · WARN 0 · FAIL 0 · BLOCKED 0**. Three notes and two advisories, none gating.
 > - **Q-1 ruled (JC option A, 2026-11-18 7:37 AM America/Bogota):** the `git diff --numstat` count (1,467 added lines, excluding `docs/specs/`) meets the ~1,470 budget. See §13.6.
-> - **Archive readiness:** ready once the remediation is committed with the `[SPEC:changes/modern-web-guidance]` prefix and logged in `execution.md` (N-3).
+> - **Archive readiness:** met. The remediation is committed as `973c12c` and logged in `execution.md` (N-3 closed); CI on #146 is green at `973c12c`.
 >
 > The first validation follows unchanged as history (§1–§12).
 
@@ -228,7 +228,7 @@ Before merging PR #146, confirm that both Windows CI legs went green.
 
 ## 13. Re-validation after remediation
 
-**Verdict: PASS.** W-1 and W-2 are resolved. No new finding gates. Run by the same T3 auditor (opus) on 2026-11-17, against `ae5a918` plus the uncommitted remediation. The auditor edited only this report.
+**Verdict: PASS.** W-1 and W-2 are resolved. No new finding gates. Run by the same T3 auditor (opus) on 2026-11-17, against `ae5a918` plus the then-uncommitted remediation, since committed as `973c12c` (CI green on #146 after one macOS / Node 22 rerun). The auditor edited only this report.
 
 ### 13.1 JC rulings
 
@@ -306,7 +306,7 @@ Run by the validator on Node v22.23.4 on the working tree:
 
 ### 13.7 Notes (no finding)
 
-- **N-3 (traceability):** the remediation is uncommitted, and `execution.md` has no entry for it. Before archive, commit it with the `[SPEC:changes/modern-web-guidance]` prefix and log the W-1/W-2 remediation in `execution.md`: the rulings, the files, the red run and the 2111 count.
+- **N-3 (traceability), closed:** the remediation is committed as `973c12c` with the `[SPEC:changes/modern-web-guidance]` prefix, and `execution.md` logs it (*`/akili-validate` remediation: W-1 and W-2*): the rulings, the files, the red run and the 2111 count.
 - **N-4:** the 2109 → 2111 delta against `test-report.md` (above).
 - N-1 and N-2 from §11 still stand.
 
@@ -314,7 +314,7 @@ Run by the validator on Node v22.23.4 on the working tree:
 
 Counts: **PASS 9 · WARN 0 · FAIL 0 · BLOCKED 0**. Requirement coverage moves from WARN to PASS. UI design review stays not applicable.
 
-**Ready to archive** after the N-3 commit and log entry. Q-1 is answered (option A, §13.6). Then run:
+**Ready to archive.** N-3 is closed (`973c12c`, logged in `execution.md`) and Q-1 is answered (option A, §13.6). Then run:
 
 ```text
 /akili-archive changes/modern-web-guidance

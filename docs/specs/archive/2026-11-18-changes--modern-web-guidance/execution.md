@@ -1142,7 +1142,7 @@ Within budget.
   - Budget raised to ~1,400 LOC at the T12 tripwire.
   - The `akili-audit.md` frontmatter fix folded into T12.
 - **Branches:** PR 1 (T1–T8) is merged into `dev` as #145 (`6698b17`). PR 2 (T9–T14) is open into `dev` as #146 (not merged); its last pushed tip is `ae5a918`. Later commits are local (see the remediation entry below).
-- **Final totals:** about 1,391 LOC of ~1,400, and 21 review rounds of ~24.
+- **Final totals:** at T14, about 1,391 LOC of the ~1,400 then in force, and 21 review rounds of ~24. After `/akili-test` (+78 LOC, budget raised to ~1,470) and the `/akili-validate` remediation, the spec closes at **1,467 added lines by `git diff --numstat`, within ~1,470** (JC Q-1 ruling, 2026-11-18).
 - **Next:** `/akili-test` → `/akili-validate` → `/akili-archive`, plus the PR 2 push and PR, when JC approves.
 
 ### JC ruling: budget raise at the `/akili-test` end gate (2026-11-17)

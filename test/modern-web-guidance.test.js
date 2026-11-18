@@ -1042,12 +1042,12 @@ test("cross-cutting (FR-7 AND IT MUST): every command mention of MWG is conditio
   assert.deepEqual(unconditional, []);
 });
 
-test("cross-cutting (NFR-2): no MWG file is in the repository: the only tracked MWG-named paths are the rules file, this suite and the spec folder", () => {
+test("cross-cutting (NFR-2): no MWG file is in the repository: the only tracked MWG-named paths are the rules file, this suite and the spec records under docs/specs/", () => {
   const tracked = spawnSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" });
   assert.equal(tracked.status, 0);
   const files = tracked.stdout.split("\n").filter(Boolean);
   assert.ok(files.length > 100);
-  const named = files.filter((f) => /modern-web|mwg/i.test(f) && !f.startsWith("docs/specs/changes/modern-web-guidance/"));
+  const named = files.filter((f) => /modern-web|mwg/i.test(f) && !f.startsWith("docs/specs/"));
   assert.deepEqual(named.sort(), [".claude/skills/impeccable-bridge/references/modern-web.md", "test/modern-web-guidance.test.js"]);
   assert.deepEqual(files.filter((f) => /(^|\/)LICENSE$/.test(f) && /modern-web/i.test(read(path.join(ROOT, f)).slice(0, 400))), []);
 });
