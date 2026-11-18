@@ -1,7 +1,7 @@
 # Test Report: Modern Web Guidance (`changes/modern-web-guidance`)
 
 > **Status: PASS.** JC ruled on both test-phase decisions on 2026-11-17 (§8).
-> - **Results:** `npm test` passed 2109 of 2109 (0 fail, 0 skipped). Every FR-1 to FR-11 and NFR-1 to NFR-4 clause has test evidence or a recorded reason. No product bugs.
+> - **Results:** `npm test` passed 2109 of 2109 at `/akili-test` (0 fail, 0 skipped); 2111 of 2111 after the `/akili-validate` W-1 fix added 2 tests (§3). Every FR-1 to FR-11 and NFR-1 to NFR-4 clause has test evidence or a recorded reason. No product bugs.
 > - **New tests:** 8 gap tests in `test/web-platform-guidance-coverage.test.js` (78 LOC). Each one was shown red against the shipped text before it went green.
 > - **JC rulings (§8):**
 >   1. The renamed file is kept.
@@ -39,7 +39,8 @@
 
 | Command | Result |
 |---|---|
-| `npm test` | 2109 pass, 0 fail, 0 skipped |
+| `npm test` | 2109 pass, 0 fail, 0 skipped at `/akili-test`. **2111 pass**, 0 fail, 0 skipped after the `/akili-validate` W-1 fix added 2 tests to `test/modern-web-guidance.test.js` (2026-11-18) |
+| `node --test test/modern-web-guidance.test.js` after the W-1 fix | 91/91 (89 + 2) |
 | `node --test test/modern-web-guidance.test.js` | 89/89 |
 | `node --test test/web-platform-guidance-coverage.test.js` | 8/8 |
 | `npm run verify:cli`, `npm run pack:dry-run`, `git diff --check` | exit 0, exit 0, clean (Tester run) |

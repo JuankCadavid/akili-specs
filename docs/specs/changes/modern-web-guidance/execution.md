@@ -10,7 +10,7 @@
 | Leader | Claude Code session, `opus` (T1) |
 | Implementer / Reviewer models | `sonnet` (T2) / `opus` (T3). No Step 8E wrappers in this repo: fallback sub-prompt path, persona read by path |
 | Personas | `node bin/akili.js doctor --agents` 2026-11-17: leader, implementer, reviewer CURRENT; tester `prove-behavior` OUTDATED → fixed with `--fix --allow-branch` (backup `.agents/.backup/tester.md.20261117-124059`) |
-| Budget (tripwire) | Tasks 14 · LOC ~1,120 (raised to ~1,400 by JC 2026-11-17 at the T12 budget tripwire, then to **~1,470** by JC 2026-11-17 at the `/akili-test` end gate) · review rounds ~24 (`tasks.md` Document Control) |
+| Budget (tripwire) | Tasks 14 · LOC ~1,120 (raised to ~1,400 by JC 2026-11-17 at the T12 budget tripwire, then to **~1,470** by JC 2026-11-17 at the `/akili-test` end gate; met at 1,467 by `git diff --numstat`, JC Q-1 ruling 2026-11-18) · review rounds ~24 (`tasks.md` Document Control) |
 
 ## Task Execution History
 
@@ -1141,7 +1141,7 @@ Within budget.
   - FR-4 kept as written (a non-ready MWG state may WARN in `/akili-validate`, never fail, stop or block).
   - Budget raised to ~1,400 LOC at the T12 tripwire.
   - The `akili-audit.md` frontmatter fix folded into T12.
-- **Branches:** PR 1 (T1–T8) is merged into `dev` as #145 (`6698b17`). PR 2 (T9–T14) is local and unpushed on `feat/modern-web-guidance`, awaiting JC.
+- **Branches:** PR 1 (T1–T8) is merged into `dev` as #145 (`6698b17`). PR 2 (T9–T14) is open into `dev` as #146 (not merged); its last pushed tip is `ae5a918`. Later commits are local (see the remediation entry below).
 - **Final totals:** about 1,391 LOC of ~1,400, and 21 review rounds of ~24.
 - **Next:** `/akili-test` → `/akili-validate` → `/akili-archive`, plus the PR 2 push and PR, when JC approves.
 
@@ -1150,3 +1150,32 @@ Within budget.
 **Decision (JC, 2026-11-17):** the LOC budget is raised from ~1,400 to **~1,470**. This accepts the 78 LOC of `/akili-test` gap tests in `test/web-platform-guidance-coverage.test.js` (commit `3a5bbdc`, test report §8, D-2). Spec LOC is now about 1,469 of ~1,470.
 
 The tasks (14) and review-round (~24) budgets are unchanged. The new figure is recorded in the Document Control and budget rows of `design.md`, `tasks.md` and this file. Earlier task entries keep the budget that was in force when they were written.
+
+### `/akili-validate` remediation: W-1 and W-2 (2026-11-17/18)
+
+**Rulings (JC):**
+
+| Gate | Ruling | Time (America/Bogota) |
+|---|---|---|
+| W-1: `modern-web.md` *In a task* ran the check against the guides (upstream's *Step 3*) before the UI edits | **Option A:** fix the shipped text, and every place that mirrors it, so the check runs after the UI edits | 2026-11-17 7:07 PM |
+| W-2: FR-9 said "use when present"; the shipped Step 8D row says "availability and pin note" | **Option A only:** amend FR-9 to "availability and pin note", with a Document Control row recording JC's approval. No item-2 / `leader.md` follow-up | 2026-11-17 7:07 PM |
+| Q-1: LOC budget, `git diff --numstat` 1,467 vs a per-task sum of ~1,500, against ~1,470 | **Option A**, in JC's words: «Q-1: A, acepta el conteo de git diff y anótalo en execution.md» | 2026-11-18 7:37 AM |
+
+**Files:**
+
+| File | Change |
+|---|---|
+| `.claude/skills/impeccable-bridge/references/modern-web.md` | *In a task*: items 1–2 (search, retrieve) before the UI edits; item 3 the edits; item 4 checks the built code against the retrieved guides after them; item 5 records the guide ids |
+| `.claude/skills/impeccable-bridge/references/design-routing.md` | Build route step 4 checks the built code after the UI edits and before `polish` (step 7); *Platform guidance* gains item 3 "After the edits", Report becomes item 4. Step numbers unchanged |
+| `test/modern-web-guidance.test.js` | 2 new tests: the *In a task* order, and step 4 plus *Platform guidance* both carrying the after-edits check |
+| `docs/specs/changes/modern-web-guidance/requirements.md` | FR-9 THEN amended; new Document Control row for the validate-time amendment (W-2), approved by JC |
+| `docs/specs/changes/modern-web-guidance/validation-report.md` | First validation (§1–§12) kept as history; re-validation summary and §13 added; Q-1 ruling recorded |
+| `docs/specs/changes/modern-web-guidance/test-report.md` | Count refreshed: 2109 at `/akili-test`, 2111 after this fix (validate note N-4) |
+
+**Failing-test check:** with the old "before the UI edits" line restored, the new test fails: `not ok 20 - modern-web.md rules file (FR-7, W-1): search and retrieve run before the UI edits, the check of the built code runs after them`. With the fix it passes. No other shipped file repeated the old order.
+
+**Evidence:** `npm test` **2111/2111**, 0 fail, 0 skipped (2109 + 2). `node --test test/modern-web-guidance.test.js` 91/91. `verify:cli`, `pack:dry-run` (430 files), `git diff --check`, `install --tool all --dry-run` and `doctor --tool all` all exit 0. Targeted re-validation (independent `opus` auditor): **PASS 9 · WARN 0 · FAIL 0 · BLOCKED 0**.
+
+**Budget (Q-1, option A):** the spec's added lines, `git diff --numstat 688b35a~1 -- . ':!docs/specs'`, are **1,467**, which meets the ~1,470 budget. The fix added +31 / −7 shipped and test lines. The per-task-sum convention used in earlier entries (~1,500) is not the budget measure from here on. No raise. Review rounds and task count unchanged.
+
+**Branch state:** #146 tip stays `ae5a918` (pushed). The remediation commit is local and unpushed.

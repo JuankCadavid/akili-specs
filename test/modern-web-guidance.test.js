@@ -205,8 +205,30 @@ test("modern-web.md rules file (FR-7): in a task one search per capability, retr
   const sec = section(rules(), "## In a task");
   assert.match(sec, /One `search` per platform capability/);
   assert.match(sec, /`retrieve` the matching guides/);
-  assert.match(sec, /Check the code against them/);
+  assert.match(sec, /Check the code against them|check the built code against the retrieved guides/);
   assert.match(sec, /\*\*Never run `legacy-scan` in a task\.\*\*/);
+});
+
+test("modern-web.md rules file (FR-7, W-1): search and retrieve run before the UI edits, the check of the built code runs after them", () => {
+  const sec = section(rules(), "## In a task");
+  const at = (re) => {
+    const m = re.exec(sec);
+    assert.ok(m, `In a task lacks ${re}`);
+    return m.index;
+  };
+  assert.doesNotMatch(sec, /[Cc]heck[^\n]*before the UI edits/, "the guide check must not be ordered before the UI edits");
+  assert.ok(at(/One `search` per platform capability/) < at(/`retrieve` the matching guides/), "search before retrieve");
+  assert.ok(at(/`retrieve` the matching guides/) < at(/Make the UI edits/), "retrieve before the UI edits");
+  assert.ok(at(/Make the UI edits/) < at(/After the UI edits, check the built code against the retrieved guides \(upstream's \*Step 3\*\)/), "check after the UI edits");
+  assert.ok(at(/After the UI edits, check the built code/) < at(/Record each guide id in the completion report/), "check before the disclosure");
+});
+
+test("matrix (FR-7, W-1): the Build route carries the after-edits guide check, before polish, with step numbering unchanged", () => {
+  const build = mdSection(matrixText(), "Build route");
+  assert.match(build, /\(section \*Platform guidance\*\): search and retrieve now; after the UI edits and before `polish` \(step 7\), check the built code against the retrieved guides\./);
+  const pg = mdSection(matrixText(), "Platform guidance");
+  assert.match(pg, /\*\*After the edits\.\*\* Once the UI edits are made and before `polish` \(\*Build route\* step 7\), check the built code against the retrieved guides/);
+  assert.doesNotMatch(build + pg, /check the code against them[^.]*before the UI edits/i);
 });
 
 test("modern-web.md rules file (FR-7): test and validate reads re-run retrieve for recorded ids; not ready is skipped, never failed", () => {
@@ -361,7 +383,7 @@ test("matrix (DD-16): in the shipped Build route, Platform guidance is step 4 an
   };
   assert.ok(at("4. **Platform guidance**") < at("5. **Craft floor.**"), "platform guidance before craft floor");
   assert.ok(at("5. **Craft floor.**") < at("7. **`polish`"), "craft floor before polish");
-  assert.match(build, /4\. \*\*Platform guidance\*\* when the route says `platform mwg` \(section \*Platform guidance\*\)\./);
+  assert.match(build, /4\. \*\*Platform guidance\*\* when the route says `platform mwg` \(section \*Platform guidance\*\)/);
   assert.match(build, /8\. \*\*Completion report\.\*\*/);
   assert.match(mdSection(matrixText(), "Platform guidance"), /After the playbook load, before the craft-floor read/);
 });

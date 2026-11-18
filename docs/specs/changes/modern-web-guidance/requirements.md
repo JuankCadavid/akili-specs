@@ -19,6 +19,7 @@
 | Phase 2 corrections | C11 narrowed, C12 added, FR-11 BUT clause aligned: Antigravity's route and the eval figures were found in upstream README `v1.0.1` during design exploration (factual corrections, logged here) |
 | Judgment-day fix round 1 amendments (approved by JC at the Phase 2 gate, 2026-11-17) | JC chose **Fix only** with warnings included (2026-11-17). Amended: Glossary *Selector*; C13 added; FR-1 AND (telemetry); FR-2 (three selectors, no skills-list path); FR-4 (`consent needed` names telemetry, no answer = declined, new `call failed` state, telemetry opt-out on every call); FR-11 BUT (MDN citable). Source: `judgment.md` S-1, S-4, S-7, W-2, X-3, X-12; design P-8, P-24, P-25 |
 | Execute-time amendment (T6, FR-7) | JC, 2026-11-17, gate answer "Amend FR-7 wording": FR-7 AND IT MUST now says "unchanged in behavior … a UI route may carry `platform none — <reason>` (FR-3)". Reason: design §8.2 (shipped in T4) gives every UI route the sixth field, so an ENV-3 native-only route reads `platform none — native`, which FR-3 Not-web already allows. Surfaced by the T6 Reviewer |
+| Validate-time amendment (W-2, FR-9) | JC, 2026-11-17 7:07 PM America/Bogota, `/akili-validate` gate answer "W-2 option A": FR-9 *Web UI project* THEN now reads "an availability and pin note, never a skill to assign; FR-2 BUT" instead of "use when present". This aligns FR-9 with the amended FR-2 BUT and DD-15, as the shipped `/akili-constitution` Step 8D row already does. No shipped text changes. `proposal.md:83` keeps the original phrase as the approved proposal record |
 
 ## 2. Executive Summary
 
@@ -230,7 +231,7 @@ Each phase SHALL reach MWG only through the bridge and only for web UI work, wit
 
 - GIVEN a project whose UX/UI evidence shows a browser-rendered UI
 - WHEN Step 8D builds the `## Skill Map`
-- THEN it may write an MWG row marked environment-provided ("use when present"), with an optional exact-version field (FR-5)
+- THEN it may write an MWG row marked environment-provided (an availability and pin note, never a skill to assign; FR-2 BUT), with an optional exact-version field (FR-5)
 - BUT it must NOT write the row for a project with no web UI, or assert the skill is installed
 
 ### FR-10: Install behavior

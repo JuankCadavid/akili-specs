@@ -69,7 +69,7 @@ For a UI task in `/akili-execute`, with skill source `vendored` or `user-install
 1. **Setup.** Impeccable's Setup, with the bridge's Step 0 gate unchanged: no launcher call before the engine is `ready` or `installed (consented)`; otherwise Impeccable's own *Launcher unavailable* path.
 2. **Load only what the task names.** The playbook reference(s) in the task's `Design route:` line, plus Setup, the craft floor and `polish`; never the whole reference folder.
 3. **Code-led, against the recorded direction.** The roll, any dealt structure and any comp were settled at specify and recorded in the spec's design. In execute there is no decision page, no `concept-seed`, no comp round, no image generation and no documenter (`docs/ux-ui/design.md` is the authority; `PRODUCT.md` and `DESIGN.md` stay derived). The questions `new-work` asks before building are answered from the spec's design; a question it does not answer is a spec gap, handled by the Pivot Protocol and never decided by the Implementer.
-4. **Platform guidance** when the route says `platform mwg` (section *Platform guidance*).
+4. **Platform guidance** when the route says `platform mwg` (section *Platform guidance*): search and retrieve now; after the UI edits and before `polish` (step 7), check the built code against the retrieved guides.
 5. **Craft floor.** Read it immediately before UI edits.
 6. **Finish review: not run (AKILI execute).** Impeccable forbids its finish review inside the build thread and its packet needs a roll and screenshots that execute does not produce. The Implementer reports `finish review: not run (AKILI execute)` and never presents the skip as a review; the AKILI Reviewer and `/akili-validate`'s design gate (critique and audit) judge the built result. Impeccable's degraded inline finish pass is never run in the build thread either.
 7. **`polish` within the AKILI scope limit.** Full and light are an AKILI scope limit on `polish`, not an upstream mode; upstream's rules apply inside it.
@@ -89,7 +89,8 @@ Runs for every task whose route says `platform mwg`, **whatever the skill source
 
 1. **When.** After the playbook load, before the craft-floor read (*Build route*).
 2. **How.** Follow `modern-web.md` → *Gate*, then `modern-web.md` → *In a task*. This file holds no gate, pin or call form.
-3. **Report.** The gate's report line and the disclosure go into the completion report (`modern-web.md` → *Disclosure*).
+3. **After the edits.** Once the UI edits are made and before `polish` (*Build route* step 7), check the built code against the retrieved guides (`modern-web.md` → *In a task*, item 4).
+4. **Report.** The gate's report line and the disclosure go into the completion report (`modern-web.md` → *Disclosure*).
 
 A route that reads `none — <reason>` skips this section; the gate does not run and no install route is printed.
 
