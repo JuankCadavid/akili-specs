@@ -530,9 +530,11 @@ test("FR-8 THEN: docs/commands/akili-validate.md has an Agent Specs section with
   has(sec, /\*\*agent eval gate\*\*/, "eval gate");
 });
 
-test("FR-8 AND: CHANGELOG Unreleased carries the entry, consistent with the shipped version and binding", () => {
-  const sec = section(read(p("CHANGELOG.md")), "## [Unreleased]");
-  const added = sec.split("\n").find((l) => l.startsWith("- **`ai-agent-development` 1.1 gains `references/guardrails.md` and `references/evals.md`"));
+// Reads the newest CHANGELOG section, in document order ([Unreleased] first), that carries the entry, so the test survives the release cut (AGENTS.md).
+test("FR-8 AND: the newest CHANGELOG section with the entry carries it, consistent with the shipped version and binding", () => {
+  const ADDED_LEAD = "- **`ai-agent-development` 1.1 gains `references/guardrails.md` and `references/evals.md`";
+  const sec = read(p("CHANGELOG.md")).split(/\n(?=## \[)/).find((s) => s.startsWith("## [") && s.split("\n").some((l) => l.startsWith(ADDED_LEAD))) || "";
+  const added = sec.split("\n").find((l) => l.startsWith(ADDED_LEAD));
   assert.ok(added, "Added entry");
   const changed = sec.split("\n").find((l) => l.startsWith("- **`ai-agent-development` is now `conditional`, not `stack`.**"));
   assert.ok(changed, "Changed entry");
