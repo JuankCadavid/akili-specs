@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.45.0] - 2026-11-19
+
 ### Added
 
 - **`ai-agent-development` 1.1 gains `references/guardrails.md` and `references/evals.md`, and the commands use them for AI agent specs.** `/akili-specify` records `AI Agent: yes` or `AI Agent: no` on every spec; when `yes`, `requirements.md` gains **Guardrails** and **Evals** sections, `design.md` an eval seam and an online monitoring plan, and `tasks.md` an eval-gate task. `/akili-test` runs an agent eval suite over the offline, regression and guardrail sets, stops when the eval-gate task has no runnable command, and adds an **Agent Evals** section to the report. `/akili-validate` applies an agent eval gate: a missing eval-gate task or results, a guardrail violation, a missed threshold or a missing online monitoring plan is a FAIL; a triggered no-pass condition is BLOCKED. A spec without `AI Agent: yes` gets none of this.
@@ -24,10 +30,10 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **`docs/skills/governance.md` rule 4 names three selectors, with a per-selector outcome.** A spec whose `Deliverable` selects an environment-provided skill still stops at that skill's availability gate. A web UI task's `platform mwg` route and the typed `/akili-audit modern-web` mode never stop: they continue without MWG and report `not run`. `docs/flow.md`, `docs/skills/README.md`, `docs/skills/video-production.md`, `docs/overview.md`, `docs/cli.md` and `AGENTS.md` restate it.
 - **`ai-agent-development` is now `conditional`, not `stack`.** `/akili-constitution` Step 5 loads it when the product includes an AI agent, instead of listing it through the Step 8D Skill Map; `docs/skills/governance.md`, `AGENTS.md` and the backend routing matrix say so.
 
-- **`akili-panel` `plugin.json` describes 1.1.0.** Its `description` named only the `Next` button; it now lists the methodology flow, active branch, token use, session model, collapsible `Skills` list and small `AKILI` title. Copy only; the plugin version stays `1.1.0`.
+- **`akili-panel` is 1.1.1.** Its `plugin.json` `description` named only the `Next` button; it now lists the methodology flow, active branch, token use, session model, collapsible `Skills` list and small `AKILI` title. In `flow.mjs`, `SKILL_CATALOG` lists `ai-agent-development` as `conditional`, not `stack`, so the pane's `Skills` list shows it in the `conditional` group. The plugin version moves from `1.1.0` to `1.1.1` so marketplace installs pick up both changes.
+- **Three Kaizen standardizations from earlier specs (PR #144).** The Tester persona's *Prove Behavior* section (`.claude/templates/tester.md`, section marker now `since=v2.45.0`) adds: a test helper that bounds a text range by start and end anchors fails when either anchor is not found, never falling back to the end of the file. `/akili-specify` adds *Phase-scoped gates*: when a requirement makes more than one phase gate refuse on missing items, each gate names only the items its own phase produces. `docs/skills/governance.md` *Attribution complete* adds that a third-party skill's admission review quotes its scan commands verbatim, reads a scanner exit status of 2 as "not run", and runs hidden-character checks with a tool that supports the pattern on the host.
 - **`docs/plugins/akili-panel.md` names the versions 1.1.0 was tested on.** It said the tests ran on 2.1.319 (1.0.0); 1.1.0's plugin tests ran on 2.1.318 and 2.1.322. The 2.1.318 minimum is unchanged.
 - **The package `description` and the README lead with the brand descriptor ("AI agents and software").** The README adds it as one line under `# AKILI` and keeps the tagline; the `description` keeps a short explanation after it. Copy only.
-
 ## [2.44.0] - 2026-11-11
 
 ### Added
