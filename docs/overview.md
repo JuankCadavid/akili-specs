@@ -31,7 +31,7 @@ These run outside the per-spec loop. `/akili-seo` and `/akili-marketing` form th
 | Command | Use it to | Page |
 |---|---|---|
 | `/akili-quick <change-name>` | Make a genuinely trivial, low-risk change (copy edit, color or text tweak) in one step, with a one-line entry in `docs/specs/quick/quick-log.md`; it escalates when the change is bigger than trivial | [commands/akili-quick.md](commands/akili-quick.md) |
-| `/akili-audit` | Detect and report drift between the specifications (PRD, UX/UI Design, TRD) and the implementation: one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with a conformance score, categorized discrepancies, a conformance matrix and recommended remediation paths | [commands/akili-audit.md](commands/akili-audit.md) |
+| `/akili-audit` | Detect and report drift between the specifications (PRD, UX/UI Design, TRD) and the implementation: one report per run at `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` with a conformance score, categorized discrepancies, a conformance matrix and recommended remediation paths; `/akili-audit modern-web` is an opt-in, report-only scan of web UI source for modern-platform replacements, written to `modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md` | [commands/akili-audit.md](commands/akili-audit.md) |
 | `/akili-resume` | Resume work after a session break: a multi-spec dashboard with phase, progress, blockers and the next command; no arguments | [commands/akili-resume.md](commands/akili-resume.md) |
 | `/akili-seo <site-domain>` | Set up Google Search Console ownership and audit SEO: `seo-setup-report.md` and `seo-audit-report.md` under `docs/specs/seo/<domain>/` | [commands/akili-seo.md](commands/akili-seo.md) |
 | `/akili-security [<path>…]` | Audit a repository for security vulnerabilities behind a plan gate. Full findings stay in the run directory (always outside the target); the only tracked repository content written is a redacted index at `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md`. Confirmed findings are routed to `/akili-propose bugfix/security-<YYYY-MM-DD>-r<N>-s<n>`. Not supported on native Windows: run it from WSL, Linux or macOS | [commands/akili-security.md](commands/akili-security.md) |
@@ -75,7 +75,7 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 
 | Skill | Binding | Use it for |
 |---|---|---|
-| [`ai-agent-development`](skills/ai-agent-development.md) | stack | Leads agent framework and runtime selection (incl. AWS hosting choice) and supports agent architecture under the backend routing matrix; also the bridge from agent behavior to AKILI spec documents |
+| [`ai-agent-development`](skills/ai-agent-development.md) | conditional | Leads agent framework and runtime selection (incl. AWS hosting choice) and supports agent architecture under the backend routing matrix; also the bridge from agent behavior to AKILI spec documents |
 | [`api-design-principles`](skills/api-design-principles.md) | stack | REST and GraphQL API design and review |
 | [`aws-serverless`](skills/aws-serverless.md) | stack | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK |
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
@@ -147,6 +147,7 @@ Every command runs without these; each row says what you lose.
 | Python 3 with `google-auth` and `google-api-python-client` | `/akili-seo` domain verification (`scripts/gsc_verify.py`) | The rest of `/akili-seo` still runs; setup steps are in [CLI: `/akili-seo` Setup](cli.md#akili-seo-setup) |
 | Impeccable engine (an existing binary, or downloaded only on your consent) | `impeccable-bridge`'s detector gate, for UI work and `/akili-audit design` | The `impeccable` skill still leads; detector rows read `Unevaluated (engine not installed)` |
 | HyperFrames (installed by you) | `video-production`, for specs with `Deliverable: video` | A video spec stops at the skill's availability gate and prints the install route |
+| Modern Web Guidance by Google Chrome (Apache-2.0; installed by you, Node 22 or newer, your consent per session) | `impeccable-bridge`, for a web UI task's `platform mwg` route and `/akili-audit modern-web` ([details](skills/impeccable-bridge.md#modern-web-guidance-environment-provided)) | Nothing stops: the step continues without it and reports `not run`; the install routes are printed once per session |
 | [Archify](https://github.com/tt-a1i/archify) by tt-a1i (MIT licence): `npx skills add tt-a1i/archify` | `diagram-design`, for interactive diagram views | Install it yourself; AKILI references it and never ships or installs it. Without it, diagrams stay inline Mermaid and every command works unchanged |
 
 ## Glossary

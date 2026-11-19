@@ -252,12 +252,14 @@ test(
     // .claude/skills/impeccable/ (changes/impeccable-hardening, FR-3), + 1
     // impeccable-bridge/references/design-routing.md (changes/design-skill-routing),
     // + 8 golang-pro files (6 upstream + LICENSE + NOTICE; changes/go-backend-routing/golang-skill),
-    // + 1 software-architect/references/backend-routing.md (changes/go-backend-routing/backend-skill-routing).
-    const SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8 + 1;
+    // + 1 software-architect/references/backend-routing.md (changes/go-backend-routing/backend-skill-routing),
+    // + 2 ai-agent-development/references (guardrails.md, evals.md; changes/ai-agent-guardrails-evals),
+    // + 1 impeccable-bridge/references/modern-web.md (changes/modern-web-guidance).
+    const SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8 + 1 + 2 + 1;
     assert.equal(
       SKILL_FILE_COUNT,
       SKILL_FILE_EXPECTED,
-      `expected ${SKILL_FILE_EXPECTED} (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro + 1 backend-routing.md) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
+      `expected ${SKILL_FILE_EXPECTED} (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro + 1 backend-routing.md + 2 ai-agent-development guardrails.md/evals.md + 1 modern-web.md) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
         "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"
     );
     assert.equal(COMMAND_COUNT, 14, `expected 14 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);

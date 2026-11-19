@@ -11,6 +11,8 @@
 
 # AKILI
 
+**Akili · AI agents and software**
+
 Spec-driven development for AI coding assistants: plan the change, build it, test it, and learn from it.
 
 <p>

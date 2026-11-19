@@ -18,7 +18,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 
 | Skill | Binding | Origin | Use For | Wired In |
 |---|---|---|---|---|
-| [`ai-agent-development`](ai-agent-development.md) | stack | Juan Carlos Cadavid — jcadavid.com (MIT) | Leads agent framework and runtime selection (incl. AWS hosting choice) and supports agent architecture (state, tools, memory, HITL) under the backend routing matrix; also the bridge from agent behavior to AKILI spec documents | Skill Map; constitution/specify stack lists |
+| [`ai-agent-development`](ai-agent-development.md) | conditional | Juan Carlos Cadavid — jcadavid.com (MIT) | Leads agent framework and runtime selection (incl. AWS hosting choice) and supports agent architecture (state, tools, memory, HITL) under the backend routing matrix; also the bridge from agent behavior to AKILI spec documents, with guardrail and eval references | `/akili-specify` AI Agent Mode, `/akili-test` agent eval suite, `/akili-validate` agent eval gate (each when `AI Agent: yes`) |
 | [`angular-developer`](angular-developer.md) | stack | Google LLC (MIT) | Angular architecture, components, services, signals, forms, routing, testing, CLI | Skill Map; constitution/specify stack lists |
 | [`api-design-principles`](api-design-principles.md) | stack | Seth Hobson (MIT) | REST and GraphQL API design and review | Skill Map; constitution/specify stack lists |
 | [`aws-serverless`](aws-serverless.md) | stack | vibeship (Apache-2.0) | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK | Skill Map; constitution/specify stack lists |
@@ -53,6 +53,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 
 ## Usage Rules
 
+- Environment-provided skills (`orchestration`, `playwright-cli`, `hyperframes`, `archify`, `modern-web-guidance`) have no row or page here. A spec whose `Deliverable` selects one stops at its availability gate; a web UI task's `platform mwg` route or the typed `/akili-audit modern-web` mode never stops and continues without the skill (see [governance](governance.md) rule 4 and [impeccable-bridge](impeccable-bridge.md#modern-web-guidance-environment-provided)).
 - Use the task-specific skills listed in `tasks.md` during `/akili-execute`; when a task lists none, derive them from the project's `## Skill Map`.
 - Use UI/UX skills when specs affect screens, flows, interactions, or accessibility (`impeccable` leads, through `impeccable-bridge`; `ui-ux-pro-max` is the reference catalog; `frontend-design` + `stitch-design` are the fallback when no Impeccable skill is found). `docs/ux-ui/design.md` is the single design source of truth.
 - Use `gsap-animation` for the animation implementation layer the design routing matrix assigns it (`impeccable-bridge` → `references/design-routing.md`), reading only the `references/` file matching the task.

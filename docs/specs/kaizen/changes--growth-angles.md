@@ -54,7 +54,7 @@
 | Target | methodology — `.claude/templates/reviewer.md`, section `structured-evaluation` (and `digests.json` at release) |
 | Edit | Add a bullet: "**Check the diff's file set, not only its content.** Run `git diff --name-status <base>` and `git status --short`; every path outside the task's scope and the Implementer's file list — a tool's sidecar, a cache, a stray export — is a FAIL issue unless the brief justifies it." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -64,7 +64,7 @@
 | Target | `AGENTS.md`, *Repository Purpose*, the `test/` bullet |
 | Edit | Append: "A test that checks `CHANGELOG.md` text reads the newest section that states the value (document order, `[Unreleased]` first) and bounds any 'released sections untouched' check by version (older than X), never by one excluded heading, so it survives both a later spec and the release cut." |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -74,7 +74,7 @@
 | Target | KZ-changes--codex-install-target-2 |
 | Edit | Recurrence note: "recurred (changes/growth-angles: the T9 dogfood ran the global `~/.claude` 2.37.0 command, which shadowed the scratch project's local install; a hands-on dogfood of a changed command needs an isolated config dir or a version check as its first step)". Promote to the `## Active Lessons` digest if absent. |
 | Severity | Medium |
-| Status | pending |
+| Status | deferred |
 
 ### P4
 
@@ -84,4 +84,4 @@
 | Target | KZ-002 |
 | Edit | Add `changes/growth-angles` as a source. Recurrence note: "recurred (changes/growth-angles: T7 docs claimed selection the command does not ship — 'one of five approaches and one of three hooks' — and the T9 CHANGELOG needed two post-review wording fixes)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

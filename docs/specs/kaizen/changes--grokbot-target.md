@@ -61,7 +61,7 @@ Step 3 (constitution sync) recorded no `guide-sync`, `factual-sweep` or `trd-adr
 | Target | methodology |
 | Edit | `.claude/templates/reviewer.md` *Read-only role* and `tester.md`, append: "Read-only means no state change anywhere on the machine, not only in the repository. Never run a subcommand of the product under test that installs, updates, publishes or contacts a registry (for example `akili update`, `npm publish`, `git push`), even in a scratch HOME: verify those paths by reading the code or by reusing recorded evidence." `/akili-execute` Step 2.3 Reviewer brief: name the project's side-effecting subcommands explicitly. |
 | Severity | High |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -71,7 +71,7 @@ Step 3 (constitution sync) recorded no `guide-sync`, `factual-sweep` or `trd-adr
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add source `changes/grokbot-target`. Recurrence note: "recurred (changes/grokbot-target: test LOC about 2× the estimate across T1–T3, from per-state CLI install fixtures with crash guards and permission skips; two budget tripwires fired, 790 → 1,300 → 1,600)". Severity stays Medium. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -81,7 +81,7 @@ Step 3 (constitution sync) recorded no `guide-sync`, `factual-sweep` or `trd-adr
 | Target | KZ-changes--leader-brief-contract-2 |
 | Edit | Add source `changes/grokbot-target`. Recurrence note: "recurred in requirements, not in a brief (changes/grokbot-target): FR-1 asserted a verify hint under `--dry-run` that the CLI never prints, and FR-7 forbade any network connection although the existing update check runs on every TTY command. Both were present-tense readings of existing CLI behaviour never executed at specify, and each cost a spec amendment, at T4 and at validation." Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -91,4 +91,4 @@ Step 3 (constitution sync) recorded no `guide-sync`, `factual-sweep` or `trd-adr
 | Target | KZ-002 |
 | Edit | Add source `changes/grokbot-target`. Recurrence note: "recurred (changes/grokbot-target T5: a CHANGELOG clause said `doctor --fix` prints `skip foreign` and a docs row said foreign folders are 'never touched' despite `--force` takeover; a target list split across lines escaped the claim-family grep. Caught by the Reviewer's quote-check; one rework attempt)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |

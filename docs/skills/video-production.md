@@ -17,7 +17,7 @@ Original AKILI-SPECS skill by Juan Carlos Cadavid — jcadavid.com (MIT). Inspir
 
 ## What It Routes To
 
-HyperFrames is **environment-provided**: the skill routes to the installed `hyperframes` router (standalone, or a plugin-namespaced router such as `/hyperframes:hyperframes`) and defers every HyperFrames detail to the installed skills. It is never copied into this repository. **AKILI does not install HyperFrames.**
+HyperFrames is **environment-provided**: the skill routes to the installed `hyperframes` router (standalone, or a plugin-namespaced router such as `/hyperframes:hyperframes`) and defers every HyperFrames detail to the installed skills. It is never copied into this repository. **AKILI does not install HyperFrames.** It stops at the gate because a spec's `Deliverable` selects HyperFrames; Modern Web Guidance, also environment-provided, is reached by different selectors (a web UI route, a typed audit mode) that never stop.
 
 ## Availability Gate
 

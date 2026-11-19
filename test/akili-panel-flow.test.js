@@ -1432,8 +1432,8 @@ const OPUS = 'claude-opus-5-5';
 const LONG_MODEL = 'claude-an-extraordinarily-long-model-identifier-for-the-narrow-pane-case-1';
 const SKILL_NAMES = {
   core: ['brainstorming', 'caveman', 'cognitive-doc-design', 'judgment-day', 'kaizen', 'pr-review', 'product-manager-toolkit', 'security-audit', 'seo-audit', 'social-marketing', 'software-architect', 'systematic-debugging'],
-  conditional: ['diagram-design', 'frontend-design', 'gsap-animation', 'impeccable', 'impeccable-bridge', 'stitch-design', 'tdd', 'ui-ux-pro-max', 'video-production'],
-  stack: ['ai-agent-development', 'angular-developer', 'api-design-principles', 'aws-serverless', 'error-handling-patterns', 'golang-pro', 'nestjs-expert', 'react-doctor', 'shadcn-ui', 'tailwind-design-system', 'vercel-react-best-practices'],
+  conditional: ['ai-agent-development', 'diagram-design', 'frontend-design', 'gsap-animation', 'impeccable', 'impeccable-bridge', 'stitch-design', 'tdd', 'ui-ux-pro-max', 'video-production'],
+  stack: ['angular-developer', 'api-design-principles', 'aws-serverless', 'error-handling-patterns', 'golang-pro', 'nestjs-expert', 'react-doctor', 'shadcn-ui', 'tailwind-design-system', 'vercel-react-best-practices'],
 };
 const ALL_NAMES = [...SKILL_NAMES.core, ...SKILL_NAMES.conditional, ...SKILL_NAMES.stack];
 const HOST_ALL = { model: OPUS, skills: ALL_NAMES };
@@ -1506,7 +1506,7 @@ test('FR-2 Open and close: open reads ▾ with the group rows, each closed; clos
   const open = await skillPane({ skillsUi: OPEN() });
   assert.equal(textOf(rowOf(open, 'skills')), 'Skills (32) ▾');
   assert.deepEqual(ids(open).filter((id) => id.startsWith('skills-group')), ['skills-group-core', 'skills-group-conditional', 'skills-group-stack']);
-  assert.deepEqual(['core', 'conditional', 'stack'].map((b) => textOf(rowOf(open, `skills-group-${b}`))), ['  core (12) ▸', '  conditional (9) ▸', '  stack (11) ▸']);
+  assert.deepEqual(['core', 'conditional', 'stack'].map((b) => textOf(rowOf(open, `skills-group-${b}`))), ['  core (12) ▸', '  conditional (10) ▸', '  stack (10) ▸']);
   assert.equal(textOf(rowOf(await skillPane({ skillsUi: CLOSED }), 'skills')), 'Skills (32) ▸');
 });
 
@@ -1528,9 +1528,9 @@ test('FR-2 Nothing listed AND no error line: the rest of the pane is unchanged',
 test('FR-3 Open a group: its skills follow its row, one per row, alphabetical, four spaces in', async () => {
   const rows = await skillPane({ skillsUi: OPEN('conditional') });
   const at = ids(rows).indexOf('skills-group-conditional');
-  assert.equal(textOf(rows[at]), '  conditional (9) ▾');
-  assert.deepEqual(rows.slice(at + 1, at + 10).map(textOf), SKILL_NAMES.conditional.map((n) => `    ${n}`));
-  assert.equal(ids(rows)[at + 10], 'skills-group-stack');
+  assert.equal(textOf(rows[at]), '  conditional (10) ▾');
+  assert.deepEqual(rows.slice(at + 1, at + 11).map(textOf), SKILL_NAMES.conditional.map((n) => `    ${n}`));
+  assert.equal(ids(rows)[at + 11], 'skills-group-stack');
 });
 
 test('FR-3 groups are in the order core, conditional, stack and skills are alphabetical inside each', async () => {
@@ -1749,7 +1749,7 @@ test('NFR-1 marks carry the state without colour: the glyph is in the text and t
   const rows = await skillPane({ skillsUi: OPEN('core') });
   assert.deepEqual(rowOf(rows, 'skills').parts, [{ text: 'Skills (32) ' }, { text: '▾', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skills-group-core').parts, [{ text: '  core (12) ' }, { text: '▾', tone: 'inactive' }]);
-  assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (11) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (10) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skill-caveman').parts, [{ text: '    caveman' }]);
 });
 

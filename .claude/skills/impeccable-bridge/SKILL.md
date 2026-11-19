@@ -6,7 +6,7 @@ metadata:
   author: Juan Carlos Cadavid — jcadavid.com
   inspired-by: "Impeccable by Paul Bakaus (Apache-2.0) — https://github.com/pbakaus/impeccable"
   binding: conditional
-  version: "2.1"
+  version: "2.2"
 ---
 
 # Impeccable Bridge — AKILI Layer over Impeccable
@@ -24,6 +24,7 @@ AKILI ships Impeccable **vendored, byte-identical except for a declared frontmat
 | `frontend-design` (packaged) | **Fallback craft guide** | Skill source is `missing` |
 | `stitch-design` (packaged) | Mockup generation through Stitch | A spec asks for a Stitch mockup |
 | `gsap-animation` (packaged) | Motion implementation, per the matrix | The matrix's *Motion* rule selects GSAP |
+| `modern-web-guidance` (environment-provided) | **Supporting**: platform implementation for web UI. Reached through `references/modern-web.md`, never loaded directly | Never leads; the route `platform mwg` reaches it through that file |
 
 `references/design-routing.md` is the routing authority: which skill serves each design activity, per environment. Stack skills (for example `tailwind-design-system`, `shadcn-ui`) are implementation layers that reach agents through the project `## Skill Map`; they never lead the design.
 

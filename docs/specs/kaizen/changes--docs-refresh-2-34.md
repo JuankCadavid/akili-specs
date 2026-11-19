@@ -50,7 +50,7 @@
 | Target | methodology |
 | Edit | `/akili-execute` Step 2.2 *Brief contract*, clause (c): extend "Every infrastructure or third-party fact the brief states" to "…and every piece of product text the brief supplies for the worker to ship verbatim (alt text, a bullet, a table cell)": it cites the source line it restates, or carries the `UNVERIFIED` marker. **Falsifier:** a brief that tells the worker to copy a sentence about a command's behavior with no `file:line` beside it. Optionally, `reviewer.md` *Requirement Conformance*: verbatim-supplied text is audited against its cited source, not only for identity across sites. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -60,4 +60,4 @@
 | Target | KZ-changes--subagent-context-budget-2 |
 | Edit | Add source spec `changes/docs-refresh-2-34` and the recurrence note: "recurred (changes/docs-refresh-2-34: an FR-1 font-size floor fixed at requirements for a figure an UNVERIFIED external tool would generate; unreachable at T1, settled by a user amendment) — a cap on a tool-generated artifact belongs in the Premise Ledger as UNVERIFIED, owned by the first task". Raise severity Low → Medium (it stopped the run for a user decision). |
 | Severity | Medium |
-| Status | pending |
+| Status | deferred |

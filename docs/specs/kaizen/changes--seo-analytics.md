@@ -58,7 +58,7 @@ No new lesson. Every root cause found here already has a lesson, so each is reco
 | Target | KZ-changes--scoped-constitution-reads-1 |
 | Edit | Add `changes/seo-analytics` as a source spec, with the recurrence note "recurred ×4 (changes/seo-analytics: design §7 Error Handling shorthand skipped FR-6 step 2 (T3 FAIL); §9.2's literal extension asserted an untiered fact (T4 FAIL); §9.3 pinned FR-11 metric coverage on 2 of 6 surfaces, so a docs gap passed the suite; FR-4 row 1 'or hits are sent' narrowed in reference and command, ADVISORY ×2, validation V-1). A test contract is a design cell too: its per-surface scope must equal the requirement's" |
 | Severity | Medium |
-| Status | pending |
+| Status | deferred |
 
 ### P2
 
@@ -68,7 +68,7 @@ No new lesson. Every root cause found here already has a lesson, so each is reco
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add `changes/seo-analytics` as a source spec, with the recurrence note "recurred (changes/seo-analytics: T1/T2 first verdicts FAILed on dropped FR-7 bullet 2, FR-13 bullet 1 and the FR-4 opening sentence; two missing obligations (FR-4 row 1, the SKILL `:419` denial) were classed ADVISORY by Reviewers and returned as validation WARNs V-1/V-3)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P3
 
@@ -78,7 +78,7 @@ No new lesson. Every root cause found here already has a lesson, so each is reco
 | Target | KZ-002 |
 | Edit | Add `changes/seo-analytics` as a source spec, with the recurrence note "recurred (changes/seo-analytics: T5 eval 10 widened a one-case wording to every consent finding; the T6 CHANGELOG claimed the full metric list on a surface missing one term; the CHANGELOG test count went stale after `/akili-test` added a suite, caught by the Leader before validation)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -88,4 +88,4 @@ No new lesson. Every root cause found here already has a lesson, so each is reco
 | Target | KZ-changes--scoped-constitution-reads-2 |
 | Edit | Add `changes/seo-analytics` as a source spec, with the recurrence note "recurred (changes/seo-analytics: 14 rounds for 6 tasks; first verdict FAIL on 6 of 6 tasks; `lenses` tasks spend 2 verdicts per attempt; landed exactly at the cap and needed a user-authorized 15th round. Budget rounds as Σ(reviewers per task × 2) for rules-document specs)". Severity raised Low → Medium |
 | Severity | Medium |
-| Status | pending |
+| Status | deferred |

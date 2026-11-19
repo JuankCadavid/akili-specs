@@ -46,7 +46,7 @@ None new. Both root causes found here already exist in the digest. They are reco
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add the source `changes/impeccable-audit-fixes/design-eval-followup` with a recurrence note: "**recurred (design-eval-followup: the design's consumer greps for six literal phrases missed two `CHANGELOG.md` `Unreleased` sentences that restated the replaced rules in other words; judgment-day A-J1 caught it)**". Raise the severity |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -56,4 +56,4 @@ None new. Both root causes found here already exist in the digest. They are reco
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add the source `changes/impeccable-audit-fixes/design-eval-followup` with a recurrence note: "**recurred (design-eval-followup: tests estimated ~170 LOC even after the 3× rule; 230 shipped, because section helpers and a private sweep walker had to be duplicated. Budget the duplication of private test helpers explicitly)**" |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |

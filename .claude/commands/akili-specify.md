@@ -71,6 +71,17 @@ When the proposal's Document Control says `Deliverable: video`, specify runs in 
 - The storyboard beat table lives in `design.md`; its approval at the Phase 2 gate is the storyboard approval. Do not create a separate storyboard document.
 - **Bug x video:** when the spec is also in Bug Mode, the regression test is a frame or metadata check at the failing timestamp (snapshot or `ffprobe`, shape in `video-production`'s `references/render-evidence.md`), red before the fix and green after. A unit test of composition source alone does not satisfy the Bug Mode regression requirement.
 
+### AI Agent Mode
+
+An **AI agent** is software the spec delivers in which a model decides, at runtime, what to say to a person or which action or tool call to take; a fixed script, a rules engine, and AKILI's own command prompts are not one. Item 1 runs on every spec and only records the row. When the spec delivers an agent, specify runs in **AI Agent Mode** on top of the chosen depth: items 2-6 apply only when `AI Agent: yes`. AI Agent Mode is orthogonal to Bug Mode and Video Mode.
+
+1. **Detect and record.** Write `AI Agent: yes` or `AI Agent: no` as a `requirements.md` Document Control row beside `Type`, on every spec, never leaving it absent. When the proposal leaves it unclear, ask one question and do not guess. An absent row means `no`; an unrecognized value is read as `no` and reported as unrecognized at the next gate.
+2. **Load** `ai-agent-development` before writing `requirements.md`, reading `references/guardrails.md`, `references/evals.md` and `references/akili-spec-mapping.md`.
+3. **`requirements.md`** gains a **Guardrails** section (one `BUT it must NOT` clause per guardrail, each with its own negative case set and zero tolerance, every layer the agent has covered or marked `n/a — <reason>`) and an **Evals** section (offline case sets, thresholds, the regression trigger, and a rubric for any free-generated output).
+4. **`design.md`** records the eval seam and an online monitoring plan (metrics, sampling, alert threshold, owner).
+5. **`tasks.md`** carries an eval-gate task with the four parts named in `akili-spec-mapping.md` section 3, and every task lists `ai-agent-development` in its skills.
+6. **Gates, per phase.** Each gate checks what its phase produces and does not pass an `AI Agent: yes` spec while any of it is missing. The Phase 1 gate checks the `AI Agent` row and the Guardrails and Evals sections in `requirements.md` (items 1 and 3). The Phase 2 gate checks the eval seam and the online monitoring plan in `design.md` (item 4). The Phase 3 gate checks the eval-gate task and `ai-agent-development` on every task in `tasks.md` (item 5).
+
 ### Approval Mode (inherited)
 
 Read `Approval Mode` from the proposal's Document Control (see `/akili-propose`). Under `pre-approved`, each phase's routine approval gate auto-passes and is **logged as `auto-approved (pre-approved mode)`** in the document produced by that phase — the gate is recorded, never silently skipped. Everything classified as an escalation still stops for the user: severe judgment-day findings, a budget that will not fit the depth, a discovery that invalidates the proposal, destructive actions. Judgment-day itself always runs — pre-approval skips *pauses*, not *review*. A design corrected with **Fix only** (Step 2.5) is never recorded as `JUDGMENT: APPROVED`: `judgment.md` closes with the annotation `fixed, not re-judged` and the fixed finding IDs, and severe findings still stop under `pre-approved`.
@@ -249,7 +260,6 @@ Use additional stack skills as needed — prefer the project's `## Skill Map` (i
 - `error-handling-patterns`
 - `aws-serverless`
 - `angular-developer`
-- `ai-agent-development`
 
 When the design has backend work, settle each backend decision's lead from `software-architect` → `references/backend-routing.md` (read it by path, whether or not the design is architecturally significant) and record it next to the decision; when that file is absent, proceed as today and say so once.
 
@@ -459,6 +469,7 @@ Task quality rules:
 - **Design Impact:** IF the proposal includes any visual design context (Figma, an agent-generated mockup, or a `.stitch/DESIGN.md` reference), ensure frontend tasks are atomic, focusing on specific UI components, layouts, styling, and states extracted from the design or mockup artifacts.
 - tasks should avoid broad instructions like "implement feature" without scoped subtasks
 - tasks may be grouped by phase, but dependencies must remain explicit
+- **Phase-scoped gates:** when a requirement makes more than one phase gate refuse on missing items, name for each gate only the items that phase produces (Phase 1: requirements content; Phase 2: `design.md`; Phase 3: `tasks.md`) — a gate that checks a later phase's artifact can never pass.
 
 Preferred backend skill rule:
 
@@ -470,6 +481,7 @@ Preferred backend skill rule:
 Preferred UI/UX skill rule:
 
 - every UI task's Scope carries a `Design route:` line (form in `design-routing.md` → *Design route line*), and its Done criteria carry that section's evidence sentence
+- a web UI task's `Design route:` line carries the `platform` field (values and the not-web form in `design-routing.md` → *Design route line*); `modern-web-guidance` is never added to a task's skills list, and a spec with no web UI task is unchanged in behavior (no MWG gate, load or install route)
 - its skills list `impeccable-bridge` plus the project's `## Skill Map` stack skills (the implementation layer, per `design-routing.md`)
 - add `ui-ux-pro-max` only when the task needs catalog options (palette, font pairing, style by industry)
 - at `ENV-0` (Impeccable skill source `missing`) the lead is `frontend-design`, per `impeccable-bridge` → *Who does what in each state*; `stitch-design` remains the mockup fallback
@@ -528,6 +540,7 @@ After all three documents are approved, verify:
 - [ ] The spec path matches the repo's chosen taxonomy under `docs/specs/`
 - [ ] Only real, available skills are referenced in tasks
 - [ ] If `Deliverable: video`: `requirements.md` Document Control carries the `Deliverable` row, the beat table is in `design.md`, and every task lists `video-production`; a proposal `Delivery` row is copied beside it
+- [ ] If `AI Agent: yes`: `requirements.md` carries the Guardrails and Evals sections, `design.md` the eval seam and online monitoring plan, `tasks.md` the eval-gate task, every task lists `ai-agent-development`, and no phase gate passed with any of these missing
 - [ ] Every task carries the four verification fields — Falsifier, Red run, Disqualifier, Consumers — with n/a or none written for the ones that do not apply, never blank; every `Red run` is an observed red quoted in the task, except a `predicted — greenfield artifact (observed in <task>)` entry whose observing task requires the quoted red in `execution.md`
 - [ ] Every `skip-eligible` task was named with its reason in the Step 3.3 presentation list — not only inside the document — so the user saw the skip list and could reject the classification before execution started
 - [ ] Every gate that asserts size, overflow, visibility, position, or containment satisfies the rendered-measurement checklist in Step 3.2

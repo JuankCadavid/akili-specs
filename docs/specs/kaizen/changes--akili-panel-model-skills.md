@@ -49,7 +49,7 @@ No new lesson: all three costly signals repeat root causes already recorded, so 
 | Target | KZ-changes--akili-panel-polish-1 |
 | Edit | Add source `changes/akili-panel-model-skills` and the recurrence note: the T5 gate asked for "both light and dark"; JC's verbatim answer («lo veo bien presione execute sin querer pero lo detuve») named neither theme, while the relay called it a "light/dark verdict". The Leader logged both themes as passed; Reviewer round 8 FAILed on that, which cost an extra gate question and left the corrected record without a re-check (round 9 declined). Rule addition: a relay's framing of a verdict is not the person's words; record a check as passed only for what the verbatim answer names. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-12) |
 
 ### P2
 
@@ -59,7 +59,7 @@ No new lesson: all three costly signals repeat root causes already recorded, so 
 | Target | KZ-changes--kaizen-loop-closure-2 |
 | Edit | Add source `changes/akili-panel-model-skills` and the recurrence note: amendment A1 changed rows asked 19 → 21 and added premise P-13. Its edit list fixed `design.md:43` but left §8.6 `rows: 19`, the §11 count "12 settled" and the old budget in the `execution.md` Document Control. All three survived 2 Reviewer PASSes and were caught only by `/akili-validate`'s cross-document figure check. The sweep applies to amendments too: grep every superseded figure across the spec folder before the amendment's commit. |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-12) |
 
 ### P3
 
@@ -69,4 +69,12 @@ No new lesson: all three costly signals repeat root causes already recorded, so 
 | Target | KZ-bugfix--init-ctrlc-abort-2 |
 | Edit | Add source `changes/akili-panel-model-skills` and the recurrence note: two budget tripwires (≈784 vs ~750; ≈1,228 vs ~980). The cause both times was tests at roughly 3× the code (T6: test lines far above code lines; the branch total with `/akili-test` is 1,588 lines for 200 lines of plugin code). |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-12) |
+
+## Apply Pass — 2026-11-12
+
+Apply Mode on `dev` (pinned `Integration Branch: dev`), scope limited by JC's approval to P1–P3 of this file. The rest of the backlog was not touched: other pending `digest-update` items on the same KZ-ids stay `pending`.
+
+- P2 and P3 were merged into their existing digest rows. Severity stays High and Medium, the highest proposed.
+- P1 targets `KZ-changes--akili-panel-polish-1`, an upstream-only lesson with no digest row, so a new row was added (Status `Deferred`, because its standardization is the upstream item P1 in `changes--akili-panel-polish.md`, still pending).
+- To stay at 10 rows, the digest retired `KZ-changes--persona-upgrade-3`, JC's choice at the gate. It is already standardized in `/akili-execute` Loop Rules, *Pivot Detection*, and no pending item links to it.

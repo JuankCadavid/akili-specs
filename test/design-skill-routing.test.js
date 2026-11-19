@@ -33,6 +33,8 @@ const section = (s, heading) => {
 const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
 
 const EIGHT = ["impeccable", "impeccable-bridge", "ui-ux-pro-max", "frontend-design", "stitch-design", "gsap-animation", "tailwind-design-system", "shadcn-ui"];
+// Environment-provided: a card, but no folder under .claude/skills/ (changes/modern-web-guidance).
+const ENV_PROVIDED = ["modern-web-guidance"];
 const ACTIVITIES = ["foundation", "direction", "mockup", "build-new", "build-within-system", "refine", "motion", "evaluate"];
 
 const matrixRows = () => matrix().split("\n").filter((l) => /^\| \*\*[a-z-]+\*\* \|/.test(l));
@@ -74,7 +76,7 @@ test("@akili-spec changes/design-skill-routing FR-1 B-16: matrix row and card si
   const rows = matrixRows();
   assert.deepEqual(rows.map((r) => cells(r)[0]), ACTIVITIES.map((a) => `**${a}**`), "eight matrix rows");
   const cards = cardRows();
-  assert.equal(cards.length, 9, "nine cards");
+  assert.equal(cards.length, 10, "ten cards");
   const sigs = [...rows.map((r) => `| ${cells(r)[0]} |`), ...cards.map((r) => `| ${cells(r)[0]} | ${cells(r)[1]} |`)];
   const m = matrix();
   for (const s of sigs) assert.ok(m.includes(s), `matrix holds ${s}`);
@@ -92,12 +94,13 @@ test("@akili-spec changes/design-skill-routing FR-1 B-16: matrix row and card si
 test("@akili-spec changes/design-skill-routing A-14: design skill set agrees across folders, cards and AGENTS.md", () => {
   for (const s of EIGHT) assert.ok(fs.existsSync(path.join(ROOT, ...SKILLS, s, "SKILL.md")), `skill folder ${s}`);
   const cardSkills = cardRows().map((r) => (/^`([a-z-]+)`/.exec(cells(r)[0]) || [])[1] || cells(r)[0]);
-  assert.deepEqual(cardSkills.filter((c) => /^[a-z-]+$/.test(c)).sort(), [...EIGHT].sort(), "cards name the eight");
+  assert.deepEqual(cardSkills.filter((c) => /^[a-z-]+$/.test(c)).sort(), [...EIGHT, ...ENV_PROVIDED].sort(), "cards name the eight plus the environment-provided one");
+  for (const s of ENV_PROVIDED) assert.ok(!fs.existsSync(path.join(ROOT, ...SKILLS, s)), `${s} has no packaged folder`);
   assert.equal(cardSkills.filter((c) => c.startsWith("other UI stack skills")).length, 1, "one generic card");
-  assert.equal(cardSkills.length, 9, "eight + generic");
+  assert.equal(cardSkills.length, 10, "eight + environment-provided + generic");
   const agents = read("AGENTS.md");
   const listed = section(agents, "Design Skills").split("\n").map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
-  assert.deepEqual([...listed].sort(), [...EIGHT].sort(), "AGENTS.md ## Design Skills names the eight");
+  assert.deepEqual([...listed].sort(), [...EIGHT, ...ENV_PROVIDED].sort(), "AGENTS.md ## Design Skills names the eight plus the environment-provided one");
 });
 
 test("@akili-spec changes/design-skill-routing W-1: every matrix cell holds exactly one lead", () => {

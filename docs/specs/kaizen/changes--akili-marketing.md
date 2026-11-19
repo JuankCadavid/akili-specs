@@ -63,7 +63,7 @@
 | Target | `/akili-test` Phase 2 (Tester rules) and `.claude/templates/tester.md` |
 | Edit | Append to the Tester rules: "Any exploratory run of a command that writes outside the repo — an installer, a `doctor --fix`, a config writer — pins the same environment as the tests (`HOME`/`USERPROFILE` and every tool-specific target variable) to a scratch directory, from the first invocation. Learning the layout is not an exemption." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -73,7 +73,7 @@
 | Target | `/akili-execute` brief contract (the `[advisory-grade]` marker) |
 | Edit | Append where the marker is defined: "`[advisory-grade]` labels where an item came from, never how hard it is checked. An item that touches a gate, invariant or restated rule carries the same quote-check and falsifier bar as any scoped item." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -83,7 +83,7 @@
 | Target | KZ-changes--leader-brief-contract-2 |
 | Edit | Add `changes/akili-marketing` as a source spec with the recurrence note "recurred (changes/akili-marketing: T8b verification predicted 'README ≥ 7' without running the count; the Implementer added a padding paragraph to meet it, the Reviewer failed it, and the count was amended to ≥ 6)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P4
 
@@ -93,7 +93,7 @@
 | Target | KZ-002 |
 | Edit | Add `changes/akili-marketing` as a source spec with the recurrence note "recurred (changes/akili-marketing: T8a attempt 1 overstated the session-tool scope and the limits scope on the docs page; a requirements §4 stub figure (224 → 228) survived to validation beside the shipped 236)" |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P5
 
@@ -103,4 +103,4 @@
 | Target | KZ-changes--scoped-constitution-reads-2 |
 | Edit | Add `changes/akili-marketing` as a source spec with the recurrence note "recurred (changes/akili-marketing: 20 rounds for 12 tasks hit the cap at T10 exactly; the HITL observation task needed a user-authorized 21st round — budget a HITL observation task's round explicitly)" |
 | Severity | Medium |
-| Status | pending |
+| Status | deferred |

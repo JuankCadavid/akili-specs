@@ -18,7 +18,8 @@ Every skill declares `metadata.binding` in its `SKILL.md` frontmatter. The bindi
 Map are shipped by a *tool* rather than by AKILI — standing examples: an agent orchestrator's
 coordination skill (`orchestration`), Microsoft's `playwright-cli` browser-automation skill (the
 token-lean alternative to loading the Playwright MCP schemas into every session), and the
-`hyperframes` video-composition family, and `archify` (tt-a1i's interactive diagram renderer, MIT). Four rules govern them:
+`hyperframes` video-composition family, `archify` (tt-a1i's interactive diagram renderer, MIT), and
+`modern-web-guidance` (Modern Web Guidance, Google Chrome, Apache-2.0: referenced, never vendored, and no byte of it ships in this package). Four rules govern them:
 
 1. **Never copy one into `.claude/skills/`.** These stubs are deliberately thin because the tool's
    own binary serves the version-matched guide; a vendored copy goes stale the moment the tool
@@ -28,21 +29,16 @@ token-lean alternative to loading the Playwright MCP schemas into every session)
    environment-skill row records *what to use when it is present*, never an assumption that it is.
    A teammate without the tool simply never loads it, and every command still runs without it. The one
    narrowing is rule 4: a spec whose `Deliverable` selects an environment-provided skill stops at that
-   skill's availability gate instead of proceeding.
+   skill's availability gate instead of proceeding. A route or typed-mode selector never narrows: it continues without the skill.
 3. **Attribution stays with the author.** These skills are not AKILI's and carry no AKILI
    authorship frontmatter; the acceptance checklist below applies only to skills we ship.
 4. **Command text may load-direct one only behind a selector and a gate.** A command step may
-   **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a) the
-   spec records a `Deliverable` selector that calls for it and (b) that skill's own availability gate
-   runs first. Illustrative and Skill Map-builder mentions (for example the examples in
+   **load-direct** an environment-provided skill (tell the agent to load or run it) only when (a) the spec records a `Deliverable` selector that calls for it, or another recorded selector does (the three below), and
+   (b) that skill's own availability gate runs first, inside a packaged bridge. The three selectors are (1) a spec's `Deliverable` row;
+   (2) a web UI task's route field `platform mwg`, including the same spec's `/akili-test` and `/akili-validate` reads of the guide ids that task recorded; and
+   (3) a command mode the user types (`/akili-audit modern-web`). Illustrative and Skill Map-builder mentions (for example the examples in
    `/akili-constitution` Step 8D that name `hyperframes`, `orchestration` or `playwright-cli`) direct no
-   load and are not restricted. Today's instance: `Deliverable: video` in the spec's Document Control
-   loads the packaged bridge skill `video-production` (AKILI-authored, listed
-   below), and the bridge, not the command, runs the availability gate for the environment-provided
-   `hyperframes` router (standalone, or plugin-namespaced) and routes to it. Specs without the selector,
-   including every software spec, never reach the gate and are unaffected. A spec whose `Deliverable`
-   calls for an environment-provided skill stops at the gate when that skill is missing, prints the
-   install route, and never falls back to a hand-built substitute.
+   load and are not restricted. An environment-provided skill reached this way is **never a skills-list name**: it is never named in a task's skills list, in a Leader brief's lead or support names, or as a Skill Map skill to assign or load, because the Implementer loads those names before coding. A Skill Map row for it is an availability and pin note only. Outcome when the skill is missing, per selector: a `Deliverable` selector **stops** at the gate, prints the install route, and never falls back to a hand-built substitute; a route or typed-mode selector **continues** without the skill and reports `not run`. Today's instances: `Deliverable: video` in the spec's Document Control loads the packaged bridge skill `video-production` (AKILI-authored, listed below), and the bridge, not the command, runs the availability gate for the environment-provided `hyperframes` router (standalone, or plugin-namespaced) and routes to it; the other two selectors reach `modern-web-guidance` only through `impeccable-bridge` → `references/modern-web.md`, which holds the gate. Specs with none of the selectors, including every software spec without a web UI task, never reach a gate and are unaffected.
 
 ### Vendored third-party (verbatim)
 
@@ -66,8 +62,8 @@ Adapted skills (`adapted-by`, body edited) are not in this category; they follow
 | Binding | Skills |
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security), `social-marketing` (marketing), `pr-review` (review) |
-| `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work, routed per the design routing matrix), `gsap-animation` (animation implementation layer), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
-| `stack` | `angular-developer`, `golang-pro`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development` |
+| `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work, routed per the design routing matrix), `gsap-animation` (animation implementation layer), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `ai-agent-development` (AI agent specs), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
+| `stack` | `angular-developer`, `golang-pro`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns` |
 
 Routing matrices — design (`impeccable-bridge` → `references/design-routing.md`) and backend (`software-architect` → `references/backend-routing.md`) — are each held once, in the skill that owns the decisions; every other surface names the file (and a section where it points into one), never a line number, and never copies a row.
 
@@ -131,7 +127,7 @@ A skill enters `.claude/skills/` only when all of these hold. If any box fails, 
 
 1. **Need** — a real AKILI phase or supported stack needs it; name the command step or Skill Map slot it will occupy.
 2. **Binding declared** — `core`, `conditional`, or `stack`, with the exact integration point. A `core`/`conditional` skill must actually be wired into command text in the same change; a skill referenced by no command and no Skill Map is dead weight and does not ship.
-3. **Attribution complete** — original author, source, and license identified and preserved; `adapted-by` added. If the origin cannot be verified after a genuine search, mark `author: community (origin unverified)`.
+3. **Attribution complete** — original author, source, and license identified and preserved; `adapted-by` added. If the origin cannot be verified after a genuine search, mark `author: community (origin unverified)`. A third-party skill's admission review quotes its scan commands verbatim and treats a scanner exit status of 2 (tool error) as "not run", never as 0 hits; hidden-character checks use a tool that supports the pattern on the host (perl, not BSD `grep -P`).
 4. **Size justified** — prefer one skill with `references/` (progressive disclosure) over families of sibling skills; large data/scripts payloads need a stated reason.
 5. **Docs + CHANGELOG** — a `docs/skills/<name>.md` page, a truthful row in `docs/skills/README.md` (Binding column included), a row in `docs/overview.md` under its purpose group, and a `CHANGELOG.md` entry.
 6. **Panel catalog** — adding, removing or rebinding a skill updates `SKILL_CATALOG` in `.claude/skills/akili-panel/hooks/flow.mjs`; `test/akili-panel-catalog.test.js` fails until it matches the folders on disk.

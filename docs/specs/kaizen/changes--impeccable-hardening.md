@@ -45,4 +45,4 @@
 | Target | `.claude/commands/akili-specify.md` (Step 2.5, when Review Design is declined) |
 | Edit | "When Review Design is declined, the architect re-runs each Premise Ledger citation that names existing code, reading the guard conditions around the cited call, before the design is approved." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |

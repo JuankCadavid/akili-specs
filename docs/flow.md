@@ -191,6 +191,7 @@ For Legacy and Active-AKILI-SPECS modes, CodeGraph is preferred when `.codegraph
 | `docs/specs/<spec-path>/test-report.md` | `/akili-test` | Requirement-to-test matrix and coverage gaps |
 | `docs/specs/<spec-path>/validation-report.md` | `/akili-validate` | Final conformance audit |
 | `docs/specs/audits/drift-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit` | One report per audit run: conformance auditing of documentation vs. codebase reality. Readers take the most recent `drift-*.md` by `Date of Audit` header, falling back to legacy `docs/specs/drift-report.md` only when the directory holds no `drift-*.md` file |
+| `docs/specs/audits/modern-web-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-audit modern-web` | One opt-in, report-only scan per run of web UI source for modern-platform replacements: the pin, the path, the gate state, kept and dropped counts, and each kept finding routed to `/akili-quick` or `/akili-propose`. Never a drift source |
 | `docs/specs/audits/security-<YYYY-MM-DD>[-<safe-branch>][-N].md` | `/akili-security` | One redacted index per audit run: counts by verdict and severity, and opaque `S-n` rows for `confirmed` / `needs_validation` records. Full findings stay in the run directory (always outside the target); never a drift source |
 | `docs/marketing/angles.md` | `/akili-marketing` | The map of customer angles, one section per content pillar, approved per pillar; `campaign` and `post` cite its approved IDs. Unpublished draft content, outside the spec lifecycle |
 | `docs/marketing/brand-voice.md`, `campaigns/<slug>/{brief,plan,calendar}.md`, `calendar-<YYYY-MM>.md`, `posts/<YYYY-MM-DD>-<slug>.md` | `/akili-marketing` | Unpublished social marketing drafts (brand voice, campaigns, calendar, posts), outside the spec lifecycle; never published by the command |
@@ -614,7 +615,7 @@ parallel branches never contend for the same file.
 
 * **Measure:** hunt waste (MUDA) in the spec's own evidence — Reviewer rework attempts, pivots,
   PRODUCT_BUGs, severe judgment-day findings, validation WARN/FAIL, drift (the most recent
-  `drift-*.md` report under `docs/specs/audits/`; a `security-*.md` index is not a drift source).
+  `drift-*.md` report under `docs/specs/audits/`; a `security-*.md` index and a `modern-web-*.md` report are not drift sources).
 * **Learn:** distill 0–3 lessons, each with a named root cause and cited evidence (Gemba: real facts, never speculation). Generic lessons
   are banned; a clean spec records a one-line clean-run entry instead. A root cause that already
   exists becomes a `digest-update` pending item, never a duplicate lesson or a live digest edit.
@@ -653,7 +654,7 @@ which answers *when and how each skill loads*:
   `brainstorming` for exploration, `product-manager-toolkit` in `/akili-constitution`,
   `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`, `pr-review` in `/akili-review`.
 * **conditional** — loaded when the work touches its domain: Impeccable (through `impeccable-bridge`) leads UI work and `ui-ux-pro-max` / `frontend-design` /
-  `stitch-design` / `gsap-animation` serve the activities the design routing matrix (`impeccable-bridge` → `references/design-routing.md`) assigns them, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing).
+  `stitch-design` / `gsap-animation` serve the activities the design routing matrix (`impeccable-bridge` → `references/design-routing.md`) assigns them, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing: a `Deliverable` selector stops at its gate). Modern Web Guidance is environment-provided too, but a web UI task's `platform mwg` route and the typed `/akili-audit modern-web` mode never stop: they continue without it and report `not run` (see [impeccable-bridge](skills/impeccable-bridge.md#modern-web-guidance-environment-provided)).
 * **stack** — framework/platform skills (`angular-developer`, `nestjs-expert`, `shadcn-ui`,
   `aws-serverless`, …) are never hardcoded into commands. `/akili-constitution` Step 8D writes a
   `## Skill Map` into the project's `AGENTS.md`/`CLAUDE.md` from the detected stack;

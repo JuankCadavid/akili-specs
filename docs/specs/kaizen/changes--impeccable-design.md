@@ -52,7 +52,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Premise Ledger: any external-CLI invocation a command or skill prescribes is walked once against the tool's own `--help` / exit-code contract in its non-installing form (`npx --no-install …`) before approval, and any text-contract test pins that safe form. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P2
 
@@ -62,7 +62,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` design guidance: a state table derived from N independent probes enumerates every combination (2^N rows) or states, per missing row, why it cannot occur; each consequence names the probe it follows. |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -72,4 +72,4 @@
 | Target | `AGENTS.md` (root) → *Skill Usage* |
 | Edit | Replace "- Use `frontend-design`, `ui-ux-pro-max`, `tailwind-design-system`, or `shadcn-ui` for UI work." with "- Use `impeccable-bridge` for UI work (it leads with Impeccable when installed, else `frontend-design` craft + `ui-ux-pro-max` catalog); `tailwind-design-system` or `shadcn-ui` for their stacks." |
 | Severity | Low |
-| Status | pending |
+| Status | superseded (2026-11-17: the *Skill Usage* line this replaces no longer exists at HEAD — UI skill routing now lives in `AGENTS.md` `## Design Skills`, added by changes/design-skill-routing) |

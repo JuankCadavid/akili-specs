@@ -261,7 +261,8 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 - `tailwind-design-system`
 - `vercel-react-best-practices`
 - `angular-developer`
-- `ai-agent-development`
+
+When the product includes an AI agent, load `ai-agent-development`.
 
 **Required structure:**
 
@@ -726,7 +727,7 @@ is how they reach the agents.
 1. A table `Skill | Applies To | When to load` listing only the stack skills that match the
    detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-expert`, `golang-pro`,
    `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`,
-   `aws-serverless`, `api-design-principles`, `error-handling-patterns`, `ai-agent-development`.
+   `aws-serverless`, `api-design-principles`, `error-handling-patterns`.
    Projects may add their own.
 2. The instruction: *"During `/akili-specify`, derive each task's required skills from this map.
    During `/akili-execute` and `/akili-test`, the Leader assigns these skills and the
@@ -739,12 +740,17 @@ is how they reach the agents.
    to loading the Playwright MCP schemas into every session; and the `hyperframes` family
    (HTML-based video composition), when the project's work includes producing explainer, demo, or
    launch-video content; its row's note names `video-production` as the AKILI route (the packaged
-   bridge skill that carries the availability gate). Ask the user before adding one; never infer it
-   from the filesystem.
+   bridge skill that carries the availability gate); and, for a project with a browser-rendered UI
+   only, Modern Web Guidance (`modern-web-guidance`, Google Chrome's platform-implementation
+   guides), whose row is an availability and pin note, never a skill to assign, with *When to
+   load*: "never assigned or loaded directly; reached through `impeccable-bridge` →
+   `references/modern-web.md` when a web UI task's route says `platform mwg`; optional
+   `pin <x.y.z>`". Ask the user before adding one; never infer it from the filesystem, and never
+   write the MWG row for a project with no web UI or assert that the skill is installed.
    Mark the row's *When to load* with the availability condition, because the map is **committed and
    shared while the tooling is per-developer** — a teammate without that tool must still be able to
    run every command, except that a spec whose `Deliverable` selects the skill
-   (`Deliverable: video`) stops at `video-production`'s availability gate. Never copy the skill into the repository: these stubs are thin on purpose
+   (`Deliverable: video`) stops at `video-production`'s availability gate (a `platform` selector never stops). Never copy the skill into the repository: these stubs are thin on purpose
    because the tool's binary serves the version-matched guide, so a vendored copy goes stale and
    starts instructing agents to call flags that no longer exist (see the packaged
    `docs/skills/governance.md` → *Environment-provided skills*).
@@ -755,6 +761,8 @@ is how they reach the agents.
    `impeccable-bridge`, or the ENV-0 fallback) · implementation layers (the stack skills that
    implement UI, named only from the Skill Map just built) · motion library (detected, or `none`) ·
    mockup route (direction picker first; Stitch on request; MCP availability is per developer) ·
+   platform guidance (`modern-web-guidance`, environment-provided, pin source `skill-map` when the
+   Skill Map MWG row carries a valid `pin <x.y.z>`, `default` otherwise; or `none — <reason>`) ·
    one line pointing at the matrix by name (`impeccable-bridge` → `references/design-routing.md`).
    The block holds **no matrix rows**: the matrix stays in the skill, so the block never goes stale.
 5. **A `### Backend routing` block under `## Skill Map`, when the project has server-side code**

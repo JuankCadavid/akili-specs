@@ -55,7 +55,7 @@
 | Target | `AGENTS.md`, *Repository Purpose*, the `test/` bullet (the clause "`.gitattributes` keeps `test/fixtures/**` byte-exact …") |
 | Edit | Append: "Any committed file a test compares byte for byte (generated assets such as `assets/akili-flow-animated.svg` included) gets a `-text` line in `.gitattributes` in the same change: the `windows-latest` CI legs check out with `core.autocrlf=true`." |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-17) |
 
 ### P2
 
@@ -65,7 +65,7 @@
 | Target | methodology |
 | Edit | `/akili-specify` Step 3.2, Falsifiability item 6 (rendered-measurement checklist), add: "A pixel-equality gate (`AE 0`, 'identical render') first proves its baseline render is non-trivial: the content is visible (colour count, a known element sampled). A renderer that cannot resolve the artifact's CSS yields an equal, empty canvas on both sides, and its falsifier is inert." |
 | Severity | Medium |
-| Status | pending |
+| Status | upstreamed (2026-11-17, docs/specs/kaizen/upstream-2026-11-17.md) |
 
 ### P3
 
@@ -75,4 +75,4 @@
 | Target | KZ-002 |
 | Edit | Add `changes/flow-diagram-animated` as a source. Recurrence note: "recurred (changes/flow-diagram-animated: T4 took 3 attempts for 5 CHANGELOG overstatements, one introduced by the Leader's brief, whose process note '(re-run after /akili-test)' shipped as text; validation then found the test count and two design figures stale after later phases)". Severity stays High. |
 | Severity | High |
-| Status | pending |
+| Status | applied (2026-11-17) |
