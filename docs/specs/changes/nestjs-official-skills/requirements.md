@@ -10,7 +10,7 @@
 | Deliverable | `software` |
 | AI Agent | no. This spec packages methodology text and installer behavior; no model decides at runtime inside what it ships |
 | Approval Mode | `gated` |
-| Status | Phase 1 approved 2026-11-21 by JC (Step 1.3 gate, gated mode) |
+| Status | Phase 1 approved 2026-11-21 by JC (Step 1.3 gate, gated mode). FR-8 persona bullet and scenario amended 2026-11-22 by the Judgment Day C-1 fix (Fix only, approved by JC) |
 | Date | 2026-11-21 |
 | Proposal | `proposal.md` at `fb15bab`, approved by JC 2026-11-21: Q1 retire `nestjs-expert` outright; Q2 vendor all 6; Q3 **minor**, with a `doctor` warning and a migration note; Q4 no soak |
 | Source | Upstream `nestjs/agent-skills` (read-only clone in the session scratchpad, `HEAD` `7f05f49`, tag `v0.1.1` = `68e1d54`); npm `@nestjs/skills@0.1.1` |
@@ -207,14 +207,14 @@ The routing layer SHALL state that every outward action the official set suggest
 - `docs/skills/governance.md` SHALL list the official set as a member of *Vendored third-party (verbatim)*, record why a family of six sibling folders is accepted against checklist item 4 (fusing them would break the verbatim rule), and replace `nestjs-expert` in the `stack` row of *Current assignment*.
 - Each of the six SHALL have a `docs/skills/<name>.md` page, a row in `docs/skills/README.md` (author Kamil Mysliwiec, MIT) and a row in `docs/overview.md`.
 - `/akili-constitution` (Step 5 candidates and Step 8D pool), `/akili-specify` (Step 2.1 no-map list), `docs/commands/akili-constitution.md`, `docs/commands/akili-test.md`, `docs/flow.md` and `AGENTS.md` (*Skill Usage*, *Backend Skills*) SHALL name the official set where they named `nestjs-expert`. A no-map fallback list names one entry, `nestjs-feature`, unless its context needs another.
-- The persona examples in `.claude/templates/leader.md` and `implementer.md` SHALL stop naming `nestjs-expert`.
+- The persona example in `.claude/templates/leader.md` SHALL stop naming `nestjs-expert`. `implementer.md` keeps its example list in this spec: live-template persona fixtures pin it (amended 2026-11-22, Judgment Day C-1, design DD-12).
 - `SKILL_CATALOG` in `.claude/skills/akili-panel/hooks/flow.mjs` SHALL match the folders on disk.
 
 #### Scenario: No live surface names the retired skill
 
 - GIVEN the finished change
 - WHEN `grep -rn nestjs-expert` runs over the repository, excluding `docs/specs/archive/`, `docs/specs/kaizen/`, `docs/specs/kaizen-log.md`, `releases/`, `test/fixtures/` and the spec folder
-- THEN every hit is one of: the CHANGELOG entry, the governance *Removal / Fusion Log* row, the installer's retired-name table, or a test asserting retirement
+- THEN every hit is one of: the CHANGELOG entry, the governance *Removal / Fusion Log* row, the installer's retired-name table, a test asserting retirement, or the example list at `.claude/templates/implementer.md` (C-1)
 - BUT it must NOT find `nestjs-expert` in a command, a template, the routing matrix, a skill, or a docs page
 
 ### FR-9: CHANGELOG with migration note

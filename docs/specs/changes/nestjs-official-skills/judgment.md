@@ -6,7 +6,7 @@
 | Mode | judgment_day, blind dual review, read-only judges |
 | Judges | A and B, both `sonnet`, Explore agents (author model: `opus`; author ≠ auditor) |
 | Round | 1 of 2 |
-| State | **open**, awaiting the user's decision on the round-one correction |
+| State | **closed: fixed, not re-judged** (Fix only, approved by JC 2026-11-22) |
 
 ## Counts
 
@@ -75,3 +75,27 @@ Rows missing, named by both judges: the npm shasum source (C-3), the staging lef
 ## Verdicts
 
 A: `needs-fix` · B: `needs-fix`
+
+## Round-one correction (Fix only)
+
+The user chose **Fix only** on 2026-11-22. The scope was the 3 confirmed severe findings, the suspect S-1 (re-run by the architect), the 7 findings both judges reported, and I-11 and I-12. Each was applied to `design.md`, with FR-8 amended in `requirements.md`. Nothing was re-judged.
+
+| ID | Applied as |
+|---|---|
+| C-1 | DD-12: `implementer.md` left unchanged; FR-8 persona bullet and grep allowlist amended; new premise row P-15 |
+| C-2 | P-10 rerun with a broader pattern and cited as run; §8 lists the `akili-panel-flow` pins; 33 → 38 named |
+| C-3 | §7.1 step 1: `--npm-shasum` is a required argument; new premise row P-14; release-checklist step |
+| S-1 | Budget review rounds 13 → 14 |
+| I-1 | Staging and aside moved to a gitignored `.nestjs-sync/` at the repo root; a leftover refuses the run |
+| I-2 | §7.1 step 6: one transaction with full rollback; first-run case stated |
+| I-3 | Bytes read from git objects; the maintainer checks out the tag first |
+| I-4 | §9: routing text-contract test edits named; family card naming rule; *Must not decide* restored (testing strategy, debugging method) |
+| I-5 | Rule 9 covers default telemetry (`--no-observe`, no `ObserveModule` unless chosen); DD-9 adds the Observe note to `nestjs-feature` |
+| I-6 | `SKILL_FILE_EXPECTED` 321 → 354; baseline `ok 54` → `ok 59` |
+| I-7 | P-1 → `:1432`; P-12 dispatch `:3321` |
+| I-11 | §9: governance rule 4, "Current members", and the release-checklist step generalized |
+| I-12 | §5: `adapted-by: Juan Carlos Cadavid — jcadavid.com`; `adapted-for` and `source` follow the impeccable shape |
+
+Left as info, not fixed: I-8, I-9 (P-9 now states the scope difference), I-10 (partly, since §6 now names `docs/cli.md`), I-13 (fixed in §7.4 with the section-end rule), and I-14 to I-17.
+
+**fixed, not re-judged** — C-1, C-2, C-3, S-1, I-1, I-2, I-3, I-4, I-5, I-6, I-7, I-11, I-12
