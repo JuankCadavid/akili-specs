@@ -125,7 +125,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size S · Depends on: T5 |
+| Status | `[x]` · Size S · Depends on: T5 |
 | Requirements | FR-8 bullet 3 (commands; the no-map fallback list names `nestjs-feature`) |
 | Design | §9 |
 | Scope | `.claude/commands/akili-constitution.md:255` (Step 5 candidates) and `:728` (Step 8D pool: the official set); `.claude/commands/akili-specify.md:254` (Step 2.1 no-map list: `nestjs-feature`); `test/ai-agent-guardrails-evals.test.js:198`, whose anchor `- \`nestjs-expert\`` becomes `- \`nestjs-feature\``. Three sites in two command files. The split rule is kept in spirit, since one review reads all three; the deviation is recorded here |

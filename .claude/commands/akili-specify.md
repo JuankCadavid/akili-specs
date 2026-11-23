@@ -251,7 +251,7 @@ If `Deliverable: video`, load `video-production` and write the storyboard beat t
 
 Use additional stack skills as needed — prefer the project's `## Skill Map` (in root `AGENTS.md`/`CLAUDE.md`) when it exists; otherwise pick from:
 
-- `nestjs-expert`
+- `nestjs-feature`
 - `golang-pro`
 - `api-design-principles`
 - `shadcn-ui`

@@ -262,3 +262,34 @@
 - spawns: Implementer `sonnet` 2 calls, 61,915 tokens, ended complete; Reviewer `opus` (shared with T6) 21 calls, 98,379 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 6/11 · LOC ≈1,673 + 4 ≈ 1,677 / ~2,050 · review rounds 9/18 (the shared T6/T7 review is counted once per task: T7's 1 here, T6's on its entry). No tripwire.
+
+### T6 — Command text: `/akili-constitution` and `/akili-specify`
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-8 bullet 3 (commands; the no-map fallback list names `nestjs-feature`) |
+| Skills / effort | `cognitive-doc-design` (the task's list) · attempt 1 `medium`, attempt 2 `high` (effort bump after FAIL) |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 |
+
+**Attempt 1** (in parallel with T7; file-disjoint)
+- Files changed: `.claude/commands/akili-specify.md:254` (+1 −1) → `- \`nestjs-feature\``; `.claude/commands/akili-constitution.md` :255 (Step 5 candidates) → `nestjs-feature` and :728 (Step 8D pool) → the six (`nestjs-feature`, `nestjs`, `nestjs-auth`, `nestjs-data`, `nestjs-production`, `nestjs-testing`); `test/ai-agent-guardrails-evals.test.js`: anchor moved to `- \`nestjs-feature\`` plus a new test that finds the Step 2.1 list by its lead-in "otherwise pick from:" and asserts `nestjs-feature` present, `nestjs-expert` absent.
+- Red run (executed): `fallback list must name nestjs-feature: - \`nestjs-expert\` | - \`golang-pro\` | …` with the anchor setup passing (Disqualifier: the red comes from the content assertion).
+- Mutation (executed by the Implementer and the Reviewer): old line restored → `not ok 14 - NestJS official skills FR-8: specify Step 2.1 fallback list holds nestjs-feature and no nestjs-expert` and `not ok 15 - … does not name ai-agent-development` (`expected the fallback list in Step 2.1`), `# pass 46 # fail 2`. The Reviewer also added `nestjs-expert` beside `nestjs-feature` → `'fallback list must not name nestjs-expert …'`.
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` (with T7 in the tree) `# tests 2167 # pass 2167 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, one reviewer for T6 and T7): **FAIL**, Issue 1: "`.claude/commands/akili-constitution.md:255` names only `nestjs-feature`, but FR-8 asks for the official set there." FR-8 bullet 3's one-entry exception covers a no-map fallback list (`/akili-specify` Step 2.1), not Step 5, whose lead-in says "the same set feeds the `## Skill Map` in Step 8D".
+- runtime events: none
+
+**Attempt 2** (effort `high`; the Reviewer report relayed verbatim)
+- Files changed: `akili-constitution.md` Step 5 (:255–260) one bullet per skill, the six in the Step 8D order; new test "NestJS official skills FR-8: constitution Step 5 and Step 8D name the same six NestJS skills" (exact six in order at Step 5, exact six at the single pool line, no `nestjs-expert` in the file). No test parsed the Step 5 list before.
+- Mutations (executed): Implementer dropped the `nestjs-data` bullet → `not ok 15 …` red; Reviewer swapped `nestjs-auth`/`nestjs-data` → `not ok 15 … Step 5 list must be the six, in order`, and added `nestjs-expert` to the pool → `not ok 15 … Step 8D pool must be the six, in order`. All restored (shasum OK).
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` (with T8 in the tree) `# tests 2169 # pass 2169 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, resumed): **PASS**. "Issue 1 closed … nothing else changed."
+- runtime events: none
+
+- Issues encountered: the Implementer read Step 5 as a fallback list; one review round spent.
+- spawns: Implementer `sonnet` 5 calls, 67,047 tokens, ended complete; Reviewer `opus` (shared with T7) 21 calls, 98,379 tokens, ended fail; Implementer `sonnet` (resumed) 4 calls, 71,410 tokens, ended complete; Reviewer `opus` (resumed, shared with T8) 7 calls, 120,313 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 7/11 · LOC ≈1,677 + 37 (T6: 35 insertions + 4 deletions, ≈37) ≈ 1,714 / ~2,050 · review rounds 11/18 (T6 was budgeted 2, used 2). No tripwire.
