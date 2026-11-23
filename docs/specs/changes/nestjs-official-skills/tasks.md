@@ -40,7 +40,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size M · Depends on: none |
+| Status | `[x]` · Size M · Depends on: none |
 | Requirements | FR-2 (bullets 1–4), FR-2 *Dirty upstream checkout* scenario, NFR-2 |
 | Design | §7.1 steps 1–7, DD-4, P-6, P-14 |
 | Scope | New `scripts/sync-nestjs-skills.js` and `test/sync-nestjs-skills.test.js`. The test builds a temp git repo shaped like upstream: root `LICENSE` and `package.json`, `skills/<six names>/`. Add `.nestjs-sync/` to `.gitignore`. `Backend route: stack other; implement lead existing design support none — project conventions; test-first lead tdd support none — project conventions` |
