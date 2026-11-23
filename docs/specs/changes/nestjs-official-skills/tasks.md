@@ -108,7 +108,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size M · Depends on: T2 |
+| Status | `[x]` · Size M · Depends on: T2 |
 | Requirements | FR-6 (all six bullets, the *Existing Passport project* scenario THEN and BUT), FR-7 (all bullets; the scenario is an accepted risk, so presence is proven, not behaviour), FR-8 bullet 3 (`AGENTS.md` *Backend Skills* only) |
 | Design | §9 rows *Stack table* to *Attribution* and *Routing text-contract tests*, DD-8 |
 | Scope | `.claude/skills/software-architect/references/backend-routing.md`; `AGENTS.md` → `## Backend Skills` (the `nestjs-expert` bullet → the set, `nestjs-feature` leading); `test/backend-skill-routing.test.js` (`NINE`, the AGENTS constant), `test/backend-skill-routing-coverage.test.js` (rules 1..9, card name, *Must not decide*, rule 5 clause, rule 9 incl. default telemetry, Passport-scenario route line). Edit sites: about 8 in `backend-routing.md`, 1 in `AGENTS.md`. Rules text |

@@ -92,7 +92,12 @@ The method skill decides what and why; the stack skill decides how in this langu
 - `error-handling-patterns` — error-handling philosophies, error categories, circuit breaker, graceful degradation.
 - `tdd` — red-green loop, seams, test anti-patterns (assigned by the Leader).
 - `systematic-debugging` — root cause before fix, four phases.
-- `nestjs-expert` — stack skill: Nest modules, DI, controllers, guards, Jest/Supertest; leads `implement` on NestJS.
+- `nestjs-feature` — stack skill (official NestJS set): modules, controllers, services, validation, error bodies; leads `implement` on NestJS.
+- `nestjs-auth` — NestJS support: sign-in, sessions, permissions.
+- `nestjs-data` — NestJS support: Drizzle and TypeORM persistence.
+- `nestjs-testing` — NestJS support: unit and Supertest tests.
+- `nestjs-production` — NestJS support: config, logs, health, shutdown.
+- `nestjs` — NestJS support: project start, layout, docs.
 - `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
 - `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
 - `ai-agent-development` — conditional skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.

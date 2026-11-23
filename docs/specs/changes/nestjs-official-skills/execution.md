@@ -197,3 +197,46 @@
 - spawns: Implementer `sonnet` 13 calls, 88,462 tokens, ended complete; Reviewer `opus` 10 calls, 85,240 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 4/11 · LOC ≈1,316 + 286 (T4: 24 + 73 + 189) ≈ 1,602 / ~2,050 · review rounds 6/18 (T4 was budgeted 1). No tripwire. Remaining: ~448 LOC and 12 rounds for 7 tasks. The LOC overrun risk has grown: T5 and T10 are the large ones.
+
+### T5 — Backend routing: matrix, card, rules 5 and 9, `AGENTS.md` *Backend Skills*
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-6 (all six bullets, *Existing Passport project* THEN and BUT), FR-7 (all bullets; presence proven, the scenario is an accepted risk), FR-8 bullet 3 (`AGENTS.md` *Backend Skills* only) |
+| Skills / effort | `software-architect`, `cognitive-doc-design` (the task's list) · attempt 1 `medium`, attempt 2 `high` (effort bump after FAIL) |
+| Approval | JC approved T5 2026-11-23 |
+
+**Attempt 1**
+- Files changed:
+  - `.claude/skills/software-architect/references/backend-routing.md` (+8 −7): the Stack table NestJS row names the six with each idiom; the matrix `implement / NestJS` lead is `nestjs-feature` with the five support activities by name; module-design support reads "NestJS → `nestjs`"; rule 5 gains the package-preference clause; new rule 9 (link, MCP, paid rules, default telemetry with `--no-observe`); the `nestjs-expert` card becomes one family card (intro line updated); Attribution names Kamil Mysliwiec (MIT). No `nestjs-expert` mention remains in the file.
+  - `AGENTS.md` (+6 −1): the `nestjs-expert` bullet under `## Backend Skills` becomes `nestjs-feature` plus five support bullets. No other section touched.
+  - `test/backend-skill-routing.test.js` (+13 −3): `NINE` names `nestjs-feature`; new `NEST_SUPPORT` and `AGENTS_LISTED` constants; a lead-cell test for `implement / NestJS`.
+  - `test/backend-skill-routing-coverage.test.js`: rules 1..9, the card name, and a new FR-6 FR-7 test (five support activities, *Must not decide*, rule 5 clause, rule 9, Attribution).
+- Red run (executed): the lead-cell test against the unedited matrix → `not ok 3 - …implement / NestJS Lead cell is nestjs-feature…` with `actual '`nestjs-expert`'`, `expected '`nestjs-feature`'`.
+- Mutation (executed): "and default telemetry" deleted from rule 9 → `not ok 4 … error: 'rule 9 title names default telemetry'`; reverted.
+- Deviations (Implementer; the Reviewer accepted 1–3):
+  1. Five separate support bullets in `AGENTS.md`, because the existing test reads the first backticked name per bullet. Within FR-8 bullet 3 and §9 ("the nine plus the five support members, as a named constant" = `AGENTS_LISTED`).
+  2. No spec IDs in the matrix wording (existing no-spec-IDs test; grep for `FR-|NFR-|DD-|I-[0-9]|KZ-` returns nothing).
+  3. A mutation revert accidentally opened an interactive `git checkout -p` with no input. The Reviewer confirmed nothing was lost: the live diff matched the supplied diff byte for byte.
+  4. No test for the Passport-scenario route line ("no file carries a `Backend route:` line"). The Reviewer rejected this one (below).
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2166 # pass 2166 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`): **FAIL**, F-1: "the BUT half of the *Existing Passport project* scenario has no test". Its executed mutation (the `implement / NestJS` rule cell replaced with "Prefer `@nestjs/authentication` over Passport" and the rule 5 sentence "A stack skill never reopens them; a conflict is a spec gap for the Pivot Protocol." deleted) gave `# pass 33  # fail 0`. "No file carries a `Backend route:` line does not make this unprovable. The suite already proves scenario routes by resolving the matrix row." The test title already claimed "…, Passport route". Rule 9 facts were quote-checked against the vendored files (`nestjs-production/SKILL.md:37,41,76`, `nestjs/SKILL.md:33`) and found accurate; the disqualifier mutation (`nestjs-feature` moved to a support cell) gave 3 red.
+- Attempt-1 ADVISORY A-1: a roundabout `"default telemetry".replace(…)` literal in the new rule-9 loop (the Implementer's own new code; fixed in attempt 2).
+- runtime events: none
+
+**Attempt 2** (effort `high`; the Reviewer report relayed verbatim; tests only)
+- Files changed: `test/backend-skill-routing-coverage.test.js` only (final +26 −7). Three asserts in the FR-6 FR-7 test: `impl.rule` equals "No decision recorded in `design.md` is reopened"; `impl.support` includes "method skills as constraints already in `design.md`"; `rules()["5"]` includes the no-reopen sentence. The A-1 literal is now "telemetry dependency added by default".
+- Mutation (executed by the Implementer, the Leader and the Reviewer): the Reviewer's Passport mutation → `not ok 4 - … FR-6 FR-7: … Passport route`, `# pass 32 # fail 1`. The Reviewer also deleted only the rule 5 sentence → `not ok 4`, so each half of the BUT is caught on its own. Restored each time (checksum OK).
+- Evidence re-run (Leader inline): **VERIFIED**. Outside the test file the diff is identical to attempt 1. `npm test` `# tests 2166 # pass 2166 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, same reviewer resumed): **PASS**. "F-1 … is closed, and nothing else changed."
+- ADVISORY (record only): A-2, the tracked `.claude/skills/nestjs-expert/` folder is still on disk; it belongs to T10.
+- runtime events: none
+
+- Decisions made: none beyond the accepted deviations.
+- Issues encountered: the Implementer declared a Scope item ("Passport-scenario route line") unprovable instead of resolving the matrix row; one review round spent.
+- spawns: Implementer `sonnet` 10 calls, 95,684 tokens, ended complete; Reviewer `opus` 14 calls, 93,382 tokens, ended fail; Implementer `sonnet` (resumed), 98,636 tokens, ended complete; Reviewer `opus` (resumed), 96,518 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 5/11 · LOC ≈1,602 + 71 (T5: 53 insertions + 18 deletions) ≈ 1,673 / ~2,050 · review rounds 8/18 (T5 was budgeted 2). No tripwire. Remaining: ~377 LOC and 10 rounds for 6 tasks.
