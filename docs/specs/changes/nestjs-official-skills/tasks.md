@@ -6,7 +6,7 @@
 |---|---|
 | Spec | `changes/nestjs-official-skills` |
 | Depth | Standard (upper end) · Approval Mode gated |
-| Status | Phase 3 draft, awaiting the Step 3.3 gate |
+| Status | Phase 3 approved 2026-11-22 by JC (Step 3.3 gate, gated mode). Verification Checklist passed 2026-11-22 (see below) |
 | Inputs | `requirements.md` (FR-1–FR-9, NFR-1–NFR-8; FR-8 amended by C-1), `design.md` (DD-1–DD-12, P-1–P-15), `judgment.md` (fixed, not re-judged) |
 | Budget (design §10.2, re-sized at Phase 3) | 11 tasks · ~2,050 LOC by hand · 18 review rounds (2 each for T2, T5, T6, T8, T10; 1 each for the other six; +2 margin). Tasks went from 8 to 11 because the rules-text bound splits T5–T9 by document |
 | Ordering rule | `npm test` stays green after every task. Adding the six (T2) and retiring `nestjs-expert` (T10) each update **every** registry that pins the skill-folder set in the same task: counts, `SKILL_CATALOG`, `docs/overview.md`, `docs/skills/README.md`, the doctor baseline (`AGENTS.md` *Verification*; P-10) |
@@ -245,6 +245,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 | FR-5 *Name in prose*: THEN no line | T4 |
 | FR-6 all six bullets · Passport scenario THEN (route line) · BUT (no reopening) | T5 |
 | FR-7 relay allowed · never runs unless asked · never auto-passed under `pre-approved` · rule outside the vendored folders | T5 (presence). Behaviour is the accepted risk in `requirements.md` §8 |
+| FR-7 *Pre-approved run on an unlinked project*: THEN at most one sentence · BUT no `npx @nestjs/observe link`, no MCP server | T5 (rule 9 text, its text-contract assertion). Runtime behaviour is the same accepted risk |
 | FR-8 bullet 1 governance | T8 |
 | FR-8 bullet 2 pages and rows | T2 (added), T10 (old row and page removed) |
 | FR-8 bullet 3 commands and docs | T6 (commands), T5 and T7 (`AGENTS.md`), T9 (docs) |
@@ -283,3 +284,26 @@ The total is well above the ~400 LOC threshold, so I recommend **three stacked P
 ## `skip-eligible` tasks
 
 None. Every task is `full` or `checklist`.
+
+## Verification Checklist (2026-11-22)
+
+| Check | Result |
+|---|---|
+| 3 files exist, non-empty | pass: `requirements.md` 276 lines, `design.md` 272, `tasks.md` 285 |
+| `general-setup/` conventions | n/a: the folder does not exist; the format source is the archived `impeccable-hardening` spec (`requirements.md` Document Control) |
+| Depth re-checked against the finished design | pass: Standard, upper end (`design.md` §10.2) |
+| Budget recorded | pass: 11 tasks · ~2,050 LOC · 18 review rounds |
+| Reverting DDs carry the challenge outcome | pass: DD-6 and the FR-6 lead removal (`design.md` §10.1) |
+| Premise Ledger present; every row cited or `UNVERIFIED` with an owner | pass: P-1–P-15; P-13 owned by T2's first step |
+| Blast-radius triggers have rows | pass: `shared-state` (P-2, P-3, P-15), `consumer` (P-9, P-10), `live-path` (P-12) |
+| `consumer` rows in the owning task's `Consumers` | pass: P-10 in T2; P-9 and P-10 in T10 |
+| Defect classes mapped to gates | pass: `requirements.md` §8; two classes are accepted risks (FR-7 runtime, upstream recipes) |
+| Every scenario and `BUT` / `AND IT MUST` clause owned | pass: 11 scenarios, 8 `BUT`, 1 `AND IT MUST`. The FR-7 scenario row was named explicitly at this check |
+| Every task cites requirements and design; done criteria and negative cases | pass: 11 of 11 |
+| Dependency graph acyclic | pass (Task Graph) |
+| Bug Mode, Video Mode, AI Agent Mode | n/a: `Type: Change`, `Deliverable: software`, `AI Agent: no` |
+| Skills referenced exist | pass: `tdd`, `cognitive-doc-design`, `software-architect` |
+| Four verification fields on every task | pass: 11 of 11; every `predicted` red names its observing task; T11's red is n/a with a reason |
+| `Backend route:` on backend tasks | pass: T1, T3, T4, T10 (the tasks that write script or installer code) |
+| `skip-eligible` named at the gate | pass: none, stated at Step 3.3 |
+| Rendered-measurement checklist | n/a: no gate asserts size, overflow, visibility, position or containment |
