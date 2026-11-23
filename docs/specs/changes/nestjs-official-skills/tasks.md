@@ -57,7 +57,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size L · Depends on: T1 |
+| Status | `[x]` · Size L · Depends on: T1 |
 | Requirements | FR-1 (all bullets and the *Verbatim check* scenario), FR-2 bullet 5 (first pin, re-verified), FR-2 *Local edit creeps in* scenario, FR-3 bullet 3 (`doctor` counts the six), FR-8 bullet 2 (pages and rows), FR-8 bullet 5 (`SKILL_CATALOG`, +6), NFR-1, NFR-3, NFR-4 |
 | Design | §4, §5, DD-1–DD-3, DD-9, DD-10, P-4, P-5, P-10, P-13, P-14 |
 | Scope | **First step, settling P-13:** in the upstream clone, `git fetch --tags` and compare the latest tag and `skills/` against `v0.1.1`. Record the result in `execution.md`; a move is a recorded deviation (FR-2). Then: <ul><li>`git checkout v0.1.1` and run the script with `--npm-shasum 8c70e8b504866f6f7530b515da2c9cad6615f744`, after re-running `npm view @nestjs/skills@0.1.1 dist.shasum`;</li><li>new `test/nestjs-vendor.test.js`;</li><li>six `.gitattributes` `-text` lines;</li><li>six `docs/skills/<name>.md` pages (DD-9 outline; Observe note on `nestjs`, `nestjs-feature`, `nestjs-production`);</li><li>six rows each in `docs/skills/README.md` and `docs/overview.md`;</li><li>`SKILL_CATALOG` +6 (binding `stack`);</li><li>every P-10 pin to the interim set of 38 skills: `SKILL_FILE_EXPECTED` 321 → 355, `doctor-codex-baseline.txt` +6 `OK` lines with `ok 54` → `ok 60`, panel stack group 10 → 16, `akili-panel-cli-coverage:537` 33 → 39.</li></ul>`nestjs-expert` stays in this task |

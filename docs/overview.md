@@ -81,6 +81,12 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
 | [`golang-pro`](skills/golang-pro.md) | stack | Go concurrency, gRPC/REST microservices, generics, pprof, table-driven testing |
 | [`nestjs-expert`](skills/nestjs-expert.md) | stack | NestJS modules, DI, guards, interceptors, testing, TypeORM/Mongoose |
+| [`nestjs`](skills/nestjs.md) | stack | NestJS project setup, layout, module system, docs map |
+| [`nestjs-feature`](skills/nestjs-feature.md) | stack | HTTP endpoints, validation, status codes, error bodies, SSE |
+| [`nestjs-auth`](skills/nestjs-auth.md) | stack | Authentication and authorization with the first-party packages |
+| [`nestjs-data`](skills/nestjs-data.md) | stack | Drizzle and TypeORM persistence, migrations, transactions |
+| [`nestjs-testing`](skills/nestjs-testing.md) | stack | @nestjs/testing, Supertest, Vitest/Jest, test databases |
+| [`nestjs-production`](skills/nestjs-production.md) | stack | Config, logs, Observe, health checks, rate limiting, OpenAPI, shutdown |
 | [`software-architect`](skills/software-architect.md) | core | NFRs as measurable quality-attribute scenarios, tactics, robust-vs-lite tier sizing, architecture styles, GoF pattern selection, C4 views and ADRs |
 
 ### Product
