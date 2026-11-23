@@ -152,3 +152,22 @@ test("@akili-spec changes/nestjs-official-skills NFR-3 .gitattributes declares t
     assert.ok(attrs.includes(`.claude/skills/${name}/** -text`), `.gitattributes has no '-text' line for ${name}`);
   }
 });
+
+test("governance lists the official NestJS set as a vendored member and the release checklist pins both", () => {
+  const gov = fs.readFileSync(path.join(REPO_ROOT, "docs", "skills", "governance.md"), "utf8");
+  const start = gov.indexOf("### Vendored third-party (verbatim)");
+  assert.ok(start >= 0, "governance.md lost its Vendored section");
+  const rest = gov.slice(gov.indexOf("\n", start) + 1);
+  const next = rest.search(/^#{2,3} /m);
+  const vendored = next < 0 ? rest : rest.slice(0, next);
+  assert.match(vendored, /Current members/, "Vendored section does not say 'Current members'");
+  for (const name of NAMES) {
+    assert.ok(vendored.includes(`\`${name}\``), `Vendored section does not list ${name}`);
+  }
+  assert.ok(vendored.includes("break rule 1"), "Vendored section does not state why the six folders are not fused (break rule 1)");
+  assert.ok(vendored.includes("scripts/sync-nestjs-skills.js"), "Vendored section does not name the NestJS sync script");
+  const rc = fs.readFileSync(path.join(REPO_ROOT, "docs", "release-checklist.md"), "utf8");
+  assert.ok(rc.includes(".claude/skills/impeccable/UPSTREAM.md"), "release checklist lost the Impeccable UPSTREAM.md pin step");
+  assert.ok(rc.includes(".claude/skills/nestjs/UPSTREAM.md"), "release checklist does not name the NestJS UPSTREAM.md");
+  assert.ok(rc.includes("dist.shasum"), "release checklist does not name dist.shasum");
+});

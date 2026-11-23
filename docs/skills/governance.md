@@ -49,11 +49,16 @@ A skill belongs here only when all four rules hold:
 1. **Unmodified upstream build.** The folder is a copy of the upstream's own build, byte-identical to it.
 2. **Frontmatter-only modification, declared.** The one permitted change is the AKILI governance block (`metadata`: author, source, adapted-by, adapted-for, binding) in the vendored `SKILL.md`, and `NOTICE` states it.
 3. **Three provenance files beside the skill.** `LICENSE` (upstream's, preserved), `NOTICE` (upstream's notices plus the modification statement, and that AKILI is not affiliated with the upstream project), and `UPSTREAM.md` (source, commit, versions, vendoring date, per-file checksums).
-4. **A hash-locked test, and a pin that moves only through the script.** `npm test` fails, naming the file, when any vendored byte differs from `UPSTREAM.md`; hand edits are caught, not trusted. The pin moves only through `scripts/sync-impeccable.js` (maintainer-only, from a local upstream checkout, no network); the pin check at release is in [`release-checklist.md`](../release-checklist.md).
+4. **A hash-locked test, and a pin that moves only through the script.** `npm test` fails, naming the file, when any vendored byte differs from `UPSTREAM.md`; hand edits are caught, not trusted. The pin moves only through its sync script (`scripts/sync-impeccable.js`, `scripts/sync-nestjs-skills.js`; maintainer-only, from a local upstream checkout, no network); the pin check at release is in [`release-checklist.md`](../release-checklist.md).
+
+The official NestJS set is six sibling folders from one upstream, accepted against acceptance checklist item 4 (*Size justified*), which prefers one skill with `references/`: fusing the six into one skill would change upstream bytes and break rule 1 (unmodified upstream build).
 
 Adapted skills (`adapted-by`, body edited) are not in this category; they follow the acceptance checklist below. A vendored skill still declares a `metadata.binding` and still needs its `docs/skills/<name>.md` page and README row.
 
-**Current member: `impeccable`** (Paul Bakaus, Apache-2.0, `pbakaus/impeccable`). Its page is [`impeccable.md`](impeccable.md); the AKILI rules around it (skill source, engine gate, detector gate, fallback) live in `impeccable-bridge`, never in the vendored folder.
+**Current members:**
+
+- `impeccable` (Paul Bakaus, Apache-2.0, `pbakaus/impeccable`). Its page is [`impeccable.md`](impeccable.md); the AKILI rules around it (skill source, engine gate, detector gate, fallback) live in `impeccable-bridge`, never in the vendored folder.
+- The official NestJS set, six folders pinned together at `@nestjs/skills` v0.1.1 (Kamil Mysliwiec, MIT, `nestjs/agent-skills`): `nestjs`, `nestjs-feature`, `nestjs-auth`, `nestjs-data`, `nestjs-testing`, `nestjs-production`. Each has its own `UPSTREAM.md` and `docs/skills/<name>.md` page; `nestjs-feature` leads `implement` on NestJS (see `backend-routing.md`).
 
 **Supersession.** Impeccable moved here from *Environment-provided skills*. This supersedes `changes/impeccable-design` NFR-1 (its no-vendoring rule, as applied to Impeccable) and the paragraph that recorded it in this file. Reports and specs written under the earlier rule describe the state at their time and are not rewritten.
 
@@ -63,7 +68,7 @@ Adapted skills (`adapted-by`, body edited) are not in this category; they follow
 |---|---|
 | `core` | `kaizen` (archive), `judgment-day` (specify), `cognitive-doc-design` (all human-facing docs), `brainstorming` (constitution, propose), `product-manager-toolkit` (constitution), `software-architect` (constitution TRD/infra, specify design), `caveman` (execute/test transient inter-agent output), `systematic-debugging` (bug flows), `seo-audit` (seo), `security-audit` (security), `social-marketing` (marketing), `pr-review` (review) |
 | `conditional` | `ui-ux-pro-max` (catalog), `impeccable` (vendored third-party, lead design skill), `impeccable-bridge` (the AKILI layer over it), `frontend-design`, `stitch-design` (UI work, routed per the design routing matrix), `gsap-animation` (animation implementation layer), `diagram-design` (diagram slots of constitution/specify/archive), `video-production` (video deliverables), `ai-agent-development` (AI agent specs), `tdd` (logic-heavy tasks — assigned per task by the `/akili-execute` Leader via `leader.md`'s skill-decision rule, not by a conditional line in command text; the documented exception to the wiring norm) |
-| `stack` | `angular-developer`, `golang-pro`, `nestjs-expert`, `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns` |
+| `stack` | `angular-developer`, `golang-pro`, `nestjs`, `nestjs-feature`, `nestjs-auth`, `nestjs-data`, `nestjs-testing`, `nestjs-production` (vendored official set), `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`, `aws-serverless`, `api-design-principles`, `error-handling-patterns` |
 
 Routing matrices — design (`impeccable-bridge` → `references/design-routing.md`) and backend (`software-architect` → `references/backend-routing.md`) — are each held once, in the skill that owns the decisions; every other surface names the file (and a section where it points into one), never a line number, and never copies a row.
 
@@ -138,5 +143,6 @@ The same checklist applies in reverse: when a skill loses its integration points
 
 | Date | Change | Reason |
 |---|---|---|
+| 2026-11-23 | `nestjs-expert` retired, replaced by the six vendored official NestJS skills (`nestjs`, `nestjs-feature`, `nestjs-auth`, `nestjs-data`, `nestjs-testing`, `nestjs-production`) | The upstream NestJS team now ships official skills; one maintained source replaces a community adaptation; spec `changes/nestjs-official-skills` (FR-4) |
 | 2026-10-30 | `impeccable` moved from *Environment-provided skills* to *Vendored third-party (verbatim)* | Design steps need every install to carry the same Impeccable instructions; spec `changes/impeccable-hardening` (FR-14) |
 | 2026-07-20 | `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-react`, `gsap-frameworks`, `gsap-performance`, `gsap-utils` → fused into `gsap-animation` | 8 sibling skills, ~104 KB, zero command wiring; one `conditional` skill with `references/` preserves the content and is actually loaded |

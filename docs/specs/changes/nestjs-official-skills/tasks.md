@@ -159,7 +159,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size S · Depends on: T2 |
+| Status | `[x]` · Size S · Depends on: T2 |
 | Requirements | FR-8 bullet 1, FR-4 bullet 4 (*Removal / Fusion Log* row), FR-2 bullet 6 (release-checklist step) |
 | Design | §9 `governance.md` and `release-checklist.md` rows (I-11) |
 | Scope | `docs/skills/governance.md`: <ul><li>*Vendored* rule 4 (both scripts);</li><li>"Current members";</li><li>the checklist item 4 exception for the six-folder family;</li><li>*Current assignment* `stack` row;</li><li>*Removal / Fusion Log* row, dated.</li></ul>`docs/release-checklist.md:21`: one step per vendored pin. Six sites in two docs |

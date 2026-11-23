@@ -293,3 +293,36 @@
 - spawns: Implementer `sonnet` 5 calls, 67,047 tokens, ended complete; Reviewer `opus` (shared with T7) 21 calls, 98,379 tokens, ended fail; Implementer `sonnet` (resumed) 4 calls, 71,410 tokens, ended complete; Reviewer `opus` (resumed, shared with T8) 7 calls, 120,313 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 7/11 · LOC ≈1,677 + 37 (T6: 35 insertions + 4 deletions, ≈37) ≈ 1,714 / ~2,050 · review rounds 11/18 (T6 was budgeted 2, used 2). No tripwire.
+
+### T8 — Governance and release checklist
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-8 bullet 1, FR-4 bullet 4 (*Removal / Fusion Log* row), FR-2 bullet 6 (release-checklist step) |
+| Skills / effort | `cognitive-doc-design` (the task's list) · attempt 1 `medium`, attempt 2 `high` (effort bump after FAIL) |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 |
+
+**Attempt 1** (in parallel with the T6 rework; file-disjoint)
+- Files changed: `docs/skills/governance.md` — *Vendored* rule 4 names both sync scripts; "Current member" → "**Current members:**" with `impeccable` and the official set (Kamil Mysliwiec, MIT, `nestjs/agent-skills`, pinned at `@nestjs/skills` v0.1.1); a six-folder exception sentence for checklist item 4; the `stack` row names the six; a *Removal / Fusion Log* row dated 2026-11-23 (reason text written by the Implementer; the design gave only "a row dated at execute"; the Reviewer found it consistent with §9). `docs/release-checklist.md:22` — a NestJS pin step after the Impeccable one (`UPSTREAM.md`, upstream's latest tag, `npm view @nestjs/skills@<version> dist.shasum`, the "current" or sync record). `test/nestjs-vendor.test.js` — a new test scoped to the *Vendored* section (Disqualifier) plus both `UPSTREAM.md` pins in the checklist.
+- **Factual correction (no gate, logged):** T8's Consumers field says "none beyond the new assertion". The governance edit turned `test/modern-web-guidance.test.js:444` red (it pinned `**Current member: \`impeccable\`**`). The Implementer updated that one assertion to `/\*\*Current members:\*\*[\s\S]*- \`impeccable\` \(/`; the `doesNotMatch` MWG exclusion is unchanged. The Reviewer confirmed the test still pins what it meant and goes red against HEAD's governance (`not ok 41`).
+- Red run (executed): `"Vendored section does not say 'Current members'"`.
+- Mutation (executed by the Implementer and the Reviewer): only the official-set bullet removed from *Vendored* (the Removal Log and `stack` row still name the set) → `not ok 9 … 'Vendored section does not list nestjs'`, `# pass 8 # fail 1`.
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2169 # pass 2169 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`): **FAIL**, Issue 1: "`docs/skills/governance.md:54` doesn't say why the six folders aren't fused." FR-8 bullet 1 asks to "record why a family of six sibling folders is accepted against checklist item 4 (fusing them would break the verbatim rule)"; the line said item 4 "is met by that split", which contradicts "exception". Facts in the *Current members* bullet checked against all six `UPSTREAM.md`/NOTICE/LICENSE (Tag `v0.1.1`, commit `68e1d54`): correct. The Removal Log row's "spec `changes/nestjs-official-skills` (FR-4)" follows the precedent row's form and cites a spec name, not a path: NFR-5 holds.
+- Attempt-1 note (non-blocking): `release-checklist.md:22` called `UPSTREAM.md` "shared by the six official folders"; each folder has its own (DD-1). Fixed in attempt 2 because it is this task's own new line and factually wrong.
+- runtime events: none
+
+**Attempt 2** (effort `high`; the Reviewer report relayed verbatim)
+- Files changed: `governance.md:54` → "The official NestJS set is six sibling folders from one upstream, accepted against acceptance checklist item 4 (*Size justified*), which prefers one skill with `references/`: fusing the six into one skill would change upstream bytes and break rule 1 (unmodified upstream build)."; `release-checklist.md:22` → "the pin shared by the six official folders, each with its own `UPSTREAM.md`"; one assertion that the *Vendored* section contains "break rule 1".
+- Mutations (executed): Implementer "break rule X" → red; Reviewer "lose the provenance files" → `not ok 100 … 'Vendored section does not state why the six folders are not fused (break rule 1)'`. Restored (shasum OK).
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2169 # pass 2169 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, resumed): **PASS**. "It closes issue 1, and nothing else changed since attempt 1."
+- ADVISORY (record only): the new assertion keys on the literal "break rule 1"; a rewording would fail it even with the reason kept.
+- runtime events: none
+
+- spawns: Implementer `sonnet` 7 calls, 74,465 tokens, ended complete; Implementer (resumed, consumer fix) 2 calls, 75,877 tokens; Reviewer `opus` (resumed, shared with T6) 7 calls, 120,313 tokens, ended fail; Implementer (resumed) 1 call, 78,140 tokens, ended complete; Reviewer (resumed) 1 call, 122,870 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 8/11 · LOC ≈1,714 + 34 (T8: 30 insertions + 4 deletions) ≈ 1,748 / ~2,050 · review rounds 13/18 (T8 was budgeted 2, used 2). No tripwire. Remaining: ~302 LOC and 5 rounds for T9, T10, T11.
