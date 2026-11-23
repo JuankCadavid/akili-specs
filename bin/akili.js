@@ -8,6 +8,7 @@ const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
 const { parsePersona, sectionStates, resultExitCode, applyFix, migratePersona } = require("./persona.js");
+const { scanSkillMap } = require("./skill-map.js"); // @akili-spec changes/nestjs-official-skills T4
 const { compareEntry, formatDiffers } = require("./install-compare.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
@@ -2458,6 +2459,24 @@ function printFixRow(row) {
   console.log(`    ${color}${label}${colors.reset}${idPart}${detailPart}`);
 }
 
+// @akili-spec changes/nestjs-official-skills T4
+function reportRetiredSkills(cwd) {
+  for (const file of ["AGENTS.md", "CLAUDE.md"]) {
+    const filePath = path.join(cwd, file);
+    if (!fs.existsSync(filePath)) continue;
+    let text;
+    try {
+      text = fs.readFileSync(filePath, "utf8");
+    } catch (err) {
+      console.log(`  ${colors.yellow}warning${colors.reset} could not read ${file} for the Skill Map scan (${err.code || err.message})`);
+      continue;
+    }
+    for (const hit of scanSkillMap(text)) {
+      console.log(`  ${colors.yellow}RETIRED${colors.reset} ${hit.name} (${file}:${hit.line}) -> replace with ${hit.replacement}`);
+    }
+  }
+}
+
 function runAgentsDoctor(args) {
   const cwd = process.cwd();
   const agentsDir = path.join(cwd, ".agents");
@@ -2469,6 +2488,11 @@ function runAgentsDoctor(args) {
     const { rootPath } = getToolRegistryInfo(tool, args);
     console.log(`  ${colors.yellow}Tool root (info only):${colors.reset} ${tool} → ${rootPath}`);
   }
+
+  // @akili-spec changes/nestjs-official-skills T4
+  // Read-only Skill Map scan (FR-5): runs before the ABSENT return and the
+  // --fix guards, never writes, never assigns process.exitCode.
+  reportRetiredSkills(cwd);
 
   if (!fs.existsSync(agentsDir)) {
     console.log(`\n  ${colors.red}ABSENT${colors.reset} ${formatPath(agentsDir)} does not exist`);

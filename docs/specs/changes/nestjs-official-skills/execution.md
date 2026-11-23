@@ -159,3 +159,41 @@
 - spawns: Implementer `sonnet` 12 calls, 82,076 tokens, ended complete; Reviewer `opus` 13 calls, 86,826 tokens, ended fail; Implementer `sonnet` 7 calls, 67,784 tokens, ended complete; Reviewer `opus` (resumed) 1 call, 90,496 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 3/11 · LOC ≈1,142 + 174 (T3: 164 insertions + 10 deletions) ≈ 1,316 / ~2,050 · review rounds 5/18 (T3 was budgeted 1). No tripwire. Remaining: ~734 LOC and 13 rounds for 8 tasks. The LOC overrun risk is still open.
+
+### T4 — `doctor --agents` Skill Map scan
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-11-23 |
+| Attempts | 1 |
+| Requirements covered | FR-5 bullets 1–4, *Project still maps NestJS to `nestjs-expert`* (THEN, AND, BUT), *Name in prose, not in the map* |
+| Skills / effort | `tdd` (the task's list) · `medium` |
+| Approval | JC approved T4 2026-11-23 |
+
+**Attempt 1**
+- Files changed:
+  - New `bin/skill-map.js` (73 lines, pure, no I/O): exports `RETIRED_SKILLS` (one row, `{ name: "nestjs-expert", replacement: "nestjs-feature plus the official set (nestjs, nestjs-auth, nestjs-data, nestjs-production, nestjs-testing)" }`), `findSkillMapSection` and `scanSkillMap`. Returns `{ name, line, replacement }` in line order, 1-based, across CRLF and LF. T10 can require the same table.
+  - `bin/akili.js` (+24): the require and `reportRetiredSkills(cwd)`, called after the *Tool root* lines and before the `.agents/` ABSENT return and the `--fix` guards (P-12). It reads `AGENTS.md` then `CLAUDE.md`, never assigns `process.exitCode`, never writes.
+  - New `test/doctor-skill-map.test.js` (189 lines, 14 tests: 8 unit, 6 CLI). The current-personas project copies `.claude/templates/{leader,implementer,reviewer,tester}.md` into `.agents/` (exit 0). No test reads `docs/specs/`.
+- Output: `RETIRED nestjs-expert (AGENTS.md:N) -> replace with nestjs-feature plus the official set (…)`; an unreadable file prints `warning could not read <file> for the Skill Map scan (<code>)`.
+- Deviations (Implementer; the Reviewer judged each within §7.4):
+  1. A `## Skill Map` heading opens a section only outside a code fence. §7.4 already treats fenced `## ` lines as non-headings for the section end; applying the rule to the opener avoids false hits from Markdown examples. Recorded, no pivot.
+  2. The unreadable-file test is skipped on win32 and when running as root (permission bits not enforceable). That §7.4 row goes untested on Windows: a recorded gap.
+- Red run: the unit test first failed with `Cannot find module '../bin/skill-map.js'` (greenfield, a missing-module red, not a behavioral one).
+- Falsifier (executed, quoted):
+  - Baseline: a copy of `bin/akili.js` at `7cbdb19`, temp project whose `AGENTS.md` Skill Map names `nestjs-expert` → `ABSENT …/.agents does not exist` and `RETIRED count: 0`.
+  - Mutation A (`process.exitCode = 1` on a hit), by the Implementer and again by the Reviewer: `not ok 10 - CLI [current .agents/ (exit 0)] …` (`expected: 0 actual: 1`) and `not ok 14 - CLI: unreadable file …`. Test 9 (no `.agents/`) stays green, which is the Disqualifier the current-personas variant closes.
+  - Mutation B (section-end check dropped): 6 red, including `not ok 12 - name only under '## History' prints nothing`.
+  - Reviewer's own mutations: C (drop the leading-character check) → `not ok 6 - whole-token match …`; D (call after the ABSENT return) → `not ok 9`; E (call after the `--fix` guards) → only `not ok 9`.
+  - All mutations reverted; the Reviewer confirmed with `shasum -c` OK.
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2164 # pass 2164 # fail 0`; `node --test test/doctor-skill-map.test.js` 14/14; `git diff --check` clean; `install --tool all --dry-run` exit 0. In the repo root, `doctor --agents --allow-branch` prints no `RETIRED` line (the repo `AGENTS.md` has no `## Skill Map` heading).
+- Reviewer (`opus`): **PASS**. Every FR-5 bullet, both scenarios, every §7.4 state row, DD-7, P-12 and NFR-5 are met.
+- ADVISORY (record only):
+  - A1: no test pins the "before the `--fix` guards" position. In a non-git temp directory the guards do not refuse, so mutation E is caught only by the no-`.agents/` ABSENT test. A refused `--fix` run (git repo on the default branch) would pin it.
+  - A2: the replacement is checked loosely (`/nestjs-feature/` against the whole output, not the `RETIRED` line). No test asserts the official-set names, although `bin/skill-map.js:13` carries them.
+  - A3: fence edge cases in `bin/skill-map.js:18,32-35`: an unclosed fence above the heading hides the Skill Map; ```` ``` ```` and `~~~` toggle each other; any indentation counts as a fence. Each fails quiet (false negative), never a write or an exit change.
+- runtime events: none
+- spawns: Implementer `sonnet` 13 calls, 88,462 tokens, ended complete; Reviewer `opus` 10 calls, 85,240 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 4/11 · LOC ≈1,316 + 286 (T4: 24 + 73 + 189) ≈ 1,602 / ~2,050 · review rounds 6/18 (T4 was budgeted 1). No tripwire. Remaining: ~448 LOC and 12 rounds for 7 tasks. The LOC overrun risk has grown: T5 and T10 are the large ones.

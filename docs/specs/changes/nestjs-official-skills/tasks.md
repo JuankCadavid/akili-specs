@@ -91,7 +91,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size M · Depends on: none |
+| Status | `[x]` · Size M · Depends on: none |
 | Requirements | FR-5 bullets 1–4, *Project still maps NestJS to `nestjs-expert`* (THEN, AND, BUT), *Name in prose, not in the map* |
 | Design | §7.4 (every state row), DD-7, P-7, P-12 |
 | Scope | New pure `bin/skill-map.js`; the call site in `runAgentsDoctor` before the ABSENT return and the `--fix` guards; new `test/doctor-skill-map.test.js` (unit + CLI). The retired table starts in this task as the `nestjs-expert` → replacement row that `bin/skill-map.js` reads. T10 moves the cleanup loops onto the same table. `Backend route: stack other; implement lead existing design support none — project conventions; test-first lead tdd support none — project conventions` |
