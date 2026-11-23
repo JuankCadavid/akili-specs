@@ -210,7 +210,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size S · Depends on: T10 |
+| Status | `[x]` · Size S · Depends on: T10 |
 | Requirements | FR-9 (all four bullets and the *Release reader* scenario), NFR-4, NFR-6, NFR-7, NFR-8 |
 | Design | §10.1 residuals (shared-root copies, DD-12) |
 | Scope | `CHANGELOG.md` > `Unreleased`: <ul><li>six added and one removed, with counts quoted from a run;</li><li>what `akili update` does, and the hand-delete path for `~/.agents/skills/nestjs-expert/` on Codex, Cursor and Grok Bot;</li><li>the `RETIRED` warning and its fix (re-run `/akili-constitution` Step 8D or edit the row);</li><li>coexistence with `npx @nestjs/skills` (foreign folders skipped, `--force` takes over) and the `nestjs@nestjs` plugin (namespaced `nestjs:<name>`);</li><li>release type: **minor**, conditional on FR-5 and FR-9 (NFR-8).</li></ul>Then the NFR-7 set |

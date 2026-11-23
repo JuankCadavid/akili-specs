@@ -399,3 +399,34 @@
 - spawns: Implementer `sonnet` 29 calls, 106,738 tokens, ended complete; Reviewer `opus` 15 calls, 105,787 tokens, ended fail; Implementer (resumed) 2 calls, 110,687 tokens, ended complete; Reviewer (resumed) 2 calls, 109,745 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 10/11 · LOC ≈1,758 + 241 ≈ 1,999 / ~2,050 · review rounds 17/18 (T10 was budgeted 2, used 2). No tripwire. Remaining: ~51 LOC and 1 round for T11.
+
+### T11 — CHANGELOG migration note and full verification
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-11-23 |
+| Attempts | 1 |
+| Requirements covered | FR-9 (all four bullets and the *Release reader* scenario), NFR-4, NFR-6, NFR-7, NFR-8 |
+| Skills / effort | `cognitive-doc-design` (the task's list) · `medium` |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 |
+
+**Attempt 1**
+- Files changed: `CHANGELOG.md` (+11 −1), `[Unreleased]` only. *Added*: the six vendored skills, `37 skills (32 before)`, `nestjs-expert` removed (net +5), and the surfaces that name the set; the `doctor --agents` `RETIRED` warning (reads, never writes) and its fix (re-run `/akili-constitution` Step 8D or edit the Skill Map row). *Changed*: the migration note (`update` deletes the folder on Claude Code, OpenCode and Antigravity; `doctor` STALE / `--fix` REMOVED; hand-delete on the shared roots) and coexistence (`npx @nestjs/skills` folders are foreign, skipped, `--force` takes over whole; `nestjs@nestjs` plugin skills are namespaced). *Notes*: release type **minor**, conditional on the `RETIRED` warning and the migration note (NFR-8); it replaces the "No unreleased changes yet." line.
+- **Factual correction (no gate, logged):** T11 Scope (and design §7.3) give one hand-delete path, `~/.agents/skills/nestjs-expert/`, for Codex, Cursor and Grok Bot. Grok Bot's skills root is its workflows root (`bin/akili.js:245`, default `/home/box/agent-data/workflows`), with `sharedSkillsRoot: true`. Before review, the bullet was reworded to name `~/.agents/skills/nestjs-expert/` for Codex and Cursor and `<workflows root>/nestjs-expert/` for Grok Bot. The Reviewer confirmed the correction.
+- Deviation (accepted): the plugin sentence says "namespaced" without the `nestjs:<name>` form the Scope mentions; FR-9 asks only for "plugin skills are namespaced", and the form is not stated in the spec text.
+- NFR-7 set (executed by the Implementer, re-run by the Leader):
+  - `npm test`: `# tests 2186 # pass 2186 # fail 0`.
+  - `npm run verify:cli`: `Summary: 14 commands | 37 skills | 1 plugin | 8 resources (akili-specs v2.45.0)`.
+  - `npm run pack:dry-run`: exit 0, 469 files; 0 matches for `nestjs-expert|.nestjs-sync`; 6 `skills/nestjs*/SKILL.md` entries.
+  - `git diff --check`: clean.
+  - `node bin/akili.js install --tool all --dry-run`: exit 0.
+  - `doctor --tool all` with `HOME` at a fresh temp dir after `install --tool all` there (Disqualifier: never the real home): install exit 0; `CLAUDE HEALTHY ok 60`, `OPENCODE`/`ANTIGRAVITY`/`CODEX`/`CURSOR HEALTHY ok 59`, `All checks passed. Your installation is complete and healthy.`; no STALE line.
+- Falsifier NFR-6 (executed): base `aac1295` (the parent of the first spec commit; no `origin/dev` locally). `git diff --stat aac1295.. -- docs/specs/archive docs/specs/kaizen releases` empty; released CHANGELOG sections (from the first `## [<digit>` heading down) byte-equal to the base. Mutations: the Implementer changed the `## [2.44.0]` date (`< ## [2.44.0] - 2026-11-11` / `> ## [2.44.0] - 2026-11-12` reported); the Reviewer changed one word in 2.30.0 (hash `cc01cbbd797d` → `6b60417a5146`, DIFFER). Both restored (shasum equal).
+- Evidence re-run (Leader inline): **VERIFIED** (all six commands above, and NFR-6 `RELEASED_EQUAL`).
+- Reviewer (`opus`): **PASS**. Every claim checked against the tree and `bin/akili.js` (counts at base and now; `sharedSkillsRoot` at `:182/193/207`; output strings at `:1316/2050/2053`; `reportRetiredSkills` reads only). No CHANGELOG test pinned the placeholder (the three that mention it assert its absence).
+- ADVISORY (record only): the cleanup also runs on `install` (`cleanupLegacyFiles` inside `installTool`, `bin/akili.js:1352`), not only `update`; the Codex/Cursor path lacks "default" although `--codex-skills-target`/`--cursor-skills-target` can move it.
+- runtime events: none
+- spawns: Implementer `sonnet` 8 calls, 72,754 tokens, ended complete; Implementer (resumed, Grok Bot path) 10 calls, 75,785 tokens, ended complete; Reviewer `opus` 16 calls, 92,739 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 11/11 · LOC ≈1,999 + 12 ≈ 2,011 / ~2,050 · review rounds 18/18 (T11 was budgeted 1, used 1). No tripwire: both caps held, the review-round margin fully spent.
