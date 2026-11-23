@@ -116,3 +116,46 @@
 - spawns: Implementer `sonnet` 26 calls, 128,346 tokens, ended partial (assumptions only); Reviewer `opus` 19 calls, 126,687 tokens, ended fail; Implementer `sonnet` 8 calls, 72,877 tokens, ended complete; Reviewer `opus` 7 calls, 85,883 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 2/11 · LOC ≈672 + 470 (T2 hand-written, 429 insertions + 41 deletions) ≈ 1,142 / ~2,050 · review rounds 3/18 (T2 was budgeted 2). No tripwire. LOC is at 56% after 2 of 11 tasks, so the overrun risk is noted here.
+
+### T3 — Vendored-entry ownership for the six names
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-3 bullets 1–2 and the *Developer already ran the upstream installer* scenario (THEN, AND, BUT) |
+| Skills / effort | `tdd` (the task's list) · attempt 1 `medium`, attempt 2 `high` (effort bump after FAIL) |
+| Approval | JC approved T3 2026-11-23 |
+
+**Attempt 1**
+- Files changed:
+  - `bin/akili.js` (+12 −2): new `VENDORED_ENTRIES` set (`impeccable` + the six). The no-record policy checks `VENDORED_ENTRIES.has(name)`. `policy.detail` returns `(installed by npx @nestjs/skills)` when `.nestjs-skills` exists and otherwise keeps the `impeccable` version suffix. The doctor branch uses the set. `makeImpeccableForeignPolicy` was not renamed, and Grok Bot's ownership-record policy is untouched (P-3).
+  - New `test/install-nestjs-foreign.test.js` (138 lines, 16 tests): three tests per no-record target (claude, opencode, antigravity with three roots, codex, cursor) plus one AKILI-copy test. Fixtures are built in temp dirs; no test reads `docs/specs/`.
+- Implementer verification: targeted run (3 files) `# tests 44 # pass 44 # fail 0`; `npm test` `# tests 2150 # pass 2150 # fail 0`; `install --tool all --dry-run` exit 0; `git diff --check` clean.
+- Deviation (Implementer): the doctor test adds a `SKILL.md` to its fixture, because `hasInstalledSkill` (`bin/akili.js:1834`) finds a skill only through `SKILL.md`. The install fixtures omit it, so their file set stays disjoint from upstream's (Disqualifier holds). The Reviewer judged this justified.
+- Falsifier (executed by the Implementer and again by the Leader): the policy line was reverted to `if (name !== IMPECCABLE_ENTRY) return "owned";`. Result: 10 of 15 per-tool tests red (no-force and `--force` for all five tools; the doctor tests stay green). For example, `not ok 1 - … FR-3 (claude, no --force): a folder installed by npx @nestjs/skills is skipped whole and the other five are written` / `error: 'THEN stdout names it foreign with the marker note'`. The code was restored afterwards.
+- **Factual correction to the T3 Falsifier field** (single answer, logged, no gate): the field predicts that a reverted policy makes `copyDirectoryContents` write `SKILL.md` and `references/` into the foreign folder. The Leader observed that this happens **only under `--force`**. There the folder ends with `.nestjs-skills`, `my-custom-rules.txt`, `LICENSE`, `NOTICE`, `SKILL.md`, `UPSTREAM.md` and `references`, which is a merge, and the vendored-tree snapshot and custom-file-absent assertions go red. Without `--force` the install prints `skip existing … (differs: LICENSE, NOTICE, SKILL.md, UPSTREAM.md, …)` and the folder stays byte-identical, so the red comes from the `skip foreign` stdout assertion. The Reviewer confirmed that the tests catch both paths. It also mutated the doctor line (5 doctor tests red) and the `.nestjs-skills` detail line (5 no-force tests red) on its own copy.
+- Evidence re-run (Leader inline): **VERIFIED**. Targeted run 44/44 and the falsifier observed as above. The Leader noted that the comment block above `IMPECCABLE_ENTRY` was not updated, contrary to the Implementer's report.
+- Reviewer (`opus`): **FAIL**, one issue: "The comment block above `IMPECCABLE_ENTRY` (`bin/akili.js:902-911`) still says the no-record policy 'judges one entry, `impeccable`, and passes every other name through as \"owned\"' … After this diff the policy judges every member of `VENDORED_ENTRIES` (seven names), so the comment is now false." It cited `design.md` §7.2 and the quote-check lesson.
+- Attempt-1 ADVISORY: the doctor DD-8 comment still names only `impeccable/` (it sits in T3's scoped doctor branch and was fixed in attempt 2). The function name `makeImpeccableForeignPolicy` now covers seven names; §7.2 keeps it, so any rename belongs to a later spec.
+- runtime events: none
+
+**Attempt 2** (effort `high`; the Reviewer report was relayed verbatim, and the stale doctor comment in the scoped branch was included because this task's edit made it false)
+- Files changed: `bin/akili.js` comments only.
+  - The policy block (903–916) was rewritten: "It judges each name in VENDORED_ENTRIES (`impeccable` plus the six official NestJS skills) …", with a `@akili-spec changes/nestjs-official-skills T3 (DD-5)` tag.
+  - The doctor DD-8 comment (~1981) was widened to "a vendored entry (`impeccable/` or a NestJS skill) without UPSTREAM.md".
+  - A sweep found the call-site comment (1443), "judge only `impeccable`", and changed it to "judge only the vendored entries", with a T3 tag.
+- Implementer verification: targeted 44/44; `npm test` 2150/2150; `git diff --check` clean.
+- Evidence re-run (Leader inline): **VERIFIED**. Outside comments the diff is identical to attempt 1. `npm test` `# tests 2150 # pass 2150 # fail 0`; `git diff --check` clean; `install --tool all --dry-run` exit 0.
+- Reviewer (`opus`, same reviewer resumed): **PASS**. "Issue 1 is closed, and attempt 2 changes comments only." The new comment text was checked against the code for membership, the `UPSTREAM.md` ownership rule, the takeover path and the doctor branch.
+- ADVISORY (final verdict):
+  - Readability `bin/akili.js:913-915`: without the marker, `policy.detail` reports the `version:` field from any vendored entry's `SKILL.md` frontmatter, not only the `impeccable` version.
+  - Readability `bin/akili.js:1443`: the line tagged `changes/impeccable-hardening T2b` now carries wording T2b never wrote; the T3 tag line on 1444 supplies the traceability.
+- runtime events: none
+
+- Decisions made: the doctor DD-8 comment was fixed in attempt 2 as part of the scoped doctor branch, not as a new task.
+- Issues encountered: the Implementer reported the comment as updated when it was not (the KZ-002 claim class). One review round was lost.
+- spawns: Implementer `sonnet` 12 calls, 82,076 tokens, ended complete; Reviewer `opus` 13 calls, 86,826 tokens, ended fail; Implementer `sonnet` 7 calls, 67,784 tokens, ended complete; Reviewer `opus` (resumed) 1 call, 90,496 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 3/11 · LOC ≈1,142 + 174 (T3: 164 insertions + 10 deletions) ≈ 1,316 / ~2,050 · review rounds 5/18 (T3 was budgeted 1). No tripwire. Remaining: ~734 LOC and 13 rounds for 8 tasks. The LOC overrun risk is still open.

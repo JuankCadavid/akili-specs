@@ -74,7 +74,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size M · Depends on: T2 |
+| Status | `[x]` · Size M · Depends on: T2 |
 | Requirements | FR-3 bullets 1–2 and the *Developer already ran the upstream installer* scenario (THEN, AND, BUT) |
 | Design | §7.2, DD-5, P-1, P-3 |
 | Scope | `bin/akili.js`: `IMPECCABLE_ENTRY` → `VENDORED_ENTRIES`; `policy.detail` reports the `.nestjs-skills` marker; doctor branch `:1974` uses the set. New `test/install-nestjs-foreign.test.js`. `Backend route: stack other; implement lead existing design support none — project conventions; test-first lead tdd support none — project conventions` |

@@ -901,20 +901,33 @@ function logForeignSkip(entryPath, detail) {
 }
 
 // @akili-spec changes/impeccable-hardening T2b (P-7 Option A)
+// @akili-spec changes/nestjs-official-skills T3 (DD-5)
 // The policy for a target WITHOUT an ownership record (Claude Code, OpenCode,
-// Antigravity, Codex, Cursor). It judges one entry, `impeccable`, and passes
-// every other name through as "owned" so today's skip-or-overwrite rules apply
-// unchanged. impeccable is AKILI's when the existing folder holds UPSTREAM.md
-// (the marker the vendored copy ships); anything else is the developer's own
+// Antigravity, Codex, Cursor). It judges each name in VENDORED_ENTRIES
+// (`impeccable` plus the six official NestJS skills) and passes every other
+// name through as "owned" so today's skip-or-overwrite rules apply unchanged.
+// A vendored entry is AKILI's when the existing folder holds UPSTREAM.md (the
+// marker the vendored copy ships); anything else is the developer's own
 // install and is skipped whole. `install --force` takes it over: moved aside
 // (one atomic rename), replaced by the copy, then the aside copy is deleted;
-// policy.restore() puts it back when the copy fails.
+// policy.restore() puts it back when the copy fails. policy.detail names a
+// `.nestjs-skills` folder "(installed by npx @nestjs/skills)", otherwise it
+// reports the `impeccable` version.
 const IMPECCABLE_ENTRY = "impeccable";
+const VENDORED_ENTRIES = new Set([
+  IMPECCABLE_ENTRY,
+  "nestjs",
+  "nestjs-auth",
+  "nestjs-data",
+  "nestjs-feature",
+  "nestjs-production",
+  "nestjs-testing",
+]);
 function makeImpeccableForeignPolicy(args, targetDir) {
   const takeoverDir = path.join(path.dirname(targetDir), ".akili-takeover");
   let pending = null; // { asidePath, entryPath }
   const policy = (name, entryPath) => {
-    if (name !== IMPECCABLE_ENTRY) return "owned";
+    if (!VENDORED_ENTRIES.has(name)) return "owned";
     try {
       fs.lstatSync(entryPath);
     } catch (e) {
@@ -929,6 +942,7 @@ function makeImpeccableForeignPolicy(args, targetDir) {
     return "takeover";
   };
   policy.detail = (entryPath) => {
+    if (fs.existsSync(path.join(entryPath, ".nestjs-skills"))) return "(installed by npx @nestjs/skills)";
     try {
       const head = fs.readFileSync(path.join(entryPath, "SKILL.md"), "utf8").split(/\r?\n/);
       if (head[0] !== "---") return "";
@@ -1426,7 +1440,8 @@ function installTool(tool, args) {
   if (shouldInclude("skills", args)) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      // @akili-spec changes/impeccable-hardening T2b: no ownership record -> judge only `impeccable`.
+      // @akili-spec changes/impeccable-hardening T2b: no ownership record -> judge only the vendored entries.
+      // @akili-spec changes/nestjs-official-skills T3 (DD-5): VENDORED_ENTRIES = impeccable + six NestJS skills.
       const skillsPolicy = makePluginPolicy(policy || makeImpeccableForeignPolicy(args, targetSkills));
       if (tool !== "claude") removeLeakedPlugin(tool, targetSkills, args, ownership);
       add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, skillsPolicy));
@@ -1964,14 +1979,15 @@ function doctorTool(tool, args) {
       }
       const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
-        // DD-8: install and update never replace an `impeccable/` without
-        // UPSTREAM.md, so a DIFFERS there could never clear: it is not compared.
+        // DD-8: install and update never replace a vendored entry (`impeccable/` or
+        // a NestJS skill) without UPSTREAM.md, so a DIFFERS there could never
+        // clear: it is not compared.
         let notCompared = false;
         const located = [];
         skillDirs.forEach((dir, index) => {
           const entryPath = path.join(dir, skill);
           if (!fs.existsSync(entryPath)) return;
-          if (skill === IMPECCABLE_ENTRY && !fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) {
+          if (VENDORED_ENTRIES.has(skill) && !fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) {
             notCompared = true;
             return;
           }
