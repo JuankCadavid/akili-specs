@@ -80,7 +80,6 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | [`aws-serverless`](skills/aws-serverless.md) | stack | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK |
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
 | [`golang-pro`](skills/golang-pro.md) | stack | Go concurrency, gRPC/REST microservices, generics, pprof, table-driven testing |
-| [`nestjs-expert`](skills/nestjs-expert.md) | stack | NestJS modules, DI, guards, interceptors, testing, TypeORM/Mongoose |
 | [`nestjs`](skills/nestjs.md) | stack | NestJS project setup, layout, module system, docs map |
 | [`nestjs-feature`](skills/nestjs-feature.md) | stack | HTTP endpoints, validation, status codes, error bodies, SSE |
 | [`nestjs-auth`](skills/nestjs-auth.md) | stack | Authentication and authorization with the first-party packages |

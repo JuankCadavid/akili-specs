@@ -231,18 +231,18 @@ const SKILL_DIRS = fs
   .filter((e) => e.isDirectory() && !isPluginEntry(path.join(SOURCE_SKILLS, e.name)));
 const SKILL_FILE_COUNT = SKILL_DIRS.reduce((n, e) => n + countFiles(path.join(SOURCE_SKILLS, e.name)), 0);
 const SKILL_DIR_COUNT = SKILL_DIRS.length;
-const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 355 = 369
+const SHARED_ROOT_FILE_COUNT = COMMAND_COUNT + SKILL_FILE_COUNT; // real files on disk: 14 + 354 = 368
 const RESOURCE_FILE_COUNT = 8; // gsc_verify.py, parse_tests.js, leader/implementer/reviewer/tester.md, digests.json, .mcp.json.example
 // The installer's OWN install/skip/overwrite counters (and the printed
 // "install "/"skip existing " lines) are per top-level operation, not per
 // recursive file: copyDirectoryContents(SOURCE_SKILLS, targetSkills, args)
-// loops SOURCE_SKILLS's 38 top-level skill directories and logs/counts once
+// loops SOURCE_SKILLS's 37 top-level skill directories and logs/counts once
 // per directory (copyTreeSync then copies each directory's files silently,
 // recursively, with no further per-file logging) -- pre-existing behavior,
 // identical for Claude Code/OpenCode today, not something this spec changed.
 // Commands-as-skills and resources ARE logged per actual file (one
 // copySingleFile call each), so those two counts stay file-accurate.
-const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 14 + 38 = 52
+const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 14 + 37 = 51
 
 test(
   "@akili-spec changes/cursor-install-target FR-2/FR-4 (Codex and Cursor share one skills root): Codex installs fresh, Cursor skips every shared-root file while its own resources install",
@@ -256,7 +256,7 @@ test(
     // + 2 ai-agent-development/references (guardrails.md, evals.md; changes/ai-agent-guardrails-evals),
     // + 1 impeccable-bridge/references/modern-web.md (changes/modern-web-guidance),
     // + 34 for the six official NestJS skills (16 upstream files + 6 x LICENSE/NOTICE/UPSTREAM.md; changes/nestjs-official-skills).
-    const SKILL_FILE_EXPECTED = 247 + 58 + 3 + 1 + 8 + 1 + 2 + 1 + 34;
+    const SKILL_FILE_EXPECTED = 246 + 58 + 3 + 1 + 8 + 1 + 2 + 1 + 34;
     assert.equal(
       SKILL_FILE_COUNT,
       SKILL_FILE_EXPECTED,
@@ -354,7 +354,7 @@ test(
 
     // File-level proof (the "every skill FILE skipped" half of the scenario,
     // not just every top-level directory operation): the shared root holds
-    // exactly the real 369 files (14 command SKILL.md + 355 packaged skill
+    // exactly the real 368 files (14 command SKILL.md + 354 packaged skill
     // files), and the Cursor block rewrote none of them -- content is
     // byte-identical to what the Codex block alone wrote.
     const sharedFileList = listRelativeFiles(skillsShared);
@@ -401,7 +401,7 @@ test(
     );
 
     // Step 2: cursor alone, onto the SAME shared skills root. The shared-root
-    // operations (14 command skills + 38 skill directories) are all
+    // operations (14 command skills + 37 skill directories) are all
     // skip-existing; only Cursor's own 8 resource files install. Codex's
     // resources root is untouched by this step and stays present.
     const runCursor = runAkili(

@@ -8,7 +8,7 @@ const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
 const { parsePersona, sectionStates, resultExitCode, applyFix, migratePersona } = require("./persona.js");
-const { scanSkillMap } = require("./skill-map.js"); // @akili-spec changes/nestjs-official-skills T4
+const { scanSkillMap, RETIRED_SKILLS } = require("./skill-map.js"); // @akili-spec changes/nestjs-official-skills T4
 const { compareEntry, formatDiffers } = require("./install-compare.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
@@ -76,18 +76,6 @@ const SOURCE_SKILLS = path.join(SOURCE_CLAUDE, "skills");
 const SOURCE_TEMPLATES = path.join(SOURCE_CLAUDE, "templates");
 const AGENT_TEMPLATES = ["leader.md", "implementer.md", "reviewer.md", "tester.md"];
 const RESOURCE_SCRIPTS = ["gsc_verify.py", "parse_tests.js"];
-// Skill directories removed from the package; deleted from installs during legacy cleanup.
-// v2.8.0: the 8 gsap-* skills were fused into the single gsap-animation skill.
-const LEGACY_SKILLS = [
-  "gsap-core",
-  "gsap-frameworks",
-  "gsap-performance",
-  "gsap-plugins",
-  "gsap-react",
-  "gsap-scrolltrigger",
-  "gsap-timeline",
-  "gsap-utils",
-];
 const SOURCE_SCRIPTS = path.join(PACKAGE_ROOT, "scripts");
 const SOURCE_MCP_EXAMPLE = path.join(PACKAGE_ROOT, ".mcp.json.example");
 const BANNER = ` █████╗ ██╗  ██╗██╗██╗     ██╗
@@ -1318,14 +1306,14 @@ function cleanupLegacyFiles(tool, args) {
   if (shouldInclude("skills", args) && !paths.sharedSkillsRoot) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      for (const skillName of LEGACY_SKILLS) {
+      for (const { name: skillName, replacement } of RETIRED_SKILLS) {
         const skillDir = path.join(targetSkills, skillName);
         if (fs.existsSync(skillDir)) {
           if (args.dryRun) {
-            console.log(`  ${colors.red}would delete legacy skill${colors.reset} ${skillDir}`);
+            console.log(`  ${colors.red}would delete retired skill${colors.reset} ${skillDir} (replaced by ${replacement})`);
           } else {
             fs.rmSync(skillDir, { recursive: true, force: true });
-            console.log(`  ${colors.red}deleted legacy skill${colors.reset} ${skillDir}`);
+            console.log(`  ${colors.red}deleted retired skill${colors.reset} ${skillDir} (replaced by ${replacement})`);
           }
           cleaned++;
         }
@@ -2050,19 +2038,19 @@ function doctorTool(tool, args) {
     // STALE scan never runs against a shared skills root (DD-11, CS-2): the
     // directory holds foreign tools' skills too, and AKILI never wrote a
     // legacy gsap-* copy there to begin with, so there is nothing of ours to
-    // find or remove — a `LEGACY_SKILLS` name match on a foreign dir (e.g. a
+    // find or remove — a `RETIRED_SKILLS` name match on a foreign dir (e.g. a
     // real `gsap-core` skill some other tool ships) would be a false STALE.
     if (!paths.sharedSkillsRoot) {
-      for (const skillName of LEGACY_SKILLS) {
+      for (const { name: skillName, replacement } of RETIRED_SKILLS) {
         for (const targetSkills of skillDirs) {
           const skillDir = path.join(targetSkills, skillName);
           if (fs.existsSync(skillDir)) {
             if (args.fix) {
               fs.rmSync(skillDir, { recursive: true, force: true });
-              console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
+              console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (retired, replaced by ${replacement})`);
               fixed += 1;
             } else {
-              console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
+              console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (retired, replaced by ${replacement} — run with --fix or akili update to remove)`);
               missing += 1;
             }
           }

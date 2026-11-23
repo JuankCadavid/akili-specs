@@ -193,7 +193,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size L · Depends on: T3, T4, T6, T7, T8, T9 |
+| Status | `[x]` · Size L · Depends on: T3, T4, T6, T7, T8, T9 |
 | Requirements | FR-4 bullets 1–3 and the *Upgrade over an older install* scenario (THEN, AND, BUT), FR-8 bullet 5 (`SKILL_CATALOG`, −1), FR-8 *No live surface names the retired skill* scenario (THEN, BUT), NFR-4, NFR-5 |
 | Design | §6, §7.3, DD-6, DD-10, DD-11, P-2, P-8, P-9, P-10 |
 | Scope | <ul><li>`bin/akili.js`: `LEGACY_SKILLS` → `RETIRED_SKILLS` (the gsap rows plus the T4 row), both loops print the replacement, the shared-root guard is kept.</li><li>Delete `.claude/skills/nestjs-expert/` and `docs/skills/nestjs-expert.md`, and their rows in `docs/skills/README.md` and `docs/overview.md`.</li><li>`SKILL_CATALOG` −1.</li><li>Every P-10 pin to the final set of 37: `SKILL_FILE_EXPECTED` 355 → 354; baseline −1 line, `ok 60` → `ok 59`; panel stack group 16 → 15; `akili-panel-cli-coverage:537` 39 → 38.</li><li>New `test/retired-skills.test.js` and `test/nestjs-retirement-surface.test.js`, which excludes `docs/specs/` wholesale and allows: `CHANGELOG.md`, the Removal Log row, `RETIRED_SKILLS`, the retirement tests, `implementer.md:27`.</li></ul>`Backend route: stack other; implement lead existing design support none — project conventions; test-first lead tdd support none — project conventions` |

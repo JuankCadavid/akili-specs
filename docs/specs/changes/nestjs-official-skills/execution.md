@@ -358,3 +358,44 @@
 - spawns: Implementer `sonnet` 6 calls, 68,345 tokens, ended complete; Reviewer `opus` (resumed, shared) 5 calls, 136,978 tokens, ended fail; Implementer (resumed) 2 calls, 70,899 tokens, ended complete; Reviewer (resumed) 1 call, 138,945 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 9/11 · LOC ≈1,748 + 10 ≈ 1,758 / ~2,050 · review rounds 15/18 (T9 was budgeted 1, used 2). No tripwire. Remaining: ~292 LOC and 3 rounds for T10 (budget 2) and T11 (budget 1); the +2 margin is spent.
+
+### T10 — Retire `nestjs-expert`: installer table, folder, every pinned registry, surface test
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-4 bullets 1–3 and *Upgrade over an older install* (THEN, AND, BUT), FR-8 bullet 5 (`SKILL_CATALOG` −1), FR-8 *No live surface names the retired skill* (THEN, BUT), NFR-4, NFR-5 |
+| Skills / effort | `tdd` (the task's list) · attempt 1 `high` (Size L, destructive installer path; one-line reason: started above the `medium` default because the path deletes user folders), attempt 2 `xhigh` (effort bump after FAIL) |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 |
+
+**Attempt 1**
+- Files changed (hand-written ≈233 lines: +171 −62 across 17 files, whole-file deletions excluded):
+  - `bin/akili.js` (+8 −20): `LEGACY_SKILLS` removed; both loops (install/update cleanup, doctor STALE) read `RETIRED_SKILLS` from `bin/skill-map.js` and print the replacement; both `!paths.sharedSkillsRoot` guards kept (P-2). Strings match design §6: `deleted retired skill <dir> (replaced by <replacement>)`, `STALE <name> (retired, replaced by <replacement> — run with --fix or akili update to remove)`, `REMOVED <name> (retired, replaced by <replacement>)`. The dry-run line is `would delete retired skill … (replaced by …)` (§6 is silent on it).
+  - `bin/skill-map.js` (+4): the eight `gsap-*` rows, replacement `gsap-animation`.
+  - Deleted `.claude/skills/nestjs-expert/` and `docs/skills/nestjs-expert.md`; their rows out of `docs/skills/README.md` and `docs/overview.md`. `SKILL_CATALOG` −1 (`.claude/skills/akili-panel/hooks/flow.mjs`); `panel.test.tsx` names `nestjs-feature`.
+  - P-10 pins to 37: `test/install-cursor.test.js` (`SKILL_FILE_EXPECTED` 355 → 354, 369 → 368, 247 → 246, 38 → 37); `test/fixtures/doctor-codex-baseline.txt` (−1 line, `ok 60` → `ok 59`, DD-10); `test/akili-panel-flow.test.js` (stack 16 → 15, 38 → 37); `test/akili-panel-cli-coverage.test.js` (38 → 37, `:537` 39 → 38).
+  - Count consumers P-10 did not list (factual correction, logged; the 38 → 37 change broke them): `test/install-akili-panel.test.js`, `test/akili-marketing-docs.test.js`, `test/diagram-design.test.js`, `docs/cli.md` ("38 packaged skills" → 37). `docs/skills/governance.md:79` example → `nestjs-feature` (a live docs mention outside the allowlist).
+  - New `test/retired-skills.test.js` (71 lines, 17 tests): claude, opencode, antigravity → `doctor` STALE, `--fix` REMOVED, folder gone; `install` and `update` delete with the replacement; `gsap-core/` still names `gsap-animation`; codex, cursor, grokbot → a `nestjs-expert/` created in the shared root first is untouched and not reported (Disqualifier).
+  - New `test/nestjs-retirement-surface.test.js` (50 lines, 2 tests): walks the repo including `test/` and `.claude/`, skips `docs/specs/` wholesale (never read, NFR-5), `.agents/`, `node_modules`, `.git`, `.codegraph`.
+- Falsifier (executed, quoted):
+  - Baseline at HEAD: `install --tool claude` + `doctor --tool claude` → `OK nestjs-expert`, no STALE.
+  - Guard removed (Implementer and Reviewer) → `not ok 13 - codex: a nestjs-expert folder in the shared root is untouched and not reported` (+ cursor, grokbot), `# pass 12 # fail 3`.
+  - `| nestjs-expert | x |` in `docs/overview.md` → surface test names `docs/overview.md:225`. The Reviewer's own: `.claude/commands/akili-execute.md:450` and `docs/overview.md:83` red. STALE text hard-coded to `gsap-animation` → `not ok 1/5/9 … doctor reports STALE…`.
+- Allowlist deviations (Reviewer verdicts): `releases/` and `test/fixtures/personas/` justified (FR-8 WHEN excludes `releases/` and `test/fixtures/`; the fixtures copy the template); `doctor-skill-map`, `backend-skill-routing-coverage`, `ai-agent-guardrails-evals` justified as "a test asserting retirement"; `.agents/` skip fine (untracked).
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2186 # pass 2186 # fail 0`; `npm run verify:cli` `14 commands | 37 skills | 1 plugin | 8 resources`; `git diff --check` clean. Fresh-`HOME` `install --tool all` + `doctor --tool all` (Implementer): no STALE or `nestjs-expert` line; `CLAUDE HEALTHY ok 60`, `OPENCODE ok 59`, `ANTIGRAVITY ok 59`, `CODEX ok 59`, `CURSOR ok 59`.
+- Reviewer (`opus`): **FAIL**, Issue 1: "`test/nestjs-retirement-surface.test.js:21` allows the whole template file … I appended a second line … `# pass 2 / # fail 0`." Violates T10 Scope ("`implementer.md:27`"), DD-11, and the FR-8 BUT ("must NOT find `nestjs-expert` in … a template"). Advisory: whole-file allowance on `bin/skill-map.js`; stale "38" wording in `install-akili-panel.test.js`.
+- runtime events: none
+
+**Attempt 2** (effort `xhigh`; the Reviewer report relayed verbatim)
+- Files changed: `test/nestjs-retirement-surface.test.js` (≈18 lines): `ALLOWED` is `[file, line pattern]`; `implementer.md` and `test/fixtures/personas/` only on `(e.g., \`shadcn-ui\`, \`nestjs-expert\`)`, `bin/skill-map.js` only on `name: "nestjs-expert"`, governance only on the Removal Log row; whole-file only for `CHANGELOG.md`, `releases/` and the five retirement tests. `test/install-akili-panel.test.js` stale 38s → 37 (word-level, lines already counted).
+- Mutations (executed): second `nestjs-expert` line in `implementer.md` (Implementer, Leader, Reviewer) → `'.claude/templates/implementer.md:131'`, `# pass 1 # fail 1`; a mention in `bin/skill-map.js` logic → `'bin/skill-map.js:78'`; a mention in `test/fixtures/personas/crlf.md` (Reviewer) → `'test/fixtures/personas/crlf.md:131'`. All restored (shasum OK).
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2186 # pass 2186 # fail 0`; `git diff --check` clean; final diff +175 −66.
+- Reviewer (`opus`, resumed): **PASS**. "Issue 1 is closed." ADVISORY: none.
+- runtime events: none
+
+- Remaining `nestjs-expert` hits outside `docs/specs/` (all allowlisted): `CHANGELOG.md:928`, `releases/v2.8.0.md:14`, `bin/skill-map.js:11`, `.claude/templates/implementer.md:27`, the Removal Log row in `docs/skills/governance.md`, the persona fixtures' copied line, and the five retirement tests.
+- spawns: Implementer `sonnet` 29 calls, 106,738 tokens, ended complete; Reviewer `opus` 15 calls, 105,787 tokens, ended fail; Implementer (resumed) 2 calls, 110,687 tokens, ended complete; Reviewer (resumed) 2 calls, 109,745 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 10/11 · LOC ≈1,758 + 241 ≈ 1,999 / ~2,050 · review rounds 17/18 (T10 was budgeted 2, used 2). No tripwire. Remaining: ~51 LOC and 1 round for T11.

@@ -650,7 +650,6 @@ export const SKILL_CATALOG = Object.freeze([
   { name: 'nestjs', binding: 'stack' },
   { name: 'nestjs-auth', binding: 'stack' },
   { name: 'nestjs-data', binding: 'stack' },
-  { name: 'nestjs-expert', binding: 'stack' },
   { name: 'nestjs-feature', binding: 'stack' },
   { name: 'nestjs-production', binding: 'stack' },
   { name: 'nestjs-testing', binding: 'stack' },

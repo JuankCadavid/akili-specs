@@ -43,7 +43,6 @@ Skills:
   OK nestjs
   OK nestjs-auth
   OK nestjs-data
-  OK nestjs-expert
   OK nestjs-feature
   OK nestjs-production
   OK nestjs-testing
@@ -86,7 +85,7 @@ Environment (recommended, not required):
 
 ────────────────────────────────────────────────────────
 Doctor Summary — akili-specs v<VERSION>
-  CODEX        HEALTHY  ok 60 | missing 0 | fixed 0
+  CODEX        HEALTHY  ok 59 | missing 0 | fixed 0
                → <HOME>/.codex
 
 All checks passed. Your installation is complete and healthy.

@@ -12,6 +12,10 @@ const RETIRED_SKILLS = [
     replacement:
       "nestjs-feature plus the official set (nestjs, nestjs-auth, nestjs-data, nestjs-production, nestjs-testing)",
   },
+  // v2.8.0: the 8 gsap-* skills were fused into the single gsap-animation skill.
+  ...["core", "frameworks", "performance", "plugins", "react", "scrolltrigger", "timeline", "utils"].map(
+    (n) => ({ name: `gsap-${n}`, replacement: "gsap-animation" })
+  ),
 ];
 
 const WORD_CHAR = /[A-Za-z0-9_-]/;
