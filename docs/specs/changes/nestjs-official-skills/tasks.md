@@ -142,7 +142,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size S · Depends on: T5 |
+| Status | `[x]` · Size S · Depends on: T5 |
 | Requirements | FR-8 bullet 4 (amended: `leader.md` only), FR-8 bullet 3 (`AGENTS.md` *Skill Usage*) |
 | Design | §9 *Persona templates*, DD-12, P-11, P-15 |
 | Scope | `.claude/templates/leader.md:25`: `nestjs-expert` → `nestjs-feature`. `AGENTS.md:62`: the domain-skills example names `nestjs-feature`. **`implementer.md` is not touched.** Two sites |

@@ -240,3 +240,25 @@
 - spawns: Implementer `sonnet` 10 calls, 95,684 tokens, ended complete; Reviewer `opus` 14 calls, 93,382 tokens, ended fail; Implementer `sonnet` (resumed), 98,636 tokens, ended complete; Reviewer `opus` (resumed), 96,518 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 5/11 · LOC ≈1,602 + 71 (T5: 53 insertions + 18 deletions) ≈ 1,673 / ~2,050 · review rounds 8/18 (T5 was budgeted 2). No tripwire. Remaining: ~377 LOC and 10 rounds for 6 tasks.
+
+### T7 — Persona and agent guide: `leader.md`, `AGENTS.md` *Skill Usage*
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 1) |
+| Date | 2026-11-23 |
+| Attempts | 1 |
+| Requirements covered | FR-8 bullet 4 (amended: `leader.md` only), FR-8 bullet 3 (`AGENTS.md` *Skill Usage*) |
+| Skills / effort | none (the task's list) · `medium` |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 (stop only on a budget tripwire, a task failing after its attempts, or a decision for JC) |
+
+**Attempt 1** (run in parallel with T6; file-disjoint, each Implementer ran only its targeted suites, the Leader ran `npm test` after both)
+- Files changed: `.claude/templates/leader.md:25` (+1 −1), the example list now names `nestjs-feature`; `AGENTS.md:62` (+1 −1), the domain-skills example names `nestjs-feature`. `implementer.md` and `test/fixtures/personas` untouched (DD-12).
+- Falsifier (executed by the Implementer and again by the Reviewer, on a backup): `implementer.md:27` edited the same way → `node --test test/agents-doctor.test.js test/agents-doctor-io.test.js test/persona-digests.test.js` gave `not ok 7 - verbatim-marked.md: every section is current, exit 0`, `not ok 31`, `not ok 33`, `not ok 35`, `# pass 65 # fail 4`. Restored; shasum equal; `git diff --stat .claude/templates/implementer.md test/fixtures/personas` empty.
+- Evidence re-run (Leader inline): **VERIFIED**. The three persona suites `# pass 69 # fail 0`; `npm test` (with T6 in the tree) `# tests 2167 # pass 2167 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, one reviewer for T6 and T7 with separate verdicts): **PASS**. Digest check (P-11): a deployed copy of the edited template reads `CURRENT primary-instructions`; a copy of the HEAD template reads `OUTDATED primary-instructions (matched 2.42.0)`, which `--fix` upgrades. No test pins `leader.md` live; the new hash and `since=` marker are written by `scripts/release.js` at release.
+- Reviewer note (record only): `doctor --agents --project <path>` reported this checkout's own `.agents/` rather than the target; run doctor from inside the project.
+- runtime events: none
+- spawns: Implementer `sonnet` 2 calls, 61,915 tokens, ended complete; Reviewer `opus` (shared with T6) 21 calls, 98,379 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 6/11 · LOC ≈1,673 + 4 ≈ 1,677 / ~2,050 · review rounds 9/18 (the shared T6/T7 review is counted once per task: T7's 1 here, T6's on its entry). No tripwire.

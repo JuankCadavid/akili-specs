@@ -59,7 +59,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `caveman` for transient agent output only (inter-agent messages and progress narration in `/akili-execute` and `/akili-test`): compress style, never documents, HITL gates, or verbatim evidence — `cognitive-doc-design` owns artifacts; `caveman` owns transient agent output.
 - Use `react-doctor` and `vercel-react-best-practices` for React/Next.js changes.
 - Use `angular-developer` for Angular projects, components, services, routing, forms, signals, SSR, accessibility, styling, animations, testing, and CLI tooling.
-- Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
+- Use domain skills such as `nestjs-feature`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
 - Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
 - Use `social-marketing` for social media drafting (LinkedIn, Instagram, Facebook): brand voice, campaigns, calendar and posts; `/akili-marketing` loads it, and it drafts only, never publishes.
