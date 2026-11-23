@@ -326,3 +326,35 @@
 - spawns: Implementer `sonnet` 7 calls, 74,465 tokens, ended complete; Implementer (resumed, consumer fix) 2 calls, 75,877 tokens; Reviewer `opus` (resumed, shared with T6) 7 calls, 120,313 tokens, ended fail; Implementer (resumed) 1 call, 78,140 tokens, ended complete; Reviewer (resumed) 1 call, 122,870 tokens, ended complete.
 - Final verification: green.
 - Running totals against the budget: tasks 8/11 · LOC ≈1,714 + 34 (T8: 30 insertions + 4 deletions) ≈ 1,748 / ~2,050 · review rounds 13/18 (T8 was budgeted 2, used 2). No tripwire. Remaining: ~302 LOC and 5 rounds for T9, T10, T11.
+
+### T9 — Docs prose: `flow.md`, command docs, `cli.md` output
+
+| Field | Value |
+|---|---|
+| Final status | **PASS** (attempt 2) |
+| Date | 2026-11-23 |
+| Attempts | 2 |
+| Requirements covered | FR-8 bullet 3 (`docs/commands/akili-constitution.md`, `docs/commands/akili-test.md`, `docs/flow.md`); design §6 (`docs/cli.md` output lines) |
+| Skills / effort | `cognitive-doc-design` (the task's list) · attempt 1 `medium`, attempt 2 `high` (effort bump after FAIL) |
+| Approval | JC approved T6–T11 as one continuous run on 2026-11-23 |
+
+**Attempt 1** (started in parallel with the T8 re-review; file-disjoint)
+- Files changed (+6 −4): `docs/commands/akili-constitution.md:123` (Step 5 / Skill Map list) → the six; `docs/flow.md:658` (illustrative `e.g. …` list) → "`nestjs-feature` (leads the `nestjs*` set)"; `docs/commands/akili-test.md:70` (Tester's skills) → `nestjs-testing`, because the routing matrix's tests support is `nestjs-testing`; `docs/cli.md` gains `deleted retired skill <dir> (replaced by <replacement>)`, `STALE`/`REMOVED <name> (retired, replaced by <replacement> …)`, `skip foreign <path> (installed by npx @nestjs/skills)` and a placeholder `RETIRED` line.
+- Falsifier (executed): before, `grep -n nestjs-expert` on the three docs → 3 hits (`docs/flow.md:658`, `docs/commands/akili-constitution.md:123`, `docs/commands/akili-test.md:70`); after, 0 hits across the four docs.
+- Deviation (accepted): `deleted retired skill` and `STALE/REMOVED (retired, …)` come from design §6, because the CLI prints only the legacy variants until T10. The Reviewer confirmed they match §6 character for character, so T10 can emit them as written.
+- Evidence re-run (Leader inline): **VERIFIED**. `npm test` `# tests 2169 # pass 2169 # fail 0`; `git diff --check` clean; grep 0 hits.
+- Reviewer (`opus`): **FAIL**, Issue 1: "the `RETIRED` example in `docs/cli.md:702` hardcodes the file name, so it is wrong for a `CLAUDE.md` hit" (`bin/akili.js:2475` prints `${file}`, either `AGENTS.md` or `CLAUDE.md`; the T9 Scope gives `(<file>:<line>)`). Per-site judgments against FR-8 all OK. The Reviewer's mutation (`nestjs-expert` restored in `akili-test.md`) left the docs suites green: these sites are unguarded until T10's surface test, as the T9 Falsifier says.
+- Process note: the Implementer did not read `.agents/implementer.md` before attempt 1; it read it at the start of attempt 2.
+- runtime events: none
+
+**Attempt 2** (effort `high`; the Reviewer report relayed verbatim)
+- Files changed: `docs/cli.md:702` → `RETIRED <retired-skill> (<file>:<line>) -> replace with <replacement>`; `docs/commands/akili-constitution.md:123` reordered to the command's order (Reviewer advisory 3, the task's own line).
+- Evidence re-run (Leader inline): **VERIFIED**. The two diffs differ in these two lines only. `npm test` `# tests 2169 # pass 2169 # fail 0`; `git diff --check` clean.
+- Reviewer (`opus`, resumed): **PASS**. "Issue 1 is closed."
+- **Factual correction (no gate, logged; from Reviewer advisory 1):** T4 shipped the `RETIRED` line as `RETIRED <name> (<file>:<line>) -> replace with <replacement>`, while design §6 reads `— replaced by <replacement>`. T4's entry did not record it. The docs follow the shipped code. FR-5 asks only for file, line, name and replacement, all present.
+- ADVISORY (record only): the existing `cli.md` sentence that the doctor does not compare "an `impeccable/` without `UPSTREAM.md`" leaves out the NestJS entries T3 gave the same rule. Outside T9's scope list; not widened.
+- runtime events: none
+
+- spawns: Implementer `sonnet` 6 calls, 68,345 tokens, ended complete; Reviewer `opus` (resumed, shared) 5 calls, 136,978 tokens, ended fail; Implementer (resumed) 2 calls, 70,899 tokens, ended complete; Reviewer (resumed) 1 call, 138,945 tokens, ended complete.
+- Final verification: green.
+- Running totals against the budget: tasks 9/11 · LOC ≈1,748 + 10 ≈ 1,758 / ~2,050 · review rounds 15/18 (T9 was budgeted 1, used 2). No tripwire. Remaining: ~292 LOC and 3 rounds for T10 (budget 2) and T11 (budget 1); the +2 margin is spent.

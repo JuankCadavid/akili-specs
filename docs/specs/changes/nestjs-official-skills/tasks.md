@@ -176,7 +176,7 @@ T4 depends on nothing and may run at any point before T10. T3 and T5 may run in 
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` · Size S · Depends on: T2, T4 (the output wording) |
+| Status | `[x]` · Size S · Depends on: T2, T4 (the output wording) |
 | Requirements | FR-8 bullet 3 (`docs/commands/akili-constitution.md`, `docs/commands/akili-test.md`, `docs/flow.md`); design §6 (`docs/cli.md` output lines) |
 | Design | §6, §9 |
 | Scope | `docs/flow.md:658`; `docs/commands/akili-constitution.md:123`; `docs/commands/akili-test.md:70`; `docs/cli.md`: install and doctor output sections gain `deleted retired skill`, `skip foreign … (installed by npx @nestjs/skills)`, `STALE/REMOVED … (retired, replaced by …)`, and `RETIRED <name> (<file>:<line>)` with a placeholder name, not `nestjs-expert` (I-14). Six sites |
