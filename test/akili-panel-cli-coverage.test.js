@@ -189,7 +189,7 @@ for (const tool of [...NON_CLAUDE, "both", "all"]) {
     ok(runAkili(homeB, ["install", "--tool", tool], { bin: path.join(without, "bin", "akili.js") }), "without plugin");
     const a = snapshot(homeA);
     const b = snapshot(homeB);
-    assert.ok(Object.keys(b).length > COMMAND_COUNT + 32, "the baseline install wrote its files");
+    assert.ok(Object.keys(b).length > COMMAND_COUNT + 37, "the baseline install wrote its files");
     for (const rel of Object.keys(a)) {
       if (rel.startsWith(`.claude/skills/${PLUGIN}/`)) delete a[rel];
     }
@@ -505,7 +505,7 @@ test("FR-2 CHANGELOG: Unreleased (or the 2.43.0 section it was released into) te
 
 // ------------------------------------------------------------------- FR-3
 
-test("FR-3 list with several plugins: both under Plugins:, none under Skills:, the summary reads `32 skills | 2 plugins`", (t) => {
+test("FR-3 list with several plugins: both under Plugins:, none under Skills:, the summary reads `37 skills | 2 plugins`", (t) => {
   const copy = copyPackage(t);
   const second = path.join(copy, ".claude", "skills", "second-panel", ".claude-plugin");
   fs.mkdirSync(second, { recursive: true });
@@ -515,9 +515,9 @@ test("FR-3 list with several plugins: both under Plugins:, none under Skills:, t
   const run = ok(runAkili(home, ["list"], { bin }));
   assert.deepEqual(block(run.stdout, "Plugins"), [PLUGIN, "second-panel"]);
   const skills = block(run.stdout, "Skills");
-  assert.equal(skills.length, 32);
+  assert.equal(skills.length, 37);
   assert.equal(skills.includes("second-panel"), false);
-  assert.match(run.stdout, /\| 32 skills \| 2 plugins \|/);
+  assert.match(run.stdout, /\| 37 skills \| 2 plugins \|/);
 
   ok(runAkili(home, ["install", "--tool", "opencode"], { bin }));
   assert.deepEqual(findNamed(home, "second-panel"), [], "a second plugin stays away from other targets too");
@@ -534,17 +534,17 @@ test("FR-3 an entry with plugin.json and SKILL.md is a skill: counted under Skil
   const run = ok(runAkili(mkTmp(t, "cov-hybrid-"), ["list"], { bin: path.join(copy, "bin", "akili.js") }));
   assert.ok(block(run.stdout, "Skills").includes("hybrid"));
   assert.deepEqual(block(run.stdout, "Plugins"), [PLUGIN]);
-  assert.match(run.stdout, /\| 33 skills \| 1 plugin \|/);
+  assert.match(run.stdout, /\| 38 skills \| 1 plugin \|/);
 });
 
 // ------------------------------------------------------------------- FR-4
 
 for (const tool of NON_CLAUDE) {
-  test(`FR-4 doctor --tool ${tool}: the ok count is commands + 32 skills + resources, so the plugin is no skill, present or missing`, (t) => {
+  test(`FR-4 doctor --tool ${tool}: the ok count is commands + 37 skills + resources, so the plugin is no skill, present or missing`, (t) => {
     const home = mkTmp(t, `cov-count-${tool}-`);
     ok(runAkili(home, ["install", "--tool", tool]));
     const run = ok(runAkili(home, ["doctor", "--tool", tool]));
-    assert.match(run.stdout, new RegExp(`ok ${COMMAND_COUNT + 32 + RESOURCE_COUNT} \\| missing 0 \\| fixed 0`), run.stdout);
+    assert.match(run.stdout, new RegExp(`ok ${COMMAND_COUNT + 37 + RESOURCE_COUNT} \\| missing 0 \\| fixed 0`), run.stdout);
   });
 }
 
@@ -552,7 +552,7 @@ test("FR-4 doctor --tool claude: the plugin adds exactly one to the ok count", (
   const home = mkTmp(t, "cov-count-claude-");
   ok(runAkili(home, ["install", "--tool", "claude"]));
   const run = ok(runAkili(home, ["doctor", "--tool", "claude"]));
-  assert.match(run.stdout, new RegExp(`ok ${COMMAND_COUNT + 32 + RESOURCE_COUNT + 1} \\| missing 0 \\| fixed 0`), run.stdout);
+  assert.match(run.stdout, new RegExp(`ok ${COMMAND_COUNT + 37 + RESOURCE_COUNT + 1} \\| missing 0 \\| fixed 0`), run.stdout);
 });
 
 test("FR-4 Other tools: a stale record entry with no folder is not reported and counts no problem on Grok Bot", (t) => {

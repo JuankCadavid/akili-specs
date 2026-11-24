@@ -40,7 +40,9 @@ const tableRows = (text, headerStart) => {
   return rows;
 };
 
-const NINE = ["software-architect", "api-design-principles", "error-handling-patterns", "tdd", "systematic-debugging", "nestjs-expert", "golang-pro", "aws-serverless", "ai-agent-development"];
+const NINE = ["software-architect", "api-design-principles", "error-handling-patterns", "tdd", "systematic-debugging", "nestjs-feature", "golang-pro", "aws-serverless", "ai-agent-development"];
+const NEST_SUPPORT = ["nestjs", "nestjs-auth", "nestjs-data", "nestjs-testing", "nestjs-production"];
+const AGENTS_LISTED = [...NINE, ...NEST_SUPPORT];
 const ACTIVITIES = ["architecture", "framework-selection", "module-design", "api-contract", "error-model", "implement", "test-first", "test-suite", "bug-diagnosis", "performance"];
 
 const matrixSection = () => section(matrix(), "Matrix");
@@ -102,7 +104,15 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-4 FR-
   const rowsText = matrixRows().join("\n");
   for (const s of NINE) assert.ok(rowsText.includes(`\`${s}\``), `${s} is named in a Matrix row`);
   const listed = agentsBackend().split("\n").map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
-  assert.deepEqual([...listed].sort(), [...NINE].sort(), "AGENTS.md ## Backend Skills names the nine");
+  assert.deepEqual([...listed].sort(), [...AGENTS_LISTED].sort(), "AGENTS.md ## Backend Skills names the nine plus the five NestJS support skills");
+});
+
+test("@akili-spec changes/nestjs-official-skills FR-6: the implement / NestJS Lead cell is nestjs-feature and the NestJS Stack row names the set", () => {
+  const impl = matrixRows().map(cells).filter((c) => c[0] === "**implement**" && c[1] === "NestJS");
+  assert.equal(impl.length, 1, "one implement / NestJS row");
+  assert.equal(impl[0][2], "`nestjs-feature`", "the Lead cell is nestjs-feature");
+  const nest = stackRows().map(cells).find((c) => c[0] === "NestJS");
+  for (const s of ["nestjs-feature", ...NEST_SUPPORT]) assert.ok(nest[1].includes(`\`${s}\``), `Stack row names ${s}`);
 });
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-3: ten activities, three significant/not pairs, one implement row per stack", () => {
@@ -134,7 +144,7 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-2: ev
 });
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2 FR-3: a stack lead appears only on implement and framework-selection rows", () => {
-  const STACK = ["golang-pro", "nestjs-expert", "aws-serverless", "ai-agent-development", "the agent's runtime skill"];
+  const STACK = ["golang-pro", "nestjs-feature", "aws-serverless", "ai-agent-development", "the agent's runtime skill"];
   const ALLOWED = ["**implement**", "**framework-selection**"];
   let seen = 0;
   for (const r of matrixRows()) {

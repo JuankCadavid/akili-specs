@@ -6,9 +6,23 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Added
+
+- **Six official NestJS skills are vendored verbatim: `nestjs`, `nestjs-auth`, `nestjs-data`, `nestjs-feature`, `nestjs-production`, `nestjs-testing`.** `akili install` now ships 37 skills (32 before); `nestjs-expert` is removed, so the net change is +5. `/akili-constitution` Step 5 and 8D, `/akili-specify`, the Leader persona and the backend routing matrix name the official set.
+- **`akili doctor --agents` warns `RETIRED` when a project's Skill Map still lists `nestjs-expert`.** It reads the file and never writes it. Fix: re-run `/akili-constitution` Step 8D, or edit the Skill Map row to the official set.
+
+### Changed
+
+- **Migration note for `nestjs-expert`.** On Claude Code, OpenCode and Antigravity, `akili update` deletes the old folder (`deleted retired skill <path> (replaced by …)`); `akili doctor` reports it as `STALE` and `--fix` as `REMOVED`. On Codex, Cursor and Grok Bot the skills root is shared with other tools and is never scanned, so delete `~/.agents/skills/nestjs-expert/` by hand on Codex and Cursor, and `<workflows root>/nestjs-expert/` on Grok Bot (default `/home/box/agent-data/workflows`).
+- **Coexistence.** A NestJS skill folder that `npx @nestjs/skills` put in place is foreign: `install` skips it, and `--force` takes it over whole. Skills from the `nestjs@nestjs` plugin are namespaced, so they do not collide with the vendored folders.
+
 ### Fixed
 
 - **The update check no longer crashes on a `latest` value that is not a string.** A number, object or array in `~/.akili-specs-update.json` or in the registry's `dist-tags` answer made `akili check-update` (and the startup banner) exit 1 with a `TypeError` from `localeCompare`. The update cache now neither stores nor reads such a value (a corrupt cache is ignored and the registry is asked again), the version comparison treats it as "not newer", and the changelog range filter used by `akili update` compares only strings. New regression test `test/update-check-latest-type.test.js` covers number, object and array, from the cache and from the registry. Same guard as the Sentinel PR #99, plus the cache validation.
+
+### Notes
+
+- Release type: **minor**. That holds only while the `RETIRED` warning and this migration note both ship; if either is dropped, reopen the release type.
 
 ## [2.45.0] - 2026-11-19
 

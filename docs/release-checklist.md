@@ -19,6 +19,7 @@ Use this checklist before publishing `akili-specs`.
 - [ ] Confirm `CHANGELOG.md` has meaningful notes under `Unreleased`.
 - [ ] If the diff since the last release touches `.claude/skills/akili-panel/`, bump `version` in its `.claude-plugin/plugin.json`. Marketplace installs pick up a change only as a new version or commit.
 - [ ] Compare the vendored Impeccable pin (`.claude/skills/impeccable/UPSTREAM.md`) with upstream's latest release tag, and record either "current" or the decision to sync (`scripts/sync-impeccable.js`, then `CHANGELOG.md` and the counts tests) or to defer.
+- [ ] Compare the vendored NestJS pin (`.claude/skills/nestjs/UPSTREAM.md`, the pin shared by the six official folders, each with its own `UPSTREAM.md`) with upstream's latest release tag and its `npm view @nestjs/skills@<version> dist.shasum` value, and record either "current" or the decision to sync (`scripts/sync-nestjs-skills.js`, then `CHANGELOG.md` and the counts tests) or to defer.
 - [ ] If this release refreshes the default registry table in `docs/model-routing.md`, refresh `.claude/templates/model-registry.json` in the same commit — `test/registry-drift.test.js` (run by `npm test`) fails when the two disagree.
 - [ ] Confirm `package.json` version matches the release version.
 - [ ] Confirm `CHANGELOG.md` has a dated section for the release.

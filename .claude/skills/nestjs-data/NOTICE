@@ -1,0 +1,10 @@
+Vendored from https://github.com/nestjs/agent-skills at 68e1d54a7c241ffd2bc37ea60df6f176fb66d3d4 (v0.1.1), path skills/nestjs-data/.
+
+Copyright (c) 2026-present Kamil Mysliwiec <https://kamilmysliwiec.com>
+Licensed under the MIT License; the upstream LICENSE is reproduced unaltered in this folder.
+
+## AKILI-SPECS modification statement
+
+The only modification is the frontmatter block in `SKILL.md`: a `metadata` key is added as the last frontmatter key, with `author`, `source`, `adapted-by`, `adapted-for` and `binding`. No other file is modified; see `UPSTREAM.md` for the per-file checksums.
+
+AKILI-SPECS is not affiliated with the NestJS project.

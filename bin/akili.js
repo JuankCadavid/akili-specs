@@ -8,6 +8,7 @@ const { parseArgs } = require("util");
 
 const { execFileSync } = require("child_process");
 const { parsePersona, sectionStates, resultExitCode, applyFix, migratePersona } = require("./persona.js");
+const { scanSkillMap, RETIRED_SKILLS } = require("./skill-map.js"); // @akili-spec changes/nestjs-official-skills T4
 const { compareEntry, formatDiffers } = require("./install-compare.js");
 
 // Spawn a CLI without a shell on POSIX. On Windows, package-manager bins are
@@ -75,18 +76,6 @@ const SOURCE_SKILLS = path.join(SOURCE_CLAUDE, "skills");
 const SOURCE_TEMPLATES = path.join(SOURCE_CLAUDE, "templates");
 const AGENT_TEMPLATES = ["leader.md", "implementer.md", "reviewer.md", "tester.md"];
 const RESOURCE_SCRIPTS = ["gsc_verify.py", "parse_tests.js"];
-// Skill directories removed from the package; deleted from installs during legacy cleanup.
-// v2.8.0: the 8 gsap-* skills were fused into the single gsap-animation skill.
-const LEGACY_SKILLS = [
-  "gsap-core",
-  "gsap-frameworks",
-  "gsap-performance",
-  "gsap-plugins",
-  "gsap-react",
-  "gsap-scrolltrigger",
-  "gsap-timeline",
-  "gsap-utils",
-];
 const SOURCE_SCRIPTS = path.join(PACKAGE_ROOT, "scripts");
 const SOURCE_MCP_EXAMPLE = path.join(PACKAGE_ROOT, ".mcp.json.example");
 const BANNER = ` █████╗ ██╗  ██╗██╗██╗     ██╗
@@ -901,20 +890,33 @@ function logForeignSkip(entryPath, detail) {
 }
 
 // @akili-spec changes/impeccable-hardening T2b (P-7 Option A)
+// @akili-spec changes/nestjs-official-skills T3 (DD-5)
 // The policy for a target WITHOUT an ownership record (Claude Code, OpenCode,
-// Antigravity, Codex, Cursor). It judges one entry, `impeccable`, and passes
-// every other name through as "owned" so today's skip-or-overwrite rules apply
-// unchanged. impeccable is AKILI's when the existing folder holds UPSTREAM.md
-// (the marker the vendored copy ships); anything else is the developer's own
+// Antigravity, Codex, Cursor). It judges each name in VENDORED_ENTRIES
+// (`impeccable` plus the six official NestJS skills) and passes every other
+// name through as "owned" so today's skip-or-overwrite rules apply unchanged.
+// A vendored entry is AKILI's when the existing folder holds UPSTREAM.md (the
+// marker the vendored copy ships); anything else is the developer's own
 // install and is skipped whole. `install --force` takes it over: moved aside
 // (one atomic rename), replaced by the copy, then the aside copy is deleted;
-// policy.restore() puts it back when the copy fails.
+// policy.restore() puts it back when the copy fails. policy.detail names a
+// `.nestjs-skills` folder "(installed by npx @nestjs/skills)", otherwise it
+// reports the `impeccable` version.
 const IMPECCABLE_ENTRY = "impeccable";
+const VENDORED_ENTRIES = new Set([
+  IMPECCABLE_ENTRY,
+  "nestjs",
+  "nestjs-auth",
+  "nestjs-data",
+  "nestjs-feature",
+  "nestjs-production",
+  "nestjs-testing",
+]);
 function makeImpeccableForeignPolicy(args, targetDir) {
   const takeoverDir = path.join(path.dirname(targetDir), ".akili-takeover");
   let pending = null; // { asidePath, entryPath }
   const policy = (name, entryPath) => {
-    if (name !== IMPECCABLE_ENTRY) return "owned";
+    if (!VENDORED_ENTRIES.has(name)) return "owned";
     try {
       fs.lstatSync(entryPath);
     } catch (e) {
@@ -929,6 +931,7 @@ function makeImpeccableForeignPolicy(args, targetDir) {
     return "takeover";
   };
   policy.detail = (entryPath) => {
+    if (fs.existsSync(path.join(entryPath, ".nestjs-skills"))) return "(installed by npx @nestjs/skills)";
     try {
       const head = fs.readFileSync(path.join(entryPath, "SKILL.md"), "utf8").split(/\r?\n/);
       if (head[0] !== "---") return "";
@@ -1303,14 +1306,14 @@ function cleanupLegacyFiles(tool, args) {
   if (shouldInclude("skills", args) && !paths.sharedSkillsRoot) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      for (const skillName of LEGACY_SKILLS) {
+      for (const { name: skillName, replacement } of RETIRED_SKILLS) {
         const skillDir = path.join(targetSkills, skillName);
         if (fs.existsSync(skillDir)) {
           if (args.dryRun) {
-            console.log(`  ${colors.red}would delete legacy skill${colors.reset} ${skillDir}`);
+            console.log(`  ${colors.red}would delete retired skill${colors.reset} ${skillDir} (replaced by ${replacement})`);
           } else {
             fs.rmSync(skillDir, { recursive: true, force: true });
-            console.log(`  ${colors.red}deleted legacy skill${colors.reset} ${skillDir}`);
+            console.log(`  ${colors.red}deleted retired skill${colors.reset} ${skillDir} (replaced by ${replacement})`);
           }
           cleaned++;
         }
@@ -1426,7 +1429,8 @@ function installTool(tool, args) {
   if (shouldInclude("skills", args)) {
     const skillDirs = Array.isArray(paths.skills) ? paths.skills : [paths.skills];
     for (const targetSkills of skillDirs) {
-      // @akili-spec changes/impeccable-hardening T2b: no ownership record -> judge only `impeccable`.
+      // @akili-spec changes/impeccable-hardening T2b: no ownership record -> judge only the vendored entries.
+      // @akili-spec changes/nestjs-official-skills T3 (DD-5): VENDORED_ENTRIES = impeccable + six NestJS skills.
       const skillsPolicy = makePluginPolicy(policy || makeImpeccableForeignPolicy(args, targetSkills));
       if (tool !== "claude") removeLeakedPlugin(tool, targetSkills, args, ownership);
       add(copyDirectoryContents(SOURCE_SKILLS, targetSkills, args, skillsPolicy));
@@ -1968,14 +1972,15 @@ function doctorTool(tool, args) {
       }
       const ok = hasInstalledSkill(skillDirs, skill);
       if (ok) {
-        // DD-8: install and update never replace an `impeccable/` without
-        // UPSTREAM.md, so a DIFFERS there could never clear: it is not compared.
+        // DD-8: install and update never replace a vendored entry (`impeccable/` or
+        // a NestJS skill) without UPSTREAM.md, so a DIFFERS there could never
+        // clear: it is not compared.
         let notCompared = false;
         const located = [];
         skillDirs.forEach((dir, index) => {
           const entryPath = path.join(dir, skill);
           if (!fs.existsSync(entryPath)) return;
-          if (skill === IMPECCABLE_ENTRY && !fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) {
+          if (VENDORED_ENTRIES.has(skill) && !fs.existsSync(path.join(entryPath, "UPSTREAM.md"))) {
             notCompared = true;
             return;
           }
@@ -2037,19 +2042,19 @@ function doctorTool(tool, args) {
     // STALE scan never runs against a shared skills root (DD-11, CS-2): the
     // directory holds foreign tools' skills too, and AKILI never wrote a
     // legacy gsap-* copy there to begin with, so there is nothing of ours to
-    // find or remove — a `LEGACY_SKILLS` name match on a foreign dir (e.g. a
+    // find or remove — a `RETIRED_SKILLS` name match on a foreign dir (e.g. a
     // real `gsap-core` skill some other tool ships) would be a false STALE.
     if (!paths.sharedSkillsRoot) {
-      for (const skillName of LEGACY_SKILLS) {
+      for (const { name: skillName, replacement } of RETIRED_SKILLS) {
         for (const targetSkills of skillDirs) {
           const skillDir = path.join(targetSkills, skillName);
           if (fs.existsSync(skillDir)) {
             if (args.fix) {
               fs.rmSync(skillDir, { recursive: true, force: true });
-              console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (legacy, replaced by gsap-animation)`);
+              console.log(`  ${colors.cyan}REMOVED${colors.reset} ${skillName} (retired, replaced by ${replacement})`);
               fixed += 1;
             } else {
-              console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (legacy, replaced by gsap-animation — run with --fix or akili update to remove)`);
+              console.log(`  ${colors.red}STALE${colors.reset} ${skillName} (retired, replaced by ${replacement} — run with --fix or akili update to remove)`);
               missing += 1;
             }
           }
@@ -2446,6 +2451,24 @@ function printFixRow(row) {
   console.log(`    ${color}${label}${colors.reset}${idPart}${detailPart}`);
 }
 
+// @akili-spec changes/nestjs-official-skills T4
+function reportRetiredSkills(cwd) {
+  for (const file of ["AGENTS.md", "CLAUDE.md"]) {
+    const filePath = path.join(cwd, file);
+    if (!fs.existsSync(filePath)) continue;
+    let text;
+    try {
+      text = fs.readFileSync(filePath, "utf8");
+    } catch (err) {
+      console.log(`  ${colors.yellow}warning${colors.reset} could not read ${file} for the Skill Map scan (${err.code || err.message})`);
+      continue;
+    }
+    for (const hit of scanSkillMap(text)) {
+      console.log(`  ${colors.yellow}RETIRED${colors.reset} ${hit.name} (${file}:${hit.line}) -> replace with ${hit.replacement}`);
+    }
+  }
+}
+
 function runAgentsDoctor(args) {
   const cwd = process.cwd();
   const agentsDir = path.join(cwd, ".agents");
@@ -2457,6 +2480,11 @@ function runAgentsDoctor(args) {
     const { rootPath } = getToolRegistryInfo(tool, args);
     console.log(`  ${colors.yellow}Tool root (info only):${colors.reset} ${tool} → ${rootPath}`);
   }
+
+  // @akili-spec changes/nestjs-official-skills T4
+  // Read-only Skill Map scan (FR-5): runs before the ABSENT return and the
+  // --fix guards, never writes, never assigns process.exitCode.
+  reportRetiredSkills(cwd);
 
   if (!fs.existsSync(agentsDir)) {
     console.log(`\n  ${colors.red}ABSENT${colors.reset} ${formatPath(agentsDir)} does not exist`);

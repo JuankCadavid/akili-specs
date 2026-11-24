@@ -12,6 +12,7 @@ This repository packages the AKILI-SPECS methodology for Claude Code, OpenCode, 
 - `bin/routing.js` is the pure module behind `akili routing` (flag grammar, tier derivation, registry-section rendering, the six-state `AGENTS.md` fence replacer, the five host wrapper shapes, `buildPlan`, and the `collectAnswers` prompt seam, and the pure keyboard-select reducer behind the interactive prompts); `bin/akili.js` only collects answers, snapshots the project, and applies the plan. Its inputs ship under `.claude/templates/` as `model-registry.json` and `model-routing.section.md`, read from the package directory and never installed into a target.
 - `bin/persona.js` holds the pure persona functions behind `doctor --agents` (`parsePersona`, `sectionStates`, `applyFix`, `migratePersona`, the digest helpers); `bin/akili.js` and `scripts/release.js` require it. `test/` holds the `node:test` suite and its fixtures (`npm test`; `.gitattributes` keeps `test/fixtures/**` byte-exact so CRLF and LF fixtures survive any checkout; `test/routing-pty.test.js` drives the CLI on a real pseudo-terminal through `expect` — present on macOS, installed by the Linux CI step, absent on Windows where the suite skips with a printed reason; a failed run's transcripts are kept under `AKILI_PTY_LOG_DIR` and uploaded by the Linux CI legs as `pty-transcripts-*`); it is not shipped in the package. Any committed file a test compares byte for byte (generated assets such as `assets/akili-flow-animated.svg` included) gets a `-text` line in `.gitattributes` in the same change: the `windows-latest` CI legs check out with `core.autocrlf=true`. A test that checks `CHANGELOG.md` text reads the newest section that states the value (document order, `[Unreleased]` first) and bounds any 'released sections untouched' check by version (older than X), never by one excluded heading, so it survives both a later spec and the release cut.
 - `bin/install-compare.js` is the pure byte-exact comparison behind `install`'s `(identical)` / `(differs: …)` skip classes and `doctor`'s `DIFFERS` warning; `bin/akili.js` requires it.
+- `bin/skill-map.js` is the pure module behind the retired-skill table (`RETIRED_SKILLS`, read by the `install`/`update` cleanup and `doctor` STALE loops) and the `doctor --agents` Skill Map scan that prints `RETIRED`; `bin/akili.js` requires it.
 - `scripts/` contains helper scripts, including `scripts/release.js` (prepares stable npm releases), `scripts/release-next.js` (publishes `next` prereleases from `dev`), and `scripts/release-status.js` (release drift check).
 - Read `docs/release-checklist.md` before preparing or publishing a package release.
 - `docs/ci/` ships copy-in GitHub Actions templates for `/akili-review` (`akili-review.claude.yml`, `akili-review.codex.yml`) with `docs/ci/README.md`; they pin an exact `akili-specs` release, so each release that changes `/akili-review` re-checks the pin.
@@ -59,7 +60,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `caveman` for transient agent output only (inter-agent messages and progress narration in `/akili-execute` and `/akili-test`): compress style, never documents, HITL gates, or verbatim evidence — `cognitive-doc-design` owns artifacts; `caveman` owns transient agent output.
 - Use `react-doctor` and `vercel-react-best-practices` for React/Next.js changes.
 - Use `angular-developer` for Angular projects, components, services, routing, forms, signals, SSR, accessibility, styling, animations, testing, and CLI tooling.
-- Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
+- Use domain skills such as `nestjs-feature`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
 - Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
 - Use `social-marketing` for social media drafting (LinkedIn, Instagram, Facebook): brand voice, campaigns, calendar and posts; `/akili-marketing` loads it, and it drafts only, never publishes.
@@ -92,7 +93,12 @@ The method skill decides what and why; the stack skill decides how in this langu
 - `error-handling-patterns` — error-handling philosophies, error categories, circuit breaker, graceful degradation.
 - `tdd` — red-green loop, seams, test anti-patterns (assigned by the Leader).
 - `systematic-debugging` — root cause before fix, four phases.
-- `nestjs-expert` — stack skill: Nest modules, DI, controllers, guards, Jest/Supertest; leads `implement` on NestJS.
+- `nestjs-feature` — stack skill (official NestJS set): modules, controllers, services, validation, error bodies; leads `implement` on NestJS.
+- `nestjs-auth` — NestJS support: sign-in, sessions, permissions.
+- `nestjs-data` — NestJS support: Drizzle and TypeORM persistence.
+- `nestjs-testing` — NestJS support: unit and Supertest tests.
+- `nestjs-production` — NestJS support: config, logs, health, shutdown.
+- `nestjs` — NestJS support: project start, layout, docs.
 - `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
 - `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
 - `ai-agent-development` — conditional skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.

@@ -655,7 +655,7 @@ which answers *when and how each skill loads*:
   `systematic-debugging` in bug flows, `seo-audit` in `/akili-seo`, `social-marketing` in `/akili-marketing`, `pr-review` in `/akili-review`.
 * **conditional** — loaded when the work touches its domain: Impeccable (through `impeccable-bridge`) leads UI work and `ui-ux-pro-max` / `frontend-design` /
   `stitch-design` / `gsap-animation` serve the activities the design routing matrix (`impeccable-bridge` → `references/design-routing.md`) assigns them, `video-production` for a spec whose Document Control records `Deliverable: video` (it stops at the availability gate when the environment-provided `hyperframes` router is missing: a `Deliverable` selector stops at its gate). Modern Web Guidance is environment-provided too, but a web UI task's `platform mwg` route and the typed `/akili-audit modern-web` mode never stop: they continue without it and report `not run` (see [impeccable-bridge](skills/impeccable-bridge.md#modern-web-guidance-environment-provided)).
-* **stack** — framework/platform skills (`angular-developer`, `nestjs-expert`, `shadcn-ui`,
+* **stack** — framework/platform skills (`angular-developer`, `nestjs-feature` (leads the `nestjs*` set), `shadcn-ui`,
   `aws-serverless`, …) are never hardcoded into commands. `/akili-constitution` Step 8D writes a
   `## Skill Map` into the project's `AGENTS.md`/`CLAUDE.md` from the detected stack;
   `/akili-specify` derives each task's required skills from that map; the Leader passes them to the
