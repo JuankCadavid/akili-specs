@@ -396,7 +396,7 @@ Each task entry must record:
 - `spawns: <role> <calls> calls, <tokens> tokens, ended <complete | checkpoint | partial | fail | fatal | died>; …` — one item per spawn, written always. The values are the ones the host reports to the Leader when the worker finishes; when the host reports none, the item reads `not reported by host`, carrying the worker's own counts where its report gives them — the Leader never estimates. The line is information only: it gates nothing, fails nothing, and adds no round to the Budget Tripwire. An entry written before this line existed reads as "not recorded". `ended: partial` is a report carrying `Not Done / Assumptions`; `ended: died` is a runtime event
 - any `ADVISORY` (4R lens) findings from the final Reviewer verdict, labeled as advisory
 - requirements covered
-- decisions made — including any execute-time spec edits (file + section + reason), recorded at the moment each edit is made
+- decisions made — including any execute-time spec edits (file + section + reason), recorded at the moment each edit is made. A factual correction that makes shipped text differ from `requirements.md` or `design.md` is such an edit: correct that document in the same task commit, with the *Correction Closure* sweep (`/akili-specify`) — a log line alone leaves the spec stating the superseded value
 - issues encountered — a worker's lookup note, when its report holds one, is one thing this field holds
 - final verification result
 
