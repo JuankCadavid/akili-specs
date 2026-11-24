@@ -32,18 +32,23 @@ probe_ok() {
   return 1
 }
 probing=${IMPECCABLE_LAUNCHER_PROBE:-}
+# Space, tab and CR, made once: hooks run this launcher on every edit and turn
+# end, and every process it starts before the engine costs real time on a busy
+# Windows machine (#1237), so the hot path below sticks to shell builtins.
+ws=$(printf ' \t\r')
 
-# Prints the digest engine-checksums.txt records for engine version $1 and
-# asset $2 (lines are "<version> <asset> <sha256>"), nothing when there is none.
+# Sets $digest_out to the digest engine-checksums.txt records for engine
+# version $1 and asset $2 (lines are "<version> <asset> <sha256>"), empty when
+# there is none.
 # A CR is a separator too (CRLF checkouts), and a last line with no newline
 # still counts.
 manifest_digest() {
+  digest_out=""
   [ -f "$manifest" ] || return 0
-  sep=$(printf ' \t\r')
-  while IFS="$sep" read -r m_version m_asset m_sum _ || [ -n "$m_version" ]; do
+  while IFS="$ws" read -r m_version m_asset m_sum _ || [ -n "$m_version" ]; do
     case "$m_version" in ''|'#'*) continue ;; esac
     if [ "$m_version" = "$1" ] && [ "$m_asset" = "$2" ]; then
-      printf '%s' "$m_sum"
+      digest_out=$m_sum
       return 0
     fi
   done < "$manifest"
@@ -52,10 +57,12 @@ manifest_digest() {
 # Sets $expected (and, on Windows on ARM, which runs x64 binaries,
 # $expected_x64) from engine-checksums.txt.
 read_expected() {
-  expected=$(manifest_digest "$version" "$asset")
+  manifest_digest "$version" "$asset"
+  expected=$digest_out
   expected_x64=""
   if [ "$os" = windows ] && [ "$arch" = arm64 ]; then
-    expected_x64=$(manifest_digest "$version" impeccable-windows-x64.exe)
+    manifest_digest "$version" impeccable-windows-x64.exe
+    expected_x64=$digest_out
   fi
 }
 # Sets $size to the byte count of the cached binary (BSD wc pads it).
@@ -73,7 +80,23 @@ hash_file() {
   fi
 }
 
-dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# This script's directory without dirname or a subshell: what dirname "$0"
+# gives, made absolute by a cd there and back. A backslash separates too:
+# Windows hook commands spell the launcher C:\...\scripts\impeccable (#1462).
+case $0 in
+  */*|*\\*) dir=${0%[/\\]*} ;;
+  *) dir=. ;;
+esac
+[ -n "$dir" ] || dir=/
+caller_pwd=$PWD
+CDPATH= cd -- "$dir" || { echo "impeccable: cannot enter the launcher directory $dir" >&2; exit 127; }
+dir=$PWD
+skill_dir=${dir%/*}
+[ -n "$skill_dir" ] || skill_dir=/
+cd -- "$caller_pwd" || { echo "impeccable: cannot return to $caller_pwd" >&2; exit 127; }
+# VS Code syncs a plugin without the executable bit. Its hooks run this through
+# sh, so restore the bit for the commands the skill runs directly (#1249).
+[ -x "$0" ] || chmod +x "$0" 2>/dev/null || :
 manifest="$dir/engine-checksums.txt"
 
 # What the binary needs to know about its home: the skill directory (for
@@ -83,7 +106,7 @@ manifest="$dir/engine-checksums.txt"
 # cannot find reference/*.md (so native platform refs never inline) or read its
 # own version (so UPDATE_AVAILABLE never fires). Setting it here covers every
 # candidate the launcher can exec.
-: "${IMPECCABLE_SKILL_DIR:=$(CDPATH= cd -- "$dir/.." && pwd)}"
+: "${IMPECCABLE_SKILL_DIR:=$skill_dir}"
 : "${IMPECCABLE_SELF:=$0}"
 export IMPECCABLE_SKILL_DIR IMPECCABLE_SELF
 
@@ -91,20 +114,29 @@ if [ -n "${IMPECCABLE_BIN:-}" ] && [ -x "${IMPECCABLE_BIN}" ]; then
   exec "${IMPECCABLE_BIN}" "$@"
 fi
 
-case "$(uname -s 2>/dev/null || echo unknown)" in
+# Windows names itself in the environment, which saves a process there; one
+# uname covers the rest. PROCESSOR_ARCHITECTURE is what impeccable.cmd reads,
+# so both launchers pick the same cached engine (AMD64 under x64 Git Bash on
+# ARM64, as uname -m reported before).
+if [ "${OS:-}" = Windows_NT ]; then
+  sys="Windows_NT ${PROCESSOR_ARCHITECTURE:-unknown}"
+else
+  sys=$(uname -sm 2>/dev/null) || sys="unknown unknown"
+fi
+case "${sys%% *}" in
   Darwin) os=darwin ;;
   Linux) os=linux ;;
   MINGW*|MSYS*|CYGWIN*|Windows_NT) os=windows ;;
   *) os=unknown ;;
 esac
-case "$(uname -m 2>/dev/null || echo unknown)" in
-  arm64|aarch64) arch=arm64 ;;
-  x86_64|amd64) arch=x64 ;;
+case "${sys##* }" in
+  arm64|aarch64|ARM64) arch=arm64 ;;
+  x86_64|amd64|AMD64) arch=x64 ;;
   *) arch=unknown ;;
 esac
 
 version=""
-[ -f "$dir/VERSION" ] && version=$(tr -d '[:space:]' < "$dir/VERSION")
+[ -f "$dir/VERSION" ] && { IFS="$ws" read -r version _ < "$dir/VERSION" || :; }
 bin="$dir/bin/$os-$arch/impeccable"
 [ "$os" = windows ] && bin="$bin.exe"
 
@@ -133,7 +165,7 @@ if [ -n "$version" ] && [ -x "$cached" ]; then
   cached_size
   stamp=""
   stamp_size=""
-  { IFS="$(printf ' \t\r')" read -r stamp stamp_size _ < "$cached.verified"; } 2>/dev/null || :
+  { IFS="$ws" read -r stamp stamp_size _ < "$cached.verified"; } 2>/dev/null || :
   if [ -n "$stamp" ] && [ "$stamp_size" = "$size" ] && { [ "$stamp" = "$expected" ] || [ "$stamp" = "$expected_x64" ]; } && [ ! "$cached" -nt "$cached.verified" ]; then
     exec "$cached" "$@"
   fi
@@ -157,13 +189,49 @@ setup_help() {
   echo "Alternatively, set IMPECCABLE_HOME to a writable cache location, or IMPECCABLE_BIN to a preinstalled engine binary." >&2
 }
 fetch_url() {
+  http_status=""
+  download_host=""
+  fetch_error=""
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --retry 2 -o "$tmp" "$1" 2>/dev/null
+    fetch_result=0
+    metadata=$(curl -fsSL --retry 2 -w '%{http_code} %{url_effective} %{errormsg}' -o "$tmp" "$1" 2>/dev/null) || fetch_result=$?
+    http_status=${metadata%% *}
+    effective_url=${metadata#* }
+    curl_msg=${effective_url#* }
+    effective_url=${effective_url%% *}
+    fetch_error="curl exit $fetch_result${curl_msg:+: $curl_msg}"
+    # Only the authority is needed, never the signed storage URL's query.
+    download_host=${effective_url#*://}
+    download_host=${download_host%%/*}
+    download_host=${download_host##*@}
+    case "$download_host" in
+      \[*) download_host=${download_host%%]*}] ;;
+      *) download_host=${download_host%%:*} ;;
+    esac
+    download_host=$(printf '%s' "$download_host" | tr '[:upper:]' '[:lower:]')
+    return "$fetch_result"
   elif command -v wget >/dev/null 2>&1; then
-    wget -q -O "$tmp" "$1" 2>/dev/null
+    fetch_result=0
+    wget_out=$(wget -O "$tmp" "$1" 2>&1) || fetch_result=$?
+    newline='
+'
+    fetch_error="wget exit $fetch_result: ${wget_out##*$newline}"
+    return "$fetch_result"
   else
     return 1
   fi
+}
+# SIGKILL or a crash skips the traps below and strands the staging file, so
+# each download first removes parts in any version's cache that are an hour
+# idle and whose owner PID is gone (the age covers a curl outliving its
+# launcher). A cache it cannot write is reported later, never here.
+sweep_stale_parts() {
+  find "$cache_root/bin" -mindepth 2 -maxdepth 2 -type f -name '.impeccable.part.*' -mmin +60 2>/dev/null |
+    while IFS= read -r part; do
+      owner=${part##*.part.}
+      case "$owner" in ''|*[!0-9]*) continue ;; esac
+      kill -0 "$owner" 2>/dev/null || rm -f "$part" 2>/dev/null || :
+    done
 }
 check_download() {
   download_file=${1:-$tmp}
@@ -190,6 +258,7 @@ if [ -n "$version" ] && [ "$os" != unknown ] && [ "$arch" != unknown ]; then
     echo "impeccable: no checksum for engine $version ($asset) in $manifest; refusing the unverified download" >&2
     exit 127
   fi
+  sweep_stale_parts
   tmp="$cache_root/bin/$version/.impeccable.part.$$"
   # An interrupted download (Ctrl-C, a hook timeout) would otherwise leave the
   # PID-named staging file behind for good. The handlers must exit explicitly.
@@ -253,7 +322,17 @@ if [ -n "$version" ] && [ "$os" != unknown ] && [ "$arch" != unknown ]; then
     exec "$cached" "$@"
   fi
   rm -f "$tmp" 2>/dev/null
-  echo "impeccable: could not download engine $version from $url; check network access, the release URL, and curl or wget availability." >&2
+  case "$http_status" in
+    5[0-9][0-9])
+      case "$download_host" in
+        github.com|*.github.com|githubusercontent.com|*.githubusercontent.com)
+          echo "impeccable: could not download engine $version: GitHub's downloads are failing right now (HTTP $http_status from $download_host). This is an outage on GitHub's side, not a problem with your setup or the CLI, so updating won't help. Check https://www.githubstatus.com and run the same command again once GitHub has recovered." >&2 ;;
+        *)
+          echo "impeccable: could not download engine $version: $download_host is failing right now (HTTP $http_status), a server error on $download_host's side. Try again later." >&2 ;;
+      esac
+      exit 127 ;;
+  esac
+  echo "impeccable: could not download engine $version from $url${fetch_error:+ ($fetch_error)}; check network access, the release URL, and curl or wget availability." >&2
   setup_help
   exit 127
 fi

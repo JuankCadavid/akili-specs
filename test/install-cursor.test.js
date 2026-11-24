@@ -247,7 +247,7 @@ const SHARED_ROOT_OPERATION_COUNT = COMMAND_COUNT + SKILL_DIR_COUNT; // 14 + 37 
 test(
   "@akili-spec changes/cursor-install-target FR-2/FR-4 (Codex and Cursor share one skills root): Codex installs fresh, Cursor skips every shared-root file while its own resources install",
   (t) => {
-    // 318 = 247 (the 30 skills before Impeccable) + 58 upstream Impeccable
+    // 318 = 247 (the 30 skills before Impeccable) + 58 upstream Impeccable (63 since the skill-v4.11.0 sync)
     // files + 3 AKILI provenance files (LICENSE, NOTICE, UPSTREAM.md) = 61 under
     // .claude/skills/impeccable/ (changes/impeccable-hardening, FR-3), + 1
     // impeccable-bridge/references/design-routing.md (changes/design-skill-routing),
@@ -256,11 +256,11 @@ test(
     // + 2 ai-agent-development/references (guardrails.md, evals.md; changes/ai-agent-guardrails-evals),
     // + 1 impeccable-bridge/references/modern-web.md (changes/modern-web-guidance),
     // + 34 for the six official NestJS skills (16 upstream files + 6 x LICENSE/NOTICE/UPSTREAM.md; changes/nestjs-official-skills).
-    const SKILL_FILE_EXPECTED = 246 + 58 + 3 + 1 + 8 + 1 + 2 + 1 + 34;
+    const SKILL_FILE_EXPECTED = 246 + 63 + 3 + 1 + 8 + 1 + 2 + 1 + 34;
     assert.equal(
       SKILL_FILE_COUNT,
       SKILL_FILE_EXPECTED,
-      `expected ${SKILL_FILE_EXPECTED} (247 + 58 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro + 1 backend-routing.md + 2 ai-agent-development guardrails.md/evals.md + 1 modern-web.md + 34 official NestJS) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
+      `expected ${SKILL_FILE_EXPECTED} (247 + 63 upstream + 3 LICENSE/NOTICE/UPSTREAM.md + 1 design-routing.md + 8 golang-pro + 1 backend-routing.md + 2 ai-agent-development guardrails.md/evals.md + 1 modern-web.md + 34 official NestJS) packaged skill files under .claude/skills; counted ${SKILL_FILE_COUNT} instead -- ` +
         "if the packaged skill set changed, this count (and the shared-root fixtures below) must be updated"
     );
     assert.equal(COMMAND_COUNT, 14, `expected 14 packaged commands under .claude/commands; counted ${COMMAND_COUNT}`);
