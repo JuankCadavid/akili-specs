@@ -56,7 +56,7 @@
 | Target | `.claude/commands/akili-execute.md` — the factual-correction (no gate) rule, append 1 line (+ `docs/commands/akili-execute.md` mirror if it restates the rule) |
 | Edit | A factual correction that makes shipped text differ from `requirements.md` or `design.md` also corrects that spec document in the same task commit, with the Correction Closure sweep (`/akili-specify` → *Correction Closure*) — logging it in `execution.md` alone leaves the spec stating the superseded value. |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-24) — `.claude/commands/akili-execute.md` Execution Log Format, *decisions made* bullet; `docs/commands/akili-execute.md` does not restate the rule, so it needs no mirror |
 
 ### P2
 
@@ -66,7 +66,7 @@
 | Target | KZ-changes--gate-falsifiability-2 |
 | Edit | Add source `changes/nestjs-official-skills`. Recurrence note: "**recurred (changes/nestjs-official-skills: FR-8 bullet 1's reason and bullet 3's 'official set' at Step 5 were dropped at implement; caught by the Reviewer this time, at a cost of 2 of 7 rework rounds, and the run closed at 18/18 review rounds)**". Severity stays Medium. |
 | Severity | Medium |
-| Status | pending |
+| Status | applied (2026-11-24) — digest row updated; severity stays **High**, the row's existing value (the highest wins), not Medium as proposed |
 
 ### P3
 
@@ -76,7 +76,7 @@
 | Target | KZ-002 |
 | Edit | Add source `changes/nestjs-official-skills`. Recurrence note: "**recurred (changes/nestjs-official-skills: the spec gave one hand-delete path for three tools without resolving Grok Bot's skills root; the CHANGELOG migration note would have inherited it, corrected at T11)**". |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-24) — digest row updated; the row keeps its `Deferred` status |
 
 ### P4
 
@@ -86,7 +86,7 @@
 | Target | KZ-changes--archify-diagrams-2 |
 | Edit | Add source `changes/nestjs-official-skills`. Recurrence note: "**recurred (changes/nestjs-official-skills: P-10 keyed on counts and the member name and missed a test pinning the prose of the edited governance line, plus four count consumers of the 38 → 37 change). Key the search also on the sentence being edited, not only on members and counts**". |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-24) — the lesson was not in the digest, so a row was added; to keep the 10-row cap, `KZ-changes--kaizen-loop-closure-2` was retired: it is the Applied row institutionalized longest (2026-09-18) with no pending item linked, and its lesson stays in `changes--kaizen-loop-closure.md` |
 
 ### P5
 
@@ -96,4 +96,4 @@
 | Target | `AGENTS.md` → `## Repository Purpose`, after the `bin/install-compare.js` bullet |
 | Edit | `- \`bin/skill-map.js\` is the pure module behind the retired-skill table (\`RETIRED_SKILLS\`, read by the \`install\`/\`update\` cleanup and \`doctor\` STALE loops) and the \`doctor --agents\` Skill Map scan that prints \`RETIRED\`; \`bin/akili.js\` requires it.` |
 | Severity | Low |
-| Status | pending |
+| Status | applied (2026-11-24) — `AGENTS.md` → *Repository Purpose*, after the `bin/install-compare.js` bullet |
