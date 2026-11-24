@@ -15,6 +15,8 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - **Migration note for `nestjs-expert`.** On Claude Code, OpenCode and Antigravity, `akili update` deletes the old folder (`deleted retired skill <path> (replaced by …)`); `akili doctor` reports it as `STALE` and `--fix` as `REMOVED`. On Codex, Cursor and Grok Bot the skills root is shared with other tools and is never scanned, so delete `~/.agents/skills/nestjs-expert/` by hand on Codex and Cursor, and `<workflows root>/nestjs-expert/` on Grok Bot (default `/home/box/agent-data/workflows`).
 - **Coexistence.** A NestJS skill folder that `npx @nestjs/skills` put in place is foreign: `install` skips it, and `--force` takes it over whole. Skills from the `nestjs@nestjs` plugin are namespaced, so they do not collide with the vendored folders.
+- **The package homepage now points to the Akili methodology page.** `homepage` in `package.json` is `https://akili.com.co/es/metodologia/` instead of the GitHub README, so the npm page links to the methodology site. The repository and issues links are unchanged.
+- **The README credits link Akili.** The "Contributing and license" section adds one line saying AKILI-SPECS is built by [Akili](https://akili.com.co/). The existing authorship line is unchanged.
 
 ### Fixed
 
