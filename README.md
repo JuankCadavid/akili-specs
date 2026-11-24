@@ -167,5 +167,6 @@ If AKILI helps you, please **[star the repo](https://github.com/JuankCadavid/aki
 
 Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md); releases follow [docs/release-checklist.md](docs/release-checklist.md).
 Created and maintained by **Juan Carlos Cadavid** — [jcadavid.com](https://jcadavid.com). Released under the [MIT License](LICENSE).
+AKILI-SPECS is built by [Akili](https://akili.com.co/).
 Every command and every agent template carries this authorship notice.
 The license lets you use, modify and redistribute AKILI, provided the copyright and attribution notices are kept. **Third-party component.** AKILI ships [Impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus (Apache-2.0) as the `impeccable` skill, vendored unmodified apart from a declared frontmatter block, with its `LICENSE` and `NOTICE` beside it. AKILI-SPECS is not affiliated with the Impeccable project; see [docs/skills/impeccable.md](docs/skills/impeccable.md).
