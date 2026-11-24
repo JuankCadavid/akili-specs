@@ -17,6 +17,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 - **Coexistence.** A NestJS skill folder that `npx @nestjs/skills` put in place is foreign: `install` skips it, and `--force` takes it over whole. Skills from the `nestjs@nestjs` plugin are namespaced, so they do not collide with the vendored folders.
 - **The package homepage now points to the Akili methodology page.** `homepage` in `package.json` is `https://akili.com.co/es/metodologia/` instead of the GitHub README, so the npm page links to the methodology site. The repository and issues links are unchanged.
 - **The README credits link Akili.** The "Contributing and license" section adds one line saying AKILI-SPECS is built by [Akili](https://akili.com.co/). The existing authorship line is unchanged.
+- **`akili-panel` is 1.1.2.** `SKILL_CATALOG` in `flow.mjs` replaces `nestjs-expert` with the six official NestJS skills (all `stack`), so the pane's `Skills` list matches the shipped set. The plugin version moves from `1.1.1` to `1.1.2` so marketplace installs pick up the change.
 
 ### Fixed
 
@@ -25,6 +26,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Notes
 
 - Release type: **minor**. That holds only while the `RETIRED` warning and this migration note both ship; if either is dropped, reopen the release type.
+- Impeccable stays pinned at skill 4.8.0 (commit `df3a4ab`). Upstream's latest is `skill-v4.11.0`, published 2026-11-24; syncing it is deferred to its own change (`scripts/sync-impeccable.js`, counts tests), not this release.
 
 ## [2.45.0] - 2026-11-19
 
