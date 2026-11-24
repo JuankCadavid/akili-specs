@@ -172,7 +172,7 @@ const retiredLines = (out) => out.split("\n").filter((l) => /RETIRED/.test(l));
 function mkOutdatedProject(t) {
   const dir = mkProject(t);
   const tester = path.join(dir, ".agents", "tester.md");
-  const stripped = fs.readFileSync(tester, "utf8").replace(/<!-- akili:section id=test-report[\s\S]*?<!-- \/akili:section -->\n/, "");
+  const stripped = fs.readFileSync(tester, "utf8").replace(/<!-- akili:section id=test-report[\s\S]*?<!-- \/akili:section -->\r?\n/, ""); // \r?: a Windows checkout (core.autocrlf) gives the template CRLF
   assert.ok(!/id=test-report/.test(stripped), "precondition: a section was removed");
   fs.writeFileSync(tester, stripped);
   return { dir, tester };
