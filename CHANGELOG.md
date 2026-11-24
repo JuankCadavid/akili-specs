@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.46.0] - 2026-11-24
+
 ### Added
 
 - **Six official NestJS skills are vendored verbatim: `nestjs`, `nestjs-auth`, `nestjs-data`, `nestjs-feature`, `nestjs-production`, `nestjs-testing`.** `akili install` now ships 37 skills (32 before); `nestjs-expert` is removed, so the net change is +5. `/akili-constitution` Step 5 and 8D, `/akili-specify`, the Leader persona and the backend routing matrix name the official set.
@@ -27,7 +33,6 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 - Release type: **minor**. That holds only while the `RETIRED` warning and this migration note both ship; if either is dropped, reopen the release type.
 - Impeccable stays pinned at skill 4.8.0 (commit `df3a4ab`). Upstream's latest is `skill-v4.11.0`, published 2026-11-24; syncing it is deferred to its own change (`scripts/sync-impeccable.js`, counts tests), not this release.
-
 ## [2.45.0] - 2026-11-19
 
 ### Added
