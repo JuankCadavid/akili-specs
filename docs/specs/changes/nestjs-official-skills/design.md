@@ -88,7 +88,7 @@ There is no persisted application data. Two file contracts and one in-code table
 |---|---|---|
 | `UPSTREAM.md` (per folder) | Field table: Source, Path (`skills/<name>/`), Commit, Tag, npm version (read from `package.json` at the commit), npm shasum (the `--npm-shasum` argument, P-14), Vendored, Synced by. Then *Modification* (one sentence) and *Checksums* (one `sha256  path` line per upstream file; the `SKILL.md` hash is of the upstream bytes) | DD-2, same headings as `impeccable/UPSTREAM.md` so one reader shape serves both |
 | `NOTICE` (per folder) | Upstream has no NOTICE (P-4). AKILI writes: source URL + commit + tag, copyright line from upstream `LICENSE`, the modification statement (frontmatter `metadata` block only, keys listed), the non-affiliation line | FR-1 |
-| `RETIRED_SKILLS` | Ordered table: retired name → replacement label. 8 `gsap-*` rows → `gsap-animation`; `nestjs-expert` → `the official NestJS skills (nestjs-feature leads implement)` | DD-6 |
+| `RETIRED_SKILLS` | Ordered table: retired name → replacement label. 8 `gsap-*` rows → `gsap-animation`; `nestjs-expert` → `nestjs-feature plus the official set (nestjs, nestjs-auth, nestjs-data, nestjs-production, nestjs-testing)` (as shipped in `bin/skill-map.js`; corrected at `/akili-validate` 2026-11-24) | DD-6 |
 
 **`SKILL.md` frontmatter after vendoring.**
 - The upstream keys stay in upstream order: `name`, `description`, `license`, and `compatibility`, which only `nestjs` has (P-5).
@@ -113,7 +113,7 @@ CLI surface only. No new command and no new flag on `akili`.
 |---|---|---|
 | `akili install` / `update` (non-shared targets) | `deleted retired skill <dir> (replaced by <replacement>)`; `skip foreign <path> (installed by npx @nestjs/skills)` when the `.nestjs-skills` marker is present | unchanged |
 | `akili doctor [--fix]` (non-shared targets) | `STALE <name> (retired, replaced by <replacement> — run with --fix or akili update to remove)` / `REMOVED <name> (retired, replaced by <replacement>)`; for a foreign vendored entry: `(not AKILI's copy; not compared)` | unchanged rules: STALE counts as missing, as today |
-| `akili doctor --agents [--fix]` | `RETIRED <name> (<file>:<line>) — replaced by <replacement>`, one line per hit, printed before the persona report | **never changed by these lines** (FR-5) |
+| `akili doctor --agents [--fix]` | `RETIRED <name> (<file>:<line>) -> replace with <replacement>` (as shipped by T4; corrected at `/akili-validate` 2026-11-24, see `execution.md` T9), one line per hit, printed before the persona report | **never changed by these lines** (FR-5) |
 
 The gsap-* messages change wording from `legacy, replaced by gsap-animation` to the table form. The replacement stays `gsap-animation`, which keeps FR-4's "the `gsap-*` messages keep naming `gsap-animation`". No test pins the old wording (P-8). `docs/cli.md` gains these lines in its install and doctor output sections.
 
