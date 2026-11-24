@@ -87,7 +87,7 @@ const modeBullets = () => {
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2: the matrix opens with the decision rule — method what/why, stack how, one lead, inputs not rules", () => {
   assert.equal(h2(matrix())[0], "Decision rule", "Decision rule is the first section");
   const r = rules();
-  assert.deepEqual(Object.keys(r), ["1", "2", "3", "4", "5", "6", "7", "8"], "eight numbered rules");
+  assert.deepEqual(Object.keys(r), ["1", "2", "3", "4", "5", "6", "7", "8", "9"], "nine numbered rules");
   assert.equal(r["1"], "**The method skill decides what and why; the stack skill decides how in this language or framework.**");
   assert.ok(r["2"].startsWith("**One lead per activity and context.**"), "rule 2 is one lead per activity");
   assert.ok(r["2"].includes("Supporting skills give inputs, not rules."), "rule 2: supports give inputs, not rules");
@@ -107,11 +107,30 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2: Go serv
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2 FR-3: NestJS bug — systematic-debugging leads, Nest DI supports, no fix before root cause", () => {
   const bug = row("bug-diagnosis", "Bug track or any failure");
   assert.equal(bug.lead, "`systematic-debugging`");
-  assert.ok(bug.support.includes("Nest DI graph"), "nestjs-expert DI knowledge supports");
+  assert.ok(bug.support.includes("Nest DI graph"), "Nest DI graph supports");
   assert.ok(bug.rule.startsWith("No fix before root cause;"), "BUT no fix before root cause");
   assert.ok(bug.rule.includes("a stack skill's root-cause list is a hypothesis, not a diagnosis"), "stack root-cause list is a hypothesis");
   assert.ok(rules()["3"].includes("Bug track sends diagnosis to `bug-diagnosis`"), "rule 3 routes the Bug track");
-  assert.ok(card("nestjs-expert").mustNot.includes("debugging method"), "nestjs-expert card: must not decide debugging method");
+  assert.ok(card("nestjs-feature").mustNot.includes("debugging method"), "nestjs-feature card: must not decide debugging method");
+});
+
+test("@akili-spec changes/nestjs-official-skills FR-6 FR-7: five support activities, the family card, rule 5 clause, rule 9 incl. default telemetry, Passport route", () => {
+  const impl = row("implement", "NestJS");
+  assert.equal(impl.lead, "`nestjs-feature`", "implement / NestJS lead");
+  assert.equal(impl.rule, "No decision recorded in `design.md` is reopened", "BUT the Passport decision is not reopened");
+  assert.ok(impl.support.includes("method skills as constraints already in `design.md`"), "design.md decisions stay constraints");
+  assert.ok(rules()["5"].includes("A stack skill never reopens them; a conflict is a spec gap for the Pivot Protocol."), "rule 5: conflict is a spec gap");
+  for (const a of ["auth → `nestjs-auth`", "persistence → `nestjs-data`", "tests → `nestjs-testing`", "production setup → `nestjs-production`", "project start, layout and docs lookup → `nestjs`"]) assert.ok(impl.support.includes(a), `support: ${a}`);
+  assert.ok(row("module-design", "significant").support.includes("NestJS → `nestjs`"), "module-design layout support");
+  const c = card("nestjs-feature");
+  for (const m of ["Architecture", "framework choice", "API contract policy", "testing strategy", "debugging method", "a package choice already in `design.md`"]) assert.ok(c.mustNot.includes(m), `Must not decide: ${m}`);
+  assert.ok(c.mustNot.includes("default telemetry"), "card defers default telemetry to rule 9");
+  assert.ok(!tableRows(matrix(), CARD_HEADER).some((r) => r[0].includes("nestjs-expert")), "no nestjs-expert card");
+  assert.ok(rules()["5"].includes("A package preference a stack skill states (`@nestjs/authentication` over Passport) never overrides `design.md` or the stack the project already uses"), "rule 5 clause");
+  const r9 = rules()["9"];
+  for (const t of ["npx @nestjs/observe link", "Observe MCP server", "paid Observe production rules", "`pre-approved` never auto-passes it", "telemetry dependency added by default", "`--no-observe`"]) assert.ok(r9.includes(t), `rule 9 names ${t}`);
+  assert.ok(r9.startsWith("**Outward actions and default telemetry"), "rule 9 title names default telemetry");
+  assert.ok(section(matrix(), "Attribution").includes("Kamil Mysliwiec (MIT)"), "Attribution names the NestJS author");
 });
 
 // ---------------------------------------------------------------- FR-3
@@ -140,7 +159,7 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-3: stack a
   assert.equal(impl.rule, "No skill is recommended for install", "AND no install recommendation");
   for (const [act, ctx, lead] of matrixRows()) {
     if (act === "**implement**") continue;
-    assert.ok(!/golang-pro|nestjs-expert|aws-serverless/.test(lead), `${act} ${ctx}: a method lead, not a stack skill`);
+    assert.ok(!/golang-pro|nestjs-feature|aws-serverless/.test(lead), `${act} ${ctx}: a method lead, not a stack skill`);
   }
   assert.ok(specifyRule().includes("when it has none for the stack, the line says `none — project conventions`"), "specify writes the none support");
 });
@@ -148,12 +167,12 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-3: stack a
 // ---------------------------------------------------------------- FR-5 / FR-6 expected routes
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-5 FR-6: scenario routes — collision and Go endpoint resolve to the expected leads", () => {
-  // FR-5 Collision: nestjs-expert + software-architect on a significant architecture decision.
+  // FR-5 Collision: nestjs-feature + software-architect on a significant architecture decision.
   const arch = row("architecture", "significant");
   assert.equal(arch.lead, "`software-architect`", "architecture/significant lead");
-  assert.ok(arch.support.startsWith("stack skill"), "the stack skill (nestjs-expert) supports");
+  assert.ok(arch.support.startsWith("stack skill"), "the stack skill (nestjs-feature) supports");
   assert.ok(arch.rule.includes("The stack skill picks no style, NFR target or ADR"), "stack skill picks no style");
-  assert.ok(card("nestjs-expert").mustNot.includes("Architecture decisions"), "nestjs-expert must not decide architecture");
+  assert.ok(card("nestjs-feature").mustNot.includes("Architecture"), "nestjs-feature must not decide architecture");
   // FR-6 Backend task entry: Go service adds an endpoint.
   const api = row("api-contract", "any");
   assert.equal(api.lead, "`api-design-principles`", "api-contract lead");

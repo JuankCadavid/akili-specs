@@ -1055,7 +1055,7 @@ test('FR-1 A surface keeps its own look: every row draws on every surface BUT no
 
 // ---- changes/akili-panel-model-skills T3: the model row, the Skills section, their presses (FR-1..FR-5, DD-2..DD-7)
 
-const LISTED = ['kaizen', 'tdd', 'caveman', 'nestjs-expert', 'model', 'not-in-catalog']
+const LISTED = ['kaizen', 'tdd', 'caveman', 'nestjs-feature', 'model', 'not-in-catalog']
 const keys = async (ui: any) => (await ui.findAll({ type: 'Button' })).map((b: any) => b.key)
 
 test('FR-1 Model changes: the row shows the id once refreshed, and again after /model, with no turn in between', async ($, on) => {
@@ -1137,7 +1137,7 @@ test('FR-2/FR-3 Open and close, one group at a time: the toggle opens the groups
   const core = (await press('skills-group-core')).filter((k: string) => k.startsWith('skill-'))
   expect(core).toEqual(['skill-caveman', 'skill-kaizen'])
   const stack = (await press('skills-group-stack')).filter((k: string) => k.startsWith('skill-'))
-  expect(stack).toEqual(['skill-nestjs-expert']) // the first group closed, the second opened
+  expect(stack).toEqual(['skill-nestjs-feature']) // the first group closed, the second opened
   expect(await press('skills')).toEqual(['next', 'skills'])
 })
 

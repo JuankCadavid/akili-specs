@@ -59,7 +59,7 @@ Use the packaged skills in `.claude/skills/` as the source of truth. Examples:
 - Use `caveman` for transient agent output only (inter-agent messages and progress narration in `/akili-execute` and `/akili-test`): compress style, never documents, HITL gates, or verbatim evidence — `cognitive-doc-design` owns artifacts; `caveman` owns transient agent output.
 - Use `react-doctor` and `vercel-react-best-practices` for React/Next.js changes.
 - Use `angular-developer` for Angular projects, components, services, routing, forms, signals, SSR, accessibility, styling, animations, testing, and CLI tooling.
-- Use domain skills such as `nestjs-expert`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
+- Use domain skills such as `nestjs-feature`, `aws-serverless`, `api-design-principles`, or `product-manager-toolkit` when the task matches.
 - Use `seo-audit` for SEO audits and diagnosis; `/akili-seo` loads it in its audit phase.
 - Use `security-audit` for repository vulnerability discovery; `/akili-security` loads it (full audit mode); guidance mode for focused security questions.
 - Use `social-marketing` for social media drafting (LinkedIn, Instagram, Facebook): brand voice, campaigns, calendar and posts; `/akili-marketing` loads it, and it drafts only, never publishes.
@@ -92,7 +92,12 @@ The method skill decides what and why; the stack skill decides how in this langu
 - `error-handling-patterns` — error-handling philosophies, error categories, circuit breaker, graceful degradation.
 - `tdd` — red-green loop, seams, test anti-patterns (assigned by the Leader).
 - `systematic-debugging` — root cause before fix, four phases.
-- `nestjs-expert` — stack skill: Nest modules, DI, controllers, guards, Jest/Supertest; leads `implement` on NestJS.
+- `nestjs-feature` — stack skill (official NestJS set): modules, controllers, services, validation, error bodies; leads `implement` on NestJS.
+- `nestjs-auth` — NestJS support: sign-in, sessions, permissions.
+- `nestjs-data` — NestJS support: Drizzle and TypeORM persistence.
+- `nestjs-testing` — NestJS support: unit and Supertest tests.
+- `nestjs-production` — NestJS support: config, logs, health, shutdown.
+- `nestjs` — NestJS support: project start, layout, docs.
 - `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
 - `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
 - `ai-agent-development` — conditional skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.

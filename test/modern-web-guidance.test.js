@@ -441,7 +441,7 @@ test("governance (FR-2, DD-1): MWG is not admitted to Vendored third-party (verb
   assert.ok(start >= 0 && end > start, "vendored section bounds");
   const vendored = gov.slice(start, end);
   assert.doesNotMatch(vendored, /modern-web-guidance|Modern Web Guidance|MWG/);
-  assert.match(vendored, /\*\*Current member: `impeccable`\*\*/);
+  assert.match(vendored, /\*\*Current members:\*\*[\s\S]*- `impeccable` \(/);
 });
 
 // ---- specify (T6): the /akili-specify pointer bullet (FR-3, FR-7, FR-2 BUT, DD-15) ----
