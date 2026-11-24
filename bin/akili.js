@@ -1549,7 +1549,11 @@ function changelogSectionsBetween(changelogPath, fromVersion, toVersion) {
   const sections = [];
   let current = null;
 
+  // Versions can come from the update cache or the registry: a non-string
+  // compares as "not newer" instead of throwing.
   const isNewer = (a, b) =>
+    typeof a === "string" &&
+    typeof b === "string" &&
     a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) > 0;
 
   for (const line of lines) {
@@ -2706,7 +2710,13 @@ const UPDATE_CHECK_DEADLINE_MS = 3000;
 function readUpdateCache() {
   try {
     const cache = JSON.parse(fs.readFileSync(UPDATE_CACHE_PATH, "utf8"));
-    if (cache && typeof cache.checkedAt === "number" && Date.now() - cache.checkedAt < UPDATE_CACHE_TTL_MS) {
+    // A `latest` that is not a string is a corrupt cache, not a version.
+    if (
+      cache &&
+      typeof cache.checkedAt === "number" &&
+      typeof cache.latest === "string" &&
+      Date.now() - cache.checkedAt < UPDATE_CACHE_TTL_MS
+    ) {
       return cache;
     }
   } catch {
@@ -2716,6 +2726,7 @@ function readUpdateCache() {
 }
 
 function writeUpdateCache(latest) {
+  if (typeof latest !== "string") return;
   try {
     atomicWriteFileSync(UPDATE_CACHE_PATH, JSON.stringify({ checkedAt: Date.now(), latest }));
   } catch {
@@ -2777,12 +2788,14 @@ async function getLatestVersion() {
   const cache = readUpdateCache();
   if (cache) return cache.latest;
   const latest = await fetchLatestVersion();
-  if (latest) writeUpdateCache(latest);
+  if (typeof latest !== "string") return null;
+  writeUpdateCache(latest);
   return latest;
 }
 
 function isNewerVersion(latestVersion) {
   return (
+    typeof latestVersion === "string" &&
     latestVersion &&
     latestVersion !== currentVersion &&
     latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0

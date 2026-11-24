@@ -6,9 +6,9 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
-### Notes
+### Fixed
 
-- No unreleased changes yet.
+- **The update check no longer crashes on a `latest` value that is not a string.** A number, object or array in `~/.akili-specs-update.json` or in the registry's `dist-tags` answer made `akili check-update` (and the startup banner) exit 1 with a `TypeError` from `localeCompare`. The update cache now neither stores nor reads such a value (a corrupt cache is ignored and the registry is asked again), the version comparison treats it as "not newer", and the changelog range filter used by `akili update` compares only strings. New regression test `test/update-check-latest-type.test.js` covers number, object and array, from the cache and from the registry. Same guard as the Sentinel PR #99, plus the cache validation.
 
 ## [2.45.0] - 2026-11-19
 
