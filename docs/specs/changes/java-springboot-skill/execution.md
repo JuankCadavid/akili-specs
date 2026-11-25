@@ -222,3 +222,20 @@
 | ADVISORY (final) | (1) The `docs/commands/akili-review.md` one-liner omits the installed-package boundary. (2) Record the test-location narrowing (done above). (3) S8's absent-table sentence lacks "in the report" |
 | spawns | Implementer 12 calls, 202,028 tokens (two turns), ended complete; Reviewer a1 4 calls, 80,703 tokens, ended complete (FAIL); Reviewer a2 4 calls, 77,296 tokens, ended complete |
 | Running totals | tasks 8/10 · LOC 1,141 (`git diff --shortstat cb2416e` excluding spec docs and vendored bytes, plus T7) · review rounds 13/20 |
+
+### T5 (reopened): attempt 3, post-PASS regression fix, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Trigger | While landing T9, the Leader found `test/ai-agent-guardrails-evals.test.js:196-208` red: `expected the 'otherwise pick from:' lead-in in Step 2.1`. T5's committed rewording had replaced the lead-in with `Skills:`. The T5 Consumers field and both T5 Reviewers missed this consumer, because the phrase anchor belongs to another spec's test |
+| Attempt | 3 of 3 (effort held at `xhigh`, the ceiling) |
+| Files changed | `.claude/commands/akili-specify.md` (one line: `Skills:` → `With no Skill Map, otherwise pick from:`) |
+| Red run (observed) | test 14 `expected the 'otherwise pick from:' lead-in in Step 2.1` (fail 1) |
+| Falsifier (executed) | Line reverted → same red; restored |
+| Implementer verification | `ai-agent-guardrails-evals`, `stack-detection`, `golang-skill`, `backend-skill-routing`, `nestjs-official-skills-contracts`: 133 / 0. Sweep `grep -rn "pick from" test/*.js` → only the guardrails file |
+| Evidence re-run | **VERIFIED**. Leader inline 133 / 0 |
+| Reviewer | **PASS** (opus). FR-5 meaning unchanged. Every test file reading specify Step 2.1 ran 579 / 0. No test depends on list order |
+| ADVISORY | The lead-in labels the list as a fallback only, while the paragraph above also picks matched rows' skills from it; "Packaged stack skills — otherwise pick from:" would cover both |
+| Lesson candidate (for kaizen) | A Consumers sweep for rewording command prose must grep the tests for the **removed phrases**, not only for the skill names: KZ-changes--archify-diagrams-2 class, phrase form |
+| spawns | Implementer 3 calls, 61,459 tokens, ended complete; Reviewer 4 calls, 65,595 tokens, ended complete |
+| Running totals | tasks 8/10 · LOC about 1,145 · review rounds 14/20 (T9 review pending) |

@@ -258,7 +258,7 @@ Use additional stack skills as needed — prefer the project's `## Skill Map` (i
 - Scan evidence never adds a packaged skill the table did not match.
 - When `stack-detection.md` is absent, pick from the list below by the design's stack as before and say so once.
 
-Skills:
+With no Skill Map, otherwise pick from:
 
 - `nestjs-feature`
 - `nestjs`
