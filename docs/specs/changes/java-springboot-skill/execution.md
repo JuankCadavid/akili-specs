@@ -304,3 +304,18 @@
 JC's human check of this walkthrough is deferred to the end of execution (mandate: no stop).
 
 **Running totals (final):** tasks 10/10 · LOC **1,376** changed (`git diff --shortstat cb2416e` excluding spec docs and vendored bytes: 1,292 +, 84 −), against a budget of about 1,560 · review rounds **17/20**. The tripwire did not fire.
+
+## Summary
+
+| Item | Result |
+|---|---|
+| Tasks | 10/10 `[x]`; every one closed on a Reviewer **PASS** (no `REVIEW_SKIPPED`, no `REVIEW_WAIVED`) |
+| First-pass PASS | T1, T2, T6, T8, T9, T10 |
+| Reworked | T4 (2 attempts), T5 (3: two FAILs, then a post-PASS consumer regression), T7 (2), T3 (2: a gap the T10 walkthrough found) |
+| HALT / Pivot / tripwire | none |
+| Budget | 10 tasks (10) · 1,376 LOC (about 1,560) · 17 review rounds (20) |
+| Final gates | `npm test` 2292 / 0 · `verify:cli` 0 · `pack:dry-run` 0 · `git diff --check` clean · `bin/` unchanged |
+| Execute-time spec edits | `requirements.md` FR-4 React clause (J-8 carried); `design.md` §9 `SENSITIVE_GLOBS` (+ `**/libs.versions.toml`) |
+| Open for JC | (1) Human check of the T10 walkthrough (deferred by mandate). (2) Release step: re-check the `docs/ci` `akili-specs` pin (P-17) when this ships as a minor. (3) Recorded advisories (not tasks), e.g. the T8 card could name "installing a sibling skill" |
+| Kaizen candidates | (a) A reword sweep must grep tests for the **removed phrases** (T5 attempt 3). (b) Pointer sentences in command text need an inputs × outcomes enumeration before review: KZ-004 recurred in T4, T5 and T7 first attempts. (c) The walkthrough gate earned its place: it found the catalog-alias double report that 9 text tests missed |
+| Next | `/akili-test changes/java-springboot-skill`, then `/akili-validate`, then `/akili-archive` (not run: the mandate covered execute only). No push, PR, tag or publish |
