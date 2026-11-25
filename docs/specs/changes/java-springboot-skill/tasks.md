@@ -276,7 +276,7 @@ Extend the reader test.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Dependencies | T2 |
 | Requirements | FR-6 (THEN, AND, BUT no lead change) |

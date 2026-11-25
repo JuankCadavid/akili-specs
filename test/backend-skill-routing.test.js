@@ -40,9 +40,9 @@ const tableRows = (text, headerStart) => {
   return rows;
 };
 
-const NINE = ["software-architect", "api-design-principles", "error-handling-patterns", "tdd", "systematic-debugging", "nestjs-feature", "golang-pro", "aws-serverless", "ai-agent-development"];
+const TEN = ["software-architect", "api-design-principles", "error-handling-patterns", "tdd", "systematic-debugging", "nestjs-feature", "golang-pro", "java-springboot", "aws-serverless", "ai-agent-development"];
 const NEST_SUPPORT = ["nestjs", "nestjs-auth", "nestjs-data", "nestjs-testing", "nestjs-production"];
-const AGENTS_LISTED = [...NINE, ...NEST_SUPPORT];
+const AGENTS_LISTED = [...TEN, ...NEST_SUPPORT];
 const ACTIVITIES = ["architecture", "framework-selection", "module-design", "api-contract", "error-model", "implement", "test-first", "test-suite", "bug-diagnosis", "performance"];
 
 const matrixSection = () => section(matrix(), "Matrix");
@@ -82,9 +82,9 @@ const textOf = (f) => {
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 NFR-1: matrix row and card signatures are held once", () => {
   const rows = matrixRows();
-  assert.equal(rows.length, 19, "nineteen matrix rows");
+  assert.equal(rows.length, 20, "twenty matrix rows");
   const cards = cardRows();
-  assert.equal(cards.length, 9, "nine cards");
+  assert.equal(cards.length, 10, "ten cards");
   const sigs = [...rows.map((r) => `| ${cells(r)[0]} | ${cells(r)[1]} |`), ...cards.map((r) => `| ${cells(r)[0]} | ${cells(r)[1]} |`)];
   const m = matrix();
   for (const s of sigs) assert.ok(m.includes(s), `matrix holds ${s}`);
@@ -98,13 +98,13 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 NFR-1: m
   assert.deepEqual(hits, [], `signatures restated outside the matrix:\n${hits.join("\n")}`);
 });
 
-test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-4 FR-8: the nine backend skills agree across folders, cards, matrix rows and AGENTS.md", () => {
-  for (const s of NINE) assert.ok(fs.existsSync(path.join(ROOT, ...SKILLS, s, "SKILL.md")), `skill folder ${s}`);
-  assert.deepEqual(cardRows().map(cardName).sort(), [...NINE].sort(), "cards name the nine");
+test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-4 FR-8: the ten backend skills agree across folders, cards, matrix rows and AGENTS.md", () => {
+  for (const s of TEN) assert.ok(fs.existsSync(path.join(ROOT, ...SKILLS, s, "SKILL.md")), `skill folder ${s}`);
+  assert.deepEqual(cardRows().map(cardName).sort(), [...TEN].sort(), "cards name the ten");
   const rowsText = matrixRows().join("\n");
-  for (const s of NINE) assert.ok(rowsText.includes(`\`${s}\``), `${s} is named in a Matrix row`);
+  for (const s of TEN) assert.ok(rowsText.includes(`\`${s}\``), `${s} is named in a Matrix row`);
   const listed = agentsBackend().split("\n").map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
-  assert.deepEqual([...listed].sort(), [...AGENTS_LISTED].sort(), "AGENTS.md ## Backend Skills names the nine plus the five NestJS support skills");
+  assert.deepEqual([...listed].sort(), [...AGENTS_LISTED].sort(), "AGENTS.md ## Backend Skills names the ten plus the five NestJS support skills");
 });
 
 test("@akili-spec changes/nestjs-official-skills FR-6: the implement / NestJS Lead cell is nestjs-feature and the NestJS Stack row names the set", () => {
@@ -125,7 +125,7 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-3: te
     assert.ok(ctx.includes("not significant"), `${a} has a not significant row`);
   }
   const stacks = stackRows().map((r) => cells(r)[0]);
-  assert.equal(stacks.length, 5, "five stacks");
+  assert.equal(stacks.length, 6, "six stacks");
   const implCtx = rows.filter((c) => c[0] === "**implement**").map((c) => c[1]);
   assert.deepEqual([...implCtx].sort(), [...stacks].sort(), "one implement row per stack");
 });
@@ -144,7 +144,7 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-1 FR-2: ev
 });
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2 FR-3: a stack lead appears only on implement and framework-selection rows", () => {
-  const STACK = ["golang-pro", "nestjs-feature", "aws-serverless", "ai-agent-development", "the agent's runtime skill"];
+  const STACK = ["golang-pro", "java-springboot", "nestjs-feature", "aws-serverless", "ai-agent-development", "the agent's runtime skill"];
   const ALLOWED = ["**implement**", "**framework-selection**"];
   let seen = 0;
   for (const r of matrixRows()) {
@@ -153,7 +153,7 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-2 FR-3: a 
     seen++;
     assert.ok(ALLOWED.includes(c[0]), `${c[0]} ${c[1]}: stack lead "${c[2]}" on an activity that may not have one`);
   }
-  assert.ok(seen >= 5, `stack leads found (${seen})`);
+  assert.ok(seen >= 6, `stack leads found (${seen})`);
 });
 
 test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-4: each card's evidence file and heading resolve", () => {
@@ -236,4 +236,54 @@ test("@akili-spec changes/go-backend-routing/backend-skill-routing FR-3 FR-7: th
     assert.ok(t.length > 100, `${name} non-trivial`);
     assert.doesNotMatch(t, /\binstall/i, `${name} holds no install advice`);
   }
+});
+
+const BASELINE_ROWS = [
+  ["**architecture**", "significant", "`software-architect`"],
+  ["**architecture**", "not significant", "existing design"],
+  ["**framework-selection**", "AI agent", "`ai-agent-development`"],
+  ["**framework-selection**", "other stacks, significant", "`software-architect`"],
+  ["**framework-selection**", "other stacks, not significant", "existing design"],
+  ["**module-design**", "significant", "`software-architect`"],
+  ["**module-design**", "not significant", "existing design"],
+  ["**api-contract**", "any", "`api-design-principles`"],
+  ["**error-model**", "any", "`error-handling-patterns`"],
+  ["**implement**", "Go", "`golang-pro`"],
+  ["**implement**", "NestJS", "`nestjs-feature`"],
+  ["**implement**", "AWS serverless", "`aws-serverless`"],
+  ["**implement**", "AI agent", "the agent's runtime skill (from the Skill Map; none → project conventions)"],
+  ["**implement**", "other", "existing design"],
+  ["**test-first**", "task lists `tdd`, Leader keeps it", "`tdd`"],
+  ["**test-suite**", "`tdd` not listed, or dropped by the Leader", "the spec's scenarios"],
+  ["**bug-diagnosis**", "Bug track or any failure", "`systematic-debugging`"],
+  ["**performance**", "significant", "`software-architect`"],
+  ["**performance**", "not significant", "existing design"],
+];
+
+test("@akili-spec changes/java-springboot-skill FR-6: implement / Java / Spring Boot has exactly one lead, java-springboot; route line and Stack table name it", () => {
+  const impl = matrixRows().map(cells).filter((c) => c[0] === "**implement**" && c[1] === "Java / Spring Boot");
+  assert.equal(impl.length, 1, "one implement / Java / Spring Boot row");
+  assert.equal(impl[0][2], "`java-springboot`", "the Lead cell is exactly java-springboot");
+  assert.equal(impl[0][3], "method skills as constraints already in `design.md`");
+  assert.equal(impl[0][4], "No decision recorded in `design.md` is reopened");
+  const st = stackRows().map(cells).find((c) => c[0] === "Java / Spring Boot");
+  assert.ok(st && st[1] === "`java-springboot`", "Stack table row names java-springboot");
+  assert.ok(/ProblemDetail/.test(st[2]) && /mvnw verify/.test(st[2]), "idiom names ProblemDetail and the verify command");
+  const line = section(matrix(), "Backend route line").split("\n").find((l) => l.startsWith("| Stack |"));
+  assert.ok(line.includes("`Java / Spring Boot`"), "route-line Stack values include Java / Spring Boot");
+  assert.ok(line.indexOf("`AI agent`") < line.indexOf("`Java / Spring Boot`") && line.indexOf("`Java / Spring Boot`") < line.indexOf("`other`"), "listed before other");
+  assert.match(agentsBackend(), /^- `java-springboot` — stack skill .*leads `implement` on Java \/ Spring Boot\.$/m);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-6: the java-springboot card must not decide infrastructure or upgrades", () => {
+  const c = cardRows().map(cells).find((x) => x[0].startsWith("`java-springboot`"));
+  assert.ok(c, "card exists");
+  assert.ok(c[0].includes("(stack)"), "card marked stack");
+  for (const t of ["infrastructure", "brokers", "caches", "databases", "rule 9", "upgrades", "architecture style"]) assert.ok(c[3].toLowerCase().includes(t), `Must not decide names ${t}`);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-6 BUT: every pre-existing matrix row keeps its activity, context and lead", () => {
+  assert.equal(BASELINE_ROWS.length, 19, "baseline captured from the prior matrix");
+  const now = matrixRows().map(cells).filter((c) => c[1] !== "Java / Spring Boot").map((c) => [c[0], c[1], c[2]]);
+  assert.deepEqual(now, BASELINE_ROWS, "non-Java rows unchanged");
 });

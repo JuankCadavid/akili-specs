@@ -145,3 +145,22 @@
 | Implementer assumption (verbatim) | "The tests are keyword-pinned prose checks, so they do not validate semantics beyond the phrases they match." Leader: accepted. Semantic use is covered by the T10 walkthrough |
 | spawns | Implementer 13 calls, 175,716 tokens (two turns), ended complete; Reviewer a1 7 calls, 83,157 tokens, ended complete (FAIL); Reviewer a2 5 calls, 81,690 tokens, ended complete |
 | Running totals | tasks 5/10 · LOC about 1,000 · review rounds 7/20 |
+
+### T8: Backend routing for Java / Spring Boot, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-6 (THEN, AND row rules, BUT no lead change) |
+| Attempts | 1 |
+| Files changed | `.claude/skills/software-architect/references/backend-routing.md` (route-line stack value, Stack row, matrix row, card, attribution); `AGENTS.md` (*Backend Skills* bullet); `test/backend-skill-routing.test.js` |
+| Skills / effort | `software-architect`, `java-springboot` (read-only, for idiom fidelity) / `medium` |
+| Parallelism | Wave with T5 (disjoint files; each worker skipped the other's suites, and the Leader ran all four afterwards) |
+| Red run (observed) | Counts updated before the content: `not ok 19 … expected: 20 actual: 19`; `not ok 22 … one implement row per stack expected: 6 actual: 5`; `not ok 34 … FR-6: implement / Java / Spring Boot … expected: 1 actual: 0` (also 20, 24, 35) |
+| Falsifier (executed) | Two leads on the Java row → `not ok 5 - every Lead cell holds exactly one lead`, `not ok 16 - FR-6 … exactly one lead`. Restored |
+| Implementer verification | `node --test test/backend-skill-routing.test.js test/backend-skill-routing-coverage.test.js` 36 / 0 (the coverage file needed no change) |
+| Evidence re-run | **VERIFIED**. Leader inline: the routing, stack-detection and golang suites together 75 / 0; `git diff --check` clean |
+| Reviewer | **PASS** (opus). Idiom and card are faithful to `java-springboot/SKILL.md`. The 19 baseline rows match HEAD exactly. Tests assert content, not only counts |
+| ADVISORY | (1) The card's *Must not decide* could also name "installing a sibling skill" (already covered by rule 9 and the existing no-install test). (2) The attribution line "names their headings only" could read "names their headings and paraphrases their idiom" |
+| Implementer assumptions (verbatim) | "My card test failed once, because I checked 'architecture style' against capitalised card text. I fixed the assertion to compare case-insensitively." "The card's Evidence cites … → *Router*." Leader: accepted |
+| spawns | Implementer 11 calls, 92,326 tokens, ended complete; Reviewer 6 calls, 83,908 tokens, ended complete |
+| Running totals | tasks 6/10 · LOC about 1,180 · review rounds 9/20 (T5 review pending) |
