@@ -60,9 +60,12 @@ A match forces `full` and fills `recommend_security`, which the summary turns in
 | IPC | `**/ipc/**`, `**/ipc-*`, `**/ipc.*` |
 | Deserialization | `**/deserializ*`, `**/deserializ*/**`, `**/serialization/**` |
 | CI workflows | `.github/workflows/**` |
-| Dependency manifests | `**/package.json`, `**/requirements*.txt`, `**/pyproject.toml`, `**/Pipfile`, `**/Cargo.toml`, `**/go.mod`, `**/Gemfile`, `**/pom.xml`, `**/build.gradle`, `**/build.gradle.kts`, `**/composer.json` |
+| Dependency manifests | `**/package.json`, `**/requirements*.txt`, `**/pyproject.toml`, `**/Pipfile`, `**/Cargo.toml`, `**/go.mod`, `**/Gemfile`, `**/pom.xml`, `**/build.gradle`, `**/build.gradle.kts`, `**/composer.json`, `**/libs.versions.toml` |
+| Infrastructure as code | `**/cdk.json`, `**/template.yaml`, `**/template.yml`, `**/serverless.yml`, `**/serverless.yaml` |
 
 The session and token prefixes (`**/session*`, `**/token*`) over-match on purpose (for example `tokenizer.js`): a false positive costs a deeper review, a miss would hide a sensitive file.
+
+`**/template.yaml` and `**/template.yml` over-match the same way: a Helm, Ansible or cookiecutter `template.yaml` also matches, which costs a deeper review and never hides a sensitive file. `components.json` is not sensitive: it holds component paths and style, its registry auth headers are environment-variable references, and it carries no dependency, permission or credential.
 
 ## Chunking
 

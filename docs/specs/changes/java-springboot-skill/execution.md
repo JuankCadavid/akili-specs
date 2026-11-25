@@ -91,3 +91,22 @@
 | Decisions | **Execute-time spec edit:** `requirements.md` FR-4 *Rows cover every shipped stack*, React clause `react` or `next` → `next` or `react-dom` (`react` alone does not match). Reason: carries judgment J-8, which JC approved and which design §5(a) already holds; the meaning matches the approved design. Correction Closure: `grep -rn` for `` `react` or `next` `` over the spec folder → no remaining hit. Carried into the T4 Reviewer brief as a named conformance check |
 | spawns | Implementer 9 calls, 102,463 tokens, ended complete; Reviewer 6 calls, 87,165 tokens, ended complete |
 | Running totals | tasks 3/10 · LOC about 520 · review rounds 3/20 |
+
+### T6: `pr-review` filter and version, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-5 *Review filters* (THEN, AND IT MUST parity, BUT no other change) |
+| Attempts | 1 (plus one Leader decision relayed to the live worker; not a FAIL, no attempt consumed) |
+| Files changed | `.claude/skills/pr-review/post-review.cjs`; `.claude/skills/pr-review/references/large-prs.md`; `.claude/skills/pr-review/SKILL.md` (`1.1.0`); `.claude/commands/akili-review.md` (Step 0.1 `1.1.0`); `docs/skills/pr-review.md` (`1.1.0`); `test/pr-review-scripts.test.js`; `test/akili-review-command.test.js` |
+| Skills / effort | `tdd` / `medium` |
+| Parallelism | Wave with T4 (disjoint files, no shared build output) |
+| Red run (observed) | Before the glob change: `cdk.json tier 'trivial' !== 'full'`; `template.yaml is neither sensitive nor a stated exception 'trivial' !== 'full'`; later `gradle/libs.versions.toml tier 'trivial' !== 'full'` |
+| Falsifier (executed) | `**/cdk.json` removed → positive test `'trivial' !== 'full'` and parity `cdk.json is neither sensitive nor a stated exception`. Restored |
+| Implementer verification | `node --test test/pr-review-scripts.test.js test/pr-review-scripts-coverage.test.js test/akili-review-command.test.js` 217 / 0 |
+| Evidence re-run | **VERIFIED**. Leader inline: 217 / 0 |
+| Reviewer | **PASS** (opus). Only two `SENSITIVE_GLOBS` lines changed. `large-prs.md` row, note and exception per §9. Version moved at all 3 sites. Tests call the real `prepare` CLI. Parity test is falsifiable |
+| ADVISORY | (1) The T6 Falsifier field predicted tier `lite`; observed `trivial` (a 1-line fixture). Recorded as the observed value. (2) CHANGELOG note for the globs and `pr-review 1.1.0`, plus the `docs/ci` pin re-check, are owed. T9 owns the CHANGELOG |
+| Decisions | **Execute-time design edit:** `design.md` §9 `SENSITIVE_GLOBS` row now adds `**/libs.versions.toml` to *Dependency manifests*. Reason: the J-5 version catalog joined the table after §9 was written, and FR-5 *Review filters* THEN requires every table manifest to be sensitive; requirement meaning unchanged. The parity test parses every table row, and `components.json` is the only exception. Carried to the next Reviewer brief (T4 attempt 2) |
+| spawns | Implementer 11 calls, 177,810 tokens (two turns), ended complete; Reviewer 5 calls, 78,621 tokens, ended complete |
+| Running totals | tasks 4/10 (T4 in rework) · LOC about 900 · review rounds 6/20 (T1, T2, T3, T4a1, T6, T4a2 pending) |

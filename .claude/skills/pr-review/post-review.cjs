@@ -83,7 +83,8 @@ const SENSITIVE_GLOBS = Object.freeze([
   "**/deserializ*", "**/deserializ*/**", "**/serialization/**",
   ".github/workflows/**",
   "**/package.json", "**/requirements*.txt", "**/pyproject.toml", "**/Pipfile", "**/Cargo.toml", "**/go.mod",
-  "**/Gemfile", "**/pom.xml", "**/build.gradle", "**/build.gradle.kts", "**/composer.json",
+  "**/Gemfile", "**/pom.xml", "**/build.gradle", "**/build.gradle.kts", "**/composer.json", "**/libs.versions.toml",
+  "**/cdk.json", "**/template.yaml", "**/template.yml", "**/serverless.yml", "**/serverless.yaml",
 ]);
 const DOCS_GLOBS = Object.freeze(["docs/**", "**/*.md", "**/*.mdx", "**/*.rst"]);
 

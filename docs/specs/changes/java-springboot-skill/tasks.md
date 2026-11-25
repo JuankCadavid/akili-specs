@@ -214,7 +214,7 @@ Extend the reader test.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | T3 |
 | Requirements | FR-5 *Review filters* (THEN, AND IT MUST parity, BUT no other change) |

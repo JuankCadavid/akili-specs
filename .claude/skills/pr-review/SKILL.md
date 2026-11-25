@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: "Juan Carlos Cadavid — jcadavid.com"
   binding: core
-  version: "1.0.0"
+  version: "1.1.0"
   inspired-by: "Cloudflare, 'Orchestrating AI Code Review at scale' (https://blog.cloudflare.com/ai-code-review/) — architecture only, no text taken; obra/superpowers 'requesting-code-review' (MIT, https://github.com/obra/superpowers @ 2ce8aa1) — pattern; the Anthropic 'code-review' plugin (marketplace name) — pattern, not adapted; anthropics/knowledge-work-plugins (Apache-2.0, https://github.com/anthropics/knowledge-work-plugins @ 33d3dea) and anthropics/claude-code-security-review (MIT, https://github.com/anthropics/claude-code-security-review @ 0c6a49f) — text adapted in `references/lenses.md`; notice in `NOTICE`"
 ---
 

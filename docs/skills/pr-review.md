@@ -1,6 +1,6 @@
 # `pr-review`
 
-**Binding `core`** — loaded by `/akili-review` in its Step 0. AKILI-authored (MIT, Juan Carlos Cadavid — jcadavid.com), `metadata.version` `1.0.0`.
+**Binding `core`** — loaded by `/akili-review` in its Step 0. AKILI-authored (MIT, Juan Carlos Cadavid — jcadavid.com), `metadata.version` `1.1.0`.
 
 ## Purpose
 
