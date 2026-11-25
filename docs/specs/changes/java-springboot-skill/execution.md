@@ -164,3 +164,33 @@
 | Implementer assumptions (verbatim) | "My card test failed once, because I checked 'architecture style' against capitalised card text. I fixed the assertion to compare case-insensitively." "The card's Evidence cites … → *Router*." Leader: accepted |
 | spawns | Implementer 11 calls, 92,326 tokens, ended complete; Reviewer 6 calls, 83,908 tokens, ended complete |
 | Running totals | tasks 6/10 · LOC about 1,180 · review rounds 9/20 (T5 review pending) |
+
+### T5: Specify, propose, audit sites S4–S6, PASS on attempt 2 (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-3 (specify pool), FR-4 *No row matches*, FR-5 *Specify fallback*, *Propose*, *Audit* |
+| Attempts | 2 |
+| Files changed | `.claude/commands/akili-specify.md`; `.claude/commands/akili-propose.md`; `.claude/commands/akili-audit.md`; `test/stack-detection.test.js` |
+| Skills / effort | `cognitive-doc-design` / attempt 1 `high`, attempt 2 `xhigh` |
+| Parallelism | Attempt 1 ran in a wave with T8; attempt 2 ran in a wave with T7 (disjoint files; T7's tests in a separate file) |
+
+**Attempt 1: FAIL.**
+- *Implementer:* S4 pointer plus 7 list additions; S5 Step 0 item 6 and the Step 2 row; S6 area 4 plus the Skill Map drift bullet.
+- *Red:* `specify fallback list lacks: java-springboot, nestjs, nestjs-auth, nestjs-data, nestjs-testing, nestjs-production, react-doctor`.
+- *Falsifier:* `react-doctor` dropped → `specify fallback list lacks: react-doctor`.
+- *Verification:* 39 / 0. *Evidence re-run:* VERIFIED (75 / 0 together with the routing suites).
+- *Reviewer FAIL (issue 1, verbatim gist):* specify Step 2.1's declared-stack branch had no outcome when the declared stack matches no row (FR-4 *No row matches*; KZ-004). Advisories: table-absent outcome in specify and audit; audit first direction limited to stacks with packaged skills; propose records `not read:` lines; propose template uses the table's report line.
+
+**Attempt 2: PASS.**
+- *Fix:* the outcome is stated for every input, as the Reviewer's table above lays out (manifest or declared stack, match or no row, neither, not read, table absent). Advisories 1–4 applied as [advisory-grade].
+- *Red:* `not ok 24 … Specify fallback states an outcome for a declared stack that matches no row`, `not ok 25`, `not ok 26`, `not ok 27` (`# pass 23 # fail 4`).
+- *Verification:* 61 / 0. *Evidence re-run:* VERIFIED (61 / 0).
+- *Reviewer:* **PASS** (opus).
+
+| Field | Value |
+|---|---|
+| ADVISORY (final) | (1) Outcome lists do not mention the table's ask-before-`Java — no packaged skill` rule (consistent with NFR-3; a pointer to *Outcomes* would help). (2) Audit with no Skill Map reports no-packaged-skill stacks as unmapped, against its own first-direction rule. (3) Propose's no-row line omits the path; the template alternative lists only `none detected`. (4) Propose's `not evaluated` row for an absent table goes slightly beyond "as before". (5) Stage only T5 files |
+| Implementer assumptions (verbatim) | "Specify's 'not read' outcome is 'treated as no match, line noted'. The spec does not say what to do there, so this is my reading." "Propose's greenfield case never records the PRD stack as detected." Leader: accepted |
+| spawns | Implementer 16 calls, 206,875 tokens (two turns), ended complete; Reviewer a1 6 calls, 88,264 tokens, ended complete (FAIL); Reviewer a2 7 calls, 87,288 tokens, ended complete |
+| Running totals | tasks 7/10 · LOC about 1,380 · review rounds 11/20 (T7 review pending) |

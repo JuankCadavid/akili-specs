@@ -183,7 +183,7 @@ Add one router row in `software-architect/SKILL.md`. Start `test/stack-detection
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | T3 |
 | Requirements | FR-3 (specify pool), FR-5 *Specify fallback*, *Propose*, *Audit* |

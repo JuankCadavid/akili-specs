@@ -249,16 +249,32 @@ If the design is architecturally significant (the same test as above), load `dia
 
 If `Deliverable: video`, load `video-production` and write the storyboard beat table into `design.md` (Video Mode).
 
-Use additional stack skills as needed — prefer the project's `## Skill Map` (in root `AGENTS.md`/`CLAUDE.md`) when it exists; otherwise pick from:
+Use additional stack skills as needed — prefer the project's `## Skill Map` (in root `AGENTS.md`/`CLAUDE.md`) when it exists. With no Skill Map, apply the stack-detection table: read `software-architect` → `references/stack-detection.md` and apply its rows to the repository's manifests, or, when the repository has no manifest yet (a greenfield project), map the stack the PRD or TRD declares through the same rows. Pick each matched row's skills from the list below, plus the any-stack skills the design calls for. Outcome by input:
+
+- A manifest or a declared stack that matches a row: that row's skills.
+- A manifest or a declared stack that matches no row: no packaged skill for it, so the design records `none — project conventions` for that stack and takes its idioms from the project's own code and guides.
+- Neither a manifest nor a declared stack: no stack skill; the design records `none — project conventions`.
+- A manifest the table could not read (`not read: <path> (<reason>)`): treated as no match, with the not-read line noted in the design.
+- Scan evidence never adds a packaged skill the table did not match.
+- When `stack-detection.md` is absent, pick from the list below by the design's stack as before and say so once.
+
+Skills:
 
 - `nestjs-feature`
+- `nestjs`
+- `nestjs-auth`
+- `nestjs-data`
+- `nestjs-production`
+- `nestjs-testing`
 - `golang-pro`
+- `java-springboot`
 - `api-design-principles`
+- `error-handling-patterns`
+- `aws-serverless`
 - `shadcn-ui`
 - `tailwind-design-system`
 - `vercel-react-best-practices`
-- `error-handling-patterns`
-- `aws-serverless`
+- `react-doctor`
 - `angular-developer`
 
 When the design has backend work, settle each backend decision's lead from `software-architect` → `references/backend-routing.md` (read it by path, whether or not the design is architecturally significant) and record it next to the decision; when that file is absent, proceed as today and say so once.

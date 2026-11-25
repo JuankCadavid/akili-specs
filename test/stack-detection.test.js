@@ -204,3 +204,104 @@ test("@akili-spec changes/java-springboot-skill FR-5: Discovery packaged-skill r
   assert.match(d, /Packaged stack-skill rows come only from the table/);
   assert.match(d, /scan evidence[^]*routing blocks[^]*no packaged skill/);
 });
+
+// ---- Specify, Propose, Audit sites S4-S6 (T5) ----
+const CMD = (n) => read(".claude", "commands", `akili-${n}.md`);
+const allTableSkills = () => new Set([
+  ...rows().flatMap(skillsOf),
+  ...tableRows(section(table(), "Any-stack row"), "| Skill | Applies when |").map((r) => r[0].replace(/`/g, "")),
+]);
+const specifyFallback = () => between(CMD("specify"), "Use additional stack skills as needed", "When the design has backend work");
+const forbiddenMarkers = () => {
+  const f = new Set(["org.springframework.boot", "react-dom", "AWS::Serverless-2016-10-31", "libs.versions.toml", "spring-boot-starter"]);
+  for (const r of rows()) for (const m of r[2].matchAll(/`([^`]+)`/g)) {
+    const t = m[1];
+    if (/^(file present|provider\.name: aws|style|aliases)$/.test(t) || t.startsWith("$")) continue;
+    if (/[@.:\/-]/.test(t)) f.add(t);
+  }
+  return f;
+};
+
+test("@akili-spec changes/java-springboot-skill FR-5: Specify fallback applies the table and its list holds every skill the table can produce", () => {
+  const b = specifyFallback();
+  assert.ok(b.includes("stack-detection.md"), "names the table");
+  assert.match(b, /software-architect/);
+  assert.match(b, /matches no row[^\n]*project conventions/i, "no-match case stated");
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: the specify fallback list holds every skill the table can produce (set derived from the table, never from the list)", () => {
+  const listed = new Set([...specifyFallback().matchAll(/^- `([a-z0-9-]+)`$/gm)].map((m) => m[1]));
+  const missing = [...allTableSkills()].filter((s) => !listed.has(s));
+  assert.deepEqual(missing, [], `specify fallback list lacks: ${missing.join(", ")}`);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-3: Specify fallback lists java-springboot and keeps the golang-pro line form", () => {
+  const b = specifyFallback();
+  assert.match(b, /^- `java-springboot`$/m);
+  assert.match(b, /^- `golang-pro`$/m);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Propose Step 0 applies the table and Step 2 names the Stack (detected) row", () => {
+  const p = CMD("propose");
+  const step0 = between(p, "### Step 0: Resolve Path And Load Context", "### Step 1");
+  assert.ok(step0.includes("stack-detection.md"), "Step 0 names the table");
+  assert.ok(step0.includes("Stack (detected)"), "Step 0 names the row");
+  assert.match(step0, /none detected/);
+  assert.match(step0, /manifest path/);
+  const step2 = between(p, "### Step 2: Write `proposal.md`", "2. Intent");
+  assert.ok(step2.includes("Stack (detected)"), "Step 2 item 1 names the row");
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Audit applies the table and reports Skill Map drift both ways, report-only", () => {
+  const a = CMD("audit");
+  const scan = between(a, "4. **Key Modules & Dependencies:**", "**Delegation Thresholds");
+  assert.ok(scan.includes("stack-detection.md"), "area 4 names the table");
+  const step2 = between(a, "### Step 2: Compare Documentation vs. Codebase Reality", "### Step 3");
+  const bullet = bulletOf(step2.replace(/^\* /gm, "- "), "Skill Map drift");
+  assert.match(bullet, /no matching Skill Map row/);
+  assert.match(bullet, /no matching manifest/);
+  assert.match(bullet, /[Rr]eport only[^]*never edit/);
+  assert.match(bullet, /no `## Skill Map`/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: specify, propose and audit restate no marker and cite no line number for the table", () => {
+  for (const n of ["specify", "propose", "audit"]) {
+    const c = CMD(n);
+    for (const m of forbiddenMarkers()) assert.ok(!c.includes(m), `${n} restates marker: ${m}`);
+    assert.ok(!/stack-detection\.md[^\n]{0,40}(line \d+|:\d+)/.test(c), `${n}: no line number after the table path`);
+    assert.ok(c.includes("stack-detection.md"), `${n} points at the table`);
+  }
+});
+
+// ---- T5 rework: every input has a stated outcome at S4-S6 ----
+test("@akili-spec changes/java-springboot-skill FR-5: Specify fallback states an outcome for a declared stack that matches no row", () => {
+  const b = specifyFallback();
+  assert.match(b, /manifest or a declared stack that matches no row[^.]*project conventions/i);
+  assert.match(b, /neither a manifest nor a declared stack[^.]*project conventions/i);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Specify fallback covers the absent table and unread manifests", () => {
+  const b = specifyFallback();
+  assert.match(b, /stack-detection\.md` is absent[^.]*say so once/i);
+  assert.match(b, /not read:/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Propose records unread manifests and uses the table's report line", () => {
+  const p = CMD("propose");
+  const step0 = between(p, "### Step 0: Resolve Path And Load Context", "### Step 1");
+  assert.match(step0, /not read: <path>/);
+  assert.match(step0, /`none detected` only when[^.]*no manifest/i);
+  const step2 = between(p, "### Step 2: Write `proposal.md`", "2. Intent");
+  assert.ok(step2.includes("<stack> (<manifest path>) → <skills | no packaged skill>"), "Step 2 uses the table's report line");
+  assert.ok(!step2.includes("<stack (manifest path) →"), "no second shape for the same result");
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Audit limits drift to stacks with packaged skills and covers absent table and unread manifests", () => {
+  const a = CMD("audit");
+  const step2 = between(a, "### Step 2: Compare Documentation vs. Codebase Reality", "### Step 3");
+  const bullet = bulletOf(step2.replace(/^\* /gm, "- "), "Skill Map drift");
+  assert.match(bullet, /has packaged skills/);
+  assert.match(bullet, /no packaged skill[^.]*is not drift/i);
+  assert.match(bullet, /stack-detection\.md` is absent[^.]*unevaluated/i);
+  assert.match(bullet, /not read[^.]*not evaluated|not evaluated[^.]*not read/i);
+});
