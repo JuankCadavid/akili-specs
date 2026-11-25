@@ -247,7 +247,7 @@ Extend the reader test.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | T3, T6 |
 | Requirements | FR-5 *Stack-aware review* (all clauses), *Security reconnaissance* (all clauses) |

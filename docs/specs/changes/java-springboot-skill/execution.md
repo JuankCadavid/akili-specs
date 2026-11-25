@@ -194,3 +194,31 @@
 | Implementer assumptions (verbatim) | "Specify's 'not read' outcome is 'treated as no match, line noted'. The spec does not say what to do there, so this is my reading." "Propose's greenfield case never records the PRD stack as detected." Leader: accepted |
 | spawns | Implementer 16 calls, 206,875 tokens (two turns), ended complete; Reviewer a1 6 calls, 88,264 tokens, ended complete (FAIL); Reviewer a2 7 calls, 87,288 tokens, ended complete |
 | Running totals | tasks 7/10 · LOC about 1,380 · review rounds 11/20 (T7 review pending) |
+
+### T7: Review and security sites S7–S8, PASS on attempt 2 (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-5 *Stack-aware review*, *Security reconnaissance* (J-2 and J-6 amendments), FR-4 *Manifests are data* |
+| Attempts | 2 |
+| Files changed | `.claude/commands/akili-review.md` (Step 2 *Stack context*); `.claude/commands/akili-security.md` (Step 2 *Stack context*); `docs/commands/akili-review.md`; `docs/commands/akili-security.md`; `test/stack-detection-readers.test.js` (new, 14 tests) |
+| Skills / effort | `cognitive-doc-design`, `security-audit` (guidance) / attempt 1 `high`, attempt 2 `xhigh` |
+| Decisions | **Leader narrowed the test location:** `test/stack-detection-readers.test.js` instead of `test/stack-detection.test.js`, to avoid a conflict with parallel T5. Same assertions. The T7 Verification command as run was `node --test test/stack-detection-readers.test.js test/akili-review-command.test.js test/akili-security-command.test.js` |
+
+**Attempt 1: FAIL.**
+- *Red:* 8 failures incl. `'names the table'`.
+- *Falsifier:* `**base**` → `**head**` → `not ok 1 … names the table and the base tree`.
+- *Verification:* 134 / 0. *Evidence re-run:* VERIFIED (134 / 0).
+- *Reviewer FAIL:* S7 did not say the named skills come from the installed package, never from the diff (FR-5 *Stack-aware review* AND, J-2). A PR adding its own skill in the head tree could have become an "idiom reference".
+
+**Attempt 2: PASS.**
+- *Fix:* "The skills named are read from the installed package (in CI, the installed copy in HOME), never from the diff or `head/`". [advisory-grade] S8 now carries the `not read:` line, and a Java build with no Spring marker is carried as "unconfirmed — no Spring marker found", never asked inside a delegated run. Advisory 3 (S7's no-row → no stack line) kept as defensible.
+- *Red:* `not ok 3 … S7 trust boundary …`, `not ok 10 … S8 states the not-read line and the unconfirmed Java outcome …` (12 / 2).
+- *Verification:* 136 / 0. *Evidence re-run:* VERIFIED (136 / 0).
+- *Reviewer:* **PASS** (opus). Addenda byte-unchanged; `.claude/skills` untouched.
+
+| Field | Value |
+|---|---|
+| ADVISORY (final) | (1) The `docs/commands/akili-review.md` one-liner omits the installed-package boundary. (2) Record the test-location narrowing (done above). (3) S8's absent-table sentence lacks "in the report" |
+| spawns | Implementer 12 calls, 202,028 tokens (two turns), ended complete; Reviewer a1 4 calls, 80,703 tokens, ended complete (FAIL); Reviewer a2 4 calls, 77,296 tokens, ended complete |
+| Running totals | tasks 8/10 · LOC 1,141 (`git diff --shortstat cb2416e` excluding spec docs and vendored bytes, plus T7) · review rounds 13/20 |
