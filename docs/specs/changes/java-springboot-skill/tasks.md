@@ -336,7 +336,7 @@ Extend the reader test.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | L |
 | Dependencies | T1–T9 |
 | Requirements | FR-9, FR-3 BUT (load-direct sweep), FR-5 *The set is checked* (test), NFR-3, NFR-4, NFR-5; the walkthrough defect class |

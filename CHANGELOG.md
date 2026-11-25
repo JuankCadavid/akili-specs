@@ -9,11 +9,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 ### Added
 
 - **`java-springboot` is a new stack skill (minor).** Vendored from `github/awesome-copilot` (MIT, copyright GitHub, Inc.) at pin `93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf`; AKILI adds frontmatter lines only. It covers application code in Spring Boot 3/4 projects (upstream tested on Boot 4.1.1 and 3.5.16). Its page, [docs/skills/java-springboot.md](docs/skills/java-springboot.md), records the security ratings as fetched and the seven optional upstream sibling skills, which AKILI never vendors or installs.
-- **One stack-detection table, read by six commands.** `.claude/skills/software-architect/references/stack-detection.md` holds the manifest rows and markers once. `/akili-constitution` (Steps 5, 8D and the run contract), `/akili-specify`, `/akili-propose`, `/akili-audit`, `/akili-review` and `/akili-security` read it by path instead of keeping their own lists. A Java or Kotlin build file without a Spring Boot marker gets no packaged skill, and the step asks you before recording that.
+- **One stack-detection table, read by six commands.** `.claude/skills/software-architect/references/stack-detection.md` holds the manifest rows and markers once. `/akili-constitution` (Steps 5, 8D and the run contract), `/akili-specify`, `/akili-propose`, `/akili-audit`, `/akili-review` and `/akili-security` read it by path instead of keeping their own manifest and marker lists. A Java or Kotlin build file without a Spring Boot marker gets no packaged skill, and the step asks you before recording that.
 - **A skills-by-stack page.** [docs/skills/by-stack.md](docs/skills/by-stack.md) lists the skills for each language and framework, how each is detected, and the stacks with no packaged skill. A test checks it against the `stack` row of `docs/skills/governance.md`.
 
 ### Changed
 
+- **`akili-panel` is 1.1.3.** `SKILL_CATALOG` in `flow.mjs` gains `java-springboot` (stack), so the pane's `Skills` list matches the shipped set. The plugin version moves from `1.1.2` to `1.1.3` so marketplace installs pick up the change.
 - **`pr-review` is 1.1.0.** Its sensitive-path globs now include Infrastructure-as-code files and version catalogs (`gradle/libs.versions.toml`), so changes to them are risk-tiered.
 
 ### Notes

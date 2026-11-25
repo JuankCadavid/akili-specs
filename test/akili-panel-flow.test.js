@@ -1433,7 +1433,7 @@ const LONG_MODEL = 'claude-an-extraordinarily-long-model-identifier-for-the-narr
 const SKILL_NAMES = {
   core: ['brainstorming', 'caveman', 'cognitive-doc-design', 'judgment-day', 'kaizen', 'pr-review', 'product-manager-toolkit', 'security-audit', 'seo-audit', 'social-marketing', 'software-architect', 'systematic-debugging'],
   conditional: ['ai-agent-development', 'diagram-design', 'frontend-design', 'gsap-animation', 'impeccable', 'impeccable-bridge', 'stitch-design', 'tdd', 'ui-ux-pro-max', 'video-production'],
-  stack: ['angular-developer', 'api-design-principles', 'aws-serverless', 'error-handling-patterns', 'golang-pro', 'nestjs', 'nestjs-auth', 'nestjs-data', 'nestjs-feature', 'nestjs-production', 'nestjs-testing', 'react-doctor', 'shadcn-ui', 'tailwind-design-system', 'vercel-react-best-practices'],
+  stack: ['angular-developer', 'api-design-principles', 'aws-serverless', 'error-handling-patterns', 'golang-pro', 'java-springboot', 'nestjs', 'nestjs-auth', 'nestjs-data', 'nestjs-feature', 'nestjs-production', 'nestjs-testing', 'react-doctor', 'shadcn-ui', 'tailwind-design-system', 'vercel-react-best-practices'],
 };
 const ALL_NAMES = [...SKILL_NAMES.core, ...SKILL_NAMES.conditional, ...SKILL_NAMES.stack];
 const HOST_ALL = { model: OPUS, skills: ALL_NAMES };
@@ -1488,7 +1488,7 @@ test('FR-2 Closed: Skills (<n>) ▸ after Next, behind its own rule, <n> countin
   assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (3) ▸');
   assert.deepEqual(ids(rows).slice(ids(rows).indexOf('next')), ['next', 'rule-skills', 'skills']);
   assert.deepEqual(rowOf(rows, 'rule-skills').parts, [{ text: '─'.repeat(200), tone: 'subtle' }]);
-  assert.equal(textOf(rowOf(await skillPane(), 'skills')), 'Skills (37) ▸');
+  assert.equal(textOf(rowOf(await skillPane(), 'skills')), 'Skills (38) ▸');
 });
 
 test('FR-2 Closed BUT no skill before the press: no group row, no skill row, no skill name', async () => {
@@ -1504,10 +1504,10 @@ test('FR-2 Closed even when a group was left set: the section closed shows nothi
 
 test('FR-2 Open and close: open reads ▾ with the group rows, each closed; closed reads ▸ again', async () => {
   const open = await skillPane({ skillsUi: OPEN() });
-  assert.equal(textOf(rowOf(open, 'skills')), 'Skills (37) ▾');
+  assert.equal(textOf(rowOf(open, 'skills')), 'Skills (38) ▾');
   assert.deepEqual(ids(open).filter((id) => id.startsWith('skills-group')), ['skills-group-core', 'skills-group-conditional', 'skills-group-stack']);
-  assert.deepEqual(['core', 'conditional', 'stack'].map((b) => textOf(rowOf(open, `skills-group-${b}`))), ['  core (12) ▸', '  conditional (10) ▸', '  stack (15) ▸']);
-  assert.equal(textOf(rowOf(await skillPane({ skillsUi: CLOSED }), 'skills')), 'Skills (37) ▸');
+  assert.deepEqual(['core', 'conditional', 'stack'].map((b) => textOf(rowOf(open, `skills-group-${b}`))), ['  core (12) ▸', '  conditional (10) ▸', '  stack (16) ▸']);
+  assert.equal(textOf(rowOf(await skillPane({ skillsUi: CLOSED }), 'skills')), 'Skills (38) ▸');
 });
 
 test('FR-2 Nothing listed: no Skills row and no rule when none is runnable or the list is unknown', async () => {
@@ -1599,7 +1599,7 @@ test('FR-4 press fields: Skills, a group and a skill carry what register maps to
 
 test('FR-5 Not installed here: kaizen missing from the list is not listed and not counted', async () => {
   const rows = await skillPane({ host: { model: OPUS, skills: ALL_NAMES.filter((n) => n !== 'kaizen') }, skillsUi: OPEN('core') });
-  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (36) ▾');
+  assert.equal(textOf(rowOf(rows, 'skills')), 'Skills (37) ▾');
   assert.equal(textOf(rowOf(rows, 'skills-group-core')), '  core (11) ▾');
   assert.equal(rowOf(rows, 'skill-kaizen'), undefined);
 });
@@ -1747,9 +1747,9 @@ test('FR-8 omitting host and skillsUi (the 1.0.0 call) draws no Skills section a
 
 test('NFR-1 marks carry the state without colour: the glyph is in the text and the tones are theme keys only', async () => {
   const rows = await skillPane({ skillsUi: OPEN('core') });
-  assert.deepEqual(rowOf(rows, 'skills').parts, [{ text: 'Skills (37) ' }, { text: '▾', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skills').parts, [{ text: 'Skills (38) ' }, { text: '▾', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skills-group-core').parts, [{ text: '  core (12) ' }, { text: '▾', tone: 'inactive' }]);
-  assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (15) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
+  assert.deepEqual(rowOf(rows, 'skills-group-stack').parts, [{ text: '  stack (16) ', tone: 'inactive' }, { text: '▸', tone: 'inactive' }]);
   assert.deepEqual(rowOf(rows, 'skill-caveman').parts, [{ text: '    caveman' }]);
 });
 

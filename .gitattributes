@@ -34,7 +34,7 @@ assets/akili-flow-animated.svg -text
 # byte-exact and every committed byte stays intact on Windows CI.
 .claude/skills/golang-pro/** -text
 
-# changes/java-springboot-skill T2, FR-2 / NFR-3 Cross-platform.
+# changes/java-springboot-skill T2, FR-2 Cross-platform.
 #
 # The vendored java-springboot tree is hash-locked by
 # test/java-springboot-skill.test.js (git blob SHAs of the pinned upstream

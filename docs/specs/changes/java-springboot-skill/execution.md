@@ -259,3 +259,48 @@
 | ADVISORY | (1) The duplicate assertion in the exactness test is tautological. (2) Skills named in plain backticks inside a stack section escape the check. (3) `java-springboot.md` quotes `Java - no packaged skill` with a hyphen; the table uses an em dash. (4) CHANGELOG "instead of keeping their own lists" overstates (the pools remain by DD-9): "their own manifest and marker lists". Leader: (1), (3) and (4) are carried into T10 as [advisory-grade], since T10 edits the same test file and CHANGELOG; (2) is recorded only |
 | spawns | Implementer 19 calls, 109,806 tokens, ended complete; Reviewer 12 calls, 96,565 tokens, ended complete |
 | Running totals | tasks 9/10 · LOC about 1,390 · review rounds 15/20 |
+
+### T3 (reopened): attempt 2, catalog-alias gap found by the T10 walkthrough, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Trigger | The T10 walkthrough (requirements §8 substitute gate) found that a Gradle module declaring Spring Boot through `alias(libs.plugins.spring.boot)` could be reported twice: as Java / Spring Boot through its catalog, and as `Java — no packaged skill` (ask the user) through its build file |
+| Attempt | 2 of 3 (effort `high`) |
+| Files changed | `.claude/skills/software-architect/references/stack-detection.md` (*Outcomes*: "A catalog match covers its build file"; the ask rule now reads "no Spring marker in the file **or** in its catalog"; `requirements.txt` added to the no-row examples; `<stack> — no packaged skill` stated as the short form of the report line); `test/stack-detection.test.js` (2 assertions) |
+| Red run (observed) | `not ok 7` (catalog covers build file), `not ok 8` (`requirements.txt` + short form) (33 / 2) |
+| Falsifier (executed) | New bullet removed → `not ok … a catalog match covers its sibling Gradle build file`; restored |
+| Verification | `stack-detection`, `stack-detection-readers`, `pr-review-scripts` → 224 / 0. Readers grep for `no packaged skill`: consistent; no reader edited |
+| Evidence re-run | **VERIFIED** inside the T10 full-gate re-run below |
+| Reviewer | **PASS** (opus). FR-4 *Java without Spring Boot* and *Several manifests* not contradicted |
+| ADVISORY | (1) A root catalog shared by several modules can yield identical lines (cosmetic). (2) "the module's own `gradle/` directory" holds only for an included build; "of the same Gradle build" already narrows it. (3) The pre-existing CDK note omits the ask-first rule; *Outcomes* governs |
+| spawns | Implementer 7 calls, 75,503 tokens, ended complete; Reviewer 2 calls, 68,486 tokens, ended complete |
+
+### T10: Count sweep, panel catalog, contract tests, full verification, walkthrough, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-9, FR-3 BUT (load-direct sweep), FR-5 *The set is checked*, NFR-3, NFR-4, NFR-5; the §8 walkthrough defect class |
+| Attempts | 1 |
+| Files changed | Panel: `.claude/skills/akili-panel/hooks/flow.mjs` (`SKILL_CATALOG` + `java-springboot`, `stack`), `.claude-plugin/plugin.json` and `README.md` (`1.1.3`). Counts: `docs/cli.md` (4 lines, 38), `.gitattributes` (comment traces FR-2 only), `test/akili-marketing-docs.test.js`, `test/akili-panel-cli-coverage.test.js`, `test/akili-panel-flow.test.js` (Skills 38, stack 16, `SKILL_NAMES.stack`), `test/diagram-design.test.js`, `test/install-akili-panel.test.js`, `test/install-cursor.test.js` (`SKILL_FILE_EXPECTED` +9, 51 → 52), `test/fixtures/doctor-codex-baseline.txt` (`OK java-springboot`, ok 59 → 60). `CHANGELOG.md` (panel 1.1.3 line; "manifest and marker lists"). `docs/skills/java-springboot.md` (em dash). Tests: `test/stack-detection-readers.test.js` (+4 contract tests), `test/stack-detection.test.js` (duplicate assert fixed) |
+| Skills / effort | none extra / `high` |
+| Red run (observed) | Before fixes: `akili-panel-catalog` 2, `akili-panel-cli-coverage` 8, `docs-overview` 1, `install-akili-panel` 31, `install-cursor` 2, `install-grokbot` 1 (reconciles with the T2 interim list; T9 cleared 2 docs-overview reds) |
+| Falsifier (executed) | One `37` left in `install-akili-panel` → 14 / 29. `SKILL_CATALOG` entry removed → `akili-panel-catalog` `not ok 1`, `not ok 3`. Restored → 49 / 49 |
+| Sweep | Two misses caught by the first full run and fixed (a 37+1 hybrid count → 39; a 37−1 count → 37). Remaining `37` hits are version strings, a "37 columns" width, and `Skills (37)` = 38 minus `kaizen`. `golang-pro` enumerators: only `install-cursor` and the codex doctor baseline, both updated |
+| Install / doctor (FR-9) | Temp HOME, explicit `node bin/akili.js`: `install --tool all --dry-run` plans `java-springboot` for claude, opencode, antigravity (3 paths), codex and cursor; `--tool grokbot --dry-run` plans it too. After a real install, `doctor --tool all` → `OK java-springboot` on all 5, all HEALTHY (ok 61/60/60/60/60). `git diff --stat cb2416e -- bin/` empty |
+| Gates (Implementer) | `npm test` 2290 / 0; `npm run verify:cli` 0; `npm run pack:dry-run` 0 (485 files; 8 `java-springboot` + `stack-detection.md`); `git diff --check` clean |
+| Evidence re-run | **VERIFIED**. Leader inline, after T3 attempt 2: `npm test` **2292 / 0** (exit 0); `verify:cli` 0; pack lists the new files (10 matching lines); `git diff --check` clean; `bin/` diff empty |
+| Reviewer | **PASS** (opus). Every count reader is correct; the fixture is byte-correct; the panel pins and CHANGELOG line are true; the load-direct test is real (exactly 4 allowed hits) |
+| ADVISORY | (1) The NFR-4 guard matches the literal path only; a `path.join` read would pass. NFR-4 holds today by grep. (2) Leader narrowing recorded: the no-spec-path test is scoped to this spec's folder, because 9 older tests hold `docs/specs/changes/...` strings as synthetic fixtures. (3) The FR-9 marker test spot-checks 2 of the markers by name |
+| spawns | Implementer 26 calls, 115,625 tokens, ended complete; Reviewer 8 calls, 86,687 tokens, ended complete |
+
+**Walkthrough (requirements §8 substitute gate).** Fixtures live in `scratchpad/walk.eXf1/{mono,quarkus,cdk}`. The Implementer wrote the expected lines before walking the table by hand. Fixture 3 is held out: the text does not cite it.
+
+| Fixture | Expected (written first) | Actual (table walked) |
+|---|---|---|
+| 1. Monorepo: `api/build.gradle.kts` with `alias(libs.plugins.spring.boot)`, `api/gradle/libs.versions.toml` with `id = "org.springframework.boot"`, `web/package.json` with `@angular/core` | `Java / Spring Boot (api/gradle/libs.versions.toml) → java-springboot`; `Angular (web/package.json) → angular-developer` | Same lines. **Ambiguity found:** the build file could also read as markerless → ask. Fixed by T3 attempt 2 ("A catalog match covers its build file") |
+| 2. Quarkus `pom.xml` (`io.quarkus`, no Spring) | `Java — no packaged skill`, after asking the user | Same: no Spring marker, ask the user, never routes `java-springboot` |
+| 3. Python CDK app (held out): `cdk.json`, `requirements.txt` with `aws-cdk-lib` | `AWS serverless: CDK (cdk.json) → aws-serverless`; `Python (requirements.txt) — no packaged skill` | Same. **Ambiguities found:** two no-row line forms; `requirements.txt` not among the no-row examples. Both fixed by T3 attempt 2 |
+
+JC's human check of this walkthrough is deferred to the end of execution (mandate: no stop).
+
+**Running totals (final):** tasks 10/10 · LOC **1,376** changed (`git diff --shortstat cb2416e` excluding spec docs and vendored bytes: 1,292 +, 84 −), against a budget of about 1,560 · review rounds **17/20**. The tripwire did not fire.

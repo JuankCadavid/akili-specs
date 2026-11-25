@@ -124,3 +124,47 @@ test(`${P} the verbatim brief addenda are byte-unchanged vs HEAD`, () => {
 test(`${P} docs mention the stack context`, () => {
   for (const n of ["review", "security"]) assert.match(read("docs", "commands", `akili-${n}.md`), /stack-detection|stack context/i, n);
 });
+
+const P9 = "@akili-spec changes/java-springboot-skill FR-9:";
+const COMMANDS = () => fs.readdirSync(path.join(ROOT, ".claude", "commands")).filter((f) => f.endsWith(".md")).sort();
+
+test(`${P9} every reader site S1-S8 names stack-detection.md`, () => {
+  for (const n of ["constitution", "specify", "propose", "audit", "review", "security"]) {
+    assert.ok(CMD(n).includes("stack-detection.md"), `akili-${n} does not name stack-detection.md`);
+  }
+});
+
+test(`${P9} no command under .claude/commands restates a table marker`, () => {
+  const markers = forbiddenMarkers();
+  assert.ok(markers.has("@nestjs/core") && markers.has("org.springframework.boot"), "marker set derived from the table");
+  for (const f of COMMANDS()) {
+    const s = read(".claude", "commands", f);
+    for (const m of markers) assert.ok(!s.includes(m), `${f} restates marker: ${m}`);
+  }
+});
+
+test(`${P9} no command load-directs java-springboot outside the stack pools`, () => {
+  const hits = [];
+  for (const f of COMMANDS()) {
+    read(".claude", "commands", f).split("\n").forEach((line, i) => {
+      if (line.includes("java-springboot")) hits.push({ f, i: i + 1, line });
+    });
+  }
+  const poolItem = (h) => h.line === "- `java-springboot`" && (h.f === "akili-constitution.md" || h.f === "akili-specify.md");
+  const candidates = (h) => h.f === "akili-constitution.md" && /Candidates shipped with AKILI:/.test(h.line);
+  const negation = (h) => h.f === "akili-security.md" && /never routes `java-springboot`/.test(h.line);
+  for (const h of hits) assert.ok(poolItem(h) || candidates(h) || negation(h), `${h.f}:${h.i} names java-springboot outside the pools`);
+  assert.equal(hits.filter(poolItem).length, 2, "Step 5 list and Specify Step 2.1 list");
+  assert.equal(hits.filter(candidates).length, 1, "Step 8D candidates");
+  assert.equal(hits.length, 4, `unexpected java-springboot hits: ${hits.map((h) => h.f + ":" + h.i).join(", ")}`);
+});
+
+test(`${P9} no test file reads this spec's folder under docs/specs/changes/`, () => {
+  // Older tests carry docs/specs/changes/ paths as synthetic fixtures, so the guard is scoped to this spec's folder.
+  const needle = ["docs", "specs", "changes", "java-springboot-skill"].join("/");
+  for (const f of fs.readdirSync(__dirname).filter((n) => n.endsWith(".js"))) {
+    const src = fs.readFileSync(path.join(__dirname, f), "utf8");
+    const lines = src.split("\n").filter((l) => l.includes(needle) && !/^\s*(\/\/|\*)/.test(l) && !/join\(\"\/\"\)/.test(l));
+    assert.deepEqual(lines, [], `${f} reads ${needle}`);
+  }
+});

@@ -83,6 +83,21 @@ test("@akili-spec changes/java-springboot-skill FR-4: no-match outcomes and the 
   assert.ok(out.includes("`<stack> (<manifest path>) → <skills | no packaged skill>`"));
 });
 
+test("@akili-spec changes/java-springboot-skill FR-4: a catalog match covers its sibling Gradle build file (alias rule), reported once", () => {
+  const out = section(table(), "Outcomes");
+  assert.ok(out.includes("A catalog match covers its build file"));
+  assert.ok(out.includes("gradle/libs.versions.toml"));
+  assert.ok(out.includes("alias(libs.plugins."));
+  assert.match(out, /reported once, citing the catalog path/);
+  assert.match(out, /no Spring marker in the file \*\*or\*\* in its catalog/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-4: requirements.txt is a no-row example and the short form is tied to the report line", () => {
+  const out = section(table(), "Outcomes");
+  assert.ok(out.includes("`requirements.txt`"));
+  assert.ok(out.includes("is the short form of that line"));
+});
+
 test("@akili-spec changes/java-springboot-skill FR-4: read rules carry the git carve-out, the no-git rule, caps and modes", () => {
   const r = section(table(), "Read rules");
   assert.ok(r.includes("git show <base>:"), "git show carve-out");
@@ -335,7 +350,7 @@ test("@akili-spec changes/java-springboot-skill FR-7: by-stack skills in stack s
   assert.ok(any, "## Any stack present");
   const anyStack = linkedSkills(any.body).filter((n) => ["api-design-principles", "error-handling-patterns"].includes(n));
   assert.deepEqual([...new Set([...fromSections, ...anyStack])].sort(), [...governanceStack()].sort());
-  assert.equal(new Set(fromSections).size, fromSections.filter((n, i, a) => a.indexOf(n) === i).length);
+  assert.equal(new Set(fromSections).size, fromSections.length);
 });
 
 test("@akili-spec changes/java-springboot-skill FR-7: each stack section matches a table stack group, in the table's order, with one aws-serverless section", () => {

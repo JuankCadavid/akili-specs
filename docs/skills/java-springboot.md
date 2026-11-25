@@ -22,7 +22,7 @@ Guides application code in an existing Spring Boot 3/4 project: controllers, val
 AKILI routes to this skill only when a build file carries a Spring Boot marker. The markers, the manifests they sit in, and the read rules are in `../../.claude/skills/software-architect/references/stack-detection.md`, which is the one place that defines them.
 
 - A plain Java or Kotlin project with no Spring marker gets no packaged skill. The step asks the user before recording that, because a marker can sit in a `buildSrc` or convention plugin the table does not read.
-- A Java CDK app with no Spring marker reports `Java - no packaged skill` plus the AWS serverless: CDK row.
+- A Java CDK app with no Spring marker reports `Java — no packaged skill` plus the AWS serverless: CDK row.
 
 ## Best Paired Commands
 

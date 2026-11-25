@@ -52,9 +52,10 @@ Stated once; no reader restates them.
 ## Outcomes
 
 - Every matching row applies, each reported with its manifest path.
-- A Java or Kotlin build file with no Spring marker reports `Java — no packaged skill`, but the step must ask the user before recording `Java — no packaged skill`, because a marker can sit in a `buildSrc` or convention plugin the table does not read. It never routes `java-springboot`; the result falls through to `other` in backend routing.
-- A manifest that matches no row (`pyproject.toml`, `Cargo.toml`, …) reports `<stack> — no packaged skill` and keeps scan evidence and project conventions (`other` in backend routing).
-- The report line is `<stack> (<manifest path>) → <skills | no packaged skill>`.
+- **A catalog match covers its build file.** A Gradle build file counts as marked when the version catalog of the same Gradle build (its `gradle/libs.versions.toml`, at the build root or in the module's own `gradle/` directory) carries a marker and the build file references that catalog entry by alias (`alias(libs.plugins.…)`, or a `libs.…` dependency). That module is reported once, citing the catalog path, for example `Java / Spring Boot (api/gradle/libs.versions.toml) → java-springboot`; its build file is never also reported as a Java file with no marker.
+- A Java or Kotlin build file with no Spring marker in the file **or** in its catalog reports `Java — no packaged skill`, but the step must ask the user before recording `Java — no packaged skill`, because a marker can sit in a `buildSrc` or convention plugin the table does not read. It never routes `java-springboot`; the result falls through to `other` in backend routing.
+- A manifest that matches no row (`pyproject.toml`, `requirements.txt`, `Cargo.toml`, …) reports `<stack> — no packaged skill` and keeps scan evidence and project conventions (`other` in backend routing).
+- The report line is `<stack> (<manifest path>) → <skills | no packaged skill>`. `<stack> — no packaged skill` is the short form of that line for a no-row result, the same rule with the manifest path left out; a step that records the path writes `<stack> (<manifest path>) → no packaged skill`.
 
 ## Readers
 
