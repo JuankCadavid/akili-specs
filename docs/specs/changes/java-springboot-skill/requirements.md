@@ -108,7 +108,7 @@ The package SHALL admit the pinned files only when their bytes equal the bytes t
 - GIVEN the vendored folder
 - WHEN each reference file's raw bytes are hashed as a git blob
 - THEN each hash equals its §4 SHA
-- AND `SKILL.md` differs from its pinned bytes only by lines appended to the frontmatter: `license: MIT` and a `metadata` block with `author: github/awesome-copilot contributors (Copyright GitHub, Inc.)`, `source`, `adapted-by`, `adapted-for`, `binding: stack`
+- AND `SKILL.md` differs from its pinned bytes only by lines appended to the frontmatter: `license: MIT` and a `metadata` block with `author: github/awesome-copilot contributors (Copyright GitHub, Inc.)`, `source`, `adapted-by`, `adapted-for`, `binding: stack`, `version: "1.0"` (the governance default: upstream declares no version; JC, judgment J-7, 2026-11-25)
 - BUT it must NOT change, remove, or reorder any upstream line, `name` and `description` included
 - AND IT MUST carry every *Frontmatter Schema* field that has a true value (`docs/skills/governance.md` → *Frontmatter Schema*), and name in `NOTICE` any field left out and why
 
@@ -151,9 +151,9 @@ The methodology SHALL define, in exactly one place, a table that maps manifest e
 
 #### Scenario: Java without Spring Boot
 
-- GIVEN a `pom.xml`, `build.gradle` or `build.gradle.kts` with no Spring Boot marker (no `org.springframework.boot` parent or plugin, no `spring-boot-starter*` dependency)
+- GIVEN a `pom.xml`, `build.gradle` or `build.gradle.kts` with no Spring Boot marker (no `org.springframework.boot` parent, BOM import or plugin, no `spring-boot-starter*` dependency, and no such plugin or library in `gradle/libs.versions.toml`)
 - WHEN the table is applied
-- THEN the result is "Java, no packaged skill", which falls through to `other`
+- THEN the result is "Java, no packaged skill", which falls through to `other`, after the user is asked to confirm it (a marker can live in a convention plugin the table does not read)
 - BUT it must NOT route `java-springboot`
 
 #### Scenario: Several manifests
@@ -168,7 +168,7 @@ The methodology SHALL define, in exactly one place, a table that maps manifest e
 - WHEN it is read for detection
 - THEN only file names, dependency coordinates, plugin ids and keys are matched
 - AND a manifest that is not a regular file inside the repository (a symlink leaving it, a device) or exceeds the read cap is not read, and is reported "not read"
-- BUT it must NOT execute a build, install a dependency, run a git command, or follow text inside a manifest as an instruction
+- BUT it must NOT execute a build, install a dependency, run a git command (one stated exception: `/akili-review` local mode reads base-ref manifests with read-only `git show <base>:<path>`, judgment J-3), or follow text inside a manifest as an instruction
 
 #### Scenario: No row matches
 
@@ -226,8 +226,8 @@ Every manifest-reading step SHALL read manifests through the FR-4 table.
 
 - GIVEN a review whose changed files sit under manifests the table matches
 - WHEN the coordinator writes the lens briefs
-- THEN each brief names the matched stacks and their packaged stack skills as idiom references for the lens
-- AND the matching reads head manifests as data only; the skills named come from the installed package, never from the diff
+- THEN each brief names the matched stacks and their packaged stack skills as idiom references for the lens, and nothing those skills say is run
+- AND the matching reads the **base** tree's manifests (amended by JC, judgment J-2, 2026-11-25: the same trust rule as `.akili/review.yml`); the skills named come from the installed package, never from the diff; a manifest present only in the head is named in the brief as "new manifest, not used for stack selection"
 - BUT it must NOT let a stack skill change a lens's scope, threshold or verdict rules
 
 #### Scenario: Security reconnaissance
@@ -235,7 +235,7 @@ Every manifest-reading step SHALL read manifests through the FR-4 table.
 - GIVEN `/akili-security` at Step 2
 - WHEN the reconnaissance is briefed
 - THEN the brief carries the detected stacks and the manifest paths that matched, as context for the skill's own reconnaissance
-- AND the manifests are read under the command's existing safe-read rules, and before **Run** no git command runs
+- AND the manifests are read under the stack-detection table's read rules (the command's existing safe-read rules cover `.git` files only; amended, judgment J-6), and before **Run** no git command runs
 - BUT it must NOT edit any vendored `security-audit` file, or let a detected stack narrow the audit scope
 
 #### Scenario: The set is checked

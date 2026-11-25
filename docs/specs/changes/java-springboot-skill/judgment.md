@@ -6,7 +6,7 @@
 | Round | 1 (blind dual review) |
 | Judges | A and B, both `general-purpose` on Sonnet (the author ran on Opus 5.5), read-only, same prompt and scope |
 | Skill resolution | `judgment-day` (installed copy); the shared ledger contract and prompt references are not packaged, so this file is the ledger |
-| Status | **awaiting JC**: confirmed severe findings need approval before the round-one fix; two severity splits and one contradiction need a human decision |
+| Status | **fixed, not re-judged**. Fixed IDs: J-1 … J-24 (JC, 2026-11-25) |
 
 ## Counts
 
@@ -71,4 +71,8 @@
 
 | Round | Result |
 |---|---|
-| 1 | 4 confirmed severe, 2 splits, 1 contradiction. Fix not started: waiting for JC's approval and decisions on J-2, J-5, J-6, J-7 |
+| 1 | 4 confirmed severe, 2 splits, 1 contradiction |
+| JC decisions (2026-11-25) | J-2: base tree, amend FR-5. J-5 and J-6: treat as severe and fix. J-7: add `version: "1.0"`. Fix round: apply J-1 … J-24 together, no re-judgment, close as fixed, not re-judged |
+| Fix | `requirements.md` FR-2, FR-4 (BUT carve-out, version-catalog marker, ask-user fallback) and FR-5 (base tree, references-only, read rules) amended. `design.md` revised: §4, §5, §7, §8, §9, §10 (DD-3 reversed; DD-11 and DD-12 added), §11 (P-1, P-2, P-6, P-9, P-11, P-12 and P-15 corrected; P-16 to P-18 added), §12 added |
+
+**Closure:** fixed, not re-judged. Fixed IDs: J-1, J-2, J-3, J-4, J-5, J-6, J-7, J-8, J-9, J-10, J-11, J-12, J-13, J-14, J-15, J-16, J-17, J-18, J-19, J-20, J-21, J-22, J-23, J-24.
