@@ -53,7 +53,7 @@
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | S |
 | Dependencies | none |
 | Requirements | FR-1 (both scenarios, all clauses) |
