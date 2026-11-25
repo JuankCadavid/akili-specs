@@ -69,6 +69,10 @@ const path = require("path");
 const os = require("os");
 const crypto = require("crypto");
 const { spawnSync } = require("child_process");
+// bin/skill-map.js is pure (no CLI side effect), unlike bin/akili.js, so the
+// retired-skill table is read from it rather than mirrored here.
+const { RETIRED_SKILLS } = require("../../bin/skill-map.js");
+const RETIRED_NAMES = new Set(RETIRED_SKILLS.map((r) => r.name));
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const BIN = path.join(REPO_ROOT, "bin", "akili.js");
@@ -366,7 +370,21 @@ function classifyToolDiff(tool, tmpRootB, snapA, snapB) {
     }
   }
 
-  return { presenceOnlyA, presenceOnlyB: stillPresenceOnlyB, expected, unresolved };
+  // A path only in side A that sits in a retired skill's folder is a deliberate
+  // removal (RETIRED_SKILLS names it and the source no longer ships it), not an
+  // installer regression. Anything else only in side A still fails.
+  const removed = [];
+  const stillPresenceOnlyA = [];
+  for (const relPath of presenceOnlyA) {
+    const m = /(?:^|\/)skills\/([^/]+)\//.exec(relPath);
+    if (m && RETIRED_NAMES.has(m[1]) && !fs.existsSync(path.join(SOURCE_CLAUDE, "skills", m[1]))) {
+      removed.push(relPath);
+    } else {
+      stillPresenceOnlyA.push(relPath);
+    }
+  }
+
+  return { presenceOnlyA: stillPresenceOnlyA, presenceOnlyB: stillPresenceOnlyB, expected, removed, unresolved };
 }
 
 function autoDetectedList(output) {
@@ -467,7 +485,7 @@ function runThreeTargetDiff() {
           continue;
         }
 
-        const { presenceOnlyA, presenceOnlyB, expected, unresolved } = classifyToolDiff(
+        const { presenceOnlyA, presenceOnlyB, expected, removed, unresolved } = classifyToolDiff(
           tool,
           tmpB,
           snapshotTree(tmpA),
@@ -477,6 +495,9 @@ function runThreeTargetDiff() {
         for (const p of expected) {
           console.log(`EXPECTED-DIFF ${tool} ${p} (source changed since ${PINNED_VERSION})`);
         }
+        for (const p of removed) {
+          console.log(`EXPECTED-REMOVAL ${tool} ${p} (retired skill, see bin/skill-map.js RETIRED_SKILLS)`);
+        }
 
         const hasFail = presenceOnlyA.length > 0 || presenceOnlyB.length > 0 || unresolved.length > 0;
         if (hasFail) {
@@ -485,10 +506,10 @@ function runThreeTargetDiff() {
           for (const p of presenceOnlyB) lines.push(`+ only in working tree side B (bin/akili.js): ${p}`);
           for (const u of unresolved) lines.push(`~ ${u.path}: ${u.reason}`);
           fail(`FAIL ${tool}:\n${lines.map((l) => "  " + l).join("\n")}`);
-        } else if (expected.length === 0) {
+        } else if (expected.length === 0 && removed.length === 0) {
           console.log(`IDENTICAL ${tool}`);
         } else {
-          console.log(`LAYOUT-IDENTICAL ${tool} (${expected.length} expected source diffs)`);
+          console.log(`LAYOUT-IDENTICAL ${tool} (${expected.length} expected source diffs, ${removed.length} retired-skill removals)`);
         }
       } finally {
         rmTmp(tmpA);

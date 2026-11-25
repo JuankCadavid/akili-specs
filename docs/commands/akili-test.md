@@ -67,7 +67,7 @@ The report includes:
 
 ## Skills Commonly Used
 
-- `nestjs-expert`
+- `nestjs-testing`
 - `systematic-debugging`
 - `vercel-react-best-practices`
 - `react-doctor`

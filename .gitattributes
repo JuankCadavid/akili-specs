@@ -33,3 +33,21 @@ assets/akili-flow-animated.svg -text
 # rewrote LF to CRLF would change every hash, so the tree is declared
 # byte-exact and every committed byte stays intact on Windows CI.
 .claude/skills/golang-pro/** -text
+
+# changes/nestjs-official-skills T2, FR-1 / NFR-3 Cross-platform.
+#
+# The six vendored official NestJS skills are hash-locked by UPSTREAM.md and
+# test/nestjs-vendor.test.js (sha256 over raw bytes). A Windows checkout that
+# rewrote LF to CRLF would change every hash, so each tree is declared
+# byte-exact.
+.claude/skills/nestjs/** -text
+.claude/skills/nestjs-feature/** -text
+.claude/skills/nestjs-auth/** -text
+.claude/skills/nestjs-data/** -text
+.claude/skills/nestjs-testing/** -text
+.claude/skills/nestjs-production/** -text
+
+# The vendored `impeccable.cmd` is CRLF by design (see above), so every line
+# would read as trailing whitespace to `git diff --check`. Exempt only that
+# file from whitespace checks; the bytes stay hash-locked in UPSTREAM.md.
+.claude/skills/impeccable/scripts/impeccable.cmd -text -whitespace

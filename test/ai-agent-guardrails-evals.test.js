@@ -193,9 +193,35 @@ test("FR-4 enforcement: the Verification Checklist row requires the agent artifa
   }
 });
 
+test("NestJS official skills FR-8: specify Step 2.1 fallback list holds nestjs-feature and no nestjs-expert", () => {
+  const lines = section(specifyText(), "#### Step 2.1 — Explore").split("\n");
+  const at = lines.findIndex((l) => l.includes("otherwise pick from:"));
+  assert.ok(at >= 0, "expected the 'otherwise pick from:' lead-in in Step 2.1");
+  const list = [];
+  for (const l of lines.slice(at + 1)) {
+    if (l.trim() === "") { if (list.length) break; continue; }
+    if (!l.startsWith("- `")) break;
+    list.push(l);
+  }
+  assert.ok(list.length >= 2, "expected a multi-item fallback list");
+  assert.ok(list.includes("- `nestjs-feature`"), `fallback list must name nestjs-feature: ${list.join(" | ")}`);
+  assert.ok(!list.some((l) => l.includes("nestjs-expert")), `fallback list must not name nestjs-expert: ${list.join(" | ")}`);
+});
+
+test("NestJS official skills FR-8: constitution Step 5 and Step 8D name the same six NestJS skills", () => {
+  const text = read(path.join(COMMANDS, "akili-constitution.md"));
+  const six = ["nestjs-feature", "nestjs", "nestjs-auth", "nestjs-data", "nestjs-production", "nestjs-testing"];
+  const step5 = text.split("\n").filter((l) => /^- `nestjs[a-z-]*`$/.test(l.trim())).map((l) => l.trim().slice(3, -1));
+  assert.deepStrictEqual(step5, six, "Step 5 list must be the six, in order");
+  const pool = text.split("\n").filter((l) => l.includes("Candidates shipped with AKILI"));
+  assert.equal(pool.length, 1, "expected one Step 8D pool line");
+  assert.deepStrictEqual(pool[0].match(/`nestjs[a-z-]*`/g).map((m) => m.slice(1, -1)), six, "Step 8D pool must be the six, in order");
+  assert.ok(!text.includes("nestjs-expert"), "no nestjs-expert left");
+});
+
 test("FR-4 / DD-9: specify Step 2.1 fallback stack-skill list does not name ai-agent-development", () => {
   const sec = section(specifyText(), "#### Step 2.1 — Explore");
-  const idx = sec.split("\n").findIndex((l) => l.trim() === "- `nestjs-expert`");
+  const idx = sec.split("\n").findIndex((l) => l.trim() === "- `nestjs-feature`");
   assert.ok(idx >= 0, "expected the fallback list in Step 2.1");
   const list = [];
   for (const l of sec.split("\n").slice(idx)) {

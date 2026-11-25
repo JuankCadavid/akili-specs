@@ -108,10 +108,10 @@ function findNamed(root, name) {
   return out.sort();
 }
 
-// Disqualifier guard: the skills dir exists and holds the 32 skills before
+// Disqualifier guard: the skills dir exists and holds the 37 skills before
 // "akili-panel is absent" means anything.
 function assertSkillsInstalled(home, dirs, label) {
-  assert.equal(SKILLS.length, 32, "the packaged skill set is 32 (a literal, FR-13)");
+  assert.equal(SKILLS.length, 37, "the packaged skill set is 37 (a literal, FR-13)");
   for (const rel of dirs) {
     const dir = path.join(home, rel);
     assert.ok(fs.existsSync(dir), `${label}: skills dir ${dir} must exist`);
@@ -120,7 +120,7 @@ function assertSkillsInstalled(home, dirs, label) {
       .filter((e) => e.isDirectory() && SKILLS.includes(e.name))
       .map((e) => e.name)
       .sort();
-    assert.deepEqual(present, SKILLS, `${label}: ${dir} must hold all 32 skills`);
+    assert.deepEqual(present, SKILLS, `${label}: ${dir} must hold all 37 skills`);
   }
 }
 
@@ -143,7 +143,7 @@ const readRecord = (home) => JSON.parse(fs.readFileSync(path.join(home, RECORD_R
 
 // ---------------------------------------------------------------- FR-1 Claude
 
-test("FR-1 Claude install: plugin lands under ~/.claude/skills byte for byte, beside the 32 skills", (t) => {
+test("FR-1 Claude install: plugin lands under ~/.claude/skills byte for byte, beside the 37 skills", (t) => {
   const home = mkTmp(t, "plg-claude-");
   const run = runAkili(home, ["install", "--tool", "claude"]);
   assert.equal(run.status, 0, run.stderr);
@@ -395,8 +395,8 @@ test("FR-15 .gitignore: a generated types/ folder is not shown as untracked", ()
 
 // ------------------------------------------------------------------- FR-13
 
-test("FR-13 the skill count is 32 and the plugin entry is not counted as a skill", () => {
-  assert.equal(SKILLS.length, 32);
+test("FR-13 the skill count is 37 and the plugin entry is not counted as a skill", () => {
+  assert.equal(SKILLS.length, 37);
   assert.equal(SKILLS.includes(PLUGIN), false);
   assert.equal(isPluginEntry(SOURCE_PLUGIN), true, "the scaffold is recognised by the two file checks");
 });
@@ -424,15 +424,15 @@ function section(stdout, tool) {
   return lines.slice(start, end).join("\n");
 }
 
-test("FR-3 list: akili-panel is under Plugins:, not Skills:; summary reads 32 skills | 1 plugin", (t) => {
+test("FR-3 list: akili-panel is under Plugins:, not Skills:; summary reads 37 skills | 1 plugin", (t) => {
   const home = mkTmp(t, "plg-list-");
   const run = runAkili(home, ["list"]);
   assert.equal(run.status, 0, run.stderr);
   assert.deepEqual(block(run.stdout, "Plugins"), [PLUGIN]);
   const skills = block(run.stdout, "Skills");
-  assert.equal(skills.length, 32, "Skills: lists the 32 skills");
+  assert.equal(skills.length, 37, "Skills: lists the 37 skills");
   assert.equal(skills.includes(PLUGIN), false, "akili-panel is not under Skills:");
-  assert.match(run.stdout, /Summary: \d+ commands \| 32 skills \| 1 plugin \| \d+ resources \(akili-specs v/);
+  assert.match(run.stdout, /Summary: \d+ commands \| 37 skills \| 1 plugin \| \d+ resources \(akili-specs v/);
   assert.ok(run.stdout.indexOf("Skills:") < run.stdout.indexOf("Plugins:"), "Plugins: comes after Skills:");
   assert.ok(run.stdout.indexOf("Plugins:") < run.stdout.indexOf("Resources:"), "Plugins: comes before Resources:");
 });

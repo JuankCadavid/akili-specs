@@ -40,7 +40,12 @@ Skills:
   OK impeccable-bridge
   OK judgment-day
   OK kaizen
-  OK nestjs-expert
+  OK nestjs
+  OK nestjs-auth
+  OK nestjs-data
+  OK nestjs-feature
+  OK nestjs-production
+  OK nestjs-testing
   OK pr-review
   OK product-manager-toolkit
   OK react-doctor
@@ -80,7 +85,7 @@ Environment (recommended, not required):
 
 ────────────────────────────────────────────────────────
 Doctor Summary — akili-specs v<VERSION>
-  CODEX        HEALTHY  ok 54 | missing 0 | fixed 0
+  CODEX        HEALTHY  ok 59 | missing 0 | fixed 0
                → <HOME>/.codex
 
 All checks passed. Your installation is complete and healthy.
