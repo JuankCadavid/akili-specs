@@ -239,3 +239,23 @@
 | Lesson candidate (for kaizen) | A Consumers sweep for rewording command prose must grep the tests for the **removed phrases**, not only for the skill names: KZ-changes--archify-diagrams-2 class, phrase form |
 | spawns | Implementer 3 calls, 61,459 tokens, ended complete; Reviewer 4 calls, 65,595 tokens, ended complete |
 | Running totals | tasks 8/10 · LOC about 1,145 · review rounds 14/20 (T9 review pending) |
+
+### T9: Docs pages, links, governance, CHANGELOG, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-7 (both scenarios), FR-8 (docs clauses; the 38 total and the panel are T10's) |
+| Attempts | 1 |
+| Files changed | `docs/skills/java-springboot.md` (new); `docs/skills/by-stack.md` (new); `docs/skills/README.md`; `docs/overview.md`; `docs/README.md`; `README.md` (*Learn more*); `docs/skills/governance.md` (`stack` row, 16); `docs/flow.md` (stack line: `java-springboot`, plus the missing `golang-pro`); `CHANGELOG.md` (`[Unreleased]`); `test/stack-detection.test.js` (6 tests) |
+| Skills / effort | `cognitive-doc-design` / `medium` |
+| Decisions | Leader narrowing: the `akili-panel` CHANGELOG line moves to T10, where the bump is made, so the claim is true when written (KZ-002). Adding `golang-pro` to the `docs/flow.md` stack line is a correction to the line the task edits (the Reviewer accepted it) |
+| KZ-002 greps (Implementer) | `grep -L stack-detection.md` over the six commands → none missing; `pr-review` `version` `"1.1.0"`; IaC + catalog globs at `large-prs.md:64`, `post-review.cjs:86`; link resolution over both new pages → no broken link; no `37`/`38` in new text |
+| Red run (observed) | Before the pages: `not ok 28..33` (27 / 6) |
+| Falsifier (executed) | `shadcn-ui` link replaced with "none" → `not ok 28` (exactness); `tdd` added to the Go section → `not ok 28`. Restored |
+| Implementer verification | `node --test test/stack-detection.test.js test/docs-overview.test.js test/golang-skill.test.js` → 61 / 1. The one red is `(d) every '<N> commands\|skills' claim equals the derived total` (T10's count). The two `java-springboot` row checks from T2's interim list are now green |
+| Evidence re-run | **VERIFIED**. Leader inline: 61 / 1, the same single expected red |
+| Side finding | The Implementer's full `npm test` surfaced the T5 Step 2.1 anchor regression; fixed as T5 attempt 3 above |
+| Reviewer | **PASS** (opus). Exactness test sourced from governance and the table; facts match `NOTICE` and `SKILL.md`; CHANGELOG claims re-grepped true at HEAD |
+| ADVISORY | (1) The duplicate assertion in the exactness test is tautological. (2) Skills named in plain backticks inside a stack section escape the check. (3) `java-springboot.md` quotes `Java - no packaged skill` with a hyphen; the table uses an em dash. (4) CHANGELOG "instead of keeping their own lists" overstates (the pools remain by DD-9): "their own manifest and marker lists". Leader: (1), (3) and (4) are carried into T10 as [advisory-grade], since T10 edits the same test file and CHANGELOG; (2) is recorded only |
+| spawns | Implementer 19 calls, 109,806 tokens, ended complete; Reviewer 12 calls, 96,565 tokens, ended complete |
+| Running totals | tasks 9/10 · LOC about 1,390 · review rounds 15/20 |

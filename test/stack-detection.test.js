@@ -305,3 +305,76 @@ test("@akili-spec changes/java-springboot-skill FR-5: Audit limits drift to stac
   assert.match(bullet, /stack-detection\.md` is absent[^.]*unevaluated/i);
   assert.match(bullet, /not read[^.]*not evaluated|not evaluated[^.]*not read/i);
 });
+
+// ---- by-stack page (FR-7): expected sets come from the table and governance, never from the page ----
+const PAGE = () => read("docs", "skills", "by-stack.md");
+const H2 = (text) => {
+  const parts = text.split(/^## /m);
+  return { preamble: parts[0], sections: parts.slice(1).map((p) => ({ title: p.split("\n")[0].trim(), body: p.slice(p.indexOf("\n") + 1) })) };
+};
+const NON_STACK = ["Any stack", "No packaged skill", "Source of truth"];
+const stackSections = () => H2(PAGE()).sections.filter((s) => !NON_STACK.includes(s.title));
+const linkedSkills = (body) => [...body.matchAll(/\[`([a-z0-9-]+)`\]\(([a-z0-9-]+)\.md\)/g)].map((m) => { assert.equal(m[1], m[2], "link text and target match"); return m[1]; });
+const tableGroups = () => {
+  const out = [];
+  for (const r of rows()) {
+    const g = r[0].split(":")[0].replace(/\s*\(.*\)\s*$/, "").trim();
+    if (!out.includes(g)) out.push(g);
+  }
+  return out;
+};
+const governanceStack = () => {
+  const row = section(read("docs", "skills", "governance.md"), "Current assignment").split("\n").find((l) => /^\| `stack` \|/.test(l));
+  assert.ok(row, "governance stack row");
+  return [...row.matchAll(/`([a-z0-9-]+)`/g)].map((m) => m[1]).filter((n) => n !== "stack");
+};
+
+test("@akili-spec changes/java-springboot-skill FR-7: by-stack skills in stack sections plus the two any-stack stack skills equal the governance stack row", () => {
+  const fromSections = stackSections().flatMap((s) => linkedSkills(s.body));
+  const any = H2(PAGE()).sections.find((s) => s.title === "Any stack");
+  assert.ok(any, "## Any stack present");
+  const anyStack = linkedSkills(any.body).filter((n) => ["api-design-principles", "error-handling-patterns"].includes(n));
+  assert.deepEqual([...new Set([...fromSections, ...anyStack])].sort(), [...governanceStack()].sort());
+  assert.equal(new Set(fromSections).size, fromSections.filter((n, i, a) => a.indexOf(n) === i).length);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-7: each stack section matches a table stack group, in the table's order, with one aws-serverless section", () => {
+  assert.deepEqual(stackSections().map((s) => s.title), tableGroups());
+  const aws = stackSections().find((s) => s.title === "AWS serverless");
+  for (const w of ["SAM", "Serverless Framework", "CDK", "cdk.json"]) assert.ok(aws.body.includes(w), `AWS section names ${w}`);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-7: any-stack names the method skills and a no-skill section exists", () => {
+  const any = H2(PAGE()).sections.find((s) => s.title === "Any stack");
+  for (const n of ["api-design-principles", "error-handling-patterns", "software-architect", "tdd", "systematic-debugging"]) assert.ok(linkedSkills(any.body).includes(n), `Any stack lacks ${n}`);
+  const none = H2(PAGE()).sections.find((s) => s.title === "No packaged skill");
+  assert.ok(none, "## No packaged skill present");
+  for (const n of ["Python", "Rust", ".NET", "PHP", "Ruby"]) assert.ok(none.body.includes(n), `no-skill list lacks ${n}`);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-7: gsap-animation and impeccable sit on one line outside every section", () => {
+  const { preamble, sections } = H2(PAGE());
+  const line = preamble.split("\n").filter((l) => l.includes("gsap-animation") && l.includes("impeccable"));
+  assert.equal(line.length, 1, "one line in the preamble");
+  assert.match(line[0], /conditional/i);
+  for (const s of sections) assert.ok(!/gsap-animation|`impeccable`/.test(s.body), `section ${s.title} names a frontend conditional skill`);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-7: overview, README Learn more, docs hub and skills README link by-stack", () => {
+  assert.match(read("docs", "overview.md"), /\]\(skills\/by-stack\.md\)/);
+  assert.match(section(read("README.md"), "Learn more"), /\]\(docs\/skills\/by-stack\.md\)/);
+  assert.match(read("docs", "README.md"), /\]\(skills\/by-stack\.md\)/);
+  assert.match(read("docs", "skills", "README.md"), /\]\(by-stack\.md\)/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-8: java-springboot page carries the facts, the seven sibling names and bounds its security claim", () => {
+  const page = read("docs", "skills", "java-springboot.md");
+  for (const f of ["GitHub, Inc.", "MIT", "`stack`", "93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf", "4.1.1", "3.5.16", "INDIRECT_PROMPT_INJECTION", "npx skills add https://github.com/github/awesome-copilot --skill <name>"]) assert.ok(page.includes(f), `page lacks ${f}`);
+  for (const n of ["java-hibernate-jpa", "spring-boot-testing", "spring-security", "spring-observability", "create-spring-boot-java-project", "java-add-graalvm-native-image-support", "spring-boot-4-migration"]) assert.ok(page.includes(n), `sibling ${n}`);
+  assert.match(page, /optional/i);
+  assert.match(page, /never vendor/i);
+  assert.ok(/stack-detection\.md/.test(page), "Spring-marker rule points at the table");
+  assert.ok(!/\bsecure\b|\bsafe\b/i.test(page.replace(/Risk Level SAFE/g, "")), "no security-property claim beyond the ratings");
+  assert.match(read("docs", "skills", "governance.md"), /^\| `stack` \|.*`java-springboot`/m);
+  assert.match(read("docs", "flow.md"), /^\* \*\*stack\*\*[^\n]*`java-springboot`/m);
+});

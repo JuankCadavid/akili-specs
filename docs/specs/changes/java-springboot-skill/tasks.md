@@ -305,7 +305,7 @@ Extend the reader test.
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | T2–T8 |
 | Requirements | FR-7 (both scenarios), FR-8 (all clauses) |
