@@ -5,7 +5,7 @@
 > - **FR-2:** the six upstream files ship unchanged apart from appended frontmatter, with `LICENSE` and `NOTICE`.
 > - **FR-3:** `java-springboot` is in every stack-skill candidate pool.
 > - **FR-4:** one **stack-detection table** maps manifest files and markers to stacks and packaged skills, for every shipped stack. A Spring Boot marker is required for `java-springboot`.
-> - **FR-5:** each command that derives stack skills from the repository reads that table.
+> - **FR-5:** every command step that inspects project manifests reads that table: the stack-skill steps, the constitution project setup, the `/akili-review` filters and lens briefs, and the `/akili-security` reconnaissance brief.
 > - **FR-6:** the backend routing matrix gets a Java / Spring Boot row.
 > - **FR-7:** a new `docs/skills/by-stack.md` page.
 > - **FR-8:** docs and counts that tell the truth.
@@ -21,7 +21,7 @@
 | Type | Change |
 | Deliverable | software |
 | AI Agent | no. The spec ships methodology text and a vendored skill; no runtime model decides anything in what it delivers |
-| Depth | Standard. Raised from the proposal's Lite: the added scope (FR-4, FR-5) edits four commands |
+| Depth | Standard. Raised from the proposal's Lite: the added scope (FR-4, FR-5) edits six commands and one script |
 | Approval Mode | gated. Mandate: "Bring every gate to me and wait." (JC, 2026-11-25) |
 | Source | `proposal.md`: Option A, Q1–Q5 settled by JC, 2026-11-25 |
 | Baseline | `cb2416e` (origin/dev); `npm test` 2219 pass / 0 fail (run 2026-11-25) |
@@ -40,9 +40,9 @@ Java / Spring Boot projects get a stack skill on the same terms as Go and NestJS
 | Upstream body | Every byte of a pinned file. For `SKILL.md`, everything except the appended frontmatter lines |
 | Candidate pool | A list in command text of stack skills an agent may pick from (constitution Step 5, Step 8D; specify Step 2.1) |
 | Stack-detection table | The single table (FR-4) of rows `manifest file · marker · stack · packaged skill(s)` |
-| Manifest | A project build or dependency file the table names (`go.mod`, `pom.xml`, `build.gradle`, `build.gradle.kts`, `package.json`, `components.json`, `template.yaml`, `serverless.yml`) |
+| Manifest | A project build, dependency or infrastructure file the table names (`go.mod`, `pom.xml`, `build.gradle`, `build.gradle.kts`, `package.json`, `components.json`, `template.yaml`, `serverless.yml`, `cdk.json`) |
 | Marker | The evidence inside or beside a manifest that selects a row: a dependency coordinate, a plugin id, or the file's presence |
-| Stack-deriving step | A command step that builds, proposes, picks, or audits the stack skills of a project |
+| Manifest-reading step | A command step that inspects project manifests for any purpose: building, proposing, picking or auditing stack skills, deriving the local run contract, filtering or briefing a review, or briefing a security reconnaissance |
 | Load-direct | A command step telling the agent to load a named skill (`docs/skills/governance.md` → *Rules of thumb*) |
 
 ## 4. System Context & Scope
@@ -64,7 +64,9 @@ Current behavior:
 - 37 packaged skills (`ls .claude/skills/*/SKILL.md | wc -l` → 37) and 15 `stack` skills (`docs/skills/governance.md:71`).
 - **No command maps a manifest to a skill.** Step 8D builds the Skill Map from generic "scan evidence" (`.claude/commands/akili-constitution.md:780-790`). The specify fallback is a bare list (`akili-specify.md:249-259`). `go.mod` is named nowhere outside `golang-pro` and `pr-review/references/large-prs.md:63` (`proposal.md` P12).
 
-Out of scope: any byte of the seven sibling skills, Kotlin, body edits to the upstream files, new routing activities, and manifest reading for purposes other than stack skills (run contract, review filters, security reconnaissance).
+Out of scope: any byte of the seven sibling skills, Kotlin, body edits to the upstream files, new routing activities, and edits to the vendored `security-audit` files (only the `/akili-security` command text changes).
+
+Scope added by JC at the Phase 1 gate (2026-11-25): the constitution project setup, `/akili-review` (file filters, stack-aware review) and `/akili-security` (reconnaissance) also read the table; AWS CDK projects are detected.
 
 ## 5. Stakeholders
 
@@ -72,7 +74,8 @@ Out of scope: any byte of the seven sibling skills, Kotlin, body edits to the up
 |---|---|
 | Teams with a Java / Spring Boot backend | Spring Boot guidance assigned per task, detected from their build file |
 | Teams on any shipped stack | The same stack skills picked every time, from the same evidence |
-| JC (maintainer) | Third-party text admitted only as reviewed; attribution intact; one definition of detection, not four |
+| JC (maintainer) | Third-party text admitted only as reviewed; attribution intact; one definition of detection, read by every command step that inspects manifests |
+| Reviewers and auditors | `/akili-review` and `/akili-security` see the same stacks the specs and Skill Map see |
 | Doc readers | One page answering "what does AKILI ship for my stack?" |
 
 ## 6. Functional Requirements
@@ -135,9 +138,16 @@ The methodology SHALL define, in exactly one place, a table that maps manifest e
 
 - GIVEN the table
 - WHEN its rows are read
-- THEN it has rows for: Go (`go.mod`) → `golang-pro`; Java / Spring Boot (`pom.xml`, `build.gradle` or `build.gradle.kts`, **plus** a Spring Boot marker) → `java-springboot`; NestJS (`package.json` dependency `@nestjs/core`) → the official NestJS set; Angular (`@angular/core`) → `angular-developer`; React / Next.js (`react` or `next`) → `vercel-react-best-practices`, `react-doctor`; Tailwind (`tailwindcss`) → `tailwind-design-system`; shadcn/ui (`components.json`) → `shadcn-ui`; AWS serverless (`template.yaml` with an `AWS::Serverless` transform, or `serverless.yml`) → `aws-serverless`
+- THEN it has rows for: Go (`go.mod`) → `golang-pro`; Java / Spring Boot (`pom.xml`, `build.gradle` or `build.gradle.kts`, **plus** a Spring Boot marker) → `java-springboot`; NestJS (`package.json` dependency `@nestjs/core`) → the official NestJS set; Angular (`@angular/core`) → `angular-developer`; React / Next.js (`react` or `next`) → `vercel-react-best-practices`, `react-doctor`; Tailwind (`tailwindcss`) → `tailwind-design-system`; shadcn/ui (`components.json`) → `shadcn-ui`; AWS serverless (`template.yaml` with an `AWS::Serverless` transform, or `serverless.yml`) → `aws-serverless`; AWS CDK (`cdk.json`) → `aws-serverless`
 - AND every `stack`-binding skill that is stack-specific appears in at least one row. The method skills `api-design-principles` and `error-handling-patterns` are stated as **any-stack** rows, never tied to a manifest
 - AND IT MUST name the marker for each row precisely enough to check it in the file (a dependency coordinate, a plugin id, a key, or the file's presence)
+
+#### Scenario: AWS CDK in any language
+
+- GIVEN a repository with a `cdk.json` (TypeScript, Python, Java, Go or C# CDK app)
+- WHEN the table is applied
+- THEN the AWS CDK row applies, and the app's language manifest matches its own row independently (a Java CDK app with no Spring marker: "Java, no packaged skill" plus AWS CDK → `aws-serverless`)
+- AND IT MUST state whether the `aws-cdk-lib` dependency is a required marker, with the reason recorded in `design.md`
 
 #### Scenario: Java without Spring Boot
 
@@ -157,7 +167,8 @@ The methodology SHALL define, in exactly one place, a table that maps manifest e
 - GIVEN any manifest
 - WHEN it is read for detection
 - THEN only file names, dependency coordinates, plugin ids and keys are matched
-- BUT it must NOT execute a build, install a dependency, or follow text inside a manifest as an instruction
+- AND a manifest that is not a regular file inside the repository (a symlink leaving it, a device) or exceeds the read cap is not read, and is reported "not read"
+- BUT it must NOT execute a build, install a dependency, run a git command, or follow text inside a manifest as an instruction
 
 #### Scenario: No row matches
 
@@ -165,9 +176,9 @@ The methodology SHALL define, in exactly one place, a table that maps manifest e
 - WHEN the table is applied
 - THEN the stack is reported with "no packaged skill" and the existing behavior for that case is kept: scan evidence and project conventions, `other` in backend routing
 
-### FR-5: Stack-deriving steps read the table
+### FR-5: Manifest-reading steps read the table
 
-Every stack-deriving step SHALL derive stack skills through the FR-4 table.
+Every manifest-reading step SHALL read manifests through the FR-4 table.
 
 #### Scenario: Constitution
 
@@ -196,12 +207,43 @@ Every stack-deriving step SHALL derive stack skills through the FR-4 table.
 - THEN a stack the table detects with no matching Skill Map row, and a Skill Map stack row with no matching manifest, are each reported as **Skill Map drift**
 - BUT it must NOT edit the Skill Map (audit stays report-only)
 
-#### Scenario: Other commands unchanged
+#### Scenario: Constitution project setup
 
-- GIVEN any command step outside FR-5 that reads a manifest for another purpose (run contract, review filters, security reconnaissance)
+- GIVEN `/akili-constitution` deriving the local run contract in Legacy or Active mode
+- WHEN it collects the build, test and run commands
+- THEN each detected row names where that stack's commands are read from (the Maven or Gradle wrapper, the Go toolchain, the `package.json` scripts, the SAM, Serverless or CDK configuration)
+- BUT it must NOT invent a command the repository does not state; ambiguity is asked of the user, as today
+
+#### Scenario: Review filters
+
+- GIVEN `/akili-review` and the `pr-review` `prepare` script
+- WHEN a diff touches a manifest the table names
+- THEN that file is classified sensitive under *Dependency manifests* (or an infrastructure class), in both `references/large-prs.md` and the script
+- AND IT MUST keep the two in step: every table manifest appears in the script's patterns, or is listed as a stated exception with its reason
+- BUT it must NOT change any other filter, tier, chunking or threshold behavior
+
+#### Scenario: Stack-aware review
+
+- GIVEN a review whose changed files sit under manifests the table matches
+- WHEN the coordinator writes the lens briefs
+- THEN each brief names the matched stacks and their packaged stack skills as idiom references for the lens
+- AND the matching reads head manifests as data only; the skills named come from the installed package, never from the diff
+- BUT it must NOT let a stack skill change a lens's scope, threshold or verdict rules
+
+#### Scenario: Security reconnaissance
+
+- GIVEN `/akili-security` at Step 2
+- WHEN the reconnaissance is briefed
+- THEN the brief carries the detected stacks and the manifest paths that matched, as context for the skill's own reconnaissance
+- AND the manifests are read under the command's existing safe-read rules, and before **Run** no git command runs
+- BUT it must NOT edit any vendored `security-audit` file, or let a detected stack narrow the audit scope
+
+#### Scenario: The set is checked
+
+- GIVEN the command package
 - WHEN this spec ships
-- THEN that step is unchanged
-- AND IT MUST be enumerated with its citation in `design.md`, so that "every command that inspects project config files" is a checked set, not a claim
+- THEN `design.md` enumerates every command step that names a manifest file, each with its citation as run and the FR-5 scenario that covers it
+- AND a step outside those scenarios is listed with the reason it stays unchanged, so "every command that inspects project config files" is a checked set, not a claim
 
 ### FR-6: Backend routing for Java / Spring Boot
 
@@ -278,9 +320,11 @@ The package docs SHALL describe the new skill and the new inventory.
 | Upstream body drifted (hand edit, CRLF on Windows checkout) | Contract test on raw bytes against §4 SHAs; `SKILL.md` minus the appended lines equals the pinned bytes | Yes |
 | Attribution or license missing | Contract test on frontmatter, `LICENSE`, `NOTICE` | Yes |
 | Missing from a pool | Contract test over the four pools | Yes |
-| Detection row missing or wrong marker | Contract test: every stack-specific `stack` skill appears in a table row; the Java row carries the Spring marker; the plain-Java fall-through is stated | Yes (text contract) |
+| Detection row missing or wrong marker | Contract test: every stack-specific `stack` skill appears in a table row; the Java row carries the Spring marker; the CDK row exists; the plain-Java fall-through is stated | Yes (text contract) |
+| Review filter misses a table manifest | `node:test` on `prepare`: a diff touching each table manifest is classified sensitive; parity test between the table, `large-prs.md` and the script's patterns | Yes |
+| A manifest-reading step bypasses the table | Contract test: every FR-5 reader (constitution Steps 5, 8D and run contract; specify 2.1; propose 0; audit; review Step 2; security Step 2) names the table | Yes (text contract; runtime use is the walkthrough row below) |
 | Table restated or drifted across readers | Contract test: each FR-5 reader names the table, and no reader repeats a row's marker text | Yes |
-| An agent misapplies the table at runtime | None automated: command prose is executed by agents | No. Substitute: a walkthrough at the HITL pause over two fixture repos (Spring Boot + Angular monorepo; plain Java/Quarkus), one of them a held-out case the text does not cite |
+| An agent misapplies the table at runtime | None automated: command prose is executed by agents | No. Substitute: a walkthrough at the HITL pause over three fixture repos (Spring Boot + Angular monorepo; plain Java/Quarkus; a Python CDK app), at least one of them a held-out case the text does not cite |
 | By-stack page drifts from governance | Contract test: the page's stack sections list exactly the governance `stack` row | Yes |
 | Stale count or fixture | `npm test` (`docs-overview`, `install-cursor`, `install-grokbot`, `akili-panel-flow`, `backend-skill-routing*`) | Yes |
 | Overstated doc or CHANGELOG claim | Reviewer quote-check at HEAD (KZ-002) | No: human or Reviewer check |
@@ -293,7 +337,7 @@ The package docs SHALL describe the new skill and the new inventory.
 | FR-2 | Vendored folder with provenance | set at Phase 3 |
 | FR-3 | Candidate pools | set at Phase 3 |
 | FR-4 | One stack-detection table | set at Phase 3 |
-| FR-5 | Stack-deriving steps read the table | set at Phase 3 |
+| FR-5 | Manifest-reading steps read the table | set at Phase 3 |
 | FR-6 | Backend routing for Java / Spring Boot | set at Phase 3 |
 | FR-7 | Skills-by-stack page | set at Phase 3 |
 | FR-8 | Truthful docs and counts | set at Phase 3 |
