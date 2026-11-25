@@ -2,7 +2,7 @@
 
 A Claude Code side pane that shows where the active AKILI-SPECS spec stands, with a button for the next step, the session's model and the skills AKILI ships. It only reads: it never writes, moves or deletes a project file, and it starts no process.
 
-Version `1.1.1`. Requires Claude Code 2.1.318 or later.
+Version `1.1.2`. Requires Claude Code 2.1.318 or later.
 
 ## Install
 

@@ -46,3 +46,8 @@ assets/akili-flow-animated.svg -text
 .claude/skills/nestjs-data/** -text
 .claude/skills/nestjs-testing/** -text
 .claude/skills/nestjs-production/** -text
+
+# The vendored `impeccable.cmd` is CRLF by design (see above), so every line
+# would read as trailing whitespace to `git diff --check`. Exempt only that
+# file from whitespace checks; the bytes stay hash-locked in UPSTREAM.md.
+.claude/skills/impeccable/scripts/impeccable.cmd -text -whitespace

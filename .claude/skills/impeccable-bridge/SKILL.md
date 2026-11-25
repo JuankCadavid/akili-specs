@@ -104,7 +104,7 @@ Ask once per session, in one question that names all of:
 | Field | Content |
 |---|---|
 | Source | `https://github.com/pbakaus/impeccable/releases`, tag `engine-v<version>` (`<version>` from `scripts/VERSION`) |
-| Size | about 17 MB (darwin-arm64; other platforms similar) |
+| Size | about 21 MB (darwin-arm64; other platforms 22 to 27 MB, engine 0.1.30) |
 | Check | sha256 of the download compared with `engine-checksums.txt` in the skill folder; a mismatch refuses the download |
 | Destination | `~/.impeccable/bin/<version>/` or `IMPECCABLE_HOME`. `IMPECCABLE_HOME` alone does not isolate: without the pin, each launcher reads `~/.impeccable/bin/impeccable[.exe]` first, before `IMPECCABLE_HOME`. |
 | Home override | Under an exclusion, the download call alone runs with `HOME` (or `USERPROFILE`) set to an empty directory inside `IMPECCABLE_HOME`, with `IMPECCABLE_BIN` unset and no `PATH` entry under `~/.impeccable` |

@@ -22,14 +22,14 @@ Which skill leads each design activity is decided in the routing matrix, `impecc
 | Author | Paul Bakaus |
 | Source | https://github.com/pbakaus/impeccable (the upstream `.claude` build) |
 | Licence | Apache-2.0, `LICENSE` preserved beside the skill |
-| Pin | Upstream commit `df3a4abe7d0840d5f60324812c432e00b66a4e75`, skill 4.8.0, engine 0.1.18. `.claude/skills/impeccable/UPSTREAM.md` is authoritative if this line and it ever differ |
+| Pin | Upstream commit `88cfafae649164e6dc48b88d3c0c1bf6662eaade` (tag `skill-v4.11.0`), skill 4.11.0, engine 0.1.30. `.claude/skills/impeccable/UPSTREAM.md` is authoritative if this line and it ever differ |
 | Modification | One: an AKILI `metadata` block in the `SKILL.md` frontmatter (author, source, adapted-by, adapted-for, binding). Declared in `NOTICE`; no other file is changed |
 | Affiliation | None. AKILI-SPECS is not affiliated with the Impeccable project |
 | Adapted by | Juan Carlos Cadavid — jcadavid.com, for AKILI-SPECS (curation only; `adapted-by` never replaces the author) |
 
 ## What ships
 
-`.claude/skills/impeccable/` holds 61 files: upstream's 58 plus `LICENSE`, `NOTICE` and `UPSTREAM.md`. `NOTICE` carries upstream's third-party notices (platform design references distilled from ehmo's MIT-licensed `platform-design-skills`) and AKILI's modification statement. `UPSTREAM.md` records the pin and a checksum per upstream file.
+`.claude/skills/impeccable/` holds 66 files: upstream's 63 plus `LICENSE`, `NOTICE` and `UPSTREAM.md`. `NOTICE` carries upstream's third-party notices (platform design references distilled from ehmo's MIT-licensed `platform-design-skills`) and AKILI's modification statement. `UPSTREAM.md` records the pin and a checksum per upstream file.
 
 The engine binary is **not** in the package. The vendored launcher (`scripts/impeccable`) can download it on first run; when AKILI steps may reach it is the bridge's call, under its *Step 0 — Skill source and engine gate* and *Engine consent* sections.
 
@@ -45,14 +45,14 @@ Invoking `/impeccable` directly, outside an AKILI command, follows upstream beha
 
 ### Update check and telemetry
 
-Read at the pin (`df3a4ab`) in upstream's own docs; the engine source itself was not read.
+Read at the pin (`88cfafa`) in upstream's own docs, and unchanged since `df3a4ab`; the engine source itself was not read.
 
 | Behavior | What upstream documents | Source at the pin |
 |---|---|---|
 | Update check | `impeccable context` asks `<host>/api/version` for the latest skill version, at most once per 24 hours, with a 1200 ms timeout, and errors are swallowed. It is skipped when `IMPECCABLE_NO_UPDATE_CHECK` is set or `updateCheck` is `false` in `.impeccable/config.json`. **`DO_NOT_TRACK` is not among its switches** | `docs/CLI-CONTRACT.md`, section `context.mjs` -> `impeccable context`, bullets *Update cache* and *Env vars read* |
 | Telemetry | When a new design starts, the skill fetches visual directions from the impeccable.style catalog; turning telemetry off does not stop that request, it stops the anonymous record of which directions were shown and chosen. Off switches: `npx impeccable telemetry off`, `DO_NOT_TRACK=1`, or `"telemetry": false` in `.impeccable/config.json` | `README.md`, paragraph "Telemetry."; `docs/CLI-CONTRACT.md`, bullets *Telemetry ping* and `impeccable telemetry off\|on\|status` |
 
-**Consequence.** `DO_NOT_TRACK=1` stops the telemetry record; per the contract it does not stop the update check, which `IMPECCABLE_NO_UPDATE_CHECK=1` does; AKILI runs set that switch on every launcher run. The prefix rule for AKILI runs is in the bridge's *Privacy and consent* section; this page does not restate it. `Unverified:` whether the compiled engine at `0.1.18` behaves exactly as the contract describes. Confirm at source before relying on a negative.
+**Consequence.** `DO_NOT_TRACK=1` stops the telemetry record; per the contract it does not stop the update check, which `IMPECCABLE_NO_UPDATE_CHECK=1` does; AKILI runs set that switch on every launcher run. The prefix rule for AKILI runs is in the bridge's *Privacy and consent* section; this page does not restate it. `Unverified:` whether the compiled engine at `0.1.30` behaves exactly as the contract describes. Confirm at source before relying on a negative.
 
 ## Pin hygiene and re-sync
 
@@ -69,7 +69,7 @@ Read at the pin (`df3a4ab`) in upstream's own docs; the engine source itself was
 | 1 | Need | The UI steps of `/akili-constitution`, `/akili-propose`, `/akili-specify`, `/akili-execute`, `/akili-test`, `/akili-validate` and `/akili-audit design`, through `impeccable-bridge` |
 | 2 | Binding declared | `conditional`, in `metadata.binding`; reached through the bridge, listed in [governance.md](governance.md) *Current assignment* |
 | 3 | Attribution | Author, source, licence, modification and non-affiliation above; `LICENSE` and `NOTICE` ship with the skill |
-| 4 | Size | One skill with `reference/` (progressive disclosure); 61 files; the growth bound is in the spec's size requirement |
+| 4 | Size | One skill with `reference/` (progressive disclosure); 66 files; the growth bound is in the spec's size requirement |
 | 5 | Docs + CHANGELOG | This page; the row in [README.md](README.md); a row in [overview.md](../overview.md); the CHANGELOG entry is owned by the spec's release task |
 
 The category rules this skill is held to are in [governance.md](governance.md) under *Vendored third-party (verbatim)*.
