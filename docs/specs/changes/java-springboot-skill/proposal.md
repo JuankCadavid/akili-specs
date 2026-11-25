@@ -11,7 +11,7 @@
 | Type | Change |
 | Deliverable | software (a packaged skill, methodology text, a docs page and tests) |
 | Approval Mode | gated. Mandate: "Bring every gate to me and wait." |
-| Approval | **Option A approved by JC, 2026-11-25**, with added scope (§5 *Manifest detection*): "/akili-constitution, /akili-propose, /akili-specify and every command that inspects project config files must detect Java (pom.xml, build.gradle, build.gradle.kts) and route java-springboot, the same way go.mod routes golang-pro". Release **minor** (Q1). Q2 and Q3 settled as proposed. Q4/Q5 (§12) open: they come from a premise correction (P12) |
+| Approval | **Option A approved by JC, 2026-11-25**, with added scope (§5 *Manifest detection*): "/akili-constitution, /akili-propose, /akili-specify and every command that inspects project config files must detect Java (pom.xml, build.gradle, build.gradle.kts) and route java-springboot, the same way go.mod routes golang-pro". Release **minor** (Q1). Q2 and Q3 settled as proposed. Q4/Q5 (§12, from premise correction P12) settled by JC, 2026-11-25 |
 | Requirement source | JC brief and JC's gate answers, 2026-11-25. No Jira (JC, 2026-11-25) |
 | Visual source | None: no UI surface, no Figma (JC, 2026-11-25) |
 | Model precedent | `docs/specs/archive/2026-11-01-changes--go-backend-routing--golang-skill/` (admission) and `…2026-11-02-changes--go-backend-routing--backend-skill-routing/` (routing matrix) |
@@ -141,8 +141,8 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 | Q1 | Semver | **Settled: minor** (JC, 2026-11-25) |
 | Q2 | `metadata.author` wording | **Settled:** `github/awesome-copilot contributors (Copyright GitHub, Inc.)` (JC, 2026-11-25). `NOTICE` quotes the `LICENSE` line |
 | Q3 | `conditional` skills on the by-stack page | **Settled:** one separate line names `gsap-animation` and `impeccable`, outside the stack tables (JC, 2026-11-25) |
-| Q4 | Detection table coverage (P12) | **Open, for JC.** (a) Go + Java only; other stacks keep scan evidence. (b) One row for each shipped stack skill: `package.json` deps `@nestjs/core` → NestJS set, `@angular/core` → `angular-developer`, `react`/`next` → React pair, `tailwindcss` → `tailwind-design-system`, `components.json` → `shadcn-ui`, `template.yaml`/`serverless.yml` → `aws-serverless`. Recommended **(b)**: same mechanism for every stack, about 40 LOC more, and `by-stack.md` can show the detection column |
-| Q5 | Java project **without** Spring Boot (P5: the skill is written for "an existing Spring Boot 3/4 project") | **Open, for JC.** Recommended: route `java-springboot` only when a Spring Boot marker is present (`org.springframework.boot` parent/plugin or a `spring-boot-starter*` dependency). Plain Java (Quarkus, Micronaut, Jakarta EE, libraries) is reported as "Java, no packaged skill" and falls through to `other`. The alternative routes it for any Java build file, which gives Spring advice to non-Spring code |
+| Q4 | Detection table coverage (P12) | **Settled: (b) one row for each shipped stack skill** (JC, 2026-11-25): `go.mod`, the Java build files, `package.json` deps (`@nestjs/core`, `@angular/core`, `react`/`next`, `tailwindcss`), `components.json` (shadcn), `template.yaml`/`serverless.yml` (aws-serverless) |
+| Q5 | Java project without Spring Boot | **Settled: a Spring marker is required** (JC, 2026-11-25). `java-springboot` is routed only when there is an `org.springframework.boot` parent/plugin or a `spring-boot-starter*` dependency. Plain Java is reported as "Java, no packaged skill" and falls through to `other` |
 | R9 | Detection reads project files that the project controls (Trust Hub `INDIRECT_PROMPT_INJECTION`, P10) | The table matches file names and dependency coordinates only; it never follows text in them. The same holds for any stack skill (golang-pro reads `go.mod`) |
 
 ## 13. Success Criteria
@@ -160,7 +160,7 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 /akili-specify changes/java-springboot-skill
 ```
 
-Lite depth. Q4 and Q5 are settled before Phase 1. T1 re-verifies the reviewed hashes.
+Lite depth (Q4 and Q5 settled). T1 re-verifies the reviewed hashes.
 
 ## 15. Security Pre-check (2026-11-25)
 
