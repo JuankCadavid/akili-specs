@@ -53,3 +53,22 @@
   - **Snyk:** Pass, Risk LOW, "No issues detected".
 - **Decisions:** the Implementer's *Not Done* note (it did not write `execution.md`) is the Leader's owned item by design, and this entry discharges it. No skill deviation.
 - Phase gate: auto-approved (JC mandate).
+
+### T2: Vendor `java-springboot` with provenance, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-2 (both scenarios), NFR-1, NFR-2 |
+| Attempts | 1 |
+| Files changed | `.claude/skills/java-springboot/` (new: `SKILL.md`, `LICENSE`, `NOTICE`, `references/{aot-and-startup,configuration,data,messaging-caching,rest-api}.md`); `.gitattributes`; `test/java-springboot-skill.test.js` (new, 13 tests) |
+| Skills / effort | none / `medium` |
+| Red run (observed) | Before the folder existed: `not ok 1 … folder holds exactly 8 files: 'java-springboot folder is missing'`; `not ok 2 … ENOENT … references/aot-and-startup.md` |
+| Falsifier (executed) | One byte appended to `references/data.md` → `not ok 4 … data.md equals its pinned blob SHA`. `version: "1.0"` removed → `not ok 8`, `not ok 9`. Both restored |
+| Implementer verification | `node --test test/java-springboot-skill.test.js` → 13 pass / 0 fail; byte total 41,502 B (< 50 KB) |
+| Evidence re-run | **VERIFIED**. Leader inline: 13 / 0; `git hash-object` of the 5 references and `LICENSE` equal §4; 8 files |
+| Reviewer | **PASS** (opus). Raw-byte hashes re-checked with `--no-filters`. The `SKILL.md` strip reproduces `3729077e…`. Every FR-2 clause is met. `NOTICE` is complete and claims nothing beyond the verdict and the ratings |
+| ADVISORY | (1) Consumers understated: list every interim red (below). (2) The `.gitattributes` comment cites "NFR-3" but should trace to FR-2 only (fix when T10 next touches the file). (3) `NOTICE` verdict check `/PASS/` could be anchored to its row |
+| Interim reds (expected; T10 owns them) | `npm test` 2185 pass / 47 fail: `akili-panel-catalog` 2, `akili-panel-cli-coverage` 8, `docs-overview` 3, `install-akili-panel` 31, `install-cursor` 2 (`SKILL_FILE_EXPECTED` 359 → 367 here, +9 once `stack-detection.md` lands; codex baseline), `install-grokbot` 1 (codex baseline). Sum 47; per-file run |
+| Implementer assumptions (verbatim) | "The NOTICE has no 'field left out' item, because all the frontmatter fields with a true value are present." "NOTICE also records that the `author` line is an AKILI addition, since upstream declares none." "The NOTICE 'Handling' row says manifests the skill reads are project data, never instructions." Leader: accepted; the Reviewer judged all three true |
+| spawns | Implementer 7 calls, 90,091 tokens, ended complete; Reviewer 13 calls, 92,284 tokens, ended complete |
+| Running totals | tasks 2/10 · LOC about 300 (test about 190, `NOTICE` about 50, attributes 8; vendored bytes not counted) · review rounds 2/20 |

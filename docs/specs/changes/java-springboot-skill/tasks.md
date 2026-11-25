@@ -79,7 +79,7 @@
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | T1 = all hashes equal |
 | Requirements | FR-2 (both scenarios), NFR-1, NFR-2 |
