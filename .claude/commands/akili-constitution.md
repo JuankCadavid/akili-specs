@@ -250,7 +250,7 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 
 **Conditional skill:** load `diagram-design` and fill the TRD slots whose condition holds; C4 Context and C4 Container are always filled.
 
-**Use skills when relevant** (stack skills — load only the ones matching the project's stack; the same set feeds the `## Skill Map` in Step 8D):
+**Use skills when relevant** (stack skills — load only the ones matching the project's stack; the same set feeds the `## Skill Map` in Step 8D). The stack skills the stack-detection table matches are the ones to offer: read `software-architect` → `references/stack-detection.md`, apply its rows to the repository's manifests (Discovery, Safe Update) or map the seed intent's declared stack through them (Seed, where no manifest exists yet), and load each matching row's skills plus the any-stack skills the design calls for:
 
 - `nestjs-feature`
 - `nestjs`
@@ -259,12 +259,14 @@ Create or enhance `docs/trd/trd.md` as the technical implementation blueprint.
 - `nestjs-production`
 - `nestjs-testing`
 - `golang-pro`
+- `java-springboot`
 - `api-design-principles`
 - `error-handling-patterns`
 - `aws-serverless`
 - `shadcn-ui`
 - `tailwind-design-system`
 - `vercel-react-best-practices`
+- `react-doctor`
 - `angular-developer`
 
 When the product includes an AI agent, load `ai-agent-development`.
@@ -319,7 +321,7 @@ Scaffold a `## Local Environment` section that captures how to start the project
 
 Mode-specific behavior:
 
-- **Legacy / Active:** derive the contract from evidence — existing `docker-compose*.yml`, `Makefile`, `package.json` scripts, README run instructions. Do not invent commands; ask the user to confirm anything ambiguous.
+- **Legacy / Active:** derive the contract from evidence — existing `docker-compose*.yml`, `Makefile`, `package.json` scripts, README run instructions; for each stack detected through `software-architect` → `references/stack-detection.md`, that table's *Run and build commands read from* cell names where its build, test and run commands come from. Do not invent commands; ask the user to confirm anything ambiguous.
 - **Brand-new:** offer to scaffold a development compose file (db + backend + frontend) matching the TRD stack. If the user declines or has no Docker, record the native fallback as the primary route.
 
 **Boundary rule (record it in the section):** the local environment is **disposable** — agents may freely start, seed, and reset it to verify work. Deployments to cloud/PROD are **governed** — they follow this document's sections 1–5 (components, IaC, CI/CD defined at constitution time) and are never improvised by agents.
@@ -730,7 +732,8 @@ is how they reach the agents.
 **The scaffolded `## Skill Map` section must contain:**
 
 1. A table `Skill | Applies To | When to load` listing only the stack skills that match the
-   detected or declared stack. Candidates shipped with AKILI: `angular-developer`, `nestjs-feature`, `nestjs`, `nestjs-auth`, `nestjs-data`, `nestjs-production`, `nestjs-testing`, `golang-pro`,
+   detected or declared stack, found by applying `software-architect` → `references/stack-detection.md`. Each row the table produced from a manifest names that manifest path in *Applies To*; a Seed row names the declared stack; an any-stack row (`api-design-principles`, `error-handling-patterns`) names the design condition that applies (an HTTP or GraphQL API, any backend), never a manifest; an environment-provided row (item 3) names its tooling condition. Never invent a manifest path for a row that has none.
+   Candidates shipped with AKILI: `angular-developer`, `nestjs-feature`, `nestjs`, `nestjs-auth`, `nestjs-data`, `nestjs-production`, `nestjs-testing`, `golang-pro`, `java-springboot`,
    `shadcn-ui`, `tailwind-design-system`, `react-doctor`, `vercel-react-best-practices`,
    `aws-serverless`, `api-design-principles`, `error-handling-patterns`.
    Projects may add their own.
@@ -779,13 +782,16 @@ is how they reach the agents.
 
 **Mode-specific policy (mirror Step 8B):**
 
-- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack; resolve the
-  `### Design routing` block from that declared stack.
-- **Legacy (Discovery Setup):** build the map from the codebase scan evidence (frameworks, UI
-  library, cloud tooling actually present). Do not list skills for frameworks the repo does not use.
-  Resolve the `### Design routing` block from the same scan evidence.
+- **Brand-new (Seed Setup):** build the map from the seed intent's declared stack, mapped through
+  the rows of `references/stack-detection.md`; resolve the `### Design routing` block from that
+  declared stack.
+- **Legacy (Discovery Setup):** build the map by applying `references/stack-detection.md` to the
+  repository's manifests. Packaged stack-skill rows come only from the table; scan evidence
+  (frameworks, UI library, cloud tooling actually present) feeds the routing blocks and the stacks
+  the table reports as `no packaged skill`, never a packaged-skill row. Do not list skills for
+  frameworks the repo does not use. Resolve the `### Design routing` block from the scan evidence.
 - **Active AKILI-SPECS (Safe Update):** preserve an existing customized map; only add rows for
-  newly detected stack elements and remove rows the user confirms are obsolete. Preserve a
+  stack elements newly detected by `references/stack-detection.md` and remove rows the user confirms are obsolete. Preserve a
   customized `### Design routing` block; propose only newly detected evidence for it, never
   restated matrix rows.
 - The `### Backend routing` block follows the same three policies: declared stack (Seed), scan

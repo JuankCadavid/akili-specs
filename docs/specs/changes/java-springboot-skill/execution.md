@@ -110,3 +110,38 @@
 | Decisions | **Execute-time design edit:** `design.md` §9 `SENSITIVE_GLOBS` row now adds `**/libs.versions.toml` to *Dependency manifests*. Reason: the J-5 version catalog joined the table after §9 was written, and FR-5 *Review filters* THEN requires every table manifest to be sensitive; requirement meaning unchanged. The parity test parses every table row, and `components.json` is the only exception. Carried to the next Reviewer brief (T4 attempt 2) |
 | spawns | Implementer 11 calls, 177,810 tokens (two turns), ended complete; Reviewer 5 calls, 78,621 tokens, ended complete |
 | Running totals | tasks 4/10 (T4 in rework) · LOC about 900 · review rounds 6/20 (T1, T2, T3, T4a1, T6, T4a2 pending) |
+
+### T4: Constitution sites S1–S3, PASS on attempt 2 (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-3 (constitution pools + `docs/commands/akili-constitution.md`), FR-5 *Constitution*, FR-5 *Constitution project setup* |
+| Attempts | 2 |
+| Files changed | `.claude/commands/akili-constitution.md`; `docs/commands/akili-constitution.md`; `test/stack-detection.test.js` |
+| Skills / effort | `cognitive-doc-design` / attempt 1 `medium`, attempt 2 `high` (bump per the rework rule) |
+
+**Attempt 1: FAIL.**
+- *Implementer:* pointers added at Step 5, Step 8D item 1 and mode policy, and the run contract. `java-springboot` and `react-doctor` added to the Step 5 list and the docs line.
+- *Red:* pre-edit `grep -c` → `0`; new tests 10–14 red (`'at least three pointers'`).
+- *Falsifiers:* removing the 8D pointer → `'item 1 names the table'`; appending `org.springframework.boot` → `'marker restated: org.springframework.boot'`.
+- *Verification:* 45 / 0. *Evidence re-run:* VERIFIED (45 / 0, `grep -c` 6, `git diff --check` clean).
+- *Reviewer FAIL, verbatim summary of issues:*
+  1. Step 8D *Applies To* "names the manifest path that matched" covered Seed, any-stack and environment-provided rows that have no manifest (FR-5 *Constitution* AND; KZ-004).
+  2. The Step 5 pointer had no Seed branch and dropped any-stack skills (FR-5 *Constitution*; KZ-004).
+  3. The Discovery bullet kept scan evidence as a competing source for packaged-skill rows (FR-5; NFR-3).
+
+  Advisory: derive test 13's forbidden markers from the table; bound the mode regex per bullet.
+
+**Attempt 2: PASS.**
+- *Fix:* *Applies To* now follows the row kind (manifest path / declared stack / design condition / tooling condition; "Never invent a manifest path"). Step 5 gains the Seed branch and "plus the any-stack skills the design calls for". Discovery now reads "Packaged stack-skill rows come only from the table", with scan evidence feeding only the routing blocks and the `no packaged skill` stacks.
+- *Red:* reverting only the three fixes → tests 15, 16 and 17 red (`# pass 14 # fail 3`).
+- *[advisory-grade] test changes:* test 13 derives its forbidden markers from the table (falsifier: `@nestjs/core` appended → `'marker restated: @nestjs/core'`); assertions are bounded per bullet.
+- *Verification:* 48 / 0. *Evidence re-run:* VERIFIED (48 / 0).
+- *Reviewer:* **PASS** (opus). All three issues closed; edited paragraphs read whole; no markers, no line numbers.
+
+| Field | Value |
+|---|---|
+| ADVISORY (final) | The line-number guard window is 40 characters; `bulletOf` assumes no blank lines inside a bullet; design §7 S3 says "*Commands read from*" where the table column is "*Run and build commands read from*" (optional sync at archive) |
+| Implementer assumption (verbatim) | "The tests are keyword-pinned prose checks, so they do not validate semantics beyond the phrases they match." Leader: accepted. Semantic use is covered by the T10 walkthrough |
+| spawns | Implementer 13 calls, 175,716 tokens (two turns), ended complete; Reviewer a1 7 calls, 83,157 tokens, ended complete (FAIL); Reviewer a2 5 calls, 81,690 tokens, ended complete |
+| Running totals | tasks 5/10 · LOC about 1,000 · review rounds 7/20 |

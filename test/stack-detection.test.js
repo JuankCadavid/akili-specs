@@ -110,3 +110,97 @@ test("@akili-spec changes/java-springboot-skill NFR-3: the software-architect ro
   assert.ok(row, "router row present");
   assert.ok(row.startsWith("| Which stack a repository is"));
 });
+
+// ---- Constitution sites S1-S3 (T4) ----
+const CONS = () => read(".claude", "commands", "akili-constitution.md");
+const between = (s, from, to) => {
+  const a = s.indexOf(from);
+  assert.ok(a >= 0, `missing anchor: ${from}`);
+  const b = s.indexOf(to, a + from.length);
+  assert.ok(b > a, `missing end anchor: ${to}`);
+  return s.slice(a, b);
+};
+const step5Block = () => between(CONS(), "**Use skills when relevant**", "**Required structure:**");
+const step8dItem1 = () => between(CONS(), "1. A table `Skill | Applies To", "2. The instruction:");
+const step8dPolicy = () => between(CONS(), "**Mode-specific policy (mirror Step 8B):**\n\n- **Brand-new (Seed Setup):** build the map", "### Step 8E");
+const bulletOf = (block, key) => {
+  const bullets = block.split(/\n(?=- )/);
+  const hit = bullets.find((x) => x.includes(key));
+  assert.ok(hit, `bullet for ${key}`);
+  return hit.split(/\n\s*\n/)[0];
+};
+const legacyActive = () => CONS().split("\n").find((l) => l.startsWith("- **Legacy / Active:** derive the contract"));
+
+test("@akili-spec changes/java-springboot-skill FR-5: Constitution Step 5 points at the table and lists java-springboot and react-doctor", () => {
+  const b = step5Block();
+  assert.ok(b.includes("stack-detection.md"), "Step 5 names stack-detection.md");
+  assert.match(b, /software-architect/);
+  assert.match(b, /^- `java-springboot`$/m);
+  assert.match(b, /^- `react-doctor`$/m);
+  assert.match(b, /^- `golang-pro`$/m);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Constitution Step 8D names the table, candidates include java-springboot, modes use the table", () => {
+  const item1 = step8dItem1();
+  assert.ok(item1.includes("stack-detection.md"), "item 1 names the table");
+  assert.match(item1, /Candidates shipped with AKILI:[^.]*`java-springboot`/);
+  assert.match(item1, /Applies To[^]*manifest/i, "Applies To cell names the matched manifest path");
+  const p = step8dPolicy();
+  for (const mode of ["Seed Setup", "Discovery Setup", "Safe Update"]) {
+    const bullet = bulletOf(p, mode);
+    assert.ok(/stack-detection/.test(bullet), `${mode} bullet names the table`);
+  }
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Constitution run contract names the table's commands column", () => {
+  const l = legacyActive();
+  assert.ok(l, "Legacy / Active bullet present");
+  assert.ok(l.includes("stack-detection.md"), "names the table");
+  assert.ok(l.includes("Run and build commands read from"), "names the column");
+  assert.match(l, /Do not invent commands/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: the constitution command restates no marker and cites no line number for the table", () => {
+  const c = CONS();
+  const forbidden = new Set(["org.springframework.boot", "react-dom", "AWS::Serverless-2016-10-31", "libs.versions.toml", "spring-boot-starter"]);
+  for (const r of rows()) for (const m of r[2].matchAll(/`([^`]+)`/g)) {
+    const t = m[1];
+    if (/^(file present|provider\.name: aws|style|aliases)$/.test(t) || t.startsWith("$")) continue;
+    if (/[@.:\/-]/.test(t) || t === "next") forbidden.add(t);
+  }
+  for (const m of forbidden) {
+    if (m === "next") continue; // common word; covered by the specific keys above
+    assert.ok(!c.includes(m), `marker restated: ${m}`);
+  }
+  assert.ok(forbidden.has("@nestjs/core") && forbidden.has("@angular/core"), "forbidden list derived from the Marker column");
+  assert.ok(!/stack-detection\.md[^\n]{0,40}(line \d+|:\d+)/.test(c), "no line number after the table path");
+  assert.ok((c.match(/stack-detection\.md/g) || []).length >= 3, "at least three pointers");
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: docs/commands/akili-constitution.md stack-skills line mirrors Step 5", () => {
+  const line = read("docs", "commands", "akili-constitution.md").split("\n").find((l) => l.startsWith("- Stack skills matching the repo"));
+  assert.ok(line, "line present");
+  assert.ok(line.includes("`java-springboot`") && line.includes("`react-doctor`"));
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Step 5 covers the Seed branch and the any-stack skills", () => {
+  const b = step5Block();
+  assert.match(b, /Discovery, Safe Update/);
+  assert.match(b, /declared stack[^\n]*\(Seed/);
+  assert.match(b, /any-stack skills/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Applies To is scoped per row kind, never an invented manifest", () => {
+  const item1 = step8dItem1();
+  assert.match(item1, /produced from a manifest names that manifest path in \*Applies To\*/);
+  assert.match(item1, /Seed row names the declared stack/);
+  assert.match(item1, /any-stack row[^;]*`api-design-principles`[^;]*`error-handling-patterns`[^;]*never a manifest/);
+  assert.match(item1, /environment-provided row/);
+  assert.match(item1, /Never invent a manifest path/);
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: Discovery packaged-skill rows come only from the table", () => {
+  const d = bulletOf(step8dPolicy(), "Discovery Setup");
+  assert.match(d, /Packaged stack-skill rows come only from the table/);
+  assert.match(d, /scan evidence[^]*routing blocks[^]*no packaged skill/);
+});
