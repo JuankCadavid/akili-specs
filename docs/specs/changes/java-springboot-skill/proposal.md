@@ -11,9 +11,9 @@
 | Type | Change |
 | Deliverable | software (a packaged skill, methodology text, a docs page and tests) |
 | Approval Mode | gated. Mandate: "Bring every gate to me and wait." |
-| Approval | **pending JC** |
-| Requirement source | JC brief, 2026-11-25 (pasted into the session). Jira: **asked at this gate** |
-| Visual source | None: no UI surface. Figma/mockup: **asked at this gate** |
+| Approval | **Option A approved by JC, 2026-11-25**, with added scope (§5 *Manifest detection*): "/akili-constitution, /akili-propose, /akili-specify and every command that inspects project config files must detect Java (pom.xml, build.gradle, build.gradle.kts) and route java-springboot, the same way go.mod routes golang-pro". Release **minor** (Q1). Q2 and Q3 settled as proposed. Q4/Q5 (§12) open: they come from a premise correction (P12) |
+| Requirement source | JC brief and JC's gate answers, 2026-11-25. No Jira (JC, 2026-11-25) |
+| Visual source | None: no UI surface, no Figma (JC, 2026-11-25) |
 | Model precedent | `docs/specs/archive/2026-11-01-changes--go-backend-routing--golang-skill/` (admission) and `…2026-11-02-changes--go-backend-routing--backend-skill-routing/` (routing matrix) |
 | Depends on | none |
 | Parallel-safe | no. It edits the same candidate-pool lines (`akili-constitution` Steps 5/8D, `akili-specify` Step 2.1) and the same `backend-routing.md` tables that any other stack-skill change would touch |
@@ -38,7 +38,8 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 | P7 | Repo-root `LICENSE`: MIT, `Copyright GitHub, Inc.` (unlike golang-pro, the holder is named). Repo: 41,556 stars, pushed 2026-11-25 | `gh api repos/github/awesome-copilot/contents/LICENSE` lines 1-3; `gh api repos/github/awesome-copilot` (run 2026-11-25) |
 | P8 | Its router names seven sibling skills, as "If these standalone skills are installed, also use them for their topic; otherwise rely on the official docs": `java-hibernate-jpa`, `spring-boot-testing`, `spring-security`, `spring-observability`, `create-spring-boot-java-project`, `java-add-graalvm-native-image-support`, plus `spring-boot-4-migration` in Before-writing step 2. All seven exist upstream | scratchpad `SKILL.md` Router section + `references/data.md:3`, `configuration.md:3`, `aot-and-startup.md:22`; upstream tree listing (run 2026-11-25) |
 | P9 | Preliminary scan of the six files for shell, network, credential and injection phrasing. Hits: build commands (`./mvnw verify`, `./gradlew build`, `./mvnw spring-boot:test-run`), a JDK flag example (`java -XX:AOTCacheOutput=…`), placeholder URLs (`https://rates.example.com`, `rest-api.md:88,114`), docs links (docs.spring.io, openjdk.org JEP 514), and secret-*hygiene* text (`configuration.md:32-41`: "Never commit `.env`…"). No fetch-and-run, no instruction-override phrasing. **This is a scan, not the security review** | `grep -n -i -E "curl\|wget\|https?://\|rm -rf\|token\|password\|secret\|ignore (previous\|all)"` over the scratchpad copy (run 2026-11-25) |
-| P10 | skills.sh / Gen Agent Trust Hub rating for `java-springboot` | `UNVERIFIED — confirm at source before relying on it`. Checked in the security task (T1) |
+| P10 | skills.sh: Gen Agent Trust Hub **Pass** (Risk Level SAFE, audited 2026-11-11, one finding `INDIRECT_PROMPT_INJECTION`: the skill reads `pom.xml`, `build.gradle(.kts)`, `application.properties/yml` with no boundary markers). Socket **Pass** (2026-11-18, audited hash `a607aad8679d`, not the AKILI pin). Snyk **Pass** (Risk LOW, "No issues detected"). 22.4K installs | `https://skills.sh/github/awesome-copilot/java-springboot` and its `/security/agent-trust-hub`, `/security/socket`, `/security/snyk` pages, all HTTP 200 (fetched 2026-11-25) |
+| P12 | **Premise correction:** the added scope says "the same way go.mod routes golang-pro", but **no command maps `go.mod` to `golang-pro`** (or any manifest to any skill). Step 8D builds the Skill Map from generic scan evidence ("frameworks, UI library, cloud tooling actually present"). The specify Step 2.1 fallback is a plain list. `/akili-propose` and `/akili-audit` do no stack routing. The only `pom.xml`/`build.gradle` mention in the package is `pr-review`'s file filter | `grep -rn "go\.mod" .claude/commands .claude/skills/*/SKILL.md .claude/skills/*/references .claude/templates bin docs AGENTS.md` → hits only inside `golang-pro` itself and `pr-review/references/large-prs.md:63` (run 2026-11-25); `.claude/commands/akili-constitution.md:780-790` (Step 8D mode policy); `akili-specify.md:249-259` |
 | P11 | No docs page groups the shipped skills by language or framework. `docs/overview.md` groups them by area (frontend, backend and architecture, product, deliverables), so stack skills sit mixed with method skills | `docs/overview.md:60-92` (read 2026-11-25) |
 
 ## 4. Proposed Outcome
@@ -53,10 +54,12 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 
 | In | Detail |
 |---|---|
+| Security pre-check (done 2026-11-25, before specify, at JC's request) | `security-audit` guidance mode, source-only, over the six files at the pin. Verdict **PASS**: see §15. At execute, T1 checks again that the vendored blobs equal the reviewed hashes, and records the verdict in `execution.md` |
 | Security gate (task 1) | `security-audit` in guidance mode, scoped to the six pinned files. It checks prompt injection, instructions to fetch or run remote content, credential handling, destructive commands, and the instructions the router gives about the siblings (P8). It also records the skills.sh / Trust Hub rating (P10). The verdict goes in `execution.md`. `FAIL` → Pivot Protocol, and nothing is copied |
 | Vendor + adapt | Copy the six files at the pin. Frontmatter: keep `name` and `description` unchanged, then append `license: MIT` and a `metadata` block (`author`, `source`, `adapted-by`, `adapted-for`, `binding: stack`). Exact `author` wording is settled at specify (Q2). No body edits |
 | Provenance | `LICENSE` copied unchanged. `NOTICE` follows the `golang-pro` NOTICE shape. Hash lock and wiring test in the `test/golang-skill.test.js` pattern. `.gitattributes`: `.claude/skills/java-springboot/** -text` |
 | Wiring | Candidate pools (3) + docs/commands stack line; `backend-routing.md` stack row, matrix row, card; `AGENTS.md` *Backend Skills* bullet |
+| Manifest detection (added scope, JC 2026-11-25) | A single **stack-detection table**, defined in one place: manifest file + marker → stack → packaged skill(s). Rows: `pom.xml`, `build.gradle`, `build.gradle.kts` (+ a Spring Boot marker, Q5) → Java / Spring Boot → `java-springboot`; `go.mod` → Go → `golang-pro`, which makes P12's premise true. Wider coverage is Q4. Readers: `/akili-constitution` (Discovery scan + Step 5 + Step 8D Skill Map rows), `/akili-specify` Step 2.1 (no-map fallback picks from detection, not the bare list), `/akili-propose` Step 0 (records the detected stack, so the proposal names the stack skills it expects), `/akili-audit` (*Key Modules & Dependencies*: a detected manifest with no matching Skill Map row is reported as Skill Map drift). Every other command reads the Skill Map, never manifests (checked at specify, KZ-004) |
 | Skills-by-stack page | `docs/skills/by-stack.md`, in English. Lists Go, Java/Spring Boot, TypeScript/NestJS, AWS serverless, AI agents, React/Next.js, Angular, Tailwind/shadcn, then method skills (any stack), then stacks with no packaged skill. Links: `docs/overview.md`, README *Learn more*, `docs/README.md`, `docs/skills/README.md` |
 | Docs | `docs/skills/java-springboot.md`; rows in `docs/skills/README.md`, `docs/overview.md`, `docs/skills/governance.md`; `CHANGELOG.md` `Unreleased` |
 | Tests | Hash lock + frontmatter + `LICENSE`/`NOTICE`; candidate pools and routing rows; a by-stack page test that checks every `stack`-binding skill in the governance row appears on the page and that the page has no skill that row lacks (no drift); link presence; `SKILL_FILE_EXPECTED` +8 (`test/install-cursor.test.js`); the stack fixture in `test/akili-panel-flow.test.js:1436`; `test/backend-skill-routing*.test.js` sets that enumerate members (KZ-changes--archify-diagrams-2) |
@@ -75,7 +78,7 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 |---|---|
 | Java / Spring Boot projects using AKILI | The Skill Map can list `java-springboot`; the Leader assigns it to Java tasks; the routing matrix gives it the `implement` lead |
 | `.claude/skills/java-springboot/` | New folder, 8 files (6 upstream + `LICENSE` + `NOTICE`) |
-| `.claude/commands/akili-constitution.md`, `akili-specify.md` | One list entry each, three places |
+| `.claude/commands/akili-constitution.md`, `akili-specify.md`, `akili-propose.md`, `akili-audit.md` | Candidate-pool entries (3 places), the stack-detection table and a pointer to it in each reader |
 | `.claude/skills/software-architect/references/backend-routing.md` | Stack row, matrix row, card |
 | `AGENTS.md`, `README.md`, `docs/README.md`, `docs/overview.md`, `docs/skills/*`, `docs/commands/akili-constitution.md`, `CHANGELOG.md` | Rows, links and two new pages |
 | `test/*` | One new test file + count and fixture updates |
@@ -97,11 +100,13 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 - Documentation of the seven optional upstream siblings, which the user installs and AKILI never vendors.
 - `docs/skills/by-stack.md`, the skills-by-language-and-framework page, with its links and a test that keeps it in step with the governance `stack` row.
 - A recorded security verdict before any upstream byte enters the package.
+- A stack-detection table (manifest → stack → skill), read by `/akili-constitution`, `/akili-specify`, `/akili-propose` and `/akili-audit`. Java build files route `java-springboot`, and `go.mod` routes `golang-pro`.
 
 ### MODIFIED
 
 - `stack` inventory: 15 → 16 (`docs/skills/governance.md`).
 - Backend routing: a Java project no longer falls through to `other`.
+- Skill Map construction (Step 8D Discovery) and the specify no-map fallback: from generic evidence to the detection table, with evidence kept for stacks the table lacks.
 
 ### REMOVED
 
@@ -133,9 +138,12 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 | R6 | Fixtures that enumerate set members escape a count search | KZ-changes--archify-diagrams-2: search on `golang-pro` as well as on the counts (the 9 hits listed in §5 Tests) |
 | R7 | Test budget | KZ-bugfix--init-ctrlc-abort-2: budget per assertion clause, about 200 LOC |
 | R8 | Shipped tests must not read `docs/specs/changes/java-springboot-skill/` | KZ-changes--archify-diagrams-1 |
-| Q1 | Semver | Proposed **minor** (new skill; same call as golang-pro). JC to confirm |
-| Q2 | `metadata.author` wording when upstream declares none | Proposed `github/awesome-copilot contributors (Copyright GitHub, Inc.)`, with `NOTICE` quoting the `LICENSE` line. Settled at specify |
-| Q3 | Should the by-stack page also list `conditional` skills that are stack-shaped (e.g. `gsap-animation`, `impeccable`)? | Proposed: a short "also used on frontend stacks" line that names them without listing them as stack skills, so the drift test stays exact on the `stack` row |
+| Q1 | Semver | **Settled: minor** (JC, 2026-11-25) |
+| Q2 | `metadata.author` wording | **Settled:** `github/awesome-copilot contributors (Copyright GitHub, Inc.)` (JC, 2026-11-25). `NOTICE` quotes the `LICENSE` line |
+| Q3 | `conditional` skills on the by-stack page | **Settled:** one separate line names `gsap-animation` and `impeccable`, outside the stack tables (JC, 2026-11-25) |
+| Q4 | Detection table coverage (P12) | **Open, for JC.** (a) Go + Java only; other stacks keep scan evidence. (b) One row for each shipped stack skill: `package.json` deps `@nestjs/core` → NestJS set, `@angular/core` → `angular-developer`, `react`/`next` → React pair, `tailwindcss` → `tailwind-design-system`, `components.json` → `shadcn-ui`, `template.yaml`/`serverless.yml` → `aws-serverless`. Recommended **(b)**: same mechanism for every stack, about 40 LOC more, and `by-stack.md` can show the detection column |
+| Q5 | Java project **without** Spring Boot (P5: the skill is written for "an existing Spring Boot 3/4 project") | **Open, for JC.** Recommended: route `java-springboot` only when a Spring Boot marker is present (`org.springframework.boot` parent/plugin or a `spring-boot-starter*` dependency). Plain Java (Quarkus, Micronaut, Jakarta EE, libraries) is reported as "Java, no packaged skill" and falls through to `other`. The alternative routes it for any Java build file, which gives Spring advice to non-Spring code |
+| R9 | Detection reads project files that the project controls (Trust Hub `INDIRECT_PROMPT_INJECTION`, P10) | The table matches file names and dependency coordinates only; it never follows text in them. The same holds for any stack skill (golang-pro reads `go.mod`) |
 
 ## 13. Success Criteria
 
@@ -152,4 +160,19 @@ When a project's backend is Java on Spring Boot, its agents should get the same 
 /akili-specify changes/java-springboot-skill
 ```
 
-Lite depth; the security gate is task 1.
+Lite depth. Q4 and Q5 are settled before Phase 1. T1 re-verifies the reviewed hashes.
+
+## 15. Security Pre-check (2026-11-25)
+
+| Item | Record |
+|---|---|
+| Mode | `security-audit` guidance mode; source-only reading of all six files, nothing executed |
+| Files and blob hashes (`git hash-object`) | `SKILL.md` `3729077eaf60` · `references/aot-and-startup.md` `bdebfab601c6` · `configuration.md` `500624d3e2d0` · `data.md` `e66458facf39` · `messaging-caching.md` `ecfd728c0c1c` · `rest-api.md` `69226559eebf` |
+| Prompt injection / hidden text | None. No non-ASCII bytes, no HTML comments, no instruction-override phrasing |
+| Remote fetch or execute | None. URLs are docs (docs.spring.io, openjdk.org JEPs) or placeholders (`rates.example.com`, `noreply@example.com`) |
+| Commands | Local build and run of the user's own project only: `./mvnw verify`, `./gradlew build`, `spring-boot:process-aot`, `spring-boot:test-run`, CDS/AOT training runs of the app jar. Nothing destructive (no `rm`, no force flags) |
+| Credentials | Protective guidance only: never commit `.env`, do not log secrets, do not expose `/actuator/env`. The only property example is `${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}` |
+| Infrastructure and dependencies | Gated by the skill: "Ask before adding" brokers, caches, schedulers, Flyway; "Never upgrade Spring Boot, Java or dependencies implicitly"; pin image tags, never `latest` |
+| Sibling-skill cues (R2) | "If these standalone skills are installed, also use them…; otherwise rely on the official docs". No install action is named anywhere in the six files |
+| Third-party ratings | Trust Hub Pass/SAFE, Socket Pass, Snyk Pass/LOW (P10). The Trust Hub finding is covered by R9 |
+| **Verdict** | **PASS**: no boundary-crossing instruction found. This is a guidance-mode review, not a full audit |
