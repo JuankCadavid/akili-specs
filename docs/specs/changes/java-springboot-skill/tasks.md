@@ -112,7 +112,7 @@
 
 | Field | Value |
 |---|---|
-| Status | `[ ]` |
+| Status | `[x]` |
 | Size | M |
 | Dependencies | none |
 | Requirements | FR-4 (all six scenarios), FR-5 *The set is checked* (reader list), NFR-3 |

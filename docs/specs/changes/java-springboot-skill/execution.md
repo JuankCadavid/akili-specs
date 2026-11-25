@@ -72,3 +72,22 @@
 | Implementer assumptions (verbatim) | "The NOTICE has no 'field left out' item, because all the frontmatter fields with a true value are present." "NOTICE also records that the `author` line is an AKILI addition, since upstream declares none." "The NOTICE 'Handling' row says manifests the skill reads are project data, never instructions." Leader: accepted; the Reviewer judged all three true |
 | spawns | Implementer 7 calls, 90,091 tokens, ended complete; Reviewer 13 calls, 92,284 tokens, ended complete |
 | Running totals | tasks 2/10 · LOC about 300 (test about 190, `NOTICE` about 50, attributes 8; vendored bytes not counted) · review rounds 2/20 |
+
+### T3: The stack-detection table, PASS (2026-11-25)
+
+| Field | Value |
+|---|---|
+| Requirements | FR-4 (all six scenarios), FR-5 *The set is checked* (Readers list), NFR-3, NFR-4 |
+| Attempts | 1 |
+| Files changed | `.claude/skills/software-architect/references/stack-detection.md` (new); `.claude/skills/software-architect/SKILL.md` (one router row); `test/stack-detection.test.js` (new, 9 tests) |
+| Skills / effort | `software-architect`, `cognitive-doc-design` / `high` |
+| Red run (observed) | With the file absent, every test failed: `ENOENT: no such file or directory, open '…/software-architect/references/stack-detection.md'` |
+| Falsifier (executed) | `gradle/libs.versions.toml` removed from the Java marker cell → `not ok 3 … 'Java marker cell lacks libs.versions.toml'`. `react-dom` → `react` → `not ok 4 … 'react-dom marker'`. Both restored byte-identical |
+| Implementer verification | `node --test test/stack-detection.test.js` 9 / 0; consumers (`backend-skill-routing`, `-coverage`, `ai-agent-references`, `diagram-design`, `nestjs-official-skills-contracts`) 125 / 0 |
+| Evidence re-run | **VERIFIED**. Leader inline: the six suites together 134 / 0 |
+| Reviewer | **PASS** (opus). Every FR-4 clause is carried by the text; Readers match S1–S8; the governance `stack` set is covered (14 in rows, 2 in any-stack) |
+| ADVISORY | (1) FR-4 text still said `react` against J-8. Applied as an execute-time factual correction, below. (2) The test's skill list is hard-coded; deriving it from `binding: stack` frontmatter would self-maintain. (3) Wording nits in *Outcomes* ("reports" before the ask) |
+| Implementer assumptions (verbatim) | "The Java and React markers sit in the marker cell, so the test checks that cell specifically." "I added `serverless.ts/.js/.json` as a note under the rows table rather than in the manifest cell." "I added an 'Absent file' section, mirroring `backend-routing.md`." "Readers cite steps by name only." Leader: accepted (the Reviewer judged the Absent-file section narrowing only) |
+| Decisions | **Execute-time spec edit:** `requirements.md` FR-4 *Rows cover every shipped stack*, React clause `react` or `next` → `next` or `react-dom` (`react` alone does not match). Reason: carries judgment J-8, which JC approved and which design §5(a) already holds; the meaning matches the approved design. Correction Closure: `grep -rn` for `` `react` or `next` `` over the spec folder → no remaining hit. Carried into the T4 Reviewer brief as a named conformance check |
+| spawns | Implementer 9 calls, 102,463 tokens, ended complete; Reviewer 6 calls, 87,165 tokens, ended complete |
+| Running totals | tasks 3/10 · LOC about 520 · review rounds 3/20 |
