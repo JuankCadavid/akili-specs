@@ -59,7 +59,7 @@ The table is data that agents read. The only code that touches it is the parity 
 | `.claude/skills/akili-panel/hooks/flow.mjs`, `.claude-plugin/plugin.json`, `README.md` | `SKILL_CATALOG` entry; version `1.1.3` |
 | `.claude/commands/akili-{constitution,specify,propose,audit,review,security}.md` | Pointers (§7) |
 | `docs/skills/{java-springboot,by-stack}.md` | New |
-| `docs/skills/{README,governance,pr-review}.md`, `docs/overview.md`, `docs/README.md`, `docs/cli.md`, `docs/flow.md`, `docs/commands/akili-constitution.md`, `docs/commands/akili-review.md`, `README.md`, `AGENTS.md`, `CHANGELOG.md`, `.gitattributes` | Rows, links, counts |
+| `docs/skills/{README,governance,pr-review}.md`, `docs/overview.md`, `docs/README.md`, `docs/cli.md`, `docs/flow.md`, `docs/commands/akili-constitution.md`, `docs/commands/akili-review.md`, `docs/commands/akili-security.md` (T7 one-line mention; synced at archive, validation W-1), `README.md`, `AGENTS.md`, `CHANGELOG.md`, `.gitattributes` | Rows, links, counts |
 | `test/java-springboot-skill.test.js`, `test/stack-detection.test.js` | New |
 | Existing tests and fixtures (P-9, P-15, P-18) | Counts and fixtures |
 
