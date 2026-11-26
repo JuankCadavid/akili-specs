@@ -112,7 +112,7 @@ All 11 ACC tests went red when their target text was broken, and the bytes were 
 None needed. These advisories are recorded only; none of them is a task (scope grows only through approval):
 1. **Tautological HEAD test.** `test/stack-detection-readers.test.js` › `the verbatim brief addenda are byte-unchanged vs HEAD` compares against `git show HEAD:`. After a commit it compares the tree to itself, so it only catches uncommitted edits.
 2. **Wrong labels.** Tests in the same file under the `P9` prefix are labelled "FR-9" but prove FR-3, NFR-3 and NFR-4.
-3. **"Seven" vs "six".** NOTICE and `docs/skills/java-springboot.md` say "seven pinned files", while FR-1/FR-2 say "six" (`LICENSE` is the seventh). This is for the validate quote-check.
+3. **"Seven" vs "six".** NOTICE and `docs/skills/java-springboot.md` say "seven pinned files", while FR-1/FR-2 say "six" (`LICENSE` is the seventh). Resolved at validate: FR-1 corrected to seven (validation-report R-1).
 
 ## 9. Accepted Gaps
 

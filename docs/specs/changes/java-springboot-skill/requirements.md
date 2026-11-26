@@ -86,9 +86,9 @@ The package SHALL admit the pinned files only when their bytes equal the bytes t
 
 #### Scenario: Hashes match
 
-- GIVEN the six files fetched again at the pin before vendoring
+- GIVEN the seven pinned files of §4 (the six skill files and `LICENSE`) fetched again at the pin before vendoring
 - WHEN each is hashed as a git blob
-- THEN each hash equals its §4 SHA, and `execution.md` records the six hashes next to the pre-check verdict (`proposal.md` §15)
+- THEN each hash equals its §4 SHA, and `execution.md` records the seven hashes next to the pre-check verdict (`proposal.md` §15)
 - AND vendoring may proceed
 - BUT it must NOT copy any byte into `.claude/skills/` before that record exists
 - AND IT MUST record the third-party ratings exactly as fetched, including the Trust Hub `INDIRECT_PROMPT_INJECTION` finding, never only "Pass"
