@@ -459,6 +459,49 @@ test("falsifier (c) fixtures: a 6-line src/auth/login.js and a 6-line src/sessio
   assert.equal(tierOf(t, fileDiff("src/session.js", 5, 1)), "full");
 });
 
+test("@akili-spec changes/java-springboot-skill FR-5: infrastructure-as-code manifests are sensitive, `full`, and recommended for /akili-security", (t) => {
+  for (const p of ["cdk.json", "infra/cdk.json", "template.yaml", "svc/template.yml", "serverless.yml", "svc/serverless.yaml"]) {
+    const { manifest } = prepare(t, fileDiff(p, 1));
+    assert.equal(manifest.tier, "full", `${p} tier`);
+    assert.deepEqual(manifest.recommend_security, [p], `${p} recommend_security`);
+  }
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: a Gradle version catalog is a sensitive dependency manifest", (t) => {
+  for (const p of ["gradle/libs.versions.toml", "libs.versions.toml"]) {
+    const { manifest } = prepare(t, fileDiff(p, 1));
+    assert.equal(manifest.tier, "full", `${p} tier`);
+    assert.deepEqual(manifest.recommend_security, [p], `${p} recommend_security`);
+  }
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5: templates/page.yml and components.json are not sensitive; no other filter changed", (t) => {
+  for (const p of ["templates/page.yml", "web/components.json", "src/serverless.ts"]) {
+    const { manifest } = prepare(t, fileDiff(p, 1));
+    assert.equal(manifest.tier, "trivial", `${p} tier`);
+    assert.deepEqual(manifest.recommend_security, [], `${p} recommend_security`);
+  }
+});
+
+test("@akili-spec changes/java-springboot-skill FR-5 parity: every stack-detection manifest is a sensitive glob, or a stated exception", (t) => {
+  const md = fs.readFileSync(path.join(REPO_ROOT, ".claude", "skills", "software-architect", "references", "stack-detection.md"), "utf8");
+  const lines = md.split("\n");
+  const head = lines.findIndex((l) => /^\| Stack \| Manifest \|/.test(l));
+  assert.ok(head >= 0, "stack-detection rows table header not found");
+  const rows = [];
+  for (let i = head + 2; i < lines.length && lines[i].startsWith("|"); i++) rows.push(lines[i]);
+  const names = new Set();
+  for (const l of rows) for (const m of l.split("|")[2].matchAll(/`([^`]+)`/g)) names.add(m[1]);
+  assert.ok(names.size >= 10, `parsed too few manifest names: ${[...names]}`);
+  const EXCEPTIONS = { "components.json": "no dependency, permission or credential" };
+  for (const n of names) {
+    if (EXCEPTIONS[n]) continue;
+    assert.equal(tierOf(t, fileDiff(n, 1)), "full", `${n} is neither sensitive nor a stated exception`);
+  }
+  for (const n of Object.keys(EXCEPTIONS)) assert.ok(names.has(n), `exception ${n} no longer in the table`);
+  assert.ok(names.has("gradle/libs.versions.toml"), "version catalog row not parsed");
+});
+
 test("FR-4 sessions and tokens are matched by file name, not only by directory", (t) => {
   const named = ["src/session.js", "app/middleware/session.go", "lib/sessionStore.ts", "src/sessions.py", "src/session/store.js", "src/UserSession.ts",
     "src/user-session.js", "src/user_session.rb", "src/app.session.ts", "src/token.js", "src/tokens.ts", "src/refresh-token.js", "src/auth_token.py",

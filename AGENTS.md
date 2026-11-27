@@ -100,6 +100,7 @@ The method skill decides what and why; the stack skill decides how in this langu
 - `nestjs-production` — NestJS support: config, logs, health, shutdown.
 - `nestjs` — NestJS support: project start, layout, docs.
 - `golang-pro` — stack skill: concurrency, interfaces, generics, error wrapping, pprof, table-driven tests; leads `implement` on Go.
+- `java-springboot` — stack skill (github/awesome-copilot, MIT): Spring Boot 3/4 controllers, validation, ProblemDetail, Spring Data, configuration, messaging; leads `implement` on Java / Spring Boot.
 - `aws-serverless` — stack skill: Lambda handler, API Gateway, SQS patterns, serverless anti-patterns; leads `implement` on AWS serverless.
 - `ai-agent-development` — conditional skill: agent framework and runtime selection, hosting, state, tools, memory, HITL; leads framework-selection for agents.
 
