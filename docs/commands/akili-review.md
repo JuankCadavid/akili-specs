@@ -29,6 +29,8 @@ Review a pull request, a commit range or staged changes against its specs with t
 
 The command runs outside any spec: **no Approval Mode**.
 
+Each lens brief also names the stacks the stack-detection table matches on the base tree for the chunk's files, as idiom references only; it never changes a lens's scope, threshold or verdict rules.
+
 ## Flow
 
 | Step | What happens |

@@ -12,6 +12,7 @@ Use this documentation when you want the human-facing reference. The installable
 - [CLI](cli.md) - `akili` terminal reference for install, update, list, and doctor
 - [Commands](commands/README.md) - slash command reference
 - [Skills](skills/README.md) - packaged skill inventory and usage guidance
+- [Skills by stack](skills/by-stack.md) - which skills AKILI ships for each language and framework, and how each stack is detected
 - [OpenSpec comparison](openspec-comparison.md) - what AKILI borrows from OpenSpec and where it differs
 - [Skill governance](skills/governance.md) - acceptance checklist for packaged skills
 - [Release checklist](release-checklist.md) - controlled npm release process

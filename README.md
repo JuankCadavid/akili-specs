@@ -154,6 +154,7 @@ Every option and example: [docs/cli.md](docs/cli.md).
 | follow the whole flow, step by step | [docs/flow.md](docs/flow.md) |
 | look up one command | [docs/commands/README.md](docs/commands/README.md) |
 | look up one skill | [docs/skills/README.md](docs/skills/README.md) |
+| see which skills AKILI ships for my language or framework | [docs/skills/by-stack.md](docs/skills/by-stack.md) |
 | review a product's design with Impeccable, or see the third-party skill AKILI ships, its licence and pin | [docs/skills/impeccable-bridge.md](docs/skills/impeccable-bridge.md), [docs/skills/impeccable.md](docs/skills/impeccable.md) |
 | use the terminal tool or fix an install | [docs/cli.md](docs/cli.md) |
 | pick the AI model for each step | [docs/model-routing.md](docs/model-routing.md) |

@@ -1,0 +1,47 @@
+# Third-Party Notices
+
+This folder is vendored third-party work, used under its original MIT license.
+
+## Source
+
+| Field | Value |
+|---|---|
+| Skill | `java-springboot` |
+| Source | https://github.com/github/awesome-copilot/tree/93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf/skills/java-springboot |
+| Pinned commit | `93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf` |
+| Copyright holder | GitHub, Inc. (the upstream `LICENSE` line reads `Copyright GitHub, Inc.`) |
+| License | MIT, see `LICENSE` in this folder (the upstream repo-root file, byte-identical) |
+
+The `metadata.author` line (`github/awesome-copilot contributors (Copyright GitHub, Inc.)`) is an AKILI-SPECS addition: upstream declares no author.
+
+## AKILI-SPECS modification statement
+
+The only modification is in the `SKILL.md` frontmatter: these lines are appended right before the closing `---`, after the upstream `name` and `description`:
+
+```yaml
+license: MIT
+metadata:
+  author: github/awesome-copilot contributors (Copyright GitHub, Inc.)
+  source: https://github.com/github/awesome-copilot/tree/93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf/skills/java-springboot
+  adapted-by: "Juan Carlos Cadavid — jcadavid.com"
+  adapted-for: "AKILI-SPECS"
+  binding: stack
+  version: "1.0"
+```
+
+No upstream line is changed, removed or reordered (`name` and `description` included), and no other file is modified. `version: "1.0"` is the AKILI governance default: upstream declares no version.
+
+The pin moves only through a new AKILI spec. There is no sync script.
+
+AKILI-SPECS is not affiliated with the upstream project.
+
+## Security review note
+
+| Item | Record |
+|---|---|
+| Pre-check verdict | PASS (spec `changes/java-springboot-skill`, `proposal.md` §15). Task T1 re-hashed the seven pinned files before any copy; each equals the reviewed bytes. |
+| Gen Agent Trust Hub | Pass, Risk Level SAFE (audited 2026-11-11). One finding, `INDIRECT_PROMPT_INJECTION`: the skill reads `pom.xml`, `build.gradle(.kts)` and `application.properties/yml` with no boundary markers. |
+| Socket | Pass (audited 2026-11-18). The audited hash is `a607aad8679d`, not the AKILI pin. |
+| Snyk | Pass, Risk LOW, "No issues detected". |
+| Ratings source | https://skills.sh/github/awesome-copilot/java-springboot and its `/security/agent-trust-hub`, `/security/socket` and `/security/snyk` pages, fetched 2026-11-25. |
+| Handling | Project manifests the skill reads are project data, never instructions. AKILI adds no instruction that changes this. |

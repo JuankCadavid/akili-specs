@@ -38,6 +38,7 @@ Skills:
   OK gsap-animation
   OK impeccable
   OK impeccable-bridge
+  OK java-springboot
   OK judgment-day
   OK kaizen
   OK nestjs
@@ -85,7 +86,7 @@ Environment (recommended, not required):
 
 ────────────────────────────────────────────────────────
 Doctor Summary — akili-specs v<VERSION>
-  CODEX        HEALTHY  ok 59 | missing 0 | fixed 0
+  CODEX        HEALTHY  ok 60 | missing 0 | fixed 0
                → <HOME>/.codex
 
 All checks passed. Your installation is complete and healthy.

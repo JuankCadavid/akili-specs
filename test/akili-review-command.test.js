@@ -203,10 +203,10 @@ test("FR-4 tier table: trivial <= 10 lines, lite <= 100 lines and <= 20 files, f
   for (const lens of ["spec", "correctness", "tests", "maintainability", "security"]) assert.ok(fullLenses.includes(`\`${lens}\``), `full row lenses lost \`${lens}\` (FR-4: all lenses, docs optional)`);
 });
 
-test("FR-4 security-sensitive paths: the nine default areas force full and recommend /akili-security --profile quick", () => {
+test("FR-4 security-sensitive paths: the ten default areas force full and recommend /akili-security --profile quick", () => {
   const sec = block(large, /^### Security-sensitive globs/m);
   has(sec, /A match forces `full` and fills `recommend_security`[^\n]*`\/akili-security <paths> --profile quick`/, "sensitive match no longer forces full or recommends /akili-security --profile quick");
-  for (const area of ["Authentication", "Cryptography", "Secrets and credentials", "Sessions", "Tokens", "IPC", "Deserialization", "CI workflows", "Dependency manifests"])
+  for (const area of ["Authentication", "Cryptography", "Secrets and credentials", "Sessions", "Tokens", "IPC", "Deserialization", "CI workflows", "Dependency manifests", "Infrastructure as code"])
     assert.ok(sec.split("\n").some((l) => l.startsWith(`| ${area}`)), `sensitive-path area ${area} missing`);
   has(sec, /\| CI workflows \| `\.github\/workflows\/\*\*` \|/, "CI workflows row lost .github/workflows/");
 });

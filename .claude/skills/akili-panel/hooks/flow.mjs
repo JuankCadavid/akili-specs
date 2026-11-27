@@ -645,6 +645,7 @@ export const SKILL_CATALOG = Object.freeze([
   { name: 'gsap-animation', binding: 'conditional' },
   { name: 'impeccable', binding: 'conditional' },
   { name: 'impeccable-bridge', binding: 'conditional' },
+  { name: 'java-springboot', binding: 'stack' },
   { name: 'judgment-day', binding: 'core' },
   { name: 'kaizen', binding: 'core' },
   { name: 'nestjs', binding: 'stack' },

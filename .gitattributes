@@ -34,6 +34,14 @@ assets/akili-flow-animated.svg -text
 # byte-exact and every committed byte stays intact on Windows CI.
 .claude/skills/golang-pro/** -text
 
+# changes/java-springboot-skill T2, FR-2 Cross-platform.
+#
+# The vendored java-springboot tree is hash-locked by
+# test/java-springboot-skill.test.js (git blob SHAs of the pinned upstream
+# bytes). A Windows checkout that rewrote LF to CRLF would change every hash,
+# so the tree is declared byte-exact.
+.claude/skills/java-springboot/** -text
+
 # changes/nestjs-official-skills T2, FR-1 / NFR-3 Cross-platform.
 #
 # The six vendored official NestJS skills are hash-locked by UPSTREAM.md and

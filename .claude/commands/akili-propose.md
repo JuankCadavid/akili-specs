@@ -76,6 +76,14 @@ Do not create `requirements.md`, `design.md`, or `tasks.md` in this command unle
    - **Non-spec carve-outs.** These directories under `docs/specs/` are never a spec and are never read as one: `archive/`, `general-setup/`, `quick/`, `kaizen/`, `audits/`, `reviews/`, plus any family container — a folder whose only spec file is `family.md`. `general-setup/` is still read as the template source named earlier in this step — as templates, never as a related spec.
    - Also read `docs/specs/kaizen-log.md` if it exists — ONLY the `## Active Lessons` table (skip `## Entries`).
 5. **CodeGraph over full reads:** If `.codegraph/` exists, use `codegraph_search` and `codegraph_context` to inspect relevant code paths instead of reading full source files or using generic `grep`/`glob`. This drastically reduces input tokens.
+6. **Detect the stack:** read `software-architect` → `references/stack-detection.md` and apply its rows to the repository's manifests, reading them only under its read rules. Keep the result for the `Stack (detected)` row of Document Control (Step 2), one line per detected stack in the table's report line `<stack> (<manifest path>) → <skills | no packaged skill>`. Outcome by input:
+   - A manifest that matches a row: its line, with that row's skills.
+   - A manifest that matches no row: `<stack> — no packaged skill`.
+   - A manifest the table could not read: the table's `not read: <path> (<reason>)` line, recorded in the row beside any other lines; a repository whose manifests were all unread records those lines and never `none detected`.
+   - No manifest at all (a greenfield repository included): `none detected` only when no manifest exists. The PRD's declared stack, when there is one, is context for the proposal text and is never recorded as detected.
+   - `stack-detection.md` absent: `not evaluated — stack-detection.md absent`.
+
+   Detection only records: it changes neither the request type nor the spec path.
 
 ### Step 1: Classify Request Type & Route
 
@@ -170,7 +178,7 @@ Ask focused questions only when the proposal would otherwise depend on unstable 
 
 Create a concise proposal following `cognitive-doc-design` (lead with the answer, progressive disclosure, tables over prose) with this structure:
 
-1. Document Control (include `Type: Bug | Change | Trivial` and `Deliverable: software | video`; for `Deliverable: video` also `Delivery: render | deferred`, default `render`, where `deferred` means `/akili-validate` does the final look on the draft render and does not run the delivery render; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
+1. Document Control (include `Type: Bug | Change | Trivial`, `Stack (detected)` from Step 0 (one line per stack, `<stack> (<manifest path>) → <skills | no packaged skill>`, or `none detected`) and `Deliverable: software | video`; for `Deliverable: video` also `Delivery: render | deferred`, default `render`, where `deferred` means `/akili-validate` does the final look on the draft render and does not run the delivery render; a chunk produced by Scope Chunking also gains `Parent Spec: <parent-spec-path>`, pointing at the family manifest)
 2. Intent
 3. Problem / Current Behavior
 4. Proposed Outcome

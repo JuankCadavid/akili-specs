@@ -1,6 +1,6 @@
 # Skill Reference
 
-AKILI ships Claude/OpenCode skills alongside the slash commands. Skills are loaded by the agent when a task needs domain-specific guidance.
+AKILI ships Claude/OpenCode skills alongside the slash commands. Skills are loaded by the agent when a task needs domain-specific guidance. To find the skills for your language or framework, read [Skills by stack](by-stack.md).
 
 The installable source files live in `.claude/skills/*/SKILL.md`. These pages are the human-facing reference.
 
@@ -34,6 +34,7 @@ The skill set is **curated, not accumulated**: every skill declares its original
 | [`judgment-day`](judgment-day.md) | core | gentleman-programming (Apache-2.0) | Blind adversarial dual review of designs with bounded fix rounds | `/akili-specify` Review Design gate; findings feed `/akili-archive` Kaizen |
 | [`kaizen`](kaizen.md) | core | Juan Carlos Cadavid — jcadavid.com (MIT) | Bounded two-phase continuous-improvement loop: the retrospective (Measure → Learn → Standardize → Record) on any branch, then Apply Mode over the pending backlog on the apply-capable branch (the pinned integration branch when one exists, otherwise the default branch) | `/akili-archive`; **Apply Mode** on request ("apply pending kaizen standardizations") or offered by `/akili-archive` on the apply-capable branch; its Active Lessons digest is read by propose/specify/execute/resume |
 | [`golang-pro`](golang-pro.md) | stack | Jeffallan (MIT) | Go concurrency, gRPC/REST microservices, generics, pprof, table-driven testing | Skill Map; constitution/specify stack lists |
+| [`java-springboot`](java-springboot.md) | stack | github/awesome-copilot contributors, Copyright GitHub, Inc. (MIT), vendored with frontmatter additions only; AKILI is not affiliated with the upstream project | Spring Boot 3/4 application code: controllers, validation and ProblemDetail errors, Spring Data JPA/JDBC, RestClient, configuration properties, Kafka/AMQP, caching, virtual threads, AOT | Skill Map; constitution/specify stack lists |
 | [`nestjs`](nestjs.md) | stack | Kamil Mysliwiec (MIT), vendored verbatim; AKILI is not affiliated with NestJS | NestJS project setup, layout, module system, docs map | Skill Map |
 | [`nestjs-feature`](nestjs-feature.md) | stack | Kamil Mysliwiec (MIT), vendored verbatim; AKILI is not affiliated with NestJS | HTTP endpoints, validation, status codes, error bodies, SSE | Skill Map |
 | [`nestjs-auth`](nestjs-auth.md) | stack | Kamil Mysliwiec (MIT), vendored verbatim; AKILI is not affiliated with NestJS | Authentication and authorization with the first-party packages | Skill Map |

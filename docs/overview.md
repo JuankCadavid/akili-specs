@@ -40,7 +40,7 @@ These run outside the per-spec loop. `/akili-seo` and `/akili-marketing` form th
 
 ## Skills by purpose
 
-Every packaged skill, in five groups. *Binding* says how a skill loads: `core` is hard-wired to a command step, `conditional` loads when the work touches its domain, `stack` is chosen per project through the `## Skill Map` that `/akili-constitution` writes. The rules are in [Skill Governance](skills/governance.md); the table with origins is in the [Skill Reference](skills/README.md).
+Every packaged skill, in five groups. *Binding* says how a skill loads: `core` is hard-wired to a command step, `conditional` loads when the work touches its domain, `stack` is chosen per project through the `## Skill Map` that `/akili-constitution` writes. The rules are in [Skill Governance](skills/governance.md); the table with origins is in the [Skill Reference](skills/README.md); the skills for your language or framework are on one page, [Skills by stack](skills/by-stack.md).
 
 ### Quality and process
 
@@ -80,6 +80,7 @@ Every packaged skill, in five groups. *Binding* says how a skill loads: `core` i
 | [`aws-serverless`](skills/aws-serverless.md) | stack | Lambda, API Gateway, DynamoDB, SQS/SNS, SAM/CDK |
 | [`error-handling-patterns`](skills/error-handling-patterns.md) | stack | Exceptions, Result patterns, graceful degradation, reliability |
 | [`golang-pro`](skills/golang-pro.md) | stack | Go concurrency, gRPC/REST microservices, generics, pprof, table-driven testing |
+| [`java-springboot`](skills/java-springboot.md) | stack | Spring Boot 3/4 application code: controllers, validation and ProblemDetail errors, Spring Data, RestClient, configuration properties, Kafka/AMQP, caching, AOT |
 | [`nestjs`](skills/nestjs.md) | stack | NestJS project setup, layout, module system, docs map |
 | [`nestjs-feature`](skills/nestjs-feature.md) | stack | HTTP endpoints, validation, status codes, error bodies, SSE |
 | [`nestjs-auth`](skills/nestjs-auth.md) | stack | Authentication and authorization with the first-party packages |
