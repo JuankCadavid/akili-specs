@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ## [Unreleased]
 
+### Notes
+
+- No unreleased changes yet.
+
+## [2.47.0] - 2026-11-27
+
 ### Added
 
 - **`java-springboot` is a new stack skill (minor).** Vendored from `github/awesome-copilot` (MIT, copyright GitHub, Inc.) at pin `93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf`; AKILI adds frontmatter lines only. It covers application code in Spring Boot 3/4 projects (upstream tested on Boot 4.1.1 and 3.5.16). Its page, [docs/skills/java-springboot.md](docs/skills/java-springboot.md), records the security ratings as fetched and the seven optional upstream sibling skills, which AKILI never vendors or installs.
@@ -19,8 +25,7 @@ The format is inspired by Keep a Changelog and the repository follows semantic v
 
 ### Notes
 
-- Release note: `/akili-review` changed, so re-check the `akili-specs` version pinned in the `docs/ci/` templates before the release.
-
+- **The `docs/ci/` review templates pin `akili-specs@2.47.0`** (was `2.37.0`), because `/akili-review` changed in this release.
 ## [2.46.0] - 2026-11-24
 
 ### Added
