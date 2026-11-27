@@ -121,7 +121,7 @@ test(`${P} FR-2: NOTICE carries the provenance facts`, () => {
 });
 
 test(`${P} FR-2: .gitattributes declares the tree byte-exact`, () => {
-  const ga = fs.readFileSync(path.join(ROOT, ".gitattributes"), "utf8").split("\n");
+  const ga = fs.readFileSync(path.join(ROOT, ".gitattributes"), "utf8").split(/\r?\n/);
   assert.ok(ga.includes(".claude/skills/java-springboot/** -text"));
 });
 
